@@ -1,0 +1,16 @@
+--- project/E003_production_chain_closure/experiment_results/runs/R003/executor_bootstrap_host_02/frozen/config/graph_action_registry.json
++++ project/E002_Laya_HLS/experiment/config/graph_action_registry.json
+@@ -202,8 +202,11 @@
+     "implementation": "hls/control/task_lifecycle_fsm.cpp",
+     "host_validation": "task_lifecycle_fsm_host_02",
+     "dynamic_scope": "B1/S64 NORM four windows and six controlled protocol cases",
+-    "bootstrap": "pending; host request/model/source states seeded",
++    "bootstrap": "real LYRQ/LYMP host parse plus readonly fully bound snapshot mirror; physical source guard/executor top pending",
+     "completion_admission": "safe action completion remains pending until actual program final consumer handshake",
+-    "isolation": "bad END/old key or nondrained BEGIN retains original action/lease; no recovery claim"
++    "isolation": "bad END/old key or nondrained BEGIN retains original action/lease; no recovery claim",
++    "action_port": "hls/control/task_lifecycle_port.cpp",
++    "production_sources": "config/executor_bootstrap_sources.cmake",
++    "validation": "task_lifecycle_port_host_02, executor_bootstrap_host_02; controlled host services and snapshot; no new hardware action consumer or physical recovery claim"
+   }
+ }

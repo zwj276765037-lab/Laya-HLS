@@ -1,0 +1,23 @@
+--- executor_actor_host_08/executor_actor.cpp
++++ executor_actor_host_09/executor_actor.cpp
+@@ -224,6 +224,20 @@
+       s.managed_result_consumed = false;
+       s.session = in.session; s.accepted_request_high_water = in.accepted_request;
+       s.admitted_base = in.fence.base;
++      // A exists before any predecessor LPV or HOLD. The currently connected
++      // single STATE0 domain uses the same locked base as the source fence;
++      // callers with a complete physical map supply the other known roles.
++      auto physical = in.physical_map;
++      if (!physical.known_roles) {
++        physical.known_roles = uint32_t(1) << unsigned(Bo::STATE0);
++        physical.role[unsigned(Bo::STATE0)] =
++            {in.fence.base.epoch,in.fence.base.address,in.fence.base.capacity};
++      }
++      c = admission_owner::capture(s.runtime,memory,in.session,in.accepted_request,
++                                  physical,s.admitted_owner);
++      s.admitted_owner_valid = bool(c);
++      if (!c) { isolate(s,c); return; }
++
+       s.revoked = false; s.control_pending = s.control_sent = false;
+       s.managed_close = in.managed_close; s.request_committed = false;
+       s.closed_consumed = false;

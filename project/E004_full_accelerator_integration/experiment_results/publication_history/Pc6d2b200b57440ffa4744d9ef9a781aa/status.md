@@ -1,0 +1,21 @@
+# E004：状态
+
+execution_state: running（M004完整目标）；verdict: unassessed（完整加速器）。SM004修订14截至AT242的两项控制修复和原合同四个异常Check叶子短例已完成，当前没有本项目重工具运行，提交主控集中审核。AT225旧wrapper同runtime真实两行RAW→RoPE正常链限定PASS；当前wrapper `0d3e340e…`的受影响局部控制/异常Check及AT232真实core/IP展开PASS，未取得同SHA完整真实两行长链。AT242只覆盖adapter＋原叶子预检/计算首错、Check定义字段和无reset正常head恢复；严格MUL IP已接受未返回窗口仍NOT_RUN。
+
+修订14截至AT242共55笔guard：static/IP1001.90892168506979732/1800s、RTL1247.0794125087559535/4800s，余额均留本修订，host完整累计UNKNOWN。原timeout/Fatal/TB失败保留；真实全128行producer、物理BO/邻域哨兵、完整请求首错、Attention/Encoder/整模、生产Host/HBM及联合OOC/P&R/Fmax均开放。详见同一阶段报告及AT242逐guard账。
+
+---
+Published: 2026-10-15T06:33:17.421931+00:00
+Publication: P73fef69f1d364f958e3f76d4bd76f1da
+Execution state: running
+Research verdict: unassessed
+Applicability: SM004修订14 AT225旧wrapper真实两行正常链限定PASS；当前wrapper受影响局部控制与AT242原叶子异常Check PASS，M004完整硬件未验收。
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev14_guard_ledger_AT215_AT242_20261015.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT225_SM004_rev14_rope_real_rows01_progress_02/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT230_SM004_rev14_rope_sticky_reentry_fullcheck_01/guard_rtl_order/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT232_SM004_rev14_rope_order_sticky_real_core_elab_01/guard_static/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT242_SM004_rev14_rope_check_error_edges_01/source_manifest.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT242_SM004_rev14_rope_check_error_edges_01/guard_static/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT242_SM004_rev14_rope_check_error_edges_01/guard_rtl/guard_result.json

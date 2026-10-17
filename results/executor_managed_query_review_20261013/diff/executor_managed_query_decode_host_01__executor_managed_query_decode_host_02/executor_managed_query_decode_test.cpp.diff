@@ -1,0 +1,19 @@
+--- executor_managed_query_decode_host_01/executor_managed_query_decode_test.cpp
++++ executor_managed_query_decode_host_02/executor_managed_query_decode_test.cpp
+@@ -4,6 +4,7 @@
+ #include <cstring>
+ #include <fstream>
+ #include <iostream>
++#include <memory>
+ #include <vector>
+ using namespace laya;
+ std::vector<uint8_t> bytes(const std::string& path) {
+@@ -36,7 +37,7 @@
+     } else assert(decoded&&proof.flags==255&&proof.task_floor==7&&proof.lpv_floor==179);
+     auto io=bytes(std::string(argv[4])+"/request.bin"),aux=bytes(std::string(argv[4])+"/aux_header.bin");
+     auto ports=lifecycle_fixture::memory();ports.io=io.data();ports.io_bytes=io.size();ports.aux=aux.data();
+-    static full::FullRuntime rt;rt=full::FullRuntime{};
++    auto runtime=std::make_unique<full::FullRuntime>();auto& rt=*runtime;
+     bootstrap::State admission;lifecycle::Port port;
+     assert(bootstrap::admit_new(admission,port,rt,ports,{true,true}));
+     checkpoint::State state;checkpoint::Fence fence;

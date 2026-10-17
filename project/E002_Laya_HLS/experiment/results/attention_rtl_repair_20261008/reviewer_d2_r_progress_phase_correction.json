@@ -1,0 +1,34 @@
+{
+  "decision": "CORRECT_RUNTIME_PHASE_ATTRIBUTION_ONLY_PRESERVE_NO_NUMERICAL_CONCLUSION",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "reviewed_at_utc": "2026-10-08T09:47:06.724151+00:00",
+  "applies_to": [
+    "D2-R v2 8GiB attempt",
+    "D2-R v2 16GiB attempt",
+    "D2-R v3 16GiB attempt"
+  ],
+  "superseded_interpretation": "Previously described as stopping during test-vector initialization based on the sole 0/1 @117000 progress line. That specific runtime-stage attribution is not established by the retained progress logs.",
+  "actual_generated_progress_logic": [
+    "simulation_progress waits for AESL_reset==1, then calls print_progress immediately",
+    "Subsequent progress events are emitted by a separate process that first waits for AESL_start",
+    "PROGRESS_TIMEOUT is 10000000 events/cycles; no new line before that interval is expected",
+    "An unchanged final printed timestamp is not a timestamp of the last executed simulator event"
+  ],
+  "established_facts": [
+    "Each run stopped at its RSS guard, completed 0/1 transactions, and left actual RTL output frames empty",
+    "No complete numerical output, success/failure comparison or transaction latency is available",
+    "The runtime stage causing memory growth remains unlocated: TV initialization, DUT execution and AXI/event activity require stage counters and direct RSS observation"
+  ],
+  "next_evidence_required": [
+    "Large-depth and actual seven-port model calibration with actual frame/offset byte identity and stage counts",
+    "Any later approved full-DUT diagnostic must add independent reset/start/cycle/AXI/stage counters and periodic simulator-time/RSS observations; final 0/1 print alone is insufficient"
+  ],
+  "historical_records": "Prior review JSONs remain byte-for-byte preserved. This addendum supersedes only their unproven initialization-stage wording, not guard/hash/empty-output/no-numerical conclusions.",
+  "artifact_sha256": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v2/csynth_work/hls/sim/verilog/attention_slice.autotb.v": "dd317aa5b699c67222bdc2d851271b85850958ecb720e472cad222e2363f17e3",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice.autotb.v": "0ef79ec12c58bd43aa607faea101c6702c1719f58efdd955fe2f5ddda2ecbf48"
+  }
+}

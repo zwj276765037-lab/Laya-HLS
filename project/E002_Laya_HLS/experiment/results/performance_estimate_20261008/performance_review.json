@@ -1,0 +1,155 @@
+{
+  "schema": "laya_performance_documentation_review_v1",
+  "reviewed_at_utc": "2026-10-08T05:31:27.536367+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh",
+    "task": "vivado_project_review_astra_xhigh"
+  },
+  "build_tag": "04934c15b3f83e842ec2e92ac2a81bf2",
+  "scope": "Independent read-only review of interface documentation, current successful-source workload, conditional performance estimates, and existing generated-RTL evidence. This is not new hardware verification or acceptance of a complete numerical RTL implementation.",
+  "decisions": {
+    "documentation_and_conditional_estimates": "ACCEPTED",
+    "existing_ooc_synthesis_artifact_record": "PRESERVED_WITH_ORIGINAL_SCOPE",
+    "complete_numeric_rtl_forward": "NOT_ACCEPTED_CONFIRMED_STATIC_FAILURE",
+    "successful_fpga_request_latency": "UNMEASURED",
+    "board_150_mhz": "UNVERIFIED",
+    "fifty_ms_target": "NOT_DEMONSTRATED_AND_INCOMPATIBLE_WITH_RETAINED_SERIAL_Q8_SCHEDULE"
+  },
+  "open_hardware_findings": [
+    {
+      "id": "PERF-RTL-001",
+      "severity": "critical",
+      "status": "confirmed_unresolved",
+      "summary": "QK and AV generated task RTL have no successful numeric path after valid context.",
+      "details": "The issue wrappers map QK to full_run_task_33 and AV to full_run_task_35. In each final generated task, context status 0 selects fixed E_SHAPE (3) and elements 0; otherwise the context error is propagated. The 3-5 cycle HLS task latency therefore cannot be used as successful attention latency. The current artifacts cannot be accepted as a complete successful numerical forward implementation.",
+      "evidence": "results/performance_estimate_20261008/attention_synthesis_anomaly.json",
+      "independently_checked_rtl_lines": {
+        "context_status_zero_comparator": 745,
+        "shape_detail": 570,
+        "shape_status": 584,
+        "zero_elements": 246
+      },
+      "root_cause": "Not established. Current C++ and the retained precheck IR contain the numerical paths; this review does not attribute the final constant rejection to a specific C++ condition or compiler defect.",
+      "required_followup": "Follow-up repair and validation must establish successful numerical paths, then re-evaluate resources, timing and performance. No repair or hardware execution was performed during this documentation review."
+    }
+  ],
+  "independent_checks": [
+    "All 124 summarized weight descriptors match the original model manifest fields.",
+    "All three observed-count objects match their raw CPU metadata. The reconstructed CSV contains 74,948 rows and its per-op counts match the observed B1/B1/B2 counts; it is not a recorded per-task timing trace.",
+    "For every reconstructed LIN_* row, recomputed rows*K*N and rows*N*(K/32) against its original weight shape; all scenario totals and 160/179/199 multiplications match.",
+    "Directly checked q8_linear_compute.cpp row/column/group/k serialization and compute_one HLS XML: no pipeline; inner trip 32, latency 160; group iteration 179-199; whole-function latency undefined. Group range already includes the inner dot.",
+    "Checked controller issue completion dependency and all-S attention work before mask application. Source contract includes 28 Encoder layers, 2 Decision layers, 16-marker scorer and 1-row ACT.",
+    "Checked 615 source/report SHA256 references in initial evidence, then final evidence_index hashes for all 10 artifacts. Checked new anomaly RTL hashes and precise branch/element lines.",
+    "Independently parsed 311 representative internal RTL ports and every representative module declaration count; directions and widths match logical_module_interfaces.json. Additional ports cited by final documentation table were directly checked.",
+    "Verified top 13 AXI masters have 32-bit data and 64-bit addresses, while internal byte channels and RAM handshakes are distinguished from external bus ports.",
+    "Verified LN, embedding, quantizer, GEGLU and FP_ACT loop factors against HLS evidence; source-workload formulas are not promoted to whole-task timing measurements.",
+    "Verified model BO total 448,923,648 bytes and current host per-invocation upload/working-buffer initialization; LOAD_W declared 392,448,128 bytes excludes separately read bias.",
+    "Verified two inclusive mapped compute_one instances each use 6 DSP; reviewed no-overlap and no-double-counting interpretation rather than inferring MAC/cycle from DSP count.",
+    "Reviewed final central report and current navigation/status banners in 35 companion documents. Source contract, generated interfaces, static failure, conditional estimates, historical OOC scope, and unexecuted stages are distinguished."
+  ],
+  "recomputed_workload": {
+    "B1_S128": {
+      "q8_task_calls": 962,
+      "all_task_calls": 18895,
+      "q8_int8_macs": 47160754688,
+      "q8_output_elements": 39534594,
+      "q8_groups": 1473773584,
+      "dot_cycles_component": 235803773440,
+      "group_cycles_component_min": 263805471536,
+      "group_cycles_component_max": 293280943216,
+      "group_minutes_at_150mhz_min": 29.311719059555557,
+      "group_minutes_at_150mhz_max": 32.58677146844445,
+      "qk_fp_multiply_contributions": 503316480,
+      "av_fp_multiply_contributions": 503316480,
+      "load_w_calls": 122,
+      "load_w_declared_bytes": 392448128
+    },
+    "B2_S128": {
+      "q8_task_calls": 1924,
+      "all_task_calls": 37158,
+      "q8_int8_macs": 94321509376,
+      "q8_groups": 2947547168,
+      "group_cycles_component_min": 527610943072,
+      "group_cycles_component_max": 586561886432,
+      "group_minutes_at_150mhz_min": 58.623438119111114,
+      "group_minutes_at_150mhz_max": 65.1735429368889,
+      "load_w_calls": 122,
+      "load_w_declared_bytes": 392448128
+    },
+    "validity": "Conditional successful full source-graph workload with unchanged serial Q8 leaf schedule at an assumed 150 MHz. Not measured end-to-end latency, not a bound for the current RTL request that can exit with error, and not a finite whole-network worst-case bound."
+  },
+  "review_corrections_resolved": [
+    "LOAD_W declared bytes corrected to exclude separately read bias.",
+    "Minute-scale Q8 figures re-scoped to conditional successful source-graph execution; no current successful RTL latency claim.",
+    "QK and AV constant-error static evidence included prominently and independently distinguished from synthesis success.",
+    "Logical function contracts separated from actual generated internal/external ports; historical parallel architecture budgets labeled as unimplemented.",
+    "Arbitrary 10%/25% extra-cost scenarios removed from final report.",
+    "README CPU/FPGA division row explicitly labels the FPGA responsibility as the source/deployment contract and records the confirmed QK/AV E_SHAPE failure."
+  ],
+  "limitations": [
+    "No full RTL cosimulation, Vivado/HLS rerun, P&R, platform link, GPU benchmark, board run or new performance measurement in this review.",
+    "Exact cause and repair scope of QK/AV synthesis anomaly remain unknown; other numerical RTL paths were not exhaustively proven.",
+    "No independent RoPE numeric leaf was identified; absence of a standalone leaf name alone is not proof of a failure, and complete RoPE path verification remains open.",
+    "AXI useful-byte efficiency, bursts, stalls, shared-port concurrency, complete traffic and end-to-end cycle counts remain unmeasured.",
+    "The 150 MHz conversion is a requested clock approximation, not achieved board frequency.",
+    "Repairs that retain additional arithmetic or change schedules invalidate affected resource and performance extrapolations and require renewed checks."
+  ],
+  "reviewed_document_sha256": {
+    "vivado/project/source/performance_and_interfaces.md": "38545a124aba87402653865b8097d7f53359ab2e8fe285e1ccd5f6959c5f5fec",
+    "README.md": "84170646ad4e4af9e53d05dc118ad342a40b296e84754a91c7a00fbc73740ce5",
+    "vivado/module_design/README.md": "c95d654dc68ba6844e6e135f08d01486520dcbafaf9376b1040dd6b08fc93399",
+    "vivado/project/README.md": "2ce5d433f63a3e7e88c5c7b54ae58ced1484f010ca6acd1eb27d5a86d413ab5f",
+    "vivado/project/source/design.md": "bb17fbbd30ffe16c88d3f09fca386ee418e9ef8c4243b22d47d881e6e9f7a255",
+    "vivado/project/source/results.md": "dd62e33cc7c767d33777cdc95a674d0850f4b5d02446ff067561ea84b13f3ae6",
+    "vivado/module_design/activation_quantizer/source/design.md": "0d4f1904220980916b7c4922a05a0d0cf92dff0b8e96069e66a3315619c6824b",
+    "vivado/module_design/attention_and_fp_engine/source/design.md": "ab7f1d0ae4351f6d490864f9659a0cbb66e4335172784c357f5d664b9e1f00b6",
+    "vivado/module_design/common/source/design.md": "c1a41830635f4d08bb08dae5a4cacb3cf3a565fead232bf09d67d0aa85b0c3ef",
+    "vivado/module_design/decision_scorer_act/source/design.md": "1fb717e618216cba51d32f44046c8c56d68d46a903e8e814e8ebcba4ff2e18a2",
+    "vivado/module_design/embedding_engine/source/design.md": "c2039a4f49578e3f7e58ee647f1d1c465e2ddf83fc1e749fe6913c56f686daa2",
+    "vivado/module_design/forward_controller/source/design.md": "cdddfb54e8cf4a110de0a8171668deb234ed35b769097327be35116d4ab1084e",
+    "vivado/module_design/hbm_loader_and_cache/source/design.md": "965b8dea102306a4ba089becc7b51becfa0f69c15fdee98bfdc5d592bb1f4b61",
+    "vivado/module_design/kernel_wrapper/source/design.md": "da80e8dab6beeae45f1e70b0a2efaf5ebfadf6b5c708097acd9749b813e26878",
+    "vivado/module_design/layernorm_engine/source/design.md": "f6be6a8d27b84ddbfdae08d27c7e804f6110954fa9b24a099f4ef7c732acf7c2",
+    "vivado/module_design/memory_map/source/design.md": "1994c166f82b88d5b80a05ab26fc52bf589198afd2a4c3a0e133dc07f1f6d33e",
+    "vivado/module_design/q8_linear_and_restore/source/design.md": "6c3129181131dbfd7bd7fe29a7d9ec8aab14e8cd10795a88ac053f37ea2a1104",
+    "vivado/module_design/result_status/source/design.md": "864cc941a4684a92b2d670554cf0fcb73bd0cdd73dfffab9b20caca146392189",
+    "vivado/module_design/rope_and_mask/source/design.md": "31f99fb54a9de1966bbbeef626bc29d14116bfa6819d058b66b9e9f6f95823e2",
+    "vivado/module_design/top/source/design.md": "53f7024b7e8b686187d550dd3e8a3965e6e2e0ad142591286bc8d16ff0cc04e5",
+    "vivado/module_design/vector_and_ffn/source/design.md": "7a0eb63851a88a562f01f0660c4b2683ffb9a208cc98baca345eff21ecdaa88e",
+    "vivado/module_design/activation_quantizer/source/results.md": "8fa2edcced6fe28e7c5908dc6e94056303b33b4899d66c85cc81e1f7a1f8e25c",
+    "vivado/module_design/attention_and_fp_engine/source/results.md": "88e3de872058997014c59ec1bfa45003ad8f61200c8a308cccde921f1444acb2",
+    "vivado/module_design/common/source/results.md": "49b30c2ad39176799b3cbae30392cdcc80040462a6c1a68eb2fa1ff50cd52bb2",
+    "vivado/module_design/decision_scorer_act/source/results.md": "9362fac620e82399aeabb628648cc650413f25409fa91235769e439a6e2fa824",
+    "vivado/module_design/embedding_engine/source/results.md": "9cfeb6daea9fdeaffcfa6a2d8e1ec7287e666ebf3b031e36d53d2e887c037b78",
+    "vivado/module_design/forward_controller/source/results.md": "a7edd668fd1ef56cb310dac1530cbad2dd11e767ee9a88bc74b7c9d9096b2bf4",
+    "vivado/module_design/hbm_loader_and_cache/source/results.md": "fa432a2e1a1e8828f644de6d44a2b5393c7b457f7e06f3ede647f34b51b0d430",
+    "vivado/module_design/kernel_wrapper/source/results.md": "500a189f30d9339aa23f362a75f21754079d4eeaa799728134ecc4105db855b3",
+    "vivado/module_design/layernorm_engine/source/results.md": "6b5a991627fbf3b271c23afcf5a6833d89bb558b92ce5b6cd02dace291ea00bc",
+    "vivado/module_design/memory_map/source/results.md": "5c7a03971b388d992ec73553ce1da56bd2f8290b3e1465057ddc689691f57347",
+    "vivado/module_design/q8_linear_and_restore/source/results.md": "a7ccf3685dc6c79267d2672d276ffa6a9ec465b60df070ceec34e737ebf5a38c",
+    "vivado/module_design/result_status/source/results.md": "f6b45f290aa3f239f59601cb9896f4542724308297305a74cbea4e3f6e2e0f58",
+    "vivado/module_design/rope_and_mask/source/results.md": "53088b9d95108e502750895bedbd74302cef100d0efb1506cbc5d3e516330c3c",
+    "vivado/module_design/top/source/results.md": "a71d96e0706ab64be9d4ba224d306673c96ba21c97546c8ff282da417dca2cd4",
+    "vivado/module_design/vector_and_ffn/source/results.md": "97c1649ef551dce170323e37fef879232e93496ab4e7372a03d5f87e954f13f8"
+  },
+  "reviewed_evidence_sha256": {
+    "results/performance_estimate_20261008/attention_synthesis_anomaly.json": "39c3887e68df8d1efb6fe257fc189c44c0abe99e56cff61bff9145922f0a39a1",
+    "results/performance_estimate_20261008/hls_reports.json": "061b50bafb3ad2babae357635311e4820263a5f1fb4a9273b219a665e72fd217",
+    "results/performance_estimate_20261008/logical_module_interfaces.json": "08ff2854175bccc730700b2936d17c568d6a25d5f9854ee66d1d517aa7ed7e3a",
+    "results/performance_estimate_20261008/loop_evidence.json": "b8ab6434b72bf09a2f9157325c935f46a6ca0ae32c57b67ea257d4d99c96e9be",
+    "results/performance_estimate_20261008/model_weights_q8_work.json": "a7e07a574eab9ac38961c92b03c698f9f06fa2cb9c01be6e86310a0be6dd6404",
+    "results/performance_estimate_20261008/rtl_external_interfaces.json": "0ab213af37d84a618b0766c5cfa9a0ce3356385b84f2e306ff6ab172a332ae6a",
+    "results/performance_estimate_20261008/task_schedule_reconstructed.csv": "1e97341899a36a4d63eb1f30c69b22f791bb8fdcf0990cc8b5566a470ea52853",
+    "results/performance_estimate_20261008/task_schedule_reconstructed.json": "bebe5c5330769cd2e5d511bdb24e3144c166a85999b82b4780c4c234f3f80572",
+    "results/performance_estimate_20261008/trace_observed.json": "dc3f45276166f543b9fec2594772515881d9fc69634b494e7ad22e88b5629237",
+    "results/performance_estimate_20261008/vivado_hierarchy_selected.json": "27c81246ccaa6bd7eeb151137571714fa318d4171f2e0150a3b85564eca707c4",
+    "results/performance_estimate_20261008/evidence_index.json": "277dc4bf8c26dbd8fd93c4b06488ef69178f8c8aec5fc41a44fe8c9a4eb303a7"
+  },
+  "preserved_historical_reviews_sha256": {
+    "vivado/project/build/20261008T022231Z-2961016/review.json": "a1aeccab7064b328591a1cf2822b9ed88265f2c63b74965124957c85c43fc6c4",
+    "vivado/project/build/20261008T022231Z-2961016/synthesis_review.json": "3f821e24b8be428f6ceffa05c8843b355c64f67445ee132c6fe7e7b4991db318"
+  },
+  "implementation_mutated_by_reviewer": false,
+  "new_hardware_runs": false
+}

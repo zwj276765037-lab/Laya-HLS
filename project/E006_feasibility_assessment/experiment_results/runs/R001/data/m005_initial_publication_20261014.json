@@ -1,0 +1,13 @@
+{
+  "source": "# E006 实验依据摘要\n\nM005/SM006 的问题是：同一真实 FFN 代表通路能否在正常与合法不同反压下逐位算对，联合综合与布线后资源/关键路径是否支持目标器件，以及由真实计算和流量推算的整模性能是否值得继续投入。权威合同为 `mission/M005_代表通路与整模性能可行性评估/contract.md`。\n\n代表范围：B1/S128、request3/generation1、四个不同 token row 的外部 attention residual→LN_FFN→同一 Q/Wi/G/Q/Down→末 F32 residual；独立 gold、真实 AXI 存储交接、末 B/债务/响应/局部 655360B 保护。完整模型预算另计28 Encoder＋2 Decision＋scorer/ACT、122个 Q8 调用、Attention/WO及平台成本。目标 part `xcu55c-fsvh2892-2L-e`，Vivado 2025.2，6.667ns 为首次约束锚点而非已达频率。\n\n控制变量是原 GGUF/ABI/独立 gold/数值顺序、A/W/PS 容量、单 quant/单 matrix/单 residual 算术；新变量限同一可综合顶层包装、确定反压、联合物理测量。E005 正在运行的 AT063 继续原帽，不并入 E006 新运行额度。外部 sequencer、HBM/PCIe shell 与 Attention 上游不在代表 top 中，整模模型会单列其成本。单重工具及 M005 各类累计/单次帽见合同。",
+  "results": "# E006 关键结果摘要\n\n当前仅完成只读容量/接线边界盘点及给 A003 的现有计量答复；E006 新同 top 正常与不同反压全链 RTL、联合综合、place/route 均 NOT_RUN，LUT/FF/DSP/BRAM/URAM、关键路径、布线频率和整模收益均 UNKNOWN。此处不将 AT063 中间进展写成整链 PASS。\n\nRTL 声明容量：dualA payload 139264B；dualW q/scale/bias 合计11461632B；四行 PS 83968B＋metadata 5248B，均不是物理利用率。现有 AT049 到 Down 的四行链、AT054 局部末残差和 AT021 单 attention head 各有原范围内计数，不能相加为本代表链或整网时延。B1/S128 production-v2 帧的16个 scorer 槽有2个有效候选；完整图含122次 Q8 调用为参考图结构推算，非122次真实 RTL 运行。\n\n证据为本 R001 的容量答复、production-v2 身份补充与代表 top 边界盘点；旧 E005 原收据及运行状态仍在其原路径。",
+  "status": "# E006 实验状态摘要\n\n- execution_state: running；verdict: unassessed。\n- 当前阶段：M005 阶段A准备；只读盘点可综合 top 的模块树、声明容量和测试存储分界。E006 新工具运行 NOT_RUN，未生成联合资源/时序结果。\n- 旧 E005/R001 的 AT063 唯一冷 full 仍由原 FFN4 guard/帽运行：LN 源 PASS、Wi writer/矩阵真实进展已观察，Wi reader/G/Down/残差和整链终态待原始记录；不据中间 marker 判 PASS。\n- 已交付部分：A003 容量/计量答复及生产请求身份补充；发现 `laya_ffn0_source_stage_v1` 含 TB fixture/DDR 数组，代表顶层必须只取其真实 LN shell，测试数组留在 TB。\n- 负责人/下一步：A002 等 AT063 自然终态并核 E005 gold/事务/保护，随后用相同核心源构建并验证可综合 top、正常/合法不同反压样本，再按新成本准入做联合综合与有界 route；A003 独立整模预算，A001 集中判断。所有新物理资源、频率与收益仍 UNKNOWN。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "M005阶段A只读准备；AT063原E005冷full运行中，E006新RTL/综合/route尚未执行",
+  "evidence": [
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/m005_capacity_reply_to_research_20261014.md",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/m005_capacity_request_identity_addendum_20261014.md",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/representative_top_boundary_inventory_20261014.md"
+  ]
+}

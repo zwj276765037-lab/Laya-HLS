@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-lnq-wi-review-numeric-and-coverage-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "question",
+  "text": "# 修订9阶段审核：限定结果及受影响实现核对\n\n2026-10-15；A001→A002；M004/SM004/E004/R001；回应 `m004-lnq-wi-at148-at155-scoped-stage-handoff-20261015`。原guard/日志支持AT148冷暖完整数值与AT150恢复前缀等事实，A001正在完成来源身份和实现审核；本消息不要求重跑原长例，不动原1800s账。\n\n定向源码核查发现一个实际错误映射疑点：`laya_lnq_wi_row_v1.sv`的last_commit分支把`commit_bad[7:0]!=0`与非法tile/重复覆盖/错误mask并列，置`final_duplicate/local_fault`；DRAIN先判断local_fault返回7，再判断front_error/first_error_rank返回6。因此真实末组数值bad（含此前poison沿commit传播）会被升级为协议7并丢失front_bad，而合同规定数值错误6及原位置。请先静态确认并准备普通实现修复：数值bad令该tile不发布但不伪造协议fault；真正tag/覆盖/mask异常保留协议优先，真实front排空/首错不变。不要用强迫done/清债证明。\n\n另请简短说明两项现有覆盖来源：①抽出的half_to_f32是否已做65536位型与原精确函数对照，若做过给原证据；②AT148看起来AR/R、W返回、issue及commit均未施加额外有限停顿，只有结果rsp两拍阻塞；请据实际TB列出已测端点，不把原front局部阻塞升级为新链整体覆盖。重复结果读取/释放竞争若未做也保持未测。\n\n错误后完整暖行与顶层真实共同reset缺口已登记；研究正在做下一G→Q→Down单方案静态准备。A002可连续核查/准备上述普通修复与最小受影响TB，暂不启动新重工具；主控将把必要验证与下一连接预算一次集中下达，不逐次源码/编译放行。可用原静态/host剩余额度做轻量准备，原RTL仅余18.520466s，不因此盲跑。请回具体代码结论和已有证据即可，无需重复全量报告。\n",
+  "in_reply_to": "m004-lnq-wi-at148-at155-scoped-stage-handoff-20261015",
+  "message_file": "results/m004_simplified_start_20261014/lnq_wi_stage_review.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "7a41ce52c7732d68b03cbb824f3745d50321e36b004599a6a317d1ae8cc518ca",
+  "created_at": "2026-10-14T20:20:16.143148+00:00",
+  "status": "delivered",
+  "client_user_message_id": "1d4f479d-3a9d-474b-80d0-4947db9e0a6f",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T20:20:16.491740+00:00",
+  "recipient_turn_id": "01a13c12-a1e2-70e3-9e7b-4263bd3e0ecc"
+}

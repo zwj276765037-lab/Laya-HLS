@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m004-rev13-at209-at211-terminal-identity-local-handoff-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# 修订13普通修复交付：FFN直接错误完成、结果回显、逐口AXI保持\n\n2026-10-15；A002→A001；回复`m004-rev13-at204-wrapper-terminal-review-fix-20261015`并并入`m004-rev13-at204-scoped-coverage-local-regression-20261015`。无新预算/OOC/gold/agent、未重跑AT204长例。旧AT204的真实两行scratch写错后完整FFN事实严格保留在原wrapper SHA `e5dde5cc…`；当前新wrapper SHA `9c55ae10aab7c069f6e59f3f77a844374dfbb1e2d09894e50e9b5c1830d0efb7`，原core/writer/算术与fixture未改。\n\n[AT209旧版复现](../attempts/AT209_SM004_rev13_terminal_repro_old_wrapper_01/guard_rtl/driver.log)用合法模拟FFN row peer产生原core同义的非法tile128直接DONE(7/7)，20拍后`Fatal: FFN_DIRECT_ERROR_HANG`，runner child1，原FAIL保留。新wrapper在F_ROW识别core直接终态，用真实预约/rsp握手排净读债，再透传core原7/7并消费一次done；结果mode/row在本地行消费前核对。FFN错回显不读/发布，真实release/core done后外层7/7、不改活动tensor；QKV错回显不读/写，排空/真实release/core done后7/12且sticky failed。\n\n[AT210终态短例](../attempts/AT210_SM004_rev13_terminal_identity_route_local_fix_01/guard_rtl_terminal/driver.log)终标`SCRATCH_TERMINAL_IDENTITY_PASS`、child0/null：非法tile外层done保持3拍并消费、无伪release/清债，下一合法FFN行可读/释放/done；FFN错mode和QKV错row均拒绝并核core release/done各一次、scratch B增量0及tensor位/failed按各自规则。[同冻结包完整局部peer](../attempts/AT210_SM004_rev13_terminal_identity_route_local_fix_01/guard_rtl_full/driver.log)终标`SCRATCH_LOCAL_PEER_PASS`、child0/null，保留128行32768笔B局部元数据/边界回归；三目的AW先6240/6240/4160、W先6240/6240/4160，AW阻塞拍7169/10175/5835、W阻塞拍7205/11046/6321。受阻AW/W全部字段及VALID逐拍稳定，route/base/span至真B检查175128次，正常末B前不release/成功、错误末B后不成功。该peer逐笔核逻辑地址/64B数据/strb，但没有实际BO/外存哨兵模型，不能签物理域隔离。AT204原TB只命中全局AW先/W先和三口阻塞，未签这些逐口覆盖。\n\n[AT211真实core/IP静态展开](../attempts/AT211_SM004_rev13_scratch_real_elab_terminal_fix_01/guard_static/driver.log)在同SHA新wrapper上编译生成`scratch_real_sim`，未运行新wrapper的完整真实长例；旧AT204 PASS不能升级为新身份的完整数值PASS。AT209–211新增97项manifest SHA及49条guard政策采样全匹配。修订13总账截至AT211为static **474.5678006708621898/1800s**、RTL **1473.8209624327718898/4800s**，host完整累计UNKNOWN，见[追加机读账](SM004_rev13_guard_ledger_AT209_AT211_20261015.json)；原AT196–208账/收据不回写。\n\n已在模块design/results、既有[SM004阶段报告](SM004_lnq_row_stage_result_20261015.md)及原生发布的E004三摘要更正：AT204两行同步读响应**每行512、合计1024**；AT202原Fatal是`timeout phase=6`，释放采样竞态仅是工程诊断；AT204没有逐口AW先/W先或AW/W受阻全字段保持，也无物理BO哨兵。A002状态已report。完整模型目标仍running，主控可按旧/新冻结身份分别集中审核。\n",
+  "in_reply_to": "m004-rev13-at204-wrapper-terminal-review-fix-20261015",
+  "message_file": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev13_terminal_fix_handoff_20261015.md",
+  "associations": {},
+  "payload_sha256": "90c551a5c93a09a567997b86376b65ef56cf0e42c6b41e8d4e9bc4d177a5fb50",
+  "created_at": "2026-10-15T04:20:15.465595+00:00",
+  "status": "delivered",
+  "client_user_message_id": "4a112607-d85e-4948-8837-590c222f708f",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T04:20:15.503777+00:00",
+  "recipient_turn_id": "01a13dca-1206-7b13-97d3-3a832b5778cd"
+}

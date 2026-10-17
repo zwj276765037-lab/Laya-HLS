@@ -1,0 +1,20 @@
+# E004：状态
+
+execution_state: running（M004完整目标）；verdict: unassessed（完整加速器）。SM004修订11按成本出口收束：AT173整次FAIL，但其真实完整cold/warm至Encoder0 FFN单行末残差及所测FP/G复位、W-tag错误后warm的Fatal前分项获主控限定接纳；AT174 AUX首AR定向停顿及1AR/8R至LOAD_DONE事件限定PASS；AT175 AXI首AR已接收/R0时共同reset的所监测接口隔离及下一cold收发计数至LOAD_DONE事件限定PASS。两探针未检查load_error==0、READY、成功lease；AT174未断言停顿时AR全部字段稳定，不签成功W槽或全系统债务排空。AT176/177探针FAIL，AT178墙钟COST_STOP，坏数值/poison映射与部分R后reset仍未测。原guard精确累计static1142.969831845/1800s、RTL4724.407605240/4800s，余RTL75.592394760s封存且不足真实末组触发；host完整累计UNKNOWN。当前ADD一次仅1项在途，未取得命令延迟或II。完整Encoder block/整图、联合OOC/P&R、真实Fmax及整模性能仍开放。
+
+SM004修订12按成本出口收束：AT193原整次FAIL，但其真实Embedding QKV row0 cold/row1 warm两行全部六字段、最终结果、有限停顿和错误矩阵FFN warm拒绝为可独立核的Fatal前分项；AT195真实QKV READY→FFN Wi/Down逐槽正确epoch冷载、Wi/G全量与Down前缀为COST_STOP前分项。Down尾部、ADD末残差、消费者done未到，**跨模式完整FFN仍未PASS**。修订12static800.903263994/1800s、RTL3568.453182073/3600s，余31.546817927s封存；host全量UNKNOWN。完整Encoder block/整图、生产Host/HBM、联合OOC/P&R、真实Fmax及整模性能仍开放。execution_state仍为running（M004完整目标），完整加速器verdict仍unassessed；原修订11结论保留。
+
+SM004修订13本接点已取得AT204整次PASS：真实两行QKV/norm scratch写回及row1末B错误排空后，无reset跨mode完整FFN单行末残差与消费者done。AT205/208全128行覆盖和AT207共同reset仅为合法模拟row peer局部范围，不能代签128行生产QKV或独立AXI reset。AT199–202/206原FAIL与费用保留。本段static319.7074945475906148s、RTL1455.8813096918165374s，host总量UNKNOWN；当前无重工具运行。M004完整目标仍running/verdict unassessed；Wi/Down bad/poison、内部主动反压、部分R后reset、全128行真实生产、RoPE/Attention、完整图、生产Host/HBM及联合资源/Fmax仍开放。
+
+---
+Published: 2026-10-15T04:04:45.875971+00:00
+Publication: P1690b851594c4a3d9cd4f4c451fc0be5
+Execution state: running
+Research verdict: unassessed
+Applicability: SM004修订13：AT204同runtime真实QKV row0 cold/row1 warm的完整数值和三口scratch事务，row1末B错误排空后的无reset FFN cold至1024残差及消费者done；AT205/208与AT207仅模拟row peer的tensor元数据/共同reset局部范围。完整M004未验收。
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev13_guard_ledger_20261015.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT204_SM004_rev13_scratch_real_chain_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT207_SM004_rev13_scratch_reset_local_indexfix_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT208_SM004_rev13_tensor_boundary_local_peer_01/guard_rtl/guard_result.json

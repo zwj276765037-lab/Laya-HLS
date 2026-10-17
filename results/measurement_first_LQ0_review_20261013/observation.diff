@@ -1,0 +1,169 @@
+--- historical_03
+
++++ AT014
+
+@@ -144,6 +144,95 @@
+
+   logic producer_loaded=0,completion_seen=0,end_sent=0;
+   logic [511:0] completion_hold;
+ 
++  // Observation only: all counters sample the same accepting posedge.  The
++  // original driver, memory response schedule and gold checks are unchanged.
++  integer m_cycle=0;
++  integer m_phase[0:5];
++  integer m_source_ar=0,m_source_r=0,m_destination_aw=0,m_destination_w=0,m_destination_b=0;
++  integer m_quant_ar=0,m_quant_r=0,m_math_start=0,m_math_done=0;
++  integer m_source_ar_first=-1,m_source_ar_last=-1,m_source_r_first=-1,m_source_r_last=-1;
++  integer m_destination_aw_first=-1,m_destination_aw_last=-1;
++  integer m_destination_w_first=-1,m_destination_w_last=-1;
++  integer m_destination_b_first=-1,m_destination_b_last=-1;
++  integer m_quant_ar_first=-1,m_quant_ar_last=-1,m_quant_r_first=-1,m_quant_r_last=-1;
++  integer m_math_first=-1,m_math_last=-1,m_math_done_first=-1,m_math_done_last=-1;
++  integer m_request_first=-1,m_request_last=-1,m_completion_first=-1,m_completion_last=-1;
++  integer m_q_accept=-1,m_q_valid=-1,m_q_consume=-1,m_lease_on=-1,m_lease_off=-1;
++  integer m_end_consume=-1,m_publish_consume=-1,m_fulla_acquire=-1;
++  integer m_fulla_last_check=-1,m_fulla_release=-1,m_zero_debt=-1;
++  integer m_source_ar_wait=0,m_source_r_wait=0,m_destination_aw_wait=0;
++  integer m_destination_w_wait=0,m_destination_b_wait=0,m_quant_ar_wait=0,m_quant_r_wait=0;
++  logic m_math_start_prev=0,m_math_done_prev=0,m_q_valid_seen=0,m_lease_prev=0;
++  initial for(integer i=0;i<6;i=i+1)m_phase[i]=0;
++  always @(posedge clk)begin
++    m_cycle=m_cycle+1;
++    if(phase>=0 && phase<=5)m_phase[phase]=m_phase[phase]+1;
++    if(rst_n)begin
++      if(producer_request_read && producer_request_empty_n)begin
++        if(m_request_first<0)m_request_first=m_cycle;
++        m_request_last=m_cycle;
++      end
++      if(producer_completion_write && producer_completion_full_n)begin
++        if(m_completion_first<0)m_completion_first=m_cycle;
++        m_completion_last=m_cycle;
++      end
++      if(source_axi_arvalid && source_axi_arready)begin
++        if(m_source_ar_first<0)m_source_ar_first=m_cycle;
++        m_source_ar_last=m_cycle;m_source_ar=m_source_ar+1;
++      end
++      if(source_axi_rvalid && source_axi_rready)begin
++        if(m_source_r_first<0)m_source_r_first=m_cycle;
++        m_source_r_last=m_cycle;m_source_r=m_source_r+1;
++      end
++      if(destination_axi_awvalid && destination_axi_awready)begin
++        if(m_destination_aw_first<0)m_destination_aw_first=m_cycle;
++        m_destination_aw_last=m_cycle;m_destination_aw=m_destination_aw+1;
++      end
++      if(destination_axi_wvalid && destination_axi_wready)begin
++        if(m_destination_w_first<0)m_destination_w_first=m_cycle;
++        m_destination_w_last=m_cycle;m_destination_w=m_destination_w+1;
++      end
++      if(destination_axi_bvalid && destination_axi_bready)begin
++        if(m_destination_b_first<0)m_destination_b_first=m_cycle;
++        m_destination_b_last=m_cycle;m_destination_b=m_destination_b+1;
++      end
++      if(quant_axi_arvalid && quant_axi_arready)begin
++        if(m_quant_ar_first<0)m_quant_ar_first=m_cycle;
++        m_quant_ar_last=m_cycle;m_quant_ar=m_quant_ar+1;
++      end
++      if(quant_axi_rvalid && quant_axi_rready)begin
++        if(m_quant_r_first<0)m_quant_r_first=m_cycle;
++        m_quant_r_last=m_cycle;m_quant_r=m_quant_r+1;
++      end
++      // This named generated subgraph is only an arithmetic envelope.  Its
++      // duration may include internal memory and pipeline waits.
++      if(dut.producer.engine.grp_p_anonymous_namespace_run_fu_741_ap_start && !m_math_start_prev)begin
++        if(m_math_first<0)m_math_first=m_cycle;
++        m_math_last=m_cycle;m_math_start=m_math_start+1;
++      end
++      if(dut.producer.engine.grp_p_anonymous_namespace_run_fu_741_ap_done &&
++         !m_math_done_prev && m_math_start>m_math_done)begin
++        if(m_math_done_first<0)m_math_done_first=m_cycle;
++        m_math_done_last=m_cycle;m_math_done=m_math_done+1;
++      end
++      m_math_start_prev=dut.producer.engine.grp_p_anonymous_namespace_run_fu_741_ap_start;
++      m_math_done_prev=dut.producer.engine.grp_p_anonymous_namespace_run_fu_741_ap_done;
++      if(q_service_command_valid && q_service_command_ready && m_q_accept<0)m_q_accept=m_cycle;
++      if(q_service_completion_valid && !m_q_valid_seen)begin m_q_valid=m_cycle;m_q_valid_seen=1;end
++      if(q_service_completion_valid && q_service_completion_ready)m_q_consume=m_cycle;
++      if(source_lease_active && !m_lease_prev)m_lease_on=m_cycle;
++      if(!source_lease_active && m_lease_prev)m_lease_off=m_cycle;
++      m_lease_prev=source_lease_active;
++      if(source_axi_arvalid && !source_axi_arready)m_source_ar_wait=m_source_ar_wait+1;
++      if(source_axi_rvalid && !source_axi_rready)m_source_r_wait=m_source_r_wait+1;
++      if(destination_axi_awvalid && !destination_axi_awready)m_destination_aw_wait=m_destination_aw_wait+1;
++      if(destination_axi_wvalid && !destination_axi_wready)m_destination_w_wait=m_destination_w_wait+1;
++      if(destination_axi_bvalid && !destination_axi_bready)m_destination_b_wait=m_destination_b_wait+1;
++      if(quant_axi_arvalid && !quant_axi_arready)m_quant_ar_wait=m_quant_ar_wait+1;
++      if(quant_axi_rvalid && !quant_axi_rready)m_quant_r_wait=m_quant_r_wait+1;
++    end
++  end
++
+   task automatic tick;@(posedge clk);#1;endtask
+   task automatic load_packet(input string name,output logic [8191:0] value);
+     $readmemh({fixture,"/",name,".hex"},packet_beats);
+@@ -527,6 +616,7 @@
+
+       $fatal(1,"producer completion fields mismatch");
+     while(!provenance_rsp_empty_n)tick();
+     receive_provenance(END_EVENT,0,8'h01);
++    m_end_consume=cycles;
+     if(monitor_observed0!=target_rows*4096 || monitor_status!=0 ||
+        source_outstanding_beats!=0 ||
+        forwarded_aw!=target_rows || forwarded_w!=target_rows*64 || retired_b!=target_rows ||
+@@ -542,6 +632,7 @@
+
+                i,destination_mem[i],gold_mem[i]);
+ 
+     phase=4;transact("publish",PUBLISH,8'h05);
++    m_publish_consume=cycles;
+     // Single-row pilot retains the producer workload; full runs the actual Q.
+     if(target_rows==16)begin
+     load_packet("source_query",service_command);send_q();
+@@ -574,10 +665,13 @@
+
+     if(source_lease_active || q_source_lease_active)
+       $fatal(1,"source lease Q did not release on response retirement");
+     acquire_a();
++    m_fulla_acquire=cycles;
+     for(int row_block=0;row_block<16;row_block+=4)
+       for(int group=0;group<32;group++)check_group(row_block,group);
++    m_fulla_last_check=cycles;
+     if(a_groups_checked!=128)$fatal(1,"source lease Q did not verify every fullA group");
+     release_a();
++    m_fulla_release=cycles;
+       if(quant_outstanding_beats!=0 || quant_protocol_error)
+         $fatal(1,"QUANT external read debt/protocol did not close");
+     end
+@@ -592,6 +686,33 @@
+
+         accepted_events,semantic_rejections,terminal_tasks,
+         shell_protocol_error,ledger_protocol_error,ledger_domain_drained,
+         adapter_pending_zero);
++    m_zero_debt=cycles;
++    if(m_cycle!=cycles || m_source_ar!=source_ar_count || m_source_r!=source_r_count ||
++       m_destination_aw!=destination_aw_count || m_destination_w!=destination_w_count ||
++       m_destination_b!=destination_b_count || m_quant_ar!=quant_ar_count ||
++       m_quant_r!=quant_r_count)
++      $fatal(1,"LQ0 observer changed or missed physical handshakes");
++    if(m_math_start!=1 || m_math_done!=1 || m_math_done_last<=m_math_first ||
++       m_end_consume<0 || m_publish_consume<0 || m_zero_debt<0 ||
++       (target_rows==16 && (m_fulla_acquire<0 || m_fulla_last_check<0 ||
++                           m_fulla_release<0 || m_q_consume<0 || m_lease_off<0)))
++      $fatal(1,"LQ0 observer missed actual lifecycle or generated run edge");
++    $display("LQ0_EVENT cycles=%0d phase0=%0d phase1=%0d phase2=%0d phase3=%0d phase4=%0d phase5=%0d request_first=%0d request_last=%0d completion_first=%0d completion_last=%0d q_accept=%0d q_valid=%0d q_consume=%0d lease_on=%0d lease_off=%0d",
++      m_cycle,m_phase[0],m_phase[1],m_phase[2],m_phase[3],m_phase[4],m_phase[5],
++      m_request_first,m_request_last,m_completion_first,m_completion_last,
++      m_q_accept,m_q_valid,m_q_consume,m_lease_on,m_lease_off);
++    $display("LQ0_AXI source_ar=%0d,%0d source_r=%0d,%0d destination_aw=%0d,%0d destination_w=%0d,%0d destination_b=%0d,%0d quant_ar=%0d,%0d quant_r=%0d,%0d math_start=%0d,%0d math_done=%0d,%0d math_count=%0d,%0d",
++      m_source_ar_first,m_source_ar_last,m_source_r_first,m_source_r_last,
++      m_destination_aw_first,m_destination_aw_last,m_destination_w_first,m_destination_w_last,
++      m_destination_b_first,m_destination_b_last,m_quant_ar_first,m_quant_ar_last,
++      m_quant_r_first,m_quant_r_last,m_math_first,m_math_last,
++      m_math_done_first,m_math_done_last,m_math_start,m_math_done);
++    $display("LQ0_WAIT source_ar=%0d source_r=%0d destination_aw=%0d destination_w=%0d destination_b=%0d quant_ar=%0d quant_r=%0d",
++      m_source_ar_wait,m_source_r_wait,m_destination_aw_wait,m_destination_w_wait,
++      m_destination_b_wait,m_quant_ar_wait,m_quant_r_wait);
++    $display("LQ0_LIFECYCLE end_consume=%0d publish_consume=%0d fulla_acquire=%0d fulla_last_check=%0d fulla_release=%0d zero_debt=%0d",
++      m_end_consume,m_publish_consume,m_fulla_acquire,m_fulla_last_check,
++      m_fulla_release,m_zero_debt);
+     $display("FULL_CURRENT_LAYERNORM_QUANT_SOURCE_PASS rows=%0d D=1024 source_AR=%0d source_R=%0d destination_AW=%0d destination_W=%0d destination_B=%0d store_bytes=%0d completion_beats=%0d gold_elements=%0d begin_gated=1 END_from_real_completion=1 source_query_granted=%0d source_lease_released=%0d quant_AR=%0d quant_R=%0d fullA_groups=%0d cycles=%0d",
+       target_rows,source_ar_count,source_r_count,destination_aw_count,destination_w_count,
+       destination_b_count,destination_store_bytes,completion_index,target_rows*1024,

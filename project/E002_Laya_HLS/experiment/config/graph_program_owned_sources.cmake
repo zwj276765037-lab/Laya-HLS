@@ -1,0 +1,11 @@
+include(${CMAKE_CURRENT_LIST_DIR}/graph_program_sources.cmake)
+set(LAYA_GRAPH_PROGRAM_OWNED_SOURCES
+  ${LAYA_GRAPH_PROGRAM_SOURCES}
+  hls/control/executor_handoff_protocol.cpp
+  hls/control/executor_checkpoint_protocol.cpp
+  hls/control/bootstrap_snapshot_protocol.cpp
+  hls/common/laya_memory_map.cpp
+  hls/common/laya_full_memory.cpp
+  hls/platform/compute_portal_client.cpp
+  hls/control/graph_program_owned.cpp
+)

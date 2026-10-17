@@ -1,0 +1,137 @@
+--- a/hls/operators/full_tasks_attention.cpp
++++ b/hls/operators/full_tasks_attention.cpp
+@@ -1,6 +1,7 @@
+ #include "full_task_common.h"
+ #include "laya_full_cache_storage.h"
+ #include "../../vivado/module_design/attention_and_fp_engine/source/attention_service.h"
++#include "../../vivado/module_design/attention_and_fp_engine/source/attention_tile_service.h"
+ 
+ namespace laya::full {
+ #ifndef __SYNTHESIS__
+@@ -85,14 +86,14 @@
+ Check attention_call(Op op, uint32_t command, uint32_t index,
+                      uint32_t payload, uint32_t epoch, uint32_t& result) {
+ #pragma HLS inline off
+-#pragma HLS allocation function instances=laya_attention_service limit=1
++#pragma HLS allocation function instances=laya_attention_tile_service limit=1
+   uint32_t status=0;
+ #ifndef __SYNTHESIS__
+-  if(command<18)++attention_stats.command_calls[command];
++  if(command<22)++attention_stats.command_calls[command];
+ #endif
+-  laya_attention_service(command,index,payload,epoch,result,status);
++  laya_attention_tile_service(command,index,payload,epoch,result,status);
+ #ifndef __SYNTHESIS__
+-  if(status==0&&command<18)++attention_stats.successful_commands[command];
++  if(status==0&&command<22)++attention_stats.successful_commands[command];
+   else if(status==1)++attention_stats.numerical_errors;
+   else if(status)++attention_stats.protocol_errors;
+ #endif
+@@ -110,7 +111,7 @@
+   }
+   return ok();
+ }
+-// The scalar service is connected to the production B1 controller. Generic
++// The full-tile service is connected to the production B1 controller. Generic
+ // standalone task tests and the original B2 path retain their existing leaves.
+ bool attention_service_destination(const FullRuntime& rt,
+                                     const TaskContext& ctx, BufferRef& dst) {
+@@ -310,24 +311,31 @@
+   BufferRef service_dst;
+   const bool service=attention_service_destination(rt,t.ctx,service_dst);
+   if(c&&service)c=attention_begin(rt,t,service_dst);
++  if(c&&service) {
++    uint32_t value=0;
++    for(unsigned r=0;r<t.ctx.rows&&c;++r)
++      for(unsigned d=0;d<64&&c;++d) {
++        float q=0;
++        c=read_qkv(rt,memory,0,t.ctx.batch,t.head,uint16_t(t.ctx.row0+r),uint8_t(d),q);
++        if(c)c=attention_call(t.ctx.op,18,r*64+d,numeric_f32_bits(q),t.ctx.task_id,value);
++      }
++    if(c)c=attention_call(t.ctx.op,19,0,0,t.ctx.task_id,value);
++  }
+   for (unsigned r = 0; r < t.ctx.rows && c; ++r) {
+-    float q[64];
+-    for (unsigned d = 0; d < 64; ++d) {
+-      c = read_qkv(rt, memory, 0, t.ctx.batch, t.head,
+-                   uint16_t(t.ctx.row0 + r), uint8_t(d), q[d]);
+-      if (!c) break;
+-    }
+-    if(c&&service) {
++    if(service) {
+       uint32_t value=0;
+       c=attention_select(rt,t.ctx,t.ctx.task_id,t.ctx.row0+r);
+-      for(unsigned d=0;d<64&&c;++d)
+-        c=attention_call(t.ctx.op,3,d,numeric_f32_bits(q[d]),t.ctx.task_id,value);
+-      if(c)c=attention_call(t.ctx.op,7,0,0,t.ctx.task_id,value);
+       for(unsigned key=0;key<t.S&&c;++key) {
+         c=attention_call(t.ctx.op,10,key,0,t.ctx.task_id,value);
+         if(c)full_cache_score(rt)[t.ctx.batch][r][key]=numeric_bits_f32(value);
+       }
+     } else if (c) {
++      float q[64];
++      for(unsigned d=0;d<64;++d) {
++        c=read_qkv(rt,memory,0,t.ctx.batch,t.head,uint16_t(t.ctx.row0+r),uint8_t(d),q[d]);
++        if(!c)break;
++      }
++      if(!c)break;
+ #ifndef __SYNTHESIS__
+       ++(rt.inputs.identity.B==2?attention_stats.legacy_qk_b2:attention_stats.legacy_qk_b1);
+ #endif
+@@ -397,18 +405,21 @@
+       c = task::buffer(Buffer::SCORE_PROB);
+       return task::finish(rt, t.ctx, c, OutputUnit::F32, 0, done);
+     }
++    BufferRef service_dst;
++    const bool service=attention_service_destination(rt,t.ctx,service_dst);
++    const uint32_t service_epoch=t.ctx.task_id-1;
++    if(c&&service) {
++      uint32_t value=0,ref[3];c=attention_continue(rt,t.ctx,service_epoch,25);
++      attention_ref_words(t.src,ref);if(c)c=attention_verify(t.ctx.op,service_epoch,36,ref,3);
++      attention_ref_words(t.dst,ref);if(c)c=attention_verify(t.ctx.op,service_epoch,39,ref,3);
++      if(c)c=attention_call(t.ctx.op,20,0,0,service_epoch,value);
++    }
+     for (unsigned r = 0; r < t.ctx.rows && c; ++r) {
+       float p[1024];
+-      BufferRef service_dst;
+-      if(attention_service_destination(rt,t.ctx,service_dst)) {
+-        const uint32_t epoch=t.ctx.task_id-1;uint32_t value=0,ref[3];
+-        c=attention_continue(rt,t.ctx,epoch,25);
+-        attention_ref_words(t.src,ref);if(c)c=attention_verify(t.ctx.op,epoch,36,ref,3);
+-        attention_ref_words(t.dst,ref);if(c)c=attention_verify(t.ctx.op,epoch,39,ref,3);
+-        if(c)c=attention_select(rt,t.ctx,epoch,t.ctx.row0+r);
+-        if(c)c=attention_call(t.ctx.op,8,0,0,epoch,value);
++      if(service) {
++        uint32_t value=0;c=attention_select(rt,t.ctx,service_epoch,t.ctx.row0+r);
+         for(unsigned key=0;key<t.length&&c;++key) {
+-          c=attention_call(t.ctx.op,11,key,0,epoch,value);
++          c=attention_call(t.ctx.op,11,key,0,service_epoch,value);
+           if(c)p[key]=numeric_bits_f32(value);
+         }
+       } else {
+@@ -520,11 +531,11 @@
+     attention_ref_words(t.prob,ref);if(c)c=attention_verify(t.ctx.op,service_epoch,39,ref,3);
+     attention_ref_words(t.partial,ref);if(c)c=attention_verify(t.ctx.op,service_epoch,42,ref,3);
+     attention_ref_words(t.dst,ref);if(c)c=attention_verify(t.ctx.op,service_epoch,45,ref,3);
++    uint32_t value=0;if(c)c=attention_call(t.ctx.op,21,0,0,service_epoch,value);
+   }
+   for (unsigned r = 0; r < t.ctx.rows && c; ++r)
+     if(service) {
+       uint32_t value=0;c=attention_select(rt,t.ctx,service_epoch,t.ctx.row0+r);
+-      if(c)c=attention_call(t.ctx.op,9,0,0,service_epoch,value);
+       for(unsigned d=0;d<64&&c;++d) {
+         c=attention_call(t.ctx.op,12,d,0,service_epoch,value);
+         if(c)full_cache_av_partial(rt)[r][d]=numeric_bits_f32(value);
+--- a/vivado/module_design/attention_and_fp_engine/source/attention_service.h
++++ b/vivado/module_design/attention_and_fp_engine/source/attention_service.h
+@@ -25,8 +25,8 @@
+ // Actual adapter invocations only; these counters do not synthesize and do
+ // not infer execution from controller intent or numeric checkpoints.
+ struct AttentionServiceStats {
+-  uint64_t command_calls[18];
+-  uint64_t successful_commands[18];
++  uint64_t command_calls[22];
++  uint64_t successful_commands[22];
+   uint64_t numerical_errors;
+   uint64_t protocol_errors;
+   uint64_t legacy_qk_b1, legacy_qk_b2;

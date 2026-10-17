@@ -1,0 +1,464 @@
+================================================================
+== Design Size Report
+================================================================
+
+* Total Instructions per Compilation Phase
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Phase         | Step                       | Instructions | Description                                                                            |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Compile/Link  |                            | 25,570       | After all functions are compiled and linked into a single design                       |
+|               |                            |              |                                                                                        |
+| Unroll/Inline |                            |              | After user unroll and inline pragmas are applied                                       |
+|               | (1) unroll                 | 72,595       | user unroll pragmas are applied                                                        |
+|               | (2) simplification         | 63,970       | simplification of applied user unroll pragmas                                          |
+|               | (3) inline                 | 61,224       | user inline pragmas are applied                                                        |
+|               | (4) simplification         | 58,401       | simplification of applied user inline pragmas                                          |
+|               |                            |              |                                                                                        |
+| Array/Struct  |                            |              | After user array partition and struct aggregate/disaggregate pragmas are applied       |
+|               | (1) array partition        | 57,553       | user array partition pragmas are applied                                               |
+|               | (2) simplification         | 57,553       | simplification of applied user array partition & struct aggregate/disaggregate pragmas |
+|               | (3) aggregate/disaggregate | 57,553       | user struct aggregate/disaggregate pragmas are applied                                 |
+|               | (4) array reshape          | 57,553       | apply array reshape pragmas                                                            |
+|               | (5) access patterns        | 57,365       | array access pattern optmizations                                                      |
+|               |                            |              |                                                                                        |
+| Performance   |                            |              | After transformations are applied to meet performance pragma targets                   |
+|               | (1) loop simplification    | 56,200       | loop and instruction simplification                                                    |
+|               | (2) parallelization        | 56,021       | loops are unrolled or pipelined to meet performance targets                            |
+|               | (3) array partition        | 57,033       | arrays are partitioned to meet performance targets                                     |
+|               | (4) simplification         | 57,031       | simplification of design after performance transformations                             |
+|               |                            |              |                                                                                        |
+| HW Transforms |                            |              | After hardware transfomations                                                          |
+|               | (1) lowering               | 54,903       | initial conversion to HW specific instructions                                         |
+|               | (2) optimizations          | 54,374       | high level synthesis optimizations                                                     |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+
+* Instructions per Function for each Compilation Phase
++-------------------------------------+--------------------------------------+------------------+------------------+------------------+------------------+------------------+
+| Function                            | Location                             | Compile/Link     | Unroll/Inline    | Array/Struct     | Performance      | HW Transforms    |
++-------------------------------------+--------------------------------------+------------------+------------------+------------------+------------------+------------------+
+| + laya_graph_program_owned_seq...   | graph_program_owned.cpp:111          | 25,570           | 58,401           | 57,365           | 57,031           | 54,374           |
+|  + step                             | graph_program_owned.cpp:27           | 25,547           | 58,386           | 57,350           | 57,016           | 54,337           |
+|   + decode                          | executor_handoff_protocol.cpp:50     | 9,207            | 27,028           | 26,388           | 26,281           | 24,634           |
+|      ok                             | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|      get                            | laya_compute_portal.h:93             |   340 (17 calls) |   374 (17 calls) |   323 (17 calls) |   306 (17 calls) |   374 (17 calls) |
+|    + Message                        | laya_executor_handoff_protocol.h:16  |   173            |                  |                  |                  |                  |
+|     + Request                       | laya_executor_checkpoint.h:28        |   153            |                  |                  |                  |                  |
+|      + Request                      | laya_bootstrap_snapshot.h:21         |   121            |                  |                  |                  |                  |
+|         NumericIdentity             | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|       + OwnerDescriptor             | laya_generated_provenance.h:23       |    57            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        TargetDomain                 | laya_executor_checkpoint.h:21        |    23            |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      put                            | laya_compute_portal.h:90             |    54 (3 calls)  |                  |                  |                  |                  |
+|    + decode                         | bootstrap_snapshot_protocol.cpp:120  | 3,818            | 10,901           | 10,610           | 10,551           |                  |
+|     + header                        | bootstrap_snapshot_protocol.cpp:62   |   172            |   119            |   110            |   104            |                  |
+|        get                          | laya_compute_portal.h:93             |    60 (3 calls)  |                  |                  |                  |                  |
+|        zeros                        | bootstrap_snapshot_protocol.cpp:7    |    84 (4 calls)  |                  |                  |                  |                  |
+|       zeros                         | bootstrap_snapshot_protocol.cpp:7    |    42 (2 calls)  |                  |                  |                  |                  |
+|     + protocol                      | bootstrap_snapshot_protocol.cpp:6    |    16            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|     + get_binding                   | bootstrap_snapshot_protocol.cpp:51   |   893            | 1,929            | 1,921            | 1,900            |                  |
+|      + Request                      | laya_bootstrap_snapshot.h:21         |   121            |                  |                  |                  |                  |
+|         NumericIdentity             | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|       + OwnerDescriptor             | laya_generated_provenance.h:23       |    57            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        get                          | laya_compute_portal.h:93             |   100 (5 calls)  |                  |                  |                  |                  |
+|      + get_identity                 | laya_compute_portal.h:106            |   189            |   128            |   132            |   128            |                  |
+|         NumericIdentity             | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|         get                         | laya_compute_portal.h:93             |    80 (4 calls)  |                  |                  |                  |                  |
+|      + get_owner                    | bootstrap_snapshot_protocol.cpp:24   |   420            |   343            |   327            |   315            |                  |
+|       + OwnerDescriptor             | laya_generated_provenance.h:23       |    57            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |    14 (2 calls)  |                  |                  |                  |                  |
+|       + get_ref                     | laya_compute_portal.h:133            |    74 (2 calls)  |                  |                  |                  |                  |
+|          get                        | laya_compute_portal.h:93             |    40 (2 calls)  |                  |                  |                  |                  |
+|         get                         | laya_compute_portal.h:93             |   200 (10 calls) |   220 (10 calls) |   200 (10 calls) |   190 (10 calls) |                  |
+|     + validate                      | bootstrap_snapshot_protocol.cpp:70   | 2,510            | 5,154            | 4,889            | 4,859            |                  |
+|      + numeric_identity_valid       | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|         nonzero                     | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|      + check_ref                    | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|         ok                          | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |     8 (2 calls)  |                  |                  |                  |                  |
+|        ModelBinding                 | laya_compute_portal_client.h:41      |     9            |                  |                  |                  |                  |
+|      + build_l13m_model_binding     | compute_portal_client.cpp:142        |   661            | 1,582            | 1,494            | 1,494            |                  |
+|         copy_bytes                  | compute_portal_client.cpp:31         |   160 (10 calls) |   140 (10 calls) |   100 (10 calls) |   100 (10 calls) |                  |
+|         put                         | laya_compute_portal.h:90             |   288 (16 calls) |   304 (16 calls) |   256 (16 calls) |   256 (16 calls) |                  |
+|         ok                          | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|        packet_equal<416UL>          | laya_packet_equal.h:13               |    35            |                  |                  |                  |                  |
+|      + protocol                     | bootstrap_snapshot_protocol.cpp:6    |    32 (2 calls)  |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    16 (2 calls)  |                  |                  |                  |                  |
+|      + validate_l13m_model_binding  | compute_portal_client.cpp:179        | 1,191            |   935            |   775            |   750            |                  |
+|         get                         | laya_compute_portal.h:93             |   320 (16 calls) |   352 (16 calls) |   304 (16 calls) |   288 (16 calls) |                  |
+|         zero_bytes                  | compute_portal_client.cpp:25         |    63 (3 calls)  |                  |                  |                  |                  |
+|       + identity_abi_error          | compute_portal_client.cpp:11         |    51 (3 calls)  |                  |                  |                  |                  |
+|          detail                     | laya_types.h:11                      |    24 (3 calls)  |                  |                  |                  |                  |
+|       + identity_model_error        | compute_portal_client.cpp:15         |    51 (3 calls)  |                  |                  |                  |                  |
+|          detail                     | laya_types.h:11                      |    24 (3 calls)  |                  |                  |                  |                  |
+|       + numeric_identity_valid      | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|          nonzero                    | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|         same_bytes                  | compute_portal_client.cpp:19         |   364 (14 calls) |   308 (14 calls) |   224 (14 calls) |   224 (14 calls) |                  |
+|         ok                          | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      operator bool                  | laya_types.h:9                       |     8 (2 calls)  |                  |                  |                  |                  |
+|    + validate                       | executor_handoff_protocol.cpp:5      | 2,935            | 5,438            | 5,173            | 5,143            | 5,441            |
+|     + validate_description          | executor_checkpoint_protocol.cpp:60  | 2,631            | 5,295            | 5,030            | 5,000            | 5,300            |
+|      + validate                     | bootstrap_snapshot_protocol.cpp:70   | 2,510            | 5,154            | 4,889            | 4,859            | 5,206            |
+|       + numeric_identity_valid      | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|          nonzero                    | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|       + check_ref                   | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|          detail                     | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|          ok                         | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|         operator bool               | laya_types.h:9                       |     8 (2 calls)  |                  |                  |                  |                  |
+|         ModelBinding                | laya_compute_portal_client.h:41      |     9            |                  |                  |                  |                  |
+|       + build_l13m_model_binding    | compute_portal_client.cpp:142        |   661            | 1,582            | 1,494            | 1,494            |                  |
+|          copy_bytes                 | compute_portal_client.cpp:31         |   160 (10 calls) |   140 (10 calls) |   100 (10 calls) |   100 (10 calls) |                  |
+|          put                        | laya_compute_portal.h:90             |   288 (16 calls) |   304 (16 calls) |   256 (16 calls) |   256 (16 calls) |                  |
+|          ok                         | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|         packet_equal<416UL>         | laya_packet_equal.h:13               |    35            |                  |                  |                  |                  |
+|       + protocol                    | bootstrap_snapshot_protocol.cpp:6    |    32 (2 calls)  |                  |                  |                  |                  |
+|          detail                     | laya_types.h:11                      |    16 (2 calls)  |                  |                  |                  |                  |
+|       + validate_l13m_model_binding | compute_portal_client.cpp:179        | 1,191            |   935            |   775            |   750            |   966            |
+|          get                        | laya_compute_portal.h:93             |   320 (16 calls) |   352 (16 calls) |   304 (16 calls) |   288 (16 calls) |   357 (16 calls) |
+|          zero_bytes                 | compute_portal_client.cpp:25         |    63 (3 calls)  |                  |                  |                  |                  |
+|        + identity_abi_error         | compute_portal_client.cpp:11         |    51 (3 calls)  |                  |                  |                  |                  |
+|           detail                    | laya_types.h:11                      |    24 (3 calls)  |                  |                  |                  |                  |
+|        + identity_model_error       | compute_portal_client.cpp:15         |    51 (3 calls)  |                  |                  |                  |                  |
+|           detail                    | laya_types.h:11                      |    24 (3 calls)  |                  |                  |                  |                  |
+|        + numeric_identity_valid     | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|           nonzero                   | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|          same_bytes                 | compute_portal_client.cpp:19         |   364 (14 calls) |   308 (14 calls) |   224 (14 calls) |   224 (14 calls) |   293 (14 calls) |
+|          ok                         | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + protocol                     | executor_checkpoint_protocol.cpp:5   |    16            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |    28 (7 calls)  |                  |                  |                  |                  |
+|     + protocol                      | executor_handoff_protocol.cpp:4      |   144 (9 calls)  |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |    72 (9 calls)  |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|    + encode                         | executor_handoff_protocol.cpp:38     | 1,241            |                  |                  |                  |                  |
+|     + encode                        | executor_checkpoint_protocol.cpp:105 | 1,029            |                  |                  |                  |                  |
+|      + binding_packet               | executor_checkpoint_protocol.cpp:10  | 1,027            |                  |                  |                  |                  |
+|       + encode                      | bootstrap_snapshot_protocol.cpp:112  |   742            |                  |                  |                  |                  |
+|        + binding_packet             | bootstrap_snapshot_protocol.cpp:38   |   740            |                  |                  |                  |                  |
+|           put                       | laya_compute_portal.h:90             |   144 (8 calls)  |                  |                  |                  |                  |
+|         + put_identity              | laya_compute_portal.h:98             |   135            |                  |                  |                  |                  |
+|            put                      | laya_compute_portal.h:90             |    72 (4 calls)  |                  |                  |                  |                  |
+|         + put_owner                 | bootstrap_snapshot_protocol.cpp:11   |   342            |                  |                  |                  |                  |
+|          + put_ref                  | laya_compute_portal.h:129            |    86 (2 calls)  |                  |                  |                  |                  |
+|             put                     | laya_compute_portal.h:90             |    36 (2 calls)  |                  |                  |                  |                  |
+|            put                      | laya_compute_portal.h:90             |   180 (10 calls) |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |   108 (6 calls)  |                  |                  |                  |                  |
+|       put                           | laya_compute_portal.h:90             |   126 (7 calls)  |                  |                  |                  |                  |
+|      packet_equal<1024UL>           | laya_packet_equal.h:13               |    35            |                  |                  |                  |                  |
+|    + protocol                       | executor_handoff_protocol.cpp:4      |    48 (3 calls)  |                  |                  |                  |                  |
+|       detail                        | laya_types.h:11                      |    24 (3 calls)  |                  |                  |                  |                  |
+|    + binding_packet                 | executor_checkpoint_protocol.cpp:10  |                  | 4,327            | 4,293            | 4,293            | 4,433            |
+|     + binding_packet                | bootstrap_snapshot_protocol.cpp:38   |                  | 2,124            | 2,090            | 2,090            | 2,212            |
+|        put                          | laya_compute_portal.h:90             |                  |   152 (8 calls)  |   136 (8 calls)  |   136 (8 calls)  |   168 (8 calls)  |
+|      + put_owner                    | bootstrap_snapshot_protocol.cpp:11   |                  |   313            |   295            |   295            |   344            |
+|         put                         | laya_compute_portal.h:90             |                  |   190 (10 calls) |   170 (10 calls) |   170 (10 calls) |   210 (10 calls) |
+|     operator bool                   | laya_types.h:9                       |    12 (3 calls)  |                  |                  |                  |                  |
+|     wide<1024UL>                    | graph_program_owned.cpp:7            |   188 (2 calls)  |    28 (2 calls)  |    30 (2 calls)  |    28 (2 calls)  |    36 (2 calls)  |
+|   + Command                         | laya_graph_program_protocol.h:37     |    89            |                  |                  |                  |                  |
+|      NumericIdentity                | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|    + SlotHandle                     | laya_graph_action_protocol.h:56      |    35            |                  |                  |                  |                  |
+|     + FullOwnerSpec                 | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|        BufferRef                    | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|   + decode                          | graph_program_protocol.cpp:122       | 1,326            | 1,230            | 1,202            | 1,185            | 1,088            |
+|      get                            | laya_compute_portal.h:93             |   100 (5 calls)  |                  |                  |                  |                  |
+|      zeros                          | graph_program_protocol.cpp:16        |    84 (4 calls)  |                  |                  |                  |                  |
+|    + Command                        | laya_graph_program_protocol.h:37     |    89            |                  |                  |                  |                  |
+|       NumericIdentity               | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|     + SlotHandle                    | laya_graph_action_protocol.h:56      |    35            |                  |                  |                  |                  |
+|      + FullOwnerSpec                | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|         BufferRef                   | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|    + get_identity                   | laya_compute_portal.h:106            |   189            |   128            |   132            |   128            |   143            |
+|       NumericIdentity               | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|       get                           | laya_compute_portal.h:93             |    80 (4 calls)  |                  |                  |                  |                  |
+|    + get_owner                      | graph_program_protocol.cpp:34        |   172            |                  |                  |                  |                  |
+|     + FullOwnerSpec                 | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|        BufferRef                    | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|     + get_ref                       | laya_compute_portal.h:133            |    37            |                  |                  |                  |                  |
+|        get                          | laya_compute_portal.h:93             |    20            |                  |                  |                  |                  |
+|       get                           | laya_compute_portal.h:93             |    60 (3 calls)  |                  |                  |                  |                  |
+|    + validate                       | graph_program_protocol.cpp:55        |   487            |   165            |   146            |   124            |   140            |
+|       entrypoint_valid              | graph_program_protocol.cpp:49        |     2            |                  |                  |                  |                  |
+|     + numeric_identity_valid        | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|        nonzero                      | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|     + check_ref                     | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|     + protocol                      | graph_program_protocol.cpp:12        |    17            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|      operator bool                  | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|      ok                             | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|    + protocol                       | graph_program_protocol.cpp:12        |    17            |                  |                  |                  |                  |
+|       detail                        | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|   + expected_command                | graph_program_owned.cpp:16           |   159            |   263            |   263            |   263            |   267            |
+|    + Command                        | laya_graph_program_protocol.h:37     |    89            |                  |                  |                  |                  |
+|       NumericIdentity               | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|     + SlotHandle                    | laya_graph_action_protocol.h:56      |    35            |                  |                  |                  |                  |
+|      + FullOwnerSpec                | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|         BufferRef                   | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|   + encode                          | graph_program_protocol.cpp:108       |   444            |   760            |   760            |   740            |   769            |
+|      put                            | laya_compute_portal.h:90             |    90 (5 calls)  |                  |                  |                  |                  |
+|    + put_identity                   | laya_compute_portal.h:98             |   135            |                  |                  |                  |                  |
+|       put                           | laya_compute_portal.h:90             |    72 (4 calls)  |                  |                  |                  |                  |
+|    + put_owner                      | graph_program_protocol.cpp:22        |   137            |                  |                  |                  |                  |
+|     + put_ref                       | laya_compute_portal.h:129            |    43            |                  |                  |                  |                  |
+|        put                          | laya_compute_portal.h:90             |    18            |                  |                  |                  |                  |
+|       put                           | laya_compute_portal.h:90             |    54 (3 calls)  |                  |                  |                  |                  |
+|     packet_equal<256UL>             | laya_packet_equal.h:13               |    35            |                  |                  |                  |                  |
+|   + observe_pending                 | graph_program_hls.cpp:211            | 4,314            | 14,020           | 13,973           | 13,194           | 13,327           |
+|    + Record                         | laya_program_pending_protocol.h:15   |   231            |                  |                  |                  |                  |
+|       Key                           | laya_program_pending_protocol.h:12   |     9            |                  |                  |                  |                  |
+|     + Command                       | laya_graph_program_protocol.h:37     |    89            |                  |                  |                  |                  |
+|        NumericIdentity              | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|      + SlotHandle                   | laya_graph_action_protocol.h:56      |    35            |                  |                  |                  |                  |
+|       + FullOwnerSpec               | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|     + Request                       | laya_graph_action_protocol.h:62      |   126            |                  |                  |                  |                  |
+|        NumericIdentity              | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|      + SlotHandle                   | laya_graph_action_protocol.h:56      |    35            |                  |                  |                  |                  |
+|       + FullOwnerSpec               | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|        WeightKey                    | laya_types.h:23                      |     5            |                  |                  |                  |                  |
+|    + validate                       | program_pending_protocol.cpp:11      | 2,654            | 3,715            | 3,678            | 3,288            |                  |
+|     + validate                      | graph_program_protocol.cpp:55        |   487            |   165            |   146            |   124            |                  |
+|        entrypoint_valid             | graph_program_protocol.cpp:49        |     2            |                  |                  |                  |                  |
+|      + numeric_identity_valid       | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|         nonzero                     | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|      + check_ref                    | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|         ok                          | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + protocol                     | graph_program_protocol.cpp:12        |    17            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |     8 (2 calls)  |                  |                  |                  |                  |
+|     + validate                      | graph_action_protocol.cpp:103        |   573            |   208            |   189            |   132            |                  |
+|        kind_valid                   | graph_action_protocol.cpp:91         |     3            |                  |                  |                  |                  |
+|      + numeric_identity_valid       | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|         nonzero                     | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|      + check_ref                    | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|         ok                          | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + protocol                     | graph_action_protocol.cpp:11         |    34 (2 calls)  |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    16 (2 calls)  |                  |                  |                  |                  |
+|     + Request                       | laya_graph_action_protocol.h:62      |   126            |                  |                  |                  |                  |
+|        NumericIdentity              | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|      + SlotHandle                   | laya_graph_action_protocol.h:56      |    35            |                  |                  |                  |                  |
+|       + FullOwnerSpec               | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|        WeightKey                    | laya_types.h:23                      |     5            |                  |                  |                  |                  |
+|     + encode                        | graph_action_protocol.cpp:151        | 1,282 (2 calls)  | 2,762 (2 calls)  | 2,762 (2 calls)  | 2,648 (2 calls)  |                  |
+|      + put_key                      | graph_action_protocol.cpp:52         |   490 (2 calls)  |   336 (2 calls)  |   336 (2 calls)  |   318 (2 calls)  |                  |
+|         put                         | laya_compute_portal.h:90             |   180 (10 calls) |                  |                  |                  |                  |
+|       + put_identity                | laya_compute_portal.h:98             |   270 (2 calls)  |                  |                  |                  |                  |
+|          put                        | laya_compute_portal.h:90             |   144 (8 calls)  |                  |                  |                  |                  |
+|        put                          | laya_compute_portal.h:90             |   180 (10 calls) |                  |                  |                  |                  |
+|      + put_owner                    | graph_action_protocol.cpp:21         |   274 (2 calls)  |                  |                  |                  |                  |
+|       + put_ref                     | laya_compute_portal.h:129            |    86 (2 calls)  |                  |                  |                  |                  |
+|          put                        | laya_compute_portal.h:90             |    36 (2 calls)  |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |   108 (6 calls)  |                  |                  |                  |                  |
+|       packet_equal<512UL>           | laya_packet_equal.h:13               |    35            |                  |                  |                  |                  |
+|     + protocol                      | program_pending_protocol.cpp:5       |    32 (2 calls)  |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |    16 (2 calls)  |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      operator bool                  | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|    + encode                         | program_pending_protocol.cpp:27      | 1,354            | 4,316            | 4,316            | 4,235            | 4,323            |
+|       put                           | laya_compute_portal.h:90             |   126 (7 calls)  |                  |                  |                  |                  |
+|     + encode                        | graph_program_protocol.cpp:108       |   444            |   760            |   760            |   740            |   769            |
+|        put                          | laya_compute_portal.h:90             |    90 (5 calls)  |                  |                  |                  |                  |
+|      + put_identity                 | laya_compute_portal.h:98             |   135            |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |    72 (4 calls)  |                  |                  |                  |                  |
+|      + put_owner                    | graph_program_protocol.cpp:22        |   137            |                  |                  |                  |                  |
+|       + put_ref                     | laya_compute_portal.h:129            |    43            |                  |                  |                  |                  |
+|          put                        | laya_compute_portal.h:90             |    18            |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |    54 (3 calls)  |                  |                  |                  |                  |
+|     + encode                        | graph_action_protocol.cpp:151        |   641            | 1,381            | 1,381            | 1,324            | 1,363            |
+|      + put_key                      | graph_action_protocol.cpp:52         |   245            |   168            |   168            |   159            |   180            |
+|         put                         | laya_compute_portal.h:90             |    90 (5 calls)  |                  |                  |                  |                  |
+|       + put_identity                | laya_compute_portal.h:98             |   135            |                  |                  |                  |                  |
+|          put                        | laya_compute_portal.h:90             |    72 (4 calls)  |                  |                  |                  |                  |
+|        put                          | laya_compute_portal.h:90             |    90 (5 calls)  |                  |                  |                  |                  |
+|      + put_owner                    | graph_action_protocol.cpp:21         |   137            |                  |                  |                  |                  |
+|       + put_ref                     | laya_compute_portal.h:129            |    43            |                  |                  |                  |                  |
+|          put                        | laya_compute_portal.h:90             |    18            |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |    54 (3 calls)  |                  |                  |                  |                  |
+|   + step                            | graph_program_hls.cpp:44             | 9,339            | 14,092           | 13,767           | 14,360           | 13,388           |
+|      request_cancel                 | graph_program_sequencer.cpp:126      |     3            |                  |                  |                  |                  |
+|      packet_word<256UL>             | graph_program_hls.cpp:21             |    95            |    17            |    18            |    17            |    21            |
+|    + Completion                     | laya_graph_action_protocol.h:91      |   114            |                  |                  |                  |                  |
+|       NumericIdentity               | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|     + SlotDelta                     | laya_graph_action_protocol.h:85      |    35            |                  |                  |                  |                  |
+|      + FullOwnerSpec                | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|         BufferRef                   | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|    + decode                         | graph_action_protocol.cpp:224        | 1,680            | 1,647            | 1,527            | 1,569            |                  |
+|       ok                            | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|     + key_header                    | graph_action_protocol.cpp:69         |   134            |                  |                  |                  |                  |
+|        get                          | laya_compute_portal.h:93             |    60 (3 calls)  |                  |                  |                  |                  |
+|        zeros                        | graph_action_protocol.cpp:15         |    42 (2 calls)  |                  |                  |                  |                  |
+|       zeros                         | graph_action_protocol.cpp:15         |    84 (4 calls)  |                  |                  |                  |                  |
+|     + Completion                    | laya_graph_action_protocol.h:91      |   114            |                  |                  |                  |                  |
+|        NumericIdentity              | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + SlotDelta                    | laya_graph_action_protocol.h:85      |    35            |                  |                  |                  |                  |
+|       + FullOwnerSpec               | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|     + get_key                       | graph_action_protocol.cpp:76         |   258            |   452            |   453            |   447            |                  |
+|        get                          | laya_compute_portal.h:93             |    40 (2 calls)  |                  |                  |                  |                  |
+|      + get_identity                 | laya_compute_portal.h:106            |   189            |   128            |   132            |   128            |                  |
+|         NumericIdentity             | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|         get                         | laya_compute_portal.h:93             |    80 (4 calls)  |                  |                  |                  |                  |
+|       get                           | laya_compute_portal.h:93             |   140 (7 calls)  |   154 (7 calls)  |   133 (7 calls)  |   126 (7 calls)  |                  |
+|     + get_owner                     | graph_action_protocol.cpp:33         |   172            |                  |                  |                  |                  |
+|      + FullOwnerSpec                | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|         BufferRef                   | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|      + get_ref                      | laya_compute_portal.h:133            |    37            |                  |                  |                  |                  |
+|         get                         | laya_compute_portal.h:93             |    20            |                  |                  |                  |                  |
+|        get                          | laya_compute_portal.h:93             |    60 (3 calls)  |                  |                  |                  |                  |
+|     + validate                      | graph_action_protocol.cpp:127        |   538            |   172            |   155            |   137            |                  |
+|        kind_valid                   | graph_action_protocol.cpp:91         |     3            |                  |                  |                  |                  |
+|      + numeric_identity_valid       | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|         nonzero                     | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |    12 (3 calls)  |                  |                  |                  |                  |
+|      + check_ref                    | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|         ok                          | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + protocol                     | graph_action_protocol.cpp:11         |    68 (4 calls)  |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    32 (4 calls)  |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|     + protocol                      | graph_action_protocol.cpp:11         |    17            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|      operator bool                  | laya_types.h:9                       |    24 (6 calls)  |                  |                  |                  |                  |
+|    + accept_completion              | graph_program_sequencer.cpp:71       | 1,245            |   568            |   527            |   593            |   487            |
+|     + protocol                      | graph_program_sequencer.cpp:6        |    80 (5 calls)  |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |    40 (5 calls)  |                  |                  |                  |                  |
+|     + validate                      | graph_action_protocol.cpp:127        |   538            |   172            |   155            |   137            |   153            |
+|        kind_valid                   | graph_action_protocol.cpp:91         |     3            |                  |                  |                  |                  |
+|      + numeric_identity_valid       | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|         nonzero                     | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |    12 (3 calls)  |                  |                  |                  |                  |
+|      + check_ref                    | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|         ok                          | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + protocol                     | graph_action_protocol.cpp:11         |    68 (4 calls)  |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    32 (4 calls)  |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |    12 (3 calls)  |                  |                  |                  |                  |
+|     + same_key                      | graph_action_protocol.cpp:95         |   210            |   106            |    94            |    81            |    96            |
+|      + same_identity                | graph_action_protocol.cpp:48         |   162            |                  |                  |                  |                  |
+|       + numeric_identity_equal      | laya_numeric.cpp:79                  |   160            |                  |                  |                  |                  |
+|        + model_equal                | laya_numeric.cpp:45                  |    32            |                  |                  |                  |                  |
+|           bytes_equal               | laya_numeric.cpp:31                  |    26            |                  |                  |                  |                  |
+|          bytes_equal                | laya_numeric.cpp:31                  |    78 (3 calls)  |                  |                  |                  |                  |
+|      ok                             | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|    + encode                         | graph_program_protocol.cpp:145       | 1,698 (3 calls)  | 2,637 (3 calls)  | 2,556 (3 calls)  | 2,556 (3 calls)  | 2,721 (3 calls)  |
+|       put                           | laya_compute_portal.h:90             |   486 (27 calls) |   513 (27 calls) |   432 (27 calls) |   432 (27 calls) |   540 (27 calls) |
+|     + put_identity                  | laya_compute_portal.h:98             |   405 (3 calls)  |                  |                  |                  |                  |
+|        put                          | laya_compute_portal.h:90             |   216 (12 calls) |                  |                  |                  |                  |
+|     + put_owner                     | graph_program_protocol.cpp:22        |   411 (3 calls)  |                  |                  |                  |                  |
+|      + put_ref                      | laya_compute_portal.h:129            |   129 (3 calls)  |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |    54 (3 calls)  |                  |                  |                  |                  |
+|        put                          | laya_compute_portal.h:90             |   162 (9 calls)  |                  |                  |                  |                  |
+|      store_word<256UL>              | graph_program_hls.cpp:10             |   134 (2 calls)  |    30 (2 calls)  |    30 (2 calls)  |    28 (2 calls)  |    36 (2 calls)  |
+|      packet_word<512UL>             | graph_program_hls.cpp:21             |    95            |    17            |    18            |    17            |    21            |
+|    + begin                          | graph_program_sequencer.cpp:12       |   414            |   662            |   636            | 1,124            |   616            |
+|     + numeric_identity_valid        | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|        nonzero                      | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|     + protocol                      | graph_program_sequencer.cpp:6        |    16            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|      detail                         | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|    + seed_slot                      | graph_program_sequencer.cpp:23       |   289            |    94            |    91            |    91            |    91            |
+|     + check_ref                     | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|     + protocol                      | graph_program_sequencer.cpp:6        |    16            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|    + prepare_norm                   | graph_program_sequencer.cpp:35       |   847            |   571            |   542            |   467            |   474            |
+|       operator bool                 | laya_types.h:9                       |     8 (2 calls)  |                  |                  |                  |                  |
+|     + validate                      | graph_action_protocol.cpp:103        |   573            |   208            |   189            |   132            |   148            |
+|        kind_valid                   | graph_action_protocol.cpp:91         |     3            |                  |                  |                  |                  |
+|      + numeric_identity_valid       | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|         nonzero                     | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|      + check_ref                    | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|         ok                          | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + protocol                     | graph_action_protocol.cpp:11         |    34 (2 calls)  |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    16 (2 calls)  |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|     + protocol                      | graph_program_sequencer.cpp:6        |    16            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|    + local_reject                   | graph_program_hls.cpp:32             |   218 (2 calls)  |   110 (2 calls)  |   110 (2 calls)  |   110 (2 calls)  |   118 (2 calls)  |
+|     + Result                        | laya_graph_program_protocol.h:44     |   204 (2 calls)  |                  |                  |                  |                  |
+|        NumericIdentity              | laya_numeric_tasks.h:10              |    90 (2 calls)  |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|      + SlotDelta                    | laya_graph_action_protocol.h:85      |    70 (2 calls)  |                  |                  |                  |                  |
+|       + FullOwnerSpec               | laya_full_runtime.h:81               |    56 (2 calls)  |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |    14 (2 calls)  |                  |                  |                  |                  |
+|    + encode                         | graph_action_protocol.cpp:151        |   641            | 1,381            | 1,381            | 1,324            | 1,363            |
+|     + put_key                       | graph_action_protocol.cpp:52         |   245            |   168            |   168            |   159            |   180            |
+|        put                          | laya_compute_portal.h:90             |    90 (5 calls)  |                  |                  |                  |                  |
+|      + put_identity                 | laya_compute_portal.h:98             |   135            |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |    72 (4 calls)  |                  |                  |                  |                  |
+|       put                           | laya_compute_portal.h:90             |    90 (5 calls)  |                  |                  |                  |                  |
+|     + put_owner                     | graph_action_protocol.cpp:21         |   137            |                  |                  |                  |                  |
+|      + put_ref                      | laya_compute_portal.h:129            |    43            |                  |                  |                  |                  |
+|         put                         | laya_compute_portal.h:90             |    18            |                  |                  |                  |                  |
+|        put                          | laya_compute_portal.h:90             |    54 (3 calls)  |                  |                  |                  |                  |
+|    + decode                         | graph_program_protocol.cpp:122       | 1,326            | 1,230            | 1,202            | 1,185            | 1,088            |
+|       get                           | laya_compute_portal.h:93             |   100 (5 calls)  |                  |                  |                  |                  |
+|       zeros                         | graph_program_protocol.cpp:16        |    84 (4 calls)  |                  |                  |                  |                  |
+|     + Command                       | laya_graph_program_protocol.h:37     |    89            |                  |                  |                  |                  |
+|        NumericIdentity              | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|      + SlotHandle                   | laya_graph_action_protocol.h:56      |    35            |                  |                  |                  |                  |
+|       + FullOwnerSpec               | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|          BufferRef                  | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|     + get_identity                  | laya_compute_portal.h:106            |   189            |   128            |   132            |   128            |   143            |
+|        NumericIdentity              | laya_numeric_tasks.h:10              |    45            |                  |                  |                  |                  |
+|        get                          | laya_compute_portal.h:93             |    80 (4 calls)  |                  |                  |                  |                  |
+|     + get_owner                     | graph_program_protocol.cpp:34        |   172            |                  |                  |                  |                  |
+|      + FullOwnerSpec                | laya_full_runtime.h:81               |    28            |                  |                  |                  |                  |
+|         BufferRef                   | laya_types.h:19                      |     7            |                  |                  |                  |                  |
+|      + get_ref                      | laya_compute_portal.h:133            |    37            |                  |                  |                  |                  |
+|         get                         | laya_compute_portal.h:93             |    20            |                  |                  |                  |                  |
+|        get                          | laya_compute_portal.h:93             |    60 (3 calls)  |                  |                  |                  |                  |
+|     + validate                      | graph_program_protocol.cpp:55        |   487            |   165            |   146            |   124            |   140            |
+|        entrypoint_valid             | graph_program_protocol.cpp:49        |     2            |                  |                  |                  |                  |
+|      + numeric_identity_valid       | laya_numeric.cpp:71                  |   147            |                  |                  |                  |                  |
+|         nonzero                     | laya_numeric.cpp:35                  |    84 (4 calls)  |                  |                  |                  |                  |
+|      + check_ref                    | laya_tasks.cpp:34                    |   208            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |    48 (6 calls)  |                  |                  |                  |                  |
+|         ok                          | laya_types.h:10                      |    14 (2 calls)  |                  |                  |                  |                  |
+|        operator bool                | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|        ok                           | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|      + protocol                     | graph_program_protocol.cpp:12        |    17            |                  |                  |                  |                  |
+|         detail                      | laya_types.h:11                      |     8            |                  |                  |                  |                  |
+|       operator bool                 | laya_types.h:9                       |     4            |                  |                  |                  |                  |
+|       ok                            | laya_types.h:10                      |     7            |                  |                  |                  |                  |
+|     + protocol                      | graph_program_protocol.cpp:12        |    17            |                  |                  |                  |                  |
+|        detail                       | laya_types.h:11                      |     8            |                  |                  |                  |                  |
++-------------------------------------+--------------------------------------+------------------+------------------+------------------+------------------+------------------+
+
+* Design Size Message Settings
++---------------------------------------------+--------+------------------------------------------------------------------+
+| Message Setting                             | Value  | Description                                                      |
++---------------------------------------------+--------+------------------------------------------------------------------+
+| config_compile -design_size_maximum_warning | 100000 | Show a warning when total design instructions exceeds this value |
++---------------------------------------------+--------+------------------------------------------------------------------+
+
+

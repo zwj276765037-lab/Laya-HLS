@@ -1,0 +1,114 @@
+--- host02/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_graph_lifecycle_split_host.py
++++ host03/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_graph_lifecycle_split_host.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Freeze, build, and run the program/lifecycle LayerNorm host boundary."""
++"""Freeze, build, and run the program/lifecycle host and F11-F13 regressions."""
+ 
+ import argparse
+ import hashlib
+@@ -103,6 +103,7 @@
+         raise RuntimeError("lifecycle closure contains legacy graph or external adapter")
+ 
+     test = Path("tests/graph_lifecycle_split_test.cpp")
++    error_test = Path("tests/graph_lifecycle_error_test.cpp")
+     oracle = Path("tests/graph_action_protocol_oracle.py")
+     integration_sources = [
+         Path("hls/platform/controller_transaction_adapter.cpp"),
+@@ -125,7 +126,7 @@
+                      f"-I{ROOT / 'hls/platform'}", f"-I{ROOT / MODEL}",
+                      "-isystem", str(vitis)]
+     closure: set[Path] = set()
+-    for unit in sources + [test]:
++    for unit in sources + [test, error_test]:
+         deps = subprocess.check_output(
+             ["g++", *flags, *live_includes, "-MM", str(ROOT / unit)],
+             cwd=ROOT, text=True, preexec_fn=limited)
+@@ -159,12 +160,17 @@
+         "program/lifecycle LAX1/LAC1 host integration: independent Python byte "
+         "oracle; 17-kind registry; real B1/S64 four-window LayerNorm action over "
+         "the normalized transaction adapter with CLAIM/BEGIN/producer/END/PUBLISH, "
+-        "source provenance publication and four unique typed retirements; stale "
+-        "program key, stale source version and unsupported-family no-side-effect "
+-        "rejections; no action-FIFO RTL backpressure, cancel/partial failure, HLS "
+-        "generation, 13BO shell, complete graph, resources, timing or board claim")
++        "source provenance publication and four unique typed retirements; F11 "
++        "persistent owner/BEGIN/lease cleanup state with nonterminal INVALIDATE "
++        "then matching terminal cleanup; F12 LAC1 status/local-reject/output-reset "
++        "and exact NORM geometry/retirement admission; F13 failed-request dispatch "
++        "lock and new-request high-water recovery; all 16 unsupported kinds are "
++        "dynamically rejected without side effects; no action-FIFO RTL backpressure, "
++        "cancel/partial producer recovery, HLS generation, 13BO shell, complete "
++        "graph, resources, timing or board claim")
+     compiler = Path(shutil.which("g++") or "")
+     binary = attempt / "graph_lifecycle_split_test"
++    error_binary = attempt / "graph_lifecycle_error_test"
+     oracle_bin = attempt / "graph_action_oracle.bin"
+     compile_command = [
+         str(compiler), *flags, f"-I{frozen / 'include'}",
+@@ -173,6 +179,14 @@
+         str(frozen / test),
+         *[str(frozen / source) for source in sources],
+         "-o", str(binary),
++    ]
++    error_compile_command = [
++        str(compiler), *flags, f"-I{frozen / 'include'}",
++        f"-I{frozen / 'hls'}", f"-I{frozen / 'hls/platform'}",
++        f"-I{frozen / MODEL}", "-isystem", str(vitis),
++        str(frozen / error_test),
++        *[str(frozen / source) for source in sources],
++        "-o", str(error_binary),
+     ]
+     manifest = {
+         "schema": "laya-graph-lifecycle-split-host-input-v1",
+@@ -187,6 +201,7 @@
+         "planned_commands": [
+             ["python3", str(frozen / oracle), "--output", str(oracle_bin)],
+             compile_command, [str(binary), str(oracle_bin)],
++            error_compile_command, [str(error_binary)],
+         ],
+         "profile": {"kind": "static_host", "maximum_seconds": 1800,
+                     "maximum_rss_gib": 24},
+@@ -202,25 +217,39 @@
+     if commands[-1]["exit_code"] == 0:
+         commands.append(run([str(binary), str(oracle_bin)], ROOT,
+                             attempt / "run.log"))
++    if commands[-1]["exit_code"] == 0:
++        commands.append(run(error_compile_command, ROOT,
++                            attempt / "error_build.log"))
++    if commands[-1]["exit_code"] == 0:
++        commands.append(run([str(error_binary)], ROOT,
++                            attempt / "error_run.log"))
+     marker = "FULL_CURRENT_GRAPH_LIFECYCLE_SPLIT_PASS"
++    error_marker = "FULL_CURRENT_GRAPH_LIFECYCLE_F11_F13_PASS"
+     markers = []
++    error_markers = []
+     if (attempt / "run.log").is_file():
+         markers = [line for line in (attempt / "run.log").read_text(
+             errors="replace").splitlines() if marker in line]
+-    passed = (len(commands) == 3 and
++    if (attempt / "error_run.log").is_file():
++        error_markers = [line for line in (attempt / "error_run.log").read_text(
++            errors="replace").splitlines() if error_marker in line]
++    passed = (len(commands) == 5 and
+               all(item["exit_code"] == 0 and not item["timeout"]
+-                  for item in commands) and len(markers) == 1)
++                  for item in commands) and len(markers) == 1 and
++              len(error_markers) == 1)
+     receipt = {
+         "schema": "laya-graph-lifecycle-split-host-receipt-v1",
+         "status": "PASS" if passed else "FAIL", "scope": scope,
+         "launcher": rec(attempt / "launcher.json"),
+         "input_manifest": rec(manifest_path), "commands": commands,
+-        "markers": markers,
++        "markers": markers + error_markers,
+         "program_source_count": len(program_sources),
+         "lifecycle_source_count": len(lifecycle_sources),
+     }
+     if binary.is_file():
+         receipt["executable"] = rec(binary)
++    if error_binary.is_file():
++        receipt["error_executable"] = rec(error_binary)
+     if oracle_bin.is_file():
+         receipt["oracle"] = rec(oracle_bin)
+     (attempt / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")

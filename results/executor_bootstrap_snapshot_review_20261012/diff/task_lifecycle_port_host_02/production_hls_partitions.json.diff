@@ -1,0 +1,57 @@
+--- project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_port_host_02/frozen/config/production_hls_partitions.json
++++ project/E002_Laya_HLS/experiment/config/production_hls_partitions.json
+@@ -82,10 +82,10 @@
+     {
+       "name": "task_lifecycle_executor",
+       "top": "laya_task_lifecycle_executor",
+-      "state": "explicit_fsm_host_validated_bootstrap_and_hls_top_pending",
++      "state": "explicit_action_port_and_request_bootstrap_host_validated_source_guard_and_hls_top_pending",
+       "responsibility": "identity/task/ref reservations, owner/lease state, BEGIN/producer/END, fence and unique typed retirement",
+       "next_action_authority": false,
+-      "sources": "config/task_lifecycle_fsm_sources.cmake",
++      "sources": "config/executor_bootstrap_sources.cmake",
+       "supported_scope": "NORM via real LayerNorm producer over all BxS rows16 windows; remaining 16 action kinds reject before side effect",
+       "internal_fifos": [
+         "action_request",
+@@ -99,7 +99,17 @@
+         "machine_header": "include/laya_task_lifecycle_fsm.h",
+         "machine": "hls/control/task_lifecycle_fsm.cpp",
+         "phases": "shared finite steps, persisted B/row cursor, serialized LTX1/LTC1 I/O, immutable same-action cleanup retries",
+-        "validation": "task_lifecycle_fsm_host_02 controlled host; request/model/source preseeded; no HLS/RTL/bootstrap or physical recovery claim"
++        "validation": "task_lifecycle_port_host_02 and executor_bootstrap_host_02 actual C++ program/port/adapter; real LYRQ/LYMP parsing and controlled source snapshot/physical guard; no executor HLS top or hardware source protection",
++        "port_header": "include/laya_task_lifecycle_port.h",
++        "port": "hls/control/task_lifecycle_port.cpp",
++        "bootstrap": "hls/control/executor_bootstrap.cpp",
++        "snapshot_schema": "include/laya_bootstrap_snapshot.h"
++      },
++      "evidence": {
++        "action_port": "project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_port_host_02",
++        "bootstrap": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_bootstrap_host_02",
++        "snapshot": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_snapshot_rtl_02",
++        "scope": "readonly snapshot and controlled host admission; source protection, HLS top/action consumer and real LN production integration pending"
+       }
+     },
+     {
+@@ -207,5 +217,22 @@
+     "codec": "hls/control/graph_program_protocol.cpp",
+     "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+     "next_command_gate": "prior result last beat consumed by the real executor/shell consumer"
++  },
++  "bootstrap_snapshot_boundary": {
++    "contract": "results/executor_bootstrap_source_contract_20261012.md",
++    "request_bytes": 768,
++    "response_bytes": 768,
++    "request_beats": 12,
++    "response_beats": 12,
++    "version": 1,
++    "request_magic": "LBS1",
++    "response_magic": "LBR1",
++    "maximum_pending": 1,
++    "header": "include/laya_bootstrap_snapshot.h",
++    "codec": "hls/control/bootstrap_snapshot_protocol.cpp",
++    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_snapshot_layout_v1.sv",
++    "authority": "same unique persistent provenance hub owner arrays; readonly; not a lease",
++    "supported_source": "HIDDEN bank0/region0 stage2/layer0 BxS/D1024/F32 full encoder_00_out owner, old_ref NONE",
++    "validation": "bootstrap_snapshot_rtl_02 query only; source protection from query to actual read pending"
+   }
+ }

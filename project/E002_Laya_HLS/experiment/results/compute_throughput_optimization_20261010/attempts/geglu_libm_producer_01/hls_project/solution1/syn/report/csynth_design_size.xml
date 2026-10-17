@@ -1,0 +1,157 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">, 44758, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll, 62718, user unroll pragmas are applied</column>
+            <column name="">(2) simplification, 53814, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline, 53740, user inline pragmas are applied</column>
+            <column name="">(4) simplification, 53600, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition, 44798, user array partition pragmas are applied</column>
+            <column name="">(2) simplification, 44798, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate, 44798, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape, 44798, apply array reshape pragmas</column>
+            <column name="">(5) access patterns, 44818, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification, 44818, loop and instruction simplification</column>
+            <column name="">(2) parallelization, 44798, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition, 44798, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification, 44798, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering, 44803, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations, 44958, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="geglu_libm_leaf" col1="gelu_libm_bits.cpp:33" col2="44758" col3="53600" col4="44818" col5="44798" col6="44958">
+                    <row id="4" col0="gelu_finite" col1="gelu_libm_bits.cpp:4" col2="6" col2_disp="    6 (2 calls)" col3="" col4="" col5="" col6=""/>
+                    <row id="1" col0="gelu_libm_bits" col1="gelu_libm_bits.cpp:8" col2="44435" col3="" col4="" col5="" col6="">
+                        <row id="4" col0="gelu_finite" col1="gelu_libm_bits.cpp:4" col2="30" col2_disp="   30 (10 calls)" col3="" col4="" col5="" col6=""/>
+                        <row id="10" col0="fp_mul_bits" col1="tanh_libm_bits.cpp:115" col2="1704" col2_disp="1,704 (6 calls)" col3="" col4="" col5="" col6="">
+                            <row id="11" col0="unpack" col1="tanh_libm_bits.cpp:15" col2="480" col2_disp="  480 (12 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="114" col2_disp="  114 (6 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="8" col0="pack" col1="tanh_libm_bits.cpp:26" col2="678" col2_disp="  678 (6 calls)" col3="" col4="" col5="" col6="">
+                                <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="228" col2_disp="  228 (12 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="15" col0="fp_add_bits" col1="tanh_libm_bits.cpp:89" col2="790" col2_disp="  790 (2 calls)" col3="" col4="" col5="" col6="">
+                            <row id="12" col0="add_unpack" col1="tanh_libm_bits.cpp:61" col2="268" col2_disp="  268 (4 calls)" col3="" col4="" col5="" col6="">
+                                <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="156" col2_disp="  156 (4 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                            <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="2" col0="add_pack" col1="tanh_libm_bits.cpp:72" col2="266" col2_disp="  266 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="68" col2_disp="   68 (4 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="6" col0="tanh_libm_bits" col1="tanh_libm_bits.cpp:221" col2="41831" col3="" col4="" col5="" col6="">
+                            <row id="10" col0="fp_mul_bits" col1="tanh_libm_bits.cpp:115" col2="852" col2_disp="  852 (3 calls)" col3="" col4="" col5="" col6="">
+                                <row id="11" col0="unpack" col1="tanh_libm_bits.cpp:15" col2="240" col2_disp="  240 (6 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="57" col2_disp="   57 (3 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="8" col0="pack" col1="tanh_libm_bits.cpp:26" col2="339" col2_disp="  339 (3 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="114" col2_disp="  114 (6 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                            <row id="17" col0="expm1_bits" col1="tanh_libm_bits.cpp:167" col2="38374" col2_disp="38,374 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="10" col0="fp_mul_bits" col1="tanh_libm_bits.cpp:115" col2="10224" col2_disp="10,224 (36 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="11" col0="unpack" col1="tanh_libm_bits.cpp:15" col2="2880" col2_disp="2,880 (72 calls)" col3="" col4="" col5="" col6=""/>
+                                    <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="684" col2_disp="  684 (36 calls)" col3="" col4="" col5="" col6=""/>
+                                    <row id="8" col0="pack" col1="tanh_libm_bits.cpp:26" col2="4068" col2_disp="4,068 (36 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="1368" col2_disp="1,368 (72 calls)" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                </row>
+                                <row id="15" col0="fp_add_bits" col1="tanh_libm_bits.cpp:89" col2="8690" col2_disp="8,690 (22 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="12" col0="add_unpack" col1="tanh_libm_bits.cpp:61" col2="2948" col2_disp="2,948 (44 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="1716" col2_disp="1,716 (44 calls)" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                    <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="374" col2_disp="  374 (22 calls)" col3="" col4="" col5="" col6=""/>
+                                    <row id="2" col0="add_pack" col1="tanh_libm_bits.cpp:72" col2="2926" col2_disp="2,926 (22 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="858" col2_disp="  858 (22 calls)" col3="" col4="" col5="" col6=""/>
+                                        <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="748" col2_disp="  748 (44 calls)" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                </row>
+                                <row id="3" col0="to_int" col1="tanh_libm_bits.cpp:160" col2="40" col2_disp="   40 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="7" col0="from_int" col1="tanh_libm_bits.cpp:154" col2="262" col2_disp="  262 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="8" col0="pack" col1="tanh_libm_bits.cpp:26" col2="226" col2_disp="  226 (2 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="76" col2_disp="   76 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                </row>
+                                <row id="9" col0="sub" col1="tanh_libm_bits.cpp:150" col2="18308" col2_disp="18,308 (46 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="15" col0="fp_add_bits" col1="tanh_libm_bits.cpp:89" col2="18170" col2_disp="18,170 (46 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="12" col0="add_unpack" col1="tanh_libm_bits.cpp:61" col2="6164" col2_disp="6,164 (92 calls)" col3="" col4="" col5="" col6="">
+                                            <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="3588" col2_disp="3,588 (92 calls)" col3="" col4="" col5="" col6=""/>
+                                        </row>
+                                        <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="782" col2_disp="  782 (46 calls)" col3="" col4="" col5="" col6=""/>
+                                        <row id="2" col0="add_pack" col1="tanh_libm_bits.cpp:72" col2="6118" col2_disp="6,118 (46 calls)" col3="" col4="" col5="" col6="">
+                                            <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="1794" col2_disp="1,794 (46 calls)" col3="" col4="" col5="" col6=""/>
+                                            <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="1564" col2_disp="1,564 (92 calls)" col3="" col4="" col5="" col6=""/>
+                                        </row>
+                                    </row>
+                                </row>
+                                <row id="16" col0="fp_div_bits" col1="tanh_libm_bits.cpp:128" col2="586" col2_disp="  586 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="11" col0="unpack" col1="tanh_libm_bits.cpp:15" col2="160" col2_disp="  160 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                    <row id="8" col0="pack" col1="tanh_libm_bits.cpp:26" col2="226" col2_disp="  226 (2 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="76" col2_disp="   76 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                </row>
+                            </row>
+                            <row id="15" col0="fp_add_bits" col1="tanh_libm_bits.cpp:89" col2="1185" col2_disp="1,185 (3 calls)" col3="" col4="" col5="" col6="">
+                                <row id="12" col0="add_unpack" col1="tanh_libm_bits.cpp:61" col2="402" col2_disp="  402 (6 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="234" col2_disp="  234 (6 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="51" col2_disp="   51 (3 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="2" col0="add_pack" col1="tanh_libm_bits.cpp:72" col2="399" col2_disp="  399 (3 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="117" col2_disp="  117 (3 calls)" col3="" col4="" col5="" col6=""/>
+                                    <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="102" col2_disp="  102 (6 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                            <row id="16" col0="fp_div_bits" col1="tanh_libm_bits.cpp:128" col2="586" col2_disp="  586 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="11" col0="unpack" col1="tanh_libm_bits.cpp:15" col2="160" col2_disp="  160 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="8" col0="pack" col1="tanh_libm_bits.cpp:26" col2="226" col2_disp="  226 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="76" col2_disp="   76 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                            <row id="9" col0="sub" col1="tanh_libm_bits.cpp:150" col2="796" col2_disp="  796 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="15" col0="fp_add_bits" col1="tanh_libm_bits.cpp:89" col2="790" col2_disp="  790 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="12" col0="add_unpack" col1="tanh_libm_bits.cpp:61" col2="268" col2_disp="  268 (4 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="156" col2_disp="  156 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                    <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                    <row id="2" col0="add_pack" col1="tanh_libm_bits.cpp:72" col2="266" col2_disp="  266 (2 calls)" col3="" col4="" col5="" col6="">
+                                        <row id="5" col0="add_clz32" col1="tanh_libm_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                        <row id="13" col0="add_jam" col1="tanh_libm_bits.cpp:55" col2="68" col2_disp="   68 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                </row>
+                            </row>
+                        </row>
+                    </row>
+                    <row id="10" col0="fp_mul_bits" col1="tanh_libm_bits.cpp:115" col2="284" col3="31050" col3_disp="31,050 (46 calls)" col4="22954" col4_disp="22,954 (46 calls)" col5="22954" col5_disp="22,954 (46 calls)" col6="23000" col6_disp="23,000 (46 calls)">
+                        <row id="11" col0="unpack" col1="tanh_libm_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                        <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                        <row id="8" col0="pack" col1="tanh_libm_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                            <row id="14" col0="jam" col1="tanh_libm_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                        </row>
+                    </row>
+                    <row id="15" col0="fp_add_bits" col1="tanh_libm_bits.cpp:89" col2="" col3="18975" col3_disp="18,975 (75 calls)" col4="18975" col4_disp="18,975 (75 calls)" col5="18975" col5_disp="18,975 (75 calls)" col6="19050" col6_disp="19,050 (75 calls)"/>
+                    <row id="16" col0="fp_div_bits" col1="tanh_libm_bits.cpp:128" col2="" col3="2756" col3_disp="2,756 (4 calls)" col4="2072" col4_disp="2,072 (4 calls)" col5="2052" col5_disp="2,052 (4 calls)" col6="2084" col6_disp="2,084 (4 calls)"/>
+                </row>
+            </rows>
+            <notes/>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>

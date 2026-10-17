@@ -1,0 +1,12 @@
+--- executor_admission_owner_host_01/executor_actor_test.cpp
++++ executor_admission_owner_host_02/executor_actor_test.cpp
+@@ -134,7 +134,8 @@
+   }
+   assert(std::equal(before.begin(),before.end(),reinterpret_cast<const uint8_t*>(&state->runtime)));
+   std::ofstream f(fixture+"/actual_admission_owner.bin",std::ios::binary);
+-  f.write(reinterpret_cast<const char*>(literal.data()),literal.size());assert(f);
++  const auto actual=admission_owner::encode(state->admitted_owner);
++  f.write(reinterpret_cast<const char*>(actual.data()),actual.size());assert(f);
+   std::cout<<"FULL_CURRENT_ADMISSION_OWNER_HOST_PASS bytes=1024 wire_rejects="<<rejected
+     <<" capture_rejects=7 actual_LYRQ_LYMP=1 before_HOLD=1 runtime_unchanged=1 physical_STATE0_controlled=1 all13BO_NOT_RUN=1\n";
+ }

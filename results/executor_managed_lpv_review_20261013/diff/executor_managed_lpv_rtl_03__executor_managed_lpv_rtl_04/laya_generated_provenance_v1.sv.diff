@@ -1,0 +1,10 @@
+--- executor_managed_lpv_rtl_03/laya_generated_provenance_v1.sv
++++ executor_managed_lpv_rtl_04/laya_generated_provenance_v1.sv
+@@ -156,6 +156,7 @@
+                 service_scope_active && service_request[ACTION*8+:16]==END_EVENT,1'b0);
+             protocol_error<=1;state<=SEND;
+           end else if(!request_frame_ok(service_request))begin
++            if(MANAGED_LPV_OWNER)protocol_error<=1;
+             response<=rejected_response(service_request,E_ABI,32'h04000016,
+                 service_scope_active &&
+                 service_request[ACTION*8+:16]==END_EVENT,

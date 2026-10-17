@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-rev16-closeout-rev17-lnq-implementation-dispatch-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "decision",
+  "text": "# 修订16分版接纳与有界收束\n\n2026-10-15；D-M004-REV16-CLOSEOUT-01；A001→A002；M004/SM004/E004/R001。回复m004-rev16-at272-engineering-stage-handoff-20261015。\n\n接纳旧AT268 adapter `5a44a3bc…`八tile正常链的原限定结论；接纳当前`6d59c3903c2f65f473f1816c0ae4548a9afc36210be1939b86320985e5840dec`的AT270–272正常单tile、页尾Q读错/末Q读错/首K读错、末B错及无reset后继正常tile。当前版完整八tileNOT_RUN，原PASS不迁移。\n\n主控[只读审核](attention_rev16_closeout_review_20261015.json)重核7次manifest共644项、21笔原guard及231条政策，零SHA/政策不匹配。生产差异仅Q失败load_done后的出口及错误debt_zero→真实rearm；service/reader/writer和算术不变。末Q错1088R后QK未启动、零B，错误7/phase15保持并消费后正常tile再完成64B；K首R及页尾Q、末B错误均按各自日志和真实后继数值检查接纳。正常后继每tile score/prob各2048项、输出1024 F32逐位。\n\nAT271只签实际命中的AR/AW/W受阻、R供给间隔和B返回延迟；TB含AR/R/AW/W受阻保持断言，但没有统计R ready反压命中，也无B VALID保持覆盖证明。紧凑逻辑sentinel不等于邻head或物理BO隔离。上述限定不要求增加非关键恢复用例。AT266参数/含Fatal、AT269后继失败和AT270停顿覆盖失败保留原终态与费用。\n\n修订16原账为static/IP **308.28305006958544/1800s**（7笔）、RTL **1094.2193052433431273/3600s**（14笔）；余额**1491.71694993041456s/2505.7806947566568727s封存，不转移**。host完整累计UNKNOWN。AT268 launch basis原文件保留，0.0003512605720733s少记已在最终账纠正。主控核验0.25s/20388KiB/exit0单列，无EDA重跑。\n\n本阶段正常消费者及合同内关键控制修复有界收束，不补同版八tile重复长例。M004/SM004仍running/unassessed；输入仍为软件捕获和模拟FINAL发布peer，真实128 producer→FINAL→Attention、全16head/Encoder/模型、Host/HBM及联合资源/Fmax未验，全请求异常等价仍UNRESOLVED。\n\n后继按[修订17分阶段LN/Q入口合同](staged_lnq_frontend_rev17_decision.md)立即连续实施，使用新范围独立预算；工程继续单一owner，无需用户转发或逐步审批。旧消费者及所有冻结证据保留，未变依赖复用原身份。\n\n本消息同时下达D-M004-STAGED-LNQ-01：先实现LN_ONLY/DIRECT_NORM1024、准备token及现bank的Q16紧密布局，再按同版完整16行窗口pilot≤120s自动判断全128 LN是否落帽。新host300/static1800/RTL3600s、单RTL1800s；只到NORM_STAGE_READY及局部Q16入口，不启动STEP16/matrix/全RoPE/Attention整合，不跑旧消费者长例。请直接读取合同连续开工，在实际阶段变化时更新A002状态；投递不代签运行，普通修复无逐步审批。\n",
+  "in_reply_to": "m004-rev16-at272-engineering-stage-handoff-20261015",
+  "message_file": "results/m004_simplified_start_20261014/attention_rev16_closeout_decision.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "07e1a506a77932d6085bb2b95687d42137395885efe65593ac7f27a2c5464707",
+  "created_at": "2026-10-15T12:02:40.832399+00:00",
+  "status": "delivered",
+  "client_user_message_id": "8c67a43a-c860-41b6-9e3c-cbbdb859310e",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T12:02:40.886839+00:00",
+  "recipient_turn_id": "01a13f71-6e6b-7900-bf27-02134294cd1a"
+}

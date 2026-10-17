@@ -1,0 +1,314 @@
+{
+  "schema": "laya-production-hls-partitions-v3",
+  "contract": "results/production_hls_partition_contract_20261012.md",
+  "host_abi": "original 13BO plus control; unchanged",
+  "compute_and_provenance_fifos": {
+    "count": 4,
+    "width_bits": 512,
+    "depth": 2,
+    "external_signal_count": 12,
+    "changed": false
+  },
+  "adapter_external_fifos": {
+    "names": [
+      "compute_command",
+      "compute_response",
+      "provenance_command",
+      "provenance_response",
+      "producer_request",
+      "producer_completion"
+    ],
+    "count": 6,
+    "width_bits": 512,
+    "depth": 2,
+    "signal_count": 18,
+    "host_visible": false
+  },
+  "controller_internal_boundary": {
+    "request_bytes": 1536,
+    "request_beats": 24,
+    "completion_bytes": 1024,
+    "completion_beats": 16,
+    "wire_version": 1,
+    "maximum_inflight_transactions": 1,
+    "request_slots": 1,
+    "completion_slots": 1,
+    "header": "include/laya_controller_transaction.h",
+    "codec": "hls/platform/controller_transaction_codec.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_controller_transaction_layout_v1.sv"
+  },
+  "internal_producer_boundary": {
+    "request_bytes": 1024,
+    "request_beats": 16,
+    "completion_bytes": 512,
+    "completion_beats": 8,
+    "wire_version": 1,
+    "maximum_active_non_portal_tasks": 1,
+    "header": "include/laya_producer_engine.h",
+    "codec": "hls/platform/producer_engine_codec.cpp",
+    "hls_adapter": "hls/platform/producer_engine_hls.cpp"
+  },
+  "partitions": [
+    {
+      "name": "graph_program_sequencer",
+      "top": "laya_graph_program_sequencer",
+      "state": "generated_finite_norm_top_verified_rtl_result_consumer",
+      "responsibility": "full model PC, next action, logical slot handles and monotonic action ordinal",
+      "owner_or_typed_authority": false,
+      "sources": "config/graph_program_sources.cmake",
+      "internal_fifos": [
+        "accepted_command",
+        "request_result",
+        "action_request",
+        "action_completion"
+      ],
+      "consumer_handshakes": [
+        "request_result_consumed"
+      ],
+      "external_protocol_fifos": [],
+      "implementation": {
+        "scope": "NORM_LAYER1_ATTN single action; full PC/families pending",
+        "consumer_handshake_shell": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_shell_v1.sv",
+        "consumption_gate": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_control_consumption_gate_v1.sv",
+        "notification": "LGR1 actual consumer four-beat handshake latched; cleared by next accepted-command first real read",
+        "validation": "graph_program_rtl_01 finite program with controlled LAC1 and real depth2 result consumer passed; executor admission and complete production chain pending"
+      },
+      "evidence": {
+        "generation": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_hls_01",
+        "rtl": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_rtl_01",
+        "scope": "finite NORM_LAYER1_ATTN; actual generated program and shell, four depth2 FIFOs, four controlled commands in one runtime; executor admission and full PC pending"
+      }
+    },
+    {
+      "name": "task_lifecycle_executor",
+      "top": "laya_task_lifecycle_executor",
+      "state": "host_v2_checkpoint_and_shared_FSM_pass_real_hub_transport_handoff_executor_top_pending",
+      "responsibility": "identity/task/ref reservations, owner/lease state, BEGIN/producer/END, fence and unique typed retirement",
+      "next_action_authority": false,
+      "sources": "config/executor_checkpoint_sources.cmake",
+      "supported_scope": "NORM via real LayerNorm producer over all BxS rows16 windows; remaining 16 action kinds reject before side effect",
+      "internal_fifos": [
+        "action_request",
+        "action_completion",
+        "transaction_request",
+        "transaction_completion"
+      ],
+      "external_protocol_fifos": [],
+      "synchronous_host_reference_sources": "config/task_lifecycle_executor_sources.cmake",
+      "implementation": {
+        "machine_header": "include/laya_task_lifecycle_fsm.h",
+        "machine": "hls/control/task_lifecycle_fsm.cpp",
+        "phases": "shared finite steps, persisted B/row cursor, serialized LTX1/LTC1 I/O, immutable same-action cleanup retries",
+        "validation": "task_lifecycle_port_host_02 and executor_bootstrap_host_02 actual C++ program/port/adapter; real LYRQ/LYMP parsing and controlled source snapshot/physical guard; no executor HLS top or hardware source protection",
+        "port_header": "include/laya_task_lifecycle_port.h",
+        "port": "hls/control/task_lifecycle_port.cpp",
+        "bootstrap": "hls/control/executor_bootstrap.cpp",
+        "snapshot_schema": "include/laya_bootstrap_snapshot.h",
+        "source_guard": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_source_guard_v1.sv",
+        "source_guard_validation": "one fixed STATE0 base; controlled checkpoint and generated LN writer share one monitor; source AR VALID and READY gated identically; real executor/action top, complete rows16/tensor action, all 13BO/base lifecycle and mutation paths, active cancellation recovery, full graph/request",
+        "checkpoint_header": "include/laya_executor_checkpoint.h",
+        "checkpoint_codec": "hls/control/executor_checkpoint_protocol.cpp",
+        "checkpoint_import": "hls/control/executor_checkpoint.cpp",
+        "retirement_statistics": "actual tasks_retired delta; last_task_id only contiguous range consistency and external checkpoint predecessor"
+      },
+      "evidence": {
+        "action_port": "project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_port_host_02",
+        "bootstrap": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_bootstrap_host_02",
+        "snapshot": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_snapshot_rtl_02",
+        "scope": "PASS_SCOPED_HOST executor_checkpoint_host_04: 2048B independent oracle, 46 wire/36 import/4 prepare negatives, dynamic bases4/7/3 and LPV23/97/119, actual C++ program/port/FSM/adapter four retirements per action; controlled snapshot/fences/remote responses; NOT_RUN: actual hub/transport v2 authority, 16beat depth2 handshake, dispatch handoff/source-target protection and executor top pending",
+        "source_guard": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_source_guard_rtl_08",
+        "snapshot_arbitration": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_snapshot_rtl_05",
+        "guarded_generated_LN": "project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_guarded_source_05",
+        "source_conflict_decoder_adapter": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_source_conflict_adapter_host_01",
+        "checkpoint": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_host_04",
+        "bootstrap_v1_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_bootstrap_host_04",
+        "shared_FSM_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04",
+        "synchronous_F11_F13_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_lifecycle_split_host_05",
+        "checkpoint_handoff_rtl": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_06",
+        "checkpoint_actual_capture_import": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_decode_02"
+      }
+    },
+    {
+      "name": "legacy_graph_sequencer",
+      "top": "laya_typed_q8_forward_graph_sequencer",
+      "state": "failed_semantic_stall_no_rtl",
+      "responsibility": "historical combined graph/action lifecycle closure; superseded by D-M003-GRAPH-LIFECYCLE-SPLIT-01",
+      "arithmetic_fallback_allowed": false,
+      "sources": "config/graph_sequencer_sources.cmake",
+      "internal_fifos": [
+        "transaction_request",
+        "transaction_completion"
+      ],
+      "external_protocol_fifos": [],
+      "evidence": {
+        "attempt": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_hls_01",
+        "status": "FAIL/semantic_stall",
+        "rtl_generated": false
+      }
+    },
+    {
+      "name": "command_provenance_adapter",
+      "top": "laya_command_provenance_adapter",
+      "state": "generated_top_verified_rtl_bounded_protocol_subsets",
+      "responsibility": "one normalized compute/provenance/producer transaction, frame construction, beat transport, response parsing and binding result",
+      "graph_or_owner_authority": false,
+      "typed_retirement_authority": false,
+      "sources": "config/controller_adapter_sources.cmake",
+      "internal_fifos": [
+        "transaction_request",
+        "transaction_completion"
+      ],
+      "external_protocol_fifos": [
+        "compute_command",
+        "compute_response",
+        "provenance_command",
+        "provenance_response",
+        "producer_request",
+        "producer_completion"
+      ],
+      "implementation": {
+        "request_mapping": "include/laya_controller_request_mapping.h",
+        "schedule": "finite semantic phases plus one-word serialized external request construction",
+        "wire_changed": false,
+        "consumer_handshake_interlock": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_controller_transaction_adapter_shell_v1.sv"
+      },
+      "evidence": {
+        "project_relative_generation": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_03",
+        "project_relative_top_port_audit": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_adapter_hls_03_port_verification_20261012.json",
+        "project_relative_rtl": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_rtl_03",
+        "rtl_scope": "eight independently reset bounded compute/provenance/producer protocol cases with real depth2 FIFOs and tail14/tail15 completion-consumer interlock; prior eight-case combined profile remains COST_STOP",
+        "integration": "graph sequencer/LayerNorm/physical hub not connected to this adapter evidence",
+        "project_relative_f10_verification": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_f10_verification_20261012.json"
+      }
+    },
+    {
+      "name": "layernorm_producer_engine",
+      "top": "laya_layernorm_producer_engine",
+      "state": "generated_shell_integration_under_test",
+      "supported_scope": "gamma0 LN_ATTN/LN_FFN, TOKEN rows1..16, D1024",
+      "sources": [
+        "hls/operators/layernorm_producer_engine.cpp",
+        "hls/operators/layernorm_compute.cpp",
+        "hls/platform/producer_engine_codec.cpp",
+        "hls/platform/producer_engine_hls.cpp",
+        "hls/common/laya_numeric.cpp",
+        "hls/common/laya_tasks.cpp"
+      ],
+      "masters": [
+        "source_read",
+        "destination_write"
+      ],
+      "publication_authority": false,
+      "typed_retirement_authority": false,
+      "evidence": {
+        "guarded_source": "project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_guarded_source_05",
+        "default_portal_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_producer_portal_08",
+        "default_quant_F9_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_quant_source_04",
+        "scope": "one real generated row and 1024 F32 gold; default shell pilot/six F9 negatives; prior rows16 Q/fullA remains its old frozen identity"
+      }
+    }
+  ],
+  "graph_action_boundary": {
+    "request_bytes": 512,
+    "request_beats": 8,
+    "completion_bytes": 256,
+    "completion_beats": 4,
+    "wire_version": 1,
+    "width_bits": 512,
+    "depth": 2,
+    "maximum_inflight_actions": 1,
+    "request_slots": 1,
+    "completion_slots": 1,
+    "header": "include/laya_graph_action_protocol.h",
+    "codec": "hls/control/graph_action_protocol.cpp",
+    "registry": "config/graph_action_registry.json",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_action_layout_v1.sv"
+  },
+  "accepted_request_boundary": {
+    "command_bytes": 256,
+    "command_beats": 4,
+    "result_bytes": 256,
+    "result_beats": 4,
+    "wire_version": 1,
+    "width_bits": 512,
+    "depth": 2,
+    "maximum_inflight_requests": 1,
+    "command_slots": 1,
+    "result_slots": 1,
+    "header": "include/laya_graph_program_protocol.h",
+    "codec": "hls/control/graph_program_protocol.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+    "next_command_gate": "prior result last beat consumed by the real executor/shell consumer"
+  },
+  "bootstrap_snapshot_boundary": {
+    "contract": "results/executor_bootstrap_source_contract_20261012.md",
+    "request_bytes": 768,
+    "response_bytes": 768,
+    "request_beats": 12,
+    "response_beats": 12,
+    "version": 1,
+    "request_magic": "LBS1",
+    "response_magic": "LBR1",
+    "maximum_pending": 1,
+    "header": "include/laya_bootstrap_snapshot.h",
+    "codec": "hls/control/bootstrap_snapshot_protocol.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_snapshot_layout_v1.sv",
+    "authority": "same unique persistent provenance hub owner arrays; readonly; not a lease",
+    "supported_source": "HIDDEN bank0/region0 stage2/layer0 BxS/D1024/F32 full encoder_00_out owner, old_ref NONE",
+    "validation": "bootstrap_snapshot_rtl_05 default-guard-disabled F14 compatibility; actual readonly snapshot and finite STATE0 guarded LN_05; full production protection remains pending"
+  },
+  "bootstrap_source_guard_boundary": {
+    "authority": "one shell exclusion key; original hub owner arrays remain sole publication authority",
+    "snapshot_readonly": true,
+    "producer_completion_consumer": "same real depth2 consumer of F9-verified LPC1; tail2/tail1 held in layernorm_guarded_source_05",
+    "action_completion_consumer": "same physical LAC1 depth2 FIFO with full safe-error validation; report remains controlled fixture",
+    "configuration": "STATE0 epoch/base/capacity cannot change while guard/key pending; full model/base lifecycle remains unique request domain",
+    "state": "finite_actual_generated_LN_STATE0_protection_pass_all_13BO_executor_pending",
+    "validation": "F15 scoped closure on guard_07 retained; F16 controller closure R-SM003-GUARDED-LAYERNORM-F16-20261012 on frozen hub, actual C++ decoder/adapter and finite RTL. Full source protection remains pending.",
+    "supported_ingress": "one fixed STATE0 base; controlled checkpoint and generated LN writer share one monitor; source AR VALID and READY gated identically",
+    "remaining": "real executor/action top, complete rows16/tensor action, all 13BO/base lifecycle and mutation paths, active cancellation recovery, full graph/request"
+  },
+  "executor_checkpoint_boundary": {
+    "contract": "results/executor_checkpoint_high_water_contract_20261012.md",
+    "mode": "finite same-admitted-request NORM_LAYER1_ATTN diagnostic only",
+    "request_magic": "LBS2",
+    "response_magic": "LBR2",
+    "version": 2,
+    "bytes": 1024,
+    "beats512": 16,
+    "target_domains": 1,
+    "sources": 1,
+    "header": "include/laya_executor_checkpoint.h",
+    "codec": "hls/control/executor_checkpoint_protocol.cpp",
+    "import_helper": "hls/control/executor_checkpoint.cpp",
+    "shared_sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_executor_checkpoint_layout_v2.sv",
+    "source_closure": "config/executor_checkpoint_sources.cmake",
+    "high_water_authority": {
+      "task": "unique hub typed_last_task, diagnostic baseline without local retirement",
+      "LPV": "actual laya_generated_provenance_v1.last_event_seq via unique shell, never accepted_events",
+      "source_target_epoch": "complete physical allocation-domain history plus larger retained local floors",
+      "producer_compute": "retained executor/transport; not imported from hub",
+      "action": "program allocation; retained executor validation floor"
+    },
+    "atomic_import": "whole-frame/binding/known/complete/no-hole/geometry/capacity/overflow checks before source mirror, inactive target epoch-history cache, allocator and predecessor baseline commit; no TaskDone, retirement, owner claim or publication during import",
+    "validation": "PASS_SCOPED_HOST executor_checkpoint_host_04: 2048B independent oracle, 46 wire/36 import/4 prepare negatives, dynamic bases4/7/3 and LPV23/97/119, actual C++ program/port/FSM/adapter four retirements per action; controlled snapshot/fences/remote responses",
+    "hardware_state": "PASS_SCOPED_RTL_CHECKPOINT_HANDOFF executor_checkpoint_rtl_06; actual hub task/source-target history, direct LPV transport highwater and real 16beat depth2 consumer. Generated executor import/accepted-request restart/source-action chain pending.",
+    "v1": "768B LBS1/LBR1 remains source-only; cannot enable v2 floor import",
+    "scope": "No full graph, encoder arithmetic, actual LN in this host runtime, final13BO, unknown-hole/partial-failure recovery or physical resource/timing claim",
+    "rtl_transport": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_executor_checkpoint_transport_v2.sv",
+    "enabled_parameter": "ENABLE_EXECUTOR_CHECKPOINT, default 0",
+    "frontier_witness": "observed contiguous BEGIN and successful terminal END at original typed array; task gap/error prevents diagnostic frontier. Limited single dispatcher; does not prove arbitrary hidden reservations.",
+    "hardware_evidence": {
+      "checkpoint_handoff": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_06",
+      "actual_capture_codec_import": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_decode_02",
+      "compatibility": [
+        "bootstrap_snapshot_rtl_06",
+        "bootstrap_source_guard_rtl_09",
+        "generated_store_monitor_15",
+        "generated_source_lease_06"
+      ]
+    },
+    "dispatch": "predecessor fully drains then holds; hub response owned through actual 16th read; once-only successor selection on same LPV FIFO; base/cancel revoke authority. Diagnostic phase once per reset, not accepted-request restart.",
+    "base_authority": "live monitored BO base, snapshot configuration and historical base continuity all gate authority; snapshot epoch/base or actual monitored-base change revoke; _06 covers five reset-separated modes"
+  }
+}

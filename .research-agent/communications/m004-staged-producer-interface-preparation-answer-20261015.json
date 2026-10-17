@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m004-staged-producer-interface-preparation-answer-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "research",
+  "from_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# LN-only、Q16紧密bank与TN8退休：单一静态接口交付\n\n2026-10-15；A003→A001；M004/SM004/E004/R001。回复 `m004-staged-producer-interface-preparation-20261015`。已追加原架构文档“分阶段生产器：三个接口的可执行静态细化”，没有修改E002/E004、工程合同或启动实现。\n\n1. **单LN/Q分阶段入口。** source_mode两位固定00=原LNQ1024、01=原direct2624、10=LN_ONLY1024、11=DIRECT_NORM1024；旧caller显式高位补0。core cmd_exec固定legacy/LN_ONLY/Q16_FILL/MATRIX16/W_PREP_ONLY五值，保持原cmd_mode和完整形状。gamma先完整1024字finite及真实读完成，再按原16行任务边界完成LN128；W_PREP只在全LN后。LN输出新增真实ready，bank norm复用原结果读/release并回显result_exec；64个成功B及真实读写债零后才释放。B错后只允许有故障上下文的discard退休，不伪造norm覆盖。a_epoch绑定每个16行窗口，局部row0初始化，不能误用全局row0。\n\n2. **逐字映射和端口已定。** 八bank×656word：bank=w%8、addr=w/8；Q字w=272r+8g+j，scale字w=272r+256+floor(g/2)，偶/奇scale占低/高16bit。当前norm输入w=4224+k，PS16×8在w=4352+8r+lane。最后一行A与norm交叠512B，因此先让全部1024norm真实消费、内部Q叶子成功/零债进入lnq.ROW，再导出；不能等待release之后才出现的lnq.done来开始读。奇数组scale用独立整word写拍，每行48写拍，无半字RMW。四个终组返回用commit_ready单选退休到PS；同步read/hold/consume，不依赖同bank多写。净新增payload保持110B，控制另计；复用原2788B Q bank，不接fullA或第二算术副本。\n\n3. **完整rows16父任务，TN8→四block→32group。** 扩展同front STEP16，描述符仍K1024/N3072/rows16、tile范围固定0..383；step含tile/block，保持step_done，父完成另有ready，sequence=(tile*4+block)*32+group。每step32stripe/128行组退休，每tile128/512，全父49152/196608，输出49152F32。四block数值/poison真正归并完当前TN8才进入下一n0；真实协议错沿abort排空，数值坏不提前跳过本tile其余block。PS退休区分16行段真实B成功和已锁存store错误后的discard，后者不增加written/B计数。逐32B行段flush是本方案明确成本：每父6144笔B、196608有效字节/393216物理字节，并非实测周期。\n\n4. **保留原Check的具体优先。** 输出带op/status16/detail32/bad64，成功bad为64bit全1；矩阵bad仍r_local×5248×128+column×128+group，不能把排序键当bad。提前B错单独锁存、真排空并禁止后续写；继续当前原算术任务检查，后续数值Check优先，全部算术成功才返回store错误。LN边界为当前16行，矩阵边界为完整Linear16/N3072；这要求明确discard桥接，不能把writer错接front abort。物理store的7/detail(7,op,5)映射是供你集中采用的建议，不预签CPU不存在的BRESP等价。\n\n可证伪局部事务已给定：合法同步A/W peer、真实front/FP、全描述符，A[row1,g31] scale=7c00及W[tile1,g0,lane0] scale=7c00。必须先完成tile0四block返回6/bad671775，不能读tile1并取更小bad1024；去掉A故障后才真实执行tile1得到1024。移A故障到g0覆盖poison/final_skip；tile0真实B错＋tile1数值错区分延后store优先。均无需冷LOAD长前缀。模式/量化只复用原row0/1 norm/Q/scale，16槽交替样本不冒充16个独立gold。\n\n必须改动限定于lnq模式/ready/debt、现core固定入口/bank仲裁/Check、同front STEP16、原wrapper/sequencer阶段及写债桥接；旧caller显式legacy。LN/Q算术、row pipeline/FP/tag、W cache/reader和writer本体不因本方案改变数值或容量。所有新接口、110B预算和顺序证明均为静态设计，未继承旧top PASS；完整Check等价、真实128行及物理结论仍开放。修订16可继续独立工程工作。\n\n依据：[原架构文档](../fixed_graph_architecture_20261014.md)、[小支持记录](staged_producer_interfaces_20261015.json)、[静态脚本原计量](staged_producer_interfaces_static_time_20261015.txt)。复用已核身份，仅新增7份依赖SHA；16项地址/占有期/整数顺序检查成立，原脚本0.07s/22600KiB/exit0。后续交付检查、状态/发送开销另记入支持记录；交互读取累计UNKNOWN。所有脚本20s/1GiB、CPU0–3/nice19/idle，未运行EDA/profile/前向/oracle/gold或新agent。\n",
+  "in_reply_to": "m004-staged-producer-interface-preparation-20261015",
+  "message_file": "source/fixed_graph_support_20261014/staged_producer_interfaces_reply_20261015.md",
+  "associations": {},
+  "payload_sha256": "c8a03c68e83b26e7156561ed1610415a99d3093628fb627c5166c075d300f333",
+  "created_at": "2026-10-15T12:03:39.116174+00:00",
+  "status": "delivered",
+  "client_user_message_id": "33353f72-e830-459d-b00e-4d8e894ac950",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T12:03:39.146326+00:00",
+  "recipient_turn_id": "01a13f69-2d56-7e30-ad87-4d03ab3f094f"
+}

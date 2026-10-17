@@ -1,0 +1,701 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sun Oct 11 12:15:32 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+vivado-mcp server ready on port 10000
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/act_production_cache_assemble_ooc.tcl
+# if {[llength $argv] != 4} {error "usage: act_production_cache_assemble_ooc.tcl WORK ACT07_FROZEN_ROOT EXACT_CACHE_PARENT_EDF EXACT_BANK_EDF"}
+# lassign $argv work frozen cache_parent_edf bank_edf
+# set work [file normalize $work]
+# set frozen [file normalize $frozen]
+# set_param general.maxThreads 4
+# create_project -in_memory -part xcu55c-fsvh2892-2L-e
+# set module [file join $frozen vivado module_design q8_linear_and_restore tm1tn8_gs32_512]
+# read_verilog -sv [file join $frozen vivado module_design q8_linear_and_restore metadata_reset_v3 r0_numeric_adapter_v1 rtl r0_fp_bits_pkg.sv]
+# foreach name {quant16_slot_banks quant16_amax16 quant16_half_rne quant16_tiny_div127 quant16_divider_service quant16_stream_row} {
+#   read_verilog -sv [file join $frozen vivado module_design activation_quantizer rtl ${name}.sv]
+# }
+# read_verilog -sv [file join $frozen vivado module_design hbm_loader_and_cache rtl t4_dual_w_cache_stub_v1.sv]
+# foreach name {tm1tn8_integer_tree_lut tm1tn8_signed_pack_pair tm1tn8_integer_tree_packed tm4tn8_tag_v1 tm4tn8_reserved_store_v1 tm4tn8_fp_restore_v1 tm4tn8_row_pipeline_v1 tm4tn8_microbench_v1 tm1tn8_bias_output tm1tn8_axi512_writer laya_act_production_v1} {
+#   read_verilog -sv [file join $module rtl ${name}.sv]
+# }
+# source [file join $module tb create_fp_ip.tcl]
+## if {[get_property PART [current_project]] ne "xcu55c-fsvh2892-2L-e"} {
+##     error "TM1TN8 FP part mismatch"
+## }
+## foreach kind {sitofp fmul fadd} {
+##     set name tm1tn8_${kind}_ip
+##     if {[llength [get_ips -quiet $name]]} { error "FP IP already exists: $name" }
+##     create_ip -name floating_point -version 7.1 -vendor xilinx.com \
+##         -library ip -module_name $name
+##     set common [list CONFIG.c_rate 1 CONFIG.flow_control NonBlocking \
+##         CONFIG.c_optimization Speed_Optimized \
+##         CONFIG.c_result_exponent_width 8 CONFIG.c_result_fraction_width 24 \
+##         CONFIG.result_precision_type Single \
+##         CONFIG.has_a_tlast false CONFIG.has_a_tuser false \
+##         CONFIG.has_b_tlast false CONFIG.has_b_tuser false \
+##         CONFIG.has_result_tready false CONFIG.has_aresetn true \
+##         CONFIG.maximum_latency true]
+##     if {$kind eq "sitofp"} {
+##         set specific [list CONFIG.operation_type Fixed_to_Float \
+##             CONFIG.a_precision_type Custom \
+##             CONFIG.c_a_exponent_width 32 CONFIG.c_a_fraction_width 0 \
+##             CONFIG.c_mult_usage No_Usage \
+##             CONFIG.has_aclken false]
+##     } elseif {$kind eq "fmul"} {
+##         set specific [list CONFIG.operation_type Multiply \
+##             CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Max_Usage \
+##             CONFIG.has_aclken false]
+##     } else {
+##         set specific [list CONFIG.operation_type Add_Subtract \
+##             CONFIG.add_sub_value Add CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Full_Usage \
+##             CONFIG.has_aclken true]
+##     }
+##     set_property -dict [concat $common $specific] [get_ips $name]
+##     set expected_latency [expr {$kind eq "fadd" ? 11 : 6}]
+##     set actual_latency [get_property CONFIG.C_LATENCY [get_ips $name]]
+##     if {$actual_latency != $expected_latency} {
+##         error "FP IP latency changed: $name actual=$actual_latency expected=$expected_latency"
+##     }
+##     set xci [get_files -quiet ${name}.xci]
+##     if {[llength $xci] != 1} { error "FP XCI missing: $name" }
+##     set_property generate_synth_checkpoint false $xci
+##     generate_target {synthesis simulation} $xci
+##     puts "TM1TN8_FP_IP_READY $name [get_property IP_FILE [get_ips $name]]"
+## }
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/ip'.
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_sitofp_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_sitofp_ip'...
+TM1TN8_FP_IP_READY tm1tn8_sitofp_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.srcs/sources_1/ip/tm1tn8_sitofp_ip/tm1tn8_sitofp_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fmul_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fmul_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fmul_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.srcs/sources_1/ip/tm1tn8_fmul_ip/tm1tn8_fmul_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fadd_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fadd_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fadd_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.srcs/sources_1/ip/tm1tn8_fadd_ip/tm1tn8_fadd_ip.xci
+# set ipdir [file join $frozen results compute_throughput_optimization_20261010 attempts quant16_hls_syn_03 work quant16_project solution1 syn verilog]
+# source [file join $ipdir laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.tcl]
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 6 \
+##                           CONFIG.c_mult_usage No_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Divide \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+# source [file join $ipdir laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.tcl]
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 1 \
+##                           CONFIG.c_mult_usage Max_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Multiply \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+# synth_design -top laya_act_production_v1 -part xcu55c-fsvh2892-2L-e -mode out_of_context -flatten_hierarchy none -directive RuntimeOptimized -resource_sharing off
+Command: synth_design -top laya_act_production_v1 -part xcu55c-fsvh2892-2L-e -mode out_of_context -flatten_hierarchy none -directive RuntimeOptimized -resource_sharing off
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xcu55c'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xcu55c'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 4041593
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2206.520 ; gain = 472.871 ; free physical = 45557 ; free virtual = 417316
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'laya_act_production_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_act_production_v1.sv:3]
+INFO: [Synth 8-6157] synthesizing module 'quant16_stream_row' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_stream_row.sv:8]
+INFO: [Synth 8-638] synthesizing module 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip/synth/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.vhd:72]
+	Parameter C_XDEVICEFAMILY bound to: virtexuplusHBM - type: string 
+	Parameter C_PART bound to: xcu55c-fsvh2892-2L-e - type: string 
+	Parameter C_HAS_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_SUBTRACT bound to: 0 - type: integer 
+	Parameter C_HAS_MULTIPLY bound to: 1 - type: integer 
+	Parameter C_HAS_DIVIDE bound to: 0 - type: integer 
+	Parameter C_HAS_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_COMPARE bound to: 0 - type: integer 
+	Parameter C_HAS_FIX_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FIX bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_ABSOLUTE bound to: 0 - type: integer 
+	Parameter C_HAS_LOGARITHM bound to: 0 - type: integer 
+	Parameter C_HAS_EXPONENTIAL bound to: 0 - type: integer 
+	Parameter C_HAS_FMA bound to: 0 - type: integer 
+	Parameter C_HAS_FMS bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_SUB bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_S bound to: 0 - type: integer 
+	Parameter C_A_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_B_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_C_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_RESULT_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_COMPARE_OPERATION bound to: 8 - type: integer 
+	Parameter C_LATENCY bound to: 1 - type: integer 
+	Parameter C_OPTIMIZATION bound to: 1 - type: integer 
+	Parameter C_MULT_USAGE bound to: 3 - type: integer 
+	Parameter C_BRAM_USAGE bound to: 0 - type: integer 
+	Parameter C_RATE bound to: 1 - type: integer 
+	Parameter C_ACCUM_INPUT_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_LSB bound to: -31 - type: integer 
+	Parameter C_HAS_UNDERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_INVALID_OP bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE_BY_ZERO bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_INPUT_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACLKEN bound to: 1 - type: integer 
+	Parameter C_HAS_ARESETN bound to: 0 - type: integer 
+	Parameter C_THROTTLE_SCHEME bound to: 3 - type: integer 
+	Parameter C_HAS_A_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_A_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_B bound to: 1 - type: integer 
+	Parameter C_HAS_B_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_B_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_C bound to: 0 - type: integer 
+	Parameter C_HAS_C_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_C_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TLAST bound to: 0 - type: integer 
+	Parameter C_TLAST_RESOLUTION bound to: 0 - type: integer 
+	Parameter C_A_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_B_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_C_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_OPERATION_TDATA_WIDTH bound to: 8 - type: integer 
+	Parameter C_OPERATION_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_RESULT_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_FIXED_DATA_UNSIGNED bound to: 0 - type: integer 
+INFO: [Synth 8-3491] module 'floating_point_v7_1_21' declared at '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/hdl/floating_point_v7_1_vh_rfs.vhd:93266' bound to instance 'U0' of component 'floating_point_v7_1_21' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip/synth/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.vhd:217]
+INFO: [Synth 8-256] done synthesizing module 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip/synth/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.vhd:72]
+INFO: [Synth 8-6157] synthesizing module 'quant16_slot_banks' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_slot_banks.sv:7]
+INFO: [Synth 8-6155] done synthesizing module 'quant16_slot_banks' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_slot_banks.sv:7]
+INFO: [Synth 8-6157] synthesizing module 'quant16_amax16' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:7]
+INFO: [Synth 8-6155] done synthesizing module 'quant16_amax16' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:7]
+INFO: [Synth 8-6157] synthesizing module 'quant16_divider_service' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:7]
+INFO: [Synth 8-638] synthesizing module 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip/synth/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.vhd:72]
+	Parameter C_XDEVICEFAMILY bound to: virtexuplusHBM - type: string 
+	Parameter C_PART bound to: xcu55c-fsvh2892-2L-e - type: string 
+	Parameter C_HAS_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_SUBTRACT bound to: 0 - type: integer 
+	Parameter C_HAS_MULTIPLY bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE bound to: 1 - type: integer 
+	Parameter C_HAS_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_COMPARE bound to: 0 - type: integer 
+	Parameter C_HAS_FIX_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FIX bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_ABSOLUTE bound to: 0 - type: integer 
+	Parameter C_HAS_LOGARITHM bound to: 0 - type: integer 
+	Parameter C_HAS_EXPONENTIAL bound to: 0 - type: integer 
+	Parameter C_HAS_FMA bound to: 0 - type: integer 
+	Parameter C_HAS_FMS bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_SUB bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_S bound to: 0 - type: integer 
+	Parameter C_A_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_B_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_C_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_RESULT_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_COMPARE_OPERATION bound to: 8 - type: integer 
+	Parameter C_LATENCY bound to: 6 - type: integer 
+	Parameter C_OPTIMIZATION bound to: 1 - type: integer 
+	Parameter C_MULT_USAGE bound to: 0 - type: integer 
+	Parameter C_BRAM_USAGE bound to: 0 - type: integer 
+	Parameter C_RATE bound to: 1 - type: integer 
+	Parameter C_ACCUM_INPUT_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_LSB bound to: -31 - type: integer 
+	Parameter C_HAS_UNDERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_INVALID_OP bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE_BY_ZERO bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_INPUT_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACLKEN bound to: 1 - type: integer 
+	Parameter C_HAS_ARESETN bound to: 0 - type: integer 
+	Parameter C_THROTTLE_SCHEME bound to: 3 - type: integer 
+	Parameter C_HAS_A_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_A_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_B bound to: 1 - type: integer 
+	Parameter C_HAS_B_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_B_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_C bound to: 0 - type: integer 
+	Parameter C_HAS_C_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_C_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TLAST bound to: 0 - type: integer 
+	Parameter C_TLAST_RESOLUTION bound to: 0 - type: integer 
+	Parameter C_A_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_B_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_C_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_OPERATION_TDATA_WIDTH bound to: 8 - type: integer 
+	Parameter C_OPERATION_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_RESULT_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_FIXED_DATA_UNSIGNED bound to: 0 - type: integer 
+INFO: [Synth 8-3491] module 'floating_point_v7_1_21' declared at '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/hdl/floating_point_v7_1_vh_rfs.vhd:93266' bound to instance 'U0' of component 'floating_point_v7_1_21' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip/synth/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.vhd:217]
+INFO: [Synth 8-256] done synthesizing module 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip/synth/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.vhd:72]
+INFO: [Synth 8-6157] synthesizing module 'quant16_tiny_div127' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_tiny_div127.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'quant16_tiny_div127' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_tiny_div127.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'quant16_divider_service' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:7]
+INFO: [Synth 8-6157] synthesizing module 'quant16_half_rne' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_half_rne.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'quant16_half_rne' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_half_rne.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'quant16_stream_row' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_stream_row.sv:8]
+INFO: [Synth 8-6157] synthesizing module 't4_dual_w_cache_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/hbm_loader_and_cache/rtl/t4_dual_w_cache_stub_v1.sv:3]
+INFO: [Synth 8-6157] synthesizing module 'tm4tn8_microbench_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_microbench_v1.sv:5]
+INFO: [Synth 8-6157] synthesizing module 'tm4tn8_row_pipeline_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_row_pipeline_v1.sv:7]
+	Parameter PACKED bound to: 1'b0 
+INFO: [Synth 8-6157] synthesizing module 'tm1tn8_integer_tree_lut' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_integer_tree_lut.sv:7]
+	Parameter TAG_W bound to: 32'sb00000000000000000000000011000000 
+INFO: [Synth 8-6155] done synthesizing module 'tm1tn8_integer_tree_lut' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_integer_tree_lut.sv:7]
+INFO: [Synth 8-6157] synthesizing module 'tm4tn8_tag_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_tag_v1.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'tm4tn8_tag_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_tag_v1.sv:5]
+INFO: [Synth 8-6157] synthesizing module 'tm4tn8_reserved_store_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_reserved_store_v1.sv:7]
+	Parameter TAG_W bound to: 32'sb00000000000000000000000011000000 
+INFO: [Synth 8-6155] done synthesizing module 'tm4tn8_reserved_store_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_reserved_store_v1.sv:7]
+INFO: [Synth 8-6157] synthesizing module 'tm4tn8_fp_restore_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:7]
+INFO: [Synth 8-638] synthesizing module 'tm1tn8_sitofp_ip' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/synth/tm1tn8_sitofp_ip.vhd:70]
+	Parameter C_XDEVICEFAMILY bound to: virtexuplusHBM - type: string 
+	Parameter C_PART bound to: xcu55c-fsvh2892-2L-e - type: string 
+	Parameter C_HAS_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_SUBTRACT bound to: 0 - type: integer 
+	Parameter C_HAS_MULTIPLY bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE bound to: 0 - type: integer 
+	Parameter C_HAS_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_COMPARE bound to: 0 - type: integer 
+	Parameter C_HAS_FIX_TO_FLT bound to: 1 - type: integer 
+	Parameter C_HAS_FLT_TO_FIX bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_ABSOLUTE bound to: 0 - type: integer 
+	Parameter C_HAS_LOGARITHM bound to: 0 - type: integer 
+	Parameter C_HAS_EXPONENTIAL bound to: 0 - type: integer 
+	Parameter C_HAS_FMA bound to: 0 - type: integer 
+	Parameter C_HAS_FMS bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_SUB bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_S bound to: 0 - type: integer 
+	Parameter C_A_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_FRACTION_WIDTH bound to: 0 - type: integer 
+	Parameter C_B_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_FRACTION_WIDTH bound to: 0 - type: integer 
+	Parameter C_C_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_FRACTION_WIDTH bound to: 0 - type: integer 
+	Parameter C_RESULT_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_COMPARE_OPERATION bound to: 8 - type: integer 
+	Parameter C_LATENCY bound to: 6 - type: integer 
+	Parameter C_OPTIMIZATION bound to: 1 - type: integer 
+	Parameter C_MULT_USAGE bound to: 0 - type: integer 
+	Parameter C_BRAM_USAGE bound to: 0 - type: integer 
+	Parameter C_RATE bound to: 1 - type: integer 
+	Parameter C_ACCUM_INPUT_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_LSB bound to: -31 - type: integer 
+	Parameter C_HAS_UNDERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_INVALID_OP bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE_BY_ZERO bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_INPUT_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACLKEN bound to: 0 - type: integer 
+	Parameter C_HAS_ARESETN bound to: 1 - type: integer 
+	Parameter C_THROTTLE_SCHEME bound to: 3 - type: integer 
+	Parameter C_HAS_A_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_A_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_B bound to: 0 - type: integer 
+	Parameter C_HAS_B_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_B_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_C bound to: 0 - type: integer 
+	Parameter C_HAS_C_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_C_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TLAST bound to: 0 - type: integer 
+	Parameter C_TLAST_RESOLUTION bound to: 0 - type: integer 
+	Parameter C_A_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_B_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_C_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_OPERATION_TDATA_WIDTH bound to: 8 - type: integer 
+	Parameter C_OPERATION_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_RESULT_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_FIXED_DATA_UNSIGNED bound to: 0 - type: integer 
+INFO: [Synth 8-3491] module 'floating_point_v7_1_21' declared at '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/hdl/floating_point_v7_1_vh_rfs.vhd:93266' bound to instance 'U0' of component 'floating_point_v7_1_21' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/synth/tm1tn8_sitofp_ip.vhd:211]
+INFO: [Synth 8-256] done synthesizing module 'tm1tn8_sitofp_ip' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/synth/tm1tn8_sitofp_ip.vhd:70]
+INFO: [Synth 8-638] synthesizing module 'tm1tn8_fmul_ip' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_fmul_ip/synth/tm1tn8_fmul_ip.vhd:72]
+	Parameter C_XDEVICEFAMILY bound to: virtexuplusHBM - type: string 
+	Parameter C_PART bound to: xcu55c-fsvh2892-2L-e - type: string 
+	Parameter C_HAS_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_SUBTRACT bound to: 0 - type: integer 
+	Parameter C_HAS_MULTIPLY bound to: 1 - type: integer 
+	Parameter C_HAS_DIVIDE bound to: 0 - type: integer 
+	Parameter C_HAS_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_COMPARE bound to: 0 - type: integer 
+	Parameter C_HAS_FIX_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FIX bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_ABSOLUTE bound to: 0 - type: integer 
+	Parameter C_HAS_LOGARITHM bound to: 0 - type: integer 
+	Parameter C_HAS_EXPONENTIAL bound to: 0 - type: integer 
+	Parameter C_HAS_FMA bound to: 0 - type: integer 
+	Parameter C_HAS_FMS bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_SUB bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_S bound to: 0 - type: integer 
+	Parameter C_A_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_B_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_C_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_RESULT_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_COMPARE_OPERATION bound to: 8 - type: integer 
+	Parameter C_LATENCY bound to: 6 - type: integer 
+	Parameter C_OPTIMIZATION bound to: 1 - type: integer 
+	Parameter C_MULT_USAGE bound to: 3 - type: integer 
+	Parameter C_BRAM_USAGE bound to: 0 - type: integer 
+	Parameter C_RATE bound to: 1 - type: integer 
+	Parameter C_ACCUM_INPUT_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_LSB bound to: -31 - type: integer 
+	Parameter C_HAS_UNDERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_INVALID_OP bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE_BY_ZERO bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_INPUT_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACLKEN bound to: 0 - type: integer 
+	Parameter C_HAS_ARESETN bound to: 1 - type: integer 
+	Parameter C_THROTTLE_SCHEME bound to: 3 - type: integer 
+	Parameter C_HAS_A_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_A_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_B bound to: 1 - type: integer 
+	Parameter C_HAS_B_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_B_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_C bound to: 0 - type: integer 
+	Parameter C_HAS_C_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_C_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TLAST bound to: 0 - type: integer 
+	Parameter C_TLAST_RESOLUTION bound to: 0 - type: integer 
+	Parameter C_A_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_B_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_C_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_OPERATION_TDATA_WIDTH bound to: 8 - type: integer 
+	Parameter C_OPERATION_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_RESULT_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_FIXED_DATA_UNSIGNED bound to: 0 - type: integer 
+INFO: [Synth 8-3491] module 'floating_point_v7_1_21' declared at '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/hdl/floating_point_v7_1_vh_rfs.vhd:93266' bound to instance 'U0' of component 'floating_point_v7_1_21' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_fmul_ip/synth/tm1tn8_fmul_ip.vhd:217]
+INFO: [Synth 8-256] done synthesizing module 'tm1tn8_fmul_ip' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_fmul_ip/synth/tm1tn8_fmul_ip.vhd:72]
+INFO: [Synth 8-638] synthesizing module 'tm1tn8_fadd_ip' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_fadd_ip/synth/tm1tn8_fadd_ip.vhd:73]
+	Parameter C_XDEVICEFAMILY bound to: virtexuplusHBM - type: string 
+	Parameter C_PART bound to: xcu55c-fsvh2892-2L-e - type: string 
+	Parameter C_HAS_ADD bound to: 1 - type: integer 
+	Parameter C_HAS_SUBTRACT bound to: 0 - type: integer 
+	Parameter C_HAS_MULTIPLY bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE bound to: 0 - type: integer 
+	Parameter C_HAS_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_COMPARE bound to: 0 - type: integer 
+	Parameter C_HAS_FIX_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FIX bound to: 0 - type: integer 
+	Parameter C_HAS_FLT_TO_FLT bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP bound to: 0 - type: integer 
+	Parameter C_HAS_RECIP_SQRT bound to: 0 - type: integer 
+	Parameter C_HAS_ABSOLUTE bound to: 0 - type: integer 
+	Parameter C_HAS_LOGARITHM bound to: 0 - type: integer 
+	Parameter C_HAS_EXPONENTIAL bound to: 0 - type: integer 
+	Parameter C_HAS_FMA bound to: 0 - type: integer 
+	Parameter C_HAS_FMS bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ADD bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_SUB bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_UNFUSED_MULTIPLY_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_S bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_A bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUMULATOR_PRIMITIVE_S bound to: 0 - type: integer 
+	Parameter C_A_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_B_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_C_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_RESULT_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_FRACTION_WIDTH bound to: 24 - type: integer 
+	Parameter C_COMPARE_OPERATION bound to: 8 - type: integer 
+	Parameter C_LATENCY bound to: 11 - type: integer 
+	Parameter C_OPTIMIZATION bound to: 1 - type: integer 
+	Parameter C_MULT_USAGE bound to: 2 - type: integer 
+	Parameter C_BRAM_USAGE bound to: 0 - type: integer 
+	Parameter C_RATE bound to: 1 - type: integer 
+	Parameter C_ACCUM_INPUT_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_MSB bound to: 32 - type: integer 
+	Parameter C_ACCUM_LSB bound to: -31 - type: integer 
+	Parameter C_HAS_UNDERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_INVALID_OP bound to: 0 - type: integer 
+	Parameter C_HAS_DIVIDE_BY_ZERO bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACCUM_INPUT_OVERFLOW bound to: 0 - type: integer 
+	Parameter C_HAS_ACLKEN bound to: 1 - type: integer 
+	Parameter C_HAS_ARESETN bound to: 1 - type: integer 
+	Parameter C_THROTTLE_SCHEME bound to: 3 - type: integer 
+	Parameter C_HAS_A_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_A_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_B bound to: 1 - type: integer 
+	Parameter C_HAS_B_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_B_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_C bound to: 0 - type: integer 
+	Parameter C_HAS_C_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_C_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_OPERATION_TLAST bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TUSER bound to: 0 - type: integer 
+	Parameter C_HAS_RESULT_TLAST bound to: 0 - type: integer 
+	Parameter C_TLAST_RESOLUTION bound to: 0 - type: integer 
+	Parameter C_A_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_A_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_B_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_B_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_C_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_C_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_OPERATION_TDATA_WIDTH bound to: 8 - type: integer 
+	Parameter C_OPERATION_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_RESULT_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_RESULT_TUSER_WIDTH bound to: 1 - type: integer 
+	Parameter C_FIXED_DATA_UNSIGNED bound to: 0 - type: integer 
+INFO: [Synth 8-3491] module 'floating_point_v7_1_21' declared at '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_sitofp_ip/hdl/floating_point_v7_1_vh_rfs.vhd:93266' bound to instance 'U0' of component 'floating_point_v7_1_21' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_fadd_ip/synth/tm1tn8_fadd_ip.vhd:221]
+INFO: [Synth 8-256] done synthesizing module 'tm1tn8_fadd_ip' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/work/.gen/sources_1/ip/tm1tn8_fadd_ip/synth/tm1tn8_fadd_ip.vhd:73]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:192]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:193]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:212]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:264]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:264]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:264]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:264]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:264]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:264]
+WARNING: [Synth 8-589] replacing case/wildcard equality operator !== with logical equality operator != [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:264]
+INFO: [Synth 8-6155] done synthesizing module 'tm4tn8_fp_restore_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:7]
+INFO: [Synth 8-6155] done synthesizing module 'tm4tn8_row_pipeline_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_row_pipeline_v1.sv:7]
+INFO: [Synth 8-6155] done synthesizing module 'tm4tn8_microbench_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_microbench_v1.sv:5]
+INFO: [Synth 8-6157] synthesizing module 'tm1tn8_bias_output' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:6]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7071] port 'aresetn' of module 'tm1tn8_fadd_ip' is unconnected for instance 'add_final_bias' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+WARNING: [Synth 8-7023] instance 'add_final_bias' of module 'tm1tn8_fadd_ip' has 9 connections declared, but only 8 given [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:145]
+INFO: [Synth 8-6155] done synthesizing module 'tm1tn8_bias_output' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv:6]
+INFO: [Synth 8-6157] synthesizing module 'tm1tn8_axi512_writer' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_axi512_writer.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'tm1tn8_axi512_writer' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_axi512_writer.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'laya_act_production_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_act_production_v1.sv:3]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max4_reg' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:73]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max3_reg[1]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:70]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max2_reg[3]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:66]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[7]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[6]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max2_reg[2]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:66]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[5]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[4]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max3_reg[0]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:70]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max2_reg[1]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:66]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[3]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[2]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max2_reg[0]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:66]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[1]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-3936] Found unconnected internal register 'max1_reg[0]' and it is trimmed from '37' to '36' bits. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv:58]
+WARNING: [Synth 8-6014] Unused sequential element units_reg[5] was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_tiny_div127.sv:57]
+WARNING: [Synth 8-6014] Unused sequential element fp_issues_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:84]
+WARNING: [Synth 8-6014] Unused sequential element fp_returns_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:84]
+WARNING: [Synth 8-6014] Unused sequential element fp_dummy_issues_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:84]
+WARNING: [Synth 8-6014] Unused sequential element helper_issues_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:85]
+WARNING: [Synth 8-6014] Unused sequential element helper_returns_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:85]
+WARNING: [Synth 8-6014] Unused sequential element semantic_returns_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:86]
+WARNING: [Synth 8-6014] Unused sequential element pending_peak_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv:86]
+WARNING: [Synth 8-6014] Unused sequential element p_control.best_error_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_stream_row.sv:330]
+WARNING: [Synth 8-6014] Unused sequential element p_control.result_q_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_stream_row.sv:485]
+WARNING: [Synth 8-6014] Unused sequential element p_control.bad_lane_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_stream_row.sv:485]
+WARNING: [Synth 8-6014] Unused sequential element p_control.converted_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/activation_quantizer/rtl/quant16_stream_row.sv:487]
+WARNING: [Synth 8-6014] Unused sequential element tag_add_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv:210]
+WARNING: [Synth 8-11357] Potential Runtime issue for 3D-RAM or RAM from Record/Structs for RAM  progress_reg with 18368 registers
+WARNING: [Synth 8-11357] Potential Runtime issue for 3D-RAM or RAM from Record/Structs for RAM  poison_reg with 20992 registers
+WARNING: [Synth 8-11357] Potential Runtime issue for 3D-RAM or RAM from Record/Structs for RAM  ps_reg with 671744 registers
+WARNING: [Synth 8-6014] Unused sequential element K_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_microbench_v1.sv:230]
+WARNING: [Synth 8-6014] Unused sequential element row0_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_act_full_cache_assembled_ooc_01/frozen_act/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_microbench_v1.sv:234]

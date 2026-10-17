@@ -1,0 +1,721 @@
+{
+  "schema": "laya_b1_s128_pipeline_budget_recalculation_v1",
+  "created_utc": "2026-10-10T11:13:08.499054+00:00",
+  "scope": "fixed B1/S128, 122 Q8 weights, current synchronous controller; offline necessary conditions",
+  "source_identity": {
+    "build/model-cpu-embedding-ln-v4-20261010/manifest.json": "093bd662096f8c539529072d09d33f3b5a7f666125e21adaaf7ece20348c5915",
+    "hls/control/full_forward_controller.cpp": "e570e2c8e44dffa7c06f62b0f14b8e18c213de482d25ab2c0e12f0fdf8678838"
+  },
+  "other_evidence_identity": {
+    "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/source/results.md": "7cb758055557994cae0cf85e6ab3af6bc50ecec27fe636473f79207843fb024d",
+    "results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_dma_ooc_42/work/utilization.rpt": "a336942517a3cd9163efb0de03f2fcb0a08aaceeb037ccc946b3a9ece45055f6",
+    "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/source/q8_tm1tn8_joint_dma.cpp": "30df0bbb9274f1605ccb0464a3e9c71141f3a91b75593957ab5dd47848ef358a",
+    "host/laya_host.cpp": "ebcd93bda7cc0b075513fefb95f7df4dab3f307fde7dbaad3ab3608ad3bb117e",
+    "results/cpu_embedding_q8_validation_20261010/attempts/cpu_front_rtl_03/phase_observations.json": "325fa9c6ca5dd13e6f9c3fbb0937a0a55b75c68022a72d854bdd1ea42d948c30"
+  },
+  "current_model_tags": {
+    "model": "6eb6ef58bc4f99bd9db40381604108af",
+    "numeric": "aeb13e7937d29fe6a2c68c407249f294",
+    "layout": "f927881686d9d11c91b7f11ac59e2cc7",
+    "build": "147c8e8554927239ed5981bdde25861c"
+  },
+  "comparison": {
+    "frozen_joint_budget": "results/attention_rtl_repair_20261008/laya_u55c_50ms_joint_budget_review.md",
+    "historical_manifest": "build/model-attention-rtl-repair-20261008/manifest.json",
+    "historical_manifest_sha256": "128768a4a42ffa9d5f5dfd2bb9808e0f7a12a7509638f4d5650cb9fd9fb56caa",
+    "role": "cross-check only; current manifest and formulas generate totals"
+  },
+  "q8": {
+    "families": {
+      "encoder_qkv": {
+        "matrices": 28,
+        "mac": 11274289152,
+        "dot_groups": 352321536,
+        "quant_groups": 114688,
+        "quant_input_elements": 3670016,
+        "output_elements": 11010048,
+        "quant_tasks": 224,
+        "linear_tasks": 224,
+        "q0_bytes": 44040192,
+        "q1_bytes": 44040192,
+        "scale_bytes": 5505024,
+        "bias_bytes": 0,
+        "scale_checks_padded": 2752512,
+        "scale_checks_valid": 2752512
+      },
+      "encoder_wo": {
+        "matrices": 28,
+        "mac": 3758096384,
+        "dot_groups": 117440512,
+        "quant_groups": 114688,
+        "quant_input_elements": 3670016,
+        "output_elements": 3670016,
+        "quant_tasks": 224,
+        "linear_tasks": 224,
+        "q0_bytes": 14680064,
+        "q1_bytes": 14680064,
+        "scale_bytes": 1835008,
+        "bias_bytes": 0,
+        "scale_checks_padded": 917504,
+        "scale_checks_valid": 917504
+      },
+      "encoder_wi": {
+        "matrices": 28,
+        "mac": 19260243968,
+        "dot_groups": 601882624,
+        "quant_groups": 114688,
+        "quant_input_elements": 3670016,
+        "output_elements": 18808832,
+        "quant_tasks": 224,
+        "linear_tasks": 224,
+        "q0_bytes": 75235328,
+        "q1_bytes": 75235328,
+        "scale_bytes": 9404416,
+        "bias_bytes": 0,
+        "scale_checks_padded": 4702208,
+        "scale_checks_valid": 4702208
+      },
+      "encoder_down": {
+        "matrices": 28,
+        "mac": 9630121984,
+        "dot_groups": 300941312,
+        "quant_groups": 293888,
+        "quant_input_elements": 9404416,
+        "output_elements": 3670016,
+        "quant_tasks": 224,
+        "linear_tasks": 224,
+        "q0_bytes": 37617664,
+        "q1_bytes": 37617664,
+        "scale_bytes": 4702208,
+        "bias_bytes": 0,
+        "scale_checks_padded": 2351104,
+        "scale_checks_valid": 2351104
+      },
+      "decision_qkv": {
+        "matrices": 2,
+        "mac": 805306368,
+        "dot_groups": 25165824,
+        "quant_groups": 8192,
+        "quant_input_elements": 262144,
+        "output_elements": 786432,
+        "quant_tasks": 16,
+        "linear_tasks": 16,
+        "q0_bytes": 3145728,
+        "q1_bytes": 3145728,
+        "scale_bytes": 393216,
+        "bias_bytes": 24576,
+        "scale_checks_padded": 196608,
+        "scale_checks_valid": 196608
+      },
+      "decision_wo": {
+        "matrices": 2,
+        "mac": 268435456,
+        "dot_groups": 8388608,
+        "quant_groups": 8192,
+        "quant_input_elements": 262144,
+        "output_elements": 262144,
+        "quant_tasks": 16,
+        "linear_tasks": 16,
+        "q0_bytes": 1048576,
+        "q1_bytes": 1048576,
+        "scale_bytes": 131072,
+        "bias_bytes": 8192,
+        "scale_checks_padded": 65536,
+        "scale_checks_valid": 65536
+      },
+      "decision_fc1": {
+        "matrices": 2,
+        "mac": 1073741824,
+        "dot_groups": 33554432,
+        "quant_groups": 8192,
+        "quant_input_elements": 262144,
+        "output_elements": 1048576,
+        "quant_tasks": 16,
+        "linear_tasks": 16,
+        "q0_bytes": 4194304,
+        "q1_bytes": 4194304,
+        "scale_bytes": 524288,
+        "bias_bytes": 32768,
+        "scale_checks_padded": 262144,
+        "scale_checks_valid": 262144
+      },
+      "decision_fc2": {
+        "matrices": 2,
+        "mac": 1073741824,
+        "dot_groups": 33554432,
+        "quant_groups": 32768,
+        "quant_input_elements": 1048576,
+        "output_elements": 262144,
+        "quant_tasks": 16,
+        "linear_tasks": 16,
+        "q0_bytes": 4194304,
+        "q1_bytes": 4194304,
+        "scale_bytes": 524288,
+        "bias_bytes": 8192,
+        "scale_checks_padded": 262144,
+        "scale_checks_valid": 262144
+      },
+      "scorer_fc1": {
+        "matrices": 1,
+        "mac": 16777216,
+        "dot_groups": 524288,
+        "quant_groups": 512,
+        "quant_input_elements": 16384,
+        "output_elements": 16384,
+        "quant_tasks": 1,
+        "linear_tasks": 1,
+        "q0_bytes": 524288,
+        "q1_bytes": 524288,
+        "scale_bytes": 65536,
+        "bias_bytes": 4096,
+        "scale_checks_padded": 32768,
+        "scale_checks_valid": 32768
+      },
+      "act_fc2": {
+        "matrices": 1,
+        "mac": 512,
+        "dot_groups": 16,
+        "quant_groups": 8,
+        "quant_input_elements": 256,
+        "output_elements": 2,
+        "quant_tasks": 1,
+        "linear_tasks": 1,
+        "q0_bytes": 2048,
+        "q1_bytes": 0,
+        "scale_bytes": 128,
+        "bias_bytes": 8,
+        "scale_checks_padded": 64,
+        "scale_checks_valid": 16
+      }
+    },
+    "totals": {
+      "matrices": 122,
+      "mac": 47160754688,
+      "dot_groups": 1473773584,
+      "quant_groups": 695816,
+      "quant_input_elements": 22266112,
+      "output_elements": 39534594,
+      "quant_tasks": 962,
+      "linear_tasks": 962,
+      "q0_bytes": 184682496,
+      "q1_bytes": 184680448,
+      "scale_bytes": 23085184,
+      "bias_bytes": 77832,
+      "scale_checks_padded": 11542592,
+      "scale_checks_valid": 11542544
+    },
+    "output_bytes": 158138376,
+    "weight_payload_bytes": 392448128,
+    "load_weight_commands": 122,
+    "scale_validation": {
+      "padded_checks": 11542592,
+      "valid_lane_checks": 11542544,
+      "padded_extra_checks": 48,
+      "isolated_qkv_checks": 98304,
+      "current_scalar_loop_conditional_clocks_per_check": 4,
+      "current_scalar_loop_service_clocks": 46170368,
+      "current_scalar_loop_service_ms_150mhz": 307.80245333333335,
+      "source_order": "LOAD reads q0, q1, scales, then bias; validation checks padded scale n then g, followed by bias",
+      "one_check_per_clock_only_optimistic_assumption": true
+    },
+    "geometry": [
+      {
+        "TM": 1,
+        "TN": 8,
+        "dot_groups_per_clock_if_II1": 8,
+        "issued_vector_clocks": 184221704,
+        "valid_dot_groups": 1473773584,
+        "padded_dot_group_slots": 48,
+        "valid_lane_fraction": 0.9999999674305478,
+        "ideal_q8_ms_150mhz": 1228.1446933333334,
+        "dsp_current_tree_and_r0_p1": 384,
+        "dsp_tree_lut_unproven_p1": 320,
+        "dsp_current_tree_and_r0_p2_unproven": 256,
+        "dsp_tree_lut_and_p2_both_unproven": 192
+      },
+      {
+        "TM": 4,
+        "TN": 8,
+        "dot_groups_per_clock_if_II1": 32,
+        "issued_vector_clocks": 46055432,
+        "valid_dot_groups": 1473773584,
+        "padded_dot_group_slots": 240,
+        "valid_lane_fraction": 0.9999998371527598,
+        "ideal_q8_ms_150mhz": 307.0362133333333,
+        "dsp_current_tree_and_r0_p1": 1536,
+        "dsp_tree_lut_unproven_p1": 1280,
+        "dsp_current_tree_and_r0_p2_unproven": 1024,
+        "dsp_tree_lut_and_p2_both_unproven": 768
+      },
+      {
+        "TM": 16,
+        "TN": 8,
+        "dot_groups_per_clock_if_II1": 128,
+        "issued_vector_clocks": 11513864,
+        "valid_dot_groups": 1473773584,
+        "padded_dot_group_slots": 1008,
+        "valid_lane_fraction": 0.9999993160419474,
+        "ideal_q8_ms_150mhz": 76.75909333333334,
+        "dsp_current_tree_and_r0_p1": 6144,
+        "dsp_tree_lut_unproven_p1": 5120,
+        "dsp_current_tree_and_r0_p2_unproven": 4096,
+        "dsp_tree_lut_and_p2_both_unproven": 3072
+      },
+      {
+        "TM": 16,
+        "TN": 16,
+        "dot_groups_per_clock_if_II1": 256,
+        "issued_vector_clocks": 5756936,
+        "valid_dot_groups": 1473773584,
+        "padded_dot_group_slots": 2032,
+        "valid_lane_fraction": 0.9999986212283757,
+        "ideal_q8_ms_150mhz": 38.37957333333333,
+        "dsp_current_tree_and_r0_p1": 12288,
+        "dsp_tree_lut_unproven_p1": 10240,
+        "dsp_current_tree_and_r0_p2_unproven": 8192,
+        "dsp_tree_lut_and_p2_both_unproven": 6144
+      },
+      {
+        "TM": 16,
+        "TN": 24,
+        "dot_groups_per_clock_if_II1": 384,
+        "issued_vector_clocks": 3849896,
+        "valid_dot_groups": 1473773584,
+        "padded_dot_group_slots": 4586480,
+        "valid_lane_fraction": 0.9968975893547947,
+        "ideal_q8_ms_150mhz": 25.665973333333334,
+        "dsp_current_tree_and_r0_p1": 18432,
+        "dsp_tree_lut_unproven_p1": 15360,
+        "dsp_current_tree_and_r0_p2_unproven": 12288,
+        "dsp_tree_lut_and_p2_both_unproven": 9216
+      },
+      {
+        "TM": 16,
+        "TN": 32,
+        "dot_groups_per_clock_if_II1": 512,
+        "issued_vector_clocks": 2878472,
+        "valid_dot_groups": 1473773584,
+        "padded_dot_group_slots": 4080,
+        "valid_lane_fraction": 0.9999972316041289,
+        "ideal_q8_ms_150mhz": 19.189813333333333,
+        "dsp_current_tree_and_r0_p1": 24576,
+        "dsp_tree_lut_unproven_p1": 20480,
+        "dsp_current_tree_and_r0_p2_unproven": 16384,
+        "dsp_tree_lut_and_p2_both_unproven": 12288
+      },
+      {
+        "TM": 32,
+        "TN": 16,
+        "dot_groups_per_clock_if_II1": 512,
+        "issued_vector_clocks": 5756936,
+        "valid_dot_groups": 1473773584,
+        "padded_dot_group_slots": 1473777648,
+        "valid_lane_fraction": 0.49999931061418784,
+        "ideal_q8_ms_150mhz": 38.37957333333333,
+        "dsp_current_tree_and_r0_p1": 24576,
+        "dsp_tree_lut_unproven_p1": 20480,
+        "dsp_current_tree_and_r0_p2_unproven": 16384,
+        "dsp_tree_lut_and_p2_both_unproven": 12288
+      }
+    ],
+    "current_tm1tn8_math_only_min_cycles": 184221704,
+    "tree_and_restore_dsp_per_channel": {
+      "observed_integer_tree_product": 32,
+      "observed_integer_tree_add_Pcin": 8,
+      "R0_two_FMUL3_one_FADD2": 8,
+      "observed_tree_plus_R0_p1": 48,
+      "LUT_tree_p1_unproven": 40,
+      "observed_tree_p2_unproven": 32,
+      "LUT_tree_p2_both_unproven": 24,
+      "i32_to_f32_and_PS_ports_per_channel": 1,
+      "FMUL_services_per_channel": 2,
+      "FADD_services_per_channel": 1
+    }
+  },
+  "attention": {
+    "layers": 30,
+    "heads": 16,
+    "queries_per_head": 128,
+    "keys_per_query": 128,
+    "head_dim": 64,
+    "qk_multiplies": 503316480,
+    "qk_tree_adds": 495452160,
+    "av_multiplies": 503316480,
+    "av_adds": 503316480,
+    "softmax_elements": 7864320,
+    "softmax_rows": 61440,
+    "conditional_FP_DSP_work_clocks": 5017436160,
+    "excludes": "softmax exp/div, score scale, mask, fill/drain, KV/Q load and output"
+  },
+  "vector": {
+    "LN_elements": 8011776,
+    "GEGLU_outputs": 9404416,
+    "residual_adds": 7864320,
+    "decision_ReLU_elements": 1048576,
+    "type_adds": 131072
+  },
+  "host": {
+    "historical_host_source": "host/laya_host.cpp",
+    "historical_host_profile": "old 13-BO full-forward host; new CPU-raw producer path not integrated",
+    "session_model_upload_once_bytes": 448923648,
+    "request_workspace_clear_H2D_bytes": 192937984,
+    "request_IO_H2D_bytes": 32768,
+    "request_H2D_total_bytes": 192970752,
+    "request_D2H_bytes": 384,
+    "one_in_flight_current_contract": true,
+    "new_CPU_raw_profile_status": "producer/descriptor and STATE0 import validated in isolated CPU/front-end; board Host lifecycle/transfer unimplemented",
+    "new_CPU_raw_bytes_B1_S128": 524288,
+    "new_CPU_raw_descriptor_bytes": 256,
+    "raw_and_descriptor_are_inside_existing_STATE0_and_IO_BO_extents": true,
+    "incremental_H2D_bytes_cannot_be_added_without_new_host_contract": true,
+    "conditional_gen3x16_line_rate_GBps": 15.753846153846155,
+    "conditional_gen3x16_H2D_payload_floor_ms": 12.24912
+  },
+  "memory_ports": {
+    "q0_bytes": 184682496,
+    "q1_bytes": 184680448,
+    "scale_bytes": 23085184,
+    "out0_bytes": 134545416,
+    "out1_bytes": 23592960,
+    "historical_32bit_output_two_port_protocol_floor_ms_150mhz": 131.78198,
+    "output_port_scope": "32-bit floors are historical/protocol conditions, not the current Q35 local 512-bit pack/TX prototype. Whole-graph 512-bit output migration and on-chip consumption are unverified.",
+    "current_LOAD_order": "q0 then q1 then scale then bias read then padded-scale validation then bias validation",
+    "unimplemented_overlap_requirements": [
+      "W double buffering",
+      "independent bank ownership and credit",
+      "whole-graph 512-bit output migration or validated on-chip consumption"
+    ]
+  },
+  "frequency_conditional_ideal_service": {
+    "100": {
+      "q8_tm1tn8_ideal_ms": 1842.21704,
+      "q8_tm16tn16_ideal_ms": 57.56936,
+      "q8_current_256_mac_division_only_ms": 1842.21698,
+      "attention_qk_av_512lane_ideal_ms": 19.6608,
+      "quant_two_pass_8lane_ideal_ms": 55.66528,
+      "ln_three_pass_8lane_ideal_ms": 30.04416,
+      "geglu_4lane_ideal_ms": 23.51104,
+      "weight_q0_then_q1_64Bclk_ms": 57.71296,
+      "weight_scale_unpack_16Bclk_ms": 14.42824,
+      "scale_validation_1check_clk_ideal_ms": 115.42592,
+      "scale_validation_current_scalar_4cycles_check_ms": 461.70368,
+      "serialized_q_scale_payload_plus_current_validation_ms": 533.84488,
+      "historical_32bit_out0_protocol_floor_ms": 336.36354,
+      "whole_graph_512bit_out0_if_migrated_payload_floor_ms": 21.02273,
+      "q8_dsp_only_lower_ms_9024": {
+        "observed_tree_p1": 78.39221191489362,
+        "tree_lut_unproven_p1": 65.32684326241134,
+        "observed_tree_p2_unproven": 52.26147460992908,
+        "tree_lut_and_p2_both_unproven": 39.19610595744681
+      },
+      "q8_plus_attention_shared_dsp_work_lower_ms_9024": {
+        "observed_tree_p1": 83.9523140425532,
+        "tree_lut_unproven_p1": 70.88694539007092,
+        "observed_tree_p2_unproven": 57.82157673758865,
+        "tree_lut_and_p2_both_unproven": 44.75620808510638
+      },
+      "q8_plus_attention_independent_resource_serial_lower_ms_9024": {
+        "observed_tree_p1": 125.70725167919396,
+        "tree_lut_unproven_p1": 109.00381410808691,
+        "observed_tree_p2_unproven": 91.91434055475627,
+        "tree_lut_and_p2_both_unproven": 74.28140763599649
+      },
+      "q8_attention_independent_resource_pipeline_max_lower_ms_9024": {
+        "observed_tree_p1": 83.9523140425532,
+        "tree_lut_unproven_p1": 70.88694539007092,
+        "observed_tree_p2_unproven": 57.82157673758865,
+        "tree_lut_and_p2_both_unproven": 44.75620808510638
+      }
+    },
+    "150": {
+      "q8_tm1tn8_ideal_ms": 1228.1446933333334,
+      "q8_tm16tn16_ideal_ms": 38.37957333333333,
+      "q8_current_256_mac_division_only_ms": 1228.1446533333333,
+      "attention_qk_av_512lane_ideal_ms": 13.1072,
+      "quant_two_pass_8lane_ideal_ms": 37.110186666666664,
+      "ln_three_pass_8lane_ideal_ms": 20.02944,
+      "geglu_4lane_ideal_ms": 15.674026666666666,
+      "weight_q0_then_q1_64Bclk_ms": 38.47530666666667,
+      "weight_scale_unpack_16Bclk_ms": 9.618826666666667,
+      "scale_validation_1check_clk_ideal_ms": 76.95061333333334,
+      "scale_validation_current_scalar_4cycles_check_ms": 307.80245333333335,
+      "serialized_q_scale_payload_plus_current_validation_ms": 355.8965866666667,
+      "historical_32bit_out0_protocol_floor_ms": 224.24236,
+      "whole_graph_512bit_out0_if_migrated_payload_floor_ms": 14.015153333333334,
+      "q8_dsp_only_lower_ms_9024": {
+        "observed_tree_p1": 52.26147460992908,
+        "tree_lut_unproven_p1": 43.55122884160757,
+        "observed_tree_p2_unproven": 34.840983073286054,
+        "tree_lut_and_p2_both_unproven": 26.13073730496454
+      },
+      "q8_plus_attention_shared_dsp_work_lower_ms_9024": {
+        "observed_tree_p1": 55.96820936170213,
+        "tree_lut_unproven_p1": 47.257963593380616,
+        "observed_tree_p2_unproven": 38.5477178250591,
+        "tree_lut_and_p2_both_unproven": 29.837472056737585
+      },
+      "q8_plus_attention_independent_resource_serial_lower_ms_9024": {
+        "observed_tree_p1": 83.80483445279597,
+        "tree_lut_unproven_p1": 72.66920940539129,
+        "observed_tree_p2_unproven": 61.276227036504174,
+        "tree_lut_and_p2_both_unproven": 49.520938423997656
+      },
+      "q8_attention_independent_resource_pipeline_max_lower_ms_9024": {
+        "observed_tree_p1": 55.96820936170213,
+        "tree_lut_unproven_p1": 47.257963593380616,
+        "observed_tree_p2_unproven": 38.5477178250591,
+        "tree_lut_and_p2_both_unproven": 29.837472056737585
+      }
+    },
+    "200": {
+      "q8_tm1tn8_ideal_ms": 921.10852,
+      "q8_tm16tn16_ideal_ms": 28.78468,
+      "q8_current_256_mac_division_only_ms": 921.10849,
+      "attention_qk_av_512lane_ideal_ms": 9.8304,
+      "quant_two_pass_8lane_ideal_ms": 27.83264,
+      "ln_three_pass_8lane_ideal_ms": 15.02208,
+      "geglu_4lane_ideal_ms": 11.75552,
+      "weight_q0_then_q1_64Bclk_ms": 28.85648,
+      "weight_scale_unpack_16Bclk_ms": 7.21412,
+      "scale_validation_1check_clk_ideal_ms": 57.71296,
+      "scale_validation_current_scalar_4cycles_check_ms": 230.85184,
+      "serialized_q_scale_payload_plus_current_validation_ms": 266.92244,
+      "historical_32bit_out0_protocol_floor_ms": 168.18177,
+      "whole_graph_512bit_out0_if_migrated_payload_floor_ms": 10.511365,
+      "q8_dsp_only_lower_ms_9024": {
+        "observed_tree_p1": 39.19610595744681,
+        "tree_lut_unproven_p1": 32.66342163120567,
+        "observed_tree_p2_unproven": 26.13073730496454,
+        "tree_lut_and_p2_both_unproven": 19.598052978723405
+      },
+      "q8_plus_attention_shared_dsp_work_lower_ms_9024": {
+        "observed_tree_p1": 41.9761570212766,
+        "tree_lut_unproven_p1": 35.44347269503546,
+        "observed_tree_p2_unproven": 28.910788368794325,
+        "tree_lut_and_p2_both_unproven": 22.37810404255319
+      },
+      "q8_plus_attention_independent_resource_serial_lower_ms_9024": {
+        "observed_tree_p1": 62.85362583959698,
+        "tree_lut_unproven_p1": 54.50190705404346,
+        "observed_tree_p2_unproven": 45.95717027737813,
+        "tree_lut_and_p2_both_unproven": 37.140703817998244
+      },
+      "q8_attention_independent_resource_pipeline_max_lower_ms_9024": {
+        "observed_tree_p1": 41.9761570212766,
+        "tree_lut_unproven_p1": 35.44347269503546,
+        "observed_tree_p2_unproven": 28.910788368794325,
+        "tree_lut_and_p2_both_unproven": 22.37810404255319
+      }
+    }
+  },
+  "joint_resource_examples": [
+    {
+      "TM": 16,
+      "TN": 8,
+      "attention_lanes": 512,
+      "mapping": "observed_tree_p1",
+      "Q8_DSP": 6144,
+      "attention_DSP": 2560,
+      "bare_9024_DSP_remaining_before_quant_vector_shell": 320,
+      "Q8_plus_attention_serial_ideal_ms_150mhz": 89.86629333333333,
+      "pipeline_independent_engines_max_ideal_ms_150mhz": 76.75909333333334,
+      "LN_GEGLU_quant_DSP_and_ports": "unallocated; nonzero physical cost"
+    },
+    {
+      "TM": 16,
+      "TN": 16,
+      "attention_lanes": 128,
+      "mapping": "observed_tree_p2_unproven",
+      "Q8_DSP": 8192,
+      "attention_DSP": 640,
+      "bare_9024_DSP_remaining_before_quant_vector_shell": 192,
+      "Q8_plus_attention_serial_ideal_ms_150mhz": 90.80837333333334,
+      "pipeline_independent_engines_max_ideal_ms_150mhz": 52.4288,
+      "LN_GEGLU_quant_DSP_and_ports": "unallocated; nonzero physical cost"
+    },
+    {
+      "TM": 16,
+      "TN": 16,
+      "attention_lanes": 512,
+      "mapping": "tree_lut_and_p2_both_unproven",
+      "Q8_DSP": 6144,
+      "attention_DSP": 2560,
+      "bare_9024_DSP_remaining_before_quant_vector_shell": 320,
+      "Q8_plus_attention_serial_ideal_ms_150mhz": 51.48677333333333,
+      "pipeline_independent_engines_max_ideal_ms_150mhz": 38.37957333333333,
+      "LN_GEGLU_quant_DSP_and_ports": "unallocated; nonzero physical cost"
+    }
+  ],
+  "joint_resource_selected_conditional": {
+    "status": "conditional arithmetic/service allocation, not physical resource PASS",
+    "Q8_TM_TN": [
+      16,
+      8
+    ],
+    "Q8_channels": 128,
+    "Q8_DSP_observed_tree_plus_R0": 6144,
+    "attention_QK_AV_shared_FP_lanes": 256,
+    "attention_DSP_FMUL3_FADD2": 1280,
+    "vector_quant_LN_nonlinear_DSP_planning_reserve": 512,
+    "control_bias_conversion_DSP_planning_reserve": 256,
+    "total_planning_DSP": 8192,
+    "bare_9024_DSP_unreserved": 832,
+    "shell_and_actual_nonlinear_cost_unknown": true,
+    "Q8_ideal_ms_150mhz": 76.75909333333334,
+    "QK_plus_AV_F256_ideal_ms_150mhz": 26.2144,
+    "softmax_8_4_8_three_scan_ideal_ms_150mhz": 26.2144,
+    "AV_partial_addresses_per_task": 1024,
+    "conditional_AV_safe_revisit_clocks": 11,
+    "AV_feedback_max_contributions_per_clock_without_bypass_or_more_context": 93.0909090909091,
+    "QK_plus_feedback_limited_AV_plus_softmax_ideal_ms_150mhz": 75.3664,
+    "serialized_current_LOAD_plus_Q8_ideal_ms_150mhz": 432.65568,
+    "serialized_1check_clk_unimplemented_LOAD_plus_Q8_ideal_ms_150mhz": 201.80384,
+    "caveat": "AV revisit=11 is a conditional feedback model; more query/context or proven bypass may change it. LOAD is serialized with compute by current single W cache."
+  },
+  "resource_mapping_limit": "OOC42 measured an eight-lane tree (320 DSP), not the enlarged full-graph instance; 48 DSP/channel and joint allocation extrapolate that mapping and older FP coefficients. No physical/timing fit is shown.",
+  "throughput_examples": [
+    {
+      "B1_requests_per_second_example": 10,
+      "interarrival_interval_ms": 100.0,
+      "required_q8_GMAC_per_second": 471.60754688,
+      "required_valid_q8_MAC_per_clock_150mhz": 3144.0503125333335,
+      "required_attention_multiply_per_clock_150mhz": 67.108864,
+      "required_H2D_GB_per_second": 1.92970752,
+      "required_q8_weight_load_GB_per_second": 3.92448128,
+      "requires_cross_request_overlap_or_extra_context": true
+    },
+    {
+      "B1_requests_per_second_example": 20,
+      "interarrival_interval_ms": 50.0,
+      "required_q8_GMAC_per_second": 943.21509376,
+      "required_valid_q8_MAC_per_clock_150mhz": 6288.100625066667,
+      "required_attention_multiply_per_clock_150mhz": 134.217728,
+      "required_H2D_GB_per_second": 3.85941504,
+      "required_q8_weight_load_GB_per_second": 7.84896256,
+      "requires_cross_request_overlap_or_extra_context": true
+    },
+    {
+      "B1_requests_per_second_example": 40,
+      "interarrival_interval_ms": 25.0,
+      "required_q8_GMAC_per_second": 1886.43018752,
+      "required_valid_q8_MAC_per_clock_150mhz": 12576.201250133334,
+      "required_attention_multiply_per_clock_150mhz": 268.435456,
+      "required_H2D_GB_per_second": 7.71883008,
+      "required_q8_weight_load_GB_per_second": 15.69792512,
+      "requires_cross_request_overlap_or_extra_context": true
+    }
+  ],
+  "measured_isolated_fixtures": {
+    "cold_front_B1_S128": {
+      "source": "results/cpu_embedding_q8_validation_20261010/attempts/cpu_front_rtl_03/phase_observations.json",
+      "sha256": "325fa9c6ca5dd13e6f9c3fbb0937a0a55b75c68022a72d854bdd1ea42d948c30",
+      "first_done_from_reset_release_tb_cycles": 31158417,
+      "scope": "isolated cold front fixture; includes AXI/testbench/control holds"
+    },
+    "act_trace_off_two_runs": {
+      "source": "results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_dma_act_timing_103/work/vivado/tm1tn8_joint_dma_act.sim/sim_1/behav/xsim/simulate.log",
+      "sha256": "56c0ff517204d165aec9d84b94479ff89f1b0f335241abcaaecd3965b7969764",
+      "wrapper_accept_to_first_done_cycles": [
+        3471,
+        3471
+      ],
+      "run_tb_cycles": [
+        3473,
+        3473
+      ],
+      "issue_span_cycles": [
+        260,
+        260
+      ],
+      "issue_count": [
+        8,
+        8
+      ],
+      "result_credit_stall_cycles": [
+        0,
+        0
+      ]
+    },
+    "qkv_one_row_trace_off_two_runs": {
+      "source": "results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_dma_qkv_row1_cont_104/work/vivado/tm1tn8_joint_dma_qkv.sim/sim_1/behav/xsim/simulate.log",
+      "sha256": "151e9b1bcea2eefcf68673f862c1828341ddb00c01221c782f9c79fe878e3a63",
+      "wrapper_accept_to_first_done_cycles": [
+        18933,
+        18933
+      ],
+      "run_tb_cycles": [
+        18935,
+        18935
+      ],
+      "issue_span_cycles": [
+        13148,
+        13148
+      ],
+      "issue_count": [
+        12288,
+        12288
+      ],
+      "result_credit_stall_cycles": [
+        860,
+        860
+      ]
+    },
+    "qkv_four_rows_trace_off": {
+      "source": "results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_dma_qkv_rows4_reg_107/work/vivado/tm1tn8_joint_dma_qkv.sim/sim_1/behav/xsim/simulate.log",
+      "sha256": "2269c37981eb75461d8f772f434daca5134b9304414370eba607fe6c78d8dcd6",
+      "wrapper_accept_to_first_done_cycles": [
+        65463
+      ],
+      "run_tb_cycles": [
+        65465
+      ],
+      "issue_span_cycles": [
+        52862
+      ],
+      "issue_count": [
+        49152
+      ],
+      "result_credit_stall_cycles": [
+        3710
+      ]
+    },
+    "qkv_one_row_trace_on": {
+      "source": "results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_dma_qkv_row1_on_108/work/vivado/tm1tn8_joint_dma_qkv.sim/sim_1/behav/xsim/simulate.log",
+      "sha256": "0b12ad3814d3c3a87ec79bb3737aac275e850c0a0cac74c43be3727637655096",
+      "wrapper_accept_to_first_done_cycles": [
+        20797
+      ],
+      "run_tb_cycles": [
+        20799
+      ],
+      "issue_span_cycles": [
+        13148
+      ],
+      "issue_count": [
+        12288
+      ],
+      "result_credit_stall_cycles": [
+        860
+      ]
+    }
+  },
+  "latency_and_pipeline_rules": {
+    "current_synchronous_controller": "single request task order serializes LOAD, QUANT, LINEAR and stage tasks; sum nonoverlapped service",
+    "serial_arithmetic_optimistic_example_150mhz_ms": 51.48677333333333,
+    "independent_engine_pipeline_bound": "max(engine service times) only after proven overlap and per-request contexts; not current controller",
+    "shared_resource_bound": "sum DSP work / (available DSP * realized clock), even if stages overlap",
+    "50ms_interval_vs_latency": "20 B1/s is a throughput interval example; full request latency may differ",
+    "unknown_or_unimplemented": [
+      "realized Fmax and shell-available resources",
+      "signed two-products-per-DSP packing and precision",
+      "tree remap to LUT",
+      "end-to-end full graph RTL service",
+      "scale-check throughput",
+      "W double buffering",
+      "multi-request contexts",
+      "vector/quant fusion",
+      "Host BO lifecycle changes",
+      "actual PCIe effective bandwidth"
+    ]
+  }
+}

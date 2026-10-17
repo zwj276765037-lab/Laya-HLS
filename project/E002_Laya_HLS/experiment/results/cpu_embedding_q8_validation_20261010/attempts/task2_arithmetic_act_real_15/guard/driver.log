@@ -1,0 +1,104 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sat Oct 10 13:10:56 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_arithmetic_real.tcl
+# if {[llength $argv] != 5} {
+#     error "usage: run_arithmetic_real.tcl FRESH_WORK VECTORS ROWS G T"
+# }
+# lassign $argv work vectors rows groups tiles
+# set work [file normalize $work]
+# set vectors [file normalize $vectors]
+# if {![file isdirectory $work] || [file exists [file join $work vivado]] ||
+#     ![file isfile [file join $vectors manifest.json]]} {
+#     error "fresh work and materialized vector directory required"
+# }
+# if {!(($rows == 1 && $groups == 8 && $tiles == 1) ||
+#        (($rows == 1 || $rows == 4) && $groups == 32 && $tiles == 384))} {
+#     error "unsupported real arithmetic shape"
+# }
+# set module [file normalize [file join [file dirname [info script]] ..]]
+# create_project tm1tn8_arithmetic_real [file join $work vivado] \
+#     -part xcu55c-fsvh2892-2L-e
+# set_param general.maxThreads 4
+# add_files -norecurse -fileset sources_1 [list \
+#     [file join $module rtl tm1tn8_integer_tree.sv] \
+#     [file join $module rtl tm1tn8_fp_restore.sv] \
+#     [file join $module rtl tm1tn8_reserved_store.sv] \
+#     [file join $module rtl tm1tn8_arithmetic_pipeline.sv]]
+# add_files -norecurse -fileset sim_1 \
+#     [file join $module tb tm1tn8_arithmetic_real_tb.sv]
+# source [file join $module tb create_fp_ip.tcl]
+## if {[get_property PART [current_project]] ne "xcu55c-fsvh2892-2L-e"} {
+##     error "TM1TN8 FP part mismatch"
+## }
+## foreach kind {sitofp fmul fadd} {
+##     set name tm1tn8_${kind}_ip
+##     if {[llength [get_ips -quiet $name]]} { error "FP IP already exists: $name" }
+##     create_ip -name floating_point -version 7.1 -vendor xilinx.com \
+##         -library ip -module_name $name
+##     set common [list CONFIG.c_rate 1 CONFIG.flow_control NonBlocking \
+##         CONFIG.c_optimization Speed_Optimized \
+##         CONFIG.c_result_exponent_width 8 CONFIG.c_result_fraction_width 24 \
+##         CONFIG.result_precision_type Single \
+##         CONFIG.has_a_tlast false CONFIG.has_a_tuser false \
+##         CONFIG.has_b_tlast false CONFIG.has_b_tuser false \
+##         CONFIG.has_result_tready false CONFIG.has_aresetn true \
+##         CONFIG.maximum_latency true]
+##     if {$kind eq "sitofp"} {
+##         set specific [list CONFIG.operation_type Fixed_to_Float \
+##             CONFIG.a_precision_type Custom \
+##             CONFIG.c_a_exponent_width 32 CONFIG.c_a_fraction_width 0 \
+##             CONFIG.c_mult_usage No_Usage \
+##             CONFIG.has_aclken false]
+##     } elseif {$kind eq "fmul"} {
+##         set specific [list CONFIG.operation_type Multiply \
+##             CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Max_Usage \
+##             CONFIG.has_aclken false]
+##     } else {
+##         set specific [list CONFIG.operation_type Add_Subtract \
+##             CONFIG.add_sub_value Add CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Full_Usage \
+##             CONFIG.has_aclken true]
+##     }
+##     set_property -dict [concat $common $specific] [get_ips $name]
+##     set expected_latency [expr {$kind eq "fadd" ? 11 : 6}]
+##     set actual_latency [get_property CONFIG.C_LATENCY [get_ips $name]]
+##     if {$actual_latency != $expected_latency} {
+##         error "FP IP latency changed: $name actual=$actual_latency expected=$expected_latency"
+##     }
+##     set xci [get_files -quiet ${name}.xci]
+##     if {[llength $xci] != 1} { error "FP XCI missing: $name" }
+##     set_property generate_synth_checkpoint false $xci
+##     generate_target {synthesis simulation} $xci
+##     puts "TM1TN8_FP_IP_READY $name [get_property IP_FILE [get_ips $name]]"
+## }
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/ip'.
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_sitofp_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_sitofp_ip'...
+TM1TN8_FP_IP_READY tm1tn8_sitofp_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_arithmetic_act_real_15/work/vivado/tm1tn8_arithmetic_real.srcs/sources_1/ip/tm1tn8_sitofp_ip/tm1tn8_sitofp_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fmul_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fmul_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fmul_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_arithmetic_act_real_15/work/vivado/tm1tn8_arithmetic_real.srcs/sources_1/ip/tm1tn8_fmul_ip/tm1tn8_fmul_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fadd_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fadd_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fadd_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_arithmetic_act_real_15/work/vivado/tm1tn8_arithmetic_real.srcs/sources_1/ip/tm1tn8_fadd_ip/tm1tn8_fadd_ip.xci
+# set_property top tm1tn8_arithmetic_pipeline [get_filesets sources_1]
+# set_property top tm1tn8_arithmetic_real_tb [get_filesets sim_1]
+# set_property target_simulator XSim [current_project]
+# set_property xsim.simulate.runtime {all} [get_filesets sim_1]
+# set_property xsim.simulate.xsim.more_options \
+#     "-testplusarg VEC_DIR=$vectors -testplusarg ROWS=$rows -testplusarg G=$groups -testplusarg T=$tiles" [get_filesets sim_1]
+ERROR: [Common 17-170] Unknown option '-testplusarg VEC_DIR=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_act_vectors_12/work/vectors -testplusarg ROWS=1 -testplusarg G=8 -testplusarg T=1', please type 'set_property -help' for usage info.
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 10 13:11:04 2026...

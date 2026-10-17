@@ -1,0 +1,27 @@
+set(LAYA_FULL_SOURCES
+  hls/common/laya_numeric.cpp
+  hls/common/laya_tasks.cpp
+  hls/common/laya_memory_map.cpp
+  hls/common/laya_full_io.cpp
+  hls/common/laya_full_memory.cpp
+  hls/common/laya_full_owner.cpp
+  hls/memory/full_loader.cpp
+  hls/operators/activation_quantizer_compute.cpp
+  hls/operators/layernorm_compute.cpp
+  hls/operators/q8_linear_compute.cpp
+  hls/operators/embedding_full_compute.cpp
+  hls/operators/rope_full_compute.cpp
+  hls/operators/attention_full_compute.cpp
+  hls/operators/vector_full_compute.cpp
+  hls/operators/decision_full_compute.cpp
+  hls/operators/full_tasks.cpp
+  hls/operators/full_tasks_front.cpp
+  hls/operators/full_tasks_attention.cpp
+  hls/operators/full_tasks_tail.cpp
+  hls/operators/full_tasks_vector.cpp
+  hls/control/full_result.cpp
+  hls/control/full_forward_controller.cpp
+  hls/laya_forward_full.cpp
+  hls/platform/full_cache_storage.cpp
+  hls/platform/full_kernel_wrapper.cpp
+)

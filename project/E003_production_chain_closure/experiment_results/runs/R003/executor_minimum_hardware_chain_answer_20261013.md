@@ -1,0 +1,37 @@
+# 最小真实硬件链：关键路径答复
+
+回复 executor-minimum-hardware-chain-priority-20261013；M003/SM003/E003/R003，A002。
+
+**近期先交首请求真实计算与周期基线，完整跨request恢复后置。** managed LPV限定审核已收到；真实准入、归属、导入授权、债务及实际consumer仍是首次运行必需项。此次仅只读盘点，没有启动实验。
+
+| 已有模块 | 首链具体缺口 |
+| --- | --- |
+| program_hls_01及rtl_01 | 已生成，仅单NORM；真实4/4、8/4接executor。当前pending改动尚未进入生成入口，extern C仍传nullptr；接新归属接口或Q控制须重新冻结/生成。 |
+| adapter_hls_03、F10/rtl_03 | RTL实际存在，原receipt FAIL保留，端口纠正审核PASS；24/16 consumer已测。仍需接真实executor/LN/LPV，真实adapter pending/fence/preowned取代受控输入。 |
+| LN_hls_01、guarded_05、quant_04 | 已生成LN/F9与旧冻结rows16→Q/fullA有gold。仍需真实adapter因果、完整NORM窗口、actual completion→END→唯一软件退休；当前codec漂移不等于旧生成RTL已经更新。 |
+| shell/LPV/monitor/唯一hub/source guard | 有有限RTL。生产wrapper MANAGED_LPV_OWNER仍默认0、新hook tie0，须接真实FIRST准入A、HOLD/实际helper IMPORT/完整GRANT consumer及源/目标无空窗移交。 |
+| executor | **没有独立HLS top或生成RTL。** 当前23源actor/port/FSM仅host；须有界extern C入口、真实LYRQ/LYMP/物理绑定、两层末拍消费与持续撤销门。 |
+| Q | 算术/lease模块存在，但旧TB用send_q发起；当前program/FSM只支持NORM。**实际program或原合同内真实sequencer发起Q及lease/AR/读债/释放，是含Q首链必需项。** |
+
+本次独立核三生成manifest 34/33/30项frozen全匹配，三top SHA匹配；current分别6/5/7项漂移。明细及receipt SHA保存在本目录 `executor_minimum_hardware_chain_inventory_20261013.json`。可复用明确冻结模块，不能宣称当前源码全兼容。
+
+排序依据：分区合同§8.5的第一个实际出口正是program→executor→F10/adapter→LN/monitor/hub→真实END/唯一退休→source lease/Q；IMPORT合同§4的真实HOLD→完整LBR2→helper提交→GRANT是首次启动前置，managed LPV合同§1–5的旧归属/半帧/返回清理继续必需。
+
+- no-LGP/committed ABORT的完整错误结果及恢复矩阵可以在有限测量后补。基线遇到此分支即终止测量、保留完整A/K、commit和下界并隔离，禁止第二请求；旧半帧/END/债务的进展不能后置。CLOSE/rearm §4的已准入Host错误结果义务与IMPORT §5的提交不回滚保留，不能以延期删出口或签错误请求完成。
+- CLOSED可以在“计算已完成、请求仍持锁未关闭”的有限基线之后接全。若要签生产managed请求已关闭或释放A/锁，CLOSE/rearm §2明确成功/失败都必须真实Host/安全事实及CLOSED消费；没有它不能宣布完整请求生命周期PASS。
+- 新准入/rearm明确后置：首请求真实初始化FIRST只用一次，之后保持等待并禁止旧IDLE重开。第二请求按CLOSE/rearm §5的旧关闭依据、一次真实新准入和持续下界执行，原begin/recycle清零缺口不豁免。
+
+| 阶段 | 出口 | 工程时间粗估 |
+| --- | --- | --- |
+| A | 首请求闭包、有界executor入口、真实A/控制consumer/IMPORT与受影响host/oracle | 2–4小时 |
+| B | executor生成、端口/资源估计及有限RTL；接口需要时重生成program | 1–3小时 |
+| C | 同runtime完整NORM窗口、实际LN/monitor/hub/END与唯一退休，首个LN周期基线 | 2–4小时 |
+| D | 实际Q发起、lease/读债、gold和首条含Q周期基线，开始测量驱动优化 | 2–4小时 |
+
+下一executor候选约A/B两阶段、3–7工程小时；首条含Q约四阶段、7–15工程小时。是工作量粗估，无executor成功生成样本，**不承诺日期或成功上界**。先在C给出可见计算测量，不等完整恢复。
+
+工具依据：program/adapter/LN已完成HLS分别109.026/370.877/99.227s；RTL static program48.662s、adapter112.120s，旧LN→Q pilot55.006s。下一轮规划1次executor、接口需要时1次program生成；成功且无返工参考串行工具约600–1800s，每次仍遵守static24GiB/1800s、真实120s停滞及pilot8GiB/120s帽。executor完整runtime/codec展开规模、旧模块接口兼容、真实ingress/配置映射、Q控制及新组合仿真速率是具体不确定性；失败后按证据重估，不加帽、原样重试或重启5172s组合。
+
+**G2338.224019s是G累计OOC余额，并非可挪用的HLS/RTL总秒池**（goal与E003 protocol明确）。本次不启动OOC/P&R，余额保持。首出口可签实际周期/等待/AXI计数及HLS模块资源估计，联合LUT/FF/BRAM/DSP和时序仍待真实综合/实现，不能伪造联合资源基线。
+
+用户本轮允许自主拆分并行，research-agent安装版与来源包已更新：子agent继承同技能，父agent统筹所有权、预算和整合。本次Laya盘点未创建项目子agent或启动实验，A002仍为实现owner；该规则不增加重工具、OOC或总预算。详细拆解见同目录 `executor_minimum_hardware_chain_plan_20261013.md`。M003/M004未完成，既有限定审核范围保持。

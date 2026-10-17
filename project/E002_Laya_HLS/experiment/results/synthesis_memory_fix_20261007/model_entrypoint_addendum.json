@@ -1,0 +1,60 @@
+{
+  "at_utc": "2026-10-07T09:53:09.332006+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "decision": "APPROVE_THREE_DEFAULT_MODEL_PACKAGE_PATH_UPDATES_BEFORE_FINAL_IDENTITY_EXPORT",
+  "reason": "After promotion the new source identity must select the matching new package in normal entrypoints; old frozen packages remain immutable and correctly fail strict-current-sources for the repaired source.",
+  "scope": [
+    {
+      "path": "scripts/run_full_tests.sh",
+      "location": "MODEL default expression",
+      "old_default": "$ROOT/build/model-p2-final",
+      "new_default": "$ROOT/build/model-repair",
+      "override_preserved": "LAYA_FULL_MODEL_DIR environment variable"
+    },
+    {
+      "path": "scripts/run_full_hls.sh",
+      "location": "MODEL default expression",
+      "old_default": "$ROOT/build/model-p2-final",
+      "new_default": "$ROOT/build/model-repair",
+      "override_preserved": "LAYA_FULL_MODEL_DIR environment variable"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "location": "LAYA_FULL_MODEL_DIR CACHE PATH initial value",
+      "old_default": "${CMAKE_SOURCE_DIR}/build/model-p2",
+      "new_default": "${CMAKE_SOURCE_DIR}/build/model-repair",
+      "override_preserved": "-DLAYA_FULL_MODEL_DIR and existing CMake cache; no FORCE"
+    }
+  ],
+  "invariants": [
+    "Only those three default literals change for this addendum.",
+    "Keep strict-current-sources, complete final gates, test cases, expected values and numeric options.",
+    "Do not overwrite old model packages, old build identity or old results.",
+    "Do not mutate existing CMake build cache to force new default; the validated test entrypoint already explicitly passes the chosen package.",
+    "Final new identity must be exported only after all authorized production/source-list/runner changes stabilize."
+  ],
+  "exporter_decision": {
+    "path": "tools/export_gguf.py",
+    "default_unchanged": "build/model-p2",
+    "this_task_invocation": "Use explicit --out build/model-repair",
+    "reason": "The current verified export path is explicit. No additional exporter behavior change is needed."
+  },
+  "promotion_contract": [
+    "List all three files in reviewed source changes and new-build identity closure.",
+    "If promoted, include exact baseline versions/hashes in pre_promotion backup before overwrite.",
+    "Promote the new package under build/model-repair along with matching generated header/manifest and reviewed entrypoints; never alias old package to new source."
+  ],
+  "verification": [
+    "Read the final three lines and mechanically confirm environment/CMake override mechanisms remain.",
+    "Run shell syntax check or existing runner preflight as appropriate.",
+    "New strict source/package verification plus actual CPU and HLS runs must use the matching model-repair package."
+  ],
+  "baseline_prechange_hashes": {
+    "scripts/run_full_tests.sh": "b1499562038b6c95c2de8b1832b93c23c191c501ab45f6d89d9221fc0249922f",
+    "scripts/run_full_hls.sh": "fca0fcc0bab379e9d5a2ba0ff538ccdee7d2763fefb65ed185257f9b7ccc3e4e",
+    "CMakeLists.txt": "e0bcc7a0d2479f085a5130b1b32ffee19d8e7cb20cfa0c8bdd1d5dff7826e456"
+  }
+}

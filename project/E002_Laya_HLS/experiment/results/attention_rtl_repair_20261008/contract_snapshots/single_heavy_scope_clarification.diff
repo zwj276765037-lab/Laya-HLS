@@ -1,0 +1,12 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/contract_snapshots/single_heavy_scope_preclarification_contract.md
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md
+@@ -340,3 +340,9 @@
+ 按[d2_attention_preloaded/source/design.md](d2_attention_preloaded/source/design.md)另建 `attention_preloaded_slice` 与独立诊断身份：BEGIN真实parse/fresh/双shard claim后返回FILL；Host在两次调用间实际写全QKV图像并独立逐byte核验，生成绑定request/generation/bank/epoch/ticket及源/图像SHA的完成receipt；RUN只为实际完成行调用生产coverage，生产publish后执行原LOAD_KV→QK→lease→Softmax→AV。完整行span可一次coverage，缺plane/row必须真实publish失败；禁止直接赋READY/coverage。此项只验证外部输入导入及下游链，不声称上游Q8或旧RTL fixture full_write执行。
+ 
+ Vitis多事务实际page/offset推进、同一static runtime跨调用FILL保留且无夹入reset，以及RUN前对真实mem_model backing pages的全prefix独立校验，均为新的RTL门禁；receipt不是未验证的preload_ok。生产fe067字节与身份保持，旧§7.3的逐byte RTL生产器及全部历史结果冻结。当前只放行实现与8GiB/120s严格CPU准备；CPU/源码冻结审核后分别门控标准libm CSim、局部综合和2事务静态绑定。新数值RTL运行预算须依据新调度与分配诊断另行审核，本设计不放行新的RTL运行、D3或性能实施。
++
++### 7.12 单重工具约束的调度范围澄清
++
++本合同的“单重任务”“一次一个重型任务”及§7.8的“全局仅一个重任务”，统一指**本Laya工作流及其全部代理树**在同一时刻最多运行一项重型构建或仿真；不要求共享服务器上的无关用户/项目任务先结束。启动前确认本任务没有另一项重工具，检查实际允许CPU、负载及主机余量；在既定四CPU（或具体实验已定的二CPU）、nice19、idleIO、任务树RSS、wall-time、0.2s采样和MemAvailable≥192GiB守护内，允许与外部任务共存。只管理本任务拥有的进程树，不向无关任务发送信号、修改优先级或CPU affinity。
++
++2026-10-08 controller明确此为现有调度约束的范围澄清。只读主机证据显示96个允许逻辑CPU、约421GiB可用内存，存在无关Vivado不构成独立阻塞条件；本轮可在低占用允许核继续已放行的AXI分配诊断静态构建。CPU占用是瞬时采样，具体四核由启动时实际affinity/命令留证；不为固定核号重启已合规启动的工具。本补充不变更设计、数值、测试数量或任何预算，不增加等待门；§7.10的source/snapshot独立审核及两次runtime放行条件保留。见[精确身份及主机证据补充](reviewer_single_heavy_scope_addendum.json)。

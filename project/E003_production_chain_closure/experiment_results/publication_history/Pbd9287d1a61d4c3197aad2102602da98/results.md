@@ -1,0 +1,15 @@
+# E003当前结果：Graph lifecycle F11–F13主机修复
+
+`graph_lifecycle_split_host_03`为PASS_SCOPED_HOST。五条冻结命令均exit0：oracle 0.066243s，成功路径build/run 12.753270s/0.067232s，错误路径build/run 12.453885s/0.066087s。launcher为CPU0–3、nice19、idle I/O、MemAvailable 420411544KiB。独立核查56/56 current、frozen、pair及128/128 manifest/receipt SHA引用一致。
+
+F11动态执行四个真实host LayerNorm窗口后使PUBLISH终态失败、首次INVALIDATE合法非OK且未排空；此时不报安全终态且program pending保留。相同action随后只发匹配INVALIDATE，远端OK/drained/terminal及本地invalidate都成功后才报告安全错误终态；首错保持，typed退休仍为4且无重复。BEGIN非终态与source release失败分别证明source lease/tracker/action保留且不安全。
+
+F12覆盖LOCAL_REJECT+OK、非法Status、非法slot的decode输出清零，以及错batch、row0和不足退休数不提交PC/slot。正确B1/S64四窗口完成保持。F13覆盖安全错误后同request再prepare不耗ordinal，新accepted request保持高水位递增。其余16种kind全部动态副作用前拒绝。
+
+manifest=`914777b50062afa1711a8cabc9040017923a4f0f3bc6d6d69fca5129f32519e9`；receipt=`dcb798795109e8fdbd97479f5458cb3bbe95e8c312358955ee7dac0fa5d9a72b`；verification=`ab446e35f693279694713c17c3785fe5ea2c5fed51fefd3fabc3829a52753c0c`。
+
+原`graph_lifecycle_split_host_02`成功路径和`source_provenance_06`软件ledger PASS保留；后者正确receipt SHA为`64061933359de321e6ce7f7e94b2469e19bb5ba93490b3f3bb128f44ffaf63f2`。
+
+---
+Published: 2026-10-12T11:53:10.754301+00:00
+Publication: P40223bc994e04a9596d2c593914b0daa

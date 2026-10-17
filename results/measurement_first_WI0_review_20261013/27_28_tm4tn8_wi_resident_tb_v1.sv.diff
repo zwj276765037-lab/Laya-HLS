@@ -1,0 +1,17 @@
+--- AT027_WI0_resident_02/tm4tn8_wi_resident_tb_v1.sv
++++ AT028_WI0_resident_03/tm4tn8_wi_resident_tb_v1.sv
+@@ -825,8 +825,13 @@
+         end
+         if(wc_rvalid[pp] && wc_rready[pp])begin
+           if(!q_active[pp] || q_left[pp]<1 || wc_rlast[pp]!=(q_left[pp]==1))$fatal(1,"resident W R debt");
+-          q_index[pp]<=q_index[pp]+1;q_left[pp]<=q_left[pp]-1;q_beats[pp]<=q_beats[pp]+1;if(wc_rlast[pp])q_active[pp]<=0;
++          q_index[pp]<=q_index[pp]+1;q_left[pp]<=q_left[pp]-1;q_beats[pp]<=q_beats[pp]+1;if(pp==0 && (q_beats[0]+1)%512==0)$display("MATRIX_PROGRESS cycle=%0d Wi_W_q0_R=%0d q1_R=%0d scale_R=%0d",cycle,q_beats[0]+1,q_beats[1],q_beats[2]);if(wc_rlast[pp])q_active[pp]<=0;
+         end
++      end
++      if(pilot && q_beats[0]>=1024 && q_beats[1]>=1024 && q_beats[2]>=128)begin
++        if(fa_slot_state[0]!=2 || fa_physical_half_commits!=256 || fa_physical_scale_commits!=128)$fatal(1,"WI pilot A publication lost");
++        $display("WI_RESIDENT_PILOT_PASS cycle=%0d physical_A_halves=%0d physical_A_scales=%0d W_q0_R=%0d W_q1_R=%0d W_scale_R=%0d W_ready=NOT_RUN PS=NOT_RUN output_B=NOT_RUN",cycle,fa_physical_half_commits,fa_physical_scale_commits,q_beats[0],q_beats[1],q_beats[2]);
++        measurement_report("pilot");$finish;
+       end
+       if(wc_aux_arvalid && wc_aux_arready)begin
+         if(aux_active || wc_aux_araddr!=wc_load_aux_base+aux_bytes || wc_aux_arsize!=4 || wc_aux_arburst!=1)$fatal(1,"resident physical AUX AR");

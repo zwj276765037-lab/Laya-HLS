@@ -1,0 +1,75 @@
+{
+  "actual_packet": {
+    "bytes": 4961,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/runs/rtl_base_h15_r63_monitor_v3_v1/evidence/actual_execution_packet.json",
+    "sha256": "e7b4782eec8af458fc4a47d18d69a515c63da59d838f2af0442464d09699e905"
+  },
+  "allowed_snapshot_artifacts": [
+    "att_finite_base_h15_r63_static/xsimSettings.ini",
+    "att_finite_base_h15_r63_static/xsim_script.tcl",
+    "att_finite_base_h15_r63_static/xsimcrash.log",
+    "att_finite_base_h15_r63_static/xsimkernel.log"
+  ],
+  "created_utc": "2026-10-09T05:45:25.203967+00:00",
+  "guard": {
+    "child_exit_code": 1,
+    "elapsed_seconds": 6.263227377086878,
+    "finished_at": "2026-10-09T05:32:13.797684+00:00",
+    "minimum_mem_available_kb": 439069980,
+    "peak_owned_rss_kb": 844040,
+    "rss_capture_count": 31,
+    "rss_captured": true,
+    "rss_sample_count": 31,
+    "trigger": null
+  },
+  "held": [
+    "Any Head15 numeric output/four-command PASS",
+    "Full-DUT static rebuild/runtime until minimal same-connection diagnostic is independently reviewed",
+    "Retry of consumed v3 gate",
+    "Using v1 partial numeric bytes or v2 observations as v3 result"
+  ],
+  "launcher_reported_binding_count": 981,
+  "prepared_files": 12,
+  "process_policy_rows": 5,
+  "raw_archive_rechecked": {
+    "files": 35,
+    "symlinks": 46
+  },
+  "raw_observation": {
+    "commands_started": 0,
+    "first_fatal": "ATT_R_RECORD_TOP_RESET port=0",
+    "individual_predicate_branches_printed": false,
+    "owner_reset_witnesses": 14,
+    "owner_values": "119-bit all-zero record and count0 on seven ports, both sides",
+    "time_ps": 6666,
+    "top_raw_count_printed": false,
+    "top_raw_record_printed": false,
+    "top_reset_witnesses": 0,
+    "wrapper_reset_witnesses": 0
+  },
+  "release": {
+    "bytes": 356430,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_monitor_v3_single_runtime_release.json",
+    "sha256": "d1861bef1bc59ab7997bc4070d638231923f4e0a03de933a43ca9693167fb05a"
+  },
+  "release_input_bindings": 978,
+  "reviewer": "GPT-6 Astra xhigh independent, source/evidence only, CPU3 nice19 idle I/O",
+  "schema": "independent_head15_v3_first_runtime_failure_review_v1",
+  "snapshot_frozen_unchanged": 318,
+  "source_count": 614,
+  "source_diagnosis": [
+    "Owner reset happens at prior positive edge; top and wrapper reset witness blocks are evaluated at the subsequent negative edge. Source has explicit named monitor output -> wrapper signal -> wrapper output -> top array element connections.",
+    "Top reset check combines $isunknown({ram_accepted_r_record[p],ram_r_count[p]}) with per-field case nonzero comparisons. Existing fatal prints only p; it cannot identify unknown data, a nonzero field or expression-evaluation behavior.",
+    "Owner log demonstrates the owners values at its own reset check, not independently the wrapper/top values at6666ps.",
+    "No wrapper logs before top fatal does not prove wrapper failure: parallel negedge active-block execution order can allow top termination before wrapper diagnostics.",
+    "No evidence yet proves XSim defect, wiring fault or numerical DUT defect."
+  ],
+  "stage_exit_codes": {
+    "archive": 0,
+    "binding_post": 0,
+    "binding_pre": 0,
+    "guard": 1
+  },
+  "status": "FIRST_FAILURE_EVIDENCE_ACCEPTED_RESET_PREDICATE_UNEXPLAINED_NO_NUMERIC_ACCEPTANCE",
+  "timeline_rows": 31
+}

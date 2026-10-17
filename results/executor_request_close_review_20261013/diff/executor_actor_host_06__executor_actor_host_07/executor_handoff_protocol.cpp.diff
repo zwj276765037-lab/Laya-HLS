@@ -1,0 +1,14 @@
+--- executor_actor_host_06/executor_handoff_protocol.cpp
++++ executor_actor_host_07/executor_handoff_protocol.cpp
+@@ -19,6 +19,11 @@
+       break;
+     case Kind::ABORT_CLOSED: case Kind::REJECT:
+       if (!m.binding.handoff_epoch || m.local_committed || m.result) return protocol();
++      break;
++    case Kind::CLOSE: case Kind::CLOSED:
++      // The status is the sealed request result, including a non-OK result
++      // for a safely closed failed request. Commit is an echoed retained fact.
++      if (!m.binding.handoff_epoch) return protocol();
+       break;
+     default: return protocol();
+   }

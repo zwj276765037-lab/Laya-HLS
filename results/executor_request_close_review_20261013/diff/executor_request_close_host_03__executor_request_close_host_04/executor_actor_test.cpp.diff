@@ -1,0 +1,72 @@
+--- executor_request_close_host_03/executor_actor_test.cpp
++++ executor_request_close_host_04/executor_actor_test.cpp
+@@ -134,6 +134,27 @@
+       if(status=="ok") {bad=p;bad[24]=1;assert(!handoff::decode(bad,out));}
+     }
+   assert(cases==8);
++}
++void actual_closed_capture(const std::string& fixture,const std::string& directory) {
++  unsigned frames=0;
++  for(const std::string status:{"ok","error"})for(unsigned commit=0;commit<2;++commit) {
++    const std::string name="closed_"+status+"_c"+std::to_string(commit);
++    std::ifstream file(directory+"/"+name+"_capture.hex");assert(file);
++    handoff::Packet captured{};
++    for(unsigned beat=0;beat<16;++beat) {
++      std::string line;assert(bool(file>>line) && line.size()==128);
++      for(unsigned byte=0;byte<64;++byte)
++        captured[beat*64+byte]=uint8_t(std::stoul(line.substr(126-2*byte,2),nullptr,16));
++    }
++    std::string extra;assert(!(file>>extra));
++    handoff::Message decoded;
++    assert(handoff::decode(captured,decoded) && handoff::encode(decoded)==captured &&
++      decoded.kind==handoff::Kind::CLOSED && decoded.local_committed==bool(commit) &&
++      bool(decoded.result)==(status=="ok") && decoded.binding.handoff_epoch==1 &&
++      captured==packet<1024>(bytes(fixture+"/shell_"+name+".bin")));
++    ++frames;
++  }
++  assert(frames==4);
+ }
+ void finish_managed_close(Harness& h,const std::string& fixture,
+                           const program_wire::ResultPacket& consumed,const std::string& name) {
+@@ -539,7 +560,10 @@
+       !(decoded.flags&program_wire::LOCAL_REJECT) && result==packet<256>(bytes(fixture+"/cancel_result.bin")));
+     // The actual Host-side last read is acknowledged. It is retained, but
+     // cannot substitute for the still-missing bound CLOSE/safe-release path.
+-    if(managed)finish_managed_close(h,fixture,result,"cancel"+std::to_string(mode));
++    if(managed) {
++      assert(graph.phase==program_hls::Phase::READ_COMMAND && !graph.bound_command);
++      finish_managed_close(h,fixture,result,"cancel"+std::to_string(mode));
++    }
+     else {h.in.result_consumed=true;h.call();h.in.result_consumed=false;}
+     assert(state->result_consumed_pending);
+     for(unsigned i=0;i<24;++i) {program_call();h.call();assert(state->phase==(managed?executor::Phase::WAIT_NEW_ADMISSION:executor::Phase::WAIT_RESULT_CONSUMED));}
+@@ -604,7 +628,10 @@
+     const auto actual_result=dequeue<256>(h.results);
+     program_wire::Result r;assert(program_wire::decode(actual_result,r) &&
+       !r.result && !r.action_ordinal && (r.flags&program_wire::LOCAL_REJECT));
+-    if(managed)finish_managed_close(h,fixture,actual_result,"no_action"+std::to_string(partial));
++    if(managed) {
++      assert(graph.phase==program_hls::Phase::READ_COMMAND && !graph.bound_command);
++      finish_managed_close(h,fixture,actual_result,"no_action"+std::to_string(partial));
++    }
+   }
+   std::cout<<(managed?"FULL_CURRENT_EXECUTOR_CANCEL_DRAIN_CLOSE_COMPAT_PASS":"FULL_CURRENT_EXECUTOR_CANCEL_DRAIN_PASS")<<" pending_literal_bytes=1024 pending_wire_rejects=14 "
+     <<"actual_program_successful_cancel_cases="<<successful<<" bad_frame_cases="<<bad_frames
+@@ -658,11 +685,14 @@
+   assert(argc==2 || argc==3 || argc==4);const std::string fixture=argv[1];wire(fixture);
+   auto p=packet<1024>(bytes(fixture+"/v2/checkpoint_request.bin"));checkpoint::Request r;assert(checkpoint::decode(p,r));
+   checkpoint::Response proof;assert(checkpoint::decode(packet<1024>(bytes(fixture+"/v2/checkpoint_response.bin")),r,proof));
+-  if(argc==3 && std::string(argv[2])=="--request-close") {
+-    close_wire(fixture);managed_success_host(fixture,proof);cancel_drain_host(fixture,proof,true);
++  if(argc>=3 && std::string(argv[2])=="--request-close") {
++    close_wire(fixture);
++    if(argc==4)actual_closed_capture(fixture,argv[3]);
++    managed_success_host(fixture,proof);cancel_drain_host(fixture,proof,true);
+     std::cout<<"FULL_CURRENT_EXECUTOR_REQUEST_CLOSE_PASS wire_literals=8 wire_mutants=156 real_success_cases=1 real_cancel_cases=3 real_no_action_cases=2 "
+       <<"host_full_result_required=1 real_program_action_completion_results=1 exact_closed_error_commit=1 old_live_changed_close=1 "
+-      <<"closed_once_wait_new_admission=1 runtime_unchanged_close=1 no_LGP_error_NOT_RUN=1 physical_shell_NOT_RUN=1 hardware_rearm_NOT_RUN=1\n";return 0;
++      <<"closed_once_wait_new_admission=1 runtime_unchanged_close=1 actual_closed_rtl_capture_frames="<<(argc==4?4:0)
++      <<" no_LGP_error_NOT_RUN=1 same_hardware_consumer_NOT_RUN=1 hardware_rearm_NOT_RUN=1\n";return 0;
+   }
+   if(argc==3 && std::string(argv[2])=="--cancel-drain") {cancel_drain_host(fixture,proof);return 0;}
+   if(argc>=3) {

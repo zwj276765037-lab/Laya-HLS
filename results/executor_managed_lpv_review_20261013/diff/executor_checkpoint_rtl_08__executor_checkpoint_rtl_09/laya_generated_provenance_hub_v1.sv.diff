@@ -1,0 +1,275 @@
+--- executor_checkpoint_rtl_08/laya_generated_provenance_hub_v1.sv
++++ executor_checkpoint_rtl_09/laya_generated_provenance_hub_v1.sv
+@@ -7,13 +7,17 @@
+   parameter bit ENABLE_BOOTSTRAP_SNAPSHOT=0,
+   parameter bit ENABLE_BOOTSTRAP_SOURCE_GUARD=0,
+   parameter bit ENABLE_EXECUTOR_CHECKPOINT=0,
+-  parameter bit MANAGED_EXECUTOR_CHECKPOINT=0
++  parameter bit MANAGED_EXECUTOR_CHECKPOINT=0,
++  parameter bit MANAGED_LPV_OWNER=0
+ ) (
+   input  logic clk,rst_n,
+   input  logic request_valid,
+   output logic request_ready,
+   input  logic [8191:0] request,
+   input  logic cancel,
++  // Unique immutable admission object, plus this transport's first-beat owner.
++  input logic managed_owner_valid,
++  input logic [8191:0] managed_owner,managed_request_owner,
+   input  logic begin_external_ready,
+   input  logic begin_external_supported,
+   input  logic physical_observation_valid,
+@@ -86,6 +90,8 @@
+   // It cannot assert completeness for unobserved callers or reservations.
+   logic typed_frontier_complete[0:OWNERS-1];
+   logic [8191:0] active_begin;
++  logic [63:0] owner_session[0:OWNERS-1],owner_request[0:OWNERS-1];
++  logic [63:0] active_session,active_request;
+   logic [$clog2(OWNERS)-1:0] active_typed_slot;
+   logic admitted_identity_valid;
+   logic [671:0] admitted_identity;
+@@ -107,27 +113,33 @@
+   logic [7:0] source_lease_rows,source_lease_role;
+ 
+   logic [15:0] request_action;
+-  logic needs_physical;
++  logic needs_physical,managed_reject_request;
++  assign managed_reject_request=MANAGED_LPV_OWNER &&
++    (!managed_binding_ok(request) ||
++     ((cancel || cancel_pending) && request_action!=END_EVENT && request_action!=INVALIDATE) ||
++     (request_action==END_EVENT && (!scope_active || !end_binding_ok(request,active_begin))) ||
++     (request_action==INVALIDATE && (!owner_descriptors_ok(request))));
+   assign request_action=request[ACTION*8+:16];
+   assign needs_physical=request_action==END_EVENT || request_action==PUBLISH ||
+                         request_action==RELEASE || request_action==INVALIDATE;
+   // LPV and old-action cleanup have priority over an unaccepted snapshot.
+   // A held accepted snapshot response still excludes all owner mutation.
+   assign request_ready=!response_valid && !pending_end &&
+-                       (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held) &&
++                       (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held ||
++                        (MANAGED_LPV_OWNER && (request_action==END_EVENT || request_action==INVALIDATE))) &&
+                        (!ENABLE_BOOTSTRAP_SNAPSHOT ||
+                         (!snapshot_response_valid)) &&
+-                       ((ENABLE_BOOTSTRAP_SOURCE_GUARD && guard_conflict(request)) ||
++                       (managed_reject_request || (ENABLE_BOOTSTRAP_SOURCE_GUARD && guard_conflict(request)) ||
+                         ((request_action!=BEGIN_EVENT || begin_external_ready) &&
+                          (!needs_physical || physical_observation_valid)));
+   assign physical_observation_ready=(pending_end && !response_valid) ||
+                                     (request_valid && request_ready &&
+-                                     needs_physical &&
++                                     needs_physical && !managed_reject_request &&
+                                      (!ENABLE_BOOTSTRAP_SOURCE_GUARD ||
+                                       !guard_conflict(request)));
+   assign domain_drained=!scope_active && !pending_end && !response_valid &&
+                         !source_lease_active &&
+-                        !cancel_pending && active_owners==0 &&
++                        (MANAGED_LPV_OWNER || !cancel_pending) && active_owners==0 &&
+                         (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active);
+ 
+   always_comb begin
+@@ -158,6 +170,44 @@
+       if(find_exact<0 && owner_valid[i] && owner_active[i] &&
+          owner_identity[i]==identity && owner_descriptor[i]==descriptor)
+         find_exact=i;
++  endfunction
++
++  // Full A is held by the unique portal and cannot be replaced while any
++  // old reference exists. Session/request below are references to that object.
++  function automatic integer find_bound(input logic [671:0] identity,
++      input logic [1023:0] descriptor,input logic [3327:0] model);
++    integer slot;
++    begin
++      slot=find_exact(identity,descriptor);
++      if(MANAGED_LPV_OWNER && slot>=0)
++        if(!managed_owner_valid || owner_session[slot]!=managed_owner[16*8+:64] ||
++           owner_request[slot]!=managed_owner[24*8+:64] ||
++           owner_model_identity[slot]!=model)slot=-1;
++      return slot;
++    end
++  endfunction
++
++  function automatic logic managed_binding_ok(input logic [8191:0] packet);
++    logic good;logic [1023:0] d;integer role;logic [63:0] capacity;
++    begin
++      good=managed_owner_valid && managed_request_owner==managed_owner &&
++        admission_record_ok(managed_owner) &&
++        packet[IDENTITY*8+:672]==managed_owner[64*8+:672] &&
++        packet[MODEL_IDENTITY*8+:3328]==managed_owner[160*8+:3328];
++      for(int i=0;i<2;i++)begin
++        if(i<packet[DESCRIPTOR_COUNT*8+:8])begin
++          d=packet[(DESCRIPTOR0+i*128)*8+:1024];role=d[28*8+:8];
++          if(role>=13)good=0;
++          else begin
++            capacity=managed_owner[(576+role*24+16)*8+:64];
++            good=good && managed_owner[12*8+role] &&
++              d[32*8+:64]!=0 && d[32*8+:64]<=capacity &&
++              d[40*8+:64]<=capacity && d[64*8+:64]<=capacity-d[40*8+:64];
++          end
++        end
++      end
++      return good;
++    end
+   endfunction
+ 
+   function automatic integer find_source(input logic [671:0] identity,
+@@ -621,6 +671,9 @@
+       (!ENABLE_BOOTSTRAP_SNAPSHOT ||
+        (!snapshot_request_valid && !snapshot_response_valid)) &&
+       !request_valid && !response_valid && !cancel_pending &&
++      (!MANAGED_LPV_OWNER || (managed_owner_valid && !cancel &&
++        source_query_command[laya_compute_portal_layout_v1::IDENTITY*8+:672]==managed_owner[64*8+:672] &&
++        source_query_command[laya_compute_portal_layout_v1::MODEL_IDENTITY*8+:3328]==managed_owner[160*8+:3328])) &&
+       (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active);
+     source_query_granted=0;slot=-1;window=-1;descriptor=0;
+     producer=source_query_command[laya_compute_portal_layout_v1::PRODUCER_CONTEXT*8+:96];
+@@ -787,10 +840,10 @@
+         end_status=E_PROTOCOL;end_detail=32'h04000017;
+         end_bad=64'hffffffffffffffff;
+       end
+-      end_slot0=find_exact(end_identity,packet[DESCRIPTOR0*8+:1024]);
++      end_slot0=find_bound(end_identity,packet[DESCRIPTOR0*8+:1024],packet[MODEL_IDENTITY*8+:3328]);
+       end_slot1=-1;
+       if(end_count==2)
+-        end_slot1=find_exact(end_identity,packet[DESCRIPTOR1*8+:1024]);
++        end_slot1=find_bound(end_identity,packet[DESCRIPTOR1*8+:1024],packet[MODEL_IDENTITY*8+:3328]);
+       end_window=-1;
+       if(end_status==0 && end_slot0>=0 &&
+          source_owner_supported(owner_descriptor[end_slot0]))begin
+@@ -841,12 +894,12 @@
+     begin
+       event_count=packet[DESCRIPTOR_COUNT*8+:8];
+       event_action=packet[ACTION*8+:16];
+-      event_slot0=find_exact(packet[IDENTITY*8+:672],
+-                             packet[DESCRIPTOR0*8+:1024]);
++      event_slot0=find_bound(packet[IDENTITY*8+:672],
++                             packet[DESCRIPTOR0*8+:1024],packet[MODEL_IDENTITY*8+:3328]);
+       event_slot1=-1;
+       if(event_count==2)
+-        event_slot1=find_exact(packet[IDENTITY*8+:672],
+-                               packet[DESCRIPTOR1*8+:1024]);
++        event_slot1=find_bound(packet[IDENTITY*8+:672],
++                               packet[DESCRIPTOR1*8+:1024],packet[MODEL_IDENTITY*8+:3328]);
+       event_ok=event_slot0>=0 &&
+                (event_count==1 || (event_slot1>=0 && event_slot1!=event_slot0));
+       if(event_ok && observed_status==0)begin
+@@ -903,7 +956,7 @@
+     logic semantic_ok,new_identity;
+     if(!rst_n)begin
+       response_valid<=0;response<=0;scope_active<=0;active_begin<=0;
+-      active_typed_slot<=0;cancel_pending<=0;accepted_events<=0;
++      active_typed_slot<=0;active_session<=0;active_request<=0;cancel_pending<=0;accepted_events<=0;
+       semantic_rejections<=0;terminal_tasks<=0;
+       admitted_identity_valid<=0;admitted_identity<=0;
+       pending_end<=0;pending_end_request<=0;
+@@ -921,6 +974,7 @@
+       for(int i=0;i<OWNERS;i++)begin
+         owner_valid[i]<=0;owner_active[i]<=0;owner_published[i]<=0;
+         owner_invalid[i]<=0;owner_identity[i]<=0;owner_descriptor[i]<=0;
++        owner_session[i]<=0;owner_request[i]<=0;
+         owner_model_identity[i]<=0;owner_window_closed[i]<=0;
+         owner_last_q_generation[i]<=0;
+         owner_max_epoch[i]<=0;typed_valid[i]<=0;typed_identity[i]<=0;
+@@ -929,7 +983,7 @@
+     end else begin
+       if(response_valid && response_ready)response_valid<=0;
+       if(cancel)cancel_pending<=1;
+-      if(cancel_pending && !scope_active && !response_valid)begin
++      if(!MANAGED_LPV_OWNER && cancel_pending && !scope_active && !response_valid)begin
+         for(int i=0;i<OWNERS;i++)begin
+           if(owner_valid[i] && owner_active[i] &&
+              !(ENABLE_BOOTSTRAP_SOURCE_GUARD && bootstrap_source_guard_active &&
+@@ -1054,7 +1108,10 @@
+         // A conflict is a consumed, bound rejection, not a blocked portal
+         // head. Keep scope/owner/typed state so a following old END can run.
+         // Held exclusion is not a drain proof for the rejected mutation.
+-        if(ENABLE_BOOTSTRAP_SOURCE_GUARD && guard_conflict(request))
++        if(MANAGED_LPV_OWNER && (!managed_binding_ok(request) ||
++            ((cancel || cancel_pending) && request_action!=END_EVENT && request_action!=INVALIDATE)))
++          reject(E_PROTOCOL,32'h04000017,request_action==END_EVENT && scope_active,0);
++        else if(ENABLE_BOOTSTRAP_SOURCE_GUARD && guard_conflict(request))
+           reject(E_BUFFER,32'h04000008,request_action==END_EVENT && scope_active,0);
+         else case(request_action)
+           CLAIM:begin
+@@ -1080,6 +1137,9 @@
+                   semantic_ok=owner_active[slot0] && owner_published[slot0] &&
+                     !owner_invalid[slot0] && owner_identity[slot0]==identity &&
+                     owner_descriptor[slot0][0+:64]==descriptor0[8*8+:64] &&
++                    (!MANAGED_LPV_OWNER || (owner_session[slot0]==managed_owner[16*8+:64] &&
++                      owner_request[slot0]==managed_owner[24*8+:64] &&
++                      owner_model_identity[slot0]==request[MODEL_IDENTITY*8+:3328])) &&
+                     descriptor0[0+:32]==descriptor0[8*8+:32]+1'b1;
+                 else if(owner_valid[slot0])
+                   semantic_ok=!owner_active[slot0] &&
+@@ -1090,6 +1150,9 @@
+                   semantic_ok=owner_active[slot1] && owner_published[slot1] &&
+                     !owner_invalid[slot1] && owner_identity[slot1]==identity &&
+                     owner_descriptor[slot1][0+:64]==descriptor1[8*8+:64] &&
++                    (!MANAGED_LPV_OWNER || (owner_session[slot1]==managed_owner[16*8+:64] &&
++                      owner_request[slot1]==managed_owner[24*8+:64] &&
++                      owner_model_identity[slot1]==request[MODEL_IDENTITY*8+:3328])) &&
+                     descriptor1[0+:32]==descriptor1[8*8+:32]+1'b1;
+                 else if(owner_valid[slot1])
+                   semantic_ok=!owner_active[slot1] &&
+@@ -1100,14 +1163,20 @@
+                 if(new_identity)begin
+                   admitted_identity_valid<=1;admitted_identity<=identity;
+                   for(int i=0;i<OWNERS;i++)begin
++                    if(!MANAGED_LPV_OWNER)begin
+                     typed_valid[i]<=0;typed_identity[i]<=0;
+                     typed_last_task[i]<=0;typed_frontier_complete[i]<=0;
++                    end
+                   end
+                 end
+                 owner_valid[slot0]<=1;owner_active[slot0]<=1;
+                 owner_published[slot0]<=0;owner_invalid[slot0]<=0;
+                 owner_identity[slot0]<=identity;owner_descriptor[slot0]<=descriptor0;
+                 owner_model_identity[slot0]<=request[MODEL_IDENTITY*8+:3328];
++                if(MANAGED_LPV_OWNER)begin
++                  owner_session[slot0]<=managed_owner[16*8+:64];
++                  owner_request[slot0]<=managed_owner[24*8+:64];
++                end
+                 owner_window_closed[slot0]<=0;owner_last_q_generation[slot0]<=0;
+                 if(descriptor0[0+:32]>owner_max_epoch[slot0])
+                   owner_max_epoch[slot0]<=descriptor0[0+:32];
+@@ -1116,6 +1185,10 @@
+                   owner_published[slot1]<=0;owner_invalid[slot1]<=0;
+                   owner_identity[slot1]<=identity;owner_descriptor[slot1]<=descriptor1;
+                   owner_model_identity[slot1]<=request[MODEL_IDENTITY*8+:3328];
++                  if(MANAGED_LPV_OWNER)begin
++                    owner_session[slot1]<=managed_owner[16*8+:64];
++                    owner_request[slot1]<=managed_owner[24*8+:64];
++                  end
+                   owner_window_closed[slot1]<=0;owner_last_q_generation[slot1]<=0;
+                   if(descriptor1[0+:32]>owner_max_epoch[slot1])
+                     owner_max_epoch[slot1]<=descriptor1[0+:32];
+@@ -1129,8 +1202,8 @@
+           BEGIN_EVENT:begin
+             typed_slot=find_typed(identity);
+             if(typed_slot<0)typed_slot=find_empty_typed();
+-            slot0=find_exact(identity,descriptor0);
+-            if(count==2)slot1=find_exact(identity,descriptor1);
++            slot0=find_bound(identity,descriptor0,request[MODEL_IDENTITY*8+:3328]);
++            if(count==2)slot1=find_bound(identity,descriptor1,request[MODEL_IDENTITY*8+:3328]);
+             semantic_ok=!scope_active && typed_slot>=0 && slot0>=0 &&
+               (count==1 || slot1>=0) && begin_external_ready &&
+               begin_external_supported;
+@@ -1152,12 +1225,18 @@
+                 typed_frontier_complete[typed_slot]<=0;
+               active_typed_slot<=typed_slot[$clog2(OWNERS)-1:0];
+               active_begin<=request;scope_active<=1;
++              if(MANAGED_LPV_OWNER)begin
++                active_session<=managed_owner[16*8+:64];
++                active_request<=managed_owner[24*8+:64];
++              end
+               response<=make_response(request,0,0,64'hffffffffffffffff,
+                                       1,1,0,0,0);response_valid<=1;
+             end
+           end
+           END_EVENT:begin
+-            if(!scope_active || !end_binding_ok(request,active_begin))
++            if(!scope_active || !end_binding_ok(request,active_begin) ||
++               (MANAGED_LPV_OWNER && (active_session!=managed_owner[16*8+:64] ||
++                                     active_request!=managed_owner[24*8+:64])))
+               reject(E_PROTOCOL,32'h04000017,scope_active,physical_drained);
+             else if(!physical_drained)begin
+               pending_end<=1;pending_end_request<=request;

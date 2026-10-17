@@ -1,0 +1,44 @@
+# F18修复与取消consumer有限审核
+
+回复：`executor-cancel-f18-milestone-20261013`  
+审核：**R-SM003-EXECUTOR-CANCEL-F18-20261013**；M003/SM003/E003/R003。
+
+**F18在shell_rtl_04冻结实现及19个有限RTL用例范围关闭；接纳cancel_drain_host_02为PASS_SCOPED_HOST_CANCEL_DRAIN_PREPARATION。** portal_04、actor_06及graph_program_top_host_04保留各自受影响fixture的兼容结论。本次未发现需新增编号的阻塞项。C009/C013仍部分实施，生产wrapper、完整关闭/rearm及source整链尚未验收。旧attempt、初版核验和原限定PASS不改写。
+
+## F18限定关闭
+
+已核shell由实际control_fire排斥DRAIN自主HELD发布，取得保持另要求无已呈现响应；ABORT_WAIT仅在response_valid=0时发布关闭返回。control_ready在已接受query、实际response pop及QUERY期间关闭，故同拍query接受拥有其完整返回，持续ABORT在16次消费后才进入处理。正常活动债务仍不撤销既有owner。
+
+新增三例与原静态缺口直接对应：DRAIN取得保持与匹配commit0 ABORT同拍，零HELD/零锁误取得；HELD_READY无query接受时ABORT关闭；实际query接受与ABORT同拍时query优先，ABORT持续valid经过14拍及末2/末1各12周期等待，完整返回后一次关闭。返回反压稳定断言覆盖已呈现响应；新例核零授权、关闭唯一、锁和S/H保持。19例/2008cycles原始marker与冻结TB一致，不再有原HELD被ABORT_CLOSED覆盖的所测路径。
+
+关闭只覆盖该仲裁缺口和本fixture交错，不签任意控制流公平性、生产query许可或完整撤销恢复。portal_04在相同shell身份保留原真实hub/monitor/depth2交接：7终态、112AW/7168W/112B，离线actual-helper确认及GRANTED实际消费后CLAIM180/epoch9，typed仍7。本批capture和原literal均S/H1/1，1024B原字节直接相等，raw SHA仍为`05fd66a4d50e3bcca0d086a3cb2503202f595ed10a6d1e287cc817a34e1a64a6`。没有把TB装配、旧route可达扩大为生产wrapper或实际旧END清理。
+
+## 取消consumer的核定范围
+
+LAP1固定1024B/16拍，完整command256B和实际program pending action512B连同session/request/S/H保存；当前有限NORM入口逐字段约束。C++ codec与独立literal相等、14项头/保留位/零键拒绝成立；SV只签静态常量配对，没有LAP1 RTL运行。
+
+实际显式program state/step在command首拍锁定旧K，observe_pending从已分配的graph.pending形成记录。actor先核完整LAP1、原command、旧K和正常port未读首拍/无活动tracker或source lease，再唯一选择取消consumer；完整LAX1与已核pending逐字匹配后，只推进正常/取消共享的接收action high-water。代码没有调用lifecycle start、TaskReservation或retire。普通部分帧和活动任务仍走原port/FSM。
+
+三例分别覆盖完整action、program只发2拍及取消与普通首拍选择的同一次host调用边界。实际program完成consumer收齐4拍LAC1；其后形成原ordinal1、PC0、无slot更新的非LOCAL_REJECT错误LGR1。LAC1 flags79、retired/first/last全0，两个256B结果各逐字匹配独立gold。三例FullRuntime从导入后至取消结果消费逐字节不变，软件事务、task/Ref/LPV/producer/compute预约及退休均无新增；无硬件AR/AW实例，因此不签物理零读写。
+
+8个坏action用例为7个语法合法语义变化及1个坏保留位，另有4个错K用例；无可信完成、无接收下界推进。排队重放不生成第二完成。两个真实未分配action分支分别在旧command尚未读和已读2拍时撤销，旧command实际收齐后产生ordinal0本地LGR1，没有伪造LAC1。action/completion/Host result尾2/尾1各延迟12次host调用；Host最后一次真实读取的通知已锁存，但无绑定CLOSE时保持WAIT_RESULT_CONSUMED，输入恢复仍不rearm。
+
+这些是无深度限制软件stream和受控K/HELD/GRANT/fence下的实际C++消费者证据，不能代签depth2时钟行为、LAP1生产握手或两个硬件accepted-request生命周期。actor_06原45项F17与两个软件请求共8次退休的兼容保持；program_top_host_04仍只签原extern C接口及其既有结果消费fixture。
+
+## 身份、原始观测与历史
+
+独立核对14项交付SHA、273/273 frozen/声明pair、265/273 current、711/719递归manifest/receipt引用；8项差异全是两catalog登记。独立重建LAP1/LAC1/LGR1 literal并核对capture原字节，不运行DUT或fixture runner。[核查与快照](executor_cancel_f18_review_20261013/verification.json)保存依据。
+
+历史对比：shell_02→04共同22项只有shell/TB改变；shell_03→04也只变这两项，新增实际query接受优先；portal_03→04共同31项仅shell改变，外部fixture依赖身份另有替换。cancel_01→02和actor_05→06共同89项仅actor/TB改变，为实际结果消费保持及缺CLOSE不重装；program_top_03→04共同35项全部逐项相同。早期PASS保留，旧_03没有outer观测的事实不被_04追认。
+
+10段所选guard起止串行、child0/trigger null，84条实际policy符合CPU0–3/nice19/idle I/O。已核配置帽、实际退出/墙钟和MemAvailable记录；RTL8GiB/120s/120s、host24GiB/1800s/120s保持。shell oracle0.163820s、cancel run0.153103s及actor run1.224335s均无owned-child RSS/policy样本，峰值保持null；actor仅1次RSS sample且child capture为0，不能据经过时间推定曾观测到。资源观测完整性明确为false，本次功能接纳不改写为完整资源实测合规。
+
+初版行政核验因缺child观测返回false，与02明确未知范围的核验均保留；这不是DUT失败后改判。program_top_04的5.504874s/251888KiB属于outer owned-tree阶段，不能摊称每个短内层run都有RSS采样。本轮cancel run的5条leftover对应1次故意排队重放及4个错K拒绝的未读action，actor run的45条保持旧F17负例残队列；不以去警告清流，也不签坏帧恢复或所有负例流清空。
+
+## 连续下一步
+
+按原授权继续唯一生产wrapper：真实请求先准入，持续同runtime，LAP1从唯一program实际owner取得并经完整控制consumer交接；区分未开始的新入口和必须消费的旧半帧，持久cancel不得封死旧command/query/response/END清理。完整K及B保持，不能由未核输入重建归属。
+
+绑定ABORT错误结果、Host末拍消费、CLOSE及全部旧半帧/读写/lease/fence真实排空后才允许无复位rearm，并保留S/H、task/Ref/LPV/producer/compute/program下界。接真实depth2 action8/4、F10 24/16、source全部修改/读写入口和交接后合法QUANT lease，再沿原顺序串行生成独立executor及LN/monitor/唯一hub→真实END/唯一软件退休→Q/fullA。C013合同中的下一真实请求/完整关闭仍待，不把本次零退休错误结果写成恢复成功。
+
+F18及旧F17均仅原限定范围关闭。C009/C013 awaiting_implementation，C008/C010待验；L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。原单重工具/全部资源帽/G余2338.224019s保持，无新增agent/OOC/P&R/上板/预算，5172s组合不重启。主控未运行编译、仿真或HLS。

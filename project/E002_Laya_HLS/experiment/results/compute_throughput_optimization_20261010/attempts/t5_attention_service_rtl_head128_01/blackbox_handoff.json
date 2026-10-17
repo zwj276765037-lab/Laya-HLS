@@ -1,0 +1,92 @@
+{
+  "schema": "attention_ce_blackbox_handoff_v1",
+  "status": "MODULE_HEAD128_RTL_AND_OOC_PASS_PRODUCTION_INSTANCE_UNVERIFIED",
+  "c_function_name": "laya_attention_service",
+  "rtl_closure": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_ce_rtl_01",
+  "official_json": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/blackbox/laya_attention_service.json",
+  "dependencies_json": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/blackbox/dependencies.json",
+  "frozen_blackbox_metadata": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_rtl_head128_01/frozen_blackbox",
+  "generator_interface": "attention_make_blackbox.py HLS_OR_CE_CLOSURE --ooc-result MATCHING_OOC_RECEIPT --rtl-result MATCHING_RTL_RECEIPT",
+  "resource_scope": "Actual standalone CE closure Vivado OOC synthesis; BRAM is RAMB18-equivalent. Not full-top fit or P&R.",
+  "resource_usage": {
+    "FF": "6282",
+    "LUT": "10399",
+    "BRAM": "297",
+    "URAM": "0",
+    "DSP": "22"
+  },
+  "service_rate": {
+    "normal_compute_command_cycles_per_full_head": 6816248,
+    "normal_compute_command_cycles_per_query": 53251.9375,
+    "normal_compute_heads_per_cycle": 1.467082770462577e-07,
+    "scope": "Summed nonoverlapping cmd7/8/9 accepted-to-ap_done durations; subtract known refused QK and deliberate CE pause; excludes external production caller, memory transport and TB readback/protocol exercises.",
+    "full_tb_cycle_scope": "Includes exp directed cases, binding rejection, active resets, four initial KV loads, input fault recovery, eight batches, all numeric readbacks and chain holds; not production latency.",
+    "simulated_clock_period_ns": 10,
+    "conditional_150mhz_compute_seconds": 0.04544165333333333,
+    "conditional_480_identical_heads_compute_seconds": 21.8119936,
+    "frequency_scope": "150 MHz is an OOC synthesis target, not routed Fmax. The 480-head figure is same-service bookkeeping for identical shape/mode, not a full model timing measurement."
+  },
+  "scheduler_metadata_is_measurement": false,
+  "integration_requirements": [
+    "Use actual ap_done for variable-length command retirement and do not overlap the singleton caller.",
+    "Create actual vendor IP from every ip_setup_tcl and preserve all memory_init files.",
+    "Prove the enclosing production HLS/RTL contains exactly one shared laya_attention_service.",
+    "Keep B1 production ATT_OUT-owner service path and B2/diagnostic legacy fallback explicit; new full CPU/CSim is a separate required identity."
+  ],
+  "inputs": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/blackbox/laya_attention_service.json",
+      "sha256": "1e1ad2a0ba36da838244276b1519ef116a7f17861bd9f9c519b701934040f5bc"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/blackbox/dependencies.json",
+      "sha256": "1f008e13706dbc68d0d66ab91e0fe339ca3795f056e0eb965ddd8790d10dc5dd"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_rtl_head128_01/numeric_result.json",
+      "sha256": "428020bd5a97b8265e0ff98c73d5b659169ac6469c291d08f71fbebee568c52d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_ooc_01/ooc_result.json",
+      "sha256": "71d81088ceadee7d321562309284974dc25943a6213c732a0edc0b01f8391801"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_ce_rtl_01/ce_patch_manifest.json",
+      "sha256": "4c7876a25e8d7d6de2cc1bd8f509c1e8e49b9c07950d8b5deda0fac513159579"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/tb/attention_make_blackbox.py",
+      "sha256": "4b1ddd1c47330d14b8e6639ec94babd81b7de3403258b1891bd03fbb6de71383"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/attention_service.cpp",
+      "sha256": "2ab3ef416c60d5cdd8d4209c601726746c1b45141142c4c9ebd6949c689aa55c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/attention_service.h",
+      "sha256": "ab4b4aa2eec31501dbecd9f64251fbc2de365146a2797c94d5b99daf08f9fdba"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/attention_exp_bits.cpp",
+      "sha256": "e97471f7feeb356a338b259921d0ec7a3aa47dda56ab7e065650c1794388cde8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/source/attention_exp_bits.h",
+      "sha256": "4d8931c5d837773fdd1cc87a74e21c0631f73152b936b598353601d9bf6f456e"
+    }
+  ],
+  "frozen_metadata": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_rtl_head128_01/frozen_blackbox/attention_make_blackbox.py",
+      "sha256": "4b1ddd1c47330d14b8e6639ec94babd81b7de3403258b1891bd03fbb6de71383"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_rtl_head128_01/frozen_blackbox/dependencies.json",
+      "sha256": "1f008e13706dbc68d0d66ab91e0fe339ca3795f056e0eb965ddd8790d10dc5dd"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_service_rtl_head128_01/frozen_blackbox/laya_attention_service.json",
+      "sha256": "1e1ad2a0ba36da838244276b1519ef116a7f17861bd9f9c519b701934040f5bc"
+    }
+  ]
+}

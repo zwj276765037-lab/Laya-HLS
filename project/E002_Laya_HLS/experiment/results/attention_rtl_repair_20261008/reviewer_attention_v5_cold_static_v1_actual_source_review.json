@@ -1,0 +1,85 @@
+{
+  "schema": "independent_attention_v5_cold_static_actual_source_review_v1",
+  "created_utc": "2026-10-08T19:58:03.303239+00:00",
+  "status": "ACTUAL_COLD_HARNESS_SOURCE_PREPARED_BYTES_AND_FINITE_RUN_PROPOSAL_ACCEPTED",
+  "packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_cold_v1/source/source_packet.json",
+    "bytes": 260610,
+    "sha256": "72f0531bf4d8456abf56fbdef354d1539ab6a58f1d9c075c78b4b4f72e3abc15"
+  },
+  "hashcheck": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v1_final_source_hashcheck.json",
+    "bytes": 316432,
+    "sha256": "5905442cc3cb56b5b01dd2614e579b6ecb24a1d2c2be039ef0bb7ed0710e54d6"
+  },
+  "prepared_byte_review": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v1_prepared_bytes_review.json",
+    "bytes": 6654,
+    "sha256": "7e0599a19e84df5520ffb885853b96f0dce0be12412bc214eabf387bd19efdd2"
+  },
+  "initial_findings_and_guard_review": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v1_initial_source_findings.json",
+    "bytes": 11965,
+    "sha256": "5198891581102caf126566be80989ee523c271b770a259c23738497542caa481"
+  },
+  "closure": {
+    "unique_files": 553,
+    "references": 555,
+    "bytes": 2280497439,
+    "generated_verilog": 216,
+    "dat": 35,
+    "fp_vhdl_wrappers": 6,
+    "input_memh": 10,
+    "prepared_records_with_manifest": 11,
+    "top_pins": 352,
+    "axi_pins": 315,
+    "lite_pins": 34,
+    "clock_reset_interrupt_pins": 3,
+    "pages": 267,
+    "mapped_backing_bytes": 1093632
+  },
+  "actual_interface_review": {
+    "control": "Lite 0 (control, address width 5): AP_CTRL 0x00, command 0x10. Read command zero after cold reset and read back every written BEGIN=0/RUN=1. Lite 1 (control_r, width 7) pointer low/high pairs: 10/14, 1c/20, 28/2c, 34/38, 40/44, 4c/50, 58/5c. Read all halves zero, then program and read back all nonzero 64-bit bases.",
+    "axi": "Seven AXI interfaces: 32-bit data, 64-bit addresses, 1-bit IDs, all 45 pins connected. The unchanged accepted endpoint is wrapped by five one-entry, lossless VALID-hold adapters per port, with fixed 0..3-cycle exposure delays and selected 16-cycle holds.",
+    "read_ranges": "Descriptor first 640 B; IO 32 KiB; AUX first 128 B; qkv0 Q offsets 0..255, K 0x400000..0x403fff, V 0x800000..0x803fff; qkv1 none; ATT_OUT first 256 B; observed none.",
+    "write_ranges": "Only ATT_OUT first 256 B and observed first 1024 B. Endpoint rejects unmapped or 4 KiB crossing bursts. Both monitors check full addresses, ID/LAST/STRB and independent response debt; W before AW is supported.",
+    "precision_correction": "The real top reads ATT_OUT to export AV into observed. The erroneous write-only testbench restriction was corrected before EDA. The actual top overrides ATT_OUT CH0_NUM_WRITE_OUTSTANDING to 1; adapter defaults are not treated as the instantiated configuration."
+  },
+  "functional_contract": {
+    "four_calls": [
+      "BEGIN request 301/generation 1: ticket 1, pair epochs 1/FILL, 2 claims, zero tasks and coverage.",
+      "Pending BEGIN rejects with d2000004 and retains the pair.",
+      "RUN original receipt executes LOAD_KV, QK, Softmax and AV: phase 13, 4 tasks, 6 claims, coverage 3072, READY pair, partial ATT_OUT E_BUFFER 04080009 and successful cleanup.",
+      "Replay RUN rejects with d2010005: phase 3, four tasks retained, no numeric traffic."
+    ],
+    "metadata": "Check all 30 written status words, observed[0..15] and [224..237], exactly for every command. Other words are the 192 numerical values or explicit deadbeef/A5 guards. Scan every mapped input page after each command, all 256 KiB ATT_OUT, and require replay identity.",
+    "traffic": "RUN qkv0 AR/R/RLAST count 8256 and 33024 bus bytes; qkv1 has no traffic. ATT_OUT AR/R count 64 and 256 read bytes; AW/W/B count 64 and 256 bus/useful write bytes. Other calls have no QKV or ATT_OUT traffic. Both monitors and adapter accepted/delivered counts match with no pending debt.",
+    "hold": "Select an actual terminal QKV R beat on the negative edge and record its address, burst beat, LAST, index and consumed wait >=16. Final ATT_OUT B must be index 64/address base+252 with wait >=16. Latch the consumed wait before later transfers reset the adapter counter.",
+    "done": "Sample actual DUT ap_done at the positive edge and check first assertion on the next negative edge, after same-edge response retirement. No extra drain wait. Check CSR done/idle separately. No reset between the four commands; host page replacement requires drained interfaces."
+  },
+  "numeric_review": "The offline checker reads four sealed observed dumps, two ATT_OUT dumps and frozen QKV/gold hashes. Require 64 exact QK words, 64 finite probabilities within the original binary32 1e-4 + 1e-4*abs(gold) tolerance, and 64 exact AV words independently reduced from actual probabilities and frozen V with separate binary32 multiply/add rounding. Also apply the original end-to-end AV tolerance. ATT_OUT first 256 B equals observed AV; all other bytes remain A5. No oracle fixture is regenerated. Python binary64 exactly represents each finite binary32 product before explicit binary32 packing; every add is separately rounded and no FMA is used.",
+  "budget_review": {
+    "finite_components": {
+      "basis": "8256*27=222912 QKV read component +44736 QK +2294 softmax +45056 AV =314998; 2*8256*5=82560 serialized AR/R adapter allowance; 100000 other-interface allowance. RUN finite control includes 16 reserved/24 digest/4 build-tag/48 metadata checks, 48*64 mask-row visits, at most 48 cover calls and 6144 check/mark row visits, 48 publish all_rows calls *64 bit tests=3072 and 128 covered-row marks, <=3072 report popcount shifts, two owner snapshots, 64 score +64 probability +64 AV observation writes, 64 ATT_OUT reads, 32 cleanup owner visits and 30 status resets. BEGIN parses a 128B header, 4*16 tag bytes, 5 directories, 64 token and 16 marker entries; two QKV claims scan <=32 owners each and clear 6144 plane plus 4096 rope bitmap words and 2*2*64 owner-row words. Remaining watchdog capacity covers these loops plus generated FSM/control and arbitration; it is not a proven latency bound. Every 100000 cycles prints state/phase hint, seven-port counts and actual XSim RSS.",
+      "other_each": 200000,
+      "run": 2000000,
+      "total": 2700000
+    },
+    "interpretation": "The 314998-cycle arithmetic/read-call component, 82560-cycle serialized AR/R adapter allowance, 100000-cycle other-interface allowance, and enumerated finite owner/parser/coverage/control work support a prior 2M RUN stop limit. This is not a proved total latency. BEGIN/rejections have 200k limits, the suite 2.7M. Every 100k clocks logs progress and actual XSim RSS; the guard samples at 0.2 s.",
+    "wall_feasibility": "Prior ACT suite clocks divided by guard wall time gave 1684..3767 clocks/s including startup; 2.7M/1684 is about 1604 s. Attention uses different RTL and pages, so its rate remains unknown. The 3600 s proposal is a finite first measurement budget, not a completion guarantee. Preserve a slow or failed first run without automatic budget growth.",
+    "static_feasibility": "The packet binds 216 Verilog modules and six FP wrappers. Prior Q8 static build with 230 modules/seven wrappers took 204.7 s and about 4.0 GiB owned RSS. The 300 s/16 GiB proposal bounds the first static build; equal cost is not assumed."
+  },
+  "build_and_runtime": "Exact commands and fresh paths are frozen in the packet. Bind 35 absolute DAT links at build/runtime, ten absolute input links, and an absolute runtime xsim.dir link to the compiled snapshot using default lookup. Only four exact XSim runtime files may change and must be archived; all other changes, additions or deletions fail. The existing read-only phase_rss.so is hash-bound and loaded through xelab --sv_lib/--sv_root; no helper compilation is included.",
+  "document_links": {
+    "checked": 15,
+    "missing": []
+  },
+  "limits": [
+    "Cold B1/S64 Decision layer 0, head 0/query 0 only. Head 15, changed QKV and coverage faults remain later runtime gates.",
+    "Actual Q8/RoPE producer integration remains unproven; host image verification and a digest receipt do not establish hardware cryptographic authentication.",
+    "Warm reset of pending/session/request/claim metadata remains unaccepted; immutable v5 is cold-only.",
+    "HLS 5.390 ns exceeds the effective 4.867 ns target. The 6.666 ns simulation clock proves no Fmax, OOC, platform, board or 50 ms result.",
+    "The first materializer script was not pre-hash-frozen or archived. Its failure and guard are retained; corrected v2 bytes are independently accepted."
+  ],
+  "reviewer_actions": "Read actual source, HLS, generated RTL and logs; independently hash, serialize and compare; write reviewer records only. No compiler, simulator, materializer or numerical oracle was executed."
+}

@@ -1,0 +1,12 @@
+--- executor_managed_lpv_rtl_02/laya_managed_lpv_tb_v1.sv
++++ executor_managed_lpv_rtl_03/laya_managed_lpv_tb_v1.sv
+@@ -350,6 +350,9 @@
+     if(terminal_tasks!=0 || !scope_active || !monitor_scope_active || !s_axi_bvalid)
+       $fatal(1,"wrong END lost old scope/debt");
+     load_packet("end",packet);send_range(packet,0,2);lpv_candidate_route=1;send_range(packet,2,16);
++    while(!dut.hub.pending_end)begin
++      if(provenance_rsp_empty_n || terminal_tasks!=0)$fatal(1,"END retired before actual hub acceptance/B debt");tick();
++    end
+     repeat(12)begin
+       if(provenance_rsp_empty_n || terminal_tasks!=0 || !dut.hub.pending_end)$fatal(1,"END passed real held B debt");tick();
+     end

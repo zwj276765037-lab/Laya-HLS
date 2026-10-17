@@ -1,0 +1,20 @@
+# Unique source registry for the P0 host-only contract model. HLS sources are not duplicated in module rtl/.
+set(LAYA_CONTRACT_SOURCES
+  hls/common/laya_types.cpp
+  hls/common/laya_tasks.cpp
+  hls/common/laya_io.cpp
+  hls/common/laya_memory_map.cpp
+  hls/control/forward_controller.cpp
+  hls/control/result_status.cpp
+  hls/platform/kernel_wrapper.cpp
+  hls/memory/hbm_loader_and_cache.cpp
+  hls/laya_forward.cpp
+  hls/operators/embedding_engine.cpp
+  hls/operators/layernorm_engine.cpp
+  hls/operators/activation_quantizer.cpp
+  hls/operators/q8_linear_and_restore.cpp
+  hls/operators/rope_and_mask.cpp
+  hls/operators/attention_and_fp_engine.cpp
+  hls/operators/vector_and_ffn.cpp
+  hls/operators/decision_scorer_act.cpp
+)

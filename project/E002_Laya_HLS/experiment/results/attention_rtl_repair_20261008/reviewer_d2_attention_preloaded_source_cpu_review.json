@@ -1,0 +1,155 @@
+{
+  "schema": "independent_d2_attention_preloaded_source_cpu_review_v1",
+  "at_utc": "2026-10-08T12:24:07.561183+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "decision": "ACCEPT_SOURCE_AND_STRICT_CPU_RELEASE_STANDARD_LIBM_CSIM_ONLY",
+  "scope": "External actual QKV host import, real publication and downstream B1/S64 Decision stage4/layer0 Attention. Not upstream Q8, Encoder/RoPE, numerical RTL or full-top acceptance.",
+  "packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/final_cpu_binding_packet.json",
+    "sha256": "be014f2d42f094fa7dad685047ace8a8f37e878caa62bb20c4da498aab42a952"
+  },
+  "independent_hashcheck": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_cpu_hashcheck.json",
+    "sha256": "7f7f0e4078493755e301d69e30c518ebc7ef3af6ddf320a5cd3c8fb5e655b4d3"
+  },
+  "identities": {
+    "production_build_tag": "fe067c8aa0627ad770096f9721394645",
+    "controller_sha256": "23e428c81c7a4c40c7014db15e34c561958d88d53e40ac71abef8be0d4804623",
+    "manifest_sha256": "128768a4a42ffa9d5f5dfd2bb9808e0f7a12a7509638f4d5650cb9fd9fb56caa",
+    "approved_design_preimage_sha256": "1fedf1bc559f3abfbc1840824956ad5cb32a648e41d521cfa645b0924c695a8c",
+    "current_design": {
+      "bytes": 17314,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/design.md",
+      "sha256": "69a2cf98bbc9723b9b1d330c628faca8e2a9bcffac2c59ec86ff44d06b80948c"
+    },
+    "compiled_binary": {
+      "bytes": 17724176,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/attention_preloaded_cpu",
+      "sha256": "74da23379b5ae661369d101908319e531c1038599101af8ba73b9964783e6413"
+    }
+  },
+  "hash_audit_summary": {
+    "references": 129,
+    "unique_paths": 114,
+    "mismatches": []
+  },
+  "source_inspection": [
+    "The wrapper includes the exact production Controller once; build links the other 24 official TUs with C++17 -O2 -fno-fast-math -ffp-contract=off.",
+    "BEGIN uses real full_parse_request, Controller::fresh and full_claim_qkv_pair. It observes two FILL owners, no valid/final refs and zero coverage. No production READY/coverage/state injection is used.",
+    "Host producer performs production qkv_address/full_write of each 256-byte row and sets receipt bits only after the write returns success. Independent inverse layout checks each byte of both 12 MiB host banks and independent prefix/full-host SHA256.",
+    "RUN retains static runtime/pending refs/ticket, does not reparse/reset, validates metadata against BEGIN, calls real coverage spans and full_publish_qkv_pair, then real LOAD_KV/QK/inplace SCORE-PROB/Softmax/AV with fresh refs and TaskDone checks.",
+    "Error paths invoke production Controller::invalidate_incomplete. Successful partial output is reported before separately recorded cleanup; this diagnostic does not claim full ATT_OUT publication.",
+    "Independent Python full_reference recomputes S64 QK/probability/AV from frozen input; no DUT result is used as gold. Mask, finite arithmetic, fixed QK tree, key-ascending AV and separate FP operations agree with the design.",
+    "Generated design change is implementation mapping only; original approved preimage and exact diff are bound. Production fe067 is unchanged."
+  ],
+  "required_tb_followups_closed": [
+    "Every accepted BEGIN scans the entire two 12 MiB QKV banks for 0xa5.",
+    "Every actual RUN including positive, failed coverage, stale metadata and replay rechecks all QKV bytes and hashes; replay compares the full accepted ATT_OUT image.",
+    "Missing plane/nonselected-shard row checks exact production E_BUFFER detail(4,QKV,9), zero tasks/final refs and INVALID owners; partial ATT_OUT publish checks detail(4,ATT_OUT,9). Negative outputs are fully scanned.",
+    "Every successful BEGIN enforces ticket and both epochs equal the prior successful value plus one across failures/recovery.",
+    "SHA256 abc known-answer and independent fixed digest/build-tag little-endian words are checked; first BEGIN/RUN descriptors match independently generated exact 640-byte pages."
+  ],
+  "observed_cpu": {
+    "legal_cases": [
+      "base head=0 row=0 qkv_bytes=786432 tasks=4 owner_claims=6 prefix0=92e981f931c97be9f5a2daa6f32888758deeb51e73599db522b4c3d9813da693 prefix1=087d39bc321e5b522673c1beb3d251ecf8d95f1510e3c3a1df017a7da262288b",
+      "base head=15 row=63 qkv_bytes=786432 tasks=4 owner_claims=6 prefix0=92e981f931c97be9f5a2daa6f32888758deeb51e73599db522b4c3d9813da693 prefix1=087d39bc321e5b522673c1beb3d251ecf8d95f1510e3c3a1df017a7da262288b",
+      "changed head=0 row=0 qkv_bytes=786432 tasks=4 owner_claims=6 prefix0=ad41b885bcefc956deb5f2772c9d620ded9ac071ed092319a7a20ca168bae880 prefix1=087d39bc321e5b522673c1beb3d251ecf8d95f1510e3c3a1df017a7da262288b"
+    ],
+    "negative_cases": [
+      "begin_while_pending",
+      "replay_RUN",
+      "missing_plane",
+      "missing_row",
+      "stale_ticket",
+      "wrong_request",
+      "wrong_generation",
+      "wrong_bank",
+      "wrong_epoch",
+      "wrong_source_hash",
+      "wrong_image_hash",
+      "wrong_version",
+      "wrong_shape",
+      "wrong_build_tag",
+      "nonzero_reserved",
+      "wrong_words",
+      "corrupt_image"
+    ],
+    "log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/cpu_execute_guard_v5/driver.log",
+      "sha256": "f32faa0bc3449ba4f87e5a2ba94a6cd9e87454f9053cb414d1eb2cb73d0418d1"
+    },
+    "host_qkv_bytes_checked_per_image": 25165824,
+    "qk_exact_F32_per_legal": 64,
+    "probability_tolerance_F32_per_legal": 64,
+    "av_exact_from_actual_probability_F32_per_legal": 64,
+    "av_end_to_end_tolerance_F32_per_legal": 64,
+    "att_out_full_sentinel_bytes": 8388608,
+    "legal_task_retirements_each": 4,
+    "legal_owner_claims_each": 6,
+    "build_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 7.874011470004916,
+      "finished_at": "2026-10-08T12:09:16.431999+00:00",
+      "minimum_mem_available_kb": 447991628,
+      "peak_owned_rss_kb": 162444,
+      "rss_capture_count": 38,
+      "rss_captured": true,
+      "rss_sample_count": 38,
+      "trigger": null
+    },
+    "execute_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 7.557509083300829,
+      "finished_at": "2026-10-08T12:09:31.012406+00:00",
+      "minimum_mem_available_kb": 448066936,
+      "peak_owned_rss_kb": 66736,
+      "rss_capture_count": 37,
+      "rss_captured": true,
+      "rss_sample_count": 38,
+      "trigger": null
+    },
+    "policy": "Actual final build/execute affinity 0,1,2,3; nice19; idle I/O; 8GiB/120s guard; 0.2s samples; MemAvailable floor192GiB; no guard trigger."
+  },
+  "limitations": [
+    "CPU evidence does not prove generated RTL, optimized owner paths, timing, resource fit or external AXI behavior.",
+    "Probability is checked under the approved nonlinear tolerance and AV also checked exactly from actual probability; do not label all three arrays bitwise equal to the independent reference.",
+    "The corrupt-image negative is rejected by independent host/TB verification before RUN; receipt metadata is not hardware cryptographic authentication.",
+    "Head15/query63 and changed QKV are CPU scope only until corresponding RTL evidence. The first future RTL legal case remains head0/query0.",
+    "Current modeled QKV prefix is10240064 bytes/shard; full12MiB host proof is separate. Generated head15/query63 ATT_OUT depth262144 and all real access extents must be audited after synthesis."
+  ],
+  "next_gate": {
+    "released_now": "One standard-libm CSim using the reviewed full 3-legal/17-negative TB and exact fixture/production identities; add only execution scaffolding with recorded hashes.",
+    "limits": {
+      "owned_rss_GiB": 16,
+      "wall_seconds": 600,
+      "logical_cpus": 4,
+      "nice": 19,
+      "idle_io": true,
+      "minimum_MemAvailable_GiB": 192,
+      "sample_seconds": 0.2,
+      "one_heavy_tool_scope": "This Laya agent tree only"
+    },
+    "configuration": [
+      "attention_preloaded_slice top",
+      "xcu55c-fsvh2892-2L-e requested150MHz/6.667ns",
+      "csim.stdmath=true",
+      "-O2 -fno-fast-math -ffp-contract=off",
+      "Controller included exactly once; other24productionTUs",
+      "Preserve approved no-auto-pipeline/no-auto-partition HLS configuration for subsequent synthesis"
+    ],
+    "csim_acceptance": "Tool exit0 with complete CPU_PASS legal3 negative17 and all assertions active, no errors/fatal; bind actual source/options/TB/fixture/package and raw logs.",
+    "local_synthesis": "After CSim packet independent acceptance, reviewer may release local csynth16GiB/1800s under existing authorization without renewed user approval.",
+    "not_released": [
+      "cosim setup",
+      "xelab",
+      "numerical RTL runtime",
+      "full-top HLS",
+      "performance implementation by this gate"
+    ],
+    "later_conditions": "Review actual synthesized numeric/owner paths before cosim setup/static (each16GiB/300s); inspect exact two-transaction BEGIN/RUN no-reset page progression and backing-page checker; numerical runtime needs separate concrete body-cycle/memory budget."
+  },
+  "documentation": "Preserve reviewed source/results.md exact preimage before future canonical result updates and record its new location/hash; keep mission/task.md as the single activity index."
+}

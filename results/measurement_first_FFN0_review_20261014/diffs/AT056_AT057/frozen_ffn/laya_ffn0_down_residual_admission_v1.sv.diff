@@ -1,0 +1,35 @@
+--- AT056_FFN0_single_runtime_02/frozen_ffn/laya_ffn0_down_residual_admission_v1.sv
++++ AT057_FFN0_single_runtime_03/frozen_ffn/laya_ffn0_down_residual_admission_v1.sv
+@@ -102,7 +102,8 @@
+     static_ok=source_seen && gate_seen && !ticket_used &&
+       source_command_held[MODEL_IDENTITY*8+:3328]==L13M_CANONICAL &&
+       source_command_held[IDENTITY*8+:64]==64'd3 &&
+-      source_command_held[GENERATION*8+:64]==64'd1 &&
++      source_command_held[GENERATION*8+:64]!=0 &&
++      source_command_held[(IDENTITY+8)*8+:64]==64'd1 &&
+       source_command_held[(IDENTITY+16)*8+:16]==16'd1 &&
+       source_command_held[(IDENTITY+18)*8+:16]==16'd128 &&
+       source_command_held[IDENTITY*8+20*8+:512]==L13M_CANONICAL[0+:512] &&
+@@ -129,8 +130,10 @@
+       cfg_linear_context[40+:56]==gate_q_held[40+:56] &&
+       gate_p_held[31:0]<gate_q_held[31:0] &&
+       gate_q_held[31:0]<cfg_linear_context[31:0];
++    // Both consumers must be ready on the same edge.  Their ready signals
++    // are independent of valid; neither may claim the command alone.
+     matrix_cfg_valid=state==EMPTY && down_candidate_valid && static_ok &&
+-      !handoff_error;
++      !handoff_error && matrix_cfg_ready && ledger_claim_ready;
+     down_candidate_ready=(state==FINISHED || state==FAILED) ||
+       (state==EMPTY &&
+        (!static_ok || (matrix_cfg_ready && ledger_claim_ready)));
+@@ -196,7 +199,9 @@
+           hidden_ticket_reserved<=1;
+           canonical_held<=source_command_held[MODEL_IDENTITY*8+:3328];
+           request_held<=source_command_held[IDENTITY*8+:32];
+-          generation_held<=source_command_held[GENERATION*8+:32];
++          // Residual cfg_generation is the model request generation.  The
++          // packet-header portal generation remains in source_command_held.
++          generation_held<=source_command_held[(IDENTITY+8)*8+:32];
+           down_context_held<=cfg_linear_context;
+           aw_beats<=0;w_beats<=0;b_beats<=0;retire_seen<=0;
+           observed_down_aw<=0;observed_down_w<=0;observed_down_b<=0;

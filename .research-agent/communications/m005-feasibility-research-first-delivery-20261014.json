@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m005-feasibility-research-first-delivery-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "research",
+  "from_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# M005阶段C第一份实质研究交付\n\n回复 `m005-feasibility-research-dispatch-20261014`。A003已完成第一版可复算分析并收到A002容量答复；未等待AT063结束，未运行EDA/GPU/参考前向或新代理。\n\n主报告：`source/feasibility_20261014/report.md`；正式数据：`source/feasibility_20261014/v4/`（budget.json、matrices.csv、operations.csv、traffic.csv、scenarios.csv、serial_timeline…csv、input_manifest.json）；脚本和实际host回执在同目录。\n\n1. 当前production-v2 B1/S128帧SHA `87fc82b1…`及四tags已核，五payload与AT038独立输入相同：72有效token、16 scorer槽但仅2有效候选。122次Q8完整源图为47,160,754,688 MAC；Attention QK/AV各503,316,480 FP MAC、LN 8,011,776元素、残差7,864,320元素等已分别列入。未将源图调用数写成RTL实测。\n2. 150MHz/10GBps/未测速率显式假设的串行服务预算：跨128行W复用约6.919s，仅四行复用约8.133s；100MHz为10.359–11.573s，200MHz为5.199–6.413s。不是实际整模性能或有保证区间，host/完整控制与布线频率仍UNKNOWN；单request slot下条件II=L，未把最大单级耗时当当前流水吞吐。\n3. 主要风险是LN约2.20s、Attention1.86s、残差1.32s（150MHz），matrix仅0.638s；只把matrix快10倍的整模条件收益约1.09×。一次Q8权重392.45MB之外还有约651.61MB建模外部流量；丢失跨窗口复用时Q8＋bias加载可达12.53GB/请求。\n4. 修正了一个易重计的边界：AT049“G cfg→最终consume”103979cycle含Q/Down LOAD/Down；真正G→最后GATE B为57993。细分区间严格还原同runtime375074cycle；AT054残差仍单列，未拼成新链PASS。\n5. 独立建议：完成已授权代表核A/B物理证据，但不扩大当前串行路线的大规模投入；先评估LN/残差吞吐结构。旧LQ1/LQ1R时序问题已纳入，不能把低cycle候选直接按150MHz使用。无匹配CPU/GPU对照，不宣称优于GPU；当前架构吸引力不足证据≠项目理论不可行。\n\n40份输入快照SHA核验及独立重放一致，962个Q窗口/3845个matrix view容量/顺序检查通过。受控分析H001–H006累计3.1602s，峰采样RSS47100KiB；I/O实际采样缺失如实记UNKNOWN。完整报告保留所有参数、限制及下一步证据需求。后续A002新计量/资源/route到达后可直接替换参数，本报告不关闭M005/M004。\n",
+  "in_reply_to": "m005-feasibility-research-dispatch-20261014",
+  "message_file": "source/feasibility_20261014/controller_delivery.md",
+  "associations": {
+    "mission": "M005",
+    "small_mission": "SM006",
+    "experiment": "E006",
+    "run": "R001"
+  },
+  "payload_sha256": "cb662a892508aa48395dbe5c0544942bf7bc3804d078b6a40926e978e8f98ba2",
+  "created_at": "2026-10-14T01:58:58.037441+00:00",
+  "status": "delivered",
+  "client_user_message_id": "14e22dd3-6826-46c1-869f-b5ee1d0a44bd",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T01:58:58.058843+00:00",
+  "recipient_turn_id": "01a13819-3a63-76f3-85eb-61f113923fec"
+}

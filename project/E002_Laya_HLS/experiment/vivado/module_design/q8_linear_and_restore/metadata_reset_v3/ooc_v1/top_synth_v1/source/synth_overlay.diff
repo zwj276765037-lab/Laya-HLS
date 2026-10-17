@@ -1,0 +1,93 @@
+--- tb/synth_ooc.tcl
++++ tb/synth_ooc_top_v1.tcl
+@@ -3,7 +3,17 @@
+ set run_dir [file normalize $run_dir]
+ set report_dir [file normalize $report_dir]
+ if {[file exists $report_dir]} { error "fresh report directory required: $report_dir" }
++set run_parts [file split $run_dir]
++set report_parts [file split $report_dir]
++if {[llength $report_parts] >= [llength $run_parts] &&
++    [lrange $report_parts 0 [expr {[llength $run_parts] - 1}]] eq $run_parts} {
++    error "report directory must be outside the byte-exact project clone"
++}
+ file mkdir $report_dir
++set overlay_dir [file dirname [info script]]
++set clone_checker [file join $overlay_dir verify_clone.py]
++puts [exec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 \
++    $clone_checker --clone $run_dir --out [file join $report_dir clone_preopen.json]]
+ set_param general.maxThreads 4
+ open_project [file join $run_dir vivado q8_same_source_ooc.xpr]
+ if {[get_property PART [current_project]] ne "xcu55c-fsvh2892-2L-e"} { error "part mismatch" }
+@@ -12,7 +22,72 @@
+ set hook [file join $run_dir stage scripts prepare_dat.tcl]
+ if {[file normalize [get_property STEPS.SYNTH_DESIGN.TCL.PRE [get_runs synth_1]]] ne $hook} { error "DAT hook missing" }
+ if {[get_property {STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS} [get_runs synth_1]] ne "-mode out_of_context"} { error "OOC synthesis mode missing" }
++if {[string tolower [get_property STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY [get_runs synth_1]]] ne "none"} {
++    error "flatten-hierarchy setting changed"
++}
++set rtl_dir [file join $run_dir stage rtl]
++set staged_verilog [lsort [glob -nocomplain -directory $rtl_dir *.v]]
++set staged_dat [lsort [glob -nocomplain -directory $rtl_dir *.dat]]
++set staged_ip_tcl [lsort [glob -nocomplain -directory $rtl_dir *_ip.tcl]]
++set staged_xci [lsort [glob -nocomplain -directory [file join $run_dir stage ip] *.xci]]
++if {[llength $staged_verilog] != 230 || [llength $staged_dat] != 108 ||
++    [llength $staged_ip_tcl] != 7 || [llength $staged_xci] != 7} {
++    error "clone staged input counts changed"
++}
++foreach path $staged_dat {
++    set files [get_files -quiet $path]
++    if {[llength $files] != 1 || [get_property FILE_TYPE $files] ne "Data Files"} {
++        error "DAT project membership or type changed: $path"
++    }
++}
++set xdc [file join $run_dir stage constraints q8_joint_tm4tn8_ooc.xdc]
++if {[llength [get_files -quiet $xdc]] != 1} { error "OOC clock XDC missing" }
++set clock_fd [open $xdc r]
++set clock_text [read $clock_fd]
++close $clock_fd
++if {![regexp {create_clock\s+-name\s+ap_clk\s+-period\s+6\.667\s+\[get_ports\s+ap_clk\]} $clock_text]} {
++    error "6.667ns ap_clk source constraint changed"
++}
++set map_path [file join $report_dir active_ip_import_paths.tsv]
++set map [open $map_path w]
++puts $map "ip\tstaged_xci\timported_xci\toutput_dir\tis_locked"
++foreach staged $staged_xci {
++    set name [file rootname [file tail $staged]]
++    set ip [get_ips -quiet $name]
++    if {[llength $ip] != 1} { error "bound imported IP missing: $name" }
++    set locked [get_property IS_LOCKED $ip]
++    if {$locked} { error "imported IP locked after relocation: $name" }
++    set imported [file normalize [get_property IP_FILE $ip]]
++    set expected_imported [file normalize [file join $run_dir vivado q8_same_source_ooc.srcs sources_1 ip $name ${name}.xci]]
++    if {$imported ne $expected_imported || ![file isfile $imported]} {
++        error "imported XCI is not project-local after relocation: $name"
++    }
++    set output [file normalize [get_property IP_OUTPUT_DIR $ip]]
++    set expected_output [file normalize [file join $run_dir vivado q8_same_source_ooc.gen sources_1 ip $name]]
++    if {$output ne $expected_output} { error "IP output path is not clone-local: $name" }
++    set obj [get_files -quiet $imported]
++    if {[llength $obj] != 1 || [get_property GENERATE_SYNTH_CHECKPOINT $obj] != 0} {
++        error "imported XCI property changed: $name"
++    }
++    puts $map "$name\t$staged\t$imported\t$output\t$locked"
++}
++close $map
++set ip_checker [file join $overlay_dir .. .. source candidates project_local_ip_import_v2 verify_imported_xci.py]
++puts [exec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 \
++    $ip_checker --check $run_dir $map_path]
+ update_compile_order -fileset sources_1
++set compiled [get_files -compile_order sources -used_in synthesis]
++if {[llength $compiled] != 243} { error "actual compile closure changed from 243 files" }
++set compile_tsv [file join $report_dir compile_order_libraries_prelaunch.tsv]
++set out [open $compile_tsv w]
++puts $out "library\tfile_type\tpath"
++foreach f $compiled {
++    puts $out "[get_property LIBRARY $f]\t[get_property FILE_TYPE $f]\t[file normalize [get_property NAME $f]]"
++}
++close $out
++set compile_checker [file join $overlay_dir verify_actual_compile.py]
++puts [exec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 \
++    $compile_checker $run_dir $compile_tsv --out [file join $report_dir compile_prelaunch.json]]
+ puts "Q8_OOC_SYNTH_BEGIN top=q8_joint_tm4tn8"
+ flush stdout
+ launch_runs synth_1 -jobs 1

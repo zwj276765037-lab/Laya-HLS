@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "generated-provenance-base-milestone-20261012",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# M003 generated-producer provenance 基础阶段交付\n\n交付ID：`generated-provenance-base-milestone-20261012`  \n范围：M003/SM003/E003/R003，当前生产身份。  \n结论：以下六项在各自冻结范围内为**局部PASS**；真实generated AXI/WSTRB monitor、posted-store adapter fence、普通QUANT source lease和production top完整生成仍待实施，因此L0/L1保持PARTIAL、L2–L5 NOT_RUN，M003/M004未完成。\n\n## 已实现并冻结\n\n1. LPV1/LPA1固定字节codec与独立oracle；error END允许携带活动scope，其他action继续严格绑定。\n2. 固定32-owner持久ledger及CLAIM/BEGIN/END/PUBLISH/RELEASE/INVALIDATE事务；event和typed-task high-water、坏END scope保留、失败END一次封闭、same-session恢复及QKV pair原子预检/提交。\n3. 生产Controller在BEGIN成功应答后才执行原typed producer，在END应答后只退休一次；store helper在实际`full_write`提交入口累计真实入队字节。\n4. 原compute cmd/rsp加Host不可见provenance cmd/rsp，共四条512-bit depth2 ap_fifo；外部13BO、控制offset及wire v2不变。\n5. LPV1/LPA1 persistent RTL hub/portal已加入`config/full_module_registry.json`的生产RTL闭包，受控RTL入口严格从registry取源。\n6. 修复RTL response `origin_seq`到LPA1 byte16；此前误写请求byte32并被`bad_element`覆盖，造成成功CLAIM被transport误判。失败attempt完整保留。\n\n## 当前证据\n\n| attempt | 结果 | 主要量 | current/frozen | receipt SHA256 | manifest SHA256 |\n| --- | --- | --- | --- | --- | --- |\n| `generated_provenance_codec_04` | PASS | 8类mutation，独立byte oracle，1.731568s | 19/19 | `89b446ec9679231bb3eec640d146134b7d8410cd18702314277ff07093c10a39` | `9d1549c47064f4358ebca060c41fcdba5965a789110d9370af5c3dee9b17dc8c` |\n| `generated_provenance_ledger_05` | PASS | 64 checks，23.331393s | 82/82 | `d63ac8e397826b0424131fbcb15a9020c0d602eadf9d851b827a53af6a555410` | `0660ea931d54b828ed8aedefe954e680167d914541e90c094d95b6440374b117` |\n| `generated_provenance_events_09` | PASS | 81 checks，final seq7，partial bytes8，22.001536s | 82/82 | `f46ced64ee4c2c9cf2957d56e5f7138603d0da42f23a6eaeca312f373bfcabc4` | `fbe8b83b884962b0e09d38b10d1a017e51b61070f671f55ffb00d1c4dd5481ae` |\n| `portal_controller_27` | PASS | 25 commands/13 tasks，provenance events2，store bytes65536，24.802532s | 82/82 | `779a7b312535cb9ba92d66e3fb0ae83d6c9998cde2546a2695b774225a27ce33` | `ef62dbb5b8f878c9a6d0d88ebecb58776ed338a674a6bdbbd9ce0708733016da` |\n| `generated_provenance_portal_07` | PASS | accepted14/retired17，805cycles，21.683431s | 11/11 | `ed8e0745e62746e863fc5a4144e60d61331859b2491c87d0728bf097cd9a874d` | `fdbd7c0df8fb8274a3a68a931b172f722ead1c450f07512c1b918f6247420fe9` |\n| `generated_provenance_fifo_probe_02` | PASS | 12/12信号，23.163817s | 8/8 | `c886784eb38ba536964e1e963d5727b455de8be123b86b8286b44283bedd3381` | `821e95ea95cc8c579e932fa15a2933544348b3c963cf19c42ced710fd2d50656` |\n\n聚合核查为284/284 current、284/284 frozen、284/284声明pair相等，0 mismatch：\n\n- `project/E003_production_chain_closure/experiment_results/runs/R003/generated_provenance_base_stage_20261012/verification.json`\n- SHA256 `dd5f64ab439050817d02a51be200d781c823f90911ea38d1a0a0636ab8e03487`\n\n`generated_provenance_portal_01..05`、`generated_provenance_ledger_01..02`和`generated_provenance_events_01..03`的失败记录均未覆盖或重标。\n\n## 证据边界\n\n`generated_provenance_portal_07`的`physical_observation_*`仍由TB控制。它没有证明真实AW/W/B pin观测、逐WSTRB字节唯一覆盖、重复/越界/W-before-AW、4KiB/宽度转换、rejected-store debt、BRESP/RRESP首错或内部尚未发到pin的posted-store排空。`fifo_probe_02`只证明生成端口命名、方向和极性，production top本身未综合。Controller结果只签受控回复的metadata/retirement路径，没有数值payload或完整图结论。\n\n## 连续下一步\n\n工程将直接实现真实generated store monitor/interposer，先闭合一个普通contiguous rows16 owner的BEGIN准入、issued/observed byte守恒、WSTRB唯一覆盖、末B和adapter fence，再把其观测直接接入persistent hub。随后把hub查询/lease接到普通QUANT，补普通↔GATE无复位切换、其余shape与跨batch路由。该工作沿现合同和原资源帽连续执行，无新OOC、P&R或上板。\n",
+  "in_reply_to": null,
+  "message_file": "project/E003_production_chain_closure/experiment_results/runs/R003/generated_provenance_base_milestone_20261012.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "1c13b9ca15757e88fb8282d34748f1371502f04be2e15189be9f63c120f37047",
+  "created_at": "2026-10-11T20:25:39.505832+00:00",
+  "status": "delivered",
+  "client_user_message_id": "6051e169-3a48-4367-8bd4-c3f549f6a648",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-11T20:25:39.569268+00:00",
+  "recipient_turn_id": "01a12ca4-7be6-7241-a81d-47cf13c89bbc"
+}

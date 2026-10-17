@@ -1,0 +1,1 @@
+python3 /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/tests/full_matrix_fixture.py /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/full_cpu_candidate_20261007/matrix_fixture 

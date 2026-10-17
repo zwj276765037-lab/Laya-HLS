@@ -1,0 +1,98 @@
+================================================================
+== Design Size Report
+================================================================
+
+* Total Instructions per Compilation Phase
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Phase         | Step                       | Instructions | Description                                                                            |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Compile/Link  |                            | 36,741       | After all functions are compiled and linked into a single design                       |
+|               |                            |              |                                                                                        |
+| Unroll/Inline |                            |              | After user unroll and inline pragmas are applied                                       |
+|               | (1) unroll                 | 92,356       | user unroll pragmas are applied                                                        |
+|               | (2) simplification         | 81,916       | simplification of applied user unroll pragmas                                          |
+|               | (3) inline                 | 81,845       | user inline pragmas are applied                                                        |
+|               | (4) simplification         | 81,726       | simplification of applied user inline pragmas                                          |
+|               |                            |              |                                                                                        |
+| Array/Struct  |                            |              | After user array partition and struct aggregate/disaggregate pragmas are applied       |
+|               | (1) array partition        | 61,310       | user array partition pragmas are applied                                               |
+|               | (2) simplification         | 61,310       | simplification of applied user array partition & struct aggregate/disaggregate pragmas |
+|               | (3) aggregate/disaggregate | 61,310       | user struct aggregate/disaggregate pragmas are applied                                 |
+|               | (4) array reshape          | 61,310       | apply array reshape pragmas                                                            |
+|               | (5) access patterns        | 61,330       | array access pattern optmizations                                                      |
+|               |                            |              |                                                                                        |
+| Performance   |                            |              | After transformations are applied to meet performance pragma targets                   |
+|               | (1) loop simplification    | 61,330       | loop and instruction simplification                                                    |
+|               | (2) parallelization        | 61,310       | loops are unrolled or pipelined to meet performance targets                            |
+|               | (3) array partition        | 61,310       | arrays are partitioned to meet performance targets                                     |
+|               | (4) simplification         | 61,310       | simplification of design after performance transformations                             |
+|               |                            |              |                                                                                        |
+| HW Transforms |                            |              | After hardware transfomations                                                          |
+|               | (1) lowering               | 61,313       | initial conversion to HW specific instructions                                         |
+|               | (2) optimizations          | 61,459       | high level synthesis optimizations                                                     |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+
+* Instructions per Function for each Compilation Phase
++-------------------+------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+
+| Function          | Location               | Compile/Link      | Unroll/Inline     | Array/Struct      | Performance       | HW Transforms     |
++-------------------+------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+
+| + tanh_libm_leaf  | tanh_libm_bits.cpp:192 | 36,741            | 81,726            | 61,330            | 61,310            | 61,459            |
+|  + tanh_libm_bits | tanh_libm_bits.cpp:175 | 36,721            |                   |                   |                   |                   |
+|   + fp_mul_bits   | tanh_libm_bits.cpp:69  |   852 (3 calls)   |                   |                   |                   |                   |
+|      unpack       | tanh_libm_bits.cpp:15  |   240 (6 calls)   |                   |                   |                   |                   |
+|      jam          | tanh_libm_bits.cpp:9   |    57 (3 calls)   |                   |                   |                   |                   |
+|    + pack         | tanh_libm_bits.cpp:26  |   339 (3 calls)   |                   |                   |                   |                   |
+|       jam         | tanh_libm_bits.cpp:9   |   114 (6 calls)   |                   |                   |                   |                   |
+|   + expm1_bits    | tanh_libm_bits.cpp:121 | 33,614 (2 calls)  |                   |                   |                   |                   |
+|    + fp_mul_bits  | tanh_libm_bits.cpp:69  | 10,224 (36 calls) |                   |                   |                   |                   |
+|       unpack      | tanh_libm_bits.cpp:15  | 2,880 (72 calls)  |                   |                   |                   |                   |
+|       jam         | tanh_libm_bits.cpp:9   |   684 (36 calls)  |                   |                   |                   |                   |
+|     + pack        | tanh_libm_bits.cpp:26  | 4,068 (36 calls)  |                   |                   |                   |                   |
+|        jam        | tanh_libm_bits.cpp:9   | 1,368 (72 calls)  |                   |                   |                   |                   |
+|    + fp_add_bits  | tanh_libm_bits.cpp:43  | 7,150 (22 calls)  |                   |                   |                   |                   |
+|       unpack      | tanh_libm_bits.cpp:15  | 1,760 (44 calls)  |                   |                   |                   |                   |
+|       jam         | tanh_libm_bits.cpp:9   |   418 (22 calls)  |                   |                   |                   |                   |
+|     + pack        | tanh_libm_bits.cpp:26  | 2,486 (22 calls)  |                   |                   |                   |                   |
+|        jam        | tanh_libm_bits.cpp:9   |   836 (44 calls)  |                   |                   |                   |                   |
+|      to_int       | tanh_libm_bits.cpp:114 |    40 (2 calls)   |                   |                   |                   |                   |
+|    + from_int     | tanh_libm_bits.cpp:108 |   262 (2 calls)   |                   |                   |                   |                   |
+|     + pack        | tanh_libm_bits.cpp:26  |   226 (2 calls)   |                   |                   |                   |                   |
+|        jam        | tanh_libm_bits.cpp:9   |    76 (4 calls)   |                   |                   |                   |                   |
+|    + sub          | tanh_libm_bits.cpp:104 | 15,088 (46 calls) |                   |                   |                   |                   |
+|     + fp_add_bits | tanh_libm_bits.cpp:43  | 14,950 (46 calls) |                   |                   |                   |                   |
+|        unpack     | tanh_libm_bits.cpp:15  | 3,680 (92 calls)  |                   |                   |                   |                   |
+|        jam        | tanh_libm_bits.cpp:9   |   874 (46 calls)  |                   |                   |                   |                   |
+|      + pack       | tanh_libm_bits.cpp:26  | 5,198 (46 calls)  |                   |                   |                   |                   |
+|         jam       | tanh_libm_bits.cpp:9   | 1,748 (92 calls)  |                   |                   |                   |                   |
+|    + fp_div_bits  | tanh_libm_bits.cpp:82  |   586 (2 calls)   |                   |                   |                   |                   |
+|       unpack      | tanh_libm_bits.cpp:15  |   160 (4 calls)   |                   |                   |                   |                   |
+|     + pack        | tanh_libm_bits.cpp:26  |   226 (2 calls)   |                   |                   |                   |                   |
+|        jam        | tanh_libm_bits.cpp:9   |    76 (4 calls)   |                   |                   |                   |                   |
+|   + fp_add_bits   | tanh_libm_bits.cpp:43  |   975 (3 calls)   |                   |                   |                   |                   |
+|      unpack       | tanh_libm_bits.cpp:15  |   240 (6 calls)   |                   |                   |                   |                   |
+|      jam          | tanh_libm_bits.cpp:9   |    57 (3 calls)   |                   |                   |                   |                   |
+|    + pack         | tanh_libm_bits.cpp:26  |   339 (3 calls)   |                   |                   |                   |                   |
+|       jam         | tanh_libm_bits.cpp:9   |   114 (6 calls)   |                   |                   |                   |                   |
+|   + fp_div_bits   | tanh_libm_bits.cpp:82  |   586 (2 calls)   |                   |                   |                   |                   |
+|      unpack       | tanh_libm_bits.cpp:15  |   160 (4 calls)   |                   |                   |                   |                   |
+|    + pack         | tanh_libm_bits.cpp:26  |   226 (2 calls)   |                   |                   |                   |                   |
+|       jam         | tanh_libm_bits.cpp:9   |    76 (4 calls)   |                   |                   |                   |                   |
+|   + sub           | tanh_libm_bits.cpp:104 |   656 (2 calls)   |                   |                   |                   |                   |
+|    + fp_add_bits  | tanh_libm_bits.cpp:43  |   650 (2 calls)   |                   |                   |                   |                   |
+|       unpack      | tanh_libm_bits.cpp:15  |   160 (4 calls)   |                   |                   |                   |                   |
+|       jam         | tanh_libm_bits.cpp:9   |    38 (2 calls)   |                   |                   |                   |                   |
+|     + pack        | tanh_libm_bits.cpp:26  |   226 (2 calls)   |                   |                   |                   |                   |
+|        jam        | tanh_libm_bits.cpp:9   |    76 (4 calls)   |                   |                   |                   |                   |
+|    fp_mul_bits    | tanh_libm_bits.cpp:69  |                   | 26,325 (39 calls) | 19,461 (39 calls) | 19,461 (39 calls) | 19,500 (39 calls) |
+|    fp_add_bits    | tanh_libm_bits.cpp:43  |                   | 51,903 (73 calls) | 39,055 (73 calls) | 39,055 (73 calls) | 39,128 (73 calls) |
+|    fp_div_bits    | tanh_libm_bits.cpp:82  |                   | 2,756 (4 calls)   | 2,072 (4 calls)   | 2,052 (4 calls)   | 2,084 (4 calls)   |
++-------------------+------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+
+
+* Design Size Message Settings
++---------------------------------------------+--------+------------------------------------------------------------------+
+| Message Setting                             | Value  | Description                                                      |
++---------------------------------------------+--------+------------------------------------------------------------------+
+| config_compile -design_size_maximum_warning | 100000 | Show a warning when total design instructions exceeds this value |
++---------------------------------------------+--------+------------------------------------------------------------------+
+
+

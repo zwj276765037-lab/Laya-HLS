@@ -1,0 +1,96 @@
+{
+  "scope": "WI0 four distinct prequantized LN_FFN A rows to true strict W/cache/resident/KB1 writer output",
+  "status": "PASS",
+  "input_manifest": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT028_WI0_resident_03/input_manifest.json",
+    "bytes": 49995,
+    "sha256": "6ce8938a25a22a5aa8e51aec241e99d5c020770bf1d181ecdefb1c1e0f044f74"
+  },
+  "phases": {
+    "static": {
+      "status": "PASS",
+      "guard": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 57.86927508376539,
+        "finished_at": "2026-10-13T12:34:06.683138+00:00",
+        "minimum_mem_available_kb": 434454192,
+        "peak_owned_rss_kb": 2403400,
+        "rss_capture_count": 286,
+        "rss_captured": true,
+        "rss_sample_count": 287,
+        "trigger": null
+      },
+      "marker": [
+        "WI_RESIDENT_STATIC_PASS"
+      ],
+      "driver_log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT028_WI0_resident_03/guard_static/driver.log",
+        "bytes": 41635,
+        "sha256": "0ed3ddce913c80ea5f4e7256474a5b1bba2e49cef5bf447bf15e988993ad48e1"
+      }
+    },
+    "pilot": {
+      "status": "PASS",
+      "guard": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 19.839547218754888,
+        "finished_at": "2026-10-13T12:34:35.783007+00:00",
+        "minimum_mem_available_kb": 436512692,
+        "peak_owned_rss_kb": 1451548,
+        "rss_capture_count": 99,
+        "rss_captured": true,
+        "rss_sample_count": 99,
+        "trigger": null
+      },
+      "marker": [
+        "WI_RESIDENT_PILOT_PASS cycle=1611 physical_A_halves=256 physical_A_scales=128 W_q0_R=1024 W_q1_R=1024 W_scale_R=339 W_ready=NOT_RUN PS=NOT_RUN output_B=NOT_RUN"
+      ],
+      "driver_log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT028_WI0_resident_03/guard_pilot/driver.log",
+        "bytes": 12139,
+        "sha256": "e8968521588cd03b9d280dc7061b59fe6bf062d140abd42826cdc53bc7cc2d78"
+      },
+      "raw_log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT028_WI0_resident_03/raw_pilot.log",
+        "bytes": 2445,
+        "sha256": "5518fa4b178d5bdcd9d32a4283e22bb2f8b33e6747ccabebda72a7dbe12e7c74"
+      }
+    },
+    "full": {
+      "status": "PASS",
+      "guard": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 893.1304995398968,
+        "finished_at": "2026-10-13T12:50:29.309405+00:00",
+        "minimum_mem_available_kb": 414445780,
+        "peak_owned_rss_kb": 1456184,
+        "rss_capture_count": 4457,
+        "rss_captured": true,
+        "rss_sample_count": 4458,
+        "trigger": null
+      },
+      "marker": [
+        "WI_RESIDENT_FULL_PASS rows=4 K=1024 N=5248 real_stripes=20992 PS_lane_groups=671744 final_packets=2624 real_output_words=20992 actual_AW=1312 actual_W=1312 actual_B=1312 held_B=23616 full_A_physical=1 W_strict_physical=1 A_fixture_prequantized=1 final_B_publication=1 local_owner_ledger=1 cycles=101335"
+      ],
+      "driver_log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT028_WI0_resident_03/guard_full/driver.log",
+        "bytes": 28077,
+        "sha256": "a03880fb154d18259ca7de0877c5be080502a13f83b89f7c8efa594be8cb63ef"
+      },
+      "raw_log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT028_WI0_resident_03/raw_full.log",
+        "bytes": 18260,
+        "sha256": "f0193190ebeffdd63e7737cce3f0aef9e30dfd4d2ca4e28b53af78e7135e22d1"
+      }
+    }
+  },
+  "full_cost_estimate_before_launch": {
+    "estimate_seconds": 3000,
+    "evidence": {
+      "pilot": "AT028 guard_pilot/guard_result.json: 19.839547s, child0, no trigger; raw_pilot.log: cycle 1611, A published at 289, q0/q1 1024 R each and scale 339 R. The q0 512-to-1024 interval is 660 cycles.",
+      "load_projection": "The declared physical q0/q1 loads are 41984 beats each. At the observed 660 cycles per 512 q0 beats, the concurrent q0/q1 phase is roughly 54k cycles, plus startup and strict checks. Scale is shorter and already concurrent in the pilot. This is an estimate, not an observed full load.",
+      "compute_reference": "The earlier independent four-row Wi TM4 full covered 20992 stripes/671744 PS groups in 668.561s without this strict W/AXI writer path; KB1 Down full completed in 431.228s on the same tool class. Neither is claimed to be the WI0 runtime.",
+      "admission": "A 3000s allowance includes more than a factor of two over the pilot's naive 19.839547/1611 wall-seconds-per-cycle projection for about 100k cycles, and more than the sum of the two prior full wall times. The 3600s/8GiB/40Mcycle/120s semantic-stall guards remain hard limits; completion is not pre-signed."
+    }
+  }
+}

@@ -1,0 +1,54 @@
+# E003当前状态
+
+execution_state: running
+verdict: unassessed
+applicability: 限定主机/实际adapter片段；新program生成运行，完整同runtime计算待验
+
+唯一重工具为owned_program_hls06（session32841），精确复用owned_host08的content scalar+完整416B copy联合修复。host08十process PASS，actual_adapter_lpv_generated01四case限定PASS（真实actor/LN及撤销后首cleanup NOT_RUN）。A004准备实际nested模块正/负例，A006 managed adapter准备，A005只读真实FSM pending；root唯一整合。fresh executor host/新生成待稳定shared闭包；C/D周期NOT_RUN、L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成。原单重工具/全部分类帽/G仅OOC余额2338.224019s及5172s不重启。
+
+
+---
+Published: 2026-10-13T03:57:17.996417+00:00
+Publication: Pd7b9461578864cf7a257f0177ba51a34
+Execution state: running
+Research verdict: unassessed
+Applicability: FIRST-only owned program generation and executor structural repair; same-runtime arithmetic NOT_RUN
+Evidence:
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_first_baseline_host_verification_20261013.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_host_02/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_host_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_stream_host_02/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_minimum_hardware_chain_answer_20261013.md
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_01/guard_hls/guard_result.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_control_transport_rtl_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_host_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_host_02/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_01_cost_diagnosis_A005_20261013.md
+- project/E003_production_chain_closure/experiment_results/runs/R003/norm_provenance_specialization_host_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_host_03/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_02/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_hls_03/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_hls_03_port_diagnosis_A004_20261013.md
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_first_hls_repair_verification_20261013.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_host_05/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_hls_04/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_first_hls_second_progress_verification_20261013.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_admission_transport_rtl_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_host_04/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_admission_transport_rtl_02/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_adapter_lpv_owner_rtl_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_rtl_02/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_hls_02_cost_diagnosis_A005_20261013.md
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_source_guard_v2_rtl_02/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_wide_fifo_diagnostic_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_host_06/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_host_07/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_hls_05/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_hls_05_purpose_mapping_observation.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_wide_fifo_generation_diagnosis_A005_20261013.md
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_rtl_03/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_decode_diagnostic_03/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_program_validator_adapter_verification_20261013.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_host_08/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/executor_adapter_lpv_generated_rtl_01/receipt.json

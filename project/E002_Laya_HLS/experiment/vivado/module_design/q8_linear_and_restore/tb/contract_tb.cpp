@@ -1,0 +1,5 @@
+#include "contract_test.h"
+#include "q8_linear_and_restore.h"
+int main(){using namespace laya;LinearTask t;t.ctx=test::ctx(Op::LIN_ACT_FC2,6,255,RowSpace::BATCH);t.a=test::ref(Buffer::A8);t.w=test::ref(Buffer::WEIGHT);t.ps=test::ref(Buffer::PS);t.dst=test::ref(Buffer::HEAD_WORK);t.dst_region=uint8_t(Region::ACT_LOGITS);t.weight={12,255};t.K=256;t.N=2;uint32_t outputs=0;uint8_t tail=0;test::require(q8_linear_and_restore::validate(t,2,128,outputs,tail)&&outputs==2&&tail==2,"act N2 tail");t.N=8;test::require(!q8_linear_and_restore::validate(t,2,128,outputs,tail),"reject padded six columns");
+  DotIssue d{1,1,1,1,7,0,16,2};test::require(check_dot_issue(d,16,256,2),"N2 DotIssue last group");d.valid_cols=8;test::require(!check_dot_issue(d,16,256,2),"N2 padded columns forbidden");d.valid_cols=2;d.task_id=UINT32_MAX;test::require(!check_dot_issue(d,16,256,2),"DotIssue task id bound");
+  LinearTask wi;wi.ctx=test::ctx(Op::LIN_WI,2,1);wi.a=test::ref(Buffer::A8);wi.w=test::ref(Buffer::WEIGHT);wi.ps=test::ref(Buffer::PS);wi.weight={3,1};wi.K=1024;wi.N=5248;wi.dst=none();test::require(!q8_linear_and_restore::validate(wi,2,128,outputs,tail),"Wi destination required");}

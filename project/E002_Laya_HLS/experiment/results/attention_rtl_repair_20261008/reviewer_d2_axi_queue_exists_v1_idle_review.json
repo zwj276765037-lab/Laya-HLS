@@ -1,0 +1,35 @@
+{
+  "schema": "laya_axi_queue_exists_v1_idle_observation_review",
+  "created_utc": "2026-10-08T14:30:23.995702+00:00",
+  "reviewer": {
+    "agent": "/root/resource_explain_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "identity": "queue_exists_v1",
+  "verdict": "ACCEPT_BOUNDED_IDLE_OBSERVATION_GROWTH_PERSISTS",
+  "evidence": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/runs/idle_once/validation.json",
+    "bytes": 12946,
+    "sha256": "e51d86f3cdcdc60db0a3c3ff0d55bf50c25588485a3f74219c4c1709bd5ceb53"
+  },
+  "independent_audit": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_queue_exists_v1_idle_hashcheck.json",
+    "bytes": 49446,
+    "sha256": "badba91c9a65f3652c4e6e1e465c5dc55c813f754f94a065253c1af2df99da01"
+  },
+  "observations": [
+    "Exact bound snapshot completed100000 clocks,seed1,7ports;17 phase samples,119AXI+119queue+238per-ID rows allzero,constructors28,pairs0.",
+    "Frozen testbench checks complete7x65536-byte backing arrays before idle PASS; no fatal/error,guard exit0/no trigger,4 actual process policies match.",
+    "OwnRSS atclock10k313188KiB andclock100k1809444KiB:delta1496256KiB/90000=16.625067KiB/clock. Baseline v2delta1456884KiB=16.1876KiB/clock; no reduction from fourguards.",
+    "Measured phase span2292ms\u219239267.02cycle/s;baseline2362ms\u219238103.30cycle/s. These are matching idle-window measurements, not traffic or DUT rates.",
+    "Guard8.4198s/treepeak2371844KiB are separate from xsimk phaseRSS and2292ms span; do not mix scopes."
+  ],
+  "interpretation": "Four exists guards alone did not remove the measured no-traffic growth. The missing-key-size-read hypothesis is not a sufficient explanation/fix for this snapshot. Small one-run slope/rate differences do not establish a general performance or allocation cause.",
+  "limits": [
+    "Idle only;traffic transaction equivalence not exercised.",
+    "No production VIP mutation accepted, no full-DUT RSS bound or long-simulation feasibility.",
+    "No repeat, budget increase,combined wait+exists variant,traffic or numericalRTL released."
+  ],
+  "next": "Continue separately released wait_trace_v3 static path. Further memory experiment requires a new mechanism-specific design and bounded source/snapshot gates; existing idle run is consumed."
+}

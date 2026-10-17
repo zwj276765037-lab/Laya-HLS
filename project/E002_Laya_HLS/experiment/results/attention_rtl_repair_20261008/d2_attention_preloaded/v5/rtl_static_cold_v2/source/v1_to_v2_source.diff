@@ -1,0 +1,629 @@
+--- v1/source/design.md
++++ v2/source/design.md
+@@ -1,6 +1,6 @@
+-# Attention v5 cold-start static RTL source design
++# Attention v5 cold-start static RTL v2 diagnostic source design
+ 
+-State: source prepared under the [Astra xhigh release](../../../../reviewer_attention_v5_cold_static_source_preparation_release.json) of 2026-10-08. Attention RTL compilation and runtime require a later release. This module is a verification harness around the unchanged V5 generated top; it does not alter production, HLS, generated RTL, IP, arithmetic, oracle or tolerance.
++State: independent v2 source preparation after the [first v1 runtime failure](../../rtl_static_cold_v1/runs/rtl_base_h0_r0_v1/postrun_analysis.md). No v2 compiler or simulator has run. This module remains a verification harness around the unchanged V5 generated top; it does not alter production, HLS, generated RTL, IP, arithmetic, oracle or tolerance. A separate reviewed release is required for any v2 compile or runtime.
+ 
+ ## Source and contract locations
+ 
+@@ -11,9 +11,10 @@
+ | [Integration specification §§11, 12, 14](../../../../../../vivado/design_source/15_integration_interfaces_and_pipeline.md) | QKV pair FILL→READY publication, epoch/coverage and TaskDone retirement. |
+ | [D2 repair contract §§7.3–7.5, 7.11](../../../../repair_contract.md) | Real external QKV producer boundary, selected B1/S64 Decision head0/query0 and split numeric judgments. |
+ | [V5 accepted design](../../../source/design.md), [frozen ABI](../../source/attention_preloaded_abi.h), [V5 testbench](../../tb/test_attention_preloaded.cpp) | BEGIN/RUN receipt, phase/status/owner fields and first frozen 160-word descriptors. |
+-| [Cold source preparation release](../../../../reviewer_attention_v5_cold_static_source_preparation_release.json) | Seven physical AXI ports, 267 mapped pages, double Lite, cold-only sequence, no internal preload or reset between calls. |
++| [V1 cold source preparation release](../../../../reviewer_attention_v5_cold_static_source_preparation_release.json) | Seven physical AXI ports, 267 mapped pages, double Lite, cold-only sequence, no internal preload or reset between calls. |
++| [V1 first-run evidence](../../rtl_static_cold_v1/runs/rtl_base_h0_r0_v1/failure_evidence_manifest.json) | Static compile passed; the RUN special-hold composite assertion stopped the first numerical runtime after commands 0 and 1 passed. |
+ 
+-The present file documents the exact mapping of that released design to the new harness. The source preparation gate is the controlling scope where an older generic D2-R budget or generated cosim setup differs.
++The present file documents the mapping of the accepted cold design to the independently staged v2 testbench and the limited diagnostic correction. The v1 source packet and first-run bytes remain frozen.
+ 
+ ## Binding and memory
+ 
+@@ -29,7 +30,7 @@
+ | att_out | 0x2500000000 | 64 | write and read the selected first 256 B; scan the full B1/S64 256 KiB mapped output region |
+ | observed | 0x2600000000 | 1 | write first 1024 B; rest sentinel |
+ 
+-The 267 physical page bases come from the gate, including the sparse QKV offsets. The endpoint rejects an unmapped address and a burst crossing a page. Both DUT and endpoint sides are monitored for legal metadata, address ranges, beat/response debt and equal accepted counts. Each of five AXI channels has a one-entry valid-hold adapter with deterministic 0–3 cycle exposure delay; AW/W can advance separately. One terminal R beat of an actual QKV0 burst and the 64th/final ATT_OUT B response get an additional 16-cycle hold in RUN. `tb/att_cold_control.svh` latches the selected beat/address and wait duration; final B must correspond to `base+252`. The generated ATT_OUT AXI instance sets `CH0_NUM_WRITE_OUTSTANDING=1` and `NUM_WRITE_OUTSTANDING=1` ([generated top](../../runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice.v), ATT_OUT instance parameters around line 12001). No force/deposit, internal cache preload or FSM steering occurs.
++The 267 physical page bases come from the gate, including the sparse QKV offsets. The endpoint rejects an unmapped address and a burst crossing a page. Both DUT and endpoint sides are monitored for legal metadata, address ranges, beat/response debt and equal accepted counts. Each of five AXI channels has a one-entry valid-hold adapter with deterministic 0–3 cycle exposure delay; AW/W can advance separately. One terminal R beat of an actual QKV0 burst and the 256th/final ATT_OUT B response get an additional 16-cycle hold in RUN. `tb/att_cold_control.svh` latches the selected beat/address and wait duration; final bus AW must still correspond to `base+252`. The generated ATT_OUT AXI instance sets `CH0_NUM_WRITE_OUTSTANDING=1` and `NUM_WRITE_OUTSTANDING=1` ([generated top](../../runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice.v), ATT_OUT instance parameters around line 12001). No force/deposit, internal cache preload or FSM steering occurs.
+ 
+ `tb/materialize_cold_pages.py` independently reconstructs both complete 12 MiB host shards from the frozen 786432-byte QKV tensor, applies the forward layout, checks every host byte using the inverse layout and validates full-host plus 10240064-byte-prefix SHA256 against the frozen manifest. Only the listed pages are emitted for XSim. The simulated host backs 96 pages per shard, not every byte of the 12 MiB logical shard; no unmapped-region scan is claimed. BEGIN sees A5 on both QKV port pages. After accepted BEGIN and rejected pending BEGIN, and only while all channels are drained, the host testbench replaces the external QKV page contents and submits the independently frozen RUN receipt. The DUT instance and its static state persist across all four invocations.
+ 
+@@ -39,8 +40,8 @@
+ 
+ The single cold-start instance first reads reset command in control bank 0 at `0x10` and all 14 pointer-register halves in control_r bank 1, then programs and reads back all seven nonzero high-address pointers. Before each invocation it writes BEGIN=0 or RUN=1 to bank 0 `0x10` and reads it back; AP start uses bank 0 `0x00`. The sequence is BEGIN, second BEGIN while pending, RUN with real external QKV pages/receipt, replay RUN. At first actual `ap_done` and again at CSR done/idle, all AXI request/response debt and timing-adapter accepted/delivered counts must be zero; no wait is inserted to hide early completion. Each command compares all 30 status words in observed `[0..15]` and `[224..237]` with exact independent constants, including zeros after the replay `report(...,has_pair=false)`, RUN six owner claims and cleanup status/detail. Every fixed 100,000 clocks the testbench prints command, state, an explicitly inferred phase hint, DUT/endpoint AR/R/AW/B counts for all seven ports and a read-only in-process RSS sample. Fatal errors stop the single attempt and remain in the guarded raw log.
+ 
+-The generated V5 top calls production `full_read` after AV to copy the 256 selected ATT_OUT bytes into observed AV. RUN therefore requires real ATT_OUT reads. The monitor admits reads and writes only in the first 256 B and checks exactly 64 AR/R, 64 AW/W/B, 256 read and write bus bytes and 256 useful written bytes. QKV0 requires exactly 8256 AR/R and 33,024 bus bytes; QKV1 requires zero transactions. The testbench dumps actual observed pages for all four calls and complete ATT_OUT pages after RUN/replay. `tb/seal_runtime.py` hashes the XSim log and six dumps. `tb/check_runtime_numeric.py` consumes those sealed bytes plus the frozen score/probability/AV files and frozen QKV source. It requires 64 exact score words; 64 finite probabilities under the original `1e-4 + 1e-4*abs(gold)` F32 tolerance; and 64 exact AV words from **actual observed probabilities** and frozen V, rounding separately to F32 after every multiply and add in ascending key order. It separately applies the same tolerance against frozen end-to-end AV. Actual ATT_OUT first 256 bytes must equal observed AV; every other output byte remains A5, and replay output is identical. This checker does not generate a new gold fixture or run CSim.
++The generated V5 top calls production `full_read` 64 times after AV to copy the 256 selected ATT_OUT bytes into observed AV. RUN therefore requires real ATT_OUT reads. The monitor admits reads and writes only in the first 256 B and checks exactly 64 AR/R and 256 read bus bytes. AV uses 64 `task::write` calls, each `full_write(...,4)` yielding four byte-level user writes; the 32-bit AXI bus maps them to 256 one-beat AW/W/B, 1,024 write bus bytes and 256 useful written bytes. This v2 correction changes only the testbench's expected transaction counts; the final bus AW address remains `base+252`. QKV0 requires exactly 8256 AR/R and 33,024 bus bytes; QKV1 requires zero transactions. At each CASE_CHECK, the testbench first dumps that command's full 4096 B observed page and full 262144 B ATT_OUT region, then prints all seven ports' DUT/endpoint cumulative and per-command channel/byte counters, adapter accepted/delivered/debt, command/start/done scope, selected R/B raw latches and every four-state hold failure bit before the quiescence, status and memory assertions. The logged `start_cycle` is the testbench's AXI-Lite start-write request, `done_cycle` is the first sampled `ap_done`, and `csr_cycle` is CSR read completion; their difference is not a pure DUT latency. First/final bounded physical ATT_OUT AW/W/B samples include transaction ordinals, AW address/length/size and W strobe; a shape counter checks all transactions against `AWLEN=0`, `AWSIZE=2`, `AWADDR=base+4*floor(i/4)` and `WSTRB=1<<(i%4)`. The same raw dumps and diagnostics are emitted before an early-done or CSR-done debt failure. `tb/seal_runtime.py` hashes the XSim log and eight dumps after a successful suite. `tb/check_runtime_numeric.py` consumes those sealed bytes plus the frozen score/probability/AV files and frozen QKV source. It requires 64 exact score words; 64 finite probabilities under the original `1e-4 + 1e-4*abs(gold)` F32 tolerance; and 64 exact AV words from **actual observed probabilities** and frozen V, rounding separately to F32 after every multiply and add in ascending key order. It separately applies the same tolerance against frozen end-to-end AV. Actual ATT_OUT first 256 bytes must equal observed AV; every other output byte remains A5, and replay output is identical. This checker does not generate a new gold fixture or run CSim.
+ 
+ ## Entrypoints and limits
+ 
+-`tb/build_static.sh` and `tb/run_mode.sh` are authored but unexecuted Attention EDA entrypoints. `tb/verify_binding.py` checks immutable source, prepared inputs and the compiled snapshot, excluding only four named XSim runtime artifacts while archiving their exact post-run bytes. The source packet provides ordered command arguments and fresh output paths for later release. `tb/audit_source.py` is a read-only pin/page audit. Hardware warm reset, head15/query63, changed QKV, missing coverage and negative follow-through remain separate later RTL gates. No 150 MHz closure, physical resource result or board result is inferred here.
++`tb/build_static.sh` and `tb/run_mode.sh` are staged but unexecuted v2 EDA entrypoints. The unchanged V1 prepared pages are reused by reference, and `tb/verify_binding.py` checks immutable source, prepared inputs and a fresh v2 compiled snapshot, excluding only four named XSim runtime artifacts while archiving their exact post-run bytes. The v2 source packet provides ordered command arguments and fresh output paths for later release. `tb/audit_source.py` is a read-only pin/page audit. Hardware warm reset, head15/query63, changed QKV, missing coverage and negative follow-through remain separate later RTL gates. No 150 MHz closure, physical resource result or board result is inferred here.
+--- v1/source/results.md
++++ v2/source/results.md
+@@ -1,6 +1,6 @@
+-# Attention v5 cold-start static RTL source results
++# Attention v5 cold-start static RTL v2 source results
+ 
+-Status on 2026-10-09: source construction and one corrected host page materialization only. No Attention xvhdl, xvlog, xelab or xsim command has run. No numerical RTL, timing or board conclusion exists.
++Status on 2026-10-09: the independent v2 testbench source packet and read-only binding check are prepared for Astra source review after the first v1 runtime stopped at a composite special-hold assertion. No v2 xvhdl, xvlog, xelab or xsim command has run. The v1 static compile passed, but no numerical RTL, timing or board conclusion exists.
+ 
+ ## Target and estimated finite budget
+ 
+@@ -24,14 +24,20 @@
+ 
+ ## Preparation evidence
+ 
+-The first guarded materializer attempt stopped before output because its forward plane stride omitted the batch dimension. Its guard and first failure remain in `runs/materialize_base_h0_r0_v1/guard` (exit 1, no guard trigger). **The original v1 script text/hash was not frozen before that attempt**, so no later copy is represented as its pre-run source; this limits reconstruction of that failure. After correcting the formula, a fresh guarded attempt in `runs/materialize_base_h0_r0_v2` exited 0 in 6.761 s, peak owned RSS 57,516 KiB, 34 samples and no guard trigger; minimum MemAvailable was 451,346,556 KiB. Its independent inverse checker inspected all **25,165,824 host QKV bytes**, and both 12 MiB and 10,240,064 B prefix SHA256 values matched the frozen manifest. The materialized XSim backing contains exactly 267 mapped 4 KiB pages, including only 786,432 B of the QKV logical shards. A separate [independent page serialization check](../runs/materialize_base_h0_r0_v2/independent_page_check.json) verified all ten `.memh` files byte-for-byte; [Astra's independent review](../../../../reviewer_attention_v5_cold_static_v1_prepared_bytes_review.json) also accepted the 267 page bytes and full-host/prefix hashes. The current source packet binds both records. Python source syntax, shell syntax, all 352 generated top pins and the 267-page map passed static checks. No Attention EDA compile/simulation has run.
++The first guarded materializer attempt stopped before output because its forward plane stride omitted the batch dimension. Its guard and first failure remain in the frozen v1 `runs/materialize_base_h0_r0_v1/guard` (exit 1, no guard trigger). **The original v1 script text/hash was not frozen before that attempt**, so no later copy is represented as its pre-run source; this limits reconstruction of that failure. After correcting the formula, a fresh guarded attempt in v1 `runs/materialize_base_h0_r0_v2` exited 0 in 6.761 s, peak owned RSS 57,516 KiB, 34 samples and no guard trigger; minimum MemAvailable was 451,346,556 KiB. Its independent inverse checker inspected all **25,165,824 host QKV bytes**, and both 12 MiB and 10,240,064 B prefix SHA256 values matched the frozen manifest. The materialized XSim backing contains exactly 267 mapped 4 KiB pages, including only 786,432 B of the QKV logical shards. A separate [independent page serialization check](../../rtl_static_cold_v1/runs/materialize_base_h0_r0_v2/independent_page_check.json) verified all ten `.memh` files byte-for-byte; [Astra's independent review](../../../../reviewer_attention_v5_cold_static_v1_prepared_bytes_review.json) also accepted the 267 page bytes and full-host/prefix hashes. The frozen v1 source packet binds both records; the v2 packet reuses them. V2 Python AST, shell syntax, all 352 generated top pins, the 267-page map, documentation links and the read-only binding check over 557 files plus 11 prepared records passed. No v2 EDA compile/simulation has run.
+ 
+-The [materialization evidence](../runs/materialize_base_h0_r0_v2/prepared/materialization.json) records all ten generated `.memh` files and full image hashes. The source packet binds these, the source gate, all generated V5 and FP wrapper files, installed simulation libraries, exact command plans and source scripts. All future pre/post binding reports and the four XSim runtime artifacts are planned fresh paths; they are not current execution results.
++The [materialization evidence](../../rtl_static_cold_v1/runs/materialize_base_h0_r0_v2/prepared/materialization.json) records all ten generated `.memh` files and full image hashes. The v2 source packet binds these unchanged prepared bytes, the new diagnostic testbench, the generated V5 and FP wrapper files, installed simulation libraries, exact command plans and source scripts. All v2 pre/post binding reports and the four XSim runtime artifacts must use fresh paths; none is a current v2 execution result.
++
++## V1 first-run evidence and v2 diagnostic scope
++
++The [v1 static audit](../../rtl_static_cold_v1/runs/static_build_v1/static_audit.json) passed. The [first v1 runtime](../../rtl_static_cold_v1/runs/rtl_base_h0_r0_v1/failure_evidence_manifest.json) passed both BEGIN commands and reached RUN `ap_done` at command cycle 500,645, then stopped at `ATT_COLD_SPECIAL_HOLD_MISSING r=1 b=1`. The composite assertion omitted the selected index/address values, so the exact failed predicate remains unobserved. No RUN memory scan, numerical check or replay occurred. The [post-run analysis](../../rtl_static_cold_v1/runs/rtl_base_h0_r0_v1/postrun_analysis.md) traces a likely v1 testbench expectation mismatch: 64 F32 outputs produce 256 byte-level user writes, mapped to 256 one-beat 32-bit AW/W/B transactions and 1,024 bus bytes. The final aligned bus AW remains at `att_out_base+252`. The ATT_OUT read expectation stays 64 AR/R and 256 bus bytes.
++
++V2 changes only the testbench's ATT_OUT write transaction expectations, selects the 256th final B, dumps all four commands' full observed and ATT_OUT memories before result checks, and prints seven-port dual-side cumulative/per-command counts, adapter debts, start/done scope, four-state R/B predicate results and bounded first/final AW/W/B physical event samples. It checks the source-derived AW length/size/address and W strobe shape across all physical ATT_OUT writes. It retains the final `+252` address, at least 16-cycle holds, first-`ap_done` and CSR debt checks, exact status/oracle values and numerical tolerance. The v1 source packet, compiled snapshot and failed runtime are unchanged. This source-preparation state does not authorize v2 compilation or simulation.
+ 
+ | Stage | State |
+ | --- | --- |
+ | Host page materialization | Passed after a recorded source-formula correction |
+-| Static source/page/pin audit | Passed; no RTL compiler invoked |
+-| Attention static compile | Not released, not run |
+-| Attention numerical RTL runtime | Not released, not run |
++| V2 source/page/pin audit | Passed read-only checks; Astra source review pending; no v2 RTL compiler invoked |
++| V2 Attention static compile | Not released, not run |
++| V2 Attention numerical RTL runtime | Not released, not run |
+ | RTL resource/timing, place/route, board | Not run |
+--- v1/tb/att_cold_control.svh
++++ v2/tb/att_cold_control.svh
+@@ -20,9 +20,16 @@
+   logic [6:0] pointer_offset[0:6];
+   logic [63:0] before_read[0:6], before_write[0:6], before_useful[0:6];
+   logic [31:0] before_aw[0:6], before_w[0:6], before_ar[0:6], before_r[0:6], before_b[0:6];
++  // Channel order: AR, R, RLAST, AW, W, B. Byte order: read bus, write bus, useful write.
++  logic [31:0] before_dut_chan[0:6][0:5], before_ram_chan[0:6][0:5];
++  logic [63:0] before_dut_bytes[0:6][0:2], before_ram_bytes[0:6][0:2];
++  logic [31:0] before_accepted[0:6][0:4], before_delivered[0:6][0:4];
+   integer total_cycles=0, command_cycles=0, reset_left=0, ptr_idx=0, cmd_idx=0;
+   integer obs_file, out_file;
+   logic running=0, seen_done=0, sampled_ap_done=0;
++  integer case_start_cycle=0, case_done_cycle=0, case_csr_cycle=0;
++  logic case_start_seen=0, case_done_seen=0;
++  logic [31:0] case_csr_word=0;
+   logic r_hold_reg=0, b_hold_reg=0;
+   logic [31:0] r_special_count=0, b_special_count=0;
+   logic [31:0] before_r_special=0, before_b_special=0;
+@@ -30,6 +37,27 @@
+   logic [31:0] r_selected_beat=0, r_hold_wait_latched=0, b_hold_wait_latched=0;
+   logic [63:0] r_selected_addr=0, b_selected_addr=0, attout_last_aw_addr=0;
+   logic r_selected_last=0;
++  localparam int OUT_SAMPLE=4;
++  typedef struct packed {
++    logic [31:0] ordinal;
++    logic [63:0] addr;
++    logic [7:0] len;
++    logic [2:0] size;
++  } out_aw_sample_t;
++  typedef struct packed {
++    logic [31:0] ordinal;
++    logic [3:0] strb;
++    logic last;
++  } out_w_sample_t;
++  typedef struct packed {
++    logic [31:0] ordinal;
++    logic [63:0] last_aw_addr;
++  } out_b_sample_t;
++  out_aw_sample_t out_aw_first[0:OUT_SAMPLE-1], out_aw_tail[0:OUT_SAMPLE-1];
++  out_w_sample_t out_w_first[0:OUT_SAMPLE-1], out_w_tail[0:OUT_SAMPLE-1];
++  out_b_sample_t out_b_first[0:OUT_SAMPLE-1], out_b_tail[0:OUT_SAMPLE-1];
++  integer out_aw_seen=0, out_w_seen=0, out_b_seen=0;
++  integer out_aw_shape_bad=0, out_w_shape_bad=0;
+   typedef enum logic [4:0] {
+     BOOT, COLD_RESET, PTR_ZERO, PTR_ZERO_WAIT, PTR_WRITE, PTR_WRITE_WAIT,
+     PTR_READBACK, PTR_READBACK_WAIT, CMD_RESET_READ, CMD_RESET_WAIT,
+@@ -70,10 +98,15 @@
+     else assign hold_final_b[p]=1'b0;
+   end
+   always @(posedge clk) begin
++    out_aw_sample_t aw_event;
++    out_w_sample_t w_event;
++    out_b_sample_t b_event;
+     if (!resetn) begin
+       sampled_ap_done <= 0;
+       r_special_count <= 0;
+       b_special_count <= 0;
++      out_aw_seen=0; out_w_seen=0; out_b_seen=0;
++      out_aw_shape_bad=0; out_w_shape_bad=0;
+     end else begin
+       sampled_ap_done <= dut.ap_done;
+       if (r_hold_applied[3]) begin
+@@ -90,6 +123,36 @@
+       end
+       if (m_axi_att_out_AWVALID && m_axi_att_out_AWREADY)
+         attout_last_aw_addr <= m_axi_att_out_AWADDR;
++      if (running && m_axi_att_out_AWVALID && m_axi_att_out_AWREADY) begin
++        out_aw_seen=out_aw_seen+1;
++        aw_event.ordinal=32'(out_aw_seen);
++        aw_event.addr=m_axi_att_out_AWADDR;
++        aw_event.len=m_axi_att_out_AWLEN;
++        aw_event.size=m_axi_att_out_AWSIZE;
++        if (out_aw_seen<=OUT_SAMPLE) out_aw_first[out_aw_seen-1]=aw_event;
++        out_aw_tail[(out_aw_seen-1)%OUT_SAMPLE]=aw_event;
++        if (m_axi_att_out_AWLEN !== 8'd0 || m_axi_att_out_AWSIZE !== 3'd2 ||
++            m_axi_att_out_AWADDR !== pointer_base[5]+64'(4*((out_aw_seen-1)/4)))
++          out_aw_shape_bad=out_aw_shape_bad+1;
++      end
++      if (running && m_axi_att_out_WVALID && m_axi_att_out_WREADY) begin
++        out_w_seen=out_w_seen+1;
++        w_event.ordinal=32'(out_w_seen);
++        w_event.strb=m_axi_att_out_WSTRB;
++        w_event.last=m_axi_att_out_WLAST;
++        if (out_w_seen<=OUT_SAMPLE) out_w_first[out_w_seen-1]=w_event;
++        out_w_tail[(out_w_seen-1)%OUT_SAMPLE]=w_event;
++        if (m_axi_att_out_WSTRB !== (4'b0001 << ((out_w_seen-1)%4)) ||
++            m_axi_att_out_WLAST !== 1'b1)
++          out_w_shape_bad=out_w_shape_bad+1;
++      end
++      if (running && m_axi_att_out_BVALID && m_axi_att_out_BREADY) begin
++        out_b_seen=out_b_seen+1;
++        b_event.ordinal=32'(out_b_seen);
++        b_event.last_aw_addr=attout_last_aw_addr;
++        if (out_b_seen<=OUT_SAMPLE) out_b_first[out_b_seen-1]=b_event;
++        out_b_tail[(out_b_seen-1)%OUT_SAMPLE]=b_event;
++      end
+     end
+   end
+   function automatic logic [31:0] obs_word(input int word_index);
+@@ -111,6 +174,114 @@
+     end
+     return 1;
+   endfunction
++  // A one bit means the original hold predicate is true or unknown. Case
++  // comparison makes every logged failure bit itself known (0 or 1).
++  function automatic logic [10:0] hold_failure_bits();
++    logic [10:0] bad;
++    bad[0]=(r_special_count-before_r_special !== 32'd1);
++    bad[1]=(b_special_count-before_b_special !== 32'd1);
++    bad[2]=((r_selected_index==32'd0) !== 1'b0) || $isunknown(r_selected_index);
++    bad[3]=((b_selected_index==32'd0) !== 1'b0) || $isunknown(b_selected_index);
++    bad[4]=((r_hold_wait_latched<32'd16) !== 1'b0) || $isunknown(r_hold_wait_latched);
++    bad[5]=((b_hold_wait_latched<32'd16) !== 1'b0) || $isunknown(b_hold_wait_latched);
++    bad[6]=(r_selected_last !== 1'b1);
++    bad[7]=((r_selected_addr<pointer_base[3]) !== 1'b0) || $isunknown(r_selected_addr);
++    bad[8]=((r_selected_addr>=pointer_base[3]+64'd12582912) !== 1'b0) || $isunknown(r_selected_addr);
++    bad[9]=(b_selected_index !== 32'd256);
++    bad[10]=(b_selected_addr !== pointer_base[5]+64'd252);
++    return bad;
++  endfunction
++  task automatic print_out_samples(input int command_index);
++    $display("ATT_COLD_OUT_SHAPE cmd=%0d aw=%0d w=%0d b=%0d aw_bad=%0d w_bad=%0d expected_awlen=0 expected_awsize=2 expected_wstrb=1_shift_byte_lane expected_aw_addr=base_plus_4_floor_i_over_4",
++      command_index,out_aw_seen,out_w_seen,out_b_seen,out_aw_shape_bad,out_w_shape_bad);
++    for (int i=0;i<OUT_SAMPLE && i<out_aw_seen;i++)
++      $display("ATT_COLD_OUT_EVENT cmd=%0d channel=AW sample=first txn=%0d addr=%h awlen=%0d awsize=%0d",
++        command_index,out_aw_first[i].ordinal,out_aw_first[i].addr,out_aw_first[i].len,out_aw_first[i].size);
++    if (out_aw_seen>OUT_SAMPLE)
++      for (int i=out_aw_seen-OUT_SAMPLE;i<out_aw_seen;i++)
++        $display("ATT_COLD_OUT_EVENT cmd=%0d channel=AW sample=last txn=%0d addr=%h awlen=%0d awsize=%0d",
++          command_index,out_aw_tail[i%OUT_SAMPLE].ordinal,out_aw_tail[i%OUT_SAMPLE].addr,
++          out_aw_tail[i%OUT_SAMPLE].len,out_aw_tail[i%OUT_SAMPLE].size);
++    for (int i=0;i<OUT_SAMPLE && i<out_w_seen;i++)
++      $display("ATT_COLD_OUT_EVENT cmd=%0d channel=W sample=first txn=%0d wstrb=%h wlast=%0b",
++        command_index,out_w_first[i].ordinal,out_w_first[i].strb,out_w_first[i].last);
++    if (out_w_seen>OUT_SAMPLE)
++      for (int i=out_w_seen-OUT_SAMPLE;i<out_w_seen;i++)
++        $display("ATT_COLD_OUT_EVENT cmd=%0d channel=W sample=last txn=%0d wstrb=%h wlast=%0b",
++          command_index,out_w_tail[i%OUT_SAMPLE].ordinal,out_w_tail[i%OUT_SAMPLE].strb,
++          out_w_tail[i%OUT_SAMPLE].last);
++    for (int i=0;i<OUT_SAMPLE && i<out_b_seen;i++)
++      $display("ATT_COLD_OUT_EVENT cmd=%0d channel=B sample=first txn=%0d last_aw_addr=%h",
++        command_index,out_b_first[i].ordinal,out_b_first[i].last_aw_addr);
++    if (out_b_seen>OUT_SAMPLE)
++      for (int i=out_b_seen-OUT_SAMPLE;i<out_b_seen;i++)
++        $display("ATT_COLD_OUT_EVENT cmd=%0d channel=B sample=last txn=%0d last_aw_addr=%h",
++          command_index,out_b_tail[i%OUT_SAMPLE].ordinal,out_b_tail[i%OUT_SAMPLE].last_aw_addr);
++  endtask
++  task automatic print_case_diagnostics(input int command_index);
++    logic [10:0] bad;
++    logic [31:0] chan[0:5], prior_chan[0:5];
++    logic [63:0] bytes_now[0:2], bytes_before[0:2];
++    string side_name;
++    $display("ATT_COLD_CASE_SCOPE cmd=%0d command=%0d state=%0d running=%0b start_seen=%0b start_cycle=%0d done_seen=%0b done_cycle=%0d csr_cycle=%0d csr=%h command_cycles=%0d total_cycles=%0d seen_done=%0b sampled_ap_done=%0b live_ap_start=%0b live_ap_done=%0b live_ap_idle=%0b live_ap_ready=%0b",
++      command_index,(command_index>=2),test_state,running,case_start_seen,
++      case_start_cycle,case_done_seen,case_done_cycle,case_csr_cycle,
++      case_csr_word,command_cycles,total_cycles,seen_done,sampled_ap_done,
++      dut.ap_start,dut.ap_done,dut.ap_idle,dut.ap_ready);
++    for (int p=0;p<7;p++) begin
++      for (int side=0;side<2;side++) begin
++        if (side==0) begin
++          side_name="dut";
++          chan[0]=dut_ar_count[p]; chan[1]=dut_r_count[p]; chan[2]=dut_rlast_count[p];
++          chan[3]=dut_aw_count[p]; chan[4]=dut_w_count[p]; chan[5]=dut_b_count[p];
++          bytes_now[0]=dut_read_bus_bytes[p]; bytes_now[1]=dut_write_bus_bytes[p];
++          bytes_now[2]=dut_write_useful_bytes[p];
++          for (int c=0;c<6;c++) prior_chan[c]=before_dut_chan[p][c];
++          for (int c=0;c<3;c++) bytes_before[c]=before_dut_bytes[p][c];
++        end else begin
++          side_name="ram";
++          chan[0]=ram_ar_count[p]; chan[1]=ram_r_count[p]; chan[2]=ram_rlast_count[p];
++          chan[3]=ram_aw_count[p]; chan[4]=ram_w_count[p]; chan[5]=ram_b_count[p];
++          bytes_now[0]=ram_read_bus_bytes[p]; bytes_now[1]=ram_write_bus_bytes[p];
++          bytes_now[2]=ram_write_useful_bytes[p];
++          for (int c=0;c<6;c++) prior_chan[c]=before_ram_chan[p][c];
++          for (int c=0;c<3;c++) bytes_before[c]=before_ram_bytes[p][c];
++        end
++        $display("ATT_COLD_CASE_PORT cmd=%0d port=%0d side=%s scope=total ar=%0d r=%0d rlast=%0d aw=%0d w=%0d b=%0d read_bus=%0d write_bus=%0d write_useful=%0d",
++          command_index,p,side_name,chan[0],chan[1],chan[2],chan[3],chan[4],chan[5],
++          bytes_now[0],bytes_now[1],bytes_now[2]);
++        $display("ATT_COLD_CASE_PORT cmd=%0d port=%0d side=%s scope=command ar=%0d r=%0d rlast=%0d aw=%0d w=%0d b=%0d read_bus=%0d write_bus=%0d write_useful=%0d",
++          command_index,p,side_name,chan[0]-prior_chan[0],chan[1]-prior_chan[1],
++          chan[2]-prior_chan[2],chan[3]-prior_chan[3],chan[4]-prior_chan[4],
++          chan[5]-prior_chan[5],bytes_now[0]-bytes_before[0],
++          bytes_now[1]-bytes_before[1],bytes_now[2]-bytes_before[2]);
++      end
++      $display("ATT_COLD_CASE_OUTSTANDING cmd=%0d port=%0d dut_wr_pending=%0b dut_rd_pending=%0b ram_wr_pending=%0b ram_rd_pending=%0b dut_aw_minus_b=%0d dut_ar_minus_rlast=%0d ram_aw_minus_b=%0d ram_ar_minus_rlast=%0d",
++        command_index,p,dut_write_pending[p],dut_read_pending[p],
++        ram_write_pending[p],ram_read_pending[p],
++        dut_aw_count[p]-dut_b_count[p],dut_ar_count[p]-dut_rlast_count[p],
++        ram_aw_count[p]-ram_b_count[p],ram_ar_count[p]-ram_rlast_count[p]);
++      for (int c=0;c<5;c++) begin
++        $display("ATT_COLD_CASE_ADAPTER cmd=%0d port=%0d channel=%0d total_accepted=%0d total_delivered=%0d total_debt=%0d command_accepted=%0d command_delivered=%0d command_debt=%0d",
++          command_index,p,c,accepted[p][c],delivered[p][c],
++          accepted[p][c]-delivered[p][c],accepted[p][c]-before_accepted[p][c],
++          delivered[p][c]-before_delivered[p][c],
++          (accepted[p][c]-before_accepted[p][c])-(delivered[p][c]-before_delivered[p][c]));
++      end
++    end
++    bad=hold_failure_bits();
++    $display("ATT_COLD_CASE_HOLD cmd=%0d r_count_before=%0d r_count_now=%0d r_count_delta=%0d r_index=%0d r_beat=%0d r_addr=%h r_last=%b r_wait_latched=%0d r_wait_live=%0d r_hold_reg=%b b_count_before=%0d b_count_now=%0d b_count_delta=%0d b_index=%0d b_addr=%h b_wait_latched=%0d b_wait_live=%0d b_hold_reg=%b last_aw=%h expected_last_b_index=256 expected_last_b_addr=%h",
++      command_index,before_r_special,r_special_count,r_special_count-before_r_special,
++      r_selected_index,r_selected_beat,r_selected_addr,r_selected_last,
++      r_hold_wait_latched,r_special_wait_cycles[3],r_hold_reg,before_b_special,
++      b_special_count,b_special_count-before_b_special,b_selected_index,
++      b_selected_addr,b_hold_wait_latched,b_special_wait_cycles[5],
++      b_hold_reg,attout_last_aw_addr,pointer_base[5]+64'd252);
++    $display("ATT_COLD_CASE_HOLD_PRED cmd=%0d r_count_bad=%0b b_count_bad=%0b r_index_zero_or_unknown=%0b b_index_zero_or_unknown=%0b r_wait_short_or_unknown=%0b b_wait_short_or_unknown=%0b r_last_bad=%0b r_addr_low_or_unknown=%0b r_addr_high_or_unknown=%0b b_index_bad=%0b b_addr_bad=%0b any_bad=%0b",
++      command_index,bad[0],bad[1],bad[2],bad[3],bad[4],bad[5],
++      bad[6],bad[7],bad[8],bad[9],bad[10],(|bad));
++    print_out_samples(command_index);
++  endtask
+   task automatic scan_input_and_outputs(input int command_index);
+     logic [7:0] expected;
+     logic [31:0] output_word;
+@@ -190,6 +361,10 @@
+           $fatal(1,"ATT_COLD_REJECT_OUTPUT_READ cmd=%0d",command_index);
+       end
+     if (command_index==2) begin
++      if (out_aw_seen != 256 || out_w_seen != 256 || out_b_seen != 256 ||
++          out_aw_shape_bad != 0 || out_w_shape_bad != 0)
++        $fatal(1,"ATT_COLD_ATT_OUT_PHYSICAL_SHAPE aw=%0d w=%0d b=%0d aw_bad=%0d w_bad=%0d",
++          out_aw_seen,out_w_seen,out_b_seen,out_aw_shape_bad,out_w_shape_bad);
+       if (ram_r_count[3]-before_r[3] !== 32'd8256 ||
+           dut_read_bus_bytes[3]-before_read[3] !== 64'd33024 ||
+           dut_ar_count[3]-before_ar[3] !== 32'd8256)
+@@ -202,10 +377,10 @@
+         $fatal(1,"ATT_COLD_ATT_OUT_READ_COVERAGE bus_bytes=%0d ar=%0d r=%0d",
+           dut_read_bus_bytes[5]-before_read[5],
+           dut_ar_count[5]-before_ar[5],ram_r_count[5]-before_r[5]);
+-      if (dut_aw_count[5]-before_aw[5] !== 32'd64 ||
+-          ram_w_count[5]-before_w[5] !== 32'd64 ||
+-          ram_b_count[5]-before_b[5] !== 32'd64 ||
+-          dut_write_bus_bytes[5]-before_write[5] !== 64'd256 ||
++      if (dut_aw_count[5]-before_aw[5] !== 32'd256 ||
++          ram_w_count[5]-before_w[5] !== 32'd256 ||
++          ram_b_count[5]-before_b[5] !== 32'd256 ||
++          dut_write_bus_bytes[5]-before_write[5] !== 64'd1024 ||
+           dut_write_useful_bytes[5]-before_useful[5] !== 64'd256)
+         $fatal(1,"ATT_COLD_ATT_OUT_WRITE_COVERAGE aw=%0d w=%0d b=%0d bus=%0d useful=%0d",
+           dut_aw_count[5]-before_aw[5],ram_w_count[5]-before_w[5],
+@@ -268,15 +443,7 @@
+           command_index,word_index,obs_word(word_index),expected[i]);
+     end
+     if (command_index==2) begin
+-      if (r_special_count-before_r_special!=1 ||
+-          b_special_count-before_b_special!=1 ||
+-          r_selected_index==0 || b_selected_index==0 ||
+-          r_hold_wait_latched<16 || b_hold_wait_latched<16 ||
+-          !r_selected_last ||
+-          r_selected_addr<pointer_base[3] ||
+-          r_selected_addr>=pointer_base[3]+64'd12582912 ||
+-          b_selected_index!==32'd64 ||
+-          b_selected_addr!==pointer_base[5]+64'd252)
++      if (|hold_failure_bits())
+         $fatal(1,"ATT_COLD_SPECIAL_HOLD_MISSING r=%0d b=%0d",r_special_count-before_r_special,b_special_count-before_b_special);
+       $display("ATT_COLD_SPECIAL_HOLD r_index=%0d r_burst_beat=%0d r_addr=%h r_last=%0d r_wait=%0d b_index=%0d b_addr=%h b_wait=%0d",
+         r_selected_index,r_selected_beat,r_selected_addr,r_selected_last,
+@@ -290,13 +457,11 @@
+     if (obs_file==0) $fatal(1,"ATT_COLD_DUMP_OPEN %s",path);
+     for (int i=0;i<PAGE_BYTES;i++) $fwrite(obs_file,"%02x",u_port_observed.u_mem.mem[i]);
+     $fwrite(obs_file,"\n"); $fclose(obs_file);
+-    if (command_index>=2) begin
+-      path=$sformatf("att_out_%0d.hex",command_index);
+-      out_file=$fopen(path,"w");
+-      if (out_file==0) $fatal(1,"ATT_COLD_DUMP_OPEN %s",path);
+-      for (int i=0;i<OUT_BYTES;i++) $fwrite(out_file,"%02x",u_port_att_out.u_mem.mem[i]);
+-      $fwrite(out_file,"\n"); $fclose(out_file);
+-    end
++    path=$sformatf("att_out_%0d.hex",command_index);
++    out_file=$fopen(path,"w");
++    if (out_file==0) $fatal(1,"ATT_COLD_DUMP_OPEN %s",path);
++    for (int i=0;i<OUT_BYTES;i++) $fwrite(out_file,"%02x",u_port_att_out.u_mem.mem[i]);
++    $fwrite(out_file,"\n"); $fclose(out_file);
+   endtask
+   always @(negedge clk) begin : test_sequence
+     logic [31:0] expected_pointer_word;
+@@ -352,9 +517,14 @@
+         $fatal(1,"ATT_COLD_COMMAND_WATCHDOG cmd=%0d cycles=%0d state=%0d",cmd_idx,command_cycles,test_state);
+       if ($isunknown(sampled_ap_done)) $fatal(1,"ATT_COLD_DONE_UNKNOWN cmd=%0d",cmd_idx);
+       if (sampled_ap_done && !seen_done) begin
+-        if (!buses_drained())
++        if (!buses_drained()) begin
++          dump_bytes(cmd_idx);
++          print_case_diagnostics(cmd_idx);
+           $fatal(1,"ATT_COLD_EARLY_DONE_DEBT cmd=%0d",cmd_idx);
++        end
+         seen_done=1;
++        case_done_seen=1;
++        case_done_cycle=total_cycles;
+         $display("ATT_COLD_AP_DONE cmd=%0d cycle=%0d",cmd_idx,command_cycles);
+       end
+     end
+@@ -449,11 +619,38 @@
+           before_aw[p]=dut_aw_count[p]; before_w[p]=ram_w_count[p];
+           before_ar[p]=dut_ar_count[p];
+           before_r[p]=ram_r_count[p]; before_b[p]=ram_b_count[p];
++          before_dut_chan[p][0]=dut_ar_count[p];
++          before_dut_chan[p][1]=dut_r_count[p];
++          before_dut_chan[p][2]=dut_rlast_count[p];
++          before_dut_chan[p][3]=dut_aw_count[p];
++          before_dut_chan[p][4]=dut_w_count[p];
++          before_dut_chan[p][5]=dut_b_count[p];
++          before_ram_chan[p][0]=ram_ar_count[p];
++          before_ram_chan[p][1]=ram_r_count[p];
++          before_ram_chan[p][2]=ram_rlast_count[p];
++          before_ram_chan[p][3]=ram_aw_count[p];
++          before_ram_chan[p][4]=ram_w_count[p];
++          before_ram_chan[p][5]=ram_b_count[p];
++          before_dut_bytes[p][0]=dut_read_bus_bytes[p];
++          before_dut_bytes[p][1]=dut_write_bus_bytes[p];
++          before_dut_bytes[p][2]=dut_write_useful_bytes[p];
++          before_ram_bytes[p][0]=ram_read_bus_bytes[p];
++          before_ram_bytes[p][1]=ram_write_bus_bytes[p];
++          before_ram_bytes[p][2]=ram_write_useful_bytes[p];
++          for (int c=0;c<5;c++) begin
++            before_accepted[p][c]=accepted[p][c];
++            before_delivered[p][c]=delivered[p][c];
++          end
+         end
+         before_r_special=r_special_count; before_b_special=b_special_count;
+         r_selected_index=0; b_selected_index=0;
+         r_selected_beat=0; r_selected_addr=0; r_selected_last=0;
+         b_selected_addr=0; r_hold_wait_latched=0; b_hold_wait_latched=0;
++        out_aw_seen=0; out_w_seen=0; out_b_seen=0;
++        out_aw_shape_bad=0; out_w_shape_bad=0;
++        case_start_seen=0; case_done_seen=0;
++        case_start_cycle=0; case_done_cycle=0; case_csr_cycle=0;
++        case_csr_word=0;
+         command_cycles=0;
+         test_state<=COMMAND_WRITE;
+       end
+@@ -477,6 +674,7 @@
+         lite_cmd_write_0<=1; lite_cmd_addr_0<=5'h00; lite_cmd_wdata_0<=1;
+         lite_cmd_valid_0<=1;
+         running=1; seen_done=0;
++        case_start_seen=1; case_start_cycle=total_cycles;
+         $display("ATT_COLD_START cmd=%0d command=%0d",cmd_idx,cmd_idx>=2);
+         test_state<=CASE_START_WAIT;
+       end
+@@ -487,16 +685,23 @@
+         test_state<=CSR_READ_WAIT;
+       end
+       CSR_READ_WAIT: if (lite_cmd_done_0) begin
++        case_csr_word=lite_cmd_rdata_0;
++        case_csr_cycle=total_cycles;
++        if (lite_cmd_rdata_0[2:1] !== 2'b11 || !buses_drained()) begin
++          dump_bytes(cmd_idx);
++          print_case_diagnostics(cmd_idx);
++        end
+         if (lite_cmd_rdata_0[2:1] !== 2'b11)
+           $fatal(1,"ATT_COLD_CSR_DONE_IDLE cmd=%0d csr=%h",cmd_idx,lite_cmd_rdata_0);
+         if (!buses_drained()) $fatal(1,"ATT_COLD_CSR_DONE_DEBT cmd=%0d",cmd_idx);
+         test_state<=CASE_CHECK;
+       end
+       CASE_CHECK: begin
++        dump_bytes(cmd_idx);
++        print_case_diagnostics(cmd_idx);
+         if (!buses_drained()) $fatal(1,"ATT_COLD_CHECK_WITH_AXI cmd=%0d",cmd_idx);
+         check_status(cmd_idx);
+         scan_input_and_outputs(cmd_idx);
+-        dump_bytes(cmd_idx);
+         $display("ATT_COLD_COMMAND_PASS cmd=%0d cycles=%0d",cmd_idx,command_cycles);
+         running=0;
+         if (cmd_idx==3) test_state<=FINISH;
+--- v1/tb/audit_source.py
++++ v2/tb/audit_source.py
+@@ -4,10 +4,12 @@
+ import hashlib,json,re
+ ROOT=Path(__file__).resolve().parent.parent
+ V5=ROOT.parent
++V1=V5/'rtl_static_cold_v1'
+ BASE=Path('/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline')
+-GATE=BASE/'results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_source_preparation_release.json'
++V1_GATE=BASE/'results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_source_preparation_release.json'
++V2_GATE=BASE/'results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v2_write_transaction_diagnostic_source_preparation_release.json'
+ RTL=V5/'runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice.v'
+-PREP=ROOT/'runs/materialize_base_h0_r0_v2/prepared'
++PREP=V1/'runs/materialize_base_h0_r0_v2/prepared'
+ 
+ def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+ 
+@@ -24,8 +26,9 @@
+     return [(a,b) for a,b in zip(lo,hi) if a!=b]
+ 
+ def main():
+-    assert sha(GATE)=='b73b9095ca3e3c80c512ff404c4c6c8883afd31626e85c38b7e012016cca61eb'
+-    gate=json.loads(GATE.read_text())
++    assert sha(V1_GATE)=='b73b9095ca3e3c80c512ff404c4c6c8883afd31626e85c38b7e012016cca61eb'
++    assert sha(V2_GATE)=='0dba513c05be99806e238350ab56d6781497ff2a1dbe551e1abcd21757841906'
++    gate=json.loads(V1_GATE.read_text())
+     text=RTL.read_text()
+     top=(ROOT/'tb/att_cold_top.sv').read_text()
+     pins=set(re.findall(r'^\s*(?:input|output)\s+(?:\[[^]]+\])?\s*(\w+)\s*;',text,re.M))
+--- v1/tb/build_static.sh
++++ v2/tb/build_static.sh
+@@ -2,7 +2,7 @@
+ # SOURCE ONLY. Execute only after a separate Attention compiler release.
+ set -euo pipefail
+ export LC_ALL=C
+-ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_cold_v1
++ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_cold_v2
+ V5="$ROOT/.."
+ TB="$ROOT/tb"
+ RTL="$V5/runs/local_csynth_v1/work/hls/syn/verilog"
+--- v1/tb/make_source_packet.py
++++ v2/tb/make_source_packet.py
+@@ -8,16 +8,18 @@
+ HERE=Path(__file__).resolve().parent
+ ROOT=HERE.parent
+ V5=ROOT.parent
++V1=V5/'rtl_static_cold_v1'
+ BASE=Path('/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline')
+ VIV=Path('/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado')
+ VERILOG=V5/'runs/local_csynth_v1/work/hls/syn/verilog'
+ REPORT=V5/'runs/local_csynth_v1/work/hls/syn/report'
+ IP=V5/'runs/local_csynth_v1/work/hls/impl/ip/subcore_prj/subcore_prj.gen/sources_1/ip'
+-GATE=BASE/'results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_source_preparation_release.json'
++GATE=BASE/'results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v2_write_transaction_diagnostic_source_preparation_release.json'
++V1_GATE=BASE/'results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_source_preparation_release.json'
+ ENDPOINT=BASE/'results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/rtl/axi_static_memory.sv'
+ G16=BASE/'results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py'
+ G4=BASE/'results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/guard_runtime_4g.py'
+-PREP=ROOT/'runs/materialize_base_h0_r0_v2/prepared'
++PREP=V1/'runs/materialize_base_h0_r0_v2/prepared'
+ OUT=ROOT/'source/source_packet.json'
+ 
+ def sha(path:Path)->str:
+@@ -35,24 +37,27 @@
+ def relative_record(path): return {'relative_path':path.name,'bytes':path.stat().st_size,'sha256':sha(path)}
+ 
+ def main():
+-    assert sha(GATE)=='b73b9095ca3e3c80c512ff404c4c6c8883afd31626e85c38b7e012016cca61eb'
++    assert sha(GATE)=='0dba513c05be99806e238350ab56d6781497ff2a1dbe551e1abcd21757841906'
+     assert sha(ENDPOINT)=='b33c29a0ce934f19f61b1313ca82f24ef3df60bede1b949610054f4caa7b909d'
+     verilog=sorted(VERILOG.glob('*.v')); data=sorted(VERILOG.glob('*.dat'))
+     wrappers=sorted(IP.glob('*/sim/*_ip.vhd'))
+     assert (len(verilog),len(data),len(wrappers))==(216,35,6)
+     sources=sorted(p for p in HERE.iterdir() if p.is_file() and p.suffix in ('.py','.sh','.sv','.svh','.c','.so'))
+-    sources += [ROOT/'source/design.md',ROOT/'source/results.md',ROOT/'rtl/README.md']
++    sources += [ROOT/'source/design.md',ROOT/'source/results.md',
++                ROOT/'source/v1_to_v2_source.diff',ROOT/'rtl/README.md']
+     source_fixture=BASE/'results/attention_rtl_repair_20261008/d2_attention_slice/tb/fixture_b1_s64_decision'
+     package=BASE/'build/model-attention-rtl-repair-20261008'
+-    frozen=[V5/'config.cfg',V5/'source/attention_preloaded_slice.cpp',
++    frozen=[V1_GATE,V1/'source/source_packet.json',
++        V1/'runs/rtl_base_h0_r0_v1/failure_evidence_manifest.json',
++        V5/'config.cfg',V5/'source/attention_preloaded_slice.cpp',
+         V5/'source/attention_preloaded_abi.h',
+         V5/'runs/local_csynth_v1/synthesis_evidence.json',
+         V5/'runs/source_config_binding_v1/source_config_binding_packet.json',
+         source_fixture/'request.bin',source_fixture/'qkv_final.f32.bin',
+         package/'aux.bin',package/'manifest.json']
+     frozen += sorted((V5/'tb/fixture_preloaded').glob('*'))
+-    frozen += sorted((ROOT/'runs/materialize_base_h0_r0_v1/guard').glob('*'))
+-    frozen += sorted((ROOT/'runs/materialize_base_h0_r0_v2/guard').glob('*'))
++    frozen += sorted((V1/'runs/materialize_base_h0_r0_v1/guard').glob('*'))
++    frozen += sorted((V1/'runs/materialize_base_h0_r0_v2/guard').glob('*'))
+     mat=json.loads((PREP/'materialization.json').read_text())
+     assert mat['status']=='HOST_SOURCE_AND_FULL_IMAGE_CHECK_ONLY_NO_EDA'
+     assert len(mat['generated'])==10 and sum(p['count'] for p in mat['mapped_pages'])==267
+@@ -118,7 +123,7 @@
+             archive=runtime/'snapshot_runtime_artifacts')}
+     ]
+     packet={
+-      'schema':'attention_v5_cold_static_source_packet_v1',
++      'schema':'attention_v5_cold_static_source_packet_v2',
+       'created_utc':datetime.now(timezone.utc).isoformat(),
+       'state':'SOURCE_PREPARED_ONLY_NO_ATTENTION_XVHDL_XVLOG_XELAB_XSIM_EXECUTED',
+       'source_gate':record(GATE),'accepted_endpoint':record(ENDPOINT),
+@@ -127,14 +132,14 @@
+       'testbench_and_runner':inventory(sources),'frozen_inputs':inventory(frozen),
+       'guard_scripts':inventory([G16,G4]),'schedule_reports':inventory(reports),
+       'materialization_record':relative_record(PREP/'materialization.json'),
+-      'independent_page_serialization_check':record(ROOT/'runs/materialize_base_h0_r0_v2/independent_page_check.json'),
++      'independent_page_serialization_check':record(V1/'runs/materialize_base_h0_r0_v2/independent_page_check.json'),
+       'independent_prepared_bytes_review':record(BASE/'results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v1_prepared_bytes_review.json'),
+       'prepared_pages':pages,'installed_library_files':libs,
+       'xsim_ini':record(VIV/'data/xsim/xsim.ini'),
+       'xsim_lookup_manual':record(VIV/'doc/eng/man/xsim'),
+       'compile_commands':compile_commands,
+-      'materializer_guard_actual':record(ROOT/'runs/materialize_base_h0_r0_v2/guard/guard_result.json'),
+-      'materializer_first_failure_actual':record(ROOT/'runs/materialize_base_h0_r0_v1/guard/driver.log'),
++      'materializer_guard_actual':record(V1/'runs/materialize_base_h0_r0_v2/guard/guard_result.json'),
++      'materializer_first_failure_actual':record(V1/'runs/materialize_base_h0_r0_v1/guard/driver.log'),
+       'materializer_v1_source_limit':'The original v1 materializer script was not frozen before its failed run; no post-run script copy is claimed to be that preimage.',
+       'planned_runs_in_dependency_order':planned,
+       'snapshot_lookup':'A fresh runtime directory links xsim.dir absolutely to the compiled snapshot; XSim uses its documented default lookup from current directory.',
+@@ -146,13 +151,14 @@
+       'scope':'Cold B1/S64 Decision stage4/layer0 head0/query0 only; four calls on one DUT, physical host verified before RUN, no internal preload/reset, no subsequent modes yet.'}
+     packet['att_out_instance_override']={
+       'generated_top':str(VERILOG/'attention_preloaded_slice.v'),
++      'origin':'original_v5_generated_top_adapter_instance; no_testbench_or_v2_parameter_override',
+       'parameter':'CH0_NUM_WRITE_OUTSTANDING', 'value':1,
+       'also_NUM_WRITE_OUTSTANDING':1,'source_line':12002,
+-      'final_b':'RUN B response index 64 at physical ATT_OUT base+252; 64 AW/W/B and 256 useful bytes'}
++      'final_b':'RUN B response index 256 at physical ATT_OUT base+252; 256 AW/W/B, 1024 bus bytes and 256 useful bytes'}
+     packet['run_external_transaction_contract']={
+       'qkv0':'8256 AR/R, 33024 read bus bytes, exact Q [0,256), K [0x400000,0x404000), V [0x800000,0x804000)',
+       'qkv1':'zero AR/R/AW/W/B',
+-      'att_out':'64 AR/R, 256 read bus bytes; 64 AW/W/B, 256 write bus and useful bytes, first 256 B only'}
++      'att_out':'64 AR/R, 256 read bus bytes; 256 AW/W/B, 1024 write bus bytes and 256 useful bytes, first 256 B only; AWLEN=0, AWSIZE=2, WSTRB=1<<(i%4), AWADDR=base+4*floor(i/4)'}
+     OUT.write_text(json.dumps(packet,indent=2,sort_keys=True)+'\n')
+     print('ATT_COLD_SOURCE_PACKET',OUT,'source_files',len(sources),'prepared_pages',len(pages),
+           'libraries',sum(len(x) for x in libs.values()))
+--- v1/tb/run_mode.sh
++++ v2/tb/run_mode.sh
+@@ -2,7 +2,7 @@
+ # SOURCE ONLY. Execute only after a separate Attention runtime release.
+ set -euo pipefail
+ export LC_ALL=C
+-ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_cold_v1
++ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_cold_v2
+ TB="$ROOT/tb"
+ XBIN=/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin
+ if [[ $# -ne 3 || ! -d "$1" || ! -d "$2" || ! -d "$3" ]]; then
+--- v1/tb/seal_runtime.py
++++ v2/tb/seal_runtime.py
+@@ -1,9 +1,10 @@
+ #!/usr/bin/env python3
+-"""Seal exactly the XSim log and six byte dumps before offline checking."""
++"""Seal exactly the XSim log and eight full byte dumps before offline checking."""
+ import argparse,hashlib,json
+ from pathlib import Path
+ p=argparse.ArgumentParser(); p.add_argument('runtime_dir',type=Path); args=p.parse_args()
+-names=['xsim.log',*[f'observed_{i}.hex' for i in range(4)],'att_out_2.hex','att_out_3.hex']
++names=['xsim.log',*[f'observed_{i}.hex' for i in range(4)],
++       *[f'att_out_{i}.hex' for i in range(4)]]
+ files={}
+ for name in names:
+     path=args.runtime_dir/name
+@@ -12,4 +13,4 @@
+     files[name]={'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+ (args.runtime_dir/'runtime_seal.json').write_text(json.dumps({
+     'schema':'attention_v5_cold_runtime_seal_v1','files':files},indent=2,sort_keys=True)+'\n')
+-print('ATT_COLD_RUNTIME_SEALED files=7')
++print('ATT_COLD_RUNTIME_SEALED files=9')
+--- v1/tb/verify_binding.py
++++ v2/tb/verify_binding.py
+@@ -74,7 +74,7 @@
+     if a.expected_prepared_report and not a.prepared: p.error('prepared baseline needs prepared')
+     if a.archive_runtime_artifacts and not a.snapshot: p.error('archive needs snapshot')
+     packet=json.loads(a.packet.read_text())
+-    assert packet['schema']=='attention_v5_cold_static_source_packet_v1'
++    assert packet['schema']=='attention_v5_cold_static_source_packet_v2'
+     assert len(packet['verilog_modules'])==216 and len(packet['dat_files'])==35
+     assert len(packet['fp_sim_vhdl_wrappers'])==6 and len(packet['prepared_pages'])==10
+     all_records=[]

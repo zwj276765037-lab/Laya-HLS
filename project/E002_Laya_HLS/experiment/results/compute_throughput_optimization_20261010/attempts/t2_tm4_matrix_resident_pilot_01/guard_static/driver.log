@@ -1,0 +1,188 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sun Oct 11 13:40:27 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+vivado-mcp server ready on port 10003
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_tm4_matrix_resident_tb_static_v2.tcl
+# if {[llength $argv]!=5} {error "usage: WORK FROZEN A_FIXTURE W_FIXTURE STREAMS"}
+# lassign $argv work frozen afixture wfixture streams
+# set_param general.maxThreads 4
+# create_project tm4_matrix_resident_tb_v2 [file join $work vivado] -part xcu55c-fsvh2892-2L-e
+# set module [file join $frozen vivado module_design q8_linear_and_restore tm1tn8_gs32_512]
+# foreach f {tm4tn8_bias_bits_v1 tm1tn8_integer_tree_lut tm1tn8_signed_pack_pair tm1tn8_integer_tree_packed tm4tn8_tag_v1 tm4tn8_reserved_store_v1 tm4tn8_fp_restore_v1 tm4tn8_row_pipeline_v1 tm4tn8_sync_bank_v2 tm4tn8_sync_ps_front_v2 tm4tn8_final_ps_adapter_v1 tm4tn8_bias_output_v1 tm4tn8_axi512_writer_v1 tm4tn8_matrix_owner_ledger_v2 tm4tn8_matrix_resident_v2} {add_files -norecurse [file join $module rtl ${f}.sv]}
+# set q [file join $frozen vivado module_design activation_quantizer]
+# foreach f {quant_a_row_bank_v1 quant_dual_a_v1} {add_files -norecurse [file join $q rtl ${f}.sv]}
+# set c [file join $frozen vivado module_design hbm_loader_and_cache]
+# foreach f {t4_w_reader_port_v1 t4_three_port_reader_v1 t4_aux_bias_reader_v1 t4_w_cache_bank_v1 t4_dual_w_cache_v1} {add_files -norecurse [file join $c rtl ${f}.sv]}
+# add_files -fileset sim_1 [file join $module tb tm4tn8_matrix_resident_tb_v2.sv]
+# source [file join $module tb create_fp_ip.tcl]
+## if {[get_property PART [current_project]] ne "xcu55c-fsvh2892-2L-e"} {
+##     error "TM1TN8 FP part mismatch"
+## }
+## foreach kind {sitofp fmul fadd} {
+##     set name tm1tn8_${kind}_ip
+##     if {[llength [get_ips -quiet $name]]} { error "FP IP already exists: $name" }
+##     create_ip -name floating_point -version 7.1 -vendor xilinx.com \
+##         -library ip -module_name $name
+##     set common [list CONFIG.c_rate 1 CONFIG.flow_control NonBlocking \
+##         CONFIG.c_optimization Speed_Optimized \
+##         CONFIG.c_result_exponent_width 8 CONFIG.c_result_fraction_width 24 \
+##         CONFIG.result_precision_type Single \
+##         CONFIG.has_a_tlast false CONFIG.has_a_tuser false \
+##         CONFIG.has_b_tlast false CONFIG.has_b_tuser false \
+##         CONFIG.has_result_tready false CONFIG.has_aresetn true \
+##         CONFIG.maximum_latency true]
+##     if {$kind eq "sitofp"} {
+##         set specific [list CONFIG.operation_type Fixed_to_Float \
+##             CONFIG.a_precision_type Custom \
+##             CONFIG.c_a_exponent_width 32 CONFIG.c_a_fraction_width 0 \
+##             CONFIG.c_mult_usage No_Usage \
+##             CONFIG.has_aclken false]
+##     } elseif {$kind eq "fmul"} {
+##         set specific [list CONFIG.operation_type Multiply \
+##             CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Max_Usage \
+##             CONFIG.has_aclken false]
+##     } else {
+##         set specific [list CONFIG.operation_type Add_Subtract \
+##             CONFIG.add_sub_value Add CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Full_Usage \
+##             CONFIG.has_aclken true]
+##     }
+##     set_property -dict [concat $common $specific] [get_ips $name]
+##     set expected_latency [expr {$kind eq "fadd" ? 11 : 6}]
+##     set actual_latency [get_property CONFIG.C_LATENCY [get_ips $name]]
+##     if {$actual_latency != $expected_latency} {
+##         error "FP IP latency changed: $name actual=$actual_latency expected=$expected_latency"
+##     }
+##     set xci [get_files -quiet ${name}.xci]
+##     if {[llength $xci] != 1} { error "FP XCI missing: $name" }
+##     set_property generate_synth_checkpoint false $xci
+##     generate_target {synthesis simulation} $xci
+##     puts "TM1TN8_FP_IP_READY $name [get_property IP_FILE [get_ips $name]]"
+## }
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/ip'.
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_sitofp_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_sitofp_ip'...
+TM1TN8_FP_IP_READY tm1tn8_sitofp_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.srcs/sources_1/ip/tm1tn8_sitofp_ip/tm1tn8_sitofp_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fmul_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fmul_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fmul_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.srcs/sources_1/ip/tm1tn8_fmul_ip/tm1tn8_fmul_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fadd_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fadd_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fadd_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.srcs/sources_1/ip/tm1tn8_fadd_ip/tm1tn8_fadd_ip.xci
+# set_property top tm4tn8_matrix_resident_v2 [get_filesets sources_1]
+# set_property top tm4tn8_matrix_resident_tb_v2 [get_filesets sim_1]
+# set_property xsim.simulate.runtime all [get_filesets sim_1]
+# set_property -name xsim.simulate.xsim.more_options -value "-testplusarg AFIXTURE=$afixture -testplusarg WFIXTURE=$wfixture -testplusarg STREAMS=$streams" -objects [get_filesets sim_1]
+# launch_simulation -mode behavioral -step compile
+Command: launch_simulation -step compile -mode behavioral
+INFO: [Vivado 12-25911] Executing simulation for 'XSim' simulator
+INFO: [Project 1-5737] Running on host user (64) - Ubuntu 24.04.4 LTS
+INFO: [Vivado 12-28535] Process started - Sun Oct 11 13:40:34 2026
+
+INFO: [Vivado 12-12493] Simulation top is 'tm4tn8_matrix_resident_tb_v2'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-13660] Precompiled IP simulation library mode is enabled (default). The design IP libraries will be referenced from the compiled library path. Please note that if the precompiled version of the library is not found from the path or the IP is in locked state, then the library source files for these IPs will be compiled locally as part of the compile order.
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/xsim/xsim.ini' copied to run dir:'/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'tm4tn8_matrix_resident_tb_v2' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj tm4tn8_matrix_resident_tb_v2_vlog.prj
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/activation_quantizer/rtl/quant_a_row_bank_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant_a_row_bank_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/activation_quantizer/rtl/quant_dual_a_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant_dual_a_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/hbm_loader_and_cache/rtl/t4_aux_bias_reader_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module t4_aux_bias_reader_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/hbm_loader_and_cache/rtl/t4_dual_w_cache_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module t4_dual_w_cache_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/hbm_loader_and_cache/rtl/t4_three_port_reader_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module t4_three_port_reader_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/hbm_loader_and_cache/rtl/t4_w_cache_bank_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module t4_w_cache_bank_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/hbm_loader_and_cache/rtl/t4_w_reader_port_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module t4_w_reader_port_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_integer_tree_lut.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_integer_tree_lut
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_integer_tree_packed.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_integer_tree_packed
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_signed_pack_pair.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_signed_pack_pair
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_axi512_writer_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_axi512_writer_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_bias_bits_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_bias_bank_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_bias_output_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_bias_output_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_final_ps_adapter_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_final_ps_adapter_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_fp_restore_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_matrix_owner_ledger_v2.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_matrix_owner_ledger_v2
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_matrix_resident_v2.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_matrix_resident_v2
+WARNING: [VRFC 10-3380] identifier 'bias_ready_for_ps' is used before its declaration [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_matrix_resident_v2.sv:253]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_reserved_store_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_reserved_store_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_row_pipeline_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_row_pipeline_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_sync_bank_v2.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_sync_bank_v2
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_sync_ps_front_v2.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_sync_ps_front_v2
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_tag_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_tag_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_matrix_resident_tb_v2
+ERROR: [VRFC 10-4982] syntax error near 'checker' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:699]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'checker' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:699]
+ERROR: [VRFC 10-4982] syntax error near '++' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:701]
+ERROR: [VRFC 10-4982] syntax error near '<=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:704]
+ERROR: [VRFC 10-4982] syntax error near 'int' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:705]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'int' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:705]
+ERROR: [VRFC 10-4982] syntax error near '=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:706]
+ERROR: [VRFC 10-4982] syntax error near 'int' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:708]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'int' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:708]
+WARNING: [VRFC 10-3248] data object 'pp' is already declared [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:710]
+WARNING: [VRFC 10-9364] second declaration of 'pp' is ignored [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:710]
+ERROR: [VRFC 10-4982] syntax error near '=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:711]
+ERROR: [VRFC 10-4982] syntax error near '<=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:713]
+ERROR: [VRFC 10-4982] syntax error near '<=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:717]
+ERROR: [VRFC 10-4982] syntax error near '<=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:722]
+ERROR: [VRFC 10-4982] syntax error near '<=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:724]
+ERROR: [VRFC 10-4982] syntax error near 'int' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:727]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'int' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:727]
+ERROR: [VRFC 10-4982] syntax error near '=' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:731]
+ERROR: [VRFC 10-4982] syntax error near '++' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:733]
+ERROR: [VRFC 10-4982] syntax error near 'int' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/frozen_source/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv:735]
+INFO: [VRFC 10-10021] Sorry, too many errors..
+INFO: [USF-XSim-69] 'compile' step finished in '2' seconds
+INFO: [USF-XSim-99] Step results log file:'/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.sim/sim_1/behav/xsim/xvlog.log'
+ERROR: [USF-XSim-62] 'compile' step failed with error(s). Please check the Tcl console output or '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_pilot_01/work/vivado/tm4_matrix_resident_tb_v2.sim/sim_1/behav/xsim/xvlog.log' file for more information.
+ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation.
+launch_simulation: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 1718.844 ; gain = 3.004 ; free physical = 24141 ; free virtual = 400477
+ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.
+
+    while executing
+"launch_simulation -mode behavioral -step compile"
+    (file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_matrix_resident_..." line 17)
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 11 13:40:41 2026...

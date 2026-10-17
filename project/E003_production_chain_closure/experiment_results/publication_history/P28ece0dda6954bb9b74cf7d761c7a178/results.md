@@ -1,0 +1,37 @@
+source保护、executor top、action真实depth2及program/LN/hub整链尚待，F14实现结果提交主控审核，不代签全部仲裁或公平性。连续LPV流可能使低优先snapshot等待；本次证明有限旧任务/cleanup能有界进展。
+
+bootstrap_snapshot_rtl_03：原guard child0/trigger None，29.377487s、peak1529052KiB，policy 18条符合CPU0–3/nice19/idle I/O。原始marker：`FULL_CURRENT_BOOTSTRAP_SNAPSHOT_RTL_PASS cycles=8725 prelude_tasks=4 prelude_events=10 source_aw=64 source_w=4096 source_b=64 source_bytes=262144 readonly=1 full_owner=1 query_backpressure=1 scope_return_debt_base_negatives=1 stale=1 snapshot_only_no_source_read_guard=1 persistent_valid_idle=1 persistent_valid_END=1 persistent_valid_INVALIDATE_cancel=1 source_query_arbitration=1 single_accept=1`。
+
+generated_source_lease_05：原guard child0/trigger None，26.707304s、peak1487288KiB，policy 22条符合CPU0–3/nice19/idle I/O。原始marker：`FULL_CURRENT_GENERATED_SOURCE_LEASE_PASS sparse_rows1_rejected=4 sparse_publish_rejected=4 windows=4 distinct_P=4 partial_publish_rejected=1 identity_model_ref_range_rejected=1 lease_atomic=1 read_debt_hold=1 owner_release_blocked=1 duplicate_generation_rejected=1 greater_generation_reread=1 query_grants=5 query_rejects=7 cycles=1628`。
+
+generated_store_monitor_11：原guard child0/trigger None，26.291409s、peak1571572KiB，policy 18条符合CPU0–3/nice19/idle I/O。原始marker：`FULL_CURRENT_GENERATED_STORE_MONITOR_PASS events=19 terminal=4 aw=18 w=1027 b=19 rejected=2 bytes=65536 bursts64=16 zero_w=1 held_b=12 adapter_fence=8 w_before_aw=1 partial_failure_drained=1 real_b_merged=1 active_cancel_converged=1 begin_rsp_backpressure=1 end_before_first_aw=1 cancel_posted_store=1 cancel_end_ingress=1 unsupported_begin_rejected=1 recovery=1 cycles=3097`。
+
+默认禁用的generated_source_lease_05保留正常四窗口发布、完整绑定、原子lease、真实受控drained释放、owner release排斥及重复/更大generation；generated_store_monitor_11保留末B/adapter fence、部分失败/活动cancel/反压及同session恢复。scope沿各原fixture，不签新生产身份或完整图。三项全部在原8GiB/120s pilot/120s进度保护内完成，无full投影，没有HLS/OOC/P&R/上板，当前无重工具。
+
+身份核查：snapshot20组/79引用、lease13组/72引用、monitor18组/63引用，合计51/51 current/frozen/声明pair及214/214 SHA引用；三receipt、原始marker、guard/policy符合，未改历史attempt。_02→_03共同20项仅hub/TB/runner三份变化，codec/oracle/model/布局未变。本轮source_lease_04路径因既有目录由runner创建保护直接拒绝（未冻结、未启动重工具、无改历史目录），随后使用未占用_05；不把这一入口错误称为DUT失败。
+
+交付（E003/R003）：
+
+bootstrap_snapshot_rtl_03:
+- input_manifest.json: `cb57f763fa948a1f98a3986e803195a71a2f6f03cc0fc1d2a688e2562d85bc39`
+- receipt.json: `1dc73fe5d10b491e7b0f7ebc72d462684adc6c98a2c74e05ffdb8b52d97e50d5`
+- verification: `955a3bd19286c342dbeb7097190e7926dbdf2d454b8194cd8f25946d05995b51`
+
+generated_source_lease_05:
+- input_manifest.json: `fc5775316a066891f38b323a456a3c8495d44c4a6a12fc09ac92677bd9aa8efd`
+- receipt.json: `882ebcd3b68326a24ceff1b010e5dc2dbb777581ac67663e0dac7a0401934ea6`
+- verification: `c07b9c272dc55d7a277222572fad2067d8d9a9a60600f59090383991cbbe4bce`
+
+generated_store_monitor_11:
+- input_manifest.json: `44a9969c27d4020fa2b8df3c2d7093ef0cc3aabfc94b4f4c4a396ed73129148b`
+- receipt.json: `3d739adef062b243307fed8301f971cbb9c8f2914b3fb4d0f305a09a2e35dcb8`
+- verification: `bea3305f04ed0380dbe64ce4925847ed7aba7cc594125353dc6c7a4f63863273`
+
+聚合bootstrap_snapshot_f14_verification_20261012.json：`23bbb8c5e8e189c933d995b84a158c6ed71264b0bf0494e4f9d823552e681539`。
+
+三摘要/A002同步后按原授权继续唯一source保护及独立executor top。C009部分实施，F14待主控对本修复范围审核；C008/C010整体待验；既有限定关闭不扩大。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成；G余2338.224019s，原帽/单重工具保持，不重启5172s组合，无新agent/预算。
+
+
+---
+Published: 2026-10-12T13:54:35.410224+00:00
+Publication: P95b260fc56294a3da6185370d6df56a9

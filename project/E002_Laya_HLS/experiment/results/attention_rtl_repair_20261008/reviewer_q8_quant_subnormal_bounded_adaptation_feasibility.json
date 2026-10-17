@@ -1,0 +1,64 @@
+{
+  "schema": "reviewer_q8_quant_subnormal_bounded_adaptation_feasibility_v1",
+  "created_utc": "2026-10-08T23:27:04.208257+00:00",
+  "reviewer": "GPT-6 Astra xhigh",
+  "status": "CONDITIONAL_STATIC_FEASIBILITY_NO_ADAPTER_IMPLEMENTATION_RELEASE",
+  "purpose": "Evaluate parent-suggested exact normalization and small integer division routes while actual native FP characterization remains pending. Preserve R0 observables and all frozen cases; do not infer native precision from XCI flags.",
+  "sources": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_actual_fp_boundary_source_preparation_release.json",
+      "bytes": 29369,
+      "sha256": "89b847de5851a6a8a836a70fba31bac78c468e8a847f3f110b19c3aa77c2830d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_restore_reachable_f32_domain_precision_analysis.json",
+      "bytes": 7438,
+      "sha256": "f8833da440907cd14fb19595adfcb5cbff5e8ef1fb84127cfec07b245ee2df70"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_tm4tn8.cpp",
+      "bytes": 36278,
+      "sha256": "cad329dbb9a57e49ec8fb3b99ef53f41b6662538dac0df3090b4677260b2e17d"
+    }
+  ],
+  "small_div127_domain": {
+    "precondition": "amax is a nonnegative finite binary32 magnitude selected by exact finite bit ordering.",
+    "threshold_bits": "03fe0000",
+    "threshold_value": "127 * 2^-126",
+    "branch": "For amax <= 03fe0000, express amax = U * 2^-149 exactly using only bits. For exponent field E=0, U=fraction. For 1<=E<=7, U=(2^23+fraction) << (E-1). In this branch U<=127*2^23<2^30.",
+    "RNE": "Let q=floor(U/127), r=U mod127. Since127 is odd and U integral, an exact half-integer quotient is impossible. RNE is therefore n=q+(r>=64). Encode n directly as positive binary32 bits for 0<=n<=0x00800000; n=0x00800000 is the minimum normal endpoint. This computes original d_full exactly without a general softfloat divider.",
+    "zero_range": "d_full=0 iff U<=63, equivalently amax bits<=0000003f. First nonzero d_full starts at amax bits00000040.",
+    "outside_branch": "amax>03fe0000 has normal input and normal d_full output for /127. Any use of native division still depends on actual required normal-operation RNE behavior; this analysis does not prove the IP globally correct."
+  },
+  "reciprocal_of_subnormal_d": {
+    "precondition": "d_full is a positive subnormal n * 2^-149, 1<=n<=0x007fffff.",
+    "normalization": "Choose k=24. Construct D=d_full*2^24=n*2^-125 by exact integer bit normalization. D is normal, from2^-125 to below2^-102. Native RNE(1/D) is a normal finite result in approximately(2^102,2^125].",
+    "scaling": "The required reciprocal is RNE((1/D)*2^24). Rounding commutes with exact power-of-two exponent translation while the final result remains normal finite. Thus exponent+24 on the correctly rounded normalized quotient preserves all significand bits; no second rounding is introduced.",
+    "overflow_boundary": "For this discrete n domain, n<=0x00200000 overflows original reciprocal to+Inf under RNE and must trigger original quant error. n=0x00200000 is exactly d=2^-128; its inverse is2^128. The next n is spaced far enough below the overflow rounding threshold to yield finite reciprocal. For n>=0x00200001 the scaled result is normal finite; exponent adjustment cannot overflow. The general arbitrary-real overflow threshold is not replaced by an approximate comparison.",
+    "zero_and_normal_d": "d_full=0 retains explicit reciprocal+0. For normal d_full produced by amax/127 with finite amax, 1/d_full cannot be subnormal: d_full<2^122 implies reciprocal>2^-122. Native normal division may serve this domain only after its precision basis is accepted.",
+    "required_validation": "Independently prove and test boundary n=0x001fffff,0x00200000,0x00200001,0x003fffff,0x00400000,0x007fffff plus normal endpoint; raw-bit oracle must be independent of any adapter."
+  },
+  "subnormal_activation_multiply": {
+    "precondition": "x is a finite nonzero binary32 subnormal; reciprocal is the original positive normal finite value after existing checks.",
+    "safe_zero_q_range": "If reciprocal<=2^124 (bits7d800000), |x|<2^-126 implies exact |x*reciprocal|<1/4. Binary32 RNE remains well below1/2, so roundf produces signed zero and int8 q=0. Product is finite, so original finite/range classification succeeds. This is a strict bound with margin; it does not use the unsafe bare exact-product<0.5 criterion near a rounding midpoint.",
+    "possibly_nonzero_q_range": "If reciprocal>2^124, construct X=x*2^24 and I=reciprocal*2^-24 by exact bit normalization/exponent adjustment. Both are normal finite: |X|>=2^-125 and I>2^100, so |X*I|>2^-25 and the output cannot be subnormal. The exact mathematical product equals x*reciprocal, so a correctly rounded native normal FMUL produces exactly the required product. |x*reciprocal|<4 also excludes overflow.",
+    "sign": "Preserve x sign in X; positive reciprocal does not alter it. Zero-q conversion yields integer0, but any exposed floating signed-zero intermediate must still follow original requirements.",
+    "remaining_normal_x_case": "Normal x with small reciprocal can also produce a subnormal product, although q is then necessarily0. A concrete design must separately prove or exactly handle that branch; the subnormal-input transform alone is not a complete quantizer implementation.",
+    "contract_warning": "The existing C1 design requires original product evaluation/classification, including d_full=0, and fixes lane structure. A q=0 bypass would require an explicit reviewed design revision that proves every required observable/counter/error/trace and floating-intermediate contract; this mathematical note alone authorizes neither skipping a frozen check nor replacing a required raw intermediate by FTZ."
+  },
+  "preserved_semantics": [
+    "Finite-input scan and first invalid index order unchanged.",
+    "d_full/reciprocal/saved-half errors still select the original group first index.",
+    "Original half RNE, roundf ties away from zero, integer range and full group atomic publication retained.",
+    "All quant groups/inputs/side-effect and trace counts retained; no model/gold/tolerance changes.",
+    "All source-ordered R0 restore rules and minimum error-rank semantics retained."
+  ],
+  "next_steps": "Wait for actual7wrapper characterization; then select only needed bounded adapters, state their exact successful/error domains and fixed latency/ports, revise C1 design explicitly, prepare independent raw-bit tests, and review source before any execution.",
+  "not_executed": [
+    "Integer adapter or softfloat implementation",
+    "CPU numerical oracle",
+    "compiler",
+    "EDA",
+    "FP behavior measurement"
+  ]
+}

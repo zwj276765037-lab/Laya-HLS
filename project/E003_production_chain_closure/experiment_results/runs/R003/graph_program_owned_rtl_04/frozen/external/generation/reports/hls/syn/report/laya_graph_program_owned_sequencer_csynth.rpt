@@ -1,0 +1,158 @@
+
+
+================================================================
+== Vitis HLS Report for 'laya_graph_program_owned_sequencer'
+================================================================
+* Date:           Tue Oct 13 12:01:22 2026
+
+* Version:        2025.2 (Build 6295257 on Nov 14 2025)
+* Project:        work
+* Solution:       hls (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  6.67 ns|  4.129 ns|     1.80 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+-----------+----------+-----+-------+---------+
+    |  Latency (cycles) |  Latency (absolute)  |   Interval  | Pipeline|
+    |   min   |   max   |    min    |    max   | min |  max  |   Type  |
+    +---------+---------+-----------+----------+-----+-------+---------+
+    |        3|    18642|  20.001 ns|  0.124 ms|    4|  18643|       no|
+    +---------+---------+-----------+----------+-----+-------+---------+
+
+    + Detail: 
+        * Instance: 
+        +-----------------+-------+---------+---------+----------+----------+-----+-------+---------+
+        |                 |       |  Latency (cycles) |  Latency (absolute) |   Interval  | Pipeline|
+        |     Instance    | Module|   min   |   max   |    min   |    max   | min |  max  |   Type  |
+        +-----------------+-------+---------+---------+----------+----------+-----+-------+---------+
+        |grp_step_fu_719  |step   |        1|    18640|  6.667 ns|  0.124 ms|    1|  18640|       no|
+        +-----------------+-------+---------+---------+----------+----------+-----+-------+---------+
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        -|        -|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |       26|     1|    67925|   249371|    0|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|       20|    -|
+|Register             |        -|     -|        7|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |       26|     1|    67932|   249391|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        1|    ~0|        7|       57|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |       ~0|    ~0|        2|       19|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +-----------------+-------+---------+----+-------+--------+-----+
+    |     Instance    | Module| BRAM_18K| DSP|   FF  |   LUT  | URAM|
+    +-----------------+-------+---------+----+-------+--------+-----+
+    |grp_step_fu_719  |step   |       26|   1|  67925|  249371|    0|
+    +-----------------+-------+---------+----+-------+--------+-----+
+    |Total            |       |       26|   1|  67925|  249371|    0|
+    +-----------------+-------+---------+----+-------+--------+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    N/A
+
+    * Multiplexer: 
+    +-----------+----+-----------+-----+-----------+
+    |    Name   | LUT| Input Size| Bits| Total Bits|
+    +-----------+----+-----------+-----+-----------+
+    |ap_NS_fsm  |  20|          4|    1|          4|
+    +-----------+----+-----------+-----+-----------+
+    |Total      |  20|          4|    1|          4|
+    +-----------+----+-----------+-----+-----------+
+
+    * Register: 
+    +-------------------------------+---+----+-----+-----------+
+    |              Name             | FF| LUT| Bits| Const Bits|
+    +-------------------------------+---+----+-----+-----------+
+    |ap_CS_fsm                      |  3|   0|    3|          0|
+    |cancel_read_reg_1401           |  1|   0|    1|          0|
+    |grp_step_fu_719_ap_start_reg   |  1|   0|    1|          0|
+    |result_consumed_read_reg_1396  |  1|   0|    1|          0|
+    |s_isolated                     |  1|   0|    1|          0|
+    +-------------------------------+---+----+-----+-----------+
+    |Total                          |  7|   0|    7|          0|
+    +-------------------------------+---+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++----------------------------------+-----+------+--------------+------------------------------------+--------------+
+|             RTL Ports            | Dir | Bits |   Protocol   |            Source Object           |    C Type    |
++----------------------------------+-----+------+--------------+------------------------------------+--------------+
+|ap_clk                            |   in|     1|  ap_ctrl_none|  laya_graph_program_owned_sequencer|  return value|
+|ap_rst                            |   in|     1|  ap_ctrl_none|  laya_graph_program_owned_sequencer|  return value|
+|cancel                            |   in|     1|       ap_none|                              cancel|        scalar|
+|result_consumed                   |   in|     1|       ap_none|                     result_consumed|        scalar|
+|isolated                          |  out|     1|       ap_none|                            isolated|       pointer|
+|program_owner_dout                |   in|  8192|       ap_fifo|                       program_owner|       pointer|
+|program_owner_empty_n             |   in|     1|       ap_fifo|                       program_owner|       pointer|
+|program_owner_read                |  out|     1|       ap_fifo|                       program_owner|       pointer|
+|program_owner_receipt_din         |  out|  8192|       ap_fifo|               program_owner_receipt|       pointer|
+|program_owner_receipt_full_n      |   in|     1|       ap_fifo|               program_owner_receipt|       pointer|
+|program_owner_receipt_write       |  out|     1|       ap_fifo|               program_owner_receipt|       pointer|
+|program_pending_din               |  out|  8192|       ap_fifo|                     program_pending|       pointer|
+|program_pending_full_n            |   in|     1|       ap_fifo|                     program_pending|       pointer|
+|program_pending_write             |  out|     1|       ap_fifo|                     program_pending|       pointer|
+|accepted_command_dout             |   in|   512|       ap_fifo|                    accepted_command|       pointer|
+|accepted_command_empty_n          |   in|     1|       ap_fifo|                    accepted_command|       pointer|
+|accepted_command_read             |  out|     1|       ap_fifo|                    accepted_command|       pointer|
+|request_result_din                |  out|   512|       ap_fifo|                      request_result|       pointer|
+|request_result_full_n             |   in|     1|       ap_fifo|                      request_result|       pointer|
+|request_result_write              |  out|     1|       ap_fifo|                      request_result|       pointer|
+|action_request_din                |  out|   512|       ap_fifo|                      action_request|       pointer|
+|action_request_full_n             |   in|     1|       ap_fifo|                      action_request|       pointer|
+|action_request_write              |  out|     1|       ap_fifo|                      action_request|       pointer|
+|action_completion_dout            |   in|   512|       ap_fifo|                   action_completion|       pointer|
+|action_completion_empty_n         |   in|     1|       ap_fifo|                   action_completion|       pointer|
+|action_completion_read            |  out|     1|       ap_fifo|                   action_completion|       pointer|
+|action_completion_receipt_din     |  out|   512|       ap_fifo|           action_completion_receipt|       pointer|
+|action_completion_receipt_full_n  |   in|     1|       ap_fifo|           action_completion_receipt|       pointer|
+|action_completion_receipt_write   |  out|     1|       ap_fifo|           action_completion_receipt|       pointer|
++----------------------------------+-----+------+--------------+------------------------------------+--------------+
+

@@ -1,0 +1,35 @@
+# E003当前状态
+
+execution_state: running
+verdict: unassessed
+
+F10真实completion消费互锁及八个独立协议case已取得PASS_SCOPED_RTL_INDEPENDENT_PROTOCOL_CASES；真实LayerNorm→hub→Q/fullA限定链保持。原adapter HLS分类FAIL、RTL_01 combined full COST_STOP及所有旧attempt保留。
+
+`graph_sequencer_hls_01`已取得冻结FAIL/semantic_stall终态：1336.192305s、峰值7005432KiB、无RTL candidate。当前结构把约214万条Compile/Link指令的`execute_graph_action`控制闭包带入同一top。工程已向主控请求program sequencer/task lifecycle executor有限拆分决定；该分支在决定前等待，不原样重跑。当前无本项目重工具。
+
+主控若允许拆分，下一步冻结固定宽度、版本化、depth2、单inflight的内部action descriptor/completion，先做program↔lifecycle host有界回归，再以有明确结构差异的新attempt生成并连接F10 shell/adapter与LayerNorm/hub；若不允许，则按主控指定的单top缩减方向实施。C008/C009/C010整体和M003/M004仍未完成。用户允许持续卡顿时采用5.6-sol，目前未切换模型或启动新agent。
+
+
+---
+Published: 2026-10-12T10:49:48.142007+00:00
+Publication: P5750021ca54740cab296773340eacfe3
+Execution state: running
+Research verdict: unassessed
+Applicability: 真实LN→Q/fullA限定RTL、流式adapter生成/端口、F10 shell八个独立协议case及graph sequencer HLS结构失败；非same-runtime生产caller、完整tensor或完整模型
+Evidence:
+- project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_quant_source_03/input_manifest.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_quant_source_03/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_quant_source_verification_20261012.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_03/input_manifest.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_03/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_adapter_hls_03_port_verification_20261012.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_rtl_03/input_manifest.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_rtl_03/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_f10_verification_20261012.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_f10_catalog_verification_20261012.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_f10_milestone_20261012.md
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_hls_01/input_manifest.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_hls_01/receipt.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_hls_01/guard/guard_result.json
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_hls_01/work/hls/syn/report/csynth_design_size.rpt
+- project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_hls_blocker_20261012.md

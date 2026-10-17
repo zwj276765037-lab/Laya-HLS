@@ -1,0 +1,1 @@
+Source preparation only. Provide independent arithmetic and event-ledger checks plus changing-token probes of the bound actual FP wrappers. No compiler/oracle/CPU/CSim/HLS/RTL execution is authorized by this directory. Preserve accepted fixture and golden bytes.

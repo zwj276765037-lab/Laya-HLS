@@ -1,0 +1,82 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT047_LNQ0_chain_06/frozen_new/lnq0_chain_tb_v1.sv	2026-10-14 03:25:29.771157123 +0800
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT048_LNQ1_observation_01/frozen_new/lnq0_chain_tb_v1.sv	2026-10-14 03:58:34.046889184 +0800
+@@ -1716,9 +1716,76 @@
+     end
+     @(negedge clk);ln_candidate_valid=0;
+     while(!ln_published)tick();
+-    if(!ln_source.monitor_coverage_complete ||
+-       ln_source.destination_b_count!=4 || ln_source.published_owners==0)
+-      $fatal(1,"LN publication missed real store/last B");
++    // The monitor's live coverage signal is scoped to the active write.
++    // The END-time witness below was sampled while that scope was still
++    // active; PUBLISH must instead leave the scope closed and owner visible.
++    $display("LNQ1_WITNESS_PUBLISH_SAMPLE tb_cycle=%0d source_cycle=%0d end_sample=%0d end_ack=%0d publish_ack=%0d live_scope=%0d live_coverage=%0d live_drained=%0d destination_B=%0d owner=%0d/%0d end_status=%0d publish_status=%0d",
++      cycle,ln_source.cycles,ln_source.coverage_witness_cycle,
++      ln_source.end_response_witness_cycle,
++      ln_source.publish_response_witness_cycle,
++      ln_source.monitor_scope_active,ln_source.monitor_coverage_complete,
++      ln_source.monitor_drained,ln_source.destination_b_count,
++      ln_source.active_owners,ln_source.published_owners,
++      ln_source.end_response_witness[
++        laya_generated_provenance_layout_v1::RESPONSE_STATUS*8+:16],
++      ln_source.publish_response_witness[
++        laya_generated_provenance_layout_v1::RESPONSE_STATUS*8+:16]);
++    if(!ln_source.coverage_witness_valid ||
++       !ln_source.coverage_witness_complete ||
++       !ln_source.coverage_witness_scope_active ||
++       ln_source.coverage_witness_status!==0 ||
++       ln_source.coverage_witness_bytes!=16384 ||
++       ln_source.coverage_witness_cycle<0)
++      $fatal(1,"LN END-time coverage witness missing or invalid");
++    if(ln_source.coverage_witness_source_ar!=4 ||
++       ln_source.coverage_witness_source_r!=256 ||
++       ln_source.coverage_witness_destination_aw!=4 ||
++       ln_source.coverage_witness_destination_w!=256 ||
++       ln_source.coverage_witness_destination_b!=4 ||
++       ln_source.coverage_witness_store_bytes!=16384 ||
++       ln_source.destination_b_count!=4)
++      $fatal(1,"LN physical store/read counters at coverage or publication");
++    if(!ln_source.end_response_witness_valid ||
++       !ln_source.publish_response_witness_valid ||
++       ln_source.end_response_witness_cycle<=ln_source.coverage_witness_cycle ||
++       ln_source.publish_response_witness_cycle<=ln_source.end_response_witness_cycle ||
++       ln_source.end_response_witness[
++         laya_generated_provenance_layout_v1::ACTION*8+:16]!==
++         laya_generated_provenance_layout_v1::END_EVENT ||
++       ln_source.publish_response_witness[
++         laya_generated_provenance_layout_v1::ACTION*8+:16]!==
++         laya_generated_provenance_layout_v1::PUBLISH ||
++       ln_source.end_response_witness[
++         laya_generated_provenance_layout_v1::RESPONSE_STATUS*8+:16]!==0 ||
++       ln_source.publish_response_witness[
++         laya_generated_provenance_layout_v1::RESPONSE_STATUS*8+:16]!==0)
++      $fatal(1,"LN END/PUBLISH response witness missing or invalid");
++    if(ln_source.coverage_witness_packet[
++         laya_generated_provenance_layout_v1::IDENTITY*8+:672] !==
++       ln_source.provenance_packet[
++         laya_generated_provenance_layout_v1::IDENTITY*8+:672] ||
++       ln_source.coverage_witness_packet[
++         laya_generated_provenance_layout_v1::MODEL_IDENTITY*8+:3328] !==
++       ln_source.provenance_packet[
++         laya_generated_provenance_layout_v1::MODEL_IDENTITY*8+:3328] ||
++       ln_source.coverage_witness_packet[
++         laya_generated_provenance_layout_v1::DESCRIPTOR0*8+:1024] !==
++       ln_source.provenance_packet[
++         laya_generated_provenance_layout_v1::DESCRIPTOR0*8+:1024] ||
++       ln_source.end_response_witness[
++         laya_generated_provenance_layout_v1::RESPONSE_IDENTITY*8+:672] !==
++       ln_source.coverage_witness_packet[
++         laya_generated_provenance_layout_v1::IDENTITY*8+:672] ||
++       ln_source.publish_response_witness[
++         laya_generated_provenance_layout_v1::RESPONSE_IDENTITY*8+:672] !==
++       ln_source.coverage_witness_packet[
++         laya_generated_provenance_layout_v1::IDENTITY*8+:672])
++      $fatal(1,"LN END/PUBLISH complete owner identity changed");
++    if(ln_source.monitor_scope_active ||
++       !ln_source.monitor_drained ||
++       ln_source.published_owners!=1 ||
++       ln_source.active_owners!=1)
++      $fatal(1,"LN owner not durably published after physical drain");
+     // Both producers hold valid. G wins the first idle slot and is safely
+     // rejected before any arithmetic, AXI, or A-cache work is admitted.
+     ln_candidate_valid=1;g_cfg_valid=1;g_cfg_owner_admitted=0;

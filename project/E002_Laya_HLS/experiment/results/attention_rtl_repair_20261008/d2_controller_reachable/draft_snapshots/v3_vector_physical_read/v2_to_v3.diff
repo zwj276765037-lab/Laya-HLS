@@ -1,0 +1,11 @@
+--- v2/tb/test_vector_controller_slice.cpp
++++ v3/tb/test_vector_controller_slice.cpp
+@@ -99,7 +99,7 @@
+   const size_t expected_bytes = mode == 3 ? 16u * 4u : kInputBytes;
+   require(gold.size() == expected_bytes, "exact independent gold span");
+   const uint8_t* output = mode == 4 ? state0.data() : state1.data();
+-  if (mode == 3) output += 16777216u + 141504u;
++  if (mode == 3) output += 16777216u + 141376u;
+   require(std::memcmp(output, gold.data(), gold.size()) == 0,
+           "bit-exact independent F32 vector gold");
+   require(output[gold.size()] == 0xa5 &&

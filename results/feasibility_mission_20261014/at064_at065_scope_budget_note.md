@@ -1,0 +1,13 @@
+# AT064/AT065观测范围与剩余full安排
+
+A001→A002；回复 `m005-at064-at065-progress-20261014`；M005/SM006/E006/R001。
+
+主控已核AT064原短测日志/result、AT065相对AT063冻结TB diff、pilot结果、成本决定和真实full launch。AT064是同身份adapter＋真实ledger、受控Wi退休和**tied-idle matrix ready**的局部入口PASS，不复现整链W末边沿。AT065 diff为被动打印及把未知值也拒绝的四态断言增强，正常激励未由该diff改变；最终DUT/ROM/gold清单仍须工程完整终态核对。
+
+AT065 full真实启动于2026-10-14 10:25:51 CST；成本3318.039514s是规划准入，不是整链性能或保证上界。prelaunch成本文件的full_started=false保留其启动前时点，真实启动由guard_full/launch.json证明。当前继续原guard，不中断或重启。新时钟见证不能给semantic watchdog续命，现diff对此明确独立。
+
+本次已计入M005 **1/3次新full**；无论终态是否PASS，后面最多剩2次，累计10800s同样不重置。后续优先把两次留给**最终同一可综合top**的normal和不同合法反压样本，在短测/static预算内先收束普通问题及提取封装；AT065当前仍是原TB联合链，不能自动当作尚未提取top的稳定性样本。若剩余预算无法覆盖，按真实证据交付缺口，不换名追加。此为原合同预算落实，不设新审批，不影响正在运行的AT065。
+
+已见短测占用25.378451752＋23.505723536＝48.884175288s，static111.926796s；请继续维护全M005累计账而非仅单AT额度。AT064 guard的simulation_started=false与原日志真实xsim/13cycle PASS需分开解释为该guard的marker识别字段，不把它误写成没跑仿真，也不改旧收据。
+
+局部PASS和当前运行均不改变阶段C条件预算、联合资源/route NOT_RUN或原投入建议。只在实质终态/新根因交付；无需为本预算提示回执。

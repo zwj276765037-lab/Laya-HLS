@@ -1,0 +1,148 @@
+--- AT056_FFN0_single_runtime_02/frozen_new/ffn0_chain_tb_v1.sv
++++ AT057_FFN0_single_runtime_03/frozen_new/ffn0_chain_tb_v1.sv
+@@ -607,6 +607,97 @@
+   logic ffn_res_wlast,ffn_res_bvalid,ffn_res_bready;
+   logic [1:0] ffn_res_bresp;
+   logic [31:0] ffn_gold[0:4095],ffn_skip_gold[0:4095];
++  integer ffn0_down_claim_edge=-1,ffn0_owner_retire_edge=-1;
++  integer ffn0_done_consume_edge=-1,ffn0_res_cfg_edge=-1;
++  integer ffn0_res_rsp_edge=-1,ffn0_local_publish_edge=-1;
++  integer ffn0_tmp_lock_edge=-1,ffn0_tmp_unlock_edge=-1;
++  integer ffn0_hidden_ticket_edge=-1,ffn0_hidden_release_edge=-1;
++  integer ffn0_first_skip_ar=-1,ffn0_last_skip_ar=-1;
++  integer ffn0_first_skip_r=-1,ffn0_last_skip_r=-1;
++  integer ffn0_first_tmp_ar=-1,ffn0_last_tmp_ar=-1;
++  integer ffn0_first_tmp_r=-1,ffn0_last_tmp_r=-1;
++  integer ffn0_first_hidden_aw=-1,ffn0_last_hidden_aw=-1;
++  integer ffn0_first_hidden_w=-1,ffn0_last_hidden_w=-1;
++  integer ffn0_first_hidden_b=-1,ffn0_last_hidden_b=-1;
++  integer ffn0_phase_cycles[0:4],ffn0_phase_total=0;
++  integer ffn0_add_accept_edge=-1,ffn0_add_latency_samples=0;
++  integer ffn0_add_latency_hist[0:255];
++  logic ffn0_add_inflight=0,ffn0_prev_tmp_lock=0;
++  logic ffn0_prev_hidden_ticket=0,ffn0_prev_local_publish=0;
++  initial begin
++    for(int i=0;i<5;i++)ffn0_phase_cycles[i]=0;
++    for(int i=0;i<256;i++)ffn0_add_latency_hist[i]=0;
++  end
++  always @(posedge clk) if(rst_n)begin : ffn0_boundary_observer
++    integer phase_index,latency;
++    phase_index=!ln_published ? 0 : stage==0 ? 1 :
++      !ffn_done_consumed ? 2 : !ffn_res_consumed ? 3 : 4;
++    ffn0_phase_cycles[phase_index]++;
++    ffn0_phase_total++;
++    if(stage==1 && matrix_cfg_valid && cfg_ready &&
++       ledger_claim_ready && cfg_owner_admitted && ffn0_down_claim_edge<0)
++      ffn0_down_claim_edge=cycle;
++    if(stage==1 && owner_retire_valid && owner_retire_ready &&
++       ffn0_owner_retire_edge<0)ffn0_owner_retire_edge=cycle;
++    if(stage==1 && done_valid && done_ready && ffn0_done_consume_edge<0)
++      ffn0_done_consume_edge=cycle;
++    if(ffn_res_cfg_valid && ffn_res_cfg_ready && ffn0_res_cfg_edge<0)
++      ffn0_res_cfg_edge=cycle;
++    if(ffn_res_rsp_valid && ffn_res_rsp_ready && ffn0_res_rsp_edge<0)
++      ffn0_res_rsp_edge=cycle;
++    if(ffn_hidden_published && !ffn0_prev_local_publish)
++      ffn0_local_publish_edge=cycle;
++    if(ffn_tmp_reserved && !ffn0_prev_tmp_lock)ffn0_tmp_lock_edge=cycle;
++    if(!ffn_tmp_reserved && ffn0_prev_tmp_lock)ffn0_tmp_unlock_edge=cycle;
++    if(ffn_hidden_reserved && !ffn0_prev_hidden_ticket)
++      ffn0_hidden_ticket_edge=cycle;
++    if(!ffn_hidden_reserved && ffn0_prev_hidden_ticket)
++      ffn0_hidden_release_edge=cycle;
++    ffn0_prev_tmp_lock=ffn_tmp_reserved;
++    ffn0_prev_hidden_ticket=ffn_hidden_reserved;
++    ffn0_prev_local_publish=ffn_hidden_published;
++    if(ffn_skip_arvalid && ffn_skip_arready)begin
++      if(ffn0_first_skip_ar<0)ffn0_first_skip_ar=cycle;
++      ffn0_last_skip_ar=cycle;
++    end
++    if(ffn_skip_rvalid && ffn_skip_rready)begin
++      if(ffn0_first_skip_r<0)ffn0_first_skip_r=cycle;
++      ffn0_last_skip_r=cycle;
++    end
++    if(ffn_down_arvalid && ffn_down_arready)begin
++      if(ffn0_first_tmp_ar<0)ffn0_first_tmp_ar=cycle;
++      ffn0_last_tmp_ar=cycle;
++    end
++    if(ffn_down_rvalid && ffn_down_rready)begin
++      if(ffn0_first_tmp_r<0)ffn0_first_tmp_r=cycle;
++      ffn0_last_tmp_r=cycle;
++    end
++    if(ffn_res_awvalid && ffn_res_awready)begin
++      if(ffn0_first_hidden_aw<0)ffn0_first_hidden_aw=cycle;
++      ffn0_last_hidden_aw=cycle;
++    end
++    if(ffn_res_wvalid && ffn_res_wready)begin
++      if(ffn0_first_hidden_w<0)ffn0_first_hidden_w=cycle;
++      ffn0_last_hidden_w=cycle;
++    end
++    if(ffn_res_bvalid && ffn_res_bready)begin
++      if(ffn0_first_hidden_b<0)ffn0_first_hidden_b=cycle;
++      ffn0_last_hidden_b=cycle;
++    end
++    if(ffn_residual.slot_accepted)begin
++      if(ffn0_add_inflight)$fatal(1,"FFN0 additive slot overlapped");
++      ffn0_add_inflight=1;
++      ffn0_add_accept_edge=cycle;
++    end
++    if(ffn_residual.slot_returned)begin
++      latency=cycle-ffn0_add_accept_edge;
++      if(!ffn0_add_inflight || latency<0 || latency>255)
++        $fatal(1,"FFN0 additive return without bounded accept");
++      ffn0_add_latency_hist[latency]++;
++      ffn0_add_latency_samples++;
++      ffn0_add_inflight=0;
++    end
++  end
+   localparam logic [63:0] LN_NORM_BASE=64'h300800000;
+   string ln_fixture,bound_fixture,ffn_fixture;
+   logic [511:0] ln_query_beats[0:15];
+@@ -2446,6 +2537,47 @@
+                   state1_tmp[i]!==8'ha5 || state1_hidden[i]!==8'ha5)
+         $fatal(1,"FFN0 STATE1 neighbor changed byte=%0d",i);
+     end
++    begin : final_ffn0_measurement
++      integer sum,latency_sum;
++      sum=0;latency_sum=0;
++      for(int k=0;k<5;k++)sum+=ffn0_phase_cycles[k];
++      for(int k=0;k<256;k++)begin
++        latency_sum+=ffn0_add_latency_hist[k];
++        if(ffn0_add_latency_hist[k]!=0)
++          $display("FFN0_ADD_LATENCY cycles=%0d count=%0d",
++                   k,ffn0_add_latency_hist[k]);
++      end
++      if(sum!=ffn0_phase_total || ffn0_phase_cycles[0]==0 ||
++         ffn0_phase_cycles[1]==0 || ffn0_phase_cycles[2]==0 ||
++         ffn0_phase_cycles[3]==0 || latency_sum!=4096 ||
++         ffn0_add_latency_samples!=4096 || ffn0_add_inflight ||
++         ffn0_down_claim_edge<0 || ffn0_owner_retire_edge<0 ||
++         ffn0_done_consume_edge<0 || ffn0_res_cfg_edge<0 ||
++         ffn0_res_rsp_edge<0 || ffn0_local_publish_edge<0 ||
++         ffn0_tmp_lock_edge<0 || ffn0_tmp_unlock_edge<0 ||
++         ffn0_hidden_ticket_edge<0 || ffn0_hidden_release_edge<0 ||
++         ffn0_first_skip_ar<0 || ffn0_first_skip_r<0 ||
++         ffn0_first_tmp_ar<0 || ffn0_first_tmp_r<0 ||
++         ffn0_first_hidden_aw<0 || ffn0_first_hidden_w<0 ||
++         ffn0_first_hidden_b<0)
++        $fatal(1,"FFN0 boundary/phase/latency coverage incomplete");
++      $display("FFN0_BOUNDARIES sample=pre_NBA_posedge Down_claim=%0d last_Down_B=%0d owner_retire=%0d done_consume=%0d residual_cfg=%0d TMP_lock=%0d/%0d HIDDEN_ticket=%0d/%0d residual_rsp_consume=%0d local_publish=%0d skip_AR=%0d/%0d skip_R=%0d/%0d TMP_AR=%0d/%0d TMP_R=%0d/%0d HIDDEN_AW=%0d/%0d HIDDEN_W=%0d/%0d HIDDEN_B=%0d/%0d",
++        ffn0_down_claim_edge,measure_last_b,ffn0_owner_retire_edge,
++        ffn0_done_consume_edge,ffn0_res_cfg_edge,
++        ffn0_tmp_lock_edge,ffn0_tmp_unlock_edge,
++        ffn0_hidden_ticket_edge,ffn0_hidden_release_edge,
++        ffn0_res_rsp_edge,ffn0_local_publish_edge,
++        ffn0_first_skip_ar,ffn0_last_skip_ar,
++        ffn0_first_skip_r,ffn0_last_skip_r,
++        ffn0_first_tmp_ar,ffn0_last_tmp_ar,
++        ffn0_first_tmp_r,ffn0_last_tmp_r,
++        ffn0_first_hidden_aw,ffn0_last_hidden_aw,
++        ffn0_first_hidden_w,ffn0_last_hidden_w,
++        ffn0_first_hidden_b,ffn0_last_hidden_b);
++      $display("FFN0_PHASE_CYCLES exclusive=1 total=%0d LN_prefix=%0d Wi_and_first_Q=%0d G_and_Down=%0d residual=%0d closure=%0d",
++        sum,ffn0_phase_cycles[0],ffn0_phase_cycles[1],
++        ffn0_phase_cycles[2],ffn0_phase_cycles[3],ffn0_phase_cycles[4]);
++    end
+     $display("FFN0_CHAIN_PASS cycle=%0d LN_R=%0d Q_R=%0d Wi_R=%0d GATE_R=%0d Down_B=%0d skip_AR/R=%0d/%0d TMP_AR/R=%0d/%0d FADD=%0d/%0d HIDDEN_AW/W/B=%0d/%0d/%0d DDR_bytes=393216 local_windows_bytes=262144",
+       cycle,ln_source.source_r_count,source_r_beats,wi_r_count,
+       g_read_beats-source_r_beats,actual_b_count[0],

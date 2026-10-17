@@ -1,0 +1,541 @@
+{
+  "schema": "laya-independent-q8-joint-abi-descriptor-provenance-review-v1",
+  "created_utc": "2026-10-08T14:52:20.198044+00:00",
+  "reviewer": {
+    "agent": "/root/q8_proto_design_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "scope": "Read-only static audit of q8_joint_abi.h and generate_joint_descriptors.py against current design and repair_contract 7.15, plus already-existing descriptor bytes and frozen ACT identity mapping. No audit of the changing banked implementation as a completed product.",
+  "verdict": "No descriptor-word overlap or mismatch found in the four inspected ACT vectors. Two source/manifest integration gaps were reported to Sol and main Astra. This is not an implementation, numeric, CPU, CSim, RTL or tool-release PASS.",
+  "actions": {
+    "only_new_file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_joint_abi_descriptor_provenance_review.json",
+    "module_source_spec_edits": false,
+    "generator_fixture_regeneration": false,
+    "build_test_eda_ir_conversion_gpu_executed": false,
+    "allowed_operations_used": "Read source/report/previous descriptor bytes; decode existing little-endian fields and calculate file digests. No numerical fixture recomputation."
+  },
+  "snapshot_boundary": {
+    "initial_hash_capture": {
+      "vivado/module_design/q8_linear_and_restore/source/q8_joint_abi.h": {
+        "sha256": "3c9d82767a5cf0d8ffeb09cfffd26c4afc6ed176f065bb6e1e94d7428b41be6f",
+        "bytes": 5676
+      },
+      "vivado/module_design/q8_linear_and_restore/tb/generate_joint_descriptors.py": {
+        "sha256": "a32d7aa70460e303d86d400a001077b21f934ee0429f263ee6aea08efe2f10f4",
+        "bytes": 5271
+      },
+      "vivado/module_design/q8_linear_and_restore/source/design.md": {
+        "sha256": "d9416847e238844d61a99adaa4fec40f6dc634e13c84995b2db0bd8760b2c8c1",
+        "bytes": 45393
+      },
+      "results/attention_rtl_repair_20261008/repair_contract.md": {
+        "sha256": "cff90d5bbe53c76b6756fb3d1596c1aa812cd3cbca9e83b03cac6995ce4cfa49",
+        "bytes": 66073
+      },
+      "vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/fixture_report.json": {
+        "sha256": "5ed121eda39826fbf4ca046aa861546b23bab4152a15d42dd833104a2b31e606",
+        "bytes": 18839
+      },
+      "build/model-attention-rtl-repair-20261008/laya_model_layout_generated.h": {
+        "sha256": "c2fd1da7b00c7361d616ac15af431dea14c4979ac2aded6b37888fb1d633630a",
+        "bytes": 106348
+      }
+    },
+    "final_hash_capture": {
+      "vivado/module_design/q8_linear_and_restore/source/q8_joint_abi.h": {
+        "bytes": 5829,
+        "sha256": "620bb962de0f1b9b14e02f1ad6b2f97fd475be2cc5c7a5d4174d397e696e5965"
+      },
+      "vivado/module_design/q8_linear_and_restore/tb/generate_joint_descriptors.py": {
+        "bytes": 6822,
+        "sha256": "96fa22f18f70e9cf5a0ada98a3c5d6d4ea23d38e577a966557bd144886e162d6"
+      },
+      "vivado/module_design/q8_linear_and_restore/source/design.md": {
+        "bytes": 45393,
+        "sha256": "d9416847e238844d61a99adaa4fec40f6dc634e13c84995b2db0bd8760b2c8c1"
+      },
+      "results/attention_rtl_repair_20261008/repair_contract.md": {
+        "bytes": 66073,
+        "sha256": "cff90d5bbe53c76b6756fb3d1596c1aa812cd3cbca9e83b03cac6995ce4cfa49"
+      },
+      "vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/fixture_report.json": {
+        "bytes": 18839,
+        "sha256": "5ed121eda39826fbf4ca046aa861546b23bab4152a15d42dd833104a2b31e606"
+      },
+      "build/model-attention-rtl-repair-20261008/laya_model_layout_generated.h": {
+        "bytes": 106348,
+        "sha256": "c2fd1da7b00c7361d616ac15af431dea14c4979ac2aded6b37888fb1d633630a"
+      }
+    },
+    "changed_during_review": {
+      "vivado/module_design/q8_linear_and_restore/source/q8_joint_abi.h": {
+        "initial": {
+          "sha256": "3c9d82767a5cf0d8ffeb09cfffd26c4afc6ed176f065bb6e1e94d7428b41be6f",
+          "bytes": 5676
+        },
+        "final": {
+          "bytes": 5829,
+          "sha256": "620bb962de0f1b9b14e02f1ad6b2f97fd475be2cc5c7a5d4174d397e696e5965"
+        }
+      },
+      "vivado/module_design/q8_linear_and_restore/tb/generate_joint_descriptors.py": {
+        "initial": {
+          "sha256": "a32d7aa70460e303d86d400a001077b21f934ee0429f263ee6aea08efe2f10f4",
+          "bytes": 5271
+        },
+        "final": {
+          "bytes": 6822,
+          "sha256": "96fa22f18f70e9cf5a0ada98a3c5d6d4ea23d38e577a966557bd144886e162d6"
+        }
+      }
+    },
+    "interpretation": "Findings refer to initial hashes and quoted initial source behavior. Sol is sole module writer and has acknowledged planned corrections; if final hashes differ, the updated content is outside this completed initial-snapshot review unless explicitly noted. No changing implementation source was accepted.",
+    "sol_acknowledgement": "Sol stated he will add explicit command sequence and exact B2/S128/rows1/batches0,1 checks and later freeze the actual source/TB packet."
+  },
+  "word_and_type_findings": [
+    {
+      "item": "Descriptor words 0-127",
+      "assessment": "Header indices match current design: 0-3 ABI/command/flags, 4-7 U64 request/generation, 8-31 task/context/shape/WeightKey/refs/epochs, 32-47 four 16 B tags, 48-59 six U64 byte base/span pairs, 60-62 trace selection/observed capacity, 63 zero and 64-127 reserved. Exactly 512 B; no raw C++ object serialization."
+    },
+    {
+      "item": "Observed layout",
+      "assessment": "Words 0-63 carry status/TaskDone/identity/refs/epochs/counts/selected final trace; [64,100) is nine ports times four words (useful U64,total U64), [100,116) carries four tags, [116,256) header reserved. q trace [256,16640), scale trace [16640,17664), group trace [17664,18688); all fit 32768 words without overlap. The rest is unused/sentinel, not an extra result path."
+    },
+    {
+      "item": "Pointer-free control representation",
+      "assessment": "q8_joint::Descriptor and Ref contain only U32/U64, fixed arrays and nested value records. The top declaration exposes nine independent ports, with four explicit ap_uint<512> input pointers and U32 descriptor/aux/output/observed pointers. This header review does not establish that the evolving implementation never stores an AXI pointer or that HLS generated these widths."
+    },
+    {
+      "item": "Narrow-field validation obligation",
+      "assessment": "Keeping decoded op/stage/layer/B/S/bank/region and other narrow values as U32 permits rejection before casts. Magic/version/word62/reserved words are not retained in Descriptor, so the actual decoder must validate them before discarding raw words. Header definitions alone cannot prove this ordering."
+    },
+    {
+      "item": "Status and task identity semantics",
+      "assessment": "Observed command-task, actual done-task and last-task fields can distinguish quant failure from an unstarted linear task. Status/detail/bad_element widths retain original production diagnostics. W/A8/PS/destination state and max-claim counters are separately exposed; no ABI change is needed to enforce claim-on-start and consume-failed-started-task semantics."
+    },
+    {
+      "item": "ACT numeric enums",
+      "assessment": "Existing bytes match production enum constants: LOAD_W=0x80, LIN_ACT_FC2=0x37, WEIGHT=0x23, HEAD_WORK=10, ACT_HIDDEN region=2, ACT_LOGITS region=4, stage6/layer255, family12/layer255. Command enum LOAD_W=0/RUN_TILE=1 is a separate prototype command space, not the production Op value."
+    }
+  ],
+  "existing_vector_interpretation": {
+    "required_execution_order": [
+      "load_w",
+      "run_b0_trace_n0",
+      "run_b1_trace_n1",
+      "run_b0_trace_off"
+    ],
+    "task_flow": "LOAD task1 -> RUN quant2/linear3 -> RUN quant4/linear5 -> RUN quant6/linear7; all request 0x0123456789abcdef, generation1, B2/S128, rows1, K256/N2, W epoch1.",
+    "load": "Source NONE/zero; destination WEIGHT bank0 epoch1; PS/quant task IDs zero; activation/output bases/spans and trace selectors zero. This matches control batch0/row0=0/rows1.",
+    "runs": "Source HEAD_WORK ACT_HIDDEN with nonzero fixture refs, destination HEAD_WORK ACT_LOGITS. PS/destination epochs1,2,3; activation span1024 B, out0 span8 B, all bases aligned at zero, out1 unused/zero. The third RUN reuses source fixture epoch1 but must claim an independent new internal A8 epoch; src/PS values are not a substitute for A8 ledger state.",
+    "trace_scope": "Actual selected pairs are (batch0,row0,n0) and (batch1,row0,n1). Two columns are represented across two genuine input runs; this does not show every batch-column intermediate pair. Both full output vectors and full A8 images remain separate comparison obligations. Trace-off repeats batch0 final outputs with later task/PS identity.",
+    "files_read": [
+      {
+        "name": "load_w",
+        "file": {
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/load_w.bin",
+          "bytes": 512,
+          "sha256": "f929ed6e433207f17a559151da7362462d8a14dbdf097874bb63eccef829ceb2"
+        },
+        "manifest_hash_matches": true,
+        "word_values_0_31": [
+          1362643536,
+          1,
+          0,
+          0,
+          2309737967,
+          19088743,
+          1,
+          0,
+          1,
+          128,
+          6,
+          255,
+          2,
+          128,
+          0,
+          0,
+          1,
+          256,
+          2,
+          12,
+          255,
+          0,
+          0,
+          0,
+          0,
+          35,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        "tag_hex": [
+          "6eb6ef58bc4f99bd9db40381604108af",
+          "aeb13e7937d29fe6a2c68c407249f294",
+          "f927881686d9d11c91b7f11ac59e2cc7",
+          "fe067c8aa0627ad770096f9721394645"
+        ],
+        "u64_base_spans": {
+          "activation_base": 0,
+          "out0_base": 0,
+          "out1_base": 0,
+          "activation_span": 0,
+          "out0_span": 0,
+          "out1_span": 0
+        },
+        "trace_words_60_63": [
+          0,
+          0,
+          32768,
+          0
+        ],
+        "reserved_64_127_all_zero": true
+      },
+      {
+        "name": "run_b0_trace_n0",
+        "file": {
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/run_b0_trace_n0.bin",
+          "bytes": 512,
+          "sha256": "8d0d55eb1b163edac098798dfa54b63a0414bc4f162a96f62a6c74981f4c5cd1"
+        },
+        "manifest_hash_matches": true,
+        "word_values_0_31": [
+          1362643536,
+          1,
+          1,
+          1,
+          2309737967,
+          19088743,
+          1,
+          0,
+          3,
+          55,
+          6,
+          255,
+          2,
+          128,
+          0,
+          0,
+          1,
+          256,
+          2,
+          12,
+          255,
+          10,
+          0,
+          1,
+          2,
+          10,
+          0,
+          1,
+          4,
+          1,
+          1,
+          2
+        ],
+        "tag_hex": [
+          "6eb6ef58bc4f99bd9db40381604108af",
+          "aeb13e7937d29fe6a2c68c407249f294",
+          "f927881686d9d11c91b7f11ac59e2cc7",
+          "fe067c8aa0627ad770096f9721394645"
+        ],
+        "u64_base_spans": {
+          "activation_base": 0,
+          "out0_base": 0,
+          "out1_base": 0,
+          "activation_span": 1024,
+          "out0_span": 8,
+          "out1_span": 0
+        },
+        "trace_words_60_63": [
+          0,
+          0,
+          32768,
+          0
+        ],
+        "reserved_64_127_all_zero": true
+      },
+      {
+        "name": "run_b0_trace_off",
+        "file": {
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/run_b0_trace_off.bin",
+          "bytes": 512,
+          "sha256": "405f113a72d99798e489989d1ca003b9482f9084c83088ec3e7b076132bc5333"
+        },
+        "manifest_hash_matches": true,
+        "word_values_0_31": [
+          1362643536,
+          1,
+          1,
+          0,
+          2309737967,
+          19088743,
+          1,
+          0,
+          7,
+          55,
+          6,
+          255,
+          2,
+          128,
+          0,
+          0,
+          1,
+          256,
+          2,
+          12,
+          255,
+          10,
+          0,
+          1,
+          2,
+          10,
+          0,
+          3,
+          4,
+          1,
+          3,
+          6
+        ],
+        "tag_hex": [
+          "6eb6ef58bc4f99bd9db40381604108af",
+          "aeb13e7937d29fe6a2c68c407249f294",
+          "f927881686d9d11c91b7f11ac59e2cc7",
+          "fe067c8aa0627ad770096f9721394645"
+        ],
+        "u64_base_spans": {
+          "activation_base": 0,
+          "out0_base": 0,
+          "out1_base": 0,
+          "activation_span": 1024,
+          "out0_span": 8,
+          "out1_span": 0
+        },
+        "trace_words_60_63": [
+          0,
+          0,
+          32768,
+          0
+        ],
+        "reserved_64_127_all_zero": true
+      },
+      {
+        "name": "run_b1_trace_n1",
+        "file": {
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/run_b1_trace_n1.bin",
+          "bytes": 512,
+          "sha256": "cac34b149aac707b199cdaace1fd1251ecd375d46dcd71f5a1a2d2c375405863"
+        },
+        "manifest_hash_matches": true,
+        "word_values_0_31": [
+          1362643536,
+          1,
+          1,
+          1,
+          2309737967,
+          19088743,
+          1,
+          0,
+          5,
+          55,
+          6,
+          255,
+          2,
+          128,
+          1,
+          0,
+          1,
+          256,
+          2,
+          12,
+          255,
+          10,
+          0,
+          2,
+          2,
+          10,
+          0,
+          2,
+          4,
+          1,
+          2,
+          4
+        ],
+        "tag_hex": [
+          "6eb6ef58bc4f99bd9db40381604108af",
+          "aeb13e7937d29fe6a2c68c407249f294",
+          "f927881686d9d11c91b7f11ac59e2cc7",
+          "fe067c8aa0627ad770096f9721394645"
+        ],
+        "u64_base_spans": {
+          "activation_base": 0,
+          "out0_base": 0,
+          "out1_base": 0,
+          "activation_span": 1024,
+          "out0_span": 8,
+          "out1_span": 0
+        },
+        "trace_words_60_63": [
+          0,
+          1,
+          32768,
+          0
+        ],
+        "reserved_64_127_all_zero": true
+      }
+    ],
+    "manifest_at_evidence_write": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/manifest.json",
+      "bytes": 2585,
+      "sha256": "d206f957dce675ba3d68824a71129c50ef8fbacbf37606fd89da38a133647250"
+    },
+    "manifest_fixture_hash_matches_frozen_report": true,
+    "fixed_load_sha_matches_actual": true
+  },
+  "actionable_findings": [
+    {
+      "id": "Q8-ABI-01",
+      "priority": "P2",
+      "title": "Command stream order must be explicit in the manifest",
+      "initial_source": "generate_joint_descriptors.py:105-127, SHA256 a32d7aa70460e303d86d400a001077b21f934ee0429f263ee6aea08efe2f10f4",
+      "evidence": "Initial insertion order is load_w,b0_trace_n0,b1_trace_n1,b0_trace_off, but json.dumps(...,sort_keys=True) writes commands in lexical order load_w,b0_trace_n0,b0_trace_off,b1_trace_n1. The existing initial manifest was observed in that order, yielding command task IDs1,3,7,5. JSON object iteration is not a task protocol.",
+      "impact": "A consumer that iterates the manifest mapping submits task7 before task5 and triggers legitimate task-order rejection. Individual frame bytes are valid; the missing sequence is the issue.",
+      "minimal_fix": "Add a sequence array or ordered command-record list and require TB/replay code to consume it; keep individual byte vectors unchanged.",
+      "status_at_review_close": "Acknowledged by Sol; revised source/manifest requires its own hash-bound follow-up. Do not count this as a demonstrated DUT failure."
+    },
+    {
+      "id": "Q8-ABI-02",
+      "priority": "P2",
+      "title": "Freeze the full fixture shape and per-batch mapping used by hardcoded ACT descriptors",
+      "initial_source": "generate_joint_descriptors.py:95-104, initial source hash above",
+      "evidence": "Initial generator checks report status, WeightKey and K/N only. It hardcodes B2/S128/rows1 and two named batches, but does not validate report schema, B/S/rows_per_run, exact batch set0,1 or the per-batch trace/input-size mapping. It records report SHA afterward rather than comparing it to a known accepted identity.",
+      "impact": "Current frozen report is consistent, so no current descriptor mismatch is found. A report with matching K/N but different B/S or batch mapping could still be described as compatible by this generator, defeating the intended provenance check.",
+      "minimal_fix": "Validate exact current schema/shape and unique batch0/1 mapping plus expected input/q/scale/output byte lengths; bind the accepted report/header digest through the source packet or a fixed expected identity. No fixture recomputation is needed.",
+      "status_at_review_close": "Sol acknowledged exact B2/S128/rows1/batches0,1 checks; completeness is pending the frozen revised packet."
+    }
+  ],
+  "error_priority_review": {
+    "contract": "repair_contract 7.15 delegates concrete rank semantics to current design.md:51-53. ABI bad_element is a diagnostic encoding, not an arbitration key.",
+    "linear": "Original rank is (floor(n/8),row_local,n%8,group,check_phase). q8_linear_compute.cpp computes every group for one output before its bias and next output; full_tasks.cpp iterates n0 windows. Within a group the checks are half-scale validity/nonnegative, product finite, term finite, accumulated PS finite; bias validity and final bias-sum finite follow all groups.",
+    "counterexample": "For a multirow N>=16 matrix, (row1,n0,g0) precedes (row0,n8,g0) in production traversal even though encoded bad_element671744 is greater than1024. min(bad_element) therefore picks the wrong error. No such multirow/multicol block case was executed here.",
+    "load": "Validate scales in padded-n then group order across all groups, then bias by n. A late scale error precedes an early-column bias error. Both can use similar small bad_element values, so phase rank is necessary.",
+    "quant": "Traverse row then group; scan all32 finite inputs in order before d/reciprocal/half validation, then q elements in order. A global finite pre-scan across later groups would change which error wins over an earlier group half-scale overflow.",
+    "abi_sufficiency_and_limit": "O_BAD_ELEMENT_LO/HI preserves the chosen original encoding and O_COMMAND_TASK/O_DONE_TASK/O_LAST_TASK preserve task attribution. No serialized rank field is required if internal scalar error metadata carries rank and outstanding earlier work is adjudicated. The existing four descriptors are legal positive vectors and do not establish error-ranking, high-bit rejection, overflow or failed-task recovery behavior; those belong to the forthcoming source/TB packet."
+  },
+  "frozen_act_provenance_mapping": {
+    "fixture_report": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/fixture_report.json",
+      "bytes": 18839,
+      "sha256": "5ed121eda39826fbf4ca046aa861546b23bab4152a15d42dd833104a2b31e606"
+    },
+    "schema": "q8_joint_act_k256_n2_fixture_v1",
+    "status_inherited": "INDEPENDENT_R0_AND_ACCEPTED_CPU_BIT_EXACT",
+    "shape": {
+      "B": 2,
+      "K": 256,
+      "N": 2,
+      "S": 128,
+      "rows_per_run": 1
+    },
+    "weight_key": {
+      "family": 12,
+      "layer": 255
+    },
+    "generated_header": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/laya_model_layout_generated.h",
+      "bytes": 106348,
+      "sha256": "c2fd1da7b00c7361d616ac15af431dea14c4979ac2aded6b37888fb1d633630a"
+    },
+    "generated_header_matches_fixture_record": true,
+    "four_tags": [
+      "6eb6ef58bc4f99bd9db40381604108af",
+      "aeb13e7937d29fe6a2c68c407249f294",
+      "f927881686d9d11c91b7f11ac59e2cc7",
+      "fe067c8aa0627ad770096f9721394645"
+    ],
+    "actual_weight_record": "Generated header line291: act_fc2.weight, WeightKey{12,255}, K256,N2,padded_N8,bias_kind1; q_base{184680448,0},q_span{2048,0},scale_base23085056,scale_span128,bias_base617664,bias_span8.",
+    "report_bo_offsets": {
+      "bias": 617664,
+      "q0": 184680448,
+      "q1": 0,
+      "scale": 23085056
+    },
+    "report_bo_spans": {
+      "bias": 8,
+      "q0": 2048,
+      "q1": 0,
+      "scale": 128
+    },
+    "logical_work_inherited": {
+      "activation_bytes_per_run": 1024,
+      "bias_bytes": 8,
+      "macs_per_run": 512,
+      "output_bytes_per_run": 8,
+      "physical_dot_lanes_per_issue": 32,
+      "q0_bytes": 2048,
+      "q1_bytes": 0,
+      "scale_bytes": 128
+    },
+    "capacity_mapping": "q0 endpoint184682496 equals frozen q0 BO size; scale endpoint23085184 equals scale BO size; aux bias endpoint617672 is within1671872. q1 span0 means no ACT payload read from q1. ACT q0/scale start and spans are64 B aligned; activation1024 B is16 wide beats; output is two U32 words.",
+    "input_origin": "Frozen accepted full CPU B2/S128 act_hidden and act_logits checkpoints, with matching oracle/DUT recorded hashes, are the ACT source. They are not relabeled native GGML intermediate activations. Frozen GGUF identity and tensor offsets remain in fixture report.",
+    "production_vs_prototype": "Descriptor build tag is the frozen production package fe067 identity. Prototype ABI/top/TB/config/tool hashes must remain separate in the source packet; a matching production tag does not identify the evolving prototype implementation.",
+    "not_repeated": "No full-model binary rehash, numerical oracle rerun, fixture regeneration or repeated fixture acceptance was performed."
+  },
+  "source_hashes_additional": {
+    "include/laya_types.h": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_types.h",
+      "bytes": 3034,
+      "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+    },
+    "include/laya_tasks.h": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_tasks.h",
+      "bytes": 3028,
+      "sha256": "20a8a3a0a94e997c05d0f81657498f16f8d08e406a202eb8b08dde5b2ccd55bf"
+    },
+    "include/laya_config.h": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_config.h",
+      "bytes": 719,
+      "sha256": "86a6ceccab5937b49f3ebe46a63ea9eac46579599b628a50dc4db2efdf394829"
+    },
+    "hls/common/laya_tasks.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_tasks.cpp",
+      "bytes": 4029,
+      "sha256": "4b4f647afbfa91dc90ed0de4d729472458c00dd1e8e2ade7910262fdc3ad044f"
+    },
+    "hls/operators/q8_linear_compute.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/q8_linear_compute.cpp",
+      "bytes": 9372,
+      "sha256": "001f53c4b3a08b90743b06e31fa1e62beef7fd34891faf85c9f4cf5ef35d4d62"
+    },
+    "hls/operators/activation_quantizer_compute.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/activation_quantizer_compute.cpp",
+      "bytes": 4461,
+      "sha256": "ab45fb3f1b2a8355b45e183d9bde14efba08241dad98588ecb791d89d694ebaa"
+    },
+    "hls/operators/full_tasks.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/full_tasks.cpp",
+      "bytes": 20785,
+      "sha256": "3a9773b920fda2904cc4e05413951f07301ff9b34189b8cbd015106d180a65e4"
+    },
+    "hls/memory/full_loader.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/memory/full_loader.cpp",
+      "bytes": 16482,
+      "sha256": "e5536516ae56055e2e25f32f07e1f6f6bf27c7b012aa7b0d5d0906e23681cf1d"
+    },
+    "vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.h": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.h",
+      "bytes": 338,
+      "sha256": "90106e7ce0b2c51c65f1257a13e272ad2087d1d618b984f851a47a09642a6207"
+    },
+    "results/attention_rtl_repair_20261008/reviewer_joint_q8_tm4tn8_implementation_cpu_release.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_joint_q8_tm4tn8_implementation_cpu_release.json",
+      "bytes": 8922,
+      "sha256": "37b4adc09c321f288dc8162cc3c920fe2cfd7b09a8f5aedf9306afef1cb14f81"
+    }
+  },
+  "remaining_scope": "After Sol freezes the banked top/TB/source packet, review raw checks before casts/discards, task/claim boundaries, first-error rank, pointer-free persistent state, actual trace writes and output byte accounting. This initial ABI/provenance review cannot establish those implementation properties."
+}

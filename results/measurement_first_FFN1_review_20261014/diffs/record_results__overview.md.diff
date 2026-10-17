@@ -1,0 +1,20 @@
+--- before/results/overview.md
++++ after/results/overview.md
+@@ -1,6 +1,6 @@
+ # Laya-HLS 当前概览
+ 
+-[FFN0核定有界停止](measurement_first_FFN0_review_20261014.md)：AT057真实LN/Q前缀通过，Wi W R持续增长但未纳入guard计数，full以semantic_stall停止；后段TMP/末残差/整链终检未到达。下一[FFN1](../mission/ffn_progress_replay_stage_20261014.md)保持DUT与数据，补全真实进展/短测，再按新成本最多一次冷full，NOT_RUN。普通Q/L生产控制保持停排，M003/M004未完成。
++[FFN1前缀启动停止已核](measurement_first_FFN1_review_20261014.md)：AT059重编译耗尽120s，未进入xsim，full不准入/未启动；局部适配器/目的wrapper、观察器与host证据保留。当前[FFN2](../mission/ffn_direct_xsim_replay_stage_20261014.md)固定DUT/TB/guard/data，隔离复用编译产物，只修直接xsim启动；一次真实冷前缀与新成本后至多一次冷full，NOT_RUN。普通Q/L/整体生产控制停排，M003/M004开放。
+ 
+ | 工作 | 当前结论 | 接下来的处理 |
+ | --- | --- | --- |
+@@ -28,7 +28,8 @@
+ | FFR0四行末残差RTL | AT053正常数值/事务/保护通过；52例槽通过 | 错误码、停滞guard及计量缺口；合同未闭合 |
+ | FFR1受影响修正 | AT054局部四行/有限错误/计量PASS | 保留；局部双外部源，无生产双lease |
+ | FFN0同runtime末残差 | AT057守卫观测漏W实读，COST_STOP | 原额度结束；后段及完整保护未到达 |
+-| FFN1受影响观察回放 | NOT_RUN | 同DUT/profile，进展覆盖/短测/新成本后至多一次冷full |
++| FFN1受影响观察准备 | 局部短测PASS；pilot启动前超帽/full未准入 | 原准备纠正额度已收束，无新联合动态样本 |
++| FFN2直接xsim回放 | NOT_RUN | 隔离编译snapshot、每次preflight、一次冷前缀后成本准入至多一次full |
+ | 全模型/真实请求/恢复/资源 | M003/M004未完成 | 最终验收义务保留 |
+ 
+ WI0全TB101335，GQD0全TB102660各有自己的诊断边界，不相加成连续链延迟。当前连接统一B1/S128/batch0/row0四行窗口，AT032外部输入为预量化LN_FFN A，AT034已推进到原LN_FFN F32；链间无reset，原容量A/W单实例递增epoch复用，AT032已取得完整四行数值及最终有效区/保护区读回；LN producer已在AT049接入同一后段并通过限定四行检查；末FFN residual、完整模型与生产恢复未验证。WI0旧样本未做独立DDR哨兵读回，不回写成已完成。

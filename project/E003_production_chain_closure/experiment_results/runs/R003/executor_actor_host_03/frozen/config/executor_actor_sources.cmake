@@ -1,0 +1,23 @@
+set(LAYA_EXECUTOR_ACTOR_SOURCES
+  hls/common/laya_numeric.cpp
+  hls/common/laya_tasks.cpp
+  hls/common/laya_task_retirement.cpp
+  hls/common/laya_memory_map.cpp
+  hls/common/laya_full_memory.cpp
+  hls/common/laya_full_owner.cpp
+  hls/common/laya_full_io.cpp
+  hls/platform/compute_portal_client.cpp
+  hls/platform/generated_provenance_events.cpp
+  hls/platform/producer_engine_client.cpp
+  hls/platform/controller_transaction_codec.cpp
+  hls/control/graph_action_protocol.cpp
+  hls/control/task_lifecycle_fsm.cpp
+  hls/control/task_lifecycle_port.cpp
+  hls/control/bootstrap_snapshot_protocol.cpp
+  hls/control/executor_bootstrap.cpp
+  hls/control/executor_checkpoint_protocol.cpp
+  hls/control/executor_checkpoint.cpp
+  hls/control/graph_program_protocol.cpp
+  hls/control/executor_handoff_protocol.cpp
+  hls/control/executor_actor.cpp
+)

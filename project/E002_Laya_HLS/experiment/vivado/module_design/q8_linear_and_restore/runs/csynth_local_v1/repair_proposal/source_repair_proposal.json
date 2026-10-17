@@ -1,0 +1,102 @@
+{
+  "at_utc": "2026-10-08T15:49:09.496196+00:00",
+  "candidate_source_bytes_if_applied": 36220,
+  "candidate_source_sha256_if_applied": "e049319553d42c358be4e157c27ed6342800f5a30dca0c291ab6d47ca48e7ac9",
+  "equivalence": [
+    {
+      "byte_shift_before_after": "j%4",
+      "comparison_and_order_preserved": true,
+      "descriptor_word_after": "d.tags[0][j/4]",
+      "descriptor_word_before": "d.tags[0][j/4]",
+      "expected_constant": "kFullModelTag",
+      "header_word_after": "header[8+j/4]",
+      "header_word_before": "header[8+0*4+j/4]",
+      "j_range": "0..15 ascending",
+      "t": 0,
+      "tag": "model"
+    },
+    {
+      "byte_shift_before_after": "j%4",
+      "comparison_and_order_preserved": true,
+      "descriptor_word_after": "d.tags[1][j/4]",
+      "descriptor_word_before": "d.tags[1][j/4]",
+      "expected_constant": "kFullNumericTag",
+      "header_word_after": "header[12+j/4]",
+      "header_word_before": "header[8+1*4+j/4]",
+      "j_range": "0..15 ascending",
+      "t": 1,
+      "tag": "numeric"
+    },
+    {
+      "byte_shift_before_after": "j%4",
+      "comparison_and_order_preserved": true,
+      "descriptor_word_after": "d.tags[2][j/4]",
+      "descriptor_word_before": "d.tags[2][j/4]",
+      "expected_constant": "kFullLayoutTag",
+      "header_word_after": "header[16+j/4]",
+      "header_word_before": "header[8+2*4+j/4]",
+      "j_range": "0..15 ascending",
+      "t": 2,
+      "tag": "layout"
+    },
+    {
+      "byte_shift_before_after": "j%4",
+      "comparison_and_order_preserved": true,
+      "descriptor_word_after": "d.tags[3][j/4]",
+      "descriptor_word_before": "d.tags[3][j/4]",
+      "expected_constant": "kFullBuildTag",
+      "header_word_after": "header[20+j/4]",
+      "header_word_before": "header[8+3*4+j/4]",
+      "j_range": "0..15 ascending",
+      "t": 3,
+      "tag": "build"
+    }
+  ],
+  "exact_proposed_diff": {
+    "bytes": 2438,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/csynth_local_v1/repair_proposal/frozen_v1_to_proposed_tag_direct_v2.diff",
+    "sha256": "594690aff783a044f311182742f9dbf528f618ae062cb2c61b2dfb3eeb7420ef"
+  },
+  "failure_evidence": {
+    "bytes": 87661,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/csynth_local_v1/failure_evidence.json",
+    "sha256": "fc1fe512b98f68cf9b45c6ca4b005479279e20455152de73e433a0317968772f"
+  },
+  "first_error_behavior": "Descriptor tag_matches still visits model then numeric then layout then build, j=0..15 ascending, and returns false on first mismatch; LOAD header_ok still scans all four tags, records false on any mismatch, then performs unchanged source SHA scan.",
+  "first_errors": [
+    "HLS 214-134 at q8_joint_tm4tn8.cpp:131:48, descriptor tag expected[t][j]",
+    "HLS 214-134 at q8_joint_tm4tn8.cpp:502:59, LOAD header tag expected[t][j]"
+  ],
+  "frozen_source": {
+    "bytes": 35789,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp",
+    "sha256": "2f0f42da242f697eb3009fe56db174763fa29c2599a508182bb29bf2a3237531"
+  },
+  "not_released": [
+    "candidate source write",
+    "CPU",
+    "CSim",
+    "synthesis",
+    "RTL/static/runtime"
+  ],
+  "one_factor": "Replace only two local const uint8_t* expected[4] arrays and their nested accesses with four fixed direct constant-array loops at each site. No helper, top signature, ports, RAM, ABI, numeric path or gold change.",
+  "pointer_inventory": {
+    "flagged_local_pointer_arrays": [
+      {
+        "declaration": "const uint8_t* expected[4]",
+        "line": 126,
+        "use_line": 131
+      },
+      {
+        "declaration": "const uint8_t* expected[4]",
+        "line": 497,
+        "use_line": 502
+      }
+    ],
+    "other_pointer_uses": "Nine direct top m_axi pointer parameters remain; report helper accepts one direct observed pointer. State, Descriptor and Counts do not store external port pointers. The tool only flagged the two local arrays, so direct port pointers are not treated as globally forbidden.",
+    "unchanged_port_count": 9
+  },
+  "schema": "q8_joint_first_csynth_214_134_source_repair_proposal_v1",
+  "status": "DIFF_ONLY_UNRELEASED_NO_CANDIDATE_SOURCE_OR_EXECUTION",
+  "verification_request": "Astra source/design review, then separate frozen new-identity CPU/standard-libm CSim and one csynth gate as authorized. Preserve original failure and avoid unchanged retry."
+}

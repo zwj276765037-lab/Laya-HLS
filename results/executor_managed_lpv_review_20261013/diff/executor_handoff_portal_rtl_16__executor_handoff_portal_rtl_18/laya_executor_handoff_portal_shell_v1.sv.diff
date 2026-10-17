@@ -1,0 +1,16 @@
+--- executor_handoff_portal_rtl_16/laya_executor_handoff_portal_shell_v1.sv
++++ executor_handoff_portal_rtl_18/laya_executor_handoff_portal_shell_v1.sv
+@@ -175,6 +175,13 @@
+     .MONITORED_ROLE(MONITORED_ROLE),.ENABLE_EXECUTOR_CHECKPOINT(1),.MANAGED_EXECUTOR_HANDOFF(1),
+     .ENABLE_BOOTSTRAP_SNAPSHOT(ENABLE_BOOTSTRAP_SNAPSHOT),
+     .ENABLE_BOOTSTRAP_SOURCE_GUARD(ENABLE_BOOTSTRAP_SOURCE_GUARD)) portal(
++    .lpv_admission_valid(1'b0),.lpv_admission_record(8192'd0),.lpv_admission_ready(),.lpv_admission_accepted(),
++    .lpv_revoke_valid(1'b0),.lpv_revoke_owner(8192'd0),
++    .lpv_candidate_valid(1'b0),.lpv_candidate_route(1'b0),.lpv_candidate_owner(8192'd0),
++    .lpv_pending_valid(1'b0),.lpv_pending_route(1'b0),.lpv_pending_owner(8192'd0),.lpv_pending_packet(8192'd0),
++    .lpv_response_route(1'b0),.lpv_response_owner(8192'd0),
++    .lpv_owner_installed(),.lpv_owner_revoked(),.lpv_frame_owned(),.lpv_frame_route(),.lpv_owner_record(),.lpv_frame_owner(),
++
+     .provenance_cmd_write(provenance_cmd_write && !locks_owned),
+     .provenance_cmd_full_n(predecessor_ready),
+     .executor_provenance_cmd_write(executor_provenance_cmd_write && executor_owns_dispatch),

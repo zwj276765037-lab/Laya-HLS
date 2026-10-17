@@ -1,0 +1,12 @@
+--- executor_checkpoint_host_03/executor_checkpoint_test.cpp
++++ executor_checkpoint_host_04/executor_checkpoint_test.cpp
+@@ -197,6 +197,9 @@
+          rt.op_calls[uint8_t(Op::LN_ATTN)] == 0 &&
+          rt.checkpoint_baseline.valid && rt.checkpoint_baseline.task_base == task_base &&
+          rt.checkpoint_baseline.local_retired_at_import == local_retired &&
++         rt.checkpoint_baseline.source.ref == command.source.owner.ref &&
++         rt.checkpoint_baseline.model_identity == proof.binding.source.model_identity &&
++         rt.checkpoint_baseline.target_epoch_floor == local_target &&
+          rt.producer_request_high_water == producer_base &&
+          port.machine.action_high_water == action_base);
+   for (const auto& o : rt.owners.record)

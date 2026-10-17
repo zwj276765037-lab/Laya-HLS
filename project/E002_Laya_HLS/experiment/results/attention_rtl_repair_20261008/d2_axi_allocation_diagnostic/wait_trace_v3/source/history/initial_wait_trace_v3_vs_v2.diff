@@ -1,0 +1,166 @@
+--- a/v2/tb/axi_allocation_diag_top.sv
++++ b/wait_trace_v3/tb/axi_allocation_diag_top.sv
+@@ -8,6 +8,7 @@
+     longint unsigned postreset_count = 0;
+     longint unsigned pairs_done = 0;
+     string mode;
++    typedef longint unsigned diag_u64_t;
+     always #3.33 clk = ~clk;
+     initial begin
+         #100;
+@@ -101,11 +102,64 @@
+         active_test.report_queues(postreset_count);
+     endtask
+ 
++    // These are fixed first-pair observations.  The cast is confined to the
++    // printed threshold; the original wait expressions below are unchanged.
++    task automatic trace_wait(input string channel, input string phase,
++                              input int i, input longint unsigned count,
++                              input logic predicate);
++        if (mode == "traffic" && i == 0) begin
++            $display("DIAG_WAIT_TRACE channel=%s phase=%s item=%0d threshold_u64=%0d count_u64=%0d predicate=%b postreset_clock=%0d sim_ps=%0d monitor_sample_cycle=%0d first_b=%b first_r=%b",
++                     channel, phase, i, diag_u64_t'(longint'(i+1)),
++                     diag_u64_t'(count), predicate, postreset_count,
++                     longint'($realtime*1000.0), mon_qkv0.sample_cycle,
++                     mon_qkv0.first_b_seen, mon_qkv0.first_r_seen);
++            $fflush();
++        end
++    endtask
++
++    task automatic record_qkv_raw(input string edge_label);
++        if (postreset_count >= 9998 && postreset_count <= 10024) begin
++            $display("DIAG_EDGE_WINDOW kind=raw_%s clock=%0d sim_ps=%0d sample_cycle=%0d aw=%b%b w=%b%b b=%b%b bid=%b bresp=%b ar=%b%b r=%b%b rid=%b rresp=%b rlast=%b rdata=%08x counts=%0d,%0d,%0d,%0d,%0d stored_b=%b,%b stored_r=%b,%b,%b,%08x first=%b,%b",
++                     edge_label, postreset_count, longint'($realtime*1000.0),
++                     mon_qkv0.sample_cycle,
++                     bus_qkv0.AWVALID, bus_qkv0.AWREADY,
++                     bus_qkv0.WVALID, bus_qkv0.WREADY,
++                     bus_qkv0.BVALID, bus_qkv0.BREADY,
++                     bus_qkv0.BID, bus_qkv0.BRESP,
++                     bus_qkv0.ARVALID, bus_qkv0.ARREADY,
++                     bus_qkv0.RVALID, bus_qkv0.RREADY,
++                     bus_qkv0.RID, bus_qkv0.RRESP,
++                     bus_qkv0.RLAST, bus_qkv0.RDATA,
++                     mon_qkv0.aw_count, mon_qkv0.w_beats, mon_qkv0.b_count,
++                     mon_qkv0.ar_count, mon_qkv0.r_beats,
++                     mon_qkv0.last_b_id, mon_qkv0.last_b_resp,
++                     mon_qkv0.last_r_id, mon_qkv0.last_r_resp,
++                     mon_qkv0.last_r_last, mon_qkv0.last_r_data,
++                     mon_qkv0.first_b_seen, mon_qkv0.first_r_seen);
++            $fflush();
++        end
++    endtask
++
++    always @(posedge clk) begin
++        #0.001;
++        record_qkv_raw("posedge_plus_0p001ns");
++    end
++    always @(negedge clk) begin
++        #0.001;
++        record_qkv_raw("negedge_plus_0p001ns");
++    end
++
+     task automatic send_aw(input int i, input int address);
+         @(negedge clk);
++        trace_wait("AW", "before_valid", i, mon_qkv0.aw_count,
++                   mon_qkv0.aw_count >= longint'(i+1));
+         bus_qkv0.AWID=0; bus_qkv0.AWADDR=address; bus_qkv0.AWLEN=0;
+         bus_qkv0.AWSIZE=0; bus_qkv0.AWBURST=1; bus_qkv0.AWVALID=1;
+         wait(mon_qkv0.aw_count >= longint'(i+1));
++        trace_wait("AW", "after_wait", i, mon_qkv0.aw_count,
++                   mon_qkv0.aw_count >= longint'(i+1));
++        if (!(mon_qkv0.aw_count >= longint'(i+1)))
++            $fatal(1,"DIAG_WAIT_FALSE channel=AW item=%0d",i);
+         @(negedge clk); bus_qkv0.AWVALID=0;
+     endtask
+ 
+@@ -113,17 +167,29 @@
+         int lane;
+         lane=address%4;
+         @(negedge clk);
++        trace_wait("W", "before_valid", i, mon_qkv0.w_beats,
++                   mon_qkv0.w_beats >= longint'(i+1));
+         bus_qkv0.WID=0; bus_qkv0.WDATA=32'(value) << (8*lane);
+         bus_qkv0.WSTRB=4'(1<<lane); bus_qkv0.WLAST=1; bus_qkv0.WVALID=1;
+         wait(mon_qkv0.w_beats >= longint'(i+1));
++        trace_wait("W", "after_wait", i, mon_qkv0.w_beats,
++                   mon_qkv0.w_beats >= longint'(i+1));
++        if (!(mon_qkv0.w_beats >= longint'(i+1)))
++            $fatal(1,"DIAG_WAIT_FALSE channel=W item=%0d",i);
+         @(negedge clk); bus_qkv0.WVALID=0; bus_qkv0.WLAST=0; bus_qkv0.WSTRB=0;
+     endtask
+ 
+     task automatic send_ar(input int i, input int aligned_address);
+         @(negedge clk);
++        trace_wait("AR", "before_valid", i, mon_qkv0.ar_count,
++                   mon_qkv0.ar_count >= longint'(i+1));
+         bus_qkv0.ARID=0; bus_qkv0.ARADDR=aligned_address; bus_qkv0.ARLEN=0;
+         bus_qkv0.ARSIZE=2; bus_qkv0.ARBURST=1; bus_qkv0.ARVALID=1;
+         wait(mon_qkv0.ar_count >= longint'(i+1));
++        trace_wait("AR", "after_wait", i, mon_qkv0.ar_count,
++                   mon_qkv0.ar_count >= longint'(i+1));
++        if (!(mon_qkv0.ar_count >= longint'(i+1)))
++            $fatal(1,"DIAG_WAIT_FALSE channel=AR item=%0d",i);
+         @(negedge clk); bus_qkv0.ARVALID=0;
+     endtask
+ 
+@@ -140,14 +206,26 @@
+                 send_w(i, address, value);
+             join
+             active_test.accepted_write(address, value);
++            trace_wait("B", "before_wait", i, mon_qkv0.b_count,
++                       mon_qkv0.b_count >= longint'(i+1));
+             wait(mon_qkv0.b_count >= longint'(i+1));
++            trace_wait("B", "after_wait", i, mon_qkv0.b_count,
++                       mon_qkv0.b_count >= longint'(i+1));
++            if (!(mon_qkv0.b_count >= longint'(i+1)))
++                $fatal(1,"DIAG_WAIT_FALSE channel=B item=%0d",i);
+             #0.001;
+             if (mon_qkv0.last_b_resp !== 2'b00 ||
+                 mon_qkv0.last_b_id !== 1'b0)
+                 $fatal(1,"DIAG_INVALID write response item=%0d resp=%b id=%b",
+                        i,mon_qkv0.last_b_resp,mon_qkv0.last_b_id);
+             send_ar(i, aligned);
++            trace_wait("R", "before_wait", i, mon_qkv0.r_beats,
++                       mon_qkv0.r_beats >= longint'(i+1));
+             wait(mon_qkv0.r_beats >= longint'(i+1));
++            trace_wait("R", "after_wait", i, mon_qkv0.r_beats,
++                       mon_qkv0.r_beats >= longint'(i+1));
++            if (!(mon_qkv0.r_beats >= longint'(i+1)))
++                $fatal(1,"DIAG_WAIT_FALSE channel=R item=%0d",i);
+             #0.001;
+             if (mon_qkv0.last_r_resp !== 2'b00 ||
+                 mon_qkv0.last_r_last !== 1'b1 ||
+--- a/v2/tb/build_static.sh
++++ b/wait_trace_v3/tb/build_static.sh
+@@ -17,4 +17,4 @@
+ 
+ "$vivado_bin/xelab" work.axi_allocation_diag_top \
+   -L uvm --sv_lib phase_rss --sv_root "$module_root/tb" \
+-  -s axi_allocation_diag --relax -mt off -log xelab.log
++  -s axi_wait_trace --relax -mt off -log xelab.log
+--- a/v2/tb/phase_axi_monitor.sv
++++ b/wait_trace_v3/tb/phase_axi_monitor.sv
+@@ -143,6 +143,23 @@
+                 end
+                 b_count++;
+             end
++            if (PORT == "qkv0" && sample_cycle >= 9998 && sample_cycle <= 10024) begin
++                $display("DIAG_EDGE_WINDOW kind=monitor_preedge_1step cycle=%0d sim_ps=%0d aw=%b%b w=%b%b b=%b%b bid=%b bresp=%b ar=%b%b r=%b%b rid=%b rresp=%b rlast=%b rdata=%08x counts=%0d,%0d,%0d,%0d,%0d stored_b=%b,%b stored_r=%b,%b,%b,%08x first=%b,%b",
++                         sample_cycle, longint'($realtime*1000.0),
++                         sample_cb.awvalid, sample_cb.awready,
++                         sample_cb.wvalid, sample_cb.wready,
++                         sample_cb.bvalid, sample_cb.bready,
++                         sample_cb.bid, sample_cb.bresp,
++                         sample_cb.arvalid, sample_cb.arready,
++                         sample_cb.rvalid, sample_cb.rready,
++                         sample_cb.rid, sample_cb.rresp,
++                         sample_cb.rlast, sample_cb.rdata,
++                         aw_count, w_beats, b_count, ar_count, r_beats,
++                         last_b_id, last_b_resp,
++                         last_r_id, last_r_resp, last_r_last, last_r_data,
++                         first_b_seen, first_r_seen);
++                $fflush();
++            end
+         end
+     end
+ 

@@ -1,0 +1,19 @@
+--- d2_attention_preloaded/source/design.md.before_links
++++ d2_attention_preloaded/source/design.md
+@@ -4,7 +4,15 @@
+ 
+ ## Evidence and scope
+ 
+-Authoritative sources: repair_contract.md §7.3–7.6 and new §7.11; vivado/design_source/04_model_package_and_memory_map.md §4 QKV layout; hls/common/laya_memory_map.cpp:48-53; hls/common/laya_full_owner.cpp:259-341; hls/common/laya_full_io.cpp:68-215; hls/control/full_forward_controller.cpp:18-35; existing d2_attention_slice/source/attention_slice.cpp:71-187 and its independent score/prob/AV testbench.
++Authoritative references, reviewed 2026-10-08:
++- [Repair contract §§7.3–7.6 and new §7.11](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md:231).
++- [Original physical QKV layout specification §4](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/design_source/04_model_package_and_memory_map.md:73).
++- [Production QKV address mapping](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_memory_map.cpp:48).
++- [Production pair claim, row coverage and publish](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_owner.cpp:259).
++- [Production request parse and session recovery](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_io.cpp:68).
++- [Production fresh-ref selection](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/control/full_forward_controller.cpp:18).
++- [Original diagnostic producer and numeric chain](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/source/attention_slice.cpp:71) and [independent numeric/sentinel testbench](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/tb/test_attention_slice.cpp:67).
++- [Actual generated transaction page advance](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/attention_slice_subsystem/attention_slice_reference_model.sv:390) and [page address/dump semantics](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/file_agent/mem_model.sv:349).
+ 
+ The former adapter copies 3072 blocks of256 bytes through fixture reads and byte-wide full_write. Its HLS copy+write estimate alone is approximately9.44M cycles, not measured runtime. The new adapter accepts the same complete physical QKV image from a real external test producer. It tests production owner import/publication and the original LOAD_KV→QK→SCORE/PROB lease→Softmax→AV→ATT_OUT chain. It does not execute upstream Q8 projection or the old RTL full_write fixture producer. No production numeric implementation, owner helper, memory layout or error path is copied/reimplemented or modified.
+ 

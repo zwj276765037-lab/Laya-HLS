@@ -1,0 +1,43 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT058_FFN1_progress_replay_01/frozen_new/ffn1_progress_observer_micro_tb_v1.sv
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT059_FFN1_progress_replay_02/frozen_new/ffn1_progress_observer_micro_tb_v1.sv
+@@ -13,22 +13,22 @@
+     for(integer k=0;k<35;k++)event_inc[k]={2'b00,
+       event_valid[k] && event_ready[k]};
+   end
+-  task automatic edge();
++  task automatic tick();
+     @(posedge clk); #1;
+   endtask
+   initial begin
+     event_valid='0;event_ready='0;
+-    repeat(3)edge();
++    repeat(3)tick();
+     @(negedge clk);rst_n=1;
+     // Every family uses a real valid/ready-qualified event, not a valid
+     // level. Exercise each input in isolation with the others held still.
+     for(integer k=0;k<35;k++)begin
+       @(negedge clk);event_valid[k]=1;event_ready[k]=0;
+-      repeat(3)edge();
++      repeat(3)tick();
+       if(counts[k]!=0 || work!=64'(k))
+         $fatal(1,"FFN1 micro valid without ready family=%0d",k);
+       @(negedge clk);event_ready[k]=1;
+-      edge();
++      tick();
+       if(counts[k]!=1 || work!=64'(k+1))
+         $fatal(1,"FFN1 micro isolated event family=%0d",k);
+       @(negedge clk);event_valid[k]=0;event_ready[k]=0;
+@@ -37,11 +37,11 @@
+     @(negedge clk);event_valid[10]=1;event_valid[12]=1;
+     event_valid[14]=1;event_ready[10]=1;event_ready[12]=1;
+     event_ready[14]=1;
+-    edge();
++    tick();
+     if(counts[10]!=2 || counts[12]!=2 || counts[14]!=2 || work!=38)
+       $fatal(1,"FFN1 micro simultaneous q0/q1/scale R");
+     @(negedge clk);event_valid='0;event_ready='0;
+-    repeat(3)edge();
++    repeat(3)tick();
+     if(work!=38)$fatal(1,"FFN1 micro idle advanced");
+     $display("FFN1_PROGRESS work=%0d lnar=%0d lnr=%0d lnit=%0d lnwr=%0d lnport=%0d qowner=%0d qread=%0d qmath=%0d afill=%0d w0ar=%0d w0r=%0d w1ar=%0d w1r=%0d wsar=%0d wsr=%0d aux=%0d wpub=%0d ma=%0d mw=%0d mps=%0d mwr=%0d mret=%0d wiread=%0d wicons=%0d giss=%0d gret=%0d gemit=%0d gwr=%0d gqread=%0d gqmath=%0d rcfg=%0d rsrc=%0d radd=%0d rwr=%0d rdone=%0d",
+       work,

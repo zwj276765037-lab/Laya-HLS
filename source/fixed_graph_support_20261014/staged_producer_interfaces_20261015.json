@@ -1,0 +1,253 @@
+{
+  "task": "m004-staged-producer-interface-preparation-20261015",
+  "scope": "Static integer address/lifetime/scheduling proof and new dependency identities only; no RTL/model/oracle execution or new numeric gold.",
+  "prior_records": {
+    "s128_completion_error_order_20261015.json": {
+      "sha256": "dcc2c72aeda7ec67eea9c0f6a5609dcefd94a5fdaf9ce22b8eeb52d87697e8d3"
+    },
+    "s128_final_attention_binding_20261015.json": {
+      "sha256": "174ff1b7bcb64d7318e5861e8cc082e528b86c9ad725056d9483d2fa8e53869d"
+    },
+    "lnq_matrix_binding_20261015.json": {
+      "sha256": "d5118d5db7684188e37ffefc79d383daea887e3229635edbe56232c28132bfa8"
+    },
+    "embedding_qkv_binding_20261015.json": {
+      "sha256": "ffb19ebbee5410957115cba35a2f9c91d4caefd1030a4ded4eb3f5e74edcac98"
+    },
+    "wi_gqdown_binding_20261015.json": {
+      "sha256": "bab3a2620000d846fc5590219ef2a2251e8b08ceea7d4b9e0f9f61ae8ccb4b3e"
+    }
+  },
+  "new_or_reused_dependency_identities": [
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/quant_dual_a_v1.sv",
+      "bytes": 14286,
+      "sha256": "0cf4e8b02e5559bde7644a1e4d7772b9206ad8b40a6f4eab7f5cc85c14613558",
+      "new_dependency": true
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/quant_a_row_bank_v1.sv",
+      "bytes": 937,
+      "sha256": "62521924b97384b5113c6f66bb884c4a754279f64de29dd669e12c4504861926",
+      "new_dependency": true
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_row_pipeline_v1.sv",
+      "reused": {
+        "record": "lnq_matrix_binding_20261015.json",
+        "sha256": "280553a0fcace9838cf95c8bc4eb843d55be4e2b126ea619198d6dee41b54734",
+        "bytes": 6454
+      }
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_sync_bank_v2.sv",
+      "bytes": 935,
+      "sha256": "1fa0e3494a06bc760e6b52f7da34648e695fd809f5cb0aadbdfe414690438daf",
+      "new_dependency": true
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_tag_v1.sv",
+      "bytes": 952,
+      "sha256": "471c8e1097b9345e7e858b18702191565625ca83b43ed58d24750b2b11a1b3aa",
+      "new_dependency": true
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/include/laya_types.h",
+      "bytes": 3034,
+      "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61",
+      "new_dependency": true
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/include/laya_tasks.h",
+      "bytes": 3028,
+      "sha256": "20a8a3a0a94e997c05d0f81657498f16f8d08e406a202eb8b08dde5b2ccd55bf",
+      "new_dependency": true
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/hls/operators/full_tasks_front.cpp",
+      "bytes": 8264,
+      "sha256": "5e0d9a2b5a416a6867cd463c6defefd37ddaa926f296159bf2f2eabffc8c74e4",
+      "new_dependency": true
+    }
+  ],
+  "checks": {
+    "A_q_words_4096_unique": true,
+    "A_scale_words_256_unique": true,
+    "A_scale_halves_512_unique": true,
+    "A_all_4352_words_contiguous": true,
+    "A_q_scale_disjoint": true,
+    "prior15_rows_never_overlap_norm": true,
+    "last_row_overlap_exact128words": true,
+    "A16_PS_disjoint": true,
+    "all_bank_addr_within_656": true,
+    "all_export_writes_after_source_retired": true,
+    "export48_write_edges_per_row": true,
+    "PS_row8lane_write_unique_banks": true,
+    "full_parent_stripes49152": true,
+    "global_sequence_no_gap": true,
+    "per_step32_per_tile128": true,
+    "tile_priority_not_min_bad": true
+  },
+  "equations_not_measured_hardware": {
+    "A_bytes": 17408,
+    "norm_base_bytes": 16896,
+    "norm_end_exclusive_bytes": 20992,
+    "overlap_bytes": 512,
+    "PS_base_bytes": 17408,
+    "PS_end_exclusive_bytes": 17920,
+    "matrix_peak_live_payload_bytes": 17920,
+    "extra_data_hold_bytes": 110,
+    "per_step_stripes": 32,
+    "per_step_row_groups": 128,
+    "per_tile_stripes": 128,
+    "per_tile_row_groups": 512,
+    "per_parent_stripes": 49152,
+    "per_parent_row_groups": 196608,
+    "per_parent_lane_groups": 1572864,
+    "per_parent_final_f32": 49152,
+    "all_S128_tm4_stripes": 393216,
+    "normal_halfbeat_writes_per_parent": 6144,
+    "logical_useful_bytes_per_parent": 196608,
+    "physical_bytes_if_flush_every_32B_row_tile": 393216,
+    "order_probe_expected_bad": 671775,
+    "later_n8_bad": 1024
+  },
+  "mapping": {
+    "word_to_bank_addr": "bank=w%8, addr=w//8",
+    "q_word": "w=272*r+8*g+j; byte k in q_word little endian",
+    "scale_word": "w=272*r+256+floor(g/2); half=g%2; write pair {scale[2t+1],scale[2t]} with BE=1111",
+    "norm_prepare": "w=4224+k",
+    "PS": "w=4352+8*r+lane",
+    "LN_raw": "w=k",
+    "LN_gamma": "w=1024+k",
+    "LN_norm": "w=3072+k",
+    "Q_copy_barrier": "all1024 norm consumed, pack empty, Q done success+physical_debt_zero,64halves/32scales committed before first export write",
+    "bank_rule": "one read or write transaction per bank per clock in chosen schedule; four terminal PS rows serialized by commit_ready; no payload FIFO added"
+  },
+  "modes": {
+    "0": "LNQ1024 legacy",
+    "1": "DIRECT2624 legacy",
+    "2": "LN_ONLY1024",
+    "3": "DIRECT_NORM1024"
+  },
+  "step_contract": {
+    "descriptor": [
+      1024,
+      3072,
+      16
+    ],
+    "tile_range": [
+      0,
+      384
+    ],
+    "blocks": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "groups": [
+      0,
+      32
+    ],
+    "sequence": "(tile*4+block)*32+group",
+    "step_completion": "accepted32,row_commits+row_skips128,terminal_mask=f,real credits/debts zero",
+    "tile_completion": "all4step responses consumed; exact16 terminals; full tile numeric aggregate then decide",
+    "task_success": "384 tiles,49152 stripes,196608 row-group retirements,49152 F32 and all required B; no late store fault"
+  },
+  "error_contract": {
+    "matrix_op": "0x30",
+    "numeric_detail": "0x0730000f",
+    "matrix_protocol_detail": "0x07300005",
+    "matrix_bad": "(4*block+physical_row)*5248*128+(8*tile+lane)*128+group; task-local row, global row0 separately",
+    "order_key": "((((tile*16+row_local)*8+lane)*33+group)*5+phase)",
+    "early_store_failure": "latch first true write failure; drain real debts; suppress future writes; continue required arithmetic within current original task until original Check settles; do not abort front solely for writer error",
+    "not_claimed": "AXI error mapping is an explicit new physical adapter contract, not a CPU BRESP oracle or full model Check equivalence"
+  },
+  "measurement": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nice": 19,
+    "internal_seconds_before_write": 0.025416359305381775,
+    "internal_peak_rss_KiB": 22600,
+    "outer_time_file": "staged_producer_interfaces_static_time_20261015.txt",
+    "interactive_read_total": "UNKNOWN"
+  },
+  "interface_clarifications": {
+    "a_window_init": "cmd_row=window_row0 (0/16/.../112), local row0; same identity/epoch for15 following rows; all completion consumed before reuse",
+    "Q_export_barrier": "internal quant leaf done success + debt zero, then lnq ROW; never wait lnq done before reading, since lnq done follows release",
+    "LN_bank_view": "reuse row_valid/rd/rsp/release, result_exec=001, rd_tile384..511; wrapper maps to norm local0..127; lnq done held through successful B or fault-context discard",
+    "PS_discard_retire": "only with latched real store fault, exact arithmetic tile coverage, all physical debts zero; no B/written increment; parent remains failed",
+    "legacy_ownership": "cmd_exec000 and release_discard0; reject bank-altering legacy/prep while staged A window owned"
+  },
+  "delivery_checks": {
+    "links_checked": 5,
+    "reply_bytes": 4432,
+    "reply_sha256": "e6ae9d2e0c7119029e64365dbe4a74763b68c34c0440348d9008de4e0fd5cc66",
+    "static_checks": 16,
+    "status": "PASS_STATIC_ONLY",
+    "no_new_reference": true,
+    "time_file": "staged_producer_interfaces_delivery_check_time_20261015.txt"
+  },
+  "measured_completed_commands": [
+    {
+      "file": "staged_producer_interfaces_static_time_20261015.txt",
+      "wall_seconds": 0.07,
+      "max_rss_KiB": 22600,
+      "exit": 0
+    },
+    {
+      "file": "staged_producer_interfaces_delivery_check_time_20261015.txt",
+      "wall_seconds": 0.04,
+      "max_rss_KiB": 16536,
+      "exit": 0
+    },
+    {
+      "file": "staged_producer_interfaces_report_time_20261015.txt",
+      "wall_seconds": 2.74,
+      "max_rss_KiB": 36040,
+      "exit": 0
+    },
+    {
+      "file": "staged_producer_interfaces_send_time_20261015.txt",
+      "wall_seconds": 2.79,
+      "max_rss_KiB": 36572,
+      "exit": 0
+    }
+  ],
+  "measured_completed_total_seconds": 5.64,
+  "closeout_accounting_time_file": "staged_producer_interfaces_closeout_time_20261015.txt",
+  "closeout_accounting_note": "Completed-command total excludes this final accounting command; its complete outer receipt is separately retained. Interactive reads remain UNKNOWN.",
+  "delivery": {
+    "id": "m004-staged-producer-interface-preparation-answer-20261015",
+    "status": "delivered",
+    "delivered_at": "2026-10-15T12:03:39.146326+00:00",
+    "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+    "recipient_turn_id": "01a13f69-2d56-7e30-ad87-4d03ab3f094f",
+    "receipt": ".research-agent/communications/m004-staged-producer-interface-preparation-answer-20261015.json"
+  },
+  "revision17_partial_adoption": {
+    "message_id": "m004-staged-producer-rev17-partial-adoption-20261015",
+    "decision": "D-M004-STAGED-LNQ-01",
+    "contract": "results/m004_simplified_start_20261014/staged_lnq_frontend_rev17_decision.md",
+    "adopted": "LN_ONLY/DIRECT_NORM1024, prep tokens, Q16 bank layout, real LN128 norm B barrier and held internal stage",
+    "not_implemented_by_this_contract": [
+      "STEP16/MATRIX16",
+      "W_PREP_ONLY",
+      "hidden RAW",
+      "full RoPE-table precheck",
+      "FINAL handoff",
+      "Attention"
+    ],
+    "official_norm_read_index": "logical tile0..127 maps physical bank addr384..511; supersedes proposed external384..511",
+    "payload_scope": "108B of the prior110B estimate belongs to future four-row matrix A holding; not measured rev17 resources",
+    "review_scope_reported_by_A001": "8 module/type dependencies,2 raw/norm identities,12 mapping/capacity/contract conditions; not rehashed by research",
+    "research_state": "completed; adoption recorded only; no acknowledgement sent or new experiment",
+    "implementation_status": "dispatched to A002; no dynamic result asserted here",
+    "sampled_update_time_file": "staged_producer_rev17_adoption_time_20261015.txt"
+  }
+}

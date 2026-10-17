@@ -1,0 +1,252 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Tue Oct 13 19:53:50 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+vivado-mcp server ready on port 10000
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT025_GQD0_chain_03/postprocess_help2.tcl -notrace
+GQD_HELP_BEGIN open_wave_database
+open_wave_database
+
+Description: 
+Open Waveform Database (WDB) file produced by a prior simulation run and return a simulation object
+
+Syntax: 
+open_wave_database  [-noautoloadwcfg] [-protoinst <args>] [-quiet] [-verbose]
+                    <wdb>
+
+Usage: 
+  Name               Description
+  ------------------------------
+  [-noautoloadwcfg]  Do not automatically open associated WCFG files
+  [-protoinst]       Specify a .protoinst file for protocol analysis
+  [-quiet]           Ignore command errors
+  [-verbose]         Suspend message limits during command execution
+  <wdb>              file name
+
+Categories: 
+Simulation
+
+Description:
+
+  The open_wave_database command opens an existing static simulator database
+  file (WDB) and associated wave config file (WCFG). This simulation is a
+  static simulation, not live, and can only be used to review prior results.
+
+  Note: Many of the commands for running and resetting the simulation are not
+  available in a static simulation.
+
+  Vivado simulator uses a simulation debug data model to allow users to debug
+  HDL source files using source code stepping, breakpoints, conditions, and
+  waveform viewing tools. The debug data model contains HDL object and scope
+  names, and maps them to memory addresses to let you examine the changing
+  values of signals, variables and constants during the simulation. When the
+  simulation completes, the simulation is written to a static simulator
+  database file (WDB).
+
+  HDL objects can be added to the simulation waveform database using the
+  log_wave command which enables logging of waveform activity for the
+  specified objects to the Vivado simulator waveform database.
+
+  The waveform database is associated with a Wave Config file that stores the
+  waveform activity for the simulation. The Wave Config file contains just
+  the list of wave objects (signals, dividers, groups, virtual buses) to
+  display, and their display properties, plus markers. The waveform database
+  (WDB) contains the event data, values changing over time, for all traced
+  signals, whether displayed or not.
+
+  A Wave Config file is written to disk by the use of the save_wave_config
+  command, and can be opened with the open_wave_config command.
+
+  Use the open_wave_database command with the open_wave_config command to
+  open a previously completed simulation for review in the Vivado IDE.
+
+  Note: Objects that were logged in the simulation waveform database, with
+  the log_wave command, can be added posthumously to the wave configuration
+  in a static simulation using the add_wave command.
+
+Arguments:
+
+  -noautoloadwcfg - (Optional) Do not automatically open wave config files
+  (WCFG) associated with the waveform database.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+  <wbd> - specifies the path and filename of the WDB file to open.
+
+Examples:
+
+  The following example opens a WDB file with the specified name, then opens
+  an associated Wave Config file, and finally uses the current_fileset
+  command to open the simulation database in the Vivado IDE:
+
+    open_wave_database {C:/Data/project_xsim/testbench_behav.wdb}  
+    open_wave_config {C:/Data/project_xsim/testbench_behav.wcfg}  
+    current_fileset 
+    
+
+See Also:
+
+   *  create_wave_config
+   *  current_fileset
+   *  get_wave_config
+   *  open_wave_config
+   *  save_wave_config
+
+GQD_HELP_BEGIN get_waves
+get_waves
+
+Description: 
+Gets wave objects from a wave configuration
+
+Syntax: 
+get_waves  [-of <args>] [-regexp] [-nocase] [-filter <arg>] [-recursive] [-r]
+           [-long_name] [-short_name] [-quiet] [-verbose] <patterns>...
+
+Returns: 
+a collection of found wave objects
+
+Usage: 
+  Name           Description
+  --------------------------
+  [-of]          the wave configuration, group, or virtual bus to search
+  [-regexp]      interprets <patterns> using regular expressions
+  [-nocase]      only when regexp is used, performs a case insensitive match
+  [-filter]      filters <patterns> according to the specified 
+                 property-matching expressions
+  [-recursive]   if the design object is a scope, this option specifies that 
+                 wave objects for all design objects under that scope should 
+                 be created
+  [-r]           if the design object is a scope, this option specifies that 
+                 wave objects for all design objects under that scope should 
+                 be created
+  [-long_name]   search wave objects using the long form of their names
+  [-short_name]  search wave objects using the short form of their names
+  [-quiet]       Ignore command errors
+  [-verbose]     Suspend message limits during command execution
+  <patterns>     the design objects from which to create wave objects
+
+Categories: 
+Waveform
+
+GQD_HELP_BEGIN get_value
+get_value
+
+Description: 
+Get current value of the selected HDL object (variable, signal, wire, reg)
+
+Syntax: 
+get_value  [-radix <arg>] [-quiet] [-verbose] <hdl_object>
+
+Returns: 
+Returns a string representation of value of a hdl_object
+
+Usage: 
+  Name          Description
+  -------------------------
+  [-radix]      radix specifies the radix to use for printing the values of the
+                hdl_objects. Allowed values are: default, dec, bin, oct,hex, 
+                unsigned, ascii, smag
+  [-quiet]      Ignore command errors
+  [-verbose]    Suspend message limits during command execution
+  <hdl_object>  The hdl_object to retrieve the current value
+
+Categories: 
+Simulation
+
+Description:
+
+  Get the value of a single HDL object at the current simulation run time.
+
+  Note: Use the report_values command to return the values of more than one
+  HDL objects.
+
+  HDL objects include HDL signals, variables, or constants as defined in the
+  Verilog or VHDL test bench and source files. An HDL signal includes Verilog
+  wire or reg entities, and VHDL signals. Examples of HDL variables include
+  Verilog real, realtime, time, and event.
+
+  HDL constants include Verilog parameters and localparams, and VHDL generic
+  and constants. The HDL scope, or scope, is defined by a declarative region
+  in the HDL code such as a module, function, task, process, or begin-end
+  blocks in Verilog. VHDL scopes include entity/architecture definitions,
+  block, function, procedure, and process blocks.
+
+Arguments:
+
+  -radix <arg> - (Optional) Specifies the radix to use when returning the
+  value of the specified object. Allowed values are: default, dec, bin, oct,
+  hex, unsigned, ascii, or smag.
+
+  Note: The radix dec indicates a signed decimal. Specify the radix unsigned
+  when dealing with unsigned data.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+  <hdl_object> - (Required) Specifies a single HDL object to get the value
+  of. The object can be specified by name, or can be returned as an object
+  from the get_objects command.
+
+Examples:
+
+  The following example gets the value of the sysClk signal:
+
+    get_value sysClk  
+       Z 
+    
+
+  This example shows the difference between the bin, dec, and unsigned radix
+  on the value returned from the specified bus:
+
+    get_value -radix bin /test/bench_VStatus_pad_0_i[7:0]  
+       10100101  
+    get_value -radix unsigned /test/bench_VStatus_pad_0_i[7:0]  
+       165  
+    get_value -radix dec /test/bench_VStatus_pad_0_i[7:0]  
+       -91 
+    
+
+See Also:
+
+   *  current_time
+   *  get_objects
+   *  set_value
+   *  report_values
+
+GQD_HELP_BEGIN get_wave_value
+ERROR: [Common 17-25] No topics matched 'get_wave_value'
+
+GQD_HELP_BEGIN write_waveform
+ERROR: [Common 17-25] No topics matched 'write_waveform'
+
+GQD_HELP_BEGIN export_waveform
+ERROR: [Common 17-25] No topics matched 'export_waveform'
+
+INFO: [Common 17-206] Exiting Vivado at Tue Oct 13 19:53:53 2026...

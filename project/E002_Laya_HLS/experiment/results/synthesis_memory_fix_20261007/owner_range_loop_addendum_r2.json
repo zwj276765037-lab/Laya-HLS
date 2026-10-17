@@ -1,0 +1,52 @@
+{
+  "at_utc": "2026-10-07T09:44:28.985914+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "decision": "AUTHORIZE_MINIMAL_CONTRACT_B_LOOP_FORM_REPAIR",
+  "supersedes": "No semantic contract change; extends indexed owner access to the two remaining FullOwnerRecord range loops in full_recycle_request.",
+  "failure": {
+    "diagnostic": "SYNCHK 200-42 pointer comparison is not supported",
+    "source": "hls/common/laya_full_owner.cpp",
+    "line_r1": 747,
+    "phase": "post-reflow/HLSGen Standard Transforms -> synthesizability check on a.g.2.prechk.bc",
+    "hlsgen_completed_for_this_pilot": true,
+    "evidence": "a.g.lto.bc exists and autopilot.flow.log records run_clang result=success before opt_and_import_c and syn-check failure.",
+    "guard_result": {
+      "child_exit_code": 1,
+      "elapsed_seconds": 28.505544109269977,
+      "finished_at": "2026-10-07T09:41:03.097120+00:00",
+      "minimum_mem_available_kb": 438160296,
+      "peak_owned_rss_kb": 1492212,
+      "rss_capture_count": 142,
+      "rss_captured": true,
+      "rss_sample_count": 142,
+      "trigger": null
+    },
+    "vitis_internal_peak_allocated_mb": 613.785,
+    "memory_metric_note": "Internal allocated MB is not sampled total owned process-tree RSS."
+  },
+  "allowed_change": [
+    "Change readonly busy-scan for(const FullOwnerRecord& r : rt.owners.record) to unsigned i=0; i<kNoOwnerIndex; ++i, local const reference r=record[i].",
+    "Change mutable record invalidation/reset traversal to the same ascending integer loop, local mutable reference.",
+    "Preserve all early-return checks and writes, including order, and exact 32 record bound."
+  ],
+  "excluded_change": [
+    "Do not reorder scan or reset",
+    "Do not remove busy checks",
+    "Do not alter other numeric-array range loops without separate concrete evidence",
+    "Do not change pragmas, tool options or acceptance assertions"
+  ],
+  "validation": [
+    "Preserve r1 source hash/diff and failed complete build/logs",
+    "Rebuild/rerun same synthesis-host and Vitis CSim 26-check tests",
+    "Run corrected actual owner small-top csynth under same8GiB guard in new output directory",
+    "Review changed source and actual IR before treating owner gate accepted"
+  ],
+  "input_evidence_hashes": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_diff.patch": "e722ab4751d2c9ad25621f9c2a7957893ad1d9dc6bff52d637d72938517a01f7",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_current_hashes.sha256": "16a5b17a706eba418c571d1602d483d24204b0164c52fa8e1503ecb464b97317",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/csynth_guard/driver.log": "c395b64f1dcf7b2b1797db67c35a730c57185832f4a974bdec82aec9f2028b4d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth/hls/.autopilot/db/autopilot.flow.log": "64487f807ece473ee429b14b5feb67cd4bbc7c764a1355deab8874377e0f2fce",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth/hls/.autopilot/db/a.g.lto.bc": "16c5ae968b9a1c943b910cc2c9cfed46431a889a193d5b6f8bd7494cabc57852",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth/hls/.autopilot/db/a.g.2.prechk.bc": "726f62fad97285eec807aa9533f1aea527b82e4b0193f6c08aab5c0e3dd066f5"
+  }
+}

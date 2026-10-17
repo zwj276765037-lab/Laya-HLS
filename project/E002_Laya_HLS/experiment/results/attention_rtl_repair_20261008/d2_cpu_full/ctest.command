@@ -1,0 +1,1 @@
+/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/reference/cmake-3.31.8-linux-x86_64/bin/ctest --test-dir /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-attention-repair-20261008 --output-on-failure 

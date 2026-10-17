@@ -1,0 +1,478 @@
+{
+  "stage": "cpu_embedding_q8_validation_20261010",
+  "state": "ACTIVE",
+  "authoritative_table": "stage_results.md",
+  "cpu_raw_preflight_request_identity": "original fe067 request payloads; no new mixed build/profile",
+  "results": [
+    {
+      "id": "cpu_raw_numeric_preflight",
+      "status": "PASS_SCOPED",
+      "scope": "attempts/cpu_raw_four_01/summary.json; four old-identity S128 requests, real GGUF CPU producer and independent NumPy re-evaluation; 786432 raw F32 bit exact to frozen oracle including padding; STATE0 mapping/sentinel exact; no new profile/FPGA claim"
+    },
+    {
+      "id": "mixed_identity_descriptor",
+      "status": "PASS",
+      "scope": "v4 model build/model-cpu-embedding-ln-v4-20261010/manifest.json build 147c8e8554927239ed5981bdde25861c; v4 four-request binding and attempts/cpu_raw_identity_v4_01/comparison.json, all 786432 raw F32 bytes unchanged from independently GGUF-verified raw. v4 Host B1 IO/STATE0, frontend and persistent graph accepted. Old v3 evidence retained"
+    },
+    {
+      "id": "mixed_frontend_csim",
+      "status": "PASS_SCOPED",
+      "scope": "attempts/cpu_front_matrix_new_03/guard: v4 B1/S128 five-port CFO1 front chain; 131072 raw and norm F32 bit exact, 9 tasks/3 claims/0 EMB_TOKEN, owner/guards, descriptor reasons 1..14, raw reasons 15..16, LYRQ priority, gamma first cause, persistent larger-ID recovery. CSim only"
+    },
+    {
+      "id": "mixed_full_graph_csim",
+      "status": "PASS",
+      "scope": "attempts/cpu_full_persistent_06/guard: same-runtime v4 B2=37142 tasks, gamma failure=1 task/flags9, two B1=18887 tasks each; 141 independent checkpoints and 18094384 F32 bit exact, recovery; 148.91s peak RSS630324KiB. CSim only"
+    },
+    {
+      "id": "mixed_thin_hls_static",
+      "status": "PASS_SCOPED",
+      "scope": "attempts/cpu_front_hls_04 v4 HLS exit0, five 32-bit AXI ports, LUT135245 FF40011 BRAM18K69 DSP25 estimated 5.099ns; generated observed ARVALID tied zero. Formal cold TB static_06 XSim elaboration PASS: 140.39s, peak RSS2161596KiB, no ERROR/FATAL; snapshot/library hashes in static_result.json. Prior static_05 and static_04 evidence retained. No dynamic RTL claim."
+    },
+    {
+      "id": "mixed_frontend_rtl",
+      "status": "PASS_SCOPED",
+      "scope": "attempts/cpu_front_rtl_03/output_manifest.json and guard/driver.log: v4 real cold B1/S128 five-port RTL PASS_SCOPED, guard/monitor exit0, 3496.94s peak RSS859136KiB no trigger. TB reset-release first-done counter 31158417 cycles includes launch/AXI-Lite setup; exact AP accept not separately observed. 128 LN rows, 524288 norm bytes, independent 131072 raw and norm F32 bit exact (norm bit_equal 131072, max_abs/max_rel 0), captured norm equals frozen oracle byte-for-byte and seen all one; 432 observed words including owner/guard pass. First done physical/adapter debt 11111, final observed BVALID/BREADY 1/1 with one response, final R/B holds both 1. Existing 8192-cycle progress yields import first-byte-to-full 9.691-9.708M, LN first-activity-to-128-rows 19.366-19.382M including block exchanges, final row to norm full 1.384-1.401M cycles; phase_observations.json. At assumed 150MHz TB count 207.7ms (4.15x 50ms), with modeled AXI backpressure/control; no board Fmax claim. B2, warm reset, whole-graph RTL and board unverified. Prior cold rtl_01 and rtl_02 FAIL remain frozen."
+    },
+    {
+      "id": "mixed_frontend_reject_rtl",
+      "status": "PASS_SCOPED",
+      "scope": "attempts/cpu_front_reject_adapter_02 guard exit0/8.77s/23680 cycles, RSS859208KiB; same-v4 LYER CRC rejection, first ap_done physical and five-port adapter debt 11111, observed final BVALID/BREADY=1/1 and one response, independent 432 observed words with zero norm/import and descriptor_crc. Reject-only hold coverage not applicable, full cold hold assertion retained. attempts/cpu_front_reject_adapter_01 FAIL retained. No full LN numerical claim."
+    },
+    {
+      "id": "q8_tm1_tn8_gs32",
+      "status": "IN_PROGRESS_SOURCE / ACT_QKV1_QKV4_PASS_SCOPED / FULLPATH_II1_TARGET_NOT_MET / OOC42_TIMING_FAIL",
+      "scope": "Independent tm1tn8_gs32_512 module source exists. Isolated RTL PASS: integer_tree_01 exit0/936 signed lanes; trace_axi32_02 exit0/8 AW-W-B with final-B hold/fulltag ACK; reserved_store_04 exit0/Q32-D4 32 ordered commits with ACK/feedback. fp_ip_probe_07 exit0/37.10s/peak RSS1922288KiB: actual maximum-config sitofp/fmul/fadd latency readback 6/6/11 and isolated -7 to F32, 1*1, 1+2 PASS. arithmetic_pipeline_10 exit0/45.91s/peak RSS1998740KiB: 16 consecutive issues/128 lanes exact F32 in scale=1 old-PS=0 short case, four-slot trace/ACK and terminal debt PASS. Prior failed attempts including arithmetic_pipeline_01 false-green retained. Source root cause included reverse continuous wire alias/double driver leaving wide result bus undriven; reset/GSR/FIFO X handling also repaired, so earlier X cannot all be attributed to low-latency IP. arithmetic_act_real_16 guard exit0/44.91s/RSS1996668KiB: real ACT fixture one-row G8/T1, 8 issues with 252 bubbles, per-stage math scoped PASS. joint_act_19 guard exit0/46.21s/RSS2029464KiB: same fixture q/scale directly enters math->PS->bias->trace/512-bit writer bridge; groups8 lanes16 MAC512 trace B64 out B1 scoped PASS. Neither includes LOAD or quantizer generation of q/scale. joint_dma_csim_build_23 guard exit0/5.77s; joint_dma_csim_act_24 guard exit0/24.50s/RSS787232KiB: real ACT fixture CSim LOAD, 14 section-6.0 admission rejects, legal RUN recovery and bitwise q/half quantization plus group packet checks scoped PASS. Historical build_23 ap_int dynamic-range potential UB warning retained; source changed to bounded right shift plus 32-bit truncation without numeric rule change. build_26 guard exit0/5.38s and empty warning log. ACT_27 reuses build_26 binary, guard exit0/24.58s/RSS786424KiB; ACT LOAD, 14 rejects, legal RUN and quant/group checks re-pass. QKV_28 same binary guard exit0/33.58s/RSS786720KiB: real fixture K1024/N3072, rows1 and rows4, trace on/off, LOAD, 14 source/session rejects and recovery scoped CSim PASS. HLS config29 exit0. HLS30 top report attempts/task2_joint_dma_hls_30/work/hls/syn/report/q8_tm1tn8_joint_dma_csynth.rpt and guard_result.json: Vitis 2025.2 DMA-front RTL/IP generation PASS_SCOPED_GENERATION, exit0/68.88s/peak RSS2906980KiB/no guard trigger; front-only estimates LUT58640 FF31897 BRAM18K117 DSP26 URAM128, top latency unknown. HLS estimated 21.308ns (~46.93MHz) versus 6.667ns target, loop constraints unsatisfied: 150MHz TARGET_NOT_MET. This is not whole-prototype OOC resource or routed Fmax; ACT joint RTL pilot36 (attempts/task2_joint_dma_act_pilot_36/input_manifest.json, guard/driver.log) PASS_SCOPED on same HLS30 RTL, four FP XCI, joint wrapper and TB34, real ACT BO: guard exit0/79.66s/peak RSS2826176KiB. Physical LOAD/RUN counts q0R=32 scaleR=2 inputR=16 traceB=64 outB=1 obsB=37; 64 quant q words, four half words, 64 trace words and two N2 output F32 checked bitwise against independent fixture gold, with 8-byte WSTRB, observed non-use sentinel, no out1 write, and zero HLS/bridge/all-AXI-adapter debt at both command_done events. Pilot33 TB signal naming compile FAIL and pilot35 missing four HLS FP XCI elaboration FAIL remain frozen; pilot36 completes the positive ACT case without rerun. Scope of ACT pilot36 only B1/rows1 LOAD->quant->FP/PS/bias->physical trace/output. Earlier QKV bridge-only pilot39 (attempts/task2_joint_qkv_row1_pilot_39/guard/guard_result.json) hit 120.37s timeout, child exit -9, with no completed self-check; not full DMA QKV. Whole-joint OOC42 (attempts/task2_joint_dma_ooc_42/work/utilization.rpt, timing_summary.rpt, joint_ooc.dcp and guard/guard_result.json) on HLS30/wrapper31/RTL source: Vivado OOC synthesis PASS_SCOPED_SYNTH, exit0/970.55s/peak owned RSS22597912KiB below 24GiB cap/min MemAvailable398072112KiB/no guard trigger, about 48MiB DCP, no black boxes. Post-synthesis utilization LUT87794 FF171958 BRAM tile86 (RAMB36E2 72 plus RAMB18E2 28) URAM96 DSP458; total DSP count alone does not establish 256 integer-multiplier DSP mapping. At 6.667ns constraint, setup WNS -12.019ns/TNS -3803.124ns/393 failing endpoints and hold WHS -0.020ns/20 failing endpoints: TIMING_FAIL, not routed Fmax. HLS30 target-QoR failure remains. Old RTL ACT51 (attempts/task2_joint_dma_act_full_51/guard/driver.log) has same PS/bias source hashes as OOC42 and guard exit0/76.57s/RSS2562624KiB; passive per-stage dot=8 term=8 commits=8 checks cover two valid lanes in each of eight groups on the real BO chain, with pilot36 physical ACT coverage. Planned QKV52 pilot (attempts/task2_joint_dma_qkv_row1_pilot_52/guard/guard_result.json) hit 120.40s timeout before LOAD completion: cost stop, not functional FAIL. Formal old-RTL QKV53 (attempts/task2_joint_dma_qkv_row1_full_53/guard/driver.log) FAIL after 545.00s with no resource trigger: LOAD completed at 488555 cycles with q0/q1 each 24576 R and scale 3072 R; RUN reached activation64 R and traceB256, then physical out1 beat95 combined address/WSTRB/WLAST assertion failed. The original log does not isolate which field failed; full numerical and AXI retirement checks did not complete. Original failure logs/identities retained. Contract section 6.2.1 defines equivalent private 23-bit rank for PS/bias, unchanged external bad_element and no added pipeline. OOC42 two pre-change file hashes match attempts/task2_joint_dma_ooc_42/source_before before the new two-file RTL identity. New rank syntax56 xvlog exit0; new RTL ACT57 guard exit0/81.34s/RSS2555308KiB, same real ACT BO and all-valid-lane per-stage dot=8 term=8 commits=8 and physical output PASS_SCOPED. Positive ACT case does not establish first-error negative behavior or new timing. New RTL QKV58 (attempts/task2_joint_dma_qkv_row1_rank_diag_58/guard/driver.log and guard/guard_result.json) FAIL: child exit1/523.64s/peak RSS2748040KiB/no guard trigger. LOAD completed, but at physical out1 beat95 address matched and WLAST=1 while WSTRB was low 32 bytes only (0x00000000ffffffff) versus full 64 bytes; writer1 useful=6112B versus required 6144B. Full numerical and AXI terminal checks did not complete. Historical root cause was early writer flush from PS compute_done before pending bias drained on final n3064 tile; QKV58 remains FAIL. rank-state59 guard exit0 checks actual PS/bias error state, lower rank, ties and sentinel locally. ACT drain60 real full-BO positive regression exit0. QKV61 original FAIL after final physical output because TB wrongly expected total issues 12288 in observed word63, which records selected trace G32. New timing probe63 was actively SIGTERM due to probe race: child -15/112.04s/no guard trigger, NOT_RUN_ABORTED rather than functional FAIL. Timing TB69 original FAIL because new LOAD AP counter missed done and stopped before RUN. Final functional TB restored original body with only word63/trace condition/diagnostics corrected; QKV61 and QKV73 DUT source hashes match. QKV1 func73 (attempts/task2_joint_dma_qkv_row1_func_73/guard/driver.log, input_manifest.json, guard/guard_result.json) real-BO single-row trace-on joint RTL PASS_SCOPED, guard exit0/501.89s/peak RSS2773712KiB/no trigger: LOAD q0/q1 24576 R each and scale3072 R; RUN input64 R, dot/term/commits12288 groups each, traceB256, two output ports 192 B total, HLS observedB49. TB checks all valid-lane dot/dotf/scale product/term/PS, all 3072 scattered output F32, quant and trace values, observed non-use sentinel and all physical/adapter debt zero at first done against independent references. TB counter 515002 cycles is from reset release and includes LOAD, RUN and launch overhead, not segmented AP-accept-to-first-done. New real-BO RTL PASS_SCOPED: QKV4 trace-on 75, QKV1 trace-off 79, ACT trace-off 81, QKV4 trace-off 84, each with independent quant/group numeric and physical retirement checks within its TB scope; detailed cycles and evidence in latest_joint_dma_rtl below. QKV trace-off steady issue II1 TARGET_NOT_MET. Historical FAIL 53/58/61/69/77 and aborted 74 remain frozen. Actual producer/runtime owner connection, cross-request pipeline, board performance and full production inference accuracy unverified. Under user priority shift, new-RTL whole OOC is NOT_RUN_PRIORITY; P&R and dedicated timing repair deferred and not a current Task3 prerequisite, while necessary HLS-to-RTL/functional compilation and validation continue. Stage ACTIVE. Historical OOC42 TIMING_FAIL and HLS30 target-QoR failure remain. New Q35/parallel pack/independent TX: reserved-store88 PASS_SCOPED, repaired bridge91 two normal commands PASS_SCOPED; writer85/87 historical local PASS, with 87 pre-flush and no root input_manifest; current-identity nine-case specialty coverage is now PASS_SCOPED in 109. Bridge89 cost-stop and bridge90 diagnostic FAIL retained. Same current RTL identity ACT continuous two trace-off RUNs pass in 93/103 and QKV1 continuous two trace-off RUNs pass in 104; QKV1 single-row nonlast g<31 issue interval 1.000 PASS_SCOPED; QKV4 three 159-cycle next-row-compute/previous-row-last-B overlaps PASS_SCOPED, while full-path 860/3710 gaps under B_HOLD9 leave II1 TARGET_NOT_MET. QKV96 service-event assertion FAIL and ACT100 timing-poll assertion FAIL retained. Current-identity QKV4 trace-off 107 and QKV1 trace-on 108 full regressions PASS_SCOPED, and current writer nine-case 109 PASS_SCOPED with input manifest; 87 remains a distinct historical pre-flush pass. Detailed scope/cycles in q35_continuous_rtl. Whole prototype not PASS.",
+      "latest_joint_dma_rtl": {
+        "cycle_basis": "TB reset-release/segment counters, not exact AP-accept-to-completion latency or board Fmax/performance",
+        "numeric_scope": "isolated real-BO fixture, independent quant/group and output checks; not full production inference accuracy",
+        "qkv_steady_issue_ii1": "TARGET_NOT_MET",
+        "new_whole_ooc": "NOT_RUN_PRIORITY",
+        "attempts": [
+          {
+            "attempt": 74,
+            "case": "QKV4 pilot",
+            "status": "NOT_RUN_ABORTED",
+            "evidence": "attempts/task2_joint_dma_qkv_rows4_pilot_74/guard/guard_result.json",
+            "child_exit": -15,
+            "elapsed_s": 27.44,
+            "guard_trigger": null
+          },
+          {
+            "attempt": 75,
+            "case": "QKV4 trace-on",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_qkv_rows4_full_75/guard/driver.log",
+            "child_exit": 0,
+            "elapsed_s": 764.77,
+            "groups": 49152,
+            "effective_mac": 12582912,
+            "out_b": 768,
+            "trace_b": 256,
+            "observed_b": 100,
+            "tb_total_cycles": 583978,
+            "guard_trigger": null
+          },
+          {
+            "attempt": 77,
+            "case": "QKV1 trace-off",
+            "status": "FAIL",
+            "evidence": "attempts/task2_joint_dma_qkv_row1_traceoff_perf_77/guard/driver.log",
+            "child_exit": 1,
+            "reason": "TB expected q/half observations at word256 though trace-off leaves sentinel; subsequent TB corrected and group q/sa checked independently",
+            "elapsed_s": 515.27,
+            "guard_trigger": null
+          },
+          {
+            "attempt": 79,
+            "case": "QKV1 trace-off",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_qkv_row1_traceoff_perf_79/guard/driver.log",
+            "child_exit": 0,
+            "elapsed_s": 506.21,
+            "load_tb_cycles": 488555,
+            "run_tb_cycles": 24585,
+            "tb_total_cycles": 513140,
+            "groups": 12288,
+            "issue_span_cycles": 18410,
+            "issue_gap_cycles": 6122,
+            "gap_class": {
+              "result_credit": 6122
+            },
+            "effective_mac": 3145728,
+            "mac_per_run_tb_cycle": 127.953,
+            "mac_per_issue_span_cycle": 170.871,
+            "out_b": 192,
+            "trace_b": 0,
+            "observed_b": 32,
+            "guard_trigger": null
+          },
+          {
+            "attempt": 81,
+            "case": "ACT trace-off",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_act_traceoff_perf_81/guard/driver.log",
+            "child_exit": 0,
+            "elapsed_s": 78.74,
+            "load_tb_cycles": 3303,
+            "run_tb_cycles": 3477,
+            "groups": 8,
+            "issue_span_cycles": 260,
+            "issue_gap_cycles": 252,
+            "gap_class": {
+              "tile_busy": 245,
+              "pipeline": 7
+            },
+            "effective_mac": 512,
+            "mac_per_run_tb_cycle": 0.147,
+            "mac_per_issue_span_cycle": 1.969,
+            "out_b": 1,
+            "trace_b": 0,
+            "observed_b": 32,
+            "guard_trigger": null
+          },
+          {
+            "attempt": 84,
+            "case": "QKV4 trace-off",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_qkv_rows4_traceoff_f_84/guard/driver.log",
+            "child_exit": 0,
+            "elapsed_s": 756.12,
+            "load_tb_cycles": 488555,
+            "run_tb_cycles": 88079,
+            "tb_total_cycles": 576634,
+            "groups": 49152,
+            "issue_span_cycles": 75089,
+            "issue_gap_cycles": 25937,
+            "gap_class": {
+              "result_credit": 25937
+            },
+            "effective_mac": 12582912,
+            "mac_per_run_tb_cycle": 142.859,
+            "mac_per_issue_span_cycle": 167.573,
+            "out_b": 768,
+            "trace_b": 0,
+            "observed_b": 32,
+            "issue_to_ps_commit_cycles": {
+              "count": 49152,
+              "missing": 0,
+              "min": 34,
+              "max": 491,
+              "mean": 48.037,
+              "bins_lt32_lt64_lt128_lt256_lt512_ge512": [
+                0,
+                47546,
+                31,
+                61,
+                1514,
+                0
+              ]
+            },
+            "guard_trigger": null
+          }
+        ],
+        "interpretation_limit": "Result-credit is a TB stall category, not proof of fixed 48-cycle latency or sole queue-depth root cause; final group also depends on writer packing and AW/W/B."
+      },
+      "q35_continuous_rtl": {
+        "identity": {
+          "reserved_store_sha256_prefix": "31425d5a09b8b788",
+          "axi512_writer_sha256_prefix": "1606920748ffbbdb",
+          "writer_bridge_sha256_prefix": "83e8f9032e220f53",
+          "binding": "88 reserved-store, 91 writer/bridge, 93/103/104/107/108 RTL manifests and 109 current writer manifest agree on corresponding source hashes",
+          "writer_nine_case_current_identity": "PASS_SCOPED in 109 with five-input manifest; historical 87 predates flush repair and has no root input_manifest"
+        },
+        "cycle_basis": "TB wrapper command acceptance to first command_done; includes AXI-Lite/control configuration, HLS launch, done polling and physical-write retirement; not generated HLS internal AP accept-to-done, board performance, or whole-network requests/s",
+        "whole_path_ii1": "TARGET_NOT_MET",
+        "single_row_qkv1_nonlast_g_lt31_ii1": "PASS_SCOPED",
+        "attempts": [
+          {
+            "attempt": 85,
+            "case": "writer four-case short test",
+            "status": "PASS_SCOPED_HISTORICAL",
+            "evidence": "attempts/task2_writer_q35_85/guard/driver.log",
+            "manifest": "NOT_PRESENT",
+            "child_exit": 0,
+            "elapsed_s": 9.57,
+            "cases": 4,
+            "b_retired": 2
+          },
+          {
+            "attempt": 87,
+            "case": "writer nine-case split/backpressure/error-response short test",
+            "status": "PASS_SCOPED_HISTORICAL_PRE_FLUSH",
+            "evidence": "attempts/task2_writer_q35_87/guard/driver.log",
+            "manifest": "NOT_PRESENT",
+            "child_exit": 0,
+            "elapsed_s": 9.77,
+            "cases": 9,
+            "error_drain": 1
+          },
+          {
+            "attempt": 88,
+            "case": "Q35/D4 reserved-store short test",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_q35_credit_88/guard/driver.log",
+            "manifest": "attempts/task2_q35_credit_88/input_manifest.json",
+            "child_exit": 0,
+            "elapsed_s": 9.84,
+            "capacity": 35,
+            "depth": 4,
+            "commits": 105,
+            "coverage": "capacity, invalid slot, full tag and wraparound"
+          },
+          {
+            "attempt": 89,
+            "case": "Q35 bridge pilot",
+            "status": "NOT_RUN_COST_STOP",
+            "evidence": "attempts/task2_bridge_q35_89/guard/guard_result.json",
+            "child_exit": -9,
+            "elapsed_s": 120.33,
+            "guard_trigger": "timeout",
+            "self_check": "NOT_COMPLETED"
+          },
+          {
+            "attempt": 90,
+            "case": "second-command bridge diagnostic",
+            "status": "FAIL",
+            "evidence": "attempts/task2_bridge_diag_90/guard/driver.log",
+            "child_exit": 1,
+            "elapsed_s": 9.89,
+            "failure": "second configuration accepted, then watchdog before next tile"
+          },
+          {
+            "attempt": 91,
+            "case": "repaired bridge, two normal commands",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_bridge_fix_91/guard/driver.log",
+            "manifest": "attempts/task2_bridge_fix_91/input_manifest.json",
+            "child_exit": 0,
+            "elapsed_s": 9.84,
+            "commands": 2,
+            "b0": 2,
+            "b1": 1,
+            "coverage_limit": "does not establish current-writer nine-case split/backpressure/error-response specialty coverage"
+          },
+          {
+            "attempt": 93,
+            "case": "ACT one LOAD then two trace-off RUNs",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_act_cont_93/guard/driver.log",
+            "manifest": "attempts/task2_joint_dma_act_cont_93/input_manifest.json",
+            "child_exit": 0,
+            "elapsed_s": 77.49,
+            "load_tb_cycles": 3303,
+            "run_tb_cycles_each": 3473,
+            "issue_each": 8,
+            "issue_span_cycles_each": 260,
+            "issue_gap_cycles_each": 252,
+            "gap_class_each": {
+              "tile_busy": 245,
+              "pipeline": 7
+            },
+            "out_b_cumulative": [
+              1,
+              2
+            ],
+            "trace_b_cumulative": [
+              0,
+              0
+            ],
+            "observed_b_cumulative": [
+              32,
+              48
+            ]
+          },
+          {
+            "attempt": 96,
+            "case": "QKV1 continuation timing TB",
+            "status": "FAIL",
+            "evidence": "attempts/task2_joint_dma_qkv_row1_cont_96/guard/driver.log",
+            "child_exit": 1,
+            "elapsed_s": 494.6,
+            "failure": "service_event coverage assertion after RUN1 numeric/output PASS; RUN2 not executed"
+          },
+          {
+            "attempt": 100,
+            "case": "ACT continuation timing TB",
+            "status": "FAIL",
+            "evidence": "attempts/task2_joint_dma_act_timing_100/guard/driver.log",
+            "child_exit": 1,
+            "elapsed_s": 75.52,
+            "failure": "timing-poll assertion after RUN1 numeric/output PASS"
+          },
+          {
+            "attempt": 103,
+            "case": "ACT one LOAD then two trace-off RUNs, timed",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_act_timing_103/guard/driver.log",
+            "manifest": "attempts/task2_joint_dma_act_timing_103/input_manifest.json",
+            "child_exit": 0,
+            "elapsed_s": 77.68,
+            "load_tb_cycles": 3303,
+            "run_tb_cycles_each": 3473,
+            "wrapper_accept_to_done_cycles_each": 3471,
+            "consecutive_done_interval_cycles": 3473,
+            "control_gap_cycles": 2,
+            "issue_each": 8,
+            "issue_span_cycles_each": 260,
+            "issue_gap_cycles_each": 252,
+            "gap_class_each": {
+              "tile_busy": 245,
+              "pipeline": 7
+            },
+            "out_b_cumulative": [
+              1,
+              2
+            ],
+            "trace_b_cumulative": [
+              0,
+              0
+            ],
+            "observed_b_cumulative": [
+              32,
+              48
+            ]
+          },
+          {
+            "attempt": 104,
+            "case": "QKV1 one LOAD then two trace-off RUNs, timed",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_qkv_row1_cont_104/guard/driver.log",
+            "manifest": "attempts/task2_joint_dma_qkv_row1_cont_104/input_manifest.json",
+            "child_exit": 0,
+            "elapsed_s": 579.3,
+            "peak_owned_rss_kib": 2627540,
+            "load_tb_cycles": 488555,
+            "run_tb_cycles_each": 18935,
+            "wrapper_accept_to_done_cycles_each": 18933,
+            "consecutive_done_interval_cycles": 18935,
+            "control_gap_cycles": 2,
+            "groups_each": 12288,
+            "output_f32_each": 3072,
+            "issue_span_cycles_each": 13148,
+            "issue_gap_cycles_each": 860,
+            "gap_class_each": {
+              "result_credit": 860
+            },
+            "nonlast_issue_count_each": 11904,
+            "nonlast_issue_interval_cycles_each": 1.0,
+            "q_occupancy_max": 35,
+            "out_b_cumulative": [
+              192,
+              384
+            ],
+            "trace_b_cumulative": [
+              0,
+              0
+            ],
+            "observed_b_cumulative": [
+              32,
+              48
+            ],
+            "issue_to_ps_commit_each": {
+              "count": 12288,
+              "missing": 0,
+              "min": 34,
+              "max": 134,
+              "mean": 36.581
+            }
+          },
+          {
+            "attempt": 107,
+            "case": "QKV4 trace-off full current-identity regression",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_qkv_rows4_reg_107/guard/driver.log",
+            "manifest": "attempts/task2_joint_dma_qkv_rows4_reg_107/input_manifest.json",
+            "input_count": 242,
+            "child_exit": 0,
+            "elapsed_s": 731.46,
+            "peak_owned_rss_kib": 2778352,
+            "load_tb_cycles": 488555,
+            "run_tb_cycles": 65465,
+            "wrapper_accept_to_done_cycles": 65463,
+            "tb_total_cycles": 554020,
+            "groups": 49152,
+            "dot": 49152,
+            "term": 49152,
+            "commits": 49152,
+            "output_f32": 12288,
+            "issue_span_cycles": 52862,
+            "issue_gap_cycles": 3710,
+            "gap_class": {
+              "result_credit": 3710
+            },
+            "q_occupancy_max": 35,
+            "out_b_total": 768,
+            "out_b_each_port": 384,
+            "trace_b": 0,
+            "observed_b": 32,
+            "next_row_overlap_cycles": [
+              159,
+              159,
+              159
+            ],
+            "cross_row_nonlast_issue_count": 47616,
+            "cross_row_nonlast_issue_interval_cycles": 1.084049,
+            "out_b_interval_each_port_cycles": 107.148825,
+            "scope": "independent numeric, output, sentinel and first-done zero-debt checks; cross-row aggregates are not pure service II"
+          },
+          {
+            "attempt": 108,
+            "case": "QKV1 trace-on full current-identity regression",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_joint_dma_qkv_row1_on_108/guard/driver.log",
+            "manifest": "attempts/task2_joint_dma_qkv_row1_on_108/input_manifest.json",
+            "input_count": 242,
+            "child_exit": 0,
+            "elapsed_s": 487.29,
+            "peak_owned_rss_kib": 2796924,
+            "load_tb_cycles": 488555,
+            "run_tb_cycles": 20799,
+            "wrapper_accept_to_done_cycles": 20797,
+            "tb_total_cycles": 509354,
+            "groups": 12288,
+            "output_f32": 3072,
+            "issue_span_cycles": 13148,
+            "issue_gap_cycles": 860,
+            "gap_class": {
+              "result_credit": 860
+            },
+            "nonlast_issue_count": 11904,
+            "nonlast_issue_interval_cycles": 1.0,
+            "q_occupancy_max": 35,
+            "out_b": 192,
+            "trace_b": 256,
+            "observed_b": 49
+          },
+          {
+            "attempt": 109,
+            "case": "current-identity writer nine-case split/backpressure/error-response short regression",
+            "status": "PASS_SCOPED",
+            "evidence": "attempts/task2_writer_q35_current_109/guard/driver.log",
+            "manifest": "attempts/task2_writer_q35_current_109/input_manifest.json",
+            "input_count": 5,
+            "child_exit": 0,
+            "elapsed_s": 10.93,
+            "peak_owned_rss_kib": 793544,
+            "cases": 9,
+            "error_drain": 1,
+            "axi512_writer_sha256_prefix": "1606920748ffbbdb"
+          }
+        ],
+        "pending_current_identity_regressions": [],
+        "interpretation_limit": "QKV1 single-row g<31 interval 1.000 is local, not full-path II1; QKV4 cross-row 1.084 interval and per-port B mean 107.149 span row boundaries/output phases and are not pure service II. Three 159-cycle row overlaps establish tile-level overlap, not cross-request throughput. Under fixed B_HOLD9 full-path II1 TARGET_NOT_MET; no new whole OOC/P&R/board, actual producer/runtime-owner integration, whole-network throughput, 50ms, full model or dataset accuracy."
+      }
+    },
+    {
+      "id": "qkv_rope_attention",
+      "status": "NOT_RUN_DEPENDENCY",
+      "scope": "Real 128-row dual-shard QKV through RoPE and 16-head Attention depends on Task1 real CPU raw-to-LN numeric/owner and Task2 actual producer/runtime-owner integrated ACT/QKV numeric/protocol and usable cycles. Old-identity isolated real-BO ACT/QKV1/QKV4 trace-on/off cases and new Q35 ACT/QKV1 two-RUN trace-off plus QKV4 trace-off and QKV1 trace-on full isolated regressions are PASS_SCOPED; QKV1 single-row nonlast g<31 II1 is PASS_SCOPED, but full-path II1 TARGET_NOT_MET; they do not establish the continuous chain or cross-request pipeline. New whole OOC/resource closure/physical timing are not current Task3 prerequisites."
+    },
+    {
+      "id": "physical_platform",
+      "status": "NOT_RUN",
+      "scope": "No board; P&R/Fmax, XRT/HBM/PCIe actual performance and 50ms pending"
+    }
+  ],
+  "whole_offline_complete": false
+}

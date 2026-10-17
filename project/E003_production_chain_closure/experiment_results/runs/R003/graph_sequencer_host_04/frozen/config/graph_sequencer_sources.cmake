@@ -1,0 +1,22 @@
+set(LAYA_GRAPH_SEQUENCER_SOURCES
+  hls/common/laya_numeric.cpp
+  hls/common/laya_tasks.cpp
+  hls/common/laya_task_retirement.cpp
+  hls/common/laya_memory_map.cpp
+  hls/common/laya_full_io.cpp
+  hls/common/laya_cpu_embedding_io.cpp
+  hls/common/laya_full_memory.cpp
+  hls/common/laya_full_owner.cpp
+  hls/memory/full_loader.cpp
+  hls/control/full_result.cpp
+  hls/control/full_forward_controller.cpp
+  hls/platform/compute_portal_client.cpp
+  hls/platform/compute_portal_commit.cpp
+  hls/platform/generated_provenance_events.cpp
+  hls/platform/producer_engine_client.cpp
+  hls/platform/controller_transaction_codec.cpp
+  hls/platform/controller_transaction_hls.cpp
+  hls/platform/controller_transaction_dispatch.cpp
+  hls/laya_forward_full.cpp
+  hls/platform/full_kernel_wrapper.cpp
+)

@@ -1,0 +1,1 @@
+This module has no custom DUT RTL. The exact frozen HLS Verilog stays in the V5 synthesis work directory. Static endpoint and testbench adapters are referenced from `tb/` and the accepted bounded-static endpoint path.

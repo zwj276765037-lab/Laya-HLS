@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "bootstrap-source-guard-prototype-review-20261012",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# Source guard原型审核：限定接纳，F15终态释放与producer准入竞态待修\n\n回复：`bootstrap-source-guard-prototype-milestone-20261012`  \n审核：`R-SM003-BOOTSTRAP-SOURCE-GUARD-PROTOTYPE-20261012`  \n范围：M003/SM003/E003/R003；沿D-M003-EXECUTOR-BOOTSTRAP-SOURCE-01。\n\n**接纳bootstrap_source_guard_rtl_04的PASS_SCOPED_RTL_SOURCE_GUARD_PROTOTYPE，以及snapshot_rtl_04/monitor_12各自冻结fixture的兼容结论。新增F15/P1：安全action完成消费后的producer准入与guard释放存在同拍竞态，属静态发现、尚未动态复现。生产source保护仍未关闭；先补这个边界，再按原授权继续真实接线，不新增审批或预算。**\n\n## 证据与身份\n\n主控独立核61/61 frozen/声明pair与11/11交付SHA相符；三原始PASS marker、receipt与guard终态一致，child0/trigger null。18+21+18条实际policy均为CPU0–3/nice19/idle I/O，8GiB/120s/120s进度策略、MemAvailable门和启动结束串行无重叠均核过。guard/snapshot/monitor分别9061/8725/3097cycles，29.612215/29.240072/25.881916s，峰值1545404/1500784/1562800KiB。只签pilot范围，无full或性能外推。主控未运行编译、RTL仿真、HLS或新agent。\n\n工程交付时登记后56/61 current、232/237引用是其历史核查时点。本审核采样时工程已在推进后续修改，实际为48/61 current、224/237引用；13处差异中5处与原catalog delta逐SHA一致，另外8处是6个不同实现/TB/runner/fixture文件的后续live变化。其中hub/TB/runner/fixture六处引用与后续guard_06冻结源匹配，portal/monitor TB两处为本次采样保存的继续开发版本。所有不匹配引用均指向live original，冻结DUT、输入及运行证据没有变化。本审核不以旧PASS代签这些新版本，也不把当前差异误写为只有metadata。详见[独立核查](bootstrap_source_guard_prototype_review_20261012/verification.json)。后续_05/_06不在本次功能审核范围。\n\n历史_01/02 FAIL保持，原日志分别在INVALIDATE/越界AR断言停止。_01→02确有guard语义加强及TB settle/负例增加，_02→03仅TB AR settle/诊断，_03→04仅guard/TB增加query_pending及合法nonquiescent负响应处理。snapshot_03→04与monitor_11→12分别仅共同hub源改变。共同文件数若不含外部合同为22/19/17，含合同即23/20/18，沿交付计数口径记录，无须改旧证据。\n\n## 接纳的有限行为\n\n唯一hub的原owner/model/descriptor/window数组仍为发布权威，guard只缓存查询事务键；没有第二READY/发布表。成功snapshot实际消费后建立proof，合法非quiescent负响应不给读取资格且不毒化后继查询。当前冻结门阻止相同source失效/换epoch/同role重叠alias与identity切换，允许合法非重叠目标CLAIM/INVALIDATE。\n\n受控peer确实完成1 AR/64 R、4096B及读债归零；越界AR拒绝。这里是相同allowed条件下的受控握手计数，不是已经接到生成LN master两侧VALID/READY的生产接口。producer两尾拍/末拍、action两尾拍/末拍均停读12周期且保护不提前释放。producer FIFO仍为0..7传输probe，不是合法LPC1；F9验证与同一consumer绑定继续待做。LAC1坏ordinal、非终态、保留位和LOCAL_REJECT+OK不给释放资格；匹配安全错误完整消费后，在物理安全及无读债/producer条件下释放。第二次proof/action后的prestart cancel保留source直到安全错误完成消费，随后hub原取消清理生效。\n\n这些行为没有签本action真实typed退休、合法LAC1成功的动态生产路径、完整rows16数值读取、LN算术或部分store取消恢复。source冲突请求的12周期排斥后由TB撤valid，仍只证明排斥，不证明共用入口任意持续冲突下旧END/cleanup进展。完整跨role/不同base物理alias、所有写/修改入口、13BO生命周期与真实physical_safe来源继续是生产接线义务；工程正在准备的后续有界拒绝/旧END回归另按新身份提交。\n\n## F15：终态已经消费，仍可同时接收producer并释放保护\n\n位置：冻结`laya_bootstrap_source_guard_v1.sv`中`producer_ready`（124–126行）、producer握手置active（162–167行）、安全LAC1锁存（181行）、释放分支（197–199行）。当前live guard与该冻结guard逐字相同。\n\n静态可达边界如下，未运行动态复现：\n\n1. 一次匹配安全LAC1末拍实际消费后，`action_safe_consumed=1`，但`action_active=1`、`guard_active=1`、`proof_valid=1`仍保持到释放时钟沿；此时producer已结束、read_debt=0、physical_safe=1、无cancel/AR/error。\n2. 在这个释放周期，若完整绑定的producer保持/新置valid，`producer_ready`仍可为1，因为它没有排除`action_safe_consumed`。\n3. 同一时钟沿，producer握手把`producer_active`置1；释放分支使用旧`!producer_active`，同时清guard/proof/action。形成`producer_active=1 && guard_active=0`，hub来源修改门已打开而producer已被接收，后续source AR又被guard=0挡住。\n\n这不是已测数值错误，而是明确的准入/保护状态不一致，可使新接收工作停在无保护状态。当前TB在安全完成消费期间保持producer_valid=0，所以原PASS不覆盖此边界。\n\n修复须让终态消费后的“禁止新producer”状态与释放决定一致；同时处理安全末拍消费当拍、下一释放拍和physical_safe延迟时的持续valid。可以在唯一shell局部门控并让释放考虑当拍实际准入/下一状态，或给出同shell强制互斥的实现及动态证据，不能仅依赖TB撤valid或注释声明executor不会发。不要用直接清producer_active掩盖已经发生的握手。\n\n受影响负例至少覆盖：完整绑定producer在安全LAC1末拍及紧邻释放拍持续valid；physical_safe暂为0再恢复；producer完成尾拍/残余R债与安全action完成交错。要求无终态后新producer/AR、无`producer_active && !guard_active`、旧债务和完成先正常消费再释放；新action必须重新取得匹配proof。保留既有坏完成/prestart cancel/默认禁用兼容断言。按原帽做有界回归，不重跑无关HLS/数值full。\n\n## 后续与总状态\n\n修复F15并完成来源入口保护后，将guard接入唯一实际producer及F9已核LPC1 consumer、source AR两侧、完整写/修改仲裁、13BO/base与真实monitor/hub/adapter fence；独立executor top/8–4 action consumer及F10 24–16真实LTC1读取连接继续原任务。源保护证据闭合后串行生成有结构差异的executor，再接实际LN→monitor/hub→真实completion构造END/唯一退休→Q/fullA独立gold。\n\nF14与此前限定关闭保持，C009部分实施/awaiting_implementation并跟踪F15，C008/C010整体待验；L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成。G余2338.224019s和原单重工具/资源帽保持，5172s组合不重启，无新增OOC/P&R/上板、agent或预算。\n",
+  "in_reply_to": "bootstrap-source-guard-prototype-milestone-20261012",
+  "message_file": "results/bootstrap_source_guard_prototype_reply_20261012.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "b4a52382502aae4f46c6051fba3386ffc8360e614effc0ddea8fae3a4e6f2984",
+  "created_at": "2026-10-12T14:51:37.122822+00:00",
+  "status": "delivered",
+  "client_user_message_id": "bfb09f93-214d-406c-8f65-d2d75dbefc0a",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T14:51:37.154604+00:00",
+  "recipient_turn_id": "01a13016-56a7-7aa2-b0c9-e2452f18f251"
+}

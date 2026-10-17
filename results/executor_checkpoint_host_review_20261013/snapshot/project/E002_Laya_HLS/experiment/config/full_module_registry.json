@@ -1,0 +1,278 @@
+{
+  "schema": "laya_p2_f0_module_registry_v1",
+  "target": "laya_full",
+  "top": "laya_typed_q8_forward",
+  "generated_controller_top": "laya_typed_q8_forward_controller",
+  "graph_sequencer_top": "laya_typed_q8_forward_graph_sequencer",
+  "production_shell_top": "laya_typed_q8_forward",
+  "private_portal": {
+    "command": "ap_fifo<ap_uint<512>> output, 16 beats per command",
+    "response": "ap_fifo<ap_uint<512>> input, 8 beats per response",
+    "fifo_depth": 2,
+    "wire_version": 2
+  },
+  "implementation_state": "implemented_pending_final_validation",
+  "phase_baseline": {
+    "cpu": "unverified_current_build",
+    "csim": "unverified_current_build",
+    "csynth": "unverified_current_build",
+    "rtl_cosim": "unverified_current_build",
+    "platform": "unverified_current_build"
+  },
+  "modules": {
+    "top": [
+      "hls/laya_forward_full.cpp"
+    ],
+    "common": [
+      "hls/common/laya_numeric.cpp",
+      "hls/common/laya_tasks.cpp",
+      "hls/common/laya_task_retirement.cpp"
+    ],
+    "kernel_wrapper": [
+      "hls/platform/full_kernel_wrapper.cpp",
+      "hls/platform/full_cache_storage.cpp",
+      "hls/platform/compute_portal_codec.cpp",
+      "hls/platform/compute_portal_client.cpp",
+      "hls/platform/compute_portal_hls.cpp",
+      "hls/platform/compute_portal_dispatch.cpp",
+      "hls/platform/compute_portal_commit.cpp",
+      "hls/platform/generated_provenance_codec.cpp",
+      "hls/platform/generated_provenance_client.cpp",
+      "hls/platform/generated_provenance_hls.cpp",
+      "hls/platform/generated_provenance_events.cpp",
+      "hls/platform/generated_provenance_ledger.cpp",
+      "hls/platform/producer_engine_codec.cpp",
+      "hls/platform/producer_engine_hls.cpp",
+      "hls/platform/producer_engine_client.cpp",
+      "hls/common/laya_full_io.cpp",
+      "hls/common/laya_cpu_embedding_io.cpp"
+    ],
+    "forward_controller": [
+      "hls/control/full_forward_controller.cpp",
+      "hls/operators/full_tasks.cpp"
+    ],
+    "memory_map": [
+      "hls/common/laya_memory_map.cpp",
+      "hls/common/laya_full_memory.cpp"
+    ],
+    "hbm_loader_and_cache": [
+      "hls/memory/full_loader.cpp",
+      "hls/common/laya_full_owner.cpp"
+    ],
+    "embedding_engine": [
+      "hls/operators/embedding_full_compute.cpp",
+      "hls/operators/full_tasks_front.cpp"
+    ],
+    "layernorm_engine": [
+      "hls/operators/layernorm_compute.cpp",
+      "hls/operators/full_tasks_front.cpp",
+      "hls/operators/layernorm_producer_engine.cpp"
+    ],
+    "activation_quantizer": [
+      "hls/operators/activation_quantizer_compute.cpp",
+      "hls/operators/full_tasks.cpp"
+    ],
+    "q8_linear_and_restore": [
+      "hls/operators/q8_linear_compute.cpp",
+      "hls/operators/full_tasks.cpp"
+    ],
+    "rope_and_mask": [
+      "hls/operators/rope_full_compute.cpp",
+      "hls/operators/full_tasks_attention.cpp"
+    ],
+    "attention_and_fp_engine": [
+      "hls/operators/attention_full_compute.cpp",
+      "hls/operators/full_tasks_attention.cpp",
+      "hls/operators/full_tasks_tail.cpp"
+    ],
+    "vector_and_ffn": [
+      "hls/operators/vector_full_compute.cpp",
+      "hls/operators/full_tasks_vector.cpp",
+      "hls/operators/vector_libm_bits.cpp"
+    ],
+    "decision_scorer_act": [
+      "hls/operators/decision_full_compute.cpp",
+      "hls/operators/full_tasks_tail.cpp"
+    ],
+    "result_status": [
+      "hls/control/full_result.cpp"
+    ],
+    "graph_program_sequencer": [
+      "hls/control/graph_action_protocol.cpp",
+      "hls/control/graph_program_protocol.cpp",
+      "hls/control/graph_program_sequencer.cpp",
+      "hls/control/graph_program_hls.cpp"
+    ],
+    "task_lifecycle_executor": [
+      "hls/control/task_lifecycle_executor.cpp",
+      "hls/platform/generated_provenance_events.cpp",
+      "hls/platform/producer_engine_client.cpp",
+      "hls/platform/controller_transaction_dispatch.cpp"
+    ]
+  },
+  "rtl_service_models": {
+    "attention_and_fp_engine": [
+      "vivado/module_design/attention_and_fp_engine/source/attention_service.cpp",
+      "vivado/module_design/attention_and_fp_engine/source/attention_exp_bits.cpp"
+    ],
+    "activation_quantizer": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/source/blackbox/laya_quant_group_service.cpp"
+    ],
+    "q8_linear_and_restore": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/source/blackbox/laya_tm4_group_service.cpp"
+    ]
+  },
+  "production_hls_partitions": "config/production_hls_partitions.json",
+  "partitioned_controller_sources": "config/partitioned_controller_sources.cmake",
+  "graph_sequencer_sources": "config/graph_sequencer_sources.cmake",
+  "controller_adapter_sources": "config/controller_adapter_sources.cmake",
+  "controller_internal_schema": {
+    "header": "include/laya_controller_transaction.h",
+    "hls_header": "include/laya_controller_transaction_hls.h",
+    "adapter_header": "include/laya_controller_transaction_adapter.h",
+    "codec": "hls/platform/controller_transaction_codec.cpp",
+    "hls_stream_codec": "hls/platform/controller_transaction_hls.cpp",
+    "dispatch_header": "include/laya_controller_transaction_dispatch.h",
+    "dispatch": "hls/platform/controller_transaction_dispatch.cpp",
+    "adapter": "hls/platform/controller_transaction_adapter.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_controller_transaction_layout_v1.sv"
+  },
+  "rtl_shell_sources": {
+    "generated_provenance": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_model_identity_13bo_generated_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_compute_portal_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_portal_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_store_monitor_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_axi_portal_v1.sv"
+    ],
+    "layernorm_producer_portal": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_model_identity_13bo_generated_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_compute_portal_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_portal_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_store_monitor_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_axi_portal_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_layernorm_producer_portal_shell_v1.sv"
+    ],
+    "layernorm_quant_source": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_model_identity_13bo_generated_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_compute_portal_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_portal_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_store_monitor_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_axi_portal_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_layernorm_producer_portal_shell_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_gate_quant_portal_decode_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_wi_axi_reader_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_gate_quant_portal_binding_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_layernorm_quant_source_shell_v1.sv"
+    ],
+    "graph_program": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_control_consumption_gate_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_shell_v1.sv"
+    ],
+    "bootstrap_snapshot": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_model_identity_13bo_generated_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_compute_portal_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_snapshot_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_store_monitor_v1.sv"
+    ],
+    "bootstrap_source_guard": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_model_identity_13bo_generated_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_compute_portal_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_snapshot_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_store_monitor_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_source_guard_v1.sv"
+    ],
+    "layernorm_guarded_source": [
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_model_identity_13bo_generated_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_compute_portal_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_layout_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_portal_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_store_monitor_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_axi_portal_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_source_guard_v1.sv",
+      "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_layernorm_producer_portal_shell_v1.sv"
+    ]
+  },
+  "graph_program_top": "laya_graph_program_sequencer",
+  "task_lifecycle_executor_top": "laya_task_lifecycle_executor",
+  "graph_program_sources": "config/graph_program_sources.cmake",
+  "task_lifecycle_executor_sources": "config/task_lifecycle_executor_sources.cmake",
+  "graph_action_registry": "config/graph_action_registry.json",
+  "graph_action_schema": {
+    "header": "include/laya_graph_action_protocol.h",
+    "codec": "hls/control/graph_action_protocol.cpp",
+    "program_header": "include/laya_graph_program_sequencer.h",
+    "program": "hls/control/graph_program_sequencer.cpp",
+    "accepted_request_header": "include/laya_graph_program_protocol.h",
+    "accepted_request_codec": "hls/control/graph_program_protocol.cpp",
+    "program_hls_header": "include/laya_graph_program_hls.h",
+    "program_hls_top": "hls/control/graph_program_hls.cpp",
+    "executor_header": "include/laya_task_lifecycle_executor.h",
+    "executor": "hls/control/task_lifecycle_executor.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_action_layout_v1.sv",
+    "accepted_request_sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+    "executor_fsm_header": "include/laya_task_lifecycle_fsm.h",
+    "executor_fsm": "hls/control/task_lifecycle_fsm.cpp"
+  },
+  "task_lifecycle_fsm_sources": "config/task_lifecycle_fsm_sources.cmake",
+  "task_lifecycle_port_sources": "config/task_lifecycle_port_sources.cmake",
+  "executor_bootstrap_sources": "config/executor_bootstrap_sources.cmake",
+  "bootstrap_snapshot_schema": "include/laya_bootstrap_snapshot.h",
+  "bootstrap_source_guard": {
+    "source": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_bootstrap_source_guard_v1.sv",
+    "validation": "F15 scoped closure on guard_07 retained; F16 controller closure R-SM003-GUARDED-LAYERNORM-F16-20261012 on frozen hub, actual C++ decoder/adapter and finite RTL. Full source protection remains pending.",
+    "snapshot_arbitration": "bootstrap_snapshot_rtl_05 F14 scoped compatibility",
+    "actual_generated_LN": "project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_guarded_source_05",
+    "production_limit": "real executor/action top, complete rows16/tensor action, all 13BO/base lifecycle and mutation paths, active cancellation recovery, full graph/request"
+  },
+  "executor_checkpoint": {
+    "contract": "results/executor_checkpoint_high_water_contract_20261012.md",
+    "mode": "finite same-admitted-request NORM_LAYER1_ATTN diagnostic only",
+    "request_magic": "LBS2",
+    "response_magic": "LBR2",
+    "version": 2,
+    "bytes": 1024,
+    "beats512": 16,
+    "target_domains": 1,
+    "sources": 1,
+    "header": "include/laya_executor_checkpoint.h",
+    "codec": "hls/control/executor_checkpoint_protocol.cpp",
+    "import_helper": "hls/control/executor_checkpoint.cpp",
+    "shared_sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_executor_checkpoint_layout_v2.sv",
+    "source_closure": "config/executor_checkpoint_sources.cmake",
+    "high_water_authority": {
+      "task": "unique hub typed_last_task, diagnostic baseline without local retirement",
+      "LPV": "actual laya_generated_provenance_v1.last_event_seq via unique shell, never accepted_events",
+      "source_target_epoch": "complete physical allocation-domain history plus larger retained local floors",
+      "producer_compute": "retained executor/transport; not imported from hub",
+      "action": "program allocation; retained executor validation floor"
+    },
+    "atomic_import": "whole-frame/binding/known/complete/no-hole/geometry/capacity/overflow checks before source mirror, inactive target epoch-history cache, allocator and predecessor baseline commit; no TaskDone, retirement, owner claim or publication during import",
+    "validation": "PASS_SCOPED_HOST executor_checkpoint_host_04: 2048B independent oracle, 46 wire/36 import/4 prepare negatives, dynamic bases4/7/3 and LPV23/97/119, actual C++ program/port/FSM/adapter four retirements per action; controlled snapshot/fences/remote responses",
+    "hardware_state": "NOT_RUN: actual hub/transport v2 authority, 16beat depth2 handshake, dispatch handoff/source-target protection and executor top pending",
+    "v1": "768B LBS1/LBR1 remains source-only; cannot enable v2 floor import",
+    "scope": "No full graph, encoder arithmetic, actual LN in this host runtime, final13BO, unknown-hole/partial-failure recovery or physical resource/timing claim"
+  },
+  "executor_checkpoint_sources": "config/executor_checkpoint_sources.cmake"
+}

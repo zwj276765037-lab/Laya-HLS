@@ -1,0 +1,40 @@
+--- AT056_FFN0_single_runtime_02/frozen_new/ffn0_admission_short_tb_v1.sv
++++ AT057_FFN0_single_runtime_03/frozen_new/ffn0_admission_short_tb_v1.sv
+@@ -169,6 +169,10 @@
+     source_q_command[laya_compute_portal_layout_v1::LINEAR_CONTEXT*8+32+:8]=8'h32;
+     source_q_command[laya_compute_portal_layout_v1::FUTURE_DST_REF*8+:64]=
+       64'h0000000600000001;
++    if(source_q_command[laya_compute_portal_layout_v1::GENERATION*8+:64]
++         ==source_q_command[(laya_compute_portal_layout_v1::IDENTITY+8)*8+:64] ||
++       source_q_command[(laya_compute_portal_layout_v1::IDENTITY+8)*8+:64]!=1)
++      $fatal(1,"fixture must distinguish portal and model generation");
+     cfg_numeric_identity=source_q_command[
+       laya_compute_portal_layout_v1::IDENTITY*8+:672];
+     cfg_linear_context=source_q_command[
+@@ -208,6 +212,18 @@
+       $fatal(1,"bad BO failed zero-AXI rejection");
+     @(negedge clk);down_candidate_valid=0;cfg_bo_base=64'h310000000;
+     tick();
++    @(negedge clk);ledger_claim_ready=0;down_candidate_valid=1;
++    #1;if(matrix_cfg_valid || down_candidate_ready)
++      $fatal(1,"matrix issued before atomic ledger readiness");
++    tick();@(negedge clk);down_candidate_valid=0;ledger_claim_ready=1;
++    cfg_linear_context[31:0]=32'hac000008;
++    down_candidate_valid=1;#1;
++    if(matrix_cfg_valid || !down_candidate_ready)
++      $fatal(1,"wrong Down context issued matrix");
++    tick();if(!down_candidate_reject)$fatal(1,"wrong context not rejected");
++    @(negedge clk);down_candidate_valid=0;
++    cfg_linear_context[31:0]=32'hac000006;
++    tick();
+     @(negedge clk);down_candidate_valid=1;
+     #1;if(!matrix_cfg_valid || !down_candidate_ready)$fatal(1,"legal Down not issued");
+     tick();if(!tmp_reserved || !hidden_ticket_reserved || down_candidate_reject)
+@@ -233,6 +249,7 @@
+     @(negedge clk);down_done_valid=1;
+     tick();@(negedge clk);down_done_valid=0;
+     if(!down_done_consumed || !residual_cfg_valid || handoff_error ||
++       residual_generation!=1 ||
+        residual_src0_ref!==64'h0000000300000001)
+       $fatal(1,"actual done consumption did not authorize TMP bank0");
+     residual_cfg_ready=1;tick();

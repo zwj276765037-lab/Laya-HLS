@@ -1,0 +1,7 @@
+# Checkpoint report recovery status
+
+2026-10-09, GPT-6 Sol / max source preparation. The checkpoint-only recovery has not run. Its execution budget, guard invocation, report completeness, Ws primitive mapping, high-address connectivity and any timing diagnostic are pending Astra review and a separate bounded execution release.
+
+The upstream entry-a2 top synthesis completed after one launch with 108 DAT files verified in its actual run directory, an accepted 243-file compile closure, zero synthesis errors/critical warnings/warnings, zero blackboxes and one `ap_clk`. The saved report DCP is SHA256 `c480c9334ed20d775c5a768e077b15fa9ad1932cb6535ae639d9b9524c11f1ce`. The parent reporting stage exited 1 at Vivado `[Common 17-170] Unknown option '-unconstrained'`. The owned-process guard did not trigger; its peak RSS was 26,748,960 KiB and minimum MemAvailable was 429,821,260 KiB. The actual evidence is [here](../../runs/top_synth_v1_entry_a2_control/top_synth_actual_result_evidence.json).
+
+The existing DCP, utilization, hierarchical utilization, clocks and `check_timing` reports are partial synthesis characterization. No complete Ws inventory or high-address proof exists yet. The recovery source uses the unchanged Ws report Tcl and an option documented by the installed Vivado 2025.2 timing-summary manual. The future DCP-only report process must not be counted as another synthesis, implementation or routed timing run. Its output remains review-required even if Vivado exits 0.

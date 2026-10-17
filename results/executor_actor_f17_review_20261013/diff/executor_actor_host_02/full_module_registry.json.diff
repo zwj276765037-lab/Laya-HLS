@@ -1,0 +1,36 @@
+--- executor_actor_host_02/full_module_registry.json
++++ actor_04/full_module_registry.json
+@@ -302,5 +302,32 @@
+     "dispatch": "predecessor fully drains then holds; hub response owned through actual 16th read; once-only successor selection on same LPV FIFO; base/cancel revoke authority. Diagnostic phase once per reset, not accepted-request restart.",
+     "base_authority": "live monitored BO base, snapshot configuration and historical base continuity all gate authority; snapshot epoch/base or actual monitored-base change revoke; _06 covers five reset-separated modes"
+   },
+-  "executor_checkpoint_sources": "config/executor_checkpoint_sources.cmake"
++  "executor_checkpoint_sources": "config/executor_checkpoint_sources.cmake",
++  "executor_handoff_actor_preparation": {
++    "state": "PASS_SCOPED_HOST_HANDOFF_ACTOR_PREPARATION",
++    "contract": "results/executor_checkpoint_import_handshake_contract_20261013.md",
++    "header": "include/laya_executor_actor.h",
++    "implementation": "hls/control/executor_actor.cpp",
++    "sources": "config/executor_actor_sources.cmake",
++    "control_header": "include/laya_executor_handoff_protocol.h",
++    "control_codec": "hls/control/executor_handoff_protocol.cpp",
++    "control_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_executor_handoff_layout_v1.sv",
++    "bytes": 1024,
++    "beats": 16,
++    "wire_version": 1,
++    "magic": "LHC1",
++    "key": "full immutable B, hardware session, accepted request instance, snapshot S and shell H",
++    "sequence": "reserve S at hold creation; prepare_held uses same pending S and observes shell H without reuse",
++    "evidence": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_actor_host_02",
++    "compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_host_05",
++    "scope": "actual C++ helper success/failure confirmation; same actor/runtime with two true LYRQ/LYMP software admissions, actual C++ program/port/FSM/adapter four windows each, controlled remote/fence/control handshakes",
++    "pending": [
++      "RTL hold/drain and control consumer",
++      "physical grant and abort closure",
++      "tagged hardware rearm",
++      "independent executor top/HLS",
++      "real action/F10 consumer and LN/hub/Q",
++      "complete source protection and 13BO"
++    ]
++  }
+ }

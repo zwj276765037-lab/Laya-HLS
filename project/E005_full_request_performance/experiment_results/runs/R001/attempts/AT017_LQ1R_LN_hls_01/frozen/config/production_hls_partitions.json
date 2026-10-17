@@ -1,0 +1,49 @@
+{
+  "schema": "laya-production-hls-partitions-v1",
+  "contract": "results/production_hls_partition_contract_20261012.md",
+  "host_abi": "original 13BO plus control; unchanged",
+  "compute_and_provenance_fifos": {
+    "count": 4,
+    "width_bits": 512,
+    "depth": 2,
+    "external_signal_count": 12,
+    "changed": false
+  },
+  "internal_producer_boundary": {
+    "request_bytes": 1024,
+    "request_beats": 16,
+    "completion_bytes": 512,
+    "completion_beats": 8,
+    "wire_version": 1,
+    "maximum_active_non_portal_tasks": 1,
+    "header": "include/laya_producer_engine.h",
+    "codec": "hls/platform/producer_engine_codec.cpp",
+    "hls_adapter": "hls/platform/producer_engine_hls.cpp"
+  },
+  "partitions": [
+    {
+      "name": "controller_caller",
+      "top": "laya_typed_q8_forward_controller_partitioned",
+      "state": "implementation_in_progress",
+      "responsibility": "full task graph, identities, reservations, owner events, BEGIN/END, unique typed retirement",
+      "arithmetic_fallback_allowed": false
+    },
+    {
+      "name": "layernorm_producer_engine",
+      "top": "laya_layernorm_producer_engine",
+      "state": "implemented_pending_hls_generation_and_shell_integration",
+      "supported_scope": "gamma0 LN_ATTN/LN_FFN, TOKEN rows1..16, D1024",
+      "sources": [
+        "hls/operators/layernorm_producer_engine.cpp",
+        "hls/operators/layernorm_compute.cpp",
+        "hls/platform/producer_engine_codec.cpp",
+        "hls/platform/producer_engine_hls.cpp",
+        "hls/common/laya_numeric.cpp",
+        "hls/common/laya_tasks.cpp"
+      ],
+      "masters": ["source_read", "destination_write"],
+      "publication_authority": false,
+      "typed_retirement_authority": false
+    }
+  ]
+}

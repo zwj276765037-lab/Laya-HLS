@@ -1,0 +1,74 @@
+--- executor_actor_host_06/executor_actor.cpp
++++ executor_actor_host_07/executor_actor.cpp
+@@ -216,6 +216,8 @@
+       s.session = in.session; s.accepted_request_high_water = in.accepted_request;
+       s.admitted_base = in.fence.base;
+       s.revoked = false; s.control_pending = s.control_sent = false;
++      s.managed_close = in.managed_close; s.request_committed = false;
++      s.closed_consumed = false;
+       s.cancel_consumer = CancelConsumer{};
+       s.error = ok(); ++s.admissions; s.phase = Phase::WAIT_CHECKPOINT;
+       return;
+@@ -282,7 +284,7 @@
+       Check c = checkpoint::accept(s.checkpoint, s.port, s.runtime, s.proof,
+                                     in.fence, s.command);
+       if (!c) { abort(s, c, false); return; }
+-      ++s.imports; s.import_pending = true;
++      ++s.imports; s.import_pending = true; s.request_committed = true;
+       s.command_packet = program_wire::encode(s.command);
+       control(s, handoff::Kind::IMPORT_OK, ok(), true);
+       s.phase = Phase::WAIT_IMPORT_CONFIRMATION; return;
+@@ -367,6 +369,26 @@
+       }
+       return;
+     case Phase::WAIT_RESULT_CONSUMED:
++      if (s.managed_close) {
++        if (in.host_result_valid) {
++          program_wire::Result decoded;
++          if (program_wire::decode(in.host_result, decoded) &&
++              in.host_result == s.result_packet) s.result_consumed_pending = true;
++          else ++s.control_rejections;
++        }
++        // A CLOSE intent does not assert physical drain. Only known local
++        // program/port work and complete software queues are checked here;
++        // the unique shell must independently retain the old physical owner.
++        if (s.result_consumed_pending && !s.runtime.lifecycle_action.active &&
++            !s.runtime.generated_store.active && !s.runtime.generated_store.source_lease_active &&
++            s.program_result_consumed && commands.empty() && program_results.empty() &&
++            actions.empty() && completions.empty() && results.empty() && query.empty() && response.empty() &&
++            transactions.empty() && transaction_completions.empty()) {
++          control(s, handoff::Kind::CLOSE, s.result.result, s.request_committed);
++          s.phase = Phase::WAIT_CLOSE;
++        }
++        return;
++      }
+       if (in.result_consumed) s.result_consumed_pending = true;
+       // Revoked results retain their consumed fact and all imported floors.
+       // A result read alone is not the missing bound CLOSE/physical release
+@@ -395,6 +417,26 @@
+       return;
+     case Phase::ISOLATED:
+       return;
++    case Phase::WAIT_CLOSE:
++      if (s.control_pending && in.control_request_consumed) {
++        s.control_pending = false; s.control_sent = true;
++      }
++      if (!in.control_response_valid) return;
++      if (!s.control_sent || !response_key(s, in.control_response) ||
++          in.control_response.kind != handoff::Kind::CLOSED ||
++          in.control_response.local_committed != s.control_request.local_committed ||
++          in.control_response.result.code != s.control_request.result.code ||
++          in.control_response.result.detail != s.control_request.result.detail ||
++          in.control_response.result.bad_element != s.control_request.result.bad_element) {
++        ++s.control_rejections; return;
++      }
++      s.closed_record = in.control_response; s.closed_consumed = true;
++      ++s.closed_requests; s.phase = Phase::WAIT_NEW_ADMISSION;
++      return;
++    case Phase::WAIT_NEW_ADMISSION:
++      // The bound new-candidate ingress transaction is a separate next step.
++      // Neither restored inputs nor an old confirmation reopen this request.
++      return;
+   }
+ }
+ } // namespace laya::executor

@@ -1,0 +1,414 @@
+{
+  "reviewer": "GPT-6 Astra xhigh",
+  "created_utc": "2026-10-08T06:29:17.782917+00:00",
+  "scope": "Read-only same-family nullable-pointer scan of production full controller, owner/loader/typed-task/memory helpers and pointer-null instructions in saved full-top gdce IR; no new compile, source mutation, or numerical contract change.",
+  "conclusion": "No additional reachable optional descriptor pointer with a legitimate non-null full-top call was found beyond P1/P2; P3 is the separately identified local descriptor selector without a null comparison. Other pointer families are separated below and are not automatically approved or rewritten.",
+  "categories": [
+    {
+      "category": "Optional descriptor output/input",
+      "sites": [
+        "full_forward_controller.cpp:197/210 qkv_pair",
+        "full_forward_controller.cpp:165/182/183/187 src1"
+      ],
+      "full_top_gdce_null_comparisons": 4,
+      "status": "P1/P2 known failure, D0 plus D1 actualRTL A/B evidence"
+    },
+    {
+      "category": "Non-null local descriptor selector",
+      "sites": [
+        "full_forward_controller.cpp:565 att_source pointer phi"
+      ],
+      "status": "P3 separate equivalent value-copy change; no independent numerical failure observed, D1 original and rewritten selectors both pass"
+    },
+    {
+      "category": "Optional lookup index output",
+      "sites": [
+        "laya_full_memory.cpp:274-278 full_lookup_tensor(...uint16_t* index)"
+      ],
+      "status": "Wrapper exists for compatibility but no full production caller; reachable controller and vector paths use full_lookup_tensor_indexed(...uint16_t&). Wrapper absent as a function in saved gdce/LTO. No additional patch requested."
+    },
+    {
+      "category": "Mandatory lookup name data",
+      "sites": [
+        "laya_full_memory.cpp:256/258 full_lookup_tensor_indexed(const char* name)"
+      ],
+      "full_top_gdce_null_comparisons": 1,
+      "status": "Non-null string literal/selected-name callers; all three LTO specializations retain successful descriptor and index writes (original IR21622/22038/72765, index writes22022/22438/73176), not fixed errors. Mandatory read-only string data, not an optional descriptor.",
+      "limitations": "This static successful-path evidence is not a complete lookup RTL functional proof."
+    },
+    {
+      "category": "Optional Q8 numeric trace",
+      "sites": [
+        "q8_linear_compute.cpp:79/107/115 trace presence and selection",
+        "include/laya_numeric.h:54-55 defaults",
+        "full_tasks.cpp:418 production call"
+      ],
+      "full_top_gdce_null_comparisons": 2,
+      "status": "Production full_run_task calls window arithmetic with default disabled trace and nullptr. No legitimate non-null trace call is reachable from this top; LTO compute_one signature has no trace fields and retains arithmetic. Diagnostic q8_linear_trace API is not in full-top path. No production patch requested."
+    },
+    {
+      "category": "CPU-only checkpoint/legacy metadata lookup",
+      "sites": [
+        "full_forward_controller.cpp:70-93 checkpoint callbacks under !__SYNTHESIS__",
+        "hls/control/forward_controller.cpp map-backed BufferRecord* find",
+        "include/laya_io.h Identity* expected"
+      ],
+      "status": "Checkpoint excluded from synthesis; map-based legacy ForwardController and host request-vector APIs are not the production full-top implementation. Do not conflate their nullable pointers with current synthesis paths."
+    },
+    {
+      "category": "External AXI buffer bases",
+      "sites": [
+        "FullMemory 13 ports",
+        "laya_full_memory.cpp:17-67 present/mutable_present"
+      ],
+      "status": "Existing synthesis-specific named-port presence logic already avoids using numerical AXI base0 as absence; host null checks retained outside synthesis. Not part of P1/P2 local descriptor fix."
+    },
+    {
+      "category": "Mandatory byte transfer buffers",
+      "sites": [
+        "laya_full_memory.cpp:125 full_read dst",
+        "laya_full_memory.cpp:151 full_write src"
+      ],
+      "full_top_gdce_null_comparisons": 2,
+      "status": "Non-null mandatory storage destinations/sources. LTO read/write specializations retain actual AXI read/write requests/responses and successful loops; for example full_write:49004 and .19:49049 perform real byte writes and return status0 on completion. No newly proven pointer-collapse defect."
+    },
+    {
+      "category": "Mandatory numerical array pointers",
+      "sites": [
+        "embedding_row",
+        "rope_head",
+        "qk_row",
+        "softmax_row",
+        "av_row",
+        "fp_scorer_row",
+        "fp_act_row",
+        "geglu_row",
+        "relu_row",
+        "add_row",
+        "bias_gelu_row",
+        "candidate_mask",
+        "candidate_stats",
+        "concat_act_row"
+      ],
+      "full_top_gdce_null_comparisons": 38,
+      "status": "These are required numeric input/output arrays, not optional metadata. At LTO attention and embedding leaves retain arithmetic: av_row155 lines/fmul+fadd, qk_row296 lines/fmul+fadd, rope_head183 lines/fmul+fadd, softmax233 lines. Their downstream full-top deletion was traced through metadata writers, not these null tests.",
+      "limitations": "Static scan does not prove every legal dynamic numerical call in final RTL; D2 numerical and owner validation remains required."
+    }
+  ],
+  "ir_inventory": {
+    "pointer_null_comparisons": 47,
+    "functions": 21,
+    "instructions": [
+      {
+        "function": "_ZN4laya4full10full_writeERNS0_10FullMemoryENS_2BoEmPKhj",
+        "line": 8901,
+        "instruction": "%cmp = icmp eq i8* %0, null, !dbg !14556"
+      },
+      {
+        "function": "_ZN4laya4full9full_readERKNS0_10FullMemoryENS_2BoEmPhj",
+        "line": 10416,
+        "instruction": "%cmp = icmp eq i8* %0, null, !dbg !15328"
+      },
+      {
+        "function": "_ZN4laya4full12_GLOBAL__N_110Controller6linearENS_2OpENS_9WeightKeyERKNS0_13FullOwnerSpecEhhNS_9BufferRefEhRS5_PS5_",
+        "line": 14461,
+        "instruction": "%tobool = icmp ne %\"struct.laya::full::FullOwnerSpec\"* %32, null, !dbg !17286"
+      },
+      {
+        "function": "_ZN4laya4full12_GLOBAL__N_110Controller6vectorENS_2OpERKNS0_13FullOwnerSpecEPS5_hhNS_9BufferRefEhtRS4_",
+        "line": 16312,
+        "instruction": "%tobool = icmp ne %\"struct.laya::full::FullOwnerSpec\"* %48, null, !dbg !18358"
+      },
+      {
+        "function": "_ZN4laya4full12_GLOBAL__N_110Controller6vectorENS_2OpERKNS0_13FullOwnerSpecEPS5_hhNS_9BufferRefEhtRS4_",
+        "line": 16333,
+        "instruction": "%tobool29 = icmp ne %\"struct.laya::full::FullOwnerSpec\"* %53, null, !dbg !18365"
+      },
+      {
+        "function": "_ZN4laya4full12_GLOBAL__N_110Controller6vectorENS_2OpERKNS0_13FullOwnerSpecEPS5_hhNS_9BufferRefEhtRS4_",
+        "line": 16375,
+        "instruction": "%tobool42 = icmp ne %\"struct.laya::full::FullOwnerSpec\"* %64, null, !dbg !18387"
+      },
+      {
+        "function": "_ZN4laya4full26full_lookup_tensor_indexedEPKcRNS0_20FullTensorDescriptorERt",
+        "line": 17969,
+        "instruction": "%tobool = icmp ne i8* %0, null, !dbg !19222"
+      },
+      {
+        "function": "_ZN4laya4full14concat_act_rowEPKfS2_Pf",
+        "line": 21816,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !21301"
+      },
+      {
+        "function": "_ZN4laya4full14concat_act_rowEPKfS2_Pf",
+        "line": 21821,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !21304"
+      },
+      {
+        "function": "_ZN4laya4full14concat_act_rowEPKfS2_Pf",
+        "line": 21826,
+        "instruction": "%cmp3 = icmp eq float* %2, null, !dbg !21307"
+      },
+      {
+        "function": "_ZN4laya4full15candidate_statsEPKfhPf",
+        "line": 24397,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !22683"
+      },
+      {
+        "function": "_ZN4laya4full15candidate_statsEPKfhPf",
+        "line": 24402,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !22686"
+      },
+      {
+        "function": "_ZN4laya4full11softmax_rowEPKftPf",
+        "line": 26852,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !23914"
+      },
+      {
+        "function": "_ZN4laya4full11softmax_rowEPKftPf",
+        "line": 26857,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !23917"
+      },
+      {
+        "function": "_ZN4laya4full13fp_scorer_rowEPKfS2_fRf",
+        "line": 29979,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !25484"
+      },
+      {
+        "function": "_ZN4laya4full13fp_scorer_rowEPKfS2_fRf",
+        "line": 29984,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !25487"
+      },
+      {
+        "function": "_ZN4laya4full10fp_act_rowEPKfPA1028_KtPf",
+        "line": 30171,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !25583"
+      },
+      {
+        "function": "_ZN4laya4full10fp_act_rowEPKfPA1028_KtPf",
+        "line": 30176,
+        "instruction": "%cmp1 = icmp eq [1028 x i16]* %1, null, !dbg !25586"
+      },
+      {
+        "function": "_ZN4laya4full10fp_act_rowEPKfPA1028_KtPf",
+        "line": 30181,
+        "instruction": "%cmp3 = icmp eq float* %2, null, !dbg !25589"
+      },
+      {
+        "function": "_ZN4laya4full9geglu_rowEPKfPf",
+        "line": 35132,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !28140"
+      },
+      {
+        "function": "_ZN4laya4full9geglu_rowEPKfPf",
+        "line": 35137,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !28143"
+      },
+      {
+        "function": "_ZN4laya4full14candidate_maskEPKfPKhPf",
+        "line": 35302,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !28222"
+      },
+      {
+        "function": "_ZN4laya4full14candidate_maskEPKfPKhPf",
+        "line": 35307,
+        "instruction": "%cmp1 = icmp eq i8* %1, null, !dbg !28225"
+      },
+      {
+        "function": "_ZN4laya4full14candidate_maskEPKfPKhPf",
+        "line": 35312,
+        "instruction": "%cmp3 = icmp eq float* %2, null, !dbg !28228"
+      },
+      {
+        "function": "_ZN4laya4full8relu_rowEPKfPf",
+        "line": 35530,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !28327"
+      },
+      {
+        "function": "_ZN4laya4full8relu_rowEPKfPf",
+        "line": 35535,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !28330"
+      },
+      {
+        "function": "_ZN4laya4full13bias_gelu_rowEPKfS2_tPf",
+        "line": 35663,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !28385"
+      },
+      {
+        "function": "_ZN4laya4full13bias_gelu_rowEPKfS2_tPf",
+        "line": 35668,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !28388"
+      },
+      {
+        "function": "_ZN4laya4full13bias_gelu_rowEPKfS2_tPf",
+        "line": 35673,
+        "instruction": "%cmp3 = icmp eq float* %2, null, !dbg !28391"
+      },
+      {
+        "function": "_ZN4laya4full7add_rowEPKfS2_Pf",
+        "line": 35874,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !28486"
+      },
+      {
+        "function": "_ZN4laya4full7add_rowEPKfS2_Pf",
+        "line": 35879,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !28489"
+      },
+      {
+        "function": "_ZN4laya4full7add_rowEPKfS2_Pf",
+        "line": 35884,
+        "instruction": "%cmp3 = icmp eq float* %2, null, !dbg !28492"
+      },
+      {
+        "function": "_ZN4laya4full13embedding_rowEPKhPf",
+        "line": 59629,
+        "instruction": "%cmp = icmp eq i8* %0, null, !dbg !31458"
+      },
+      {
+        "function": "_ZN4laya4full13embedding_rowEPKhPf",
+        "line": 59634,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !31461"
+      },
+      {
+        "function": "_ZN4laya4full6av_rowEPKfPA64_S1_tPf",
+        "line": 63524,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !33453"
+      },
+      {
+        "function": "_ZN4laya4full6av_rowEPKfPA64_S1_tPf",
+        "line": 63529,
+        "instruction": "%cmp1 = icmp eq [64 x float]* %1, null, !dbg !33456"
+      },
+      {
+        "function": "_ZN4laya4full6av_rowEPKfPA64_S1_tPf",
+        "line": 63534,
+        "instruction": "%cmp3 = icmp eq float* %2, null, !dbg !33459"
+      },
+      {
+        "function": "_ZN4laya4full6qk_rowEPKfPA64_S1_PKhttbPf",
+        "line": 65487,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !34475"
+      },
+      {
+        "function": "_ZN4laya4full6qk_rowEPKfPA64_S1_PKhttbPf",
+        "line": 65492,
+        "instruction": "%cmp1 = icmp eq [64 x float]* %1, null, !dbg !34478"
+      },
+      {
+        "function": "_ZN4laya4full6qk_rowEPKfPA64_S1_PKhttbPf",
+        "line": 65497,
+        "instruction": "%cmp3 = icmp eq i8* %2, null, !dbg !34481"
+      },
+      {
+        "function": "_ZN4laya4full6qk_rowEPKfPA64_S1_PKhttbPf",
+        "line": 65502,
+        "instruction": "%cmp5 = icmp eq float* %3, null, !dbg !34484"
+      },
+      {
+        "function": "_ZN4laya4full9rope_headEPKfS2_S2_Pf",
+        "line": 67359,
+        "instruction": "%cmp = icmp eq float* %0, null, !dbg !35376"
+      },
+      {
+        "function": "_ZN4laya4full9rope_headEPKfS2_S2_Pf",
+        "line": 67364,
+        "instruction": "%cmp1 = icmp eq float* %1, null, !dbg !35379"
+      },
+      {
+        "function": "_ZN4laya4full9rope_headEPKfS2_S2_Pf",
+        "line": 67369,
+        "instruction": "%cmp3 = icmp eq float* %2, null, !dbg !35382"
+      },
+      {
+        "function": "_ZN4laya4full9rope_headEPKfS2_S2_Pf",
+        "line": 67374,
+        "instruction": "%cmp5 = icmp eq float* %3, null, !dbg !35385"
+      },
+      {
+        "function": "_ZN4laya27q8_linear_window_arithmeticENS_2OpEthhthPA128_A32_KaPA128_KtS4_S7_PKfPA8_fNS_19NumericTraceRequestEPNS_17NumericGroupTraceE",
+        "line": 79210,
+        "instruction": "%cmp22 = icmp eq %\"struct.laya::NumericGroupTrace\"* %10, null, !dbg !41242"
+      },
+      {
+        "function": "_ZN4laya12_GLOBAL__N_111compute_oneENS_2OpEthjjjPA128_A32_KaPA128_KtS5_S8_PKfRfPNS_17NumericGroupTraceE",
+        "line": 80558,
+        "instruction": "%cmp52 = icmp ne %\"struct.laya::NumericGroupTrace\"* %65, null, !dbg !41950"
+      }
+    ]
+  },
+  "source_hashes": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/control/full_forward_controller.cpp",
+      "sha256": "7e73939eba00bd062a5a6d75d77a82b2d0ec7fae0d2f5a16ebb359c821536b37"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_owner.cpp",
+      "sha256": "8ce4d28470798d122cf958acb5433f4f5786e565be1afe996c9fe64a5d1d6973"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_memory.cpp",
+      "sha256": "a838cb4910ee824b42d9cd14bae009ec59c1b0b2f9df4ac5e26dda67e950ffca"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_io.cpp",
+      "sha256": "c9d7b9f985f819e926bc68aede5d1acb1bff907c05dc9b7f1af8ac393961ae46"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/full_tasks.cpp",
+      "sha256": "3a9773b920fda2904cc4e05413951f07301ff9b34189b8cbd015106d180a65e4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/full_tasks_front.cpp",
+      "sha256": "5e0d9a2b5a416a6867cd463c6defefd37ddaa926f296159bf2f2eabffc8c74e4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/full_tasks_vector.cpp",
+      "sha256": "cff234bf2835b7ef4bd6a86ac431b5fe4e644a1f304b8cd0f9358fd3548e10bd"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/full_tasks_attention.cpp",
+      "sha256": "c59328610b12bff2a6546f4f7064e63227a545c785b6e687770e95f80cb2ab60"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/full_tasks_tail.cpp",
+      "sha256": "77aef867fa9378c15d17ba7432c3e48752794a71d89ca02c9ca41024dce4fb7d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/memory/full_loader.cpp",
+      "sha256": "e5536516ae56055e2e25f32f07e1f6f6bf27c7b012aa7b0d5d0906e23681cf1d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/q8_linear_compute.cpp",
+      "sha256": "001f53c4b3a08b90743b06e31fa1e62beef7fd34891faf85c9f4cf5ef35d4d62"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_full_runtime.h",
+      "sha256": "9f518fd26db66bf0a2e865e6ba8a1150d6c2d70486856663f1e3368fa3c16621"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_numeric.h",
+      "sha256": "9185f6c7a35bd30ce90f2e32d26afb18e9d2cea95e26813a9a37bfb89d52f40f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/ir_capture/a.g.ld.5.gdce.ll",
+      "sha256": "bc81e1b415378dfca9c47504cfd5b02fc56c9cd75b2436f17fb44cd58b06c24e"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/ir_capture/a.g.lto.ll",
+      "sha256": "57aee9007e9b017580fb7e5cb7dd4a66d8ef3464a1eec96b403607f0eb0b6c13"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_ir_pointer_inventory/full_lookup_tensor_indexed.ll",
+      "sha256": "2ff0d58a6d02d10d205e4df5c68c42e51eb48af1e3ffa7e9d0315a5e1112ba40"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_ir_pointer_inventory/full_lookup_tensor_indexed.10.ll",
+      "sha256": "ed7031687c92bf347714701025ace591335043b06f7e2a64718458c2f25cfb77"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_ir_pointer_inventory/full_lookup_tensor_indexed.48.ll",
+      "sha256": "b1ce32f09b12e6a4b43aed73db3f1de4c91a5b9ec442f66062bf61775e6ca2f2"
+    }
+  ],
+  "action": "No additional source change recommended from this bounded scan; retain remaining mandatory data guards and validate real downstream tasks in D2."
+}

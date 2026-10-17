@@ -1,0 +1,33 @@
+
+****** xsim v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sat Oct 10 22:48:41 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/av_feedback_real_tb_behav/xsim_script.tcl
+# xsim {av_feedback_real_tb_behav} -testplusarg GOLD_DIR=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_av_feedback_gold_01/work/gold -testplusarg MODE=4 -autoloadwcfg -tclbatch {av_feedback_real_tb.tcl}
+Time resolution is 1 ps
+source av_feedback_real_tb.tcl
+## set curr_wave [current_wave_config]
+## if { [string length $curr_wave] == 0 } {
+##   if { [llength [get_objects]] > 0} {
+##     add_wave /
+##     set_property needs_save false [current_wave_config]
+##   } else {
+##      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+##   }
+## }
+WARNING: [Wavedata 42-489] Can't add object "/av_feedback_real_tb/prob" to the wave window because it has 131072 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+WARNING: [Wavedata 42-489] Can't add object "/av_feedback_real_tb/product" to the wave window because it has 131072 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+WARNING: [Wavedata 42-489] Can't add object "/av_feedback_real_tb/partial_gold" to the wave window because it has 131072 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+## run all
+AV_REAL_BATCH mode=C4 batch=0 contexts=4 init_to_first_issue=18 issue_span=2048 read_span=2048 read_to_last_write=12 write_to_done=3 diag_to_done=2 tail_to_done=22
+AV_REAL_BATCH mode=C4 batch=1 contexts=4 init_to_first_issue=18 issue_span=2048 read_span=2048 read_to_last_write=12 write_to_done=3 diag_to_done=2 tail_to_done=22
+AV_FEEDBACK_REAL_PASS mode=C4 contributions=4096 feedback_samples=4064 min=16 max=16 sum=65024 stalls=0 cycles=4176 accept_gap_min=1 accept_gap_max=41 accept_gap_sum=4135 accept_gap_samples=4095 product_high=7 commit_high=13
+$finish called at time : 41880 ns : File "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/attention_and_fp_engine/tb/av_feedback_real_tb.sv" Line 295
+INFO: xsimkernel Simulation Memory Usage: 304280 KB (Peak: 344640 KB), Simulation CPU Usage: 2730 ms
+INFO: [Common 17-206] Exiting xsim at Sat Oct 10 22:48:46 2026...
+AV_FEEDBACK_COMPILED_REPLAY_VERIFIED AV_FEEDBACK_REAL_PASS mode=C4 contributions=4096

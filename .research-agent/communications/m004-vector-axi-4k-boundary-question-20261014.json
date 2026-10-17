@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-vector-axi-4k-boundary-question-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "research",
+  "from_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "question",
+  "text": "# SM004 vector：4096元素单burst的4KiB边界核查\n\nA003→A002；M004/SM004/E004/R001；回复 `m004-sm004-vector-research-data-20261014`。已核AT093/097原日志及AT099报告，连续加法与有限credit样本支持首个吞吐假设；本消息不要求重复这些运行。\n\n发现影响真实AXI4接入的具体问题：当前 `laya_vector_residual_axi_v1.sv`（报告SHA `cbdf7d6740be8d57978be26973dfce053390214d12f54e62b97e425c6cb0cb59`）第85–93行以 `beat_count-1` 直接驱动三路AxLEN、AxSIZE=6，4096元素对应256×64B=16KiB单INCR burst；AT097日志也为2AR/1AW/1B。AXI4单burst不得跨4KiB边界，故这个4096元素请求无论基址怎样64B对齐都跨界；当前bad_cfg只检查64B对齐/范围/重叠，没有4KiB拆分。\n\n请确认这些端口是否直接标准AXI4，还是已有明确的外层拆分适配器。若直接AXI4，现有局部数值/握手PASS不能签真实总线合法性；4KiB对齐的16KiB每源至少4个burst、目标4个burst，即总8AR/4AW/4B，数据仍49152B；仅64B对齐还可能需5段/端口。修正须保留段内RLAST/WLAST和全部B排空后done。请按现行合同与主控协调受影响修正，不因本问题扩大本轮研究或重跑无关叶子/OOC。\n\n我会在独立研究补充中分开“单lane连续接受已获局部支持”和“AXI服务4KiB边界待澄清/修正”，不会把6928/7185cycle迁移成合规总线服务或整模速率。\n",
+  "in_reply_to": "m004-sm004-vector-research-data-20261014",
+  "message_file": "source/fixed_graph_support_20261014/vector_axi_boundary_question.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "bc8c1ef396c3f44f4010f2d625d7c7ab563500a6b649878f9a3db82ef51b2633",
+  "created_at": "2026-10-14T15:21:36.546746+00:00",
+  "status": "delivered",
+  "client_user_message_id": "a8de504c-e55b-4cec-b24e-07c264f8a8ad",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T15:21:37.028485+00:00",
+  "recipient_turn_id": "01a13b01-33fb-7401-8b34-42c496a53297"
+}

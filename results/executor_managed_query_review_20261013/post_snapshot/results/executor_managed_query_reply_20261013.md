@@ -1,0 +1,31 @@
+# Managed query wrapper有限审核
+
+回复：`executor-managed-query-milestone-20261013`。审核：**R-SM003-EXECUTOR-MANAGED-QUERY-20261013**；M003/SM003/E003/R003，A002单owner。
+
+接纳本次冻结身份的有限出口：portal_rtl_06–10为**PASS_SCOPED_RTL_MANAGED_QUERY_WRAPPER**，decode_host_02为**PASS_SCOPED_HOST_REAL_CAPTURE_REVOKED_IMPORT**。shell_05、checkpoint_08、guard_10、generated_store_monitor_rtl_16保持各原fixture兼容范围。F15–F18旧有限关闭不扩大；本审核不关闭C009/C013，也不签CLOSE/rearm、活动LPV清理或生产整链。
+
+## 已核行为
+
+实际`laya_executor_handoff_portal_shell_v1.sv`已承接前序/executor LPV、共享STATE0 writer及snapshot/source-query保持门。首拍真实进入depth2后锁定完整旧K/B；后续持续cancel/base撤销不封死该查询余帧，完整1024B比较后才交唯一hub。返回末拍仅到IMPORT_PENDING；匹配ABORT_CLOSED实际消费只清本次未提交query phase，撤销shell仍ISOLATED/持锁，输入恢复或旧IMPORT均无授权。
+
+_06持续cancel与_07持续base epoch变化均在第2拍后进入，后14拍及16拍实际返回完成，尾2/尾1各停12周期，完整负LBR2与独立literal相等；_08晚撤销保持成功返回字节稳定而禁止后继导入。_09完整foreign帧有16次真实ingress，但hub query/可信返回均0，所测为隔离，未签其恢复。_10仍由真实正常LPV/monitor前序形成7次typed终态、112AW/7168W/112B，使用原offline actual-helper确认，经GRANTED真实消费后接受CLAIM180/epoch9；该CLAIM不虚增typed退休。地址pattern前序不称encoder数值计算。
+
+三份真实捕获与host冻结external输入、独立gold逐字相同。现C++ codec完整roundtrip两份合法绑定负响应；第三份稳定成功在受控cancel fence下由helper拒绝。三例FullRuntime逐字节不变、零导入/预约/退休，54 wire拒绝清输出保持。S/H本来就是1/1，直接比较原始字节，没有4→1改写。host实际LYRQ/LYMP准入仍是离线软件runtime，fence及wrapper admission/session/request/predecessor_done/adapter_pending_zero仍受控，不代表同硬件runtime的helper确认。
+
+## 身份与资源
+
+主控独立核验30项交付SHA、401/401 frozen/声明pair，当前378/401及1379/1402递归manifest/receipt引用。23项live差异逐项符合披露：17项catalog及portal_06/07/08的6项TB/runner；五个portal冻结wrapper/transport/shell/hub/portal核心身份分别相同。历史比较吻合；host_01仅编译失败、无DUT运行，_01→02仅TB初始化变化，原FAIL保留。登记前395/401只能作为从未变catalog身份推得的重建口径，不提升为主控独立历史采样。
+
+12段guard原始起止无重叠、child0/trigger null，194条实际policy符合CPU0–3/nice19/idle I/O。MemAvailable门及RTL8GiB/120s/120s、host24GiB/1800s/120s原帽保持。shell oracle0.166257s、host run0.145235s没有child RSS/policy，peak保持null，资源观测完整性=false；fixture/-MM配置证据不代替采样。本审核未编译、仿真或运行HLS。
+
+## 连续实施边界
+
+同意按已核定的D-M003-EXECUTOR-CLOSE-REARM-01继续，不新增逐项审批。当前kind6 ABORT_CLOSED的query收束不能充当kind9 CLOSED的请求关闭，更不能开放新accepted-request。完整旧A/K、真实结果/Host消费、CLOSED实际消费及带旧/新归属准入仍须按原合同接通；保留S/H/task/Ref/LPV/producer/compute/program和可信接收下界，不从原begin/recycle清零取得“恢复”。
+
+已披露的旧LPV缺口维持为整链前置：冻结`laya_generated_provenance_v1.sv`中`transport_abort=cancel&&service_domain_drained`仍复位私有FIFO/拍状态，本批取消前LPV已排空。这里是源码与覆盖边界确认，未新增动态失败。managed集成须分开新启动门和已接受旧帧/返回的所有权，使持久撤销下的旧半帧、END/返回和真实末B仍按旧绑定消费；不能以route可达、FIFO清空或reset替代收束。受影响验证应包含尚有半帧、已呈现返回受反压、末B/END交错，完整旧返回保持至消费，单次退休及高水位不回退。无关HLS/full不重跑。
+
+随后按原顺序接真实控制/codec/helper同runtime、LAP1及8/4 action、F10 24/16 consumer、source AR/F9与全部修改入口、合法Q lease/读债，再串行生成独立executor并连接LN/monitor/唯一hub→真实END/唯一软件退休→Q/fullA及最终13BO。未知归属/物理债务继续隔离，不因本次查询PASS解除。
+
+C009/C013部分实施、awaiting_implementation；C008/C010待验。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。原单owner/单重工具/全部资源帽、G余2338.224019s保持，5172s组合不重启；无新增agent、HLS/OOC/P&R/上板或预算。
+
+主控证据：`results/executor_managed_query_review_20261013/verification.json`及`source_review.md`。工程交付索引SHA：`2dde48c8e037f000b804e2c0a0a437038a981e6947ee87f34f19fbf884796eec`。

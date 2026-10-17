@@ -1,0 +1,111 @@
+{
+  "schema": "q8_metadata_reset_v3_design_source_preparation_release_v1",
+  "at_utc": "2026-10-08T16:52:47.119505+00:00",
+  "reviewer": "GPT-6 Astra xhigh /root/q8_proto_design_astra_xhigh",
+  "verdict": "ISOLATED_METADATA_RESET_ONLY_SOURCE_CONFIG_PREPARATION_RELEASED_SOFTWARE_RERUN_NOT_REQUIRED_IF_EXACT",
+  "accepted_generation_and_reset_gap": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_tag_direct_v2_synthesis_structure_review.json",
+    "bytes": 1519170,
+    "sha256": "45421f4e50736572c0ea22b401de0b4a002435f987e5c4634ee2f55bfd91b601"
+  },
+  "proposal": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tag_direct_v2/runs/state_reset_plan_v1.json",
+    "bytes": 3385,
+    "sha256": "d0e77d369a21e4b4685278d0776d512cc2ca5933586f0d54774750124eca2796"
+  },
+  "frozen_source": {
+    "bytes": 36220,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tag_direct_v2/source/q8_joint_tm4tn8.cpp",
+    "sha256": "e049319553d42c358be4e157c27ed6342800f5a30dca0c291ab6d47ca48e7ac9"
+  },
+  "frozen_config": {
+    "bytes": 752,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tag_direct_v2/runs/csynth_config_v1/q8_joint_csynth.cfg",
+    "sha256": "1c095552aa2adeb2fa274259666d4ad7ff793c302a29ca8f4f513db7750e90c4"
+  },
+  "installed_pragma_spelling_evidence": {
+    "file": {
+      "bytes": 32617,
+      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/legacy/hls/dsp/hls_nco.h",
+      "sha256": "5b457696ad257229238170c4784200daca5b4460bb0e44aa6a8caa58969bafe3"
+    },
+    "limit": "An installed scalar example confirms pragma spelling; aggregate State acceptance and resulting RTL reset must be checked in a released new-identity build.",
+    "lines": [
+      76,
+      77
+    ],
+    "text": [
+      "#pragma HLS reset variable=startInterrupt",
+      "#pragma HLS reset variable=phaseAcc"
+    ]
+  },
+  "release": {
+    "owner": "/root/vivado_project_sol_max",
+    "identity": "metadata_reset_v3",
+    "candidate_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3",
+    "scope": "Prepare isolated source/config and identity/equivalence evidence only; no compilation or synthesis in this gate.",
+    "exact_source_diff": "--- tag_direct_v2/source/q8_joint_tm4tn8.cpp\n+++ metadata_reset_v3/source/q8_joint_tm4tn8.cpp\n@@ -316,6 +316,9 @@\n #pragma HLS INTERFACE s_axilite port=return bundle=control\n \n   static State st;\n+#ifdef __SYNTHESIS__\n+#pragma HLS reset variable=st\n+#endif\n   static ap_uint<256> wq[8][kWDepth];\n   static uint16_t ws[8][kWDepth];\n   static uint32_t bias_bits[8][kPsDepth];\n",
+    "expected_candidate": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_tm4tn8.cpp",
+      "bytes": 36278,
+      "sha256": "cad329dbb9a57e49ec8fb3b99ef53f41b6662538dac0df3090b4677260b2e17d"
+    },
+    "single_factor": "Add synthesis-only reset pragma on static State; all source bytes outside this insertion identical.",
+    "copy_requirements": [
+      "ABI/header/TB copies byte-identical to accepted v2; frozen ACT descriptors/fixtures/model/gold reused by exact path and hash.",
+      "Do not execute or regenerate copied fixture/descriptor generators. No new data or arithmetic.",
+      "Prepare fresh synthesis config by only replacing v2 source/include paths with v3 paths. Keep top,strictFP,part150MHz and existingpipeline/partition settings.",
+      "Root module source/design.md and results.md remain single current pair. Archive exact preimages before authorized documentation updates."
+    ]
+  },
+  "software_evidence_inheritance": {
+    "rule": "The added block is excluded whenever __SYNTHESIS__ is not defined. On actual source review, exact insertion and unchanged inputs establish ordinary CPU/CSim source semantics identical to accepted v2; inherit accepted strictCPU and both actual standard-libm CSim without unchanged reruns.",
+    "authorities": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_tag_direct_v2_cpu_csim_release.json",
+        "bytes": 86361,
+        "sha256": "0c40b9f1ff5cac5a67534aaaa9795e16532449bfae0f2e85d5d3fe894e9f7b78"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_tag_direct_v2_csim_csynth_release.json",
+        "bytes": 118961,
+        "sha256": "5a7513b54182774ab797fdb1cdf124a6bcac2dc8d3757408c7aaa8cc3ccc7c99"
+      }
+    ],
+    "no_compiler_invocation_needed": "Reviewer can mechanically delete the sole guarded block and compare all remaining bytes and companion bindings; do not run new preprocessing just to manufacture equivalence.",
+    "supersedes_proposal": "The plan suggestion to repeat CPU and CSim is not adopted for this exact synthesis-only metadata pragma. Any additional executable or input change invalidates this inheritance and needs separate review."
+  },
+  "required_source_packet": [
+    "Exact diff/expected hash and all copied companion byte equivalence.",
+    "Complete State field/default inventory and explicit distinction from wq/ws/bias_bits/fp/aq/as/ps payload, whose declarations/directives remain unchanged.",
+    "Actual new config, exact proposed single v++ command/fresh work/guard paths, tool/guard hash, original model/fixture/real dependency bindings.",
+    "No tools executed claim and absence of new run outputs."
+  ],
+  "future_synthesis_gate": {
+    "requires": "Actual source/config acceptance first",
+    "proposed_rss_gib": 16,
+    "proposed_wall_seconds": 1800,
+    "one_run": true,
+    "one_heavy_laya_tool_at_a_time": true,
+    "q8_priority": true
+  },
+  "required_later_generated_reset_evidence": [
+    "Actual synchronous active-low top reset must reach every persistent session/valid/task/epoch/state field required by contract; tags and their declared defaults included.",
+    "st_bound clears, st_w_valid clears, task/epoch/max/counters reset and owner states INVALID. Verify actual generatedalways blocks; initial-only assignments are insufficient.",
+    "Payload RAMs remain unreset; no resetall or memory-clear sweep. Control reset/data invalidation is the distinction.",
+    "Actual numerical RTL later exercises cold LOAD/RUN, warm hardware reset, rejection of RUN without new LOAD and admission of a changed request/generation with legal LOAD/RUN. Preserve normal/fault recovery and original independent gold."
+  ],
+  "not_released": [
+    "CPU/CSim rerun",
+    "HLS synthesis before actualsource/config gate",
+    "RTLsetup/static/runtime/OOC",
+    "FTZ/arithmetic/timing/performance changes",
+    "resetall/bulkpayload reset",
+    "production/model/gold edits"
+  ],
+  "limits": [
+    "The installed scalar pragma example proves spelling, not aggregate synthesis compatibility or correct generated reset.",
+    "This is a reset correctness fix only; HLS21.308ns and reduction/II limitations remain separate.",
+    "ControlledFP/noFTZ edge obligations remain separate from frozenACT software evidence."
+  ]
+}

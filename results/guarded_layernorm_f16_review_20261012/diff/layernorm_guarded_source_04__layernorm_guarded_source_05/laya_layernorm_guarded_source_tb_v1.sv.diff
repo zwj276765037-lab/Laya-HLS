@@ -1,0 +1,24 @@
+--- layernorm_guarded_source_04/laya_layernorm_guarded_source_tb_v1.sv
++++ layernorm_guarded_source_05/laya_layernorm_guarded_source_tb_v1.sv
+@@ -253,9 +253,6 @@
+     transaction("target_begin",BEGIN_EVENT,0,3);producer_loaded=1;
+     while(source_ar==0)tick();
+     transaction("source_conflict_live",INVALIDATE,E_BUFFER,0);
+-    transaction("wrong_end_active",END_EVENT,E_PROTOCOL,2);
+-    if(!source_guard_active || !source_guard_producer_active || terminal_tasks!=4 || semantic_rejections!=3)
+-      $fatal(1,"wrong END changed old active task or source protection");
+     while(completion_index<6)pop_producer();
+     while(producer_completion_occupancy!=2)tick();
+     repeat(12)begin
+@@ -273,6 +270,11 @@
+        job_active || source_guard_producer_active || source_guard_read_debt || source_outstanding_beats)
+       $fatal(1,"actual F9 verified producer completion/debt mismatch");
+     for(int i=0;i<1024;i++)if(destination_mem[i]!==gold[i])$fatal(1,"guarded LN independent gold element=%0d got=%h expected=%h",i,destination_mem[i],gold[i]);
++    // A wrong task key is submitted after real LPC1 consumption and physical
++    // drain, while the old hub scope is still active. It must not retire it.
++    transaction("wrong_end_active",END_EVENT,E_PROTOCOL,3);
++    if(!source_guard_active || terminal_tasks!=4 || semantic_rejections!=3)
++      $fatal(1,"wrong END changed old active task or source protection");
+     // Caller simulation copies every END result field from real LPC1, as in
+     // the earlier numerical chain. This remains a finite caller diagnostic.
+     phase=7;load("target_end_template",packet);

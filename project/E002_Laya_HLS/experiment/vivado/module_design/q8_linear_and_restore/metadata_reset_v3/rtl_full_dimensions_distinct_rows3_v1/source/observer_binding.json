@@ -1,0 +1,385 @@
+{
+  "axi": {
+    "existing_monitor": "q8_axi_monitor.sv and q8_axi_port.sv from accepted ACT source",
+    "outstanding": "DUT-side accepted AW minus B and AR minus RLAST, max per command",
+    "ports": [
+      "descriptor",
+      "w_q0",
+      "w_q1",
+      "w_scale",
+      "aux",
+      "activation",
+      "out0",
+      "out1",
+      "observed"
+    ],
+    "side_by_side": "Accepted and retired channel/byte counts must agree at command completion; concurrent stall counters are not summed into latency",
+    "sides": [
+      "DUT generated pins m_axi_gmem_<port>_<channel>",
+      "endpoint adapter u_port_<port>.e_<channel>"
+    ],
+    "stall_predicate": "VALID && !READY independently for AW/W/B/AR/R on each side"
+  },
+  "bounded_logging": {
+    "issue_first_samples": 8,
+    "issue_gap_histogram_bins": [
+      "<=1",
+      "2..8",
+      "9..64",
+      "65..512",
+      ">512"
+    ],
+    "issue_last_ring": 8,
+    "maximum_issue_events": 4096,
+    "runtime_progress": {
+      "clock_interval": 131072,
+      "fields": [
+        "command and clocks",
+        "TB phase",
+        "AP acceptance/done clocks",
+        "issue/retire",
+        "child request/completion",
+        "selected AXI byte deltas"
+      ],
+      "file": "progress.log",
+      "flush_each_record": true,
+      "source": "tb/q8_scorer_distinct_rows3_control.svh"
+    },
+    "wave_dump": false
+  },
+  "case_input": {
+    "batch": 1,
+    "marker_indices_flat": [
+      147,
+      163,
+      174
+    ],
+    "marker_mask": [
+      1,
+      1,
+      1
+    ],
+    "row0": 0,
+    "rows": 3,
+    "trace_column": 8,
+    "trace_row_local": 2
+  },
+  "dut_instance": "q8_scorer_distinct_rows3_top.dut",
+  "events": [
+    {
+      "generated_rtl_lines": [
+        31632,
+        52599
+      ],
+      "hierarchy": "dut.ap_CS_fsm_state1, dut.ap_start",
+      "name": "internal_ap_accept",
+      "predicate": "state1 && ap_start",
+      "purpose": "one accepted command start",
+      "widths": [
+        1,
+        1
+      ]
+    },
+    {
+      "generated_rtl_line": 45745,
+      "hierarchy": "dut.ap_done",
+      "name": "first_sampled_done",
+      "predicate": "first posedge sample of ap_done==1; +1ps same-edge AXI debt must be zero",
+      "purpose": "AP latency, same-edge R/B drain",
+      "widths": [
+        1
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        7404,
+        7405,
+        32146
+      ],
+      "hierarchy": "dut.grp_q8_joint_tm4tn8_Outline_VITIS_LOOP_521_12_fu_11720_ap_start, dut.grp_q8_joint_tm4tn8_Outline_VITIS_LOOP_521_12_fu_11720_ap_done",
+      "hls_source_line": 523,
+      "name": "q_load_subcall",
+      "predicate": "rising start request marker and rising done completion marker, individually counted; child acceptance is not inferred",
+      "widths": [
+        1,
+        1
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        7514,
+        7515,
+        32158
+      ],
+      "hierarchy": "dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_535_14_VITIS_LOOP_538_15_fu_11751_ap_start, dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_535_14_VITIS_LOOP_538_15_fu_11751_ap_done",
+      "hls_source_line": 535,
+      "name": "scale_load_subcall",
+      "predicate": "rising start request marker and rising done completion marker; child acceptance is not inferred",
+      "widths": [
+        1,
+        1
+      ]
+    },
+    {
+      "generated_rtl_line": 53339,
+      "hierarchy": "dut.ap_CS_fsm_state116",
+      "hls_source_lines": [
+        556,
+        557
+      ],
+      "name": "scale_validation",
+      "note": "scalar loop entry/continuation, visits include exit check; not every state116 visit is a validated element",
+      "predicate": "state116 sampled; first/last and visit count",
+      "widths": [
+        1
+      ]
+    },
+    {
+      "generated_rtl_line": 53485,
+      "hierarchy": "dut.ap_CS_fsm_state160",
+      "hls_source_line": 566,
+      "name": "bias_validation",
+      "note": "visits include exit check",
+      "predicate": "state160 sampled; first/last and visit count",
+      "widths": [
+        1
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        7595,
+        7596,
+        32170
+      ],
+      "hierarchy": "dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_583_21_VITIS_LOOP_584_22_VITIS_LOOP_587_23_fu_11812_ap_start, dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_583_21_VITIS_LOOP_584_22_VITIS_LOOP_587_23_fu_11812_ap_done",
+      "hls_source_line": 583,
+      "name": "activation_load_subcall",
+      "predicate": "rising start request marker and rising done completion marker; child acceptance is not inferred",
+      "widths": [
+        1,
+        1
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        7667,
+        7668,
+        32182
+      ],
+      "hierarchy": "dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_602_27_fu_11845_ap_start, dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_602_27_fu_11845_ap_done",
+      "hls_source_lines": [
+        602,
+        613
+      ],
+      "name": "quant_max_scan_subcall",
+      "predicate": "rising start request marker and rising done completion marker; child acceptance is not inferred",
+      "widths": [
+        1,
+        1
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        7708,
+        7709,
+        32194
+      ],
+      "hierarchy": "dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_634_29_fu_11874_ap_start, dut.grp_q8_joint_tm4tn8_Pipeline_VITIS_LOOP_634_29_fu_11874_ap_done",
+      "hls_source_lines": [
+        634,
+        654
+      ],
+      "name": "quant_round_pack_subcall",
+      "predicate": "rising start request marker and rising done completion marker; child acceptance is not inferred",
+      "widths": [
+        1,
+        1
+      ]
+    },
+    {
+      "generated_rtl_line": 53685,
+      "hierarchy": "dut.ap_CS_fsm_state210",
+      "hls_source_line": 670,
+      "name": "quant_trace_q",
+      "predicate": "state210 sampled; first/last and visit count",
+      "widths": [
+        1
+      ]
+    },
+    {
+      "generated_rtl_line": 53747,
+      "hierarchy": "dut.ap_CS_fsm_state222",
+      "hls_source_line": 681,
+      "name": "quant_trace_scale",
+      "predicate": "state222 sampled; first/last and visit count",
+      "widths": [
+        1
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        54004,
+        61703
+      ],
+      "hierarchy": "dut.ap_CS_fsm_state302",
+      "hls_source_lines": [
+        701,
+        705
+      ],
+      "name": "lane_bad_init",
+      "predicate": "state302 sampled; first/last and visit count",
+      "widths": [
+        1
+      ]
+    },
+    {
+      "expected_per_run": 4096,
+      "generated_rtl_lines": [
+        54058,
+        65607,
+        8196,
+        8200
+      ],
+      "hierarchy": "dut.ap_CS_fsm_state312, dut.icmp_ln708_fu_23172_p2, dut.g_3_reg_6949, dut.tile_2_reg_6981",
+      "hls_source_lines": [
+        707,
+        708,
+        709
+      ],
+      "name": "issued_tile_group",
+      "predicate": "state312 && !icmp_ln708; assert coordinates equal ordinal/128 and ordinal%128",
+      "widths": [
+        1,
+        1,
+        8,
+        10
+      ]
+    },
+    {
+      "expected_per_run": 4096,
+      "generated_rtl_lines": [
+        59736,
+        32667
+      ],
+      "hierarchy": "dut.ap_CS_fsm_state1623, dut.ap_block_state1623",
+      "hls_source_line": 760,
+      "name": "retired_tile_group",
+      "predicate": "state1623 && !ap_block_state1623; assert retire never exceeds issue",
+      "widths": [
+        1,
+        1
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        14173,
+        14174,
+        51420,
+        51430
+      ],
+      "hierarchy": "dut.ps_U.ce0, dut.ps_U.address0",
+      "hls_source_line": 726,
+      "name": "representative_ps_read",
+      "predicate": "ce0; address<656; match prior same-bank write address for dependency distance",
+      "scope": "one physical PS bank, not all 32 lanes",
+      "widths": [
+        1,
+        10
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        14176,
+        14178,
+        51446
+      ],
+      "hierarchy": "dut.ps_U.ce1, dut.ps_U.we1, dut.ps_U.address1, dut.ps_U.d1",
+      "hls_source_line": 744,
+      "name": "representative_ps_write",
+      "predicate": "ce1 && we1; address<656",
+      "scope": "one physical PS bank, not all 32 lanes",
+      "widths": [
+        1,
+        1,
+        10,
+        32
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        48049,
+        48061,
+        18537
+      ],
+      "hierarchy": "dut.ap_CS_fsm_state319, dut.grp_fu_13184_p0, dut.grp_fu_13184_p1",
+      "hls_source_line": 724,
+      "name": "lane0_fmul_launch",
+      "predicate": "state319 scheduled operands for lane0 shared fmul",
+      "scope": "lane0 opportunity; CE=1 is excluded",
+      "widths": [
+        1,
+        32,
+        32
+      ]
+    },
+    {
+      "generated_rtl_lines": [
+        48031,
+        48039,
+        18522
+      ],
+      "hierarchy": "dut.ap_CS_fsm_state325, dut.grp_fu_13180_p0, dut.grp_fu_13180_p1",
+      "hls_source_line": 727,
+      "name": "lane0_fadd_launch",
+      "predicate": "state325 scheduled operands for lane0 shared fadd",
+      "scope": "lane0 opportunity; CE=1 is excluded",
+      "widths": [
+        1,
+        32,
+        32
+      ]
+    },
+    {
+      "generated_rtl_line": 59782,
+      "hierarchy": "dut.ap_CS_fsm_state1637",
+      "hls_source_lines": [
+        762,
+        763,
+        766
+      ],
+      "name": "output_serialization",
+      "predicate": "state1637 sampled; output tile loop visit",
+      "widths": [
+        1
+      ]
+    },
+    {
+      "generated_rtl_line": 59951,
+      "hierarchy": "dut.ap_CS_fsm_state1674",
+      "hls_source_line": 298,
+      "name": "report_entry",
+      "predicate": "state1674 sampled; report subcall follows",
+      "widths": [
+        1
+      ]
+    }
+  ],
+  "excluded_false_events": [
+    "dut.c_issued_2_fu_1918: outer-loop aggregate",
+    "dut.c_retired_2_fu_1922: outer-loop aggregate",
+    "floating operator CE tied 1",
+    "wrapper tvalid tied 1"
+  ],
+  "generated_rtl": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/runs/csynth_local_v1/work/hls/syn/verilog/q8_joint_tm4tn8.v",
+  "hls_source": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_tm4tn8.cpp",
+  "inherited_rows3_observer_source": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_rows3_v1/tb/q8_scorer_rows3_observer.svh",
+  "observer_source": "../tb/q8_scorer_distinct_rows3_observer.svh",
+  "phase_accounting": {
+    "exclusive": "AP accept to first issue, first-to-last issue inclusive, and last issue to AP done; all cycles reconcile for a RUN",
+    "overlapping_spans": "subcall start/done, scalar FSM sample first/last, output/report entry, AXI traffic and stalls",
+    "unknown": "pre-issue and post-issue residual cycles remain explicitly unknown because scalar validation, inter-subcall control, AXI wait and report can overlap; no single cause is inferred from correlated stalls"
+  },
+  "sampling": "posedge ap_clk; first sampled ap_done debt checked after same-edge monitor retirement at +1ps, before any later CSR/check",
+  "schema": "q8_full_scorer_distinct_rows3_passive_binding_v1",
+  "status": "SOURCE_ONLY_UNCOMPILED_REVIEW_REQUIRED"
+}

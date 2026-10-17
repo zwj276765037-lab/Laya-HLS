@@ -1,0 +1,30 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/attention_preloaded_slice.cpp
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v3/source/attention_preloaded_slice.cpp
+@@ -181,12 +181,21 @@
+   using namespace laya::full;
+   using namespace laya::d2_preload;
+   FullRuntime& rt = runtime;
+-  FullMemory memory;
+-  memory.io = io; memory.io_bytes = 32768;
+-  memory.aux = aux; memory.aux_bytes = 1671872;
+-  memory.qkv0 = qkv0; memory.qkv0_bytes = kHostBytes;
+-  memory.qkv1 = qkv1; memory.qkv1_bytes = kHostBytes;
+-  memory.att_out = att_out; memory.att_out_bytes = 8u << 20;
++  FullMemory memory{
++      nullptr, 0,          // embedding
++      io, 32768,           // io
++      nullptr, 0,          // w_q0
++      nullptr, 0,          // w_q1
++      nullptr, 0,          // w_scale
++      aux, 1671872,        // aux
++      nullptr, 0,          // state0
++      nullptr, 0,          // state1
++      qkv0, kHostBytes,     // qkv0
++      qkv1, kHostBytes,     // qkv1
++      nullptr, 0,          // ff0
++      nullptr, 0,          // ff1
++      att_out, 8u << 20    // att_out
++  };
+ #ifndef __SYNTHESIS__
+   rt.memory = memory;
+ #endif

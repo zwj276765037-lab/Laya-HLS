@@ -1,0 +1,14 @@
+--- 01/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_graph_program_top_host.py
++++ 02/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_graph_program_top_host.py
+@@ -153,7 +153,10 @@
+         "safe action error returns request failure without slot commit; an invalid "
+         "command returns a decodable zero-ordinal LOCAL_REJECT; the next accepted "
+         "command remains unread until the prior four-beat LGR1 result-consumed signal "
+-        "and then preserves the monotonic action ordinal. The test directly drives "
++        "and then preserves the monotonic action ordinal; final-write-adjacent consumer "
++        "notification is retained, earlier stale notification is ignored, delayed "
++        "consumption retains the boundary, and the recovered third action completes "
++        "with all four streams empty. The test directly drives "
+         "accepted commands and an abstract result-consumed signal with host hls::stream; "
+         "it does not verify the executor/shell admission authority, real depth2 RTL "
+         "FIFO handshake, lifecycle/adapter/LayerNorm/hub path, cancel cleanup, complete "

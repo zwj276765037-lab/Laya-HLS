@@ -1,0 +1,41 @@
+--- AT053_DUT
++++ AT054_DUT
+@@ -100,8 +100,9 @@
+   localparam logic [127:0] BUILD_TAG = 128'h7209eb09c3f265363cfb274f7790a733;
+   localparam logic [7:0] STATUS_OK = 8'd0;
+   localparam logic [7:0] STATUS_PROTOCOL = 8'd7;
+-  localparam logic [7:0] STATUS_NUMERICAL = 8'd8;
+-  localparam logic [7:0] STATUS_AXI = 8'd9;
++  // Local 8-bit transport of the production Status enum (laya_types.h).
++  localparam logic [7:0] STATUS_NUMERICAL = 8'd6;
++  localparam logic [7:0] STATUS_INTERNAL = 8'd8;
+ 
+   typedef enum logic [3:0] {
+     IDLE, SKIP_AR, SKIP_R, DOWN_AR, DOWN_R, ADD_LAUNCH, ADD_COLLECT,
+@@ -239,7 +240,7 @@
+         SKIP_R: if (skip_rvalid) begin
+           skip_r_count <= skip_r_count + 16'd1;
+           if (skip_rresp != 2'b00 || !skip_rlast) begin
+-            rsp_status <= STATUS_AXI;
++            rsp_status <= STATUS_INTERNAL;
+             source_locked <= 1'b0;
+             state <= RESPONSE;
+           end else begin
+@@ -254,7 +255,7 @@
+         DOWN_R: if (down_rvalid) begin
+           down_r_count <= down_r_count + 16'd1;
+           if (down_rresp != 2'b00 || !down_rlast) begin
+-            rsp_status <= STATUS_AXI;
++            rsp_status <= STATUS_INTERNAL;
+             source_locked <= 1'b0;
+             state <= RESPONSE;
+           end else begin
+@@ -297,7 +298,7 @@
+         WRITE_B: if (bvalid) begin
+           b_count <= b_count + 16'd1;
+           if (bresp != 2'b00) begin
+-            rsp_status <= STATUS_AXI;
++            rsp_status <= STATUS_INTERNAL;
+             source_locked <= 1'b0;
+             state <= RESPONSE;
+           end else if (beat_index == last_beat) begin

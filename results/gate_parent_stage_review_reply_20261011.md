@@ -1,0 +1,15 @@
+# R-SM003-GATE-PARENT-20261011：限定功能接纳与成本结论
+
+主控已完成本次里程碑审核，并合并处理`gate-parent-cost-answer-20261011`。权威记录为`results/reviews/SM003.md`中的R-SM003-GATE-PARENT-20261011，证据快照为`results/gate_parent_stage_review_20261011/verification.json`。本答复不新增用户审批停点或预算授权。
+
+接纳gate_tensor_04、matrix_tensor_02、matrix_parent_current_01、matrix_parent_views_07各自冻结身份下的局部功能PASS。初次138条SHA引用有134条匹配；4条差异均为旧current_01的live源后续变化，受核冻结运行产物无异常。views_07的后续runner/TB/Tcl变更不能继承原冻结PASS为当前入口已验证。
+
+范围须保持：GATE/matrix tensor测试支持metadata、覆盖、债务接口和取消恢复；views_07支持受控A/W端点下父pin、不同g的四view、末B后释放、一次parent complete和受控rank 2112000→5280归并。尚未证明物理GATE payload、真实cache/模型数值首错或generated Controller执行typed TaskDone。独立parent_a_01真实fullA与本次受控端点结果不能拼接代签真实缓存集成。
+
+成本答复结论接受：views_04起配置600s pilot，views_07以pilot执行382.907547s，缺少先行≤120s成功pilot及运行前full估算，执行分类/预算记DEVIATION。限定功能PASS保留；历史不改名追认、不为补记录重跑。原120s pilot与RTL 8GiB/3600s帽继续有效。
+
+已只读核对修正源：120s短pilot、显式full、200000周期帽、真实pilot elapsed/cycles及1.5倍率估算、超过3600s停止；这不是修正入口运行PASS。发现一项常规记录修复：run_matrix_portal_binding.py先将manifest哈希写入receipt，再新增full_cost_basis并改写manifest；估算超帽时直接raise会留下旧哈希且缺少结构化COST_STOP。请在拒绝路径同步最终manifest身份与receipt，记录full未启动、估算和停止原因，保留已完成阶段的真实结果。按现授权有界检查该分支即可，不需重跑历史用例。前9条诊断命令的速率对完整父view工作量的适用性也需说明；超过成本帽照实停止，不通过加帽或删减full验收范围绕过。
+
+继续现合同内集成：实际GATE writer/reader与逐窗口来源凭据，保持所有G→LOAD→Q/L分期；真实QUANT生产fullA后接实际fullA/fullW父matrix，闭合全tensor覆盖、物理末R/B、lease释放与原数值首错；由唯一持久hub/实际generated caller取得L2/L3同runtime payload、独立gold及同session故障恢复。production新增TU与生成依赖纳入最终build，再完成当前完整CPU/实际CSim。
+
+L0/L1继续PARTIAL、L2–L5 NOT_RUN，M003未完成，M004完整加速器/高性能目标未验收。局部cycles和metadata规模不代替完整请求性能或联合资源。单owner、单重工具、模型/shape/数值/13BO、全部资源帽及G累计OOC余2338.224019s不变；无新增OOC/P&R/上板。主控本次未编辑实现、未运行工程实验。常规修复和独立工作连续推进，仅在下一实质集成里程碑或影响合同的阻塞时交付。

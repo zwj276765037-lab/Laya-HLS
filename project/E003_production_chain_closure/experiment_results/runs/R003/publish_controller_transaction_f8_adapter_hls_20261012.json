@@ -1,0 +1,22 @@
+{
+  "source": "# E003：当前生产链接入与回归\n\nM003/SM003是M004完整Laya加速器的前置，A002单owner；唯一实现根为`project/E002_Laya_HLS/experiment`，E003只保存冻结运行证据。原模型、完整shape/122矩阵、独立gold、13BO/control ABI、wire v2、数值与错误优先级保持。\n\n当前按`D-M003-PRODUCTION-HLS-PARTITION-01`及`D-M003-CONTROLLER-INTERNAL-SPLIT-01`实施。F8在现LTX1/LTC1合同内要求每次END重试单独取得本轮可信flags；只有同时具备FRAME_COMPLETE与BINDING_OK且没有LOCAL_REJECT的远端END才能读取drained/scope，坏头、错绑定或无可信flags须立即退出并保留旧tracker/scope。\n\nadapter normalized request解码直接复用三套既有协议的字段语义校验，移除内部三次完整wire encode→decode往返；外部framing、保留字段、协议、任务和数值合同不变。重工具保持单实例、CPU0–3、nice19、idle I/O、MemAvailable>192GiB及原停止条件。\n",
+  "results": "# E003：R003当前结果\n\nF8在限定C++主机范围闭合。`controller_transaction_adapter_11`、`graph_sequencer_host_05`、`controller_transaction_lifecycle_04`、`producer_engine_controller_12`均PASS_SCOPED_HOST；聚合222/222 current、222/222 frozen、222/222 pair一致，64条编译/链接/执行命令exit0。生命周期负例证明合法非终态END后遇坏头或错绑定时无第三次END，旧tracker/scope保留，typed不退休，原合法非终态→终态与同session恢复仍通过。四项manifest/receipt分别为：\n\n- adapter `de9cdf7bed1cd6df68070633855a195810e13d713513d5f839ae6288a6aec815` / `aa4a23c03d6e5817abb7467cc7ff29c0b527e05d974743523a219c55a4d760ed`；\n- sequencer `e9f864ad6f9c555e082bf53ba34c36f041003f14081caab4bbeeac0b532ba495` / `76d15b21d390188bf3207ab9508ec5c90a61f15269a9dd4928e5843bb3a5f597`；\n- lifecycle `ca62a56abdb7ec75cd275fdf81efa343167a1c754933ce59dad1cf36735a6b2b` / `5a5e8ecbedcd9e48214bf87bc97d29d539ea39fc12095d48ec456388a6fb482e`；\n- producer `4f322bed32bc4c7ff79d6699dfe4a542107215386d56d0511d5678dc774ef8c5` / `c12539cde3cfc3a2c1c07ab3580513cbacdc2136fc6b96b8f5f6735abc183a5c`。\n\n`controller_transaction_lifecycle_03`保留FAIL/-11：编译链接全过，测试把大型FullRuntime放栈上导致执行崩溃；`_04`改为静态测试对象后PASS，没有改DUT语义或覆盖失败记录。\n\n`controller_transaction_adapter_hls_02`相对`_01`的Compile/Link指令46,048→34,864（-24.29%），Unroll step4 117,368→80,707（-31.24%），Loop/function optimization 192.44s→81.96s（-57.41%）。32/32 current/frozen/pair一致，host build/run exit0。新attempt仍在后续硬件构建阶段触发120s semantic_stall，585.645036s停止，峰值owned RSS 5,963,856KiB；无RTL candidate或端口证据。manifest=`25818dfddab7bdc838f275378ecb60576401fbf34bf560937baa4b9b4dc66858`，receipt=`1ab76fe110a1385c3092b9aabb032cdd76beff78f3bdc53ffc442620d36351f2`。聚合核查SHA256=`f816875f23294032a331adf887ef9445f506047f3e6e0cd00532ca64ce9597b6`。\n",
+  "status": "# E003：R003当前状态\n\nexecution_state: running\nverdict: unassessed\n\nF8在当前冻结C++主机组合范围闭合。adapter编译成本已有实质下降，但HLS仍FAIL/semantic_stall且没有RTL；该profile不原样重试。C009继续部分实施，真实generated master/store提交、adapter待发/held fence因果、persistent hub到普通source lease与Q/fullA的生产连接仍未闭合。\n\n下一步继续更强的流式/逐拍adapter切分，或推进依赖上独立的production master/store helper→monitor/hub→source lease→Q/fullA。保持旧scope、末B、部分失败提交、取消、迟到返回与同session恢复合同。\n\nL0/L1保持PARTIAL，L2–L5 NOT_RUN，组合full保持NOT_RUN_COST，M003/M004未完成；完整CPU/实际CSim、完整硬件请求、联合资源、性能、OOC、P&R和上板均未由本阶段验证。G OOC余2338.224019s不变，5172s组合profile不重启。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "F8仅在当前冻结C++主机组合与受影响Controller/adapter/producer回归范围闭合；adapter HLS编译成本下降但未生成RTL，真实AXI master/store fence和完整请求仍未验证",
+  "evidence": [
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_11/input_manifest.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_11/receipt.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_host_05/input_manifest.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_host_05/receipt.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_lifecycle_04/input_manifest.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_lifecycle_04/receipt.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/producer_engine_controller_12/input_manifest.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/producer_engine_controller_12/receipt.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_lifecycle_03/receipt.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_02/input_manifest.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_02/receipt.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_f8_adapter_hls_verification_20261012.json"
+  ]
+}

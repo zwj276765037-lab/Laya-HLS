@@ -1,0 +1,131 @@
+--- AT034/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/wigqd0_chain_tb_v1.sv
++++ AT035/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/wigqd0_chain_tb_v1.sv
+@@ -565,13 +565,14 @@
+   integer stage=0; // 0: Wi resident, 1: G/quant/Down
+   logic prefill_select=1'b0,wi_cfg_valid,wi_cfg_ready,wi_cfg_reject,wi_reader_active;
+   logic source_quant_valid,source_quant_ready,source_quant_reject;
++  logic source_quant_owner_admitted=1'b1;
+   logic source_quant_done_valid,source_quant_done_ready;
+   logic [2:0] source_quant_done_status;
+   logic [63:0] source_quant_done_bad_element;
+   logic [95:0] source_producer_context,source_quant_context;
+   integer source_quant_accept_edge=-1,source_a_publish_edge=-1;
+   integer source_first_ar=-1,source_last_ar=-1,source_first_r=-1,source_last_r=-1;
+-  integer source_ar_beats=0,source_r_beats=0,source_quant_halves=0;
++  integer source_ar_count=0,source_ar_beats=0,source_r_beats=0,source_quant_halves=0;
+   logic [31:0] wi_ar_count,wi_r_count,wi_complete_rows;
+   logic [63:0] wi_araddr;
+   logic [7:0] wi_arlen;
+@@ -606,7 +607,7 @@
+     .ext_quant_done_valid(source_quant_done_valid),.ext_quant_done_ready(source_quant_done_ready),
+     .ext_quant_done_status(source_quant_done_status),
+     .ext_quant_done_bad_element(source_quant_done_bad_element),
+-    .ext_quant_owner_admitted(1'b1),.ext_quant_source_published(1'b1),
++    .ext_quant_owner_admitted(source_quant_owner_admitted),.ext_quant_source_published(1'b1),
+     .ext_quant_a_slot(cfg_a_slot),.ext_quant_a_slot_epoch(cfg_a_epoch),
+     .ext_quant_numeric_identity(cfg_numeric_identity),
+     .ext_quant_producer_context(source_producer_context),
+@@ -1434,6 +1435,7 @@
+             $fatal(1,"source quant AR readonly bounds");
+           g_read_source=1;
+           g_rindex=int'((g_m_axi_araddr-SOURCE_BASE)>>6);
++          source_ar_count++;
+           source_ar_beats+=int'(g_m_axi_arlen)+1;
+           if(source_first_ar<0)source_first_ar=cycle;
+           source_last_ar=cycle;
+@@ -1617,15 +1619,26 @@
+     repeat(6)tick();@(negedge clk);rst_n=1;repeat(16)tick();
+     @(negedge clk);
+     source_producer_context=cfg_linear_context;
+-    source_producer_context[39:32]=8'h60;
++    source_producer_context[39:32]=8'h12;
+     source_producer_context[31:0]=32'hac000001;
+     source_quant_context=cfg_linear_context;
+-    source_quant_context[39:32]=8'h61;
++    source_quant_context[39:32]=8'h20;
+     source_quant_context[31:0]=32'hac000002;
+-    source_quant_valid=1;
++    // Both producers hold valid. G wins the first idle slot and is safely
++    // rejected before any arithmetic, AXI, or A-cache work is admitted.
++    source_quant_valid=1;g_cfg_valid=1;g_cfg_owner_admitted=0;
++    #1;if(!g_cfg_ready || source_quant_ready || producer.ext_quant_active)
++      $fatal(1,"QAR0 dual-valid G priority");
++    tick();
++    if(!g_cfg_reject || producer.ext_quant_active || g_aw_count!=0 ||
++       g_quant_starts!=0 || fa_physical_half_commits!=0)
++      $fatal(1,"QAR0 first G rejection altered source Q");
++    $display("MATRIX_PROGRESS cycle=%0d QAR0_dual_valid_G_reject=1 ext_held=1",cycle);
++    @(negedge clk);g_cfg_valid=0;
+     @(posedge clk);while(!source_quant_ready)@(posedge clk);
+     source_quant_accept_edge=cycle;
+-    @(negedge clk);source_quant_valid=0;
++    @(negedge clk);source_quant_valid=0;g_cfg_valid=1;
++    #1;if(g_cfg_ready)$fatal(1,"QAR0 G preempted active external Q");
+     $display("MATRIX_PROGRESS cycle=%0d source_quant_accepted=1",cycle);
+     while(!source_quant_done_valid)tick();
+     if(source_quant_reject || source_quant_done_status!=0 || fa_slot_state[0]!=2 ||
+@@ -1636,10 +1649,15 @@
+        source_a_publish_edge<0 || source_first_ar<0 || source_first_r<0 ||
+        !producer.quant_task_debt_zero)
+       $fatal(1,"source quant physical publication/debt");
+-    repeat(7)begin tick();if(!source_quant_done_valid || fa_slot_state[0]!=2)
++    repeat(7)begin tick();if(!source_quant_done_valid || fa_slot_state[0]!=2 || g_cfg_ready || g_cfg_reject)
+       $fatal(1,"source quant held response");end
+     @(negedge clk);source_quant_done_ready=1;tick();
+     @(negedge clk);source_quant_done_ready=0;tick();
++    if(!g_cfg_reject || source_quant_reject || source_quant_done_valid ||
++       g_aw_count!=0 || g_quant_starts!=4)
++      $fatal(1,"QAR0 waiting G rejection after external Q retirement");
++    @(negedge clk);g_cfg_valid=0;tick();
++    if(g_cfg_reject)$fatal(1,"QAR0 duplicate G rejection");
+     if(source_quant_done_valid || producer.ext_quant_active || g_read_active ||
+        g_m_axi_rvalid || !producer.quant_task_debt_zero)
+       $fatal(1,"source quant response/debt consume");
+@@ -1728,7 +1746,7 @@
+     g_cfg_producer_context[39:32]=8'h60;
+     g_cfg_quant_context=cfg_linear_context;
+     g_cfg_quant_context[31:0]=32'hac000005;
+-    g_cfg_quant_context[39:32]=8'h61;
++    g_cfg_quant_context[39:32]=8'h20;
+     g_cfg_linear_context=cfg_linear_context;
+     g_cfg_wi_ref=64'h0000000600000001;
+     g_cfg_gate_ref=cfg_source_ref;
+@@ -1746,6 +1764,10 @@
+     @(negedge clk);g_cfg_valid=1;tick();
+     if(g_cfg_reject)$fatal(1,"GQD0 legal G command rejected");
+     @(negedge clk);g_cfg_valid=0;
++    // The next external command waits throughout the real G/quant task.
++    // Its owner admission is false, so post-G selection is a zero-work reject.
++    source_quant_valid=1;source_quant_owner_admitted=0;
++    #1;if(source_quant_ready)$fatal(1,"QAR0 external Q preempted G");
+     $display("MATRIX_PROGRESS cycle=%0d GQD0_cfg_accepted=1",cycle);
+     // The physical reader owns all Wi scalar/status/row signals.
+     @(negedge clk);wi_cfg_valid=1;
+@@ -1771,10 +1793,17 @@
+        g_read_beats-source_r_beats!=656 ||
+        g_quant_halves!=656)
+       $fatal(1,"GQD0 bridge completion/physical debt");
+-    repeat(7)begin tick();if(!g_done_valid || fa_slot_state[0]!=2)
++    repeat(7)begin tick();if(!g_done_valid || fa_slot_state[0]!=2 || source_quant_ready || source_quant_reject)
+       $fatal(1,"GQD0 held bridge response");end
+     @(negedge clk);g_done_ready=1;tick();
+     @(negedge clk);g_done_ready=0;tick();
++    if(!source_quant_reject || source_quant_done_valid ||
++       fa_slot_state[0]!=2 || fa_slot_epoch[0]!=2 ||
++       g_source_r_count!=656 || g_b_count!=656)
++      $fatal(1,"QAR0 waiting external reject after G retirement");
++    @(negedge clk);source_quant_valid=0;source_quant_owner_admitted=1;tick();
++    if(source_quant_reject || producer.ext_quant_active)
++      $fatal(1,"QAR0 external rejection not released");
+     if(g_done_valid || fa_slot_state[0]!=2 || wi_reader_active || wi_r_count!=1312 ||
+        wi_complete_rows!=4 || wi_accepted!=20992 || wi_rows_retired!=4)
+       $fatal(1,"GQD0 bridge/Wi reader consume");
+@@ -1840,7 +1869,7 @@
+       g_cfg_edge,gate_first_aw,gate_last_aw,gate_first_w,gate_last_w,gate_first_b,gate_last_b,
+       quant_first_r,quant_last_r,quant_a_publish_edge,cycle);
+     measurement_report("full");
+-    $display("QWIGQD0_CHAIN_PASS source_Q_accept=%0d source_AR_beats=%0d source_R=%0d source_A_publish=%0d gate_W=%0d gate_R=%0d gate_A_publish=%0d total_quant_groups=%0d Down_A_reads=%0d Down_A_returns=%0d Down_AW=%0d Down_W=%0d Down_B=%0d cycle=%0d",source_quant_accept_edge,source_ar_beats,source_r_beats,source_a_publish_edge,g_write_beats,g_read_beats-source_r_beats,quant_a_publish_edge,fa_physical_scale_commits,actual_a_reads,actual_a_returns,actual_aw_count[0],actual_w_count[0],actual_b_count[0],cycle);
++    $display("QWIGQD0_CHAIN_PASS source_Q_accept=%0d source_AR=%0d source_AR_beats=%0d source_R=%0d source_first_AR=%0d source_last_AR=%0d source_first_R=%0d source_last_R=%0d source_A_publish=%0d gate_W=%0d gate_R=%0d gate_A_publish=%0d total_quant_groups=%0d Down_A_reads=%0d Down_A_returns=%0d Down_AW=%0d Down_W=%0d Down_B=%0d cycle=%0d",source_quant_accept_edge,source_ar_count,source_ar_beats,source_r_beats,source_first_ar,source_last_ar,source_first_r,source_last_r,source_a_publish_edge,g_write_beats,g_read_beats-source_r_beats,quant_a_publish_edge,fa_physical_scale_commits,actual_a_reads,actual_a_returns,actual_aw_count[0],actual_w_count[0],actual_b_count[0],cycle);
+     $display("TM4_MATRIX_RESIDENT_FULL_PASS rows=4 K=2624 N=1024 real_stripes=%0d PS_lane_groups=335872 final_packets=%0d real_output_words=%0d actual_AW=%0d actual_W=%0d actual_B=%0d held_B=%0d full_A_physical=1 W_strict_physical=1 A_fixture_prequantized=0 final_B_publication=1 local_owner_ledger=1 cycles=%0d",actual_stripes,actual_final_copies,output_words,actual_aw_count[0],actual_w_count[0],actual_b_count[0],held_b,cycle);$finish;
+   end
+ endmodule

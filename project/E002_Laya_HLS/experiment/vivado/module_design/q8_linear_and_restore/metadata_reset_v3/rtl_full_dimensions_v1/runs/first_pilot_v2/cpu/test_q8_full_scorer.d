@@ -1,0 +1,24 @@
+/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v2/cpu/test_q8_full_scorer.o: \
+ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/test_q8_full_scorer.cpp \
+ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_tm4tn8.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/ap_int.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_common.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_decl.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/hls_half.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/hls_half_fpo.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/hls_fpo.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/floating_point_v7_1_bitacc_cmodel.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/gmp.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/mpfr.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/gmp.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/mpfr.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/hls_half_x_utils.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_base.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_ref.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_special.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/ap_fixed.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_fixed_base.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_fixed_ref.h \
+ /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_fixed_special.h \
+ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_abi.h

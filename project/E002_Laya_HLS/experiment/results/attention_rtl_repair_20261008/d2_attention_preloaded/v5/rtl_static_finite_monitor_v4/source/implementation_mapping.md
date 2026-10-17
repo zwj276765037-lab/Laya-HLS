@@ -1,0 +1,15 @@
+# Head15 v4 source mapping
+
+The authoritative v4 scope is [design.md](design.md) and the [independent source-preparation release](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_monitor_v4_boundary_diagnostic_source_preparation_release.json). The failure being isolated is recorded in [the first-failure review](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_monitor_v3_actual_runtime_first_failure_acceptance.json).
+
+| Boundary | Source mapping and preservation |
+| --- | --- |
+| Sole 119-bit owner | `tb/att_axi_monitor.sv` is byte-identical to v3. The packed record is driven by one `record` block; reset zero and accepted-R assignment retain their original position. |
+| Wrapper connection | `tb/att_axi_port.sv` keeps its two named monitor outputs and `assign ram_accepted_r_record = ram_monitor_accepted_r_record`. Only the wrapper reset predicate/display/flag moves from its negative-edge block into `check_reset_record()`. Its expression and first-R block are unchanged. |
+| Seven named top connections | Both `tb/att_finite_*_top.sv` files are byte-identical to v3 and match a source-only regeneration. Each named `u_port_*` output remains tied to the same literal `[0:6]` top record/count element. |
+| Raw diagnostic | `tb/att_r_boundary_diagnostic.svh` is included by `tb/att_finite_control.svh`. Its seven literal `case` arms read both owner instances, both wrapper records, wrapper output, literal top element, and the existing variable-index top element. It prints four-state hex/binary values and expression variants before checks. Diagnostic reads do not drive the record path. |
+| Assertion coordination | At the original settled negative edge, the top invokes the complete raw snapshot, marks it complete, calls the seven preserved wrapper reset tasks, then evaluates its original variable-index top reset loop. Wrapper sibling reset fatals cannot precede the snapshot. No `#delay`, reset change, or transaction-state update is introduced. The owner positive-edge assertion remains at its original location. |
+| First R and numerical tail | The wrapper first-R branch and all control after the record reset/first-R checks remain source-identical to v3. The selected qkv1 port4, four-command sequence, watchdog and numerical checks are unchanged. |
+| Isolated same-connection probe | `diagnostic/record_boundary_probe.sv` has a synthetic owner at both sides of each wrapper and reproduces the output types, named connection, continuous wrapper assignment, direct count path and seven-element unpacked top array. It includes the same v4 diagnostic source but no DUT, endpoint, fixture, or oracle. See `diagnostic/README.md`. |
+
+This candidate only exposes boundary values and coordinates reset assertion placement. It does not explain the v3 failure until the separately gated probe runs and its actual output is reviewed.

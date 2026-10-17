@@ -1,0 +1,12 @@
+--- executor_request_close_host_02/executor_actor_test.cpp
++++ executor_request_close_host_03/executor_actor_test.cpp
+@@ -141,7 +141,8 @@
+   assert(s.managed_close && s.phase==executor::Phase::WAIT_RESULT_CONSUMED);
+   const auto before=std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(&s.runtime),
+     reinterpret_cast<const uint8_t*>(&s.runtime)+sizeof(s.runtime));
+-  const auto task=s.runtime.last_task_id,lpv=s.runtime.provenance_event_high_water;
++  const auto task=s.runtime.last_task_id;
++  const auto lpv=s.runtime.provenance_event_high_water;
+   const auto producer=s.runtime.producer_request_high_water;
+   // An untagged last-read or a foreign syntactically valid result has no
+   // managed close authority. The full result belongs to the old admitted A/K.

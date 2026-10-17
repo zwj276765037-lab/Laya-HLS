@@ -1,0 +1,94 @@
+{
+  "schema": "axi_wait_trace_and_queue_exists_source_preparation_release_v1",
+  "at_utc": "2026-10-08T13:56:12.827734+00:00",
+  "reviewer": "GPT-6 Astra xhigh",
+  "status": "TWO_INDEPENDENT_ISOLATED_SOURCE_PREPARATIONS_RELEASED_NO_TOOL_RUN",
+  "inputs": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/design.md",
+      "bytes": 18864,
+      "sha256": "a660bc420bc0fab67d322c8b2b90cb6a3759c56912abe9853b9e7a69594263ee"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/results.md",
+      "bytes": 9593,
+      "sha256": "666e458b88e94c85c749d3763ad465de17e4cff5105dc7517df1f0dc53fab245"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/history/design_before_wait_and_exists_design_20261008.md",
+      "bytes": 12893,
+      "sha256": "20d38306351d228537a11eb336f82d142a8d63243d3334a5e8a57b584d183545"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/history/results_before_wait_and_exists_design_20261008.md",
+      "bytes": 8503,
+      "sha256": "5df2ca78f24d5f7c67c0053c5994440fccce179a70b7ed992ccac011e9f7aef4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_stable_sampling_v2_runtime_review.json",
+      "bytes": 7795,
+      "sha256": "33c8bed444ca0e55e59cbb26fb8ca2eb06815162ae5bffbc077974a3c8461e43"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/source/source_binding_packet.json",
+      "bytes": 58756,
+      "sha256": "907120bf496a71042126286c24b8ba5bc60dc853efab45a7a9d870600e7d7ec2"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/rtl/axivip/axi_slave_seq_lib.sv",
+      "bytes": 10590,
+      "sha256": "e04336f176da7c5a9fa7e75d89003ae773aa6c0ef34f518909d4660167ea6437"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/rtl/axivip/axi_state.sv",
+      "bytes": 16964,
+      "sha256": "24616dd77d25db56750cfe8341b66bbc2fb1de58cc978f55d7002ac13736d620"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/tb/phase_axi_monitor.sv",
+      "bytes": 7428,
+      "sha256": "911507e4c1bfb5bc3cf12e81a7552989c99a48b0f4ad1691b1eda01213dd4ee9"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/tb/axi_allocation_diag_top.sv",
+      "bytes": 10737,
+      "sha256": "e8991dccef7cb508e9bae90d12b7837b6d6bd93e01f6265846f83d4acffca674"
+    }
+  ],
+  "variants": {
+    "wait_trace_v3": {
+      "base": "exact frozen v2",
+      "change": "Only bounded top/monitor observation of original wait predicate/threshold/count, fixed raw/sample edge window and immediate same-predicate diagnostic assert after original wait. All waits, traffic and original assertions retained.",
+      "snapshot": "axi_wait_trace",
+      "future_runtime": "one fresh traffic;100000 clocks/1024pairs/90000drain;4GiB/90s after actual snapshot gate",
+      "source_only_now": true
+    },
+    "queue_exists_v1": {
+      "base": "exact frozen v2, not wait_trace_v3",
+      "change": "Four nested exists guards around missing-key size checks in the two TRANSACTION_FIRST per-clock delay loops; no wdiv_cal/latency/traffic/observer change",
+      "snapshot": "axi_queue_exists",
+      "future_runtime": "one fresh idle;100000 clocks/seven ports/seed1;4GiB/90s after actual snapshot gate",
+      "source_only_now": true
+    }
+  },
+  "next_gates": {
+    "source_packet": "actual source and exact mechanical diff, copy pairs, compile/include closure, guards, argv and budgets",
+    "static": "one16GiB/300s build per variant only after source review; not yet released",
+    "runtime": "independent actual source/snapshot review; not yet released"
+  },
+  "common_limits": {
+    "cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nice": 19,
+    "ionice": "idle",
+    "rss_sample_seconds": 0.2,
+    "min_memavailable_gib": 192,
+    "heavy_scope": "one heavy tool in Laya workflow only"
+  },
+  "priority": "Attention v2 current CPU/CSim and already released queue first; Q8 preparation can interleave",
+  "interpretation": "Controlled diagnostic hypotheses only; no causal simulator finding, successful traffic, full-DUT bound or production VIP fix has been accepted."
+}

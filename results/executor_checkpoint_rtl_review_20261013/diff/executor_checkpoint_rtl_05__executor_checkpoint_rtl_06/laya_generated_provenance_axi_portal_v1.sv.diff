@@ -1,0 +1,12 @@
+--- executor_checkpoint_rtl_05/laya_generated_provenance_axi_portal_v1.sv
++++ executor_checkpoint_rtl_06/laya_generated_provenance_axi_portal_v1.sv
+@@ -199,7 +199,8 @@
+       // Old half-frames/END/response/final-B all retain their original progress.
+       .acquisition_safe(bootstrap_physical_safe && command_fifo_occupancy==0 &&
+                         response_fifo_occupancy==0 && !provenance_cmd_write),
+-      .base_valid(snapshot_base_valid),.base_epoch(snapshot_base_epoch),
++      .base_valid(snapshot_base_valid && checkpoint_base_history_complete &&
++                  monitored_bo_base==snapshot_base_address),.base_epoch(snapshot_base_epoch),
+       .base_address(snapshot_base_address),.base_capacity(snapshot_base_capacity),
+       .dispatch_held(checkpoint_dispatch_held),.handoff_complete(checkpoint_handoff_complete),
+       .handoff_pulse(checkpoint_handoff_pulse),.authority_valid(checkpoint_authority_valid),

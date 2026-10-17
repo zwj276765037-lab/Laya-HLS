@@ -1,0 +1,92 @@
+{
+  "actual_packet": {
+    "bytes": 11104,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/hls_synthesis_v1/actual_result_evidence.json",
+    "sha256": "008bef09743876ba2467d8ff9d3662c5de5869c7e4d3fd082b3b074b78e0e25b"
+  },
+  "actual_preprocessed_dependency_paths": 227,
+  "archive": {
+    "bytes": 364849,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/hls_synthesis_v1/archive_inventory.json",
+    "sha256": "73d5853d7b2f1e5408f93277004ef26d4625614d466bb2a19d4a76b89cb3a74f"
+  },
+  "archive_file_count": 507,
+  "created_utc": "2026-10-09T03:53:54.943184+00:00",
+  "diagnosis": "HLS reset pragma uses metadata_initialized before function-local using namespace laya::full is in scope. The declared object is namespace-static laya::full::metadata_initialized. This is a frontend name-lookup defect, not numerical or hardware reset evidence.",
+  "first_failure": {
+    "column": 28,
+    "declaration_note": "INFO: [HLS 207-5482] 'laya::full::metadata_initialized' declared here (/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/attention_preloaded_slice.cpp:68:13)",
+    "interpretation": "The reset pragma appears before the function-local using namespace declarations; the HLS frontend cannot resolve the unqualified namespace-static variable there. No source edit or second invocation was made under this release.",
+    "line": 448,
+    "source_file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/attention_preloaded_slice.cpp",
+    "source_line": "#pragma HLS reset variable=metadata_initialized",
+    "stage": "HLS source syntax check",
+    "terminal_message": "ERROR: syntax check failed.",
+    "verbatim_error": "ERROR: [HLS 207-4638] use of undeclared identifier 'metadata_initialized'; did you mean 'laya::full::metadata_initialized'? (/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/attention_preloaded_slice.cpp:448:28)"
+  },
+  "guard_plan": {
+    "at": "2026-10-09T03:46:24.289664+00:00",
+    "command": [
+      "/usr/bin/nice",
+      "-n",
+      "19",
+      "/usr/bin/ionice",
+      "-c",
+      "3",
+      "/usr/bin/taskset",
+      "-c",
+      "0,1,2,3",
+      "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/v++",
+      "--compile",
+      "--mode",
+      "hls",
+      "--config",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/config.cfg",
+      "--work_dir",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/hls_synthesis_v1/work"
+    ],
+    "cwd": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline",
+    "maximum_owned_rss_kb": 16777216,
+    "maximum_seconds": 1800,
+    "minimum_mem_available_kb": 201326592,
+    "sample_seconds": 0.2,
+    "selected_cpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "guard_result": {
+    "child_exit_code": 1,
+    "elapsed_seconds": 70.72363956458867,
+    "finished_at": "2026-10-09T03:47:35.013482+00:00",
+    "minimum_mem_available_kb": 447992960,
+    "peak_owned_rss_kb": 1293380,
+    "rss_capture_count": 353,
+    "rss_captured": true,
+    "rss_sample_count": 353,
+    "trigger": null
+  },
+  "memory_samples": 353,
+  "not_available": [
+    "Synthesis schedule",
+    "Generated RTL/IP",
+    "Interface/reset-cone proof",
+    "Resource/timing result"
+  ],
+  "policy_process_observations": 161,
+  "preprocessed_translation_units": 25,
+  "prior_functional_evidence": "Previously accepted v6 strict CPU and CSim remain valid for v6 only; no rerun performed. A semantically neutral source relocation may inherit numerical reasoning only after exact source comparison, without claiming a new CPU binary/run.",
+  "references_rehashed": 1321,
+  "same_leader_identity_alive": false,
+  "schema": "reviewer_actual_hls_first_failure_acceptance_v1",
+  "source_nested_refs_pre_post": 101,
+  "source_packet": {
+    "bytes": 30791,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/source_packet.json",
+    "sha256": "5adb690006430cc8cd4967228f8420bce9e999f8396adbe63d384d94b993704e"
+  },
+  "status": "FIRST_FRONTEND_FAILURE_ACCEPTED_NO_HARDWARE_RESULT",
+  "unique_paths_rehashed": 798
+}

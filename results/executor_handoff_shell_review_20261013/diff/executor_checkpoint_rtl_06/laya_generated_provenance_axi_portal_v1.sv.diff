@@ -1,0 +1,77 @@
+--- executor_checkpoint_rtl_06/laya_generated_provenance_axi_portal_v1.sv
++++ executor_checkpoint_rtl_07/laya_generated_provenance_axi_portal_v1.sv
+@@ -6,7 +6,10 @@
+   parameter int MONITORED_ROLE=6,
+   parameter bit ENABLE_BOOTSTRAP_SNAPSHOT=0,
+   parameter bit ENABLE_BOOTSTRAP_SOURCE_GUARD=0,
+-  parameter bit ENABLE_EXECUTOR_CHECKPOINT=0
++  parameter bit ENABLE_EXECUTOR_CHECKPOINT=0,
++  // The external full-key shell owns start/grant/rearm. In this mode the
++  // transport's completed query selects a route only; it is not authority.
++  parameter bit MANAGED_EXECUTOR_HANDOFF=0
+ ) (
+   input  logic clk,rst_n,cancel,
+   input  logic [511:0] provenance_cmd_din,
+@@ -154,8 +157,13 @@
+   logic [8191:0] checkpoint_request,checkpoint_response;
+   logic checkpoint_response_valid,checkpoint_response_ready;
+   logic checkpoint_exclusion;
++  logic legacy_checkpoint_authority,legacy_checkpoint_pulse;
+   logic checkpoint_base_seen,checkpoint_base_history_complete;
+   logic [63:0] checkpoint_history_epoch,checkpoint_history_address,checkpoint_history_capacity;
++  // Managed consumers use only the full-key shell's consumed GRANTED reply.
++  // Never export the old last-read authority/pulse as a competing permission.
++  assign checkpoint_authority_valid=!MANAGED_EXECUTOR_HANDOFF && legacy_checkpoint_authority;
++  assign checkpoint_handoff_pulse=!MANAGED_EXECUTOR_HANDOFF && legacy_checkpoint_pulse;
+   // Historical Ref equivalence is meaningful only within this locked base.
+   // A lifecycle change after any predecessor ingress cannot reuse old arrays.
+   always_ff @(posedge clk)begin
+@@ -177,15 +185,17 @@
+     end
+   end
+   assign checkpoint_exclusion=ENABLE_EXECUTOR_CHECKPOINT &&
+-    checkpoint_dispatch_held && !checkpoint_authority_valid;
++    checkpoint_dispatch_held && !(MANAGED_EXECUTOR_HANDOFF ?
++      checkpoint_handoff_complete : checkpoint_authority_valid);
+   assign selected_cmd=ENABLE_EXECUTOR_CHECKPOINT && checkpoint_dispatch_held ?
+     executor_provenance_cmd_din : provenance_cmd_din;
+   assign selected_write=ENABLE_EXECUTOR_CHECKPOINT && checkpoint_dispatch_held ?
+-    executor_provenance_cmd_write && checkpoint_authority_valid : provenance_cmd_write;
++    executor_provenance_cmd_write && (MANAGED_EXECUTOR_HANDOFF ?
++      checkpoint_handoff_complete : checkpoint_authority_valid) : provenance_cmd_write;
+   assign provenance_cmd_full_n=selected_full_n &&
+     (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held);
+   assign executor_provenance_cmd_full_n=ENABLE_EXECUTOR_CHECKPOINT &&
+-    checkpoint_authority_valid && selected_full_n;
++    (MANAGED_EXECUTOR_HANDOFF ? checkpoint_handoff_complete : checkpoint_authority_valid) && selected_full_n;
+   generate if(ENABLE_EXECUTOR_CHECKPOINT)begin : checkpoint_enabled
+     laya_executor_checkpoint_transport_v2 checkpoint_transport(
+       .clk,.rst_n,.cancel,.command_din(checkpoint_command_din),
+@@ -203,7 +213,7 @@
+                   monitored_bo_base==snapshot_base_address),.base_epoch(snapshot_base_epoch),
+       .base_address(snapshot_base_address),.base_capacity(snapshot_base_capacity),
+       .dispatch_held(checkpoint_dispatch_held),.handoff_complete(checkpoint_handoff_complete),
+-      .handoff_pulse(checkpoint_handoff_pulse),.authority_valid(checkpoint_authority_valid),
++      .handoff_pulse(legacy_checkpoint_pulse),.authority_valid(legacy_checkpoint_authority),
+       .protocol_error(checkpoint_protocol_error),
+       .accepted_queries(checkpoint_accepted_queries),.consumed_responses(checkpoint_consumed_responses),
+       .command_occupancy(checkpoint_command_occupancy),.response_occupancy(checkpoint_response_occupancy));
+@@ -211,7 +221,7 @@
+     assign checkpoint_command_full_n=0;
+     assign checkpoint_response_dout=0;assign checkpoint_response_empty_n=0;
+     assign checkpoint_dispatch_held=0;assign checkpoint_handoff_complete=0;
+-    assign checkpoint_handoff_pulse=0;assign checkpoint_authority_valid=0;
++    assign legacy_checkpoint_pulse=0;assign legacy_checkpoint_authority=0;
+     assign checkpoint_protocol_error=0;
+     assign checkpoint_accepted_queries=0;assign checkpoint_consumed_responses=0;
+     assign checkpoint_command_occupancy=0;assign checkpoint_response_occupancy=0;
+@@ -255,7 +265,8 @@
+     .physical_observed_store_bytes1(physical_observed1),
+     .physical_drained,.physical_coverage_complete,
+     .source_query_valid(source_query_valid &&
+-                        (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held)),
++                        (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held ||
++                         (MANAGED_EXECUTOR_HANDOFF && checkpoint_handoff_complete))),
+     .source_query_ready,.source_query_command,
+     .source_query_granted,.source_release_valid,.source_release_ready,
+     .source_release_command,.source_release_drained,.source_lease_active,

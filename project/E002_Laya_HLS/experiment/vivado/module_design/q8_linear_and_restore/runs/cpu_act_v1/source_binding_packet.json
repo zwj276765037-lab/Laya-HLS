@@ -1,0 +1,715 @@
+{
+  "admission_claim_retirement_order": [
+    "Read exactly 128 U32 descriptor words; check magic/version/flags/reserved/observed size, exact frozen tags and nonzero identity, raw narrow fields and ranges, frozen WeightKey lookup and exact K/N/stage/op, session identity, task sequence, command-specific refs/shape/epochs and 64-bit byte-span bounds. Any rejection here consumes no task or epoch.",
+    "LOAD binds first session, retires LOAD task and claims next W epoch, marks W INVALID, reads genuine 128-byte aux model header then q0/q1 512-bit beats, scale 512-bit beats, bias U32. Validate all padded n then g scales, then bias n. Only complete success marks W READY and increments W loads; failure leaves W INVALID and consumed task/epoch.",
+    "RUN claims internal A8 epoch and quant task, reads full rows*K activation F32 through 512-bit port into 8 banks, scans each group in 8-lane blocks, computes F32 scale/reciprocal, half RNE and A8. Quant failure retires only quant and leaves PS/dst unclaimed.",
+    "After full quant success, claim linear task, next PS and destination epochs; preserve W. Issue m0 ascending then g ascending then n0 tile ascending; per-bank/tile lane_bad prevents cross-tile error suppression. Compute 32 adjacent-tree signed dot terms per lane, scalar R0 product/term/PS order, bias after final group, physical output write and observed trace from actual arithmetic. Full completion marks PS/dst READY; a numerical failure chooses minimum production n0,row,n-lane,g,phase rank and leaves PS/dst INVALID.",
+    "CPU top return follows all synchronous C++ writes; actual AXI B response and cycle claims require later RTL."
+  ],
+  "at_utc": "2026-10-08T15:02:20.705457+00:00",
+  "authority": {
+    "frozen_generated_header": {
+      "bytes": 106348,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/laya_model_layout_generated.h",
+      "sha256": "c2fd1da7b00c7361d616ac15af431dea14c4979ac2aded6b37888fb1d633630a"
+    },
+    "production_source": {
+      "independent_r0": {
+        "bytes": 35233,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/tests/full_reference.py",
+        "sha256": "fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784"
+      },
+      "linear_numeric": {
+        "bytes": 9372,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/q8_linear_compute.cpp",
+        "sha256": "001f53c4b3a08b90743b06e31fa1e62beef7fd34891faf85c9f4cf5ef35d4d62"
+      },
+      "load_numeric_order": {
+        "bytes": 16482,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/memory/full_loader.cpp",
+        "sha256": "e5536516ae56055e2e25f32f07e1f6f6bf27c7b012aa7b0d5d0906e23681cf1d"
+      },
+      "quant_numeric": {
+        "bytes": 4461,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/activation_quantizer_compute.cpp",
+        "sha256": "ab45fb3f1b2a8355b45e183d9bde14efba08241dad98588ecb791d89d694ebaa"
+      },
+      "tasks": {
+        "bytes": 4029,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_tasks.cpp",
+        "sha256": "4b4f647afbfa91dc90ed0de4d729472458c00dd1e8e2ade7910262fdc3ad044f"
+      },
+      "types": {
+        "bytes": 3034,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_types.h",
+        "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+      },
+      "weight_layout": {
+        "bytes": 13466,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_memory.cpp",
+        "sha256": "a838cb4910ee824b42d9cd14bae009ec59c1b0b2f9df4ac5e26dda67e950ffca"
+      }
+    },
+    "release": {
+      "bytes": 8922,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_joint_q8_tm4tn8_implementation_cpu_release.json",
+      "sha256": "37b4adc09c321f288dc8162cc3c920fe2cfd7b09a8f5aedf9306afef1cb14f81"
+    },
+    "repair_contract": {
+      "bytes": 66073,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md",
+      "sha256": "cff90d5bbe53c76b6756fb3d1596c1aa812cd3cbca9e83b03cac6995ce4cfa49"
+    }
+  },
+  "binary": {
+    "bytes": 98600,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_build_v1/test_q8_joint",
+    "sha256": "71cc1694b8ff148bf42b8812dd4b1f7120be43304c6eba4b12d4097bfaff28b0"
+  },
+  "build": {
+    "guard": {
+      "driver.log": {
+        "bytes": 6330,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_build_v1/guard_fullbuild6/driver.log",
+        "sha256": "7cb95ec0fdcbcaa4ffc4dd4536a1152e499a06cc9547b86a484d0c4b150cd6e0"
+      },
+      "guard_plan.json": {
+        "bytes": 1410,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_build_v1/guard_fullbuild6/guard_plan.json",
+        "sha256": "a78aca88aa5ce28ade1193d5a12add4caee7492eab9a53696fc6368fe0fa52c0"
+      },
+      "guard_result.json": {
+        "bytes": 289,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_build_v1/guard_fullbuild6/guard_result.json",
+        "sha256": "6ff4112c8cbb2321a177db8a92dfe610c55ddd5d76a11434004844276f91eb81"
+      },
+      "memory_timeline.csv": {
+        "bytes": 1362,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_build_v1/guard_fullbuild6/memory_timeline.csv",
+        "sha256": "ff719791ea586084322ffa9e1d841fbd183acc75c13e3c3ac45b47995066f18c"
+      },
+      "policy_checks.json": {
+        "bytes": 584,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_build_v1/guard_fullbuild6/policy_checks.json",
+        "sha256": "f3bec10f108025442bb910826e8d46fbe783f8838a0c4c70260d840f2bcc4612"
+      }
+    },
+    "name": "strict_g++_build",
+    "policy_all_match": true,
+    "result": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 3.3608482368290424,
+      "finished_at": "2026-10-08T15:00:17.070957+00:00",
+      "minimum_mem_available_kb": 439437320,
+      "peak_owned_rss_kb": 217660,
+      "rss_capture_count": 16,
+      "rss_captured": true,
+      "rss_sample_count": 17,
+      "trigger": null
+    },
+    "stdout": "In file included from /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_common.h:668,\n                 from /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/ap_int.h:10,\n                 from /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.h:4,\n                 from /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp:1:\nIn member function \u2018ap_private<_AP_W, false> _private_range_ref<_AP_W, _AP_S>::get() const [with int _AP_W = 256; bool _AP_S = false]\u2019,\n    inlined from \u2018ap_ulong _private_range_ref<_AP_W, _AP_S>::to_uint64() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6840:30,\n    inlined from \u2018_private_range_ref<_AP_W, _AP_S>::operator long long unsigned int() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6507:87,\n    inlined from \u2018ap_ulong ap_range_ref<_AP_W, _AP_S>::to_uint64() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_ref.h:668:12,\n    inlined from \u2018ap_range_ref<_AP_W, _AP_S>::operator ap_ulong() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_ref.h:315:68,\n    inlined from \u2018int32_t {anonymous}::dot32(ap_uint<256>, ap_uint<256>)\u2019 at /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp:220:63,\n    inlined from \u2018void q8_joint_tm4tn8(const uint32_t*, const ap_uint<512>*, const ap_uint<512>*, const ap_uint<512>*, const uint32_t*, const ap_uint<512>*, uint32_t*, uint32_t*, uint32_t*)\u2019 at /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp:711:42:\n/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6766:7: warning: iteration 234 invokes undefined behavior [-Waggressive-loop-optimizations]\n 6766 |       for (int i = 0, j = l_index; j >= 0 && j >= h_index; j--, i++)\n      |       ^~~\n/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6766:43: note: within this loop\n 6766 |       for (int i = 0, j = l_index; j >= 0 && j >= h_index; j--, i++)\n      |                                    ~~~~~~~^~~~~~~~~~~~~~~\nIn member function \u2018ap_private<_AP_W, false> _private_range_ref<_AP_W, _AP_S>::get() const [with int _AP_W = 256; bool _AP_S = false]\u2019,\n    inlined from \u2018ap_ulong _private_range_ref<_AP_W, _AP_S>::to_uint64() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6840:30,\n    inlined from \u2018_private_range_ref<_AP_W, _AP_S>::operator long long unsigned int() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6507:87,\n    inlined from \u2018ap_ulong ap_range_ref<_AP_W, _AP_S>::to_uint64() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_ref.h:668:12,\n    inlined from \u2018ap_range_ref<_AP_W, _AP_S>::operator ap_ulong() const [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_ref.h:315:68,\n    inlined from \u2018int32_t {anonymous}::dot32(ap_uint<256>, ap_uint<256>)\u2019 at /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp:219:63,\n    inlined from \u2018void q8_joint_tm4tn8(const uint32_t*, const ap_uint<512>*, const ap_uint<512>*, const ap_uint<512>*, const uint32_t*, const ap_uint<512>*, uint32_t*, uint32_t*, uint32_t*)\u2019 at /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp:711:42:\n/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6766:7: warning: iteration 234 invokes undefined behavior [-Waggressive-loop-optimizations]\n 6766 |       for (int i = 0, j = l_index; j >= 0 && j >= h_index; j--, i++)\n      |       ^~~\n/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6766:43: note: within this loop\n 6766 |       for (int i = 0, j = l_index; j >= 0 && j >= h_index; j--, i++)\n      |                                    ~~~~~~~^~~~~~~~~~~~~~~\nIn member function \u2018_private_range_ref<_AP_W, _AP_S>& _private_range_ref<_AP_W, _AP_S>::operator=(const ap_private<_AP_W1, _AP_S1>&) [with int _AP_W2 = 256; bool _AP_S2 = false; int _AP_W = 256; bool _AP_S = false]\u2019,\n    inlined from \u2018_Tp1& _AP_ROOT_op_set_range(_Tp1&, const _Tp2&, const _Tp3&, const _Tp4&) [with _Tp1 = ap_private<256, false, false>; _Tp2 = int; _Tp3 = int; _Tp4 = ap_private<256, false, false>]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_common.h:690:27,\n    inlined from \u2018ap_range_ref<_AP_W, _AP_S>& ap_range_ref<_AP_W, _AP_S>::operator=(unsigned char) [with int _AP_W = 256; bool _AP_S = false]\u2019 at /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_int_ref.h:342:3,\n    inlined from \u2018void q8_joint_tm4tn8(const uint32_t*, const ap_uint<512>*, const ap_uint<512>*, const ap_uint<512>*, const uint32_t*, const ap_uint<512>*, uint32_t*, uint32_t*, uint32_t*)\u2019 at /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp:636:71:\n/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6514:7: warning: iteration 234 invokes undefined behavior [-Waggressive-loop-optimizations]\n 6514 |       for (int i = 0, j = l_index; j >= 0 && j >= h_index; j--, i++)\n      |       ^~~\n/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/etc/ap_private.h:6514:43: note: within this loop\n 6514 |       for (int i = 0, j = l_index; j >= 0 && j >= h_index; j--, i++)\n      |                                    ~~~~~~~^~~~~~~~~~~~~~~"
+  },
+  "cpu_runs": [
+    {
+      "guard": {
+        "driver.log": {
+          "bytes": 80,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_legal_v1/guard6/driver.log",
+          "sha256": "ca7035f64ccff8b855924d63fcb63a6920c5d681722841c05b69283ffe39f29e"
+        },
+        "guard_plan.json": {
+          "bytes": 844,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_legal_v1/guard6/guard_plan.json",
+          "sha256": "f57fea7eaa3ca93e599fa55c94a6e03e129dd1ecba235ea5937b1ccf8735fc9e"
+        },
+        "guard_result.json": {
+          "bytes": 285,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_legal_v1/guard6/guard_result.json",
+          "sha256": "ad188dd1f647c571a39f7188d05ec33e774760d09d01b9f063bae856bdc3f9ff"
+        },
+        "memory_timeline.csv": {
+          "bytes": 248,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_legal_v1/guard6/memory_timeline.csv",
+          "sha256": "562172fd50c1c882503e21dd18cb6036e1433a43d0dc4afadccc569d9be0db70"
+        },
+        "policy_checks.json": {
+          "bytes": 204,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_legal_v1/guard6/policy_checks.json",
+          "sha256": "adebc79adbcea4ca91329e4baf3ed8b9da00d2d1d22d5c1e4ac2a1a455897175"
+        }
+      },
+      "name": "legal_reuse_trace_reject_quant_recovery",
+      "policy_all_match": true,
+      "result": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 0.4183321427553892,
+        "finished_at": "2026-10-08T15:00:22.866296+00:00",
+        "minimum_mem_available_kb": 439487668,
+        "peak_owned_rss_kb": 3932,
+        "rss_capture_count": 2,
+        "rss_captured": true,
+        "rss_sample_count": 2,
+        "trigger": null
+      },
+      "stdout": "Q8_JOINT_ACT_STRICT_CPU_PASS legal=4 trace=2 rejects=3 quant_fault=1 recovery=1"
+    },
+    {
+      "guard": {
+        "driver.log": {
+          "bytes": 38,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_fault_load_v1/guard3/driver.log",
+          "sha256": "440eec925511d95b8668a5e47707d06885a740b257fbaa8ad710fd4fd297f04d"
+        },
+        "guard_plan.json": {
+          "bytes": 849,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_fault_load_v1/guard3/guard_plan.json",
+          "sha256": "a5ac7c6199402335799efe1accf369397fc3d9907906fddf92754f90bafad965"
+        },
+        "guard_result.json": {
+          "bytes": 286,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_fault_load_v1/guard3/guard_result.json",
+          "sha256": "d44b426570eb432d215805d363f5b605acfe013b514608d25b3df678fc50ca5c"
+        },
+        "memory_timeline.csv": {
+          "bytes": 248,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_fault_load_v1/guard3/memory_timeline.csv",
+          "sha256": "8349f0c55aa28e992d9dd3c24d6cdaadf130ebffabc5e1af35307f2148f2e5c7"
+        },
+        "policy_checks.json": {
+          "bytes": 204,
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_fault_load_v1/guard3/policy_checks.json",
+          "sha256": "620a64b2477da0dee4fbf11706a8be8b43f63422e4e586678ff13e31f3ed48b8"
+        }
+      },
+      "name": "compound_load_first_error_recovery",
+      "policy_all_match": true,
+      "result": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 0.42453606985509396,
+        "finished_at": "2026-10-08T15:00:32.771929+00:00",
+        "minimum_mem_available_kb": 439547824,
+        "peak_owned_rss_kb": 3992,
+        "rss_capture_count": 2,
+        "rss_captured": true,
+        "rss_sample_count": 2,
+        "trigger": null
+      },
+      "stdout": "Q8_JOINT_ACT_FAULT_LOAD_RECOVERY_PASS"
+    }
+  ],
+  "descriptor_vectors": {
+    "commands": {
+      "load_w": {
+        "bytes": 512,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/load_w.bin",
+        "sha256": "f929ed6e433207f17a559151da7362462d8a14dbdf097874bb63eccef829ceb2"
+      },
+      "run_b0_trace_n0": {
+        "bytes": 512,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/run_b0_trace_n0.bin",
+        "sha256": "8d0d55eb1b163edac098798dfa54b63a0414bc4f162a96f62a6c74981f4c5cd1"
+      },
+      "run_b0_trace_off": {
+        "bytes": 512,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/run_b0_trace_off.bin",
+        "sha256": "405f113a72d99798e489989d1ca003b9482f9084c83088ec3e7b076132bc5333"
+      },
+      "run_b1_trace_n1": {
+        "bytes": 512,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/run_b1_trace_n1.bin",
+        "sha256": "cac34b149aac707b199cdaace1fd1251ecd375d46dcd71f5a1a2d2c375405863"
+      }
+    },
+    "fixed_512_byte_load_sha256": "f929ed6e433207f17a559151da7362462d8a14dbdf097874bb63eccef829ceb2",
+    "fixed_prefix_hex": "504a3851010000000000000000000000efcdab89674523010100000000000000010000008000000006000000ff00000002000000800000000000000000000000",
+    "manifest": {
+      "bytes": 2585,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/manifest.json",
+      "sha256": "d206f957dce675ba3d68824a71129c50ef8fbacbf37606fd89da38a133647250"
+    },
+    "selected_traces": {
+      "0": {
+        "bias_bits": 3152347136,
+        "bytes": 256,
+        "final_bits": 1167614296,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/act_b0_selected_trace_256.bin",
+        "sha256": "28ba6c1e117f899721ebac8f9e5457d52c8b2a764c53c969308857af0dbc5910"
+      },
+      "1": {
+        "bias_bits": 3172892672,
+        "bytes": 256,
+        "final_bits": 3312964388,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/descriptor_act_v1/act_b1_selected_trace_256.bin",
+        "sha256": "e0658518eb5932c4e510a383450fa764a13ae772fef1e8db627c0a080bc7c3db"
+      }
+    },
+    "sequence": [
+      "load_w",
+      "run_b0_trace_n0",
+      "run_b1_trace_n1",
+      "run_b0_trace_off"
+    ]
+  },
+  "descriptor_word_map": [
+    [
+      0,
+      0,
+      "magic 0x51384a50"
+    ],
+    [
+      1,
+      1,
+      "version 1"
+    ],
+    [
+      2,
+      2,
+      "LOAD_W=0 or RUN_TILE=1"
+    ],
+    [
+      3,
+      3,
+      "trace-enable bit0; all other bits zero"
+    ],
+    [
+      4,
+      5,
+      "request_id U64 low then high"
+    ],
+    [
+      6,
+      7,
+      "generation U64 low then high"
+    ],
+    [
+      8,
+      8,
+      "command task_id (LOAD or linear)"
+    ],
+    [
+      9,
+      9,
+      "production op"
+    ],
+    [
+      10,
+      10,
+      "stage"
+    ],
+    [
+      11,
+      11,
+      "layer"
+    ],
+    [
+      12,
+      12,
+      "B"
+    ],
+    [
+      13,
+      13,
+      "S"
+    ],
+    [
+      14,
+      14,
+      "batch"
+    ],
+    [
+      15,
+      15,
+      "row0"
+    ],
+    [
+      16,
+      16,
+      "rows"
+    ],
+    [
+      17,
+      17,
+      "K"
+    ],
+    [
+      18,
+      18,
+      "N"
+    ],
+    [
+      19,
+      19,
+      "WeightKey.family"
+    ],
+    [
+      20,
+      20,
+      "WeightKey.layer"
+    ],
+    [
+      21,
+      24,
+      "source ref id/bank/epoch/region"
+    ],
+    [
+      25,
+      28,
+      "destination ref id/bank/epoch/region"
+    ],
+    [
+      29,
+      29,
+      "W epoch"
+    ],
+    [
+      30,
+      30,
+      "PS epoch"
+    ],
+    [
+      31,
+      31,
+      "quant task_id"
+    ],
+    [
+      32,
+      35,
+      "model tag 16 bytes, four little-endian U32"
+    ],
+    [
+      36,
+      39,
+      "numeric tag 16 bytes, four little-endian U32"
+    ],
+    [
+      40,
+      43,
+      "layout tag 16 bytes, four little-endian U32"
+    ],
+    [
+      44,
+      47,
+      "production build tag 16 bytes, four little-endian U32"
+    ],
+    [
+      48,
+      49,
+      "activation base U64 bytes"
+    ],
+    [
+      50,
+      51,
+      "out0 base U64 bytes"
+    ],
+    [
+      52,
+      53,
+      "out1 base U64 bytes"
+    ],
+    [
+      54,
+      55,
+      "activation span U64 bytes"
+    ],
+    [
+      56,
+      57,
+      "out0 span U64 bytes"
+    ],
+    [
+      58,
+      59,
+      "out1 span U64 bytes"
+    ],
+    [
+      60,
+      60,
+      "trace row-local"
+    ],
+    [
+      61,
+      61,
+      "trace column"
+    ],
+    [
+      62,
+      62,
+      "observed words=32768"
+    ],
+    [
+      63,
+      127,
+      "reserved zero"
+    ]
+  ],
+  "first_error_oracle_and_tests": {
+    "fixed_oracle": "fixture ACT q/scale/final and selected group traces were generated by independent R0 and matched accepted full CPU act_logits bitwise; TB consumes those frozen bytes without calling R0 or re-running expected arithmetic.",
+    "linear": "source selects minimum (floor(n/8),r,n%8,g,check phase); bad_element=r*5248*128+n*128+g reports but does not rank; ACT finite fixture does not induce a linear numerical error.",
+    "load": "all padded n then g scale checks precede bias n; compound private-BO fault injects +Inf at n0/g1 and n1/g0 (n1 byte earlier) plus bias n0 NaN; expected E_NUMERICAL bad_element=1, then exact next LOAD task/W epoch recovery.",
+    "quant": "r then g; full 32 finite scan precedes scale/reciprocal/half, then q by i; two NaNs at i2 and i7 in first 8-lane block expect E_NUMERICAL bad_element=2, quant task consumed, linear not started, next legal recovery."
+  },
+  "identity": "q8_joint_tm4tn8_v1",
+  "limits": {
+    "build_owned_rss_gib": 16,
+    "build_wall_s": 600,
+    "cpu_owned_rss_gib": 8,
+    "cpu_wall_s": 300,
+    "cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "host_memavailable_floor_gib": 192,
+    "ionice": "idle",
+    "nice": 19,
+    "rss_sample_s": 0.2
+  },
+  "model_fixture": {
+    "frozen_bo_input_hashes": [
+      {
+        "bytes": 2048,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/full_cpu_final_20261007/oracle/B2_S128/act_hidden.f32.bin",
+        "sha256": "9bafd227283a8d177640dca7c8c34bcad1b42323f46ba43ada9f5db333dd3176"
+      },
+      {
+        "bytes": 16,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/full_cpu_final_20261007/oracle/B2_S128/act_logits.f32.bin",
+        "sha256": "26dbae474bd9a0e776bcf7f05079bf3d8288614e7a0addf36128ce847ab3aaf0"
+      },
+      {
+        "bytes": 2048,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/full_cpu_final_20261007/dut/dut/B2_S128/act_hidden.f32.bin",
+        "sha256": "9bafd227283a8d177640dca7c8c34bcad1b42323f46ba43ada9f5db333dd3176"
+      },
+      {
+        "bytes": 16,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/full_cpu_final_20261007/dut/dut/B2_S128/act_logits.f32.bin",
+        "sha256": "26dbae474bd9a0e776bcf7f05079bf3d8288614e7a0addf36128ce847ab3aaf0"
+      },
+      {
+        "bytes": 106348,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/laya_model_layout_generated.h",
+        "sha256": "c2fd1da7b00c7361d616ac15af431dea14c4979ac2aded6b37888fb1d633630a"
+      },
+      {
+        "bytes": 184682496,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/w_q0.bin",
+        "sha256": "be5ab09ff91d4a9dd56c3dbc9b84c138658b1a5ce3a274806b841a739f96970e"
+      },
+      {
+        "bytes": 23085184,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/w_scale.bin",
+        "sha256": "ea159816b322f58b970d80cd0142ccd16cc7531de8ee5ed9108fc4edf2a2e898"
+      },
+      {
+        "bytes": 1671872,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/aux.bin",
+        "sha256": "66189c9c75216650eca75a08a4f9b6ede1ab315a49ad05f71a409d2eaaa4f6c0"
+      }
+    ],
+    "gguf_source": {
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/abi_replay/manifest.json": {
+        "bytes": 1099267,
+        "role": "capture_manifest",
+        "sha256": "8588b69436e50c7500c22c677e174e77001e1e92e656bee2f46e1a88f4abb29a"
+      },
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/gguf_inventory.json": {
+        "bytes": 36195,
+        "role": "gguf_inventory",
+        "sha256": "40983ab871903db1281eb82901521fae5f5e1b862d8c2d4f22deba7cbe44c5c6"
+      },
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/model/quantized/gguf/mys/laya-typed-decisions-GGUF/Q8_0/laya_typed_decisions_q8_0.gguf": {
+        "bytes": 455179648,
+        "role": "model",
+        "sha256": "6eb6ef58bc4f99bd9db40381604108af782ffc314aa00da6641f429991ca1f18"
+      },
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/model/quantized/gguf/mys/laya-typed-decisions-GGUF/Q8_0/laya_typed_decisions_q8_0.gguf::act_fc2.bias": {
+        "absolute_file_offset": 449923168,
+        "bytes": 8,
+        "ggml_ne": [
+          2,
+          1,
+          1,
+          1
+        ],
+        "ggml_type_id": 0,
+        "role": "gguf_weight",
+        "sha256": "0a2e362129bcdc03f1af86f1645a6772a0d20d5f689aa34ba5875d310e9a3bee"
+      },
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/model/quantized/gguf/mys/laya-typed-decisions-GGUF/Q8_0/laya_typed_decisions_q8_0.gguf::act_fc2.weight": {
+        "absolute_file_offset": 449922624,
+        "bytes": 544,
+        "ggml_ne": [
+          256,
+          2,
+          1,
+          1
+        ],
+        "ggml_type_id": 8,
+        "role": "gguf_weight",
+        "sha256": "49c170198928aa057dc1d6e8bb629abc53fe56db7b876c5b9125b5ee4edc49ae"
+      }
+    },
+    "note": "Fixture was independently accepted before this top; no fixture file was regenerated in this packet.",
+    "products": {
+      "bias": {
+        "bytes": 8,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/act_bias_8.bin",
+        "sha256": "0a2e362129bcdc03f1af86f1645a6772a0d20d5f689aa34ba5875d310e9a3bee"
+      },
+      "gguf_q8": {
+        "bytes": 544,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/act_gguf_q8_544.bin",
+        "sha256": "49c170198928aa057dc1d6e8bb629abc53fe56db7b876c5b9125b5ee4edc49ae"
+      },
+      "q0": {
+        "bytes": 2048,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/act_w_q0_2048.bin",
+        "sha256": "8082c3e8079b201e3de55e582bfc4e43e2067f39e8a0db18a56abc005a25600e"
+      },
+      "scale": {
+        "bytes": 128,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/act_w_scale_128.bin",
+        "sha256": "f2848684d9a9137ddaaffda15881a77bcdc5340369091abbb78fc633429ed468"
+      }
+    },
+    "report": {
+      "bytes": 18839,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/fixture_act_v1/fixture/fixture_report.json",
+      "sha256": "5ed121eda39826fbf4ca046aa861546b23bab4152a15d42dd833104a2b31e606"
+    },
+    "shape": {
+      "B": 2,
+      "K": 256,
+      "N": 2,
+      "S": 128,
+      "rows_per_run": 1
+    },
+    "status": "INDEPENDENT_R0_AND_ACCEPTED_CPU_BIT_EXACT",
+    "weight_key": {
+      "family": 12,
+      "layer": 255
+    }
+  },
+  "observed_layout": {
+    "header_contract": "source/q8_joint_abi.h ObservedWord enum; fixed status/task/identity/ref/epoch, coverage, retired/write and 9-port byte slots; extra quant/load/error-phase slots 116-121",
+    "header_words": [
+      0,
+      255
+    ],
+    "q_trace_words": [
+      256,
+      16639
+    ],
+    "scale_trace_words": [
+      16640,
+      17663
+    ],
+    "selected_group_fields": [
+      "signed dot",
+      "sa F32 bits",
+      "sw F32 bits",
+      "product F32 bits",
+      "term F32 bits",
+      "committed PS F32 bits",
+      "g",
+      "valid"
+    ],
+    "selected_group_words": [
+      17664,
+      18687
+    ],
+    "unwritten_trace_region": "sentinel preserved"
+  },
+  "physical_code_mapping": {
+    "A8": "4 x 512 x 256-bit q banks and 4 x 512 x 16-bit scale banks, all 16 rows retained",
+    "FP_input": "8 x 8192 x 32-bit banks, 16-F32 beat decomposes over two half-steps",
+    "PS": "32 x 656 x F32 banks, one four-row microblock at a time; bank=rr*8+cc, addr=n0/8",
+    "W_q": "8 x 20992 x 256-bit ap_uint banks, URAM binding requested; q beat b: u=b/4,pair=b%4,t=2*(u/G)+shard,g=u%G; banks2pair/2pair+1 at addr=t*G+g",
+    "W_scale": "8 x 20992 x 16-bit banks, BRAM binding requested; 512-bit beat decomposes as four sequential j x eight lanes, addr=4*b+j",
+    "actual_pragma_caveat": "source HLS interface/partition/bind_storage/pipeline/unroll directives are unverified until synthesis; no cycle, II, primitive or DSP claim from CPU.",
+    "bias": "8 x 656 x U32 bits banks",
+    "lane_error": "32 x 656 bool bank/tile map reset per m0; no tile alias"
+  },
+  "retained_failed_attempts": [
+    {
+      "cause": "preflight E_MODEL due initial q0/q1 BO-size index reversal; source corrected, exact failed log retained",
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_legal_v1/guard3/driver.log"
+    },
+    {
+      "cause": "PASS before later source/TB banking and multi-fault verification edits; superseded by guard6",
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/runs/cpu_legal_v1/guard4/driver.log"
+    }
+  ],
+  "schema": "q8_joint_tm4tn8_act_cpu_source_binding_packet_v1",
+  "scope": "isolated ACT K256 N2 rows1, genuine BO LOAD_W and two batch RUN_TILE traces, reuse, trace-off identity, refusal/failure/recovery; production fe067 untouched",
+  "source_and_test_files": {
+    "abi_header": {
+      "bytes": 5829,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_abi.h",
+      "sha256": "620bb962de0f1b9b14e02f1ad6b2f97fd475be2cc5c7a5d4174d397e696e5965"
+    },
+    "descriptor_generator": {
+      "bytes": 6822,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tb/generate_joint_descriptors.py",
+      "sha256": "96fa22f18f70e9cf5a0ada98a3c5d6d4ea23d38e577a966557bd144886e162d6"
+    },
+    "design_contract": {
+      "bytes": 45393,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/design.md",
+      "sha256": "d9416847e238844d61a99adaa4fec40f6dc634e13c84995b2db0bd8760b2c8c1"
+    },
+    "results_current": {
+      "bytes": 28397,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/results.md",
+      "sha256": "c5cf255fd004687c0758c77daceeda806620e285c3ff709d71c726cd769e475b"
+    },
+    "strict_cpu_tb": {
+      "bytes": 16972,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tb/test_q8_joint.cpp",
+      "sha256": "f51c59ede30bcf851c0a39f98ad1acd63cb9e9783af6ae93cdb0b5481884316f"
+    },
+    "top_cpp": {
+      "bytes": 35789,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp",
+      "sha256": "2f0f42da242f697eb3009fe56db174763fa29c2599a508182bb29bf2a3237531"
+    },
+    "top_header": {
+      "bytes": 338,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.h",
+      "sha256": "90106e7ce0b2c51c65f1257a13e272ad2087d1d618b984f851a47a09642a6207"
+    }
+  },
+  "status": "SOL_SELF_CHECK_PASS_INDEPENDENT_ASTRA_SOURCE_AND_CPU_REVIEW_PENDING",
+  "toolchain": {
+    "HLS_ap_int_header": {
+      "bytes": 14768,
+      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/ap_int.h",
+      "sha256": "c109f76bca240ce731c52e519b07c2dcd41a9fd3f55dbd7eb712371608c48cf1"
+    },
+    "compile_flags": "-std=c++17 -O2 -ffp-contract=off -fno-fast-math",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "guard_helpers": {
+      "bytes": 7083,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/hls_guard_helpers.py",
+      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+    },
+    "guard_source": {
+      "bytes": 10218,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+      "sha256": "c3c3de6190945c548b4f9934aa2f5ecefb61ac53fdcd283b4381606b17e511e8"
+    }
+  },
+  "validation_scope": {
+    "AXI_total_bytes": "C++ observed total counts transferred payload bytes, not verified physical bus beats or 4KiB burst splitting",
+    "CPU": "self-check PASS, independent acceptance pending",
+    "CSim": "not run; configuration only permitted under current gate",
+    "OOC": "not released",
+    "RTL": "not released",
+    "board": "not available",
+    "external_BO_bounds": "model sizes and descriptor-advertised spans checked; actual BO allocation is a host binding and RTL concern",
+    "other_KN_and_QKV": "generic source exists but first ACT CPU packet does not validate them",
+    "synthesis": "not released"
+  }
+}

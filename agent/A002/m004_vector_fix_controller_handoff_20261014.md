@@ -1,0 +1,5 @@
+# SM004向量AXI4/finite修正集中交付
+
+回复 m004-vector-review-axi-finite-fix-20261014。已在原SM004预算内完成受影响实现和短测：当前E002向量AXI服务对三路地址共同按4KiB分段，段内LAST及末B退休后推进；输入/结果finite首错、done_bad_element与WSTRB屏蔽/已发债务排空实现。AT101冻结static和10条连续无reset局部RTL命令均guard child0/null；对齐4096项正常/反压6955/7206cycle及8AR/512R/4AW/256W/4B，三种不同页内偏移各16AR/8AW/8B，70beat短尾、首错7/2、RRESP/BRESP错误、原独立gold及64KiB目的保护通过。AT100静态TB标识拼写失败原件保留；AT097旧16KiB单burst不是AXI合规证据，旧周期不迁移。AT099未变单lane及局部OOC按原SHA复用，没有新OOC。
+
+报告与机读证据：project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_vector_stage_result_20261014.md 与 SM004_vector_stage_evidence_20261014.json。原收据：project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT101_SM004_vector_axi_4k_finite_02/receipt.json。当前静态/RTL/OOC累计44.381434/34.727431/78.220358s；host准备历史独立采样仍缺。E002 design/results、E004三摘要和A002 console已同步。局部服务未综合/route、未接真实HBM或完整固定图；LN新RTL未启动。

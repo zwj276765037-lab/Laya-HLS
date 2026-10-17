@@ -1,0 +1,15 @@
+# 修订19 AT325共享服务阶段交付：下层闭合、上层归属未完成
+
+回复 m004-rev19-at315-scoped-milestone-review-20261016；M004/SM004/E004/R001。工程按D-M004-LN-SHARED-SERVICE-01继续至本段成本边界，修订19未自行封账，M004/SM004仍running/unassessed。
+
+当前生产下层 SHA 63da9112d2a23583a652537f6ad45a84164eecce138abbb06345df567d08908e、父core 8c799f91e4b436a78090161303efcb9cd84e69cf3f1791c4e6ed3c362e3f4667、上层 c6ca8ca70322f4f0218bd3eec08b17c2d6e058071ccfc0e4d77f92551ef0acf6、wrapper 8294dc2f724b16f59937ecd0f885925eadd64295d2fc4db4eb9ec258009a1291、sequencer a4c999e5e7e5ea63c95dd7abf9d70d0eb4362b06b36e080b2670807c9500bca4。下层已接管staged LN_ONLY命令→回放→norm视图→同步读/release/done，本体唯一LNQ与8bank；父core staged入口只代理，legacy仍用原LN_CMD/LN_WAIT同一下层。AT322同版完整父top三快照编译，AT323固定160µs真实父top row0前缀在cycle15377退休、gamma256R、退休点source64R、1024norm逐位、64笔B；没有16行或终标。
+
+AT324/325同版下层使用保存row0/1 norm交替16槽逐字核4352 Q/scale、512同步响应、r15末输入停顿、全窗最终复扫和部分占有/abort/discard/新epoch。AT324另以保存raw/gamma完成局部LN_ONLY1024 norm及非法tile128的7/phase12保持；AT325只改TB，增PS 16lane、G x/gate各8lane读与同拍不同地址标量写、QD单字、ADD读写的固定同步客户逐值PASS。AT322同版raw末RRESP错误真排空后新epoch64B恢复、末B错误后row1继续LN且B不增加、discard后epoch3正常row0恢复各child0/null。局部输入/客户不是实际128行producer或完整matrix/G算术。
+
+逐guard总账为AT307–325的19份manifest、2139个frozen项零SHA失配；38笔guard（17 static/21 RTL）、288条实际CPU0–3/nice19/idle样本零政策失配。static 1706.08185053430498095/1800s、RTL 1473.825600214302521/3600s，余93.91814946569501905s/2126.174399785697479s，host累计UNKNOWN。AT313 Fatal、AT317语义守卫误停、AT319/320编译错误、AT325第一次脚本路径child127均保留原guard费用；AT314 static 31.224050499498844s，旧阶段消息所写32.49943132698536s属于AT313。
+
+关键缺口：上层目前仍主要是reader/writer/路由及外部脉冲驱动的覆盖；128行循环、16行store错屏障仍在旧sequencer/wrapper。独立stage TB不能合法重造这些生产状态。剩余static 93.918s低于已实测AT315父top展开133.116s和AT322三快照310.638s；改变生产上层后无足够原帽签同版父图及普通修复。因此没有启动独立16行pilot，更不能按原成本门启动LN128；真实NORM_STAGE_READY和完整父top同runtime均NOT_RUN，而非数值FAIL。原修订19余额暂保留，未转旧修订或额外运行。
+
+请主控按已研究切口衔接下一具体实施/预算：把sequencer 128行推进与16行错误归并、wrapper source/norm阶段控制迁入现上层，父top仅固定代理；随后同SHA父top与独立stage各真实展开，16行pilot落帽后再判LN128。共同reset、页界和相位pending/rsp/末B阻塞交接也需在迁移后同版核。后继Q16父图、STEP16/matrix、全RoPE/FINAL→Attention、全请求首错、Host/HBM及联合物理仍开放。
+
+原始[阶段报告](project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev19_AT325_shared_service_engineering_stage_20261016.md)与[逐guard账](project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev19_guard_ledger_AT307_AT325_20261016.json)已写；模块design/results、E004三摘要已发布，A002真实状态已report。无HLS重综/OOC/P&R/新gold。

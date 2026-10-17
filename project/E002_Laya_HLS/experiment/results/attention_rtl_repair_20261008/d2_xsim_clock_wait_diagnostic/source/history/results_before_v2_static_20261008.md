@@ -1,0 +1,3 @@
+# D2 repeated clock-wait diagnostic results
+
+The isolated source implementation is prepared for consolidated Astra source review. The real seven-interface declaration and RSS/HWM DPI C/shared object are byte-identical copies of the accepted AXI diagnostic. The test allocates 32 fixed workers before reset release, records eight postreset checkpoints through clock 20,000, and separates direct module, class static-clock, class virtual-interface, and delayed virtual-interface waits. The planned single static build is limited to 16 GiB owned RSS and 300 seconds; it has not executed. Four runtime modes remain gated and unexecuted, so no memory mechanism has been identified.

@@ -1,0 +1,51 @@
+--- executor_handoff_portal_rtl_06/laya_executor_handoff_portal_tb_v1.sv
++++ executor_handoff_portal_rtl_07/laya_executor_handoff_portal_tb_v1.sv
+@@ -91,6 +91,14 @@
+   logic peer_aw_seen=0;
+   int peer_aw=0,peer_w=0,peer_b=0,peer_w_in_burst=0;
+   int peer_expected_beats=0,peer_zero_w=0,cycles=0,phase=0;
++  int query_writes=0,query_reads=0;
++  always @(posedge clk)begin
++    if(!rst_n)begin query_writes<=0;query_reads<=0;end
++    else begin
++      if(checkpoint_command_write && checkpoint_command_full_n)query_writes<=query_writes+1;
++      if(checkpoint_response_read && checkpoint_response_empty_n)query_reads<=query_reads+1;
++    end
++  end
+   int forwarded_before=0,forwarded_w_before=0,zero_before=0;
+   always @(posedge clk)begin
+     cycles<=cycles+1;
+@@ -435,9 +443,14 @@
+     #1;@(negedge clk);pred_done_valid=0;
+     while(!shell_response_valid)tick();
+     repeat(12)begin
++      source_query_valid=1;s_axi_awvalid=1;s_axi_wvalid=1;
++      if(source_query_ready || source_query_granted || s_axi_awready || s_axi_wready ||
++         peer_aw!=112 || peer_w!=7168 || peer_b!=112 || source_lease_active)
++        $fatal(1,"real wrapper held ingress escaped");
+       if(shell_response!==held_expected || !shell_locks_owned || shell_query_permit || shell_authority)
+         $fatal(1,"HELD binding/backpressure");tick();
+     end
++    source_query_valid=0;s_axi_awvalid=0;s_axi_wvalid=0;
+     shell_response_ready=1;tick();shell_response_ready=0;
+     if(!shell_query_permit)$fatal(1,"HELD did not allow prepare/query");
+     if(query_case==1 || query_case==2)begin
+@@ -487,7 +500,8 @@
+       if(!shell_import_pending || checkpoint_dispatch_held!=1 || checkpoint_handoff_complete ||
+          checkpoint_authority_valid || !shell_revoked || shell_authority || shell_owner ||
+          !shell_locks_owned || checkpoint_accepted_queries!=1 || checkpoint_consumed_responses!=1 ||
+-         checkpoint_command_occupancy || checkpoint_response_occupancy || shell_closed!=0)
++         checkpoint_command_occupancy || checkpoint_response_occupancy || shell_closed!=0 ||
++         query_writes!=16 || query_reads!=16)
+         $fatal(1,"negative/late revoked return reopened before bound close");
+       capture=$fopen({fixture,"/actual_handoff_checkpoint.hex"},"w");
+       for(int i=0;i<16;i++)$fdisplay(capture,"%0128h",checkpoint_received[i*512+:512]);$fclose(capture);
+@@ -513,7 +527,7 @@
+       shell_send(import_control);repeat(3)tick();
+       if(shell_grants || shell_authority || shell_owner || shell_S!=1 || shell_H!=1 ||
+          shell_closed!=1)$fatal(1,"old IMPORT reopened canceled request");
+-      $display("FULL_CURRENT_EXECUTOR_HANDOFF_PORTAL_RTL_PASS query_case=%0d cycles=%0d old_query_ingress=16 real_response_reads=16 persistent_cancel=%0d full_negative_oracle=%0d stable_success_on_late_cancel=%0d bound_abort_once=1 no_auto_reopen=1 hub_terminals=%0d lpv_seq=%0d",query_case,cycles,query_case!=2,query_case<3,query_case==3,terminal_tasks,last_event_seq);
++      $display("FULL_CURRENT_EXECUTOR_HANDOFF_PORTAL_RTL_PASS query_case=%0d cycles=%0d old_query_ingress=%0d real_response_reads=%0d persistent_cancel=%0d full_negative_oracle=%0d stable_success_on_late_cancel=%0d bound_abort_once=1 no_auto_reopen=1 hub_terminals=%0d lpv_seq=%0d",query_case,cycles,query_writes,query_reads,query_case!=2,query_case<3,query_case==3,terminal_tasks,last_event_seq);
+       $finish;
+     end
+     if(!shell_import_pending || checkpoint_received[10*8+:16]!=0 ||

@@ -1,0 +1,16 @@
+{
+  "source": "# E006 实验依据摘要\n\nM005/SM006同一可综合代表top验证四行B1/S128 FFN通路，目标part xcu55c-fsvh2892-2L-e、Vivado 2025.2。原GGUF、request3/generation1、独立LN/Down/末残差gold及655360B局部保护保持。真实LN shell、唯一量化/G、唯一矩阵/W/PS、Wi reader、有限handoff和残差叶子在一个top；fixture、DDR响应和外部sequencer留TB，未纳入的Attention/WO/PCIe与生产双lease另计。\n\nD-M005-FEASIBILITY-01-A1要求桥输出真实量化任务债，top按共享Q AXI ARLEN+1/R握手持续计债，内部K固定2624。原AT065入口X为本轮受影响原因候选；AT066短测、AT069/070静态及前缀验证修正，不改算术/独立gold。正常和确定合法反压同top全链、联合综合/route按原M005累计帽顺序执行。\n",
+  "results": "# E006 关键结果摘要\n\nAT065第一新full于Down受理前X断言FAIL，2080.617893s，保留原事实。AT066新AXI读债监视器独立短测动态PASS：多拍读、R反压、内部任务未清、孤立R/提前RLAST/同拍AR-R/重复AR/超范围burst均受检，xsim child0，未代签全链。AT068为首个同top语法及完整IP展开PASS，三项截位告警待显式化；AT069同top静态展开PASS且真实LN前缀cycle5224有1AR/64R。AT070显式位宽版静态展开PASS，无接口位宽告警；同版冷前缀cycle5224、1AR/64R，guard28.305555s、峰1014108KiB、child0/无trigger，输入235项冻结身份加坏preflight原样留证。规划520000cycle/保守172.487cycle/s/10%余量约3316.19s，仅作为full准入估计。\n\nAT070正常full已真实启动，当前无结果；同top四行完整gold、TMP/末残差、保护、整链cycle仍NOT_RUN。新full配额在AT065后本次启动已用2/3；联合综合、place/route资源和频率仍NOT_RUN。A003 150MHz条件整模6.919–8.133s不是实测。\n",
+  "status": "# E006 实验状态摘要\n\n- execution_state: running；verdict: unassessed。AT070同一top正常full在独立guard内运行；不得把当前前缀PASS扩成整链PASS。M005新full已启动2/3，旧AT065累计2080.617893s加本次实际耗时仍待终态；最后一次full优先同版确定合法反压。\n- AT066局部债务短测、AT070静态展开和真实≤120s冷前缀通过；正常full的末B、gold、保护和后段未知。按guard自然收束并核原日志/身份，随后依据实际终态安排反压样本与同版联合综合/route。无第二个owned重工具。\n- M003/M004完整生产控制/请求恢复、全模型/板端仍开放；阶段C条件预算不随本前缀更新。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "M005阶段A：同top前缀/局部债务已验证，AT070正常full运行，物理与整模实测未完成",
+  "evidence": [
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT066_M005_quant_axi_debt_short_01/xsim.log",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT069_M005_top_tb_static_02/guard_pilot/driver.log",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT070_M005_top_normal_candidate_01/xelab.log",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT070_M005_top_normal_candidate_01/guard_pilot/driver.log",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT070_M005_top_normal_candidate_01/cost_decision.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT070_M005_top_normal_candidate_01/guard_full/launch.json"
+  ]
+}

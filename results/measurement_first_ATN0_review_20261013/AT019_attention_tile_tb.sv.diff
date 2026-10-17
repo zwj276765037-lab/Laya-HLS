@@ -1,0 +1,169 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/results/compute_throughput_optimization_20261010/attempts/t5_attention_tile_v1_01/frozen_source/attention_tile_tb.sv
+
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT019_ATN0_attention_measurement_01/frozen_source/attention_tile_tb.sv
+
+@@ -29,6 +29,20 @@
+
+  integer m_lanes[0:2],a_lanes[0:2],d_lanes[0:2],m_credit[0:2],a_credit[0:2],m_wait[0:2],a_wait[0:2],d_wait[0:2];
+  integer exp_began[0:3],exp_hist[0:3][0:128];
+  bit exp_inflight[0:3];
++ // Passive ATN0 counters. The four state buckets and launch/report bucket
++ // partition enabled edges from a normal SM command's launch to first done.
++ bit sm_window=0,sm_waiting_consume=0;
++ integer sm_start_enabled=0,sm_first_done_cycle=0;
++ integer sm_state_edges[0:4],sm_total_enabled=0,sm_total_wall=0;
++ integer sm_done_to_consume_wall=0,sm_commands=0;
++ integer sm_a_sub_issue=0,sm_a_sub_retire=0,sm_a_tree_issue=0,sm_a_tree_retire=0;
++ integer sm_d_issue=0,sm_d_return_lanes=0,sm_exp_issue_credit=0,sm_exp_issue_other=0;
++ integer sm_tree_credit=0,sm_div_credit=0;
++ integer exp_launch_count[0:3],exp_done_count[0:3],exp_commit_count[0:3];
++ integer exp_input_edges[0:3],exp_service_edges[0:3],exp_commit_wait_edges[0:3],exp_idle_edges[0:3];
++ integer exp_done_edge[0:3],exp_done_to_commit[0:3];
++ integer cmd_done_wall[19:21],cmd_done_enabled[19:21];
++ integer cmd_consume_wall[19:21],cmd_consume_enabled[19:21],cmd_count[19:21];
+  always @(posedge ap_clk)begin
+   if(ap_rst)for(integer n=0;n<4;n=n+1)exp_inflight[n]=0;
+   else if(ap_ce)begin
+@@ -52,15 +66,54 @@
+
+      end
+      if(dut.state==7&&!dut.d_req&&dut.norm_key<dut.S)d_wait[ph]=d_wait[ph]+1;
+     end
++    if(sm_window)begin
++     if(dut.state>=4&&dut.state<=7)sm_state_edges[dut.state-4]=sm_state_edges[dut.state-4]+1;
++     else sm_state_edges[4]=sm_state_edges[4]+1;
++     if(dut.a_req&&dut.a_req_type==4)sm_a_sub_issue=sm_a_sub_issue+1;
++     if(dut.a_retire&&dut.aq_type[dut.aq_rp]==4)sm_a_sub_retire=sm_a_sub_retire+1;
++     if(dut.a_req&&dut.a_req_type==5)sm_a_tree_issue=sm_a_tree_issue+1;
++     if(dut.a_retire&&dut.aq_type[dut.aq_rp]==5)sm_a_tree_retire=sm_a_tree_retire+1;
++     if(dut.d_req)sm_d_issue=sm_d_issue+1;
++     if(dut.state==7)begin
++      for(integer n=0;n<4;n=n+1)if(dut.dq_state[n][dut.dq_rp[n]]==2)sm_d_return_lanes=sm_d_return_lanes+1;
++      if(dut.norm_key<dut.S&&!dut.d_req)sm_div_credit=sm_div_credit+1;
++     end
++     if(dut.state==5&&dut.exp_key<dut.S&&dut.subcount>0&&!dut.a_req)begin
++      if(dut.aq_state[dut.aq_wp]!=0)sm_exp_issue_credit=sm_exp_issue_credit+1;
++      else sm_exp_issue_other=sm_exp_issue_other+1;
++     end
++     if(dut.state==6&&dut.tree_issue<(dut.sm_width/2+15)/16&&!dut.a_req&&dut.aq_state[dut.aq_wp]!=0)
++      sm_tree_credit=sm_tree_credit+1;
++     if(dut.state==5)for(integer n=0;n<4;n=n+1)begin
++      case(dut.worker_state[n])
++       0:exp_idle_edges[n]=exp_idle_edges[n]+1;
++       1:exp_input_edges[n]=exp_input_edges[n]+1;
++       2:exp_service_edges[n]=exp_service_edges[n]+1;
++       3:exp_commit_wait_edges[n]=exp_commit_wait_edges[n]+1;
++      endcase
++     end
++    end
+    end
+    for(integer n=0;n<4;n=n+1)begin
+-    if(dut.worker_launch[n])begin exp_inflight[n]=1;exp_began[n]=enabled_cycles;end
++    if(dut.worker_launch[n])begin
++     exp_inflight[n]=1;exp_began[n]=enabled_cycles;
++     if(sm_window)exp_launch_count[n]=exp_launch_count[n]+1;
++    end
+     else if(exp_inflight[n]&&dut.exp_done[n])begin
+      integer gap;gap=enabled_cycles-exp_began[n];
+      if(gap>128)$fatal(1,"Original EXP exceeded finite histogram range");
+-     if(oracle_enable)exp_hist[n][gap]=exp_hist[n][gap]+1;
++     if(oracle_enable)begin
++      exp_hist[n][gap]=exp_hist[n][gap]+1;
++      if(sm_window)begin exp_done_count[n]=exp_done_count[n]+1;exp_done_edge[n]=enabled_cycles;end
++     end
+      exp_inflight[n]=0;
+     end
++   end
++   if(oracle_enable&&sm_window&&dut.exp_retire)begin
++    if(dut.wsel<0||dut.wsel>3||exp_done_edge[dut.wsel]==0)$fatal(1,"EXP committed without observed completion");
++    exp_commit_count[dut.wsel]=exp_commit_count[dut.wsel]+1;
++    exp_done_to_commit[dut.wsel]=exp_done_to_commit[dut.wsel]+enabled_cycles-exp_done_edge[dut.wsel];
++    exp_done_edge[dut.wsel]=0;
+    end
+   end
+  end
+@@ -159,9 +212,13 @@
+
+   $display("ATTENTION_SERVICE_TILE_RESET_PASS kind=%0d reset_preempted_ce=1 cycles=%0d",kind,cycles);
+  endtask
+  task automatic invoke(input integer cmd,idx,data,ep,expected_status,output reg [31:0] value);
+-  integer start_cycle;reg [31:0] saved_result,saved_status;
++  integer start_cycle,start_enabled;reg [31:0] saved_result,saved_status;
+   while(!ap_idle)@(negedge ap_clk);
+-  command=cmd;index=idx;payload=data;epoch=ep;ap_start=1;start_cycle=cycles;pause_debit=0;
++  command=cmd;index=idx;payload=data;epoch=ep;ap_start=1;start_cycle=cycles;start_enabled=enabled_cycles;pause_debit=0;
++  if(oracle_enable&&expected_status==0&&cmd==20)begin
++   if(sm_window||sm_waiting_consume)$fatal(1,"SM measurement windows overlap");
++   sm_window=1;sm_start_enabled=start_enabled;
++  end
+   if(protocol&&oracle_enable&&cmd==19&&!paused_qk)begin ap_ce=0;repeat(3)@(negedge ap_clk);if(!ap_idle||ap_done)$fatal(1,"Launch occurred while CE low");ap_ce=1;pause_debit=pause_debit+3;end
+   @(negedge ap_clk);ap_start=0;
+   if(protocol&&oracle_enable)begin
+@@ -175,6 +232,16 @@
+
+   if(oracle_enable&&expected_status==0)begin
+    if(cmd==19)qk_cycles=qk_cycles+cycles-start_cycle-pause_debit;if(cmd==20)sm_cycles=sm_cycles+cycles-start_cycle-pause_debit;if(cmd==21)av_cycles=av_cycles+cycles-start_cycle-pause_debit;
+    if(cmd>=19&&cmd<=21)$display("ATTENTION_SERVICE_TILE_RUN_PROFILE first=%0d cmd=%0d normal_cycles=%0d",base_row,cmd,cycles-start_cycle-pause_debit);
++   if(cmd>=19&&cmd<=21)begin
++    cmd_count[cmd]=cmd_count[cmd]+1;
++    cmd_done_wall[cmd]=cmd_done_wall[cmd]+cycles-start_cycle;
++    cmd_done_enabled[cmd]=cmd_done_enabled[cmd]+enabled_cycles-start_enabled;
++   end
++   if(cmd==20)begin
++    sm_window=0;sm_waiting_consume=1;sm_first_done_cycle=cycles;
++    sm_commands=sm_commands+1;sm_total_wall=sm_total_wall+cycles-start_cycle;
++    sm_total_enabled=sm_total_enabled+enabled_cycles-sm_start_enabled;
++   end
+   end
+   if(cmd==4||cmd==5||cmd==6||cmd==18)load_cycles=load_cycles+cycles-start_cycle;
+   repeat(2)begin @(negedge ap_clk);if(!ap_done||result!==saved_result||status!==saved_status)$fatal(1,"Attention tile done did not hold");end
+@@ -182,6 +249,15 @@
+
+    reg [TILE_STATE_BITS-1:0] saved;ap_ce=0;#1;saved=read_tile_state();repeat(8)begin @(negedge ap_clk);#1;if(!ap_done||read_tile_state()!==saved)$fatal(1,"Completed response lost across CE");end ap_ce=1;
+   end
+   ap_continue=1;@(negedge ap_clk);ap_continue=0;@(negedge ap_clk);calls=calls+1;
++  if(oracle_enable&&expected_status==0&&cmd>=19&&cmd<=21)begin
++   cmd_consume_wall[cmd]=cmd_consume_wall[cmd]+cycles-start_cycle-1;
++   cmd_consume_enabled[cmd]=cmd_consume_enabled[cmd]+enabled_cycles-start_enabled-1;
++   if(cmd==20)begin
++    if(!sm_waiting_consume)$fatal(1,"SM actual completion was not pending");
++    sm_done_to_consume_wall=sm_done_to_consume_wall+cycles-sm_first_done_cycle-1;
++    sm_waiting_consume=0;
++   end
++  end
+   if(calls%4096==0)$display("ATTENTION_SERVICE_PROGRESS tile calls=%0d cycles=%0d",calls,cycles);
+  endtask
+  task automatic bind_only(input integer first,count,ep,seq,bad_ref);
+@@ -248,6 +324,10 @@
+
+   if(rows!=1&&rows!=4&&rows!=16&&rows!=128)$fatal(1,"Rows 1/4/16/128 only");
+   for(integer ph=0;ph<3;ph=ph+1)begin phase_cycles[ph]=0;m_issue_edges[ph]=0;a_issue_edges[ph]=0;d_issue_edges[ph]=0;m_lanes[ph]=0;a_lanes[ph]=0;d_lanes[ph]=0;m_credit[ph]=0;a_credit[ph]=0;m_wait[ph]=0;a_wait[ph]=0;d_wait[ph]=0;end
+   for(integer n=0;n<4;n=n+1)begin exp_inflight[n]=0;for(integer gap=0;gap<=128;gap=gap+1)exp_hist[n][gap]=0;end
++  for(integer n=0;n<5;n=n+1)sm_state_edges[n]=0;
++  for(integer n=19;n<=21;n=n+1)begin cmd_done_wall[n]=0;cmd_done_enabled[n]=0;cmd_consume_wall[n]=0;cmd_consume_enabled[n]=0;cmd_count[n]=0;end
++  for(integer n=0;n<4;n=n+1)begin exp_launch_count[n]=0;exp_done_count[n]=0;exp_commit_count[n]=0;
++   exp_input_edges[n]=0;exp_service_edges[n]=0;exp_commit_wait_edges[n]=0;exp_idle_edges[n]=0;exp_done_edge[n]=0;exp_done_to_commit[n]=0;end
+   $readmemh({fixture,"/q.mem"},q);$readmemh({fixture,"/k.mem"},k);$readmemh({fixture,"/v.mem"},v);$readmemh({fixture,"/mask.mem"},mask);$readmemh({fixture,"/identity_words.mem"},identity);
+   $readmemh({fixture,"/score.mem"},score);$readmemh({fixture,"/exp.mem"},ex);$readmemh({fixture,"/prob.mem"},prob);$readmemh({fixture,"/out.mem"},out_gold);$readmemh({fixture,"/maximum.mem"},max_gold);$readmemh({fixture,"/sum.mem"},sum_gold);
+   $readmemh({trace_dir,"/qk_product.mem"},qk_product);$readmemh({trace_dir,"/qk_tree.mem"},qk_tree);$readmemh({trace_dir,"/av_trace.mem"},av_trace);
+@@ -291,6 +371,19 @@
+
+   end
+   if(checked_products!=rows*128*64||checked_trees!=rows*128*63||checked_av!=rows*128*64||checked_exp!=rows*128)$fatal(1,"Tagged intermediate coverage incomplete");
+   if(active_call||accepted_calls!=retired_calls+reset_cancelled)$fatal(1,"Outstanding call at terminal");
++  if(sm_window||sm_waiting_consume||sm_commands!=(rows+15)/16)$fatal(1,"Incomplete SM measurement lifecycle");
++  if(sm_state_edges[0]+sm_state_edges[1]+sm_state_edges[2]+sm_state_edges[3]+sm_state_edges[4]!=sm_total_enabled)
++   $fatal(1,"SM enabled state partition mismatch");
++  // S=128: ASUB=128/4, tree stripes=4+2+1+1+1+1+1, DIV=128/4.
++  if(sm_a_sub_issue!=rows*32||sm_a_tree_issue!=rows*11||sm_d_issue!=rows*32||
++     sm_a_sub_retire!=sm_a_sub_issue||sm_a_tree_retire!=sm_a_tree_issue||sm_d_return_lanes!=rows*128)
++   $fatal(1,"SM observed operation issue counts changed");
++  if(!protocol&&sm_total_wall!=sm_cycles)$fatal(1,"SM wall interval differs from frozen command profile");
++  for(integer n=0;n<4;n=n+1)if(exp_launch_count[n]!=exp_done_count[n]||exp_done_count[n]!=exp_commit_count[n]||exp_done_edge[n]!=0)
++   $fatal(1,"EXP worker measurement did not drain worker=%0d",n);
++  $display("ATTENTION_SERVICE_TILE_SM_MEASURE commands=%0d wall_to_done=%0d enabled_to_done=%0d done_to_consume_wall=%0d MAX=%0d EXP=%0d TREE=%0d DIV=%0d launch_report=%0d A_sub_issue=%0d A_sub_retire=%0d A_tree_issue=%0d A_tree_retire=%0d D_issue=%0d D_return_lanes=%0d EXP_A_credit=%0d EXP_other_wait=%0d TREE_A_credit=%0d DIV_D_credit=%0d",sm_commands,sm_total_wall,sm_total_enabled,sm_done_to_consume_wall,sm_state_edges[0],sm_state_edges[1],sm_state_edges[2],sm_state_edges[3],sm_state_edges[4],sm_a_sub_issue,sm_a_sub_retire,sm_a_tree_issue,sm_a_tree_retire,sm_d_issue,sm_d_return_lanes,sm_exp_issue_credit,sm_exp_issue_other,sm_tree_credit,sm_div_credit);
++  for(integer n=19;n<=21;n=n+1)$display("ATTENTION_SERVICE_TILE_CMD_MEASURE cmd=%0d calls=%0d wall_to_done=%0d enabled_to_done=%0d wall_to_consume=%0d enabled_to_consume=%0d",n,cmd_count[n],cmd_done_wall[n],cmd_done_enabled[n],cmd_consume_wall[n],cmd_consume_enabled[n]);
++  for(integer n=0;n<4;n=n+1)$display("ATTENTION_SERVICE_TILE_EXP_MEASURE worker=%0d launch=%0d done=%0d commit=%0d input_wait=%0d core_busy=%0d commit_wait=%0d idle=%0d done_to_commit_sum=%0d",n,exp_launch_count[n],exp_done_count[n],exp_commit_count[n],exp_input_edges[n],exp_service_edges[n],exp_commit_wait_edges[n],exp_idle_edges[n],exp_done_to_commit[n]);
+   $display("ATTENTION_SERVICE_TILE_LEDGER_PASS accepted=%0d retired=%0d cancelled=%0d",accepted_calls,retired_calls,reset_cancelled);
+   for(integer ph=0;ph<3;ph=ph+1)$display("ATTENTION_SERVICE_TILE_PROFILE phase=%0d enabled=%0d M_edges=%0d A_edges=%0d D_edges=%0d M_lanes=%0d A_lanes=%0d D_lanes=%0d M_credit=%0d A_credit=%0d M_wait=%0d A_wait=%0d D_wait=%0d",ph,phase_cycles[ph],m_issue_edges[ph],a_issue_edges[ph],d_issue_edges[ph],m_lanes[ph],a_lanes[ph],d_lanes[ph],m_credit[ph],a_credit[ph],m_wait[ph],a_wait[ph],d_wait[ph]);
+   for(integer n=0;n<4;n=n+1)for(integer gap=0;gap<=128;gap=gap+1)if(exp_hist[n][gap])$display("ATTENTION_SERVICE_TILE_EXP_PROFILE worker=%0d launch_done_enabled_gap=%0d count=%0d",n,gap,exp_hist[n][gap]);

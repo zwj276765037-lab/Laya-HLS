@@ -1,0 +1,34 @@
+--- executor_handoff_portal_rtl_01/laya_generated_provenance_axi_portal_v1.sv
++++ executor_handoff_portal_rtl_02/laya_generated_provenance_axi_portal_v1.sv
+@@ -157,8 +157,13 @@
+   logic [8191:0] checkpoint_request,checkpoint_response;
+   logic checkpoint_response_valid,checkpoint_response_ready;
+   logic checkpoint_exclusion;
++  logic legacy_checkpoint_authority,legacy_checkpoint_pulse;
+   logic checkpoint_base_seen,checkpoint_base_history_complete;
+   logic [63:0] checkpoint_history_epoch,checkpoint_history_address,checkpoint_history_capacity;
++  // Managed consumers use only the full-key shell's consumed GRANTED reply.
++  // Never export the old last-read authority/pulse as a competing permission.
++  assign checkpoint_authority_valid=!MANAGED_EXECUTOR_HANDOFF && legacy_checkpoint_authority;
++  assign checkpoint_handoff_pulse=!MANAGED_EXECUTOR_HANDOFF && legacy_checkpoint_pulse;
+   // Historical Ref equivalence is meaningful only within this locked base.
+   // A lifecycle change after any predecessor ingress cannot reuse old arrays.
+   always_ff @(posedge clk)begin
+@@ -208,7 +213,7 @@
+                   monitored_bo_base==snapshot_base_address),.base_epoch(snapshot_base_epoch),
+       .base_address(snapshot_base_address),.base_capacity(snapshot_base_capacity),
+       .dispatch_held(checkpoint_dispatch_held),.handoff_complete(checkpoint_handoff_complete),
+-      .handoff_pulse(checkpoint_handoff_pulse),.authority_valid(checkpoint_authority_valid),
++      .handoff_pulse(legacy_checkpoint_pulse),.authority_valid(legacy_checkpoint_authority),
+       .protocol_error(checkpoint_protocol_error),
+       .accepted_queries(checkpoint_accepted_queries),.consumed_responses(checkpoint_consumed_responses),
+       .command_occupancy(checkpoint_command_occupancy),.response_occupancy(checkpoint_response_occupancy));
+@@ -216,7 +221,7 @@
+     assign checkpoint_command_full_n=0;
+     assign checkpoint_response_dout=0;assign checkpoint_response_empty_n=0;
+     assign checkpoint_dispatch_held=0;assign checkpoint_handoff_complete=0;
+-    assign checkpoint_handoff_pulse=0;assign checkpoint_authority_valid=0;
++    assign legacy_checkpoint_pulse=0;assign legacy_checkpoint_authority=0;
+     assign checkpoint_protocol_error=0;
+     assign checkpoint_accepted_queries=0;assign checkpoint_consumed_responses=0;
+     assign checkpoint_command_occupancy=0;assign checkpoint_response_occupancy=0;

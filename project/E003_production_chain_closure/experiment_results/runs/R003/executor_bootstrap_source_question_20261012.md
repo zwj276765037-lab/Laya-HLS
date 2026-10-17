@@ -1,0 +1,11 @@
+# Executor唯一bootstrap的source证明接线
+
+范围M003/SM003/E003/R003，D-M003-GRAPH-LIFECYCLE-SPLIT-01；继续原预算。program HLS/RTL和FSM主机里程碑已送达，不待逐项批准。
+
+原请求解析已定位：`hls/common/laya_full_io.cpp`的full_decode_validate_request核LYRQ完整头/目录/payload、真实AUX LYMP及请求单调性；full_admit_request只能在其后使用。full_begin_request会清局部预约，因此必须在确认旧action/tracker/lease及物理安全后调用。唯一FullRuntime继续归executor。
+
+当前有限入口是NORM_LAYER1_ATTN，来源HIDDEN为encoder_00_out而不是初始CPU RAW。现hub只有QUANT专用8192bit source_query_command/原子lease入口，内部owner身份、model、descriptor、window Context均已有，但没有通用bootstrap source snapshot读接口。不能凭LGP1 SOURCE_READY_PROOF或TB READY重新建立发布权威；也不能把CPU RAW import伪装为encoder_00_out。
+
+建议复用唯一hub状态增加只读、完整绑定的内部snapshot/准入握手：请求携已核LYRQ的NumericIdentity、L13M、来源Ref/epoch/region和完整owner geometry/role/地址；hub仅在现有published owner精确匹配且旧scope/读写债务/fence符合原规则时应答，executor再建立对应只读logical source镜像并发LGP1。snapshot不创建owner、不覆盖/发布、不退休/分配task，生产来源仍必须由真实先前producer链建立。冻结源用于首个NORM出口应明确为一致fixture及受控先前producer初始化；bootstrap核真实LYRQ/model不能把该fixture称为完整请求前段。
+
+请主控决定这一内部证明接口的合同形式，或指出可复用的现接口。涉及新内部握手的架构条款由主控核定；不要求新预算/agent/外部wire/Host ABI。工程继续不依赖该决定的8/4 action收发、旧active action内部cleanup以及consumer保持，暂不从任意标志产生生产有效状态，不启动缺唯一准入绑定的executor HLS。

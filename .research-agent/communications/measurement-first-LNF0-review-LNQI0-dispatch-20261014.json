@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "measurement-first-LNF0-review-LNQI0-dispatch-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# LNF0有限接纳；下一步先闭合LN与QAR0共同身份\n\nR-SM005-LNF0-20261014；M004/SM005/E005/R001。回复`measurement-first-LNF0-result-handoff-20261014`，合并接点及普通Q/L只读补证。主控只核文件、冻结身份、原始日志和接口，没有运行DUT或新EDA工具。\n\n**AT040限定接纳为正常四行LN_FFN→真实store→Q/fullA的同runtime RTL PASS。下一[D-M004-LN-QAR-IDENTITY-01](../mission/ln_qar_identity_preflight_stage_20261014.md)先核共同模型包、Wi/Down权重映射及单量化器租约接口；工程按既有授权直接执行有界host准备，本轮不启动联合RTL。LN→QAR0与完整加速器仍未验证。**\n\n## 已经证明的边界\n\nAT038独立enc0 attention residual四行16384B作为外部源，4096 LN F32逐位对独立gold；真实源4 AR/256 R、目的4 AW/256 W/4 B，随后Q从刚写的NORM地址实际4 AR/256 R读取。32次fullA group返回覆盖4096 INT8/128 FP16 scale，原数值检查通过。链间没有reset；source lease在Q响应反压期间保持，真实消费后释放，fullA读取/release和最终零债务闭合。\n\n原baseline83项LN生成物（71 `.v`/7 `.dat`/5 Tcl）保持。新诊断为request3/generation1/B1S128、LN_FFN0x12/stage2/layer0/batch0/row0/rows4、Q0x20；STATE0容量16920576B，HIDDEN offset0、NORM offset8MiB，物理NORM为`0x300800000`。canonical L13M与生成header吻合；原ABI capture build tag不同，因此不签原ABI生产请求身份。包序号、模型request与portal generation继续分开。\n\n原始边沿：最后W167202→最后B167215，确有13拍延迟；内部LN run结束167223，完成包最后beat168789，END消费168843，发布消费168898，Q接受168900。Q响应169841→实际消费169846，lease关闭169847，fullA release169976，最终零债务170031。报告中的168789按完成包出口解释，不当成内部算术完成；run本身含真实读算写。全冷TB170031cycles，互斥阶段和一致；与旧LQ0十六行不同口径，不算加速收益或150MHz部署时延。\n\n目的存储由实际AW/W/WSTRB修改，终扫65536B本地窗口：16384B目标gold/written、49152B邻接哨兵未写。没有对16920576B全BO逐字节终扫，未分配地址由AXI界限/写集合检查；源是无写口的只读TB存储，没有独立源DDR终读回。按这层证据接纳，不能扩大成完整DDR/生产保护证明。\n\n## 原失败与成本核查\n\nAT039静态PASS，单行pilot在真实LN末B之后因owner descriptor仍为layer1，在END被hub以E_PROTOCOL7拒绝；原日志有Fatal且无PASS，full未启动。其guard child0不代表测试成功。AT040唯一冻结源差异是fixture generator把descriptor层号1改0，DUT/算术/独立源/gold不变；不回写AT039失败。\n\nAT040 static/pilot/full各83.827585/56.206804/195.556890s，峰2370544/863288/863192KiB，child0/trigger null。单行pilot只测LN，不代签Q；原准入455s包含Q预算余量，是估计而非上界证明。receipt的`cost_decision.started=false`是准入初始化字段，`full.started=true`及实际guard/log证明已运行。\n\n主控核448条引用/403路径，包括两尝试各151条冻结源码、fixture/输入/生成物/日志引用和后继身份，bytes/SHA全部相符；五guard串行、74条实际policy合规，其中AT040三guard/39条。源码差异、原Fatal、数值PASS标记及计量行分别检查，未以工程摘要或exit code替代原日志。\n\n## 后继为何先做共同身份准备\n\n主控解码AT040 canonical416B与AT035 Wi/Down各自的416B身份，各有233个字节不同。前32B模型/数值tag相同；LN的layout/build为`f927881686d9d11c91b7f11ac59e2cc7`/`23c62cd4778f54e3cc7508f5d05558de`，AT035为`2d848b5fb78236c795cb1d442f088393`/`7209eb09c3f265363cfb274f7790a733`；后续字段编码也不同。它是实际集成前提缺口，不是否定两项独立PASS，也不能仅凭差异认定数值权重不一致。AT035的数值request/generation、NORM epoch也与AT040不同，后继必须依据真实来源建立一致关系。\n\nAT040完整shell自带Q/fullA，AT035长链也有自己的quant_task/dualA；直接并列会重复硬件。目标连接应保留LN独立producer/hub，复用后段唯一Q/dualA/矩阵引擎。完整source-query/grant必须与外部Q同一次接受绑定，保留G优先、拒绝隔离和generation高水位，响应消费且物理R债退休后按原完整键释放。AT035的常量published/owner准入不能进入新证据链；端口缺失的完整model/portal generation必须有真实包和适配来源。`cfg_ready`不依赖published仅说明有可能形成接点，不能当作组合活性验证。\n\n因此LNQI0只做真实canonical包/权重逐字节兼容检查、必要host fixture与有限接口准备，不先支付新的长链仿真成本。固定原LN生成身份；如果需要布局重排，必须给出逻辑字节不变、完整schema/aux/容量保留的证据，不能盲目换tag或降低检查。若存在不兼容，交付具体反例后再集中选路线。\n\n普通Q/L补证已纳入：C账本最新`source_provenance_06`、受控caller `portal_controller_25`、role6全宽四窗口sideband `generated_source_lease_05`、AT040单窗口真实Q分别有效。当前hub并未取得Attention多贡献/QKV/原地epoch及真实portal→Q→父L同范围证明，不能将这四层拼成M003完成。四行有限连接、上游Attention/WO/residual硬件、FFN residual、全28+2层/122矩阵、13BO生产请求/恢复、联合资源/物理时序/上板仍未闭合；M003/M004不关闭。\n\n单owner/原资源帽、G仅OOC余额2338.224019s、5172s不重启及整体控制停排保持，无新HLS/OOC/P&R/上板/预算。\n\n证据：[主控核验](measurement_first_LNF0_review_20261014/verification.json)、[工程报告](../project/E005_full_request_performance/experiment_results/runs/R001/reports/LNF0_four_row_rtl_result_20261014.md)、[AT040原收据](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/receipt.json)、[原full日志](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/guard_full/driver.log)、[接点表](../project/E005_full_request_performance/experiment_results/runs/R001/reports/LNF0_QAR0_readonly_connection_20261014.md)、[普通Q/L边界](../project/E005_full_request_performance/experiment_results/runs/R001/reports/ordinary_ql_physical_gap_readonly_20261014.md)。\n",
+  "in_reply_to": "measurement-first-LNF0-result-handoff-20261014",
+  "message_file": "results/measurement_first_LNF0_review_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "8f71e5a292f8bcc5e6342482b63e4898d24260195629198b93cb82a70ae97b81",
+  "created_at": "2026-10-13T18:30:12.446100+00:00",
+  "status": "delivered",
+  "client_user_message_id": "9c827603-7b5c-4733-b724-1f6960fdc953",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T18:30:12.492394+00:00",
+  "recipient_turn_id": "01a13685-d26f-7061-b030-a794af801039"
+}

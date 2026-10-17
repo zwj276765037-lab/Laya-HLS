@@ -1,0 +1,68 @@
+--- executor_handoff_portal_rtl_04/laya_executor_handoff_shell_v1.sv
++++ executor_handoff_portal_rtl_05/laya_executor_handoff_shell_v1.sv
+@@ -19,6 +19,8 @@
+   output logic predecessor_done_ready,
+   input logic [8191:0] predecessor_done_key,
+   input logic old_channels_drained,physical_safe,protection_valid,
++  input logic query_ingress_started,
++  output logic query_ingress_owned,
+   input logic query_accepted,
+   input logic [8191:0] query_request,
+   input logic query_response_pop,
+@@ -90,11 +92,11 @@
+   // over autonomous HELD acquisition. An actual accepted query owns its
+   // entire return before a pending control can be accepted. This also keeps
+   // the old response consumer progressing while ABORT remains asserted.
+-  assign control_ready=!response_valid && state!=QUERY && !query_accepted && !query_response_pop;
++  assign control_ready=!response_valid && state!=QUERY && !query_ingress_owned && !query_ingress_started && !query_accepted && !query_response_pop;
+   assign control_fire=control_valid && control_ready;
+   assign predecessor_done_ready=state==DRAIN && !predecessor_done;
+   assign stop_predecessor=state!=IDLE;
+-  assign query_permit=state==HELD_READY && !revoked && !cancel && immutable_live && protection_valid;
++  assign query_permit=state==HELD_READY && !query_ingress_owned && !revoked && !cancel && immutable_live && protection_valid;
+   assign import_pending=state==IMPORT_PENDING;
+   // Physical quiescence is checked at grant only. Normal active work creates
+   // debt; authority then depends on its immutable binding and held protection.
+@@ -111,7 +113,7 @@
+       predecessor_done<=0;locks_owned<=0;revoked<=0;local_committed<=0;
+       executor_owns_dispatch<=0;sequence_high_water<=0;handoff_high_water<=0;
+       control_rejections<=0;grants<=0;closed_aborts<=0;response_beats<=0;
+-      captured_response<=0;proof_success<=0;abort_message<=0;
++      captured_response<=0;proof_success<=0;abort_message<=0;query_ingress_owned<=0;
+     end else begin
+       if(state!=IDLE && (cancel || !immutable_live))revoked<=1;
+       if(response_valid && response_ready)begin
+@@ -143,8 +145,14 @@
+         locks_owned<=1;response<=reply(pending_key,HELD,0,0);
+         response_valid<=1;state<=HELD_REPLY;
+       end
++      if(query_ingress_started)begin
++        if(query_permit)query_ingress_owned<=1;
++        else begin revoked<=1;control_rejections<=control_rejections+1'b1;end
++      end
+       if(query_accepted)begin
+-        if(query_permit && query_request[0+:32]==32'h3253424c &&
++        // Once the real first FIFO ingress belongs to this K, cancellation
++        // forbids a new query but never prevents validating/draining this one.
++        if((query_permit || query_ingress_owned) && query_request[0+:32]==32'h3253424c &&
+             query_request[4*8+:16]==2 && query_request[6*8+:16]==16 &&
+             query_request[8*8+:16]==1 && query_request[10*8+:48]==0 &&
+             query_request[24*8+:128]==0 && query_request[776*8+:1984]==0 &&
+@@ -156,7 +164,7 @@
+         if(state==QUERY && response_beats<16)begin
+           captured_response<=assembled;response_beats<=response_beats+1'b1;
+           if(response_beats==15)begin
+-            state<=IMPORT_PENDING;
++            state<=IMPORT_PENDING;query_ingress_owned<=0;
+             proof_success<=assembled[0+:32]==32'h3252424c &&
+               assembled[4*8+:16]==2 && assembled[6*8+:16]==16 &&
+               assembled[10*8+:16]==0 && assembled[12*8+:32]==255 &&
+@@ -178,7 +186,7 @@
+           pending_key<=control;pending_key[680*8+:64]<=handoff_high_water+1'b1;
+           handoff_high_water<=handoff_high_water+1'b1;sequence_high_water<=control[16*8+:64];
+           state<=DRAIN;predecessor_done<=0;local_committed<=0;revoked<=0;
+-          response_beats<=0;proof_success<=0;
++          response_beats<=0;proof_success<=0;query_ingress_owned<=0;
+         end else if(key(control)!=key(pending_key))control_rejections<=control_rejections+1'b1;
+         else if(state==IMPORT_PENDING && control[8*8+:8]==IMPORT_OK &&
+             control[10*8+:16]==0 && control[24*8+:32]==0 &&

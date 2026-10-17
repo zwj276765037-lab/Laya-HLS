@@ -1,0 +1,478 @@
+{
+  "acceptance_limits": [
+    "Source contract only; no v6 functional or hardware reset acceptance exists yet.",
+    "No all-address payload retention claim from sample checks; future static RAM cone review plus same-instance pin-reset raw-nonzero reachable KV/SCORE/AV observations are required.",
+    "No V6 latency/resource/Fmax estimate accepted;150MHz is inherited requested target.",
+    "Production fe067 and accepted v5 evidence remain unchanged; no model/precision/tolerance change."
+  ],
+  "actual_execution": {
+    "actions_this_review": "source reads, hash checks, Python AST parse, structural comparisons and reviewer JSON creation only",
+    "board": "not_run",
+    "cpu": "not_run",
+    "cpu_build": "not_run",
+    "csim": "not_run",
+    "generated_reset_review": "not_possible_no_v6_rtl",
+    "hls": "not_run",
+    "ooc": "not_run",
+    "rtl_pin_reset": "not_run",
+    "rtl_static": "not_run"
+  },
+  "authority": {
+    "bytes": 10036,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v6_metadata_reset_source_preparation_release.json",
+    "sha256": "8e7fffee3a8356fb07bf694787aad59f65e5ee9eb0bfa2d84e8670d187850f3d"
+  },
+  "cold_numeric_execution_prerequisite": {
+    "bytes": 26622,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v2_full_functional_acceptance.json",
+    "sha256": "5166ae99b1d2378e1229de7a5758707813b25b581a19f4852221a983e4cffc97"
+  },
+  "created_utc": "2026-10-09T01:20:12.491996+00:00",
+  "documentation_change_requests": [
+    "Correct v6 design negative-count phrase to16 DUT+1Host=17total when next explicitly maintaining a new document/source identity; this authoritative review uses the correct count now."
+  ],
+  "exact_source_comparison": {
+    "HLS_source_set_matches_top_plus_24_production_TUs": true,
+    "HLS_syn_file_entries": 25,
+    "abi_identical_to_v5": true,
+    "controller_included_once_in_wrapper": true,
+    "expected_CPU_translation_units_including_top_and_test": 26,
+    "official_production_tus": 25,
+    "original_test_main_logic_unchanged_before_three_appended_warm_scenarios": true,
+    "production_numerical_or_owner_helpers_changed": false,
+    "recorded_diff_exactly_reproduces_actual_v5_to_v6": true,
+    "source_diff": {
+      "bytes": 8369,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/v5_to_v6_metadata_only.diff",
+      "sha256": "759706c82c172b806e3df7a6da516200e2cc14fe18f6e47cae660091165f43e2"
+    },
+    "standalone_production_tus_compiled": 24,
+    "test_SHA_helper_identical_to_v5": true
+  },
+  "field_by_field_review": [
+    {
+      "defaults": "all zero",
+      "group": "FullInputs",
+      "loops": "2*1024*2 + 2*16*2 + 2 = 4162 mirror scalar stores; each identity has four 16-byte tags",
+      "source_lines": [
+        70,
+        190,
+        202
+      ],
+      "verified_members": "identity: request_id/generation/B/S and four tags; token_ids/attention_mask/marker_positions/marker_mask/qtype"
+    },
+    {
+      "defaults": "layer255; batch0; refs NONE/0/0; TOKEN; UNDEFINED; INVALID6; all remaining scalars/masks0, validfalse",
+      "group": "FullOwnerRecord[32]",
+      "loops": "32 records, 2*64 coverage words each = 4096",
+      "source_lines": [
+        102,
+        123,
+        203
+      ],
+      "verified_members": "identity, ref, lease_old_ref, max_claimed_epoch, region, stage, layer, batch, row_space, row0, rows, width, content, state, readers, covered_rows, old_consumed_rows, valid"
+    },
+    {
+      "defaults": "all zero/false",
+      "group": "FullOwners coverage and flags",
+      "loops": "6144 + 4096 + 1024 u32 words, plus 2+2 scorer entries and 3 type flags; total owner coverage including record masks15360",
+      "source_lines": [
+        204,
+        222
+      ],
+      "verified_members": "qkv_plane_head_rows, qkv_rope_rows, att_head_rows, scorer_old_consumed, scorer_new_written, type_valid"
+    },
+    {
+      "defaults": "identityzero, refsNONE/0/0, TOKEN, INVALID6, UNDEFINED, A8 layer255, other fields0/false",
+      "group": "FullCache metadata only",
+      "loops": "3*16*4 =192 coverage u32 words",
+      "source_lines": [
+        125,
+        162,
+        225,
+        226
+      ],
+      "verified_members": "activation_source_ledger F32TileMeta; activation_meta A8TileMeta including nested source"
+    },
+    {
+      "defaults": "key.layer255; all otherszero",
+      "group": "FullWeightDescriptor",
+      "loops": "name48, q arrays2 each, SHA arrays32 each",
+      "source_lines": [
+        164,
+        186,
+        227
+      ],
+      "verified_members": "name, key.family/layer, K/N, dtype/bias_kind, q_base/q_span, scale/aux/bias base/span, source_sha256, bias_sha256"
+    },
+    {
+      "defaults": "11 refs NONE/0/0",
+      "group": "FullRuntime refs",
+      "loops": "three 2-entry arrays; otherrefs scalar",
+      "source_lines": [
+        228,
+        237
+      ],
+      "verified_members": "current_weight_ref; loaded_gamma_ref[2]; final_qkv_ref[2]; loaded_kv_ref; loaded_rope_ref; score_ref; score_kv_ref; score_qkv_ref[2]"
+    },
+    {
+      "defaults": "score head/layer/batch255, stage/rows/row00, validfalse; specs layer/batch255/TOKEN/UNDEFINED/refNONE and other0; loaded modes255; source count0/validfalse",
+      "group": "score and source binding",
+      "loops": "1+4 FullOwnerSpec via reset_spec",
+      "source_lines": [
+        89,
+        100,
+        238,
+        249,
+        276
+      ],
+      "verified_members": "score_head/stage/layer/batch/rows/row0/valid; expected_quant_source, expected_task_source[4], expected_task_source_count; loaded_rope_mode, loaded_kv_head; expected_quant_source_valid"
+    },
+    {
+      "defaults": "zero or false, except each Check OK/detail0/bad_elementUINT64_MAX",
+      "group": "counters/session/diagnostics",
+      "loops": "op_calls256; remaining scalar",
+      "source_lines": [
+        250,
+        275
+      ],
+      "verified_members": "last_task_id/tasks_retired/op_calls[256]/owner_claims/owner_leases/encoder_layers_completed/decision_layers_completed; session_generation/last_accepted_request_id; diagnostic_request_id/generation/B/S/identity_valid/shape_valid; last_execution_error/last_cleanup_error/last_commit_error; request_valid/model_header_valid"
+    },
+    {
+      "defaults": "false/0; descriptor words0; pair FullOwnerSpec colddefaults",
+      "group": "ImportPending and ticket",
+      "loops": "48metadata, 2FullOwnerSpec",
+      "source_lines": [
+        278,
+        283
+      ],
+      "verified_members": "valid, ticket, metadata[48], pair[2], ticket_counter"
+    },
+    {
+      "defaults": "only metadata_initialized false on hardware reset; all other named metadata initialized first command",
+      "group": "reset control and excluded data",
+      "loops": "no FullRuntime/FullCache aggregate clear; no numeric payload stores; CPU memory rebound after initializer, callbacks unchanged",
+      "source_lines": [
+        68,
+        425,
+        428,
+        448,
+        454,
+        456,
+        458,
+        476
+      ],
+      "verified_members": "metadata_initialized; CPU FullMemory, checkpoint/checkpoint_user, numeric payload arrays"
+    }
+  ],
+  "findings": [
+    {
+      "actual": "17 total negative markers:16 DUT negatives plus1 host-side corrupt_image rejection; three legal cases and three additional warm scenarios.",
+      "current_text": "17 DUT negative markers, and one independent corrupt-image producer rejection",
+      "id": "V6-DOC-NEGATIVE-COUNT",
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/design.md",
+      "required_correction": "Use the actual16+1 counting in subsequent documentation maintenance or a newly identified source packet; do not edit the frozen source packet in place or rerun v5 to change labels. This finding does not require hardware/numeric implementation changes.",
+      "section": "Verification source and boundaries",
+      "severity": "documentation-correction-authoritative-count-superseded-here"
+    },
+    {
+      "description": "execution_plan guard roots use cpu_build_v1/cpu_execute_v1, while runner writes runs/cpu_build and runs/cpu_execute and a shared runs/attention_preloaded_cpu binary. The gate binds both actual locations and requires them fresh, preventing exist_ok overwrite. No runner edit is needed for this first finite attempt.",
+      "id": "V6-RUNNER-PATHS",
+      "line": 49,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/run_preloaded_cpu.py",
+      "severity": "execution-protocol-clarification"
+    }
+  ],
+  "hash_audit": {
+    "hash_size_mismatches": [],
+    "immutable_inputs": 84,
+    "packet_reference_records": 101,
+    "prepared_files": 13,
+    "unique_paths": 97,
+    "unique_total_bytes": 4090161
+  },
+  "implementation_change_requests": [],
+  "initialization_dominance": {
+    "remaining_generated_obligations": [
+      "Confirm Vitis recognizes namespace-static scalar reset pragma as intended.",
+      "Trace actual ap_rst_n/reset handling of scalar, initializer restart after reset and complete-init dominance before every state read/report.",
+      "Prove every reachable payload RAM reset/write cone lacks reset-triggered payload clear; cold DAT initialization is separate.",
+      "Verify metadata helper references do not introduce pointer-escape source-check failures.",
+      "Measure finite initialization schedule/storage/timing from actual HLS; source store counts are not clocks or resource measurements."
+    ],
+    "sequence": [
+      "static scalar metadata_initialized starts false",
+      "first top invocation checks scalar before FullMemory construction/binding, observed writes, PreloadOwnerControl creation, descriptor/request parsing or numeric state access",
+      "bounded reset_metadata writes only enumerated metadata",
+      "scalar becomes true only after all stores finish",
+      "normal v5 command body follows unchanged"
+    ],
+    "source_guarantee": "No whole-runtime/cache memset or aggregate cold reset; all reset helper arguments are metadata objects; no runtime-held external pointers in synthesis state; CPU callbacks and numeric arrays excluded.",
+    "top_source": {
+      "bytes": 24496,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/attention_preloaded_slice.cpp",
+      "sha256": "31558b89f93d28b03e804841a45133ff336c8c1da52efe710a847e7575cfbb09"
+    }
+  },
+  "module_workspace": {
+    "field_checklist": {
+      "bytes": 4919,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/metadata_field_checklist.md",
+      "sha256": "415add4d376adf8d68256248473bb382306adf3066526d586a069ddceebec1ed"
+    },
+    "markdown_target_check": "all local source Markdown links resolve",
+    "rtl_and_tb_present": true,
+    "source_design": {
+      "bytes": 5730,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/design.md",
+      "sha256": "8052ffd30f71efe90d66e501c868f9ff6947d31037c58d43d30f380b4a0b8119"
+    },
+    "source_results": {
+      "bytes": 3203,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/results.md",
+      "sha256": "b64c73a7c28046db42a7d80bdc571d9143bec8ef18d15848fd2772e64fb8d814"
+    }
+  },
+  "prepared_cpu_tests": {
+    "cold_legal_cases": [
+      "base head0/query0",
+      "base head15/query63",
+      "changed head0/query0"
+    ],
+    "coverage_limits": [
+      "CPU reset hook clears only scalar under !__SYNTHESIS__ && D2_PRELOADED_RESET_TEST_HOOK. It does not exercise a hardware reset pin.",
+      "The new CPU NO_PENDING helper checks specified diagnostic/counter fields, not every persistent field or all30 status words; complete initializer field coverage here is source review.",
+      "Dynamic CPU retention checks selected external QKV/ATT_OUT words and full QKV image, not internal KV/SCORE/AV cells. Internal retention remains future actual-pin RTL obligation.",
+      "The old CPU_PASS legal3/negative17 summary prints before new warm tests; that line alone cannot accept the v6 run."
+    ],
+    "negative_count_authoritative": {
+      "dut_negative_commands": 16,
+      "host_rejection_before_RUN": 1,
+      "host_rejection_name": "corrupt_image",
+      "total_negative_markers": 17
+    },
+    "negative_names_in_order": [
+      "begin_while_pending",
+      "replay_RUN",
+      "missing_plane",
+      "missing_row",
+      "stale_ticket",
+      "wrong_request",
+      "wrong_generation",
+      "wrong_bank",
+      "wrong_epoch",
+      "wrong_source_hash",
+      "wrong_image_hash",
+      "wrong_version",
+      "wrong_shape",
+      "wrong_build_tag",
+      "nonzero_reserved",
+      "wrong_words",
+      "corrupt_image"
+    ],
+    "numeric_contract": "Original QK exact and AV exact independent sequential binary32 from actual probabilities remain; nonlinear and end-to-end tolerances unchanged. Strict -fno-fast-math/-ffp-contract=off and native -lm retained.",
+    "passive_fixture_sample_precondition": "Frozen first base QKV word is0xbe30a4c0 and first base gold AV word is0xbe5f7d34: chosen words are raw-nonzero and not0xa5a5a5a5; values read without numeric execution.",
+    "post_reset_assertions": "Exact E_PROTOCOL 7/detail0xd2010005/phase3; task/last_task/owner_claims/ticket/request-low/generation-low/coverage/final-QKV-epochs/cleanup-status zero. First subsequent BEGIN ticket and QKVepochs1/claims2; RUN tasks4/claims6/coverage3072 plus frozen score/probability/AV and full output guards.",
+    "warm_scenarios": [
+      {
+        "name": "pending_begin",
+        "new_id_generation": [
+          902,
+          602
+        ],
+        "sequence": "cold BEGIN; external fill; scalar reset; old RUN NO_PENDING; fresh identity BEGIN/RUN"
+      },
+      {
+        "name": "numerical_run",
+        "new_id_generation": [
+          904,
+          604
+        ],
+        "sequence": "cold BEGIN/RUN; sample actual external QKV/output; scalar reset; old RUN NO_PENDING with retained external samples; fresh identity BEGIN/RUN"
+      },
+      {
+        "name": "failed_closed_import",
+        "new_id_generation": [
+          906,
+          606
+        ],
+        "sequence": "BEGIN; bad-ticket RUN fails/closes FILL with exact error and zero retired tasks; scalar reset; old RUN NO_PENDING; fresh identity BEGIN/RUN"
+      }
+    ]
+  },
+  "reset_session_boundary": {
+    "anti_ABA": "NOT_PROVIDED across reset if a new BEGIN recreates a byte-identical request/generation/ticket/epochs. Metadata cold reset restarts ticket and owner epochs at1; old receipt before any fresh BEGIN is rejected, but a byte-identical receipt after same-identity reconstruction may be accepted.",
+    "host_obligation": "Invalidate old receipts/session on hardware reset and bind a deliberate fresh request and generation before reuse.",
+    "outside_scope": [
+      "mid-flight AXI cancellation and platform recovery",
+      "persistent reset-resistant nonce/identity or ABI change",
+      "cryptographic authentication of host payloads"
+    ]
+  },
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh",
+    "role": "independent read-only source review"
+  },
+  "schema": "reviewer_attention_v6_metadata_reset_actual_source_and_strict_cpu_release_v1",
+  "single_use_strict_cpu_gate": {
+    "build_acceptance_before_execute": [
+      "guard exit0/child exit0/no trigger",
+      "actual compile argv exactly top +24 official standalone production sources+TB, included controller once, strictC++17/O2/fno-fast-math/ffp-contract=off, D2_PRELOADED_RESET_TEST_HOOK and native-lm",
+      "source identity unchanged and newly built binary hash captured",
+      "runner cpu_build/input_manifest.json and result.json preserved; no existing output overwritten"
+    ],
+    "common_policy": {
+      "cpus": 4,
+      "io_class": "idle",
+      "mem_available_kib_strictly_above": 201326592,
+      "nice": 19,
+      "per_substage_owned_rss_gib": 8,
+      "per_substage_wall_seconds": 120,
+      "sample_seconds": 0.2
+    },
+    "dispatch": "Root scheduler dispatches Sol max only after unique Laya heavy-tool slot grant; no overlap with finite Attention materializer, Q8/OOC or any other owned heavy work.",
+    "execute_acceptance": [
+      "guard exit0/child exit0/no trigger; built binary SHA before/after matches accepted build",
+      "exact ordered old3 legal+17 negative+summary markers retained; negative17 includeshost corrupt_image",
+      "all3 distinct D2_PRELOADED_WARM_PASS lines appear once, in source order",
+      "final D2_ATTENTION_PRELOADED_WARM_SOURCE_PREPARED cases=3 appears once after warmcases; this is a CPU completion marker only",
+      "no assertion/require failure or missing output; full raw driver log and source/binary manifests retained",
+      "actual source/flag/log evidence returned for independent acceptance beforeCSim"
+    ],
+    "failure_policy": "Stop on first failure. Preserve guard plans/launch/timeline/policy/rawlog/result plus partial build/runner outputs and before/after input hashes in original fresh directories with an archive inventory. Do not retry unchanged, increase only budgets, alter gold, skip warm scenarios or claim acceptance from early CPU_PASS.",
+    "fresh_paths_required_before_build": [
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build_v1",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute_v1",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/attention_preloaded_cpu"
+    ],
+    "held": [
+      "CSim",
+      "HLS synthesis or frontend",
+      "RTL static build",
+      "actual pin-reset runtime",
+      "finite v5 additional modes",
+      "full model oracle rerun",
+      "OOC/place-route/board"
+    ],
+    "prepost_binding": "Rehash packet plus all101 recursive path/hash/size records, including84 immutable and13 prepared files, and supplemental guard/helper before and after each substage; save immutable reports under each guard root. Record compiler realpath/version/hash and actual build argv. Do not regenerate fixture, packet or gold.",
+    "released": "one guarded strict CPU build, then one guarded CPU test only if build evidence/input checks pass; no other stage",
+    "source_packet_sha256": "5adb690006430cc8cd4967228f8420bce9e999f8396adbe63d384d94b993704e",
+    "stages": {
+      "cpu_build": {
+        "before_after_binding_output": {
+          "after": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build_v1/source_binding_post.json",
+          "before": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build_v1/source_binding_pre.json"
+        },
+        "guard_argv": [
+          "python3",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+          "--out",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build_v1/guard",
+          "--cwd",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline",
+          "--rss-gib",
+          "8",
+          "--timeout-seconds",
+          "120",
+          "--",
+          "python3",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/run_preloaded_cpu.py",
+          "build"
+        ],
+        "guard_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build_v1",
+        "max_owned_rss_gib": 8,
+        "max_wall_seconds": 120,
+        "payload_argv": [
+          "python3",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/run_preloaded_cpu.py",
+          "build"
+        ],
+        "runner_actual_output_directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build"
+      },
+      "cpu_execute": {
+        "before_after_binding_output": {
+          "after": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute_v1/source_binding_post.json",
+          "before": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute_v1/source_binding_pre.json"
+        },
+        "guard_argv": [
+          "python3",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+          "--out",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute_v1/guard",
+          "--cwd",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline",
+          "--rss-gib",
+          "8",
+          "--timeout-seconds",
+          "120",
+          "--",
+          "python3",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/run_preloaded_cpu.py",
+          "execute"
+        ],
+        "guard_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute_v1",
+        "max_owned_rss_gib": 8,
+        "max_wall_seconds": 120,
+        "payload_argv": [
+          "python3",
+          "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/run_preloaded_cpu.py",
+          "execute"
+        ],
+        "runner_actual_output_directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute"
+      }
+    },
+    "supplemental_guard_records": [
+      {
+        "bytes": 10218,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+        "sha256": "c3c3de6190945c548b4f9934aa2f5ecefb61ac53fdcd283b4381606b17e511e8"
+      },
+      {
+        "bytes": 7083,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/hls_guard_helpers.py",
+        "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+      }
+    ]
+  },
+  "source_packet": {
+    "bytes": 30791,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/source_packet.json",
+    "sha256": "5adb690006430cc8cd4967228f8420bce9e999f8396adbe63d384d94b993704e"
+  },
+  "status": "METADATA_SOURCE_ACCEPTED_SINGLE_USE_STRICT_CPU_BUILD_AND_RUN_RELEASED_CSIM_HLS_RTL_HELD",
+  "struct_authorities": [
+    {
+      "bytes": 14258,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_full_runtime.h",
+      "sha256": "9f518fd26db66bf0a2e865e6ba8a1150d6c2d70486856663f1e3368fa3c16621"
+    },
+    {
+      "bytes": 5046,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_numeric_tasks.h",
+      "sha256": "a5f0b77d30c0a5ae62eac52da48d047cb66e458fc86057a5fbc1931e2da150e2"
+    },
+    {
+      "bytes": 3034,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_types.h",
+      "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+    },
+    {
+      "bytes": 3095,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_full_cache_storage.h",
+      "sha256": "8960eb1cd1f919173a279913a74870e29f83bd007f107e144281c55bad511329"
+    },
+    {
+      "bytes": 738,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/platform/full_cache_storage.cpp",
+      "sha256": "f857f002634f43d1dbe275e87f948185c7a8f00b3dc86688dba2582dd18ca036"
+    }
+  ],
+  "v5_software_baseline_review": {
+    "bytes": 77850,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_software_synthesis_structure_review.json",
+    "sha256": "a7c8c1bafe4a8deec4c1f147eb72bba4ad5b7c63e0f3ecb9da14c572419d0ba4"
+  }
+}

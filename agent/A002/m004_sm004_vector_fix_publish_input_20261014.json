@@ -1,0 +1,13 @@
+{
+  "source": "# E004：完整软件基线与固定图vector局部实验\n\nM004/SM004/E004/R001；A002唯一E002实现/工具owner。AT091完整B1/S128 g++软件正常请求保留原独立gold PASS。SM004当前向量段以现存CE ADD、32credit单lane和薄双源AXI4服务检验4096项精确残差。AT097旧16KiB单burst跨4KiB不合规；AT101按三地址共同页界分段，恢复输入/结果finite首错及done_bad_element，10条受控局部命令以原AT050独立gold检查。全项目单重工具、CPU0–3/nice19/idle、MemAvailable>192GiB，static/RTL/OOC累计帽1200/900/900s；未重跑未变的AT099单lane OOC。原冻结证据不回写。\n",
+  "results": "# E004：限定结果\n\nAT091完整软件正常请求47项/4,523,596 F32对独立gold逐字节PASS，仍只是host。AT093单lane4096项正常4103cycle、反压6444cycle、峰32；AT099仅单lane局部OOC为1283LUT/614FF、DSP/BRAM/URAM0、内部WNS+3.057ns@6.667ns。AT097旧AXI服务2AR/1AW/1B与6928/7185cycle因跨4KiB，只保留旧局部数值观察。AT101修正版10条连续无reset局部命令PASS：对齐4096项正常/反压6955/7206cycle，8AR/512R/4AW/256W/4B，逐bitgold和64KiB目的窗口保护通过；三种单端口页内偏移各16AR/8AW/8B，70beat混合偏移短尾通过。数值错误首索引7及2、首RRESP/BRESP错误status8、WSTRB屏蔽/债务排空与W跨拍保持通过。AT100 TB拼写编译失败保留。guard静态/RTL/OOC累计44.381434/34.727431/78.220358s，触发null。服务未综合、无P&R/真实HBM/完整硬件图性能。见结果报告及AT101原日志。\n",
+  "status": "# E004：状态\n\nexecution_state: running；verdict: unassessed（完整M004加速器）；applicability: AT091当前软件正常全图请求、AT093/098/099单lane局部证据及AT101受控AXI4向量服务短测。向量受影响修正已完成且工具队列空闲。AT097旧单burst非总线合规证据，AT100失败按原冻结保留。host准备部分没有独立owned RSS/policy采样，不能补签。下一步向A001/A003交付新身份与局部速率，等待已授权固定图下一算子具体合同；LN/Attention/矩阵/tail及整图功能/资源仍未完成。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "软件B1/S128单正常请求、单lane流和AT101受控AXI4局部向量服务；不适用于完整硬件图或物理Fmax",
+  "evidence": [
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_vector_stage_result_20261014.md",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_vector_stage_evidence_20261014.json",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT101_SM004_vector_axi_4k_finite_02/receipt.json"
+  ]
+}

@@ -1,0 +1,33 @@
+--- executor_handoff_portal_rtl_16/laya_generated_provenance_layout_v1.sv
++++ executor_handoff_portal_rtl_18/laya_generated_provenance_layout_v1.sv
+@@ -235,4 +235,30 @@
+     end
+     return response;
+   endfunction
++  // Complete internal LAD1 admission object, distinct from HOLD K.
++  function automatic logic admission_record_ok(input logic [8191:0] p);
++    logic good;logic [31:0] mask;logic [63:0] epoch,address,capacity;
++    begin
++      mask=p[12*8+:32];
++      good=p[0+:32]==32'h3144414c && p[4*8+:16]==1 && p[6*8+:16]==16 &&
++        p[8*8+:32]==3 && mask!=0 && mask[31:13]==0 &&
++        p[16*8+:64]!=0 && p[24*8+:64]!=0 &&
++        p[32*8+:256]==0 && p[148*8+:96]==0 && p[888*8+:1088]==0 &&
++        p[64*8+:64]!=0 && p[(64+8)*8+:64]!=0 &&
++        p[(64+16)*8+:16]>=1 && p[(64+16)*8+:16]<=2 &&
++        p[(64+18)*8+:16]>=1 && p[(64+18)*8+:16]<=1024 &&
++        laya_model_identity_13bo_generated_v1::l13m_structure_ok(p[160*8+:3328]) &&
++        laya_model_identity_13bo_generated_v1::l13m_canonical_ok(p[160*8+:3328]) &&
++        laya_model_identity_13bo_generated_v1::l13m_numeric_tags_ok(p[160*8+:3328],p[64*8+:672]);
++      for(int i=0;i<13;i++)begin
++        epoch=p[(576+i*24)*8+:64];
++        address=p[(576+i*24+8)*8+:64];
++        capacity=p[(576+i*24+16)*8+:64];
++        if(mask[i])good=good && epoch!=0 && address!=0 && address[5:0]==0 &&
++          capacity!=0 && capacity<=64'hffffffffffffffff-address;
++        else good=good && epoch==0 && address==0 && capacity==0;
++      end
++      admission_record_ok=good;
++    end
++  endfunction
+ endpackage

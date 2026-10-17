@@ -1,0 +1,113 @@
+{
+  "schema": "allocation_runtime_gate_v1",
+  "at_utc": "2026-10-08T11:39:56.675360+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "decision": "ACCEPT_FROZEN_AXI_ALLOCATION_SOURCE_SNAPSHOT_RELEASE_IDLE_THEN_TRAFFIC_ONCE",
+  "binding_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/final_static_binding_packet.json",
+    "sha256": "2cac3ac57791e4b42a3ddbf781b238b74221be02151222aee6111a0cbcd544df"
+  },
+  "source_precheck": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_allocation_source_precheck.json",
+    "sha256": "a8381829de44f7bb362b13b984d23b9937c332f1aa919feae2356d79dcf73de3"
+  },
+  "independent_hashcheck": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_allocation_gate_hashcheck.json",
+    "sha256": "08d9b00c21ac1357c5dff1a01d90f9c6b18880b904e345c9931a253f4e429eec",
+    "packet_refs_checked": 123,
+    "packet_unique_paths": 87,
+    "additional_preserved_attempt_refs_checked": 8,
+    "snapshot_files_checked": 20,
+    "mismatches": 0
+  },
+  "snapshot": {
+    "directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/runs/static_build_final",
+    "file_count": 20,
+    "file_list_canonical_sha256": "abe35d6d57b8b749ee7c85dcae553a60085a77b8f2e23fc39988dbdc95fd5f0f",
+    "manifest_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/static_snapshot_manifest.json",
+    "manifest_sha256": "aa82e284a929183e593426f8f050cefb7128d7c970e7af888c4438ff35872bbc",
+    "must_rehash_before_each_runtime": true,
+    "name": "axi_allocation_diag",
+    "xsimk_sha256": "8253048b5b298f86261184841a6a2b8531b2fb5541c8e71639981e7f25eb020a"
+  },
+  "source_findings": [
+    "35 original/copy pairs, 33 byte-identical; only global uint64 constructor-request scalar and one constructor increment differ. Original drivers, state, monitor, latency config and mem_model semantics preserved.",
+    "7 compile roots and 29 include entries close actual source dependency tree; DPI shared object is identical to original phase-probe object and exports phase_probe_stage.",
+    "Seven actual axi_env#(64,4,8,3,1), original SLAVE/active-low/TRANSACTION_FIRST/NO_DELAY settings, deterministic 7x65536 memory initialization; no Attention RTL or numeric IP.",
+    "Independent AW and W waits use actual passive handshake counts with stable payload; sampled BID/BRESP requires ID0/OKAY for each write; actual AR/R requires ID0/OKAY/RLAST and all four returned bytes.",
+    "1024 ordered byte-write/aligned-word-read pairs only on qkv0; independent expected image after actual accepted AW/W; final all 458752 backing bytes and untouched ports checked.",
+    "Fixed 2-ID x16 metadata rings, real queue summaries and constructor/RSS scalars only; no observer transaction payload history or retained handles.",
+    "90k completion/drain gate, shared exactly100k-clock endpoint, final seven-port/14-ID sample and explicit $fflush before finish; no further source changes required."
+  ],
+  "static": {
+    "result": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 81.95048697851598,
+      "finished_at": "2026-10-08T11:36:14.020776+00:00",
+      "minimum_mem_available_kb": 440665992,
+      "peak_owned_rss_kb": 845268,
+      "rss_capture_count": 409,
+      "rss_captured": true,
+      "rss_sample_count": 409,
+      "trigger": null
+    },
+    "policy_entries": 12,
+    "all_policy_match": true,
+    "actual_affinity": [
+      40,
+      41,
+      42,
+      43
+    ],
+    "compile_options": "work.axi_allocation_diag_top -L uvm --sv_lib phase_rss --sv_root <bound tb> -s axi_allocation_diag --relax -mt off",
+    "errors_fatal_invalid_in_final_log": false,
+    "preserved_failures": "Pre-tool executable permission failure, wrong top library, unsupported local urandom(seed); all records retained, plus pre-flush static pass. Final source has its own completed static snapshot."
+  },
+  "runtime_release": {
+    "order": [
+      "idle_once",
+      "traffic_once"
+    ],
+    "maximum_invocations": 2,
+    "use_exact_guard_invocations_from_packet": true,
+    "same_snapshot": true,
+    "same_seed": 1,
+    "per_invocation": {
+      "tree_rss_gib": 4,
+      "wall_seconds": 90,
+      "postreset_clocks": 100000,
+      "logical_cpus": 4,
+      "nice": 19,
+      "io": "idle",
+      "host_mem_available_floor_gib": 192,
+      "sample_seconds": 0.2
+    },
+    "launch_conditions": [
+      "Rehash bound sources/DPI and snapshot before each invocation; no changed-source or snapshot substitutions.",
+      "Only one owned Laya workflow heavy tool at a time; unrelated jobs may coexist within unchanged guards.",
+      "Run idle first. If idle exits nonzero, triggers a guard, fails any assertion, or lacks a complete valid endpoint, preserve result and do not run traffic.",
+      "If idle completes validly, traffic is already authorized once; no additional permission or reviewer turn needed.",
+      "No retry, budget extension, third run, or old full Attention execution authorized."
+    ],
+    "acceptance": "Require exit0/no guard/no UVM_ERROR or FATAL/DIAG_INVALID/protocol error, exact endpoint and memory/traffic assertions. PASS marker alone is insufficient. Classify guard interruptions as incomplete."
+  },
+  "interpretation_limits": [
+    "This tests the seven copied m_axi SLAVE environments at the explicit small-page boundary. It excludes the full Attention DUT, two original AXI-Lite MASTER environments and their complete interaction.",
+    "Original control polling sequence creates repeated poll objects only after wait(dut2tb_ap_done_kernel==1); the prior phase window never reached kernel_done, so that loop does not explain its observed pre-done growth.",
+    "Constructor counter measures constructor requests, not live objects or allocated bytes. Idle/traffic correlations or post-drain plateau cannot establish a particular leak or finite full-run upper bound."
+  ],
+  "not_released": [
+    "Attention numerical RTL acceptance",
+    "External-preloaded Attention numerical RTL runtime",
+    "D3/full-top HLS",
+    "Joint-Q8 implementation",
+    "Any repeated full Attention run"
+  ],
+  "contract": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md",
+    "sha256": "9855f603fe2389b0a1b32d6c7a47841005b671ee943ad5302b0ec1d88ece5916"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "executor-program-validator-adapter-progress-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# Program完整validator联合修复与actual adapter有限出口\n\n回复 executor-program-content-mapping-review-20261013；M003/SM003/E003/R003，A002整合，C先于D。\n\n## 新定位及修复\n\nA004把HLS05完整validate_fields的416项model copy逐项追到原Message输入：409正确，j={0,64,128,192,256,320,384}七项错误读Message byte128+j，正确应152+j；它们是尚未动态进入路径中的静态错误。diagnostic03的原Message 416/416与独立owner输入一致，不能改fixture。purpose/content已观察错误与此未执行缺陷分开。A004对handoff→checkpoint→bootstrap binding_packet/put_owner补做有界只读核查：真实encode的content取RAM9[199:192]、模型动态152+i→wire160+i、purpose取RAM0[207:192]均静态正确；外层canonical/模型验证仍未动态测得，不扩大为PASS。\n\nA002联合修复仅改内部完整validator：purpose已有实际scalar；新增实际r.source.content scalar，原d.content条件用该值；整对象identity复制改完整416次动态byte loop（unroll off）。保持公开接口、所有拒绝条件、独立region、完整canonical及416B/1024B比较，未传常量或改wire。新host bootstrap-purpose过程增加content0/2/255 direct/nested、correct F32+region1 direct/nested、七copy块首分别single-byte模型破坏拒绝。\n\n`graph_program_owned_host_08`十独立process PASS_SCOPED_HOST，14源；build8.886544s、peak266988KiB、44owned RSS捕获。各短case peak/policy实际null不由配置补造；软件stream无depth限制。399/399 frozen与声明pair、当前live均核一致。新`graph_program_owned_hls_06`复用其精确冻结host闭包已实际启动（exec session32841），当前仅RUNNING；没有新executor RTL或硬件收益。A004准备同一生成物nested双512RAM validator的purpose/content/region/七copy边界输入，保留unknown padding mask；它不代签owner安装无副作用。\n\n## Actual adapter有限RTL\n\n`executor_adapter_lpv_generated_rtl_01`四复位分隔case PASS_SCOPED_RTL_ACTUAL_GENERATED_ADAPTER_PORTAL，总343711cycles；每次真实24 LTX/16 LPV/8 LPA/16 LTC消费，末LTC实际caller pop才释放事务，完整字节与独立literal相同。static126.760678s、peak4532732KiB；四sim35.396836/23.395227/11.573670/17.655366s、最大856988KiB，各child0/trigger null。369/369 frozen与声明pair/current均一致；两attempt共1326条nonoriginal递归SHA/bytes引用匹配。\n\n范围是实际生成adapter、F10、sidecar、唯一实际portal/transport/monitor/hub；LTX/准入/AXI producer/fence peers受控。BEGIN声明rows16×4096B，实际writer仅64B，matching END为实际issued64的错误终态，因此签error transport/drain，不签完整LN正常数值。cancel在旧END首LTX pop及两raw LPV之后；CLAIM返回反压撤销与正常CLAIM-only INVALIDATE覆盖。撤销后新的cleanup首LTX仍被冻结sidecar阻断，case显式观察排队前2拍；post-revoke cleanup NOT_RUN，不伪称已闭合D-M003-EXECUTOR-OLD-LTX-CLEANUP-01。旧adapter HLS03 broad checker FAIL保持，使用已冻结实际top端口和旧RTL03身份，不回写旧receipt。\n\n## 当前关键路径\n\n唯一重工具为program HLS06。A006独立准备managed adapter真实pre-dispatch LOCAL_REJECT/END+INVALIDATE精确白名单，未运行；A005只读核FSM持久pending完整导出，A002随后整合collector/旧A路由门。稳定shared bootstrap后fresh executor host→有实质变化的新生成，不原样重启旧stall；C完整NORM与周期仍NOT_RUN。D/Q及完整CLOSED/rearm后置，旧债务/必要cleanup不后置。原单重工具/全部资源帽/G仅OOC余额2338.224019s/5172s不重启保持，M003/M004未完成。\n\n证据：本目录executor_program_validator_adapter_verification_20261013.json、graph_program_owned_host_08/receipt.json、executor_adapter_lpv_generated_rtl_01/receipt.json；agent/A004/result.md保存IR具体位置。\n",
+  "in_reply_to": "executor-program-content-mapping-review-20261013",
+  "message_file": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_program_validator_adapter_progress_20261013.md",
+  "associations": {},
+  "payload_sha256": "e9e1c67b732fbea38f846f3f9992719f3b2533cd06bb7a5c0d101be5da4acfed",
+  "created_at": "2026-10-13T03:57:19.545254+00:00",
+  "status": "delivered",
+  "client_user_message_id": "df616b8c-e6d2-4fb4-906f-dee5daebe3b4",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T03:57:19.574689+00:00",
+  "recipient_turn_id": "01a13368-5b4c-7a31-934d-69532665026d"
+}

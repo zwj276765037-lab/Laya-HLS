@@ -1,0 +1,163 @@
+--- executor_actor_host_02/executor_actor_test.cpp
++++ actor_04/executor_actor_test.cpp
+@@ -1,5 +1,6 @@
+ #include "laya_executor_actor.h"
+ #include "laya_graph_program_hls.h"
++#include "laya_graph_program_sequencer.h"
+ #include "lifecycle_fixture_helpers.h"
+ #include <algorithm>
+ #include <fstream>
+@@ -216,14 +217,153 @@
+     }
+   }
+ }
++
++// These cases keep the actual actor/port/FSM and codecs.  The bounded peer
++// supplies remote terminals without a reset of the static production adapter;
++// the two normal requests above separately retain the real adapter path.
++struct Peer {
++  Harness& h;
++  std::vector<transaction::Request> requests;
++  unsigned producers=0,ends=0,invalidates=0;
++  bool pending=false;
++  transaction::Request held;
++  explicit Peer(Harness& harness):h(harness) {}
++  bool take() {
++    if(pending || h.tx.transaction_request.size()<transaction::kRequestBeats)return false;
++    assert(transaction::decode(dequeue<transaction::kRequestBytes>(h.tx.transaction_request),held));
++    requests.push_back(held);pending=true;return true;
++  }
++  transaction::CompletionPacket complete(bool producer_external=false) {
++    assert(pending);pending=false;
++    if(held.kind==transaction::Kind::PRODUCER_TRANSACTION) {
++      if(!producer_external && h.state.revoked)
++        return transaction::encode(transaction::make_local_reject(held,
++            {Status::E_PROTOCOL,laya::detail(7,0,14)}));
++      ++producers;
++      return transaction::encode(transaction::make_completion(held,producer_success(held.producer),true));
++    }
++    assert(held.kind==transaction::Kind::PROVENANCE_TRANSACTION);
++    ends+=held.provenance.action==provenance::Action::END;
++    invalidates+=held.provenance.action==provenance::Action::INVALIDATE;
++    return transaction::encode(transaction::make_completion(held,provenance_response(held.provenance),true));
++  }
++  void call() {h.call();if(take())enqueue(h.tx.transaction_completion,complete());}
++};
++
++action::Request granted_action(Harness& h,const checkpoint::Response& gold) {
++  h.start_hold();h.held(19);
++  checkpoint::Request q;assert(checkpoint::decode(dequeue<1024>(h.query),q));
++  h.proof(gold,false);auto m=h.outgoing();assert(m.kind==handoff::Kind::IMPORT_OK);
++  m.kind=handoff::Kind::GRANTED;h.incoming(m);
++  for(unsigned i=0;i<4;++i)h.call();
++  assert(h.state.phase==executor::Phase::RUN_ACTION && h.state.port.beat==0);
++  program_wire::Command command;assert(program_wire::decode(dequeue<256>(h.commands),command));
++  program::State graph;assert(program::begin(graph,command.identity));
++  assert(program::seed_slot(graph,command.source.slot,command.source.owner,command.source.version));
++  action::Request a;assert(program::prepare_norm(graph,command.source.slot,1,Op::LN_ATTN,2,1,
++      Buffer::NORM,0,0,0,a));return a;
++}
++
++void pulse(Harness& h,unsigned which) {
++  const auto saved=h.in;
++  if(which==0)++h.in.fence.base.epoch;
++  if(which==1)h.in.fence.base.address+=4096;
++  if(which==2)h.in.fence.base.capacity-=4096;
++  if(which==3)++h.in.session;
++  if(which==4)++h.in.accepted_request;
++  if(which==5)h.in.cancel=true;
++  if(which==6)h.in.fence.source_held=false;
++  if(which==7)h.in.fence.target_held=false;
++  if(which==8)h.in.fence.predecessor_dispatch_held=false;
++  if(which==9)++h.in.fence.handoff_epoch;
++  if(which==10)h.in.fence.physical_quiescent=false;
++  h.call();h.in=saved;assert(h.state.revoked);
++}
++
++void run_action_revocation(const std::string& fixture,const checkpoint::Response& gold) {
++  for(unsigned stage=0;stage<5;++stage)for(unsigned which=0;which<(stage<3?11u:6u);++which) {
++    auto state=std::make_unique<executor::State>();Harness h(*state,fixture);
++    auto a=granted_action(h,gold);enqueue(h.actions,action::encode(a));Peer peer(h);
++    if(stage==1)for(unsigned i=0;i<3;++i)h.call();
++    if(stage==2)for(unsigned i=0;i<8;++i)h.call();
++    if(stage>=3) {
++      for(unsigned i=0;i<2000;++i) {
++        h.call();
++        if(!peer.take())continue;
++        const bool wanted=stage==3?
++            peer.held.kind==transaction::Kind::PROVENANCE_TRANSACTION &&
++              peer.held.provenance.action==provenance::Action::BEGIN:
++            peer.held.kind==transaction::Kind::PRODUCER_TRANSACTION;
++        if(wanted)break;
++        enqueue(h.tx.transaction_completion,peer.complete());
++      }
++      assert(peer.pending && state->runtime.generated_store.active &&
++          state->runtime.generated_store.source_lease_active && !state->runtime.tasks_retired);
++      // Active work may own the fences and have real outstanding debt.  Its
++      // old completion/END must keep moving; these inputs do not revoke it.
++      h.in.fence.physical_quiescent=h.in.fence.source_held=h.in.fence.target_held=false;
++      h.call();assert(!state->revoked);
++    }
++    const auto task_before=state->runtime.dispatch_reservations.task_high_water(state->runtime.last_task_id);
++    const auto event_before=state->runtime.provenance_event_high_water;
++    pulse(h,which);
++    auto stale=state->control_request;stale.kind=handoff::Kind::GRANTED;
++    h.incoming(stale);assert(state->revoked && state->imports==1);
++    if(stage==0) {
++      for(unsigned i=0;i<24;++i)h.call();
++      assert(h.actions.size()==8 && state->port.beat==0 &&
++          state->port.machine.action_high_water==0 && !state->runtime.lifecycle_action.active &&
++          h.tx.transaction_request.empty() && state->runtime.provenance_event_high_water==event_before &&
++          state->runtime.dispatch_reservations.task_high_water(state->runtime.last_task_id)==task_before &&
++          !state->runtime.producer_request_high_water && !state->runtime.tasks_retired);
++      continue;
++    }
++    if(stage>=3) {
++      const auto packet=peer.complete(stage==4);
++      for(unsigned i=0;i<14;++i)h.tx.transaction_completion.write(pack(packet,i));
++      for(unsigned i=0;i<14;++i)h.call();
++      for(unsigned i=0;i<12;++i) {h.call();assert(state->runtime.generated_store.active &&
++          !state->runtime.tasks_retired && state->port.machine.phase==lifecycle::Phase::TX_READ);}
++      h.tx.transaction_completion.write(pack(packet,14));h.call();
++      for(unsigned i=0;i<12;++i) {h.call();assert(state->runtime.generated_store.active && !state->runtime.tasks_retired);}
++      h.tx.transaction_completion.write(pack(packet,15));
++    }
++    for(unsigned i=0;i<3000 && state->port.phase!=lifecycle::PortPhase::WAIT_COMPLETION_CONSUMED;++i)peer.call();
++    assert(state->port.phase==lifecycle::PortPhase::WAIT_COMPLETION_CONSUMED && h.completions.size()==4 &&
++        !state->runtime.lifecycle_action.active && !state->runtime.generated_store.active &&
++        !state->runtime.generated_store.source_lease_active && !peer.pending &&
++        h.tx.transaction_request.empty() && h.tx.transaction_completion.empty());
++    action::Completion done;assert(action::decode(dequeue<256>(h.completions),done));
++    assert(!done.result && done.identity.request_id==1101 && done.ordinal==a.ordinal &&
++        done.retired_tasks==(stage>=3?1u:0u) && state->runtime.tasks_retired==done.retired_tasks &&
++        peer.producers==(stage==4?1u:0u) && peer.ends==(stage>=3?1u:0u) &&
++        peer.invalidates==(stage>=3?1u:0u));
++    for(const auto& q:peer.requests) {
++      if(q.kind==transaction::Kind::PROVENANCE_TRANSACTION)assert(numeric_identity_equal(q.provenance.identity,a.identity));
++      else assert(numeric_identity_equal(q.producer.identity,a.identity));
++    }
++    // Consume the old safe completion before testing a queued successor.
++    auto next=a;++next.ordinal;enqueue(h.actions,action::encode(next));
++    h.action_consumed=true;h.call();assert(state->port.phase==lifecycle::PortPhase::READ_ACTION);
++    const auto old_task=state->runtime.last_task_id;
++    const auto old_event=state->runtime.provenance_event_high_water;
++    for(unsigned i=0;i<24;++i)h.call();
++    assert(state->revoked && h.actions.size()==8 && state->port.beat==0 &&
++        state->port.machine.action_high_water==a.ordinal && state->runtime.last_task_id==old_task &&
++        state->runtime.provenance_event_high_water==old_event && h.tx.transaction_request.empty());
++  }
++}
+ } // namespace
+ int main(int argc,char** argv) {
+   assert(argc==2);const std::string fixture=argv[1];wire(fixture);
+   auto p=packet<1024>(bytes(fixture+"/v2/checkpoint_request.bin"));checkpoint::Request r;assert(checkpoint::decode(p,r));
+   checkpoint::Response proof;assert(checkpoint::decode(packet<1024>(bytes(fixture+"/v2/checkpoint_response.bin")),r,proof));
+   helper_reservation(fixture,proof);failures(fixture,proof);consecutive(fixture,proof);
++  run_action_revocation(fixture,proof);
+   std::cout<<"FULL_CURRENT_EXECUTOR_ACTOR_PASS literal_control_bytes=7168 wire_reserved_rejects=20 full_key_mutants=5 early_wrong_grants=12 "
+     <<"same_runtime_requests=2 host_windows_retired=8 import_stat_contribution=0 control_held_query_import_grant=1 "
+     <<"real_helper_reject_abort=1 cancel_held_no_sequence_reuse=1 committed_cancel_base_request_revoke=3 source_shell_fences_controlled=1 "
++    <<"F17_unread_partial_validate_cases=33 F17_active_begin_producer_cases=12 F17_revocation_persistent=1 "
++    <<"F17_old_frame_cleanup_preserved=1 F17_completion_tail_backpressure=1 F17_active_debt_not_revocation=1 "
+     <<"real_hls_top_shell_rearm_NOT_RUN=1\n";
+ }

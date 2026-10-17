@@ -1,0 +1,17 @@
+# D2-I Mode3 alias overlay: execution record
+
+The [bounded static release](../../../reviewer_d2_i_mode3_alias_compatibility_bounded_frontend_release.json) binds the prior CPU 16-F32 gold, 14-page preparation and 57,344-byte independent check; those passed in V1 and were **not rerun** here. The first V1 static attempt passed xvhdl/two xvlog stages and failed xelab `XSIM 43-4412`; [original evidence](../../rtl_static_mode3_v1/runs/mode3_ordered_attempt_evidence_v1.json) remains unchanged.
+
+| Stage | Overlay status |
+| --- | --- |
+| Exact 19-alias source overlay and source packet | Prepared and bound; [exact diff](alias_only.diff) and frozen packet retained |
+| Static attempt 1 (16 GiB / 300 s) | [PASS](../runs/static_alias_attempt_evidence_v1.json); 328 compiled files sealed, 73 DAT links; no additional static attempts |
+| Entry-only finite runtime | [PASS](../runs/mode3_entry_runtime_success_evidence_v1.json) after two distinct preparation attempts (first path error, second pass); exactly one new XSim invocation |
+| Independent numerical/protocol/identity review | [Astra xhigh accepted](../../../reviewer_d2_i_mode3_unary16_final_functional_acceptance.json) one cold unary `APPLY_CAND_MASK` B1/S64 request, 16 candidates, 14 pages |
+| HLS/OOC/physical timing/board from this gate | Not run; no new resource, Fmax, platform or board conclusion |
+
+The accepted log records AP acceptance at cycle 203, first `ap_done` at total cycle 23,267 (23,064 accepted-to-done), and PASS at total cycle 23,272. The 16 masked F32 bit patterns, 32 observed words, full 4096-byte state1 page and 4096-byte observed page pass independent checks; all 14 mapped pages pass the bound testbench scan. Both sides of seven AXI ports and all 35 inserted adapter channels have zero debt at first done. One raw terminal R hold lasted 19 cycles and one masked terminal B hold lasted 17 cycles. The single runtime guard exited 0 without trigger in 9.893 s; sampled owned RSS peaked at 859,404 KiB, under the 4 GiB/120 s limit. The DUT and total-cycle ceilings stayed at 131,072/140,000.
+
+[The 0 ps plusarg failure](../runs/runtime_first_failure_evidence_v1.json) and [first preparation path failure](../runs/plusarg_entry_overlay_v2/preparation_failure_evidence_v1.json) remain sealed. The original runtime seal copied four XSim-added mutable files; after matching each source to its sealed copy, only those four were moved to a second archive, restoring the exact 328-file static set. Fresh-library [post-run binding](../runs/plusarg_entry_overlay_v2/post_binding.log) then passed. No CPU gold, fixture or static compilation was repeated. Guard policy used one Laya heavy tool, CPU 0–3, nice 19, idle I/O, 0.2 s owned RSS sampling and MemAvailable strictly above 201,326,592 KiB.
+
+This is one local unary input producer, not a binary `src1` or real Encoder/producer connection. The separate Q8 [R0 adapter design gate](../../../reviewer_q8_finite_domain_r0_adapter_design_source_release.json) is source-only, and the [first](../../../../../vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/project_prepare_v1_control/stage2_first_failure_evidence.json) and [local-import a1](../../../../../vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/project_prepare_local_import_v2_a1_control/stage2_first_failure_evidence.json) same-source OOC project failures stopped before IP generation. None of these supplies D2 binary or production-connection evidence.

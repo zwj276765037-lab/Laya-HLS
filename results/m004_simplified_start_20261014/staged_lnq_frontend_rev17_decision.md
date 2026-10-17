@@ -1,0 +1,58 @@
+# 修订17：全128行LN阶段与Q16紧密bank入口
+
+2026-10-15；D-M004-STAGED-LNQ-01；A001→A002；M004/SM004/E004/R001。按已批准Goal v4/M004连续实施，不等待新的用户批准。修订16有界收束，旧余额封存；本段是恢复原阶段屏障的第一段生产实现，不把后继所有接口一次并入。
+
+A002继续独占E002原RTL/TB/module source/design/results和E004证据；A003仍只维护source，A001维护合同/审核。复用既有会话，不新建agent、活动工程副本或通用owner系统。按原服务器政策串行重工具，普通实现、编译、仿真与修复连续进行。
+
+## 采用范围和阶段出口
+
+采用研究[原架构“LN-only、Q16及TN8接口”第1–2节](../../source/fixed_graph_architecture_20261014.md)的LN/Q模式、准备token和bank映射。本段只实现：真实AUX gamma预检→STATE0逐行预装→原LN_ONLY1024→真实STATE1 norm写B→完整128行NORM_STAGE_READY；以及同一core内DIRECT_NORM1024与16行Q/scale紧密bank填充入口。正常全128 LN必须先于Q16及W冷载；不能沿旧逐行LN→QKV调用伪造该屏障。
+
+MATRIX16/STEP16、W_PREP_ONLY、隐藏RAW、全RoPE表前检与FINAL交接在下一合同实施。本段可以预留这些编码但必须明确拒绝，不能置成功或虚构完成。本段不接Attention，不重跑旧FFN/QKV/Attention长基线。NORM_STAGE_READY是内部阶段持有信号；它不是request_done、RAW/FINAL或完整模型成功。
+
+同一生产core和一个固定阶段FSM顺序复用原reader、AUX reader、单writer、final_bank及一套LN/Q。旧入口显式接legacy编码并保持原行为；新控制可放在既有wrapper/sequencer的staged选择路径，不能复制计算core或bank。本段正常请求仅运行到LN128阶段持有；Q16入口在该阶段结束后由合法局部调度驱动验证，不绕过未来W_PREP_ONLY的真实父图顺序。
+
+## 固定接口与存储
+
+`laya_lnq_row_v1.source_mode[1:0]`：00原LNQ1024，01原direct2624，10 LN_ONLY1024（仅gamma_kind1），11 DIRECT_NORM1024（gamma_kind0）。旧source_direct接零扩展。只在命令握手锁存模式/row/gamma；输入计数、Q groups/halves分别严格1024/32/64或2624/82/164。mode10不启动Q、不产生Q row_valid；新增真正可阻塞的ln_only_valid/ready/last，复用norm_bits/index，原norm_valid仍为握手观察脉冲。成功done须1024输出真实提交、LN真实done及服务债零，并保持至外层实际消费。
+
+采用`cmd_exec[2:0]`：000 legacy整行、001 LN_ONLY_ROW、010 Q16_FILL_ROW；011/100及其余本段拒绝。`prep_kind[1:0]`：00旧raw+gamma2048字，01 staged raw1024，10 staged norm1024，11 gamma初始化1024。沿原begin/write/commit/abort，kind/id/row/source epoch与已锁存请求/模型匹配；无合法token不准运行。gamma token绑定AUX描述符和model/numeric身份，在LN128期间不得替换；新epoch只能在所有实际债退且旧阶段拥有权释放后建立。
+
+每bank656个32bit字，统一w→bank=w%8、addr=w//8：LN raw w0..1023，gamma w1024..2047，LN norm w3072..4095；Q16第r行Q为w=272r+8g+j，scale为w=272r+256+floor(g/2)；direct norm临时区w4224..5247。后继PS w4352..4479仅预留，本段不启用。gamma在LN128退出前保留；进入Q16后不再引用其本地内容，STATE1 norm继续保留给后继WO。
+
+Q16每行必须先真实消费全部1024 norm，内部Q叶子成功、Q bank收齐64half/32scale、pack空且physical_debt_zero，lnq进入ROW/row_valid之后才导出1088B到final_bank。这里等待的是内部Q叶子完成，不能等待lnq在row_release之后才产生的外层done再开始导出。导出全退后才release并消费lnq.done。这样r15与norm的512B交集不会覆盖未读输入。每group一次八bank并写Q；偶数scale保存16bit，奇数组在下一独立写拍写完整32bit scale pair，不做半字RMW。同bank同拍只安排一次读或写。同步读按E0请求、E1保存RAM结果、rsp握手后再接下一读，所有受阻字段保持。每行32+16写拍/272word，16行4352word=17408B；不得增整行RAM/fullA。有限保持寄存器按实际新增列出，不将payload数当综合资源。
+
+Q16窗口首行必须16对齐，后15行顺序追加，同a_epoch和身份；首行清有效覆盖而不是清RAM。A16_ready只在全部16行真实导出、scale写、Q release/done退完后成立，之后保持，不能接新窗口覆盖。给一个受控a_window_release/discard握手：只在无pending/rsp和服务债零时接收；正常release供未来matrix完成使用，本段局部peer只能签生命周期，不能签矩阵消费。
+
+## 真实LN写回和错误结算
+
+gamma从当前AUX base+128真实读4096B，完整1024字finite检查、真实load_done无error且holding/bank写全退后才允许第一条LN。沿原LOAD_LN_PARAMS完整Check，bad64全1；索引可另作诊断。STATE0每行base+s*4096预装成功才启LN；原raw/gamma复用输入不改数值。STATE1目的base+s*4096，独立8MiB域、64B对齐及完整范围/溢出/活动源隔离检查，当前有效区524288B。
+
+LN输出在bank持有到真实同步读和64笔OKAY B/4096B写回、flush完成撤下、读写债零。最后W、LN内部done均不能代替B退休；成功行位只在这些条件和core done真实消费后设置。128行全成功才NORM_STAGE_READY；部分/失败不得设置完整覆盖。目的按64B单拍writer线性模式，原writer rearm/holding不改。
+
+LN_ONLY_ROW的局部norm视图只有1024字提交且LN成功done已捕获后成立，沿原result row_valid/rd/rsp/release并增加`result_exec=001`回显；可由此译码ln_norm_valid，不另存payload。逻辑tile0..127映射bank addr384..511，其他索引拒绝。正常release要求外层64成功B、flush撤下及无同步pending/rsp、实际债零，之后core done真实产生/消费。故障discard使用同一release桥的显式discard标志，只有wrapper已锁存本任务真实store故障且债零才可发送；它释放bank但不增加norm/B成功计数。先前窗口store失败后继续算术得到的norm也走该受控discard出口。错误LN没有成功norm视图，真债零后允许错误done消费。caller不能用legacy release绕过staged写回条件，端口仲裁沿同一固定模式，不能另外实例化norm RAM。
+
+原LN任务为16行先算后写。若提前写回遇B错，锁存第一个store错误、真实排债并停止后续写；继续当前16行窗口尚需执行的LN算术，将正常后继norm明确丢弃，不计成功B。窗口后续LN数值错优先于已锁存store错误；若当前16行算术全成功才报store错误，不越过该窗口寻找其它错误。不能把store fault接成LN虚假abort或直接进入下一窗口。源RRESP/标签错误导致缺操作数时真实排空后失败，不填零继续；物理传输错误次序单列，不据此宣称旧CPU接口具有AXI错误等价性。
+
+staged完成保留done_op8/check_status16/detail32/bad64；LN数值op0x10/detail0x0710000f，bad为当前原16行任务local_row×1024+列；QUANT op0x20/detail0x0720000f，bad为local_row×4096+列。成功bad为UINT64_MAX。物理读/写协议错采用7/detail(7,current_op,5)/UINT64_MAX，额外保存route/response/ordinal；原4bit phase只作阶段诊断，LN输入沿14、norm写沿12，不能截断完整Check。失败后显式discard只在实际债零后清有效和释放拥有权，残留存储不可发布。共同reset仅覆盖DUT和受控总线peer，不签独立AXI reset。
+
+## 有限验证与自动长例
+
+独立raw/norm复用现d2_cpu_full_official/oracle/B1_from_b0_S128：embedding_raw SHA d3a71978c5d32492c073259f8b4a2df02e77618e8c2c0090dafb550e1d16190c，embedding_norm SHA 5d88293829ae60ee880f931cb863fcccfa82aa41dd8ed46f791ec2e484213056，均524288B。gamma/STATE0绑定沿原s128_final_attention依据；输入先核字节身份，不能新求oracle或修改原参考。
+
+1. 同生产LN/core/readers/writer完成真实source row0/1的LN-only、norm逐位、输出/读口/末B有限阻塞及阶段不提前发布。用保存norm验证DIRECT_NORM1024的Q/scale，检查原mode00和direct2624受影响短兼容，复用未变算术证据，不跑旧长链。
+2. 新阶段主例一次固定B1/S128请求，gamma只准备一次、真实128行raw读和LN/写B。先同版本完整16行窗口pilot固定≤120s，记录source/LN/写回/退休cycle及单调墙钟。基于同版已完成窗口与重复8窗口工作量冻结保守估计≤1440s、剩余RTL预算足容1800s帽后，自动启动完整LN128，单次≤1800s；不请逐次批准。若不落帽保留实际前缀及缺口，不能增加帽或把未运行行补位。全例逐位核131072个norm、8192笔写B和最终内存，128位和NORM_STAGE_READY只在末B/退休后成立，request_done/RAW/FINAL仍0。
+3. Q16 bank合法局部测试使用已保存row0/1 norm交替16行，核全部Q/scale导出和布局、r14→r15交界/最后norm受阻/scale配对/同步rsp保持、重复或错epoch拒绝及真实release。明确只有两种数值样本，不冒充真实16行生产或matrix数值。其生产接口为后继真输入准备，不把保存Q/scale输入DUT。
+4. 合并少量定向错误：gamma非finite在LN前拒绝；实际晚RRESP排空与无reset新epoch；末B错后不成功；用合法LN完成peer核当前16行内store错误延后及后继数值优先，明确替代算术边界。原真实LN仅需一个数值坏样本核完整Check映射；不做恢复组合穷举。局部共同reset可复用既有取消边界并覆盖新增持有状态，不改变IP reset合同。
+
+## 新范围预算和交付
+
+host准备累计300s/8GiB；static/IP累计1800s/24GiB、单次600s；RTL含pilot/失败累计3600s/8GiB、单次1800s/40Mcycle，首次同版pilot≤120s，真实语义无进展120s停止。全项目单重工具、CPU0–3/nice19/idle、MemAvailable>192GiB。复用已生成FP/IP，禁止HLS重综/OOC/P&R、全模型oracle和新gold。旧修订预算不转入。
+
+工程立即开始本段实现和受影响验证，原FAIL与成本保留。阶段交付同时给实测成本、当前冻结身份、LN128或实际前缀范围、Q16接口覆盖和剩余矩阵/RoPE/FINAL缺口。主控继续并行准备STEP16及后继合同，不把本阶段等待研究全量定稿当停点。原全请求首错等价、完整生产器、模型及物理结果继续UNRESOLVED/NOT_RUN，不由本段阶段成功关闭。
+
+### 研究最终交付并入（2026-10-15，不新增停点）
+
+m004-staged-producer-interface-preparation-answer-20261015已收到。主控采用并明确上文两处生命周期：内部Q成功后进入ROW即可导出，lnq外层done必须在导出/release之后；core LN norm沿真实result_exec/rd/rsp/release桥退休，store故障的discard只有已锁存失败上下文及真债零才合法。A002按本同一合同继续，不把该细化当新审核门。
+
+A003这次静态准备可收束，无需确认回信。第1–2节已进入本修订实施；第3节STEP16和全父Check/6144笔写的方案保留为后继设计依据，尚未启动对应RTL或物理验证。主控已复核8份模块/类型依赖与2份完整raw/norm身份、12项映射/容量/合同条件；这不把静态方案记为生产PASS，也不签完整首错等价。

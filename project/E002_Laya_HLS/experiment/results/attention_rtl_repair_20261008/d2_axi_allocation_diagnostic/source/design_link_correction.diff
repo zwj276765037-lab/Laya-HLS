@@ -1,0 +1,21 @@
+--- d2_axi_allocation_diagnostic/source/design.md.before_links
++++ d2_axi_allocation_diagnostic/source/design.md
+@@ -4,9 +4,16 @@
+ 
+ ## Authority and question
+ 
+-This follows repair_contract.md §7.9 and reviewer_d2_phase_probe_v5_observation_review.json plus its identity addendum. The full environment initialized, kernel clocks and actual AXI traffic advanced, and RSS increased while sampled queues were at most one. It did not identify an allocator or prove a leak. This experiment asks whether the copied generated AXI VIP/memory stack exhibits growth with idle clocks, completed transactions, or neither when the Attention DUT is absent.
++This follows [repair contract §7.9](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md#79-真实完整xsim环境的被动阶段观测), the [accepted phase observation](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_phase_probe_v5_observation_review.json) and its [identity addendum](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_phase_probe_v5_observation_addendum.json). The full environment initialized, kernel clocks and actual AXI traffic advanced, and RSS increased while sampled queues were at most one. It did not identify an allocator or prove a leak. This experiment asks whether the copied generated AXI VIP/memory stack exhibits growth with idle clocks, completed transactions, or neither when the Attention DUT is absent.
+ 
+-Authoritative copied source: ../d2_xsim_phase_probe/rtl/verilog/axivip/axi_monitor.sv:88-352; axi_slave_seq_lib.sv:99-230; axi_slave_awdrv.sv:28-49; axi_slave_wdrv.sv:28-49; axi_slave_ardrv.sv:28-49; axi_state.sv:145-345; file_agent/mem_model.sv:20-85 and 160-235. Copy these actual packages and transitive includes to this isolated rtl directory and hash originals/copies. Include source/design/results and actual tool argv in the packet.
++Actual copied source references, reviewed 2026-10-08:
++- [Monitor handshake allocation and callbacks](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_monitor.sv:88).
++- [Slave sequences and clocked latency bookkeeping](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_slave_seq_lib.sv:99).
++- [AW driver handshake completion](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_slave_awdrv.sv:28), [W driver](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_slave_wdrv.sv:28), [AR driver](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_slave_ardrv.sv:28).
++- [Actual state queues and callbacks](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_state.sv:145).
++- [Backing array/read-write semantics](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/file_agent/mem_model.sv:20) and [actual page initialization](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/file_agent/mem_model.sv:160).
++
++Copy these actual packages and transitive includes to this isolated rtl directory and hash originals/copies. Include source/design/results and actual tool argv in the packet.
+ 
+ ## Concrete entry and common environment
+ 

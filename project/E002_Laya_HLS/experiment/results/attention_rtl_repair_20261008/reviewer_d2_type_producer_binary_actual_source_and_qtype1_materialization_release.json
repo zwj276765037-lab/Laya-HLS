@@ -1,0 +1,120 @@
+{
+  "schema": "reviewer_d2_type_producer_binary_actual_source_review_and_qtype1_materialization_release_v1",
+  "created_utc": "2026-10-09T01:23:11.099313+00:00",
+  "reviewer": "GPT-6 Astra / xhigh",
+  "status": "ACTUAL_PRODUCER_BINARY_SOURCE_ACCEPTED_FINITE_QTYPE1_ORACLE_MATERIALIZATION_ONLY_RELEASED",
+  "source_gate": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_type_producer_binary_source_preparation_release.json",
+    "bytes": 5653,
+    "sha256": "d50e1f2c346bf8d1ed0c86ef661582a75f47b6301bec5401877a749ae3d0509c"
+  },
+  "source_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/source/source_packet.json",
+    "bytes": 15461,
+    "sha256": "1201554b4b8c18d376a4045cdb4b64d8a35c37c8b0a3d5b3e6b61ab14c0137f1"
+  },
+  "immutable_design": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/source/design.md",
+    "bytes": 8145,
+    "sha256": "6e8584150083529b95a9b0ad1b0e908e14976eda411dd4dc0e0f183368c5224e"
+  },
+  "independent_source_checks": {
+    "unique_packet_refs_rehashed": 47,
+    "additional_frozen_fixture_inputs_rehashed": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/tb/fixture_v2/request.bin",
+        "bytes": 832,
+        "sha256": "47e2c2418b41ad4491ea20da54f5ba5aabc8eb4f17bc070796e9c1202dea33b5"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/tb/fixture_v2/type_rows.f32.bin",
+        "bytes": 12288,
+        "sha256": "09c9cc40955fc14237f23e0c807f9381ebc2f1eb3ae8be1953e5d3a0446ca798"
+      }
+    ],
+    "actual_controller": "Top includes unchanged Controller translation unit exactly once; candidate syn.file excludes separate controller TU. Cold B1/S64 native HIDDEN is claimed/addressed/written/covered/published through original APIs. controller.type_add invokes one actual EMB_TYPE, then original vector_impl does four16-row1024-wide ADD_TYPE tasks with real dual source binds/acquires, full output publication and source releases.",
+    "actual_producer": "EMB_TYPE locates exact compiled Q8_0 type_emb.weight descriptor (EMBEDDING base54800384/span3264), checks complete BO span, reads selected1088-byte Q8 row through model BO, decodes and writes1024F32 TYPE_ROWS elements. Only selected row is covered/published. No predecoded DUT input or forced owner READY/valid.",
+    "ports_and_pages": "Seven disjoint nonzero64-bit port bases,206 sparse4KiB pages; model Q8 page at aligned54800384. qtype2/Q8offset54802560,F32offset16916480; qtype1/Q8offset54801472,F32offset16912384. Exact capacities and selected/unselected TYPE_ROWS sentinels retained.",
+    "cpu_test_source": "Checks5tasks/3claims,1EMB+4ADD_TYPE,65536output words,selected1024type words,full bothSTATE byte arrays,unchangedIO,READY64-row output,FREE type/ingress. Both qtypes require separate cold processes; no warm proof.",
+    "oracle_source": "materialize_qtype1.py verifies original signed design/data gate,fixture/native/model/reference bytes and exact GGUF-vs-package type tensor; computes row1 by existing independent full_reference.embedding_row then F32 add over frozen64x1024 HIDDEN. Only request_id24..31 andqtype768..771 change (311 and1). Outputs expected data only; never passed as producer input.",
+    "encoder_appendix": "Architecture only; honestly separates postEncoder ir1410 HIDDEN from unproven authentic layer0embedding_norm binding, family1/layer0QKV,allhead paired RoPE and laterAttention. No new Encoder result."
+  },
+  "finite_stage": {
+    "maximum_invocations": 1,
+    "rss_gib": 4,
+    "wall_seconds": 120,
+    "fresh_output": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/runs/qtype1_materialization_v1",
+    "fresh_control": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/runs/qtype1_materialization_v1_control",
+    "guard": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+      "bytes": 10219,
+      "sha256": "23f63b79d0bbb05d6a01612eb63914c7b46d9724693a4a52e348827a7a026d70"
+    },
+    "helper": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/hls_guard_helpers.py",
+      "bytes": 7083,
+      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+    },
+    "guard_argv": [
+      "/usr/bin/taskset",
+      "-c",
+      "0,1,2,3",
+      "/usr/bin/python3",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+      "--out",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/runs/qtype1_materialization_v1_control/guard",
+      "--cwd",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/runs/qtype1_materialization_v1_control",
+      "--rss-gib",
+      "4",
+      "--timeout-seconds",
+      "120",
+      "--",
+      "/usr/bin/env",
+      "-u",
+      "PYTHONHOME",
+      "-u",
+      "PYTHONPATH",
+      "/usr/bin/python3",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/tb/materialize_qtype1.py",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_type_producer_binary_v1/runs/qtype1_materialization_v1"
+    ],
+    "preconditions": "Root hands single heavy slot. Sourcepacket and all bound source/input hashes unchanged; all new roots absent then create control only. Source-generation packet builder is exclusive-write and must NOT be rerun onto frozen source_packet. Capture Python/NumPy versions when available without modifying system packages.",
+    "expected_artifacts": [
+      "qtype1_request.bin832B",
+      "qtype1_row_reference.f32.bin4096B",
+      "qtype1_gold.f32.bin262144B",
+      "qtype1_fixture_report.json"
+    ],
+    "post": "Seal source pre/post identity,actualargv,guard log/timeline/result,all output hashes. Review qtype1 exact request-only delta and independent numerical bytes before later CPU gate. Preserve failures,no same-source retry."
+  },
+  "required_before_cpu_hls_release": [
+    "Supplement frozen packet with complete transitive local include/platform/generated-header dependency closure; current25 C++syn.file list alone is not a complete compile dependency binding. Preserve original sourcepacket,top,design and data.",
+    "Seal exact CPU build driver/argv from25syn.file plusTB,includes andstrict flags; actualcompiler dependency output may then corroborate closure. No compile under this materialization gate.",
+    "CPU success remains distinct from FPGA: actual generated physical schedule/port closure,new206-pageTB,firstdone both-side protocol/debt andterminal stalls need later review. No reused unary16 cycle ceiling."
+  ],
+  "policy": {
+    "cpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nice": 19,
+    "ionice": "idle",
+    "owned_rss_sample_seconds": 0.2,
+    "MemAvailable_strictly_above_KiB": 201326592,
+    "single_heavy_slot": true
+  },
+  "not_released": [
+    "CPU build/run",
+    "CSim",
+    "HLS",
+    "RTL static/runtime",
+    "OOC/implementation",
+    "Encoder/fullproducerchain",
+    "board/Fmax150MHz/50ms",
+    "general R0 primitive conformance"
+  ],
+  "retained_prior_acceptance": "Unary16 mode3 final acceptance remains separate; source-only producer review does not enlarge it."
+}

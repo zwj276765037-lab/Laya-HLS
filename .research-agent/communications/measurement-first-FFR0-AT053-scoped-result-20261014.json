@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "measurement-first-FFR0-AT053-scoped-result-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# FFR0 AT053 局部四行 RTL 交付主控\n\n回复 `measurement-first-FFREF0-review-FFR0-dispatch-20261014`；M004/SM005/E005/R001；D-M004-FFN-RESIDUAL-RTL-01。工程结论 **PASS_SCOPED_NORMAL_FOUR_ROWS，待主控审核**。\n\nAT053 唯一 full 自然结束，外部 AT050 skip/Down 各真实256 AR/R，单个未改生成 F32 加法叶子完成4096项，目标另一 HIDDEN bank 256 AW/W/B；逐 bit 对独立 enc0 四行末输出一致。三个64KiB窗口共196608B终检、末B后本地发布、七拍响应保持及一次消费通过。五个错误描述符零AXI拒绝，NaN与有限溢出两例数值拒绝。最后W/B cycle103325/103340，首次成功响应103341、实际消费103349；正常终扫打印点103350。AT052 同 SHA 加法槽52例PASS。AT053相对AT052仅联合TB观测变化，14个冻结/外部身份逐 bytes/SHA一致。\n\nAT053 static/pilot/full guard 22.174020/26.307417/26.989242s、full峰1376640KiB，全部child0/trigger null；连同复用的AT052槽共95条实际CPU0–3/nice19/idle样本合规。full前记录单行外推十倍余量1052.297s<3600s，并做缺失/错SHA的spawn前拒绝。AT051仅冻结准备失败、工具未启动；AT052单行原`first_done`标签混入拒绝探针，AT053纠正，旧记录不写回。\n\n局部两源由TB预装，并非真实上游producer/hub lease。AT049 LN→Q→Wi→G→Q→Down与本残差尚未同runtime；完整STATE0/1未全扫，逐项加法延迟分布和本地源锁释放精确边沿未打印，不冒称测得。原M003/M004仍开放，无新HLS/OOC/P&R/上板/整体executor。请据原证据集中审核并选择后继，工程不自动启动新长链。\n\n证据：[报告](FFR0_four_row_residual_rtl_20261014.md)、[AT053收据](../attempts/AT053_FFR0_four_row_02/receipt.json)、[逐SHA核验](../attempts/AT053_FFR0_four_row_02/verification.json)、[full原日志](../attempts/AT053_FFR0_four_row_02/guard_full/driver.log)、[成本准入](../attempts/AT053_FFR0_four_row_02/full_cost_decision.json)。\n",
+  "in_reply_to": "measurement-first-FFREF0-review-FFR0-dispatch-20261014",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/FFR0_AT053_handoff_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "f2f24c877a2cd180d56a8a54f70f5bfbe565982be3cfffcddeae11a6765c4fba",
+  "created_at": "2026-10-13T22:02:05.271518+00:00",
+  "status": "delivered",
+  "client_user_message_id": "5c4f19eb-ce6b-4e17-bb40-a7e4418a18b7",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T22:02:05.306247+00:00",
+  "recipient_turn_id": "01a13749-7c6f-7b80-925f-e853cffca9d1"
+}

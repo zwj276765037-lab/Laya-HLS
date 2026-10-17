@@ -1,0 +1,29 @@
+--- executor_request_close_host_01/executor_actor_test.cpp
++++ executor_request_close_host_02/executor_actor_test.cpp
+@@ -167,20 +167,22 @@
+     if(which==3)++foreign.binding.handoff_epoch;
+     if(which==4)++foreign.binding.source.identity.request_id;
+     if(which==5)foreign.local_committed=false;
+-    if(which==6)foreign.result={Status::E_BUFFER,detail(7,0,14)};
+-    if(which==7) {foreign.result={Status::E_PROTOCOL,detail(7,0,15)};}
++    if(which==6)foreign.result={Status::E_BUFFER,laya::detail(7,0,14)};
++    if(which==7) {foreign.result={Status::E_PROTOCOL,laya::detail(7,0,15)};}
+     if(which==8)foreign.kind=handoff::Kind::GRANTED,foreign.result=ok();
+     h.incoming(foreign);assert(s.phase==executor::Phase::WAIT_CLOSE && !s.closed_consumed);
+   }
+   // Persistently changed live inputs do not replace the old CLOSED owner.
+   h.in.cancel=true;++h.in.fence.base.epoch;++h.in.session;++h.in.accepted_request;
+-  for(unsigned i=0;i<12;++i)h.call();h.incoming(closed);
++  for(unsigned i=0;i<12;++i) {h.call();}
++  h.incoming(closed);
+   assert(s.closed_consumed && s.closed_requests==1 && s.phase==executor::Phase::WAIT_NEW_ADMISSION &&
+     handoff::encode(s.closed_record)==packet<1024>(bytes(fixture+(closed.result?"/closed_ok_c1.bin":"/closed_error_c1.bin"))));
+   std::ofstream capture(fixture+"/actual_close_"+name+".bin",std::ios::binary);
+   capture.write(reinterpret_cast<const char*>(literal.data()),literal.size());assert(capture);
+   h.in.cancel=false;h.in.request_valid=true;h.in.managed_close=false;
+-  for(unsigned i=0;i<24;++i)h.call();h.incoming(closed);
++  for(unsigned i=0;i<24;++i) {h.call();}
++  h.incoming(closed);
+   assert(s.closed_requests==1 && s.admissions==1 && s.phase==executor::Phase::WAIT_NEW_ADMISSION &&
+     h.commands.empty() && h.results.empty() && s.runtime.last_task_id==task &&
+     s.runtime.provenance_event_high_water==lpv && s.runtime.producer_request_high_water==producer &&

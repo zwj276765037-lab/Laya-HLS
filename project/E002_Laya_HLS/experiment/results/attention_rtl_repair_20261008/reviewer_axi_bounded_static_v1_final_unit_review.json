@@ -1,0 +1,762 @@
+{
+  "schema": "reviewer_axi_bounded_static_v1_source_static_four_mode_acceptance_v1",
+  "at_utc": "2026-10-08T18:01:27.757939+00:00",
+  "reviewer": "GPT-6 Astra xhigh /root/q8_proto_design_astra_xhigh",
+  "verdict": "BOUNDED_STATIC_AXI_ENDPOINT_SOURCE_AND_FOUR_MODE_UNIT_CAMPAIGN_ACCEPTED_WITH_EXPLICIT_COVERAGE_LIMITS",
+  "runtime_release": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_axi_bounded_static_v1_guard4_runtime_release.json",
+    "bytes": 18262,
+    "sha256": "ee63dcebbf93110a99c11360879afad29a9cecffe1ea922e8ae8655693d86574"
+  },
+  "source_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/source_binding_v1/source_packet.json",
+    "bytes": 15116,
+    "sha256": "3ea6b27f047a18fcad271d670d631ceaf7c0ce13302b89d4324c772658a88a8c"
+  },
+  "implementation_campaign_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/runtime_guard4_campaign_v1.json",
+    "bytes": 9082,
+    "sha256": "4f08293151048c42561933a704d22e608f007134a18c218e9d56254d8b2d4398"
+  },
+  "snapshot_manifest": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/snapshot_manifest.json",
+    "bytes": 4004,
+    "sha256": "409824e4fcd8eaf43c85bad23b50f73f0380cbb0008f07611df86740bd6aac6d"
+  },
+  "snapshot_canonical_sha256": "3bb6f3d099499efc7ced2119fe8b53005ecff75af4b7e0c25d81e81cefd0e9da",
+  "static_review_reference": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_axi_bounded_static_v1_guard4_runtime_release.json",
+    "bytes": 18262,
+    "sha256": "ee63dcebbf93110a99c11360879afad29a9cecffe1ea922e8ae8655693d86574"
+  },
+  "first_parser_failure_preserved": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_once/parser_failure_evidence.json",
+    "bytes": 2978,
+    "sha256": "b09aac68a8c1010e3be4faf294e09d47884fe1d833da467c9503c0491b6897ba"
+  },
+  "source_audit": [
+    {
+      "item": "Bounded representation",
+      "evidence": "Endpoint module-scope four-state byte backing,4 AW/AR/B descriptors,64 W entries,one R slot. No dynamic/class/UVM/fork or timed automatic helper. Generic PAGE_CAPACITY/PAGE_BASES bounded scan."
+    },
+    {
+      "item": "Complete physical addressing",
+      "evidence": "page_slot compares bits63:12; parameter pages aligned/unique. burst_error65-bit end detects overflow; aligned INCR1..16 beats, supported byte sizes and4KiB boundaries. Unknown accepted metadata rejected."
+    },
+    {
+      "item": "Write lifecycle",
+      "evidence": "Independent AW/W ready and queues; write_commit consumes old nonempty queues, validates WID/WLAST/WSTRB, commits strobed lanes with NBA before B is visible; each count has one owner and simultaneous push/pop arithmetic."
+    },
+    {
+      "item": "Read lifecycle",
+      "evidence": "Read slot only fills while !rvalid; stalls retain all outputs. Read beat advances on actual R handshake, last pops AR; unused narrow lanes zero. Same-clock mem write uses NBA so read samples old data."
+    },
+    {
+      "item": "Reset and preservation",
+      "evidence": "Synchronous reset clears protocol counts/heads/beat and R slot, never mem. TB applies quiescent warm reset after512 pairs per width and checks no stale B/R/queues plus full32768-byte memory equality."
+    },
+    {
+      "item": "Independent monitor/oracle",
+      "evidence": "negedge clocked driver; posedge wire monitor validates exact AW/W/AR payload; separately maps64-bit address ranges into expected bytes and compares every R data/ID/RESP/LAST and B after real memory commit. Final verifier executes before PASS."
+    },
+    {
+      "item": "Coverage and counts",
+      "evidence": "Per width512 pairs; length classes1/2/16 occur171/171/170 times, sum3233 beats. All4pages,IDs0/1,full/narrow/nonzero lanes,zero/sparse/full strobe,boundary ending,256 AW-first and256 W-first,>=3 B/R stalls asserted. Aggregate1024 AW/B/AR and6466 W/R observed."
+    },
+    {
+      "item": "Expected rejection",
+      "evidence": "32-bit endpoint gets aligned4-byte burst atpage+4092,len1 crossing4KiB and fails before queue write atline185/65ns; separate len1 transaction gets early WLAST and fails atline230/85ns.512-bit agent idle in these modes."
+    }
+  ],
+  "runtime_results": [
+    {
+      "mode": "idle",
+      "evidence": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/runtime_evidence.json",
+        "bytes": 33434,
+        "sha256": "e57505c2700f6bb43809c829f431f83a7b2f2e26e90592384e31a7578e42015f"
+      },
+      "semantic_acceptance": true,
+      "terminal": "AXI_STATIC_IDLE_PASS clocks=100000 bytes=32768 aw=0 w=0 b=0 ar=0 r=0",
+      "terminal_time_ns": 1000045,
+      "guard": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 5.485997132956982,
+        "finished_at": "2026-10-08T17:55:34.737460+00:00",
+        "minimum_mem_available_kb": 449734612,
+        "peak_owned_rss_kb": 855504,
+        "rss_capture_count": 27,
+        "rss_captured": true,
+        "rss_sample_count": 27,
+        "trigger": null
+      },
+      "policy_count": 4,
+      "timeline_rows": 27,
+      "phase_probes": [
+        {
+          "wall_ms": 1791482134446,
+          "pid": 3786927,
+          "sim_ps": 51000,
+          "clock": 0,
+          "label": "static_idle",
+          "value0": 0,
+          "value1": 0,
+          "rss_kb": 76708,
+          "hwm_kb": 76708
+        },
+        {
+          "wall_ms": 1791482134462,
+          "pid": 3786927,
+          "sim_ps": 100045000,
+          "clock": 10000,
+          "label": "static_idle",
+          "value0": 0,
+          "value1": 0,
+          "rss_kb": 76776,
+          "hwm_kb": 76776
+        },
+        {
+          "wall_ms": 1791482134494,
+          "pid": 3786927,
+          "sim_ps": 500045000,
+          "clock": 50000,
+          "label": "static_idle",
+          "value0": 0,
+          "value1": 0,
+          "rss_kb": 76776,
+          "hwm_kb": 76776
+        },
+        {
+          "wall_ms": 1791482134533,
+          "pid": 3786927,
+          "sim_ps": 1000045000,
+          "clock": 100000,
+          "label": "static_idle",
+          "value0": 0,
+          "value1": 0,
+          "rss_kb": 76776,
+          "hwm_kb": 76776
+        }
+      ],
+      "pre_post_frozen_records": 20,
+      "pre_post_snapshot_records": 19,
+      "exact_command_matches": true,
+      "runtime_created_files": [
+        "xsim.dir/axi_bounded_static/xsimSettings.ini",
+        "xsim.dir/axi_bounded_static/xsim_script.tcl",
+        "xsim.dir/axi_bounded_static/xsimcrash.log",
+        "xsim.dir/axi_bounded_static/xsimkernel.log",
+        "xsim.jou"
+      ],
+      "runtime_changed_files": [],
+      "own_rss_10k_to_100k": {
+        "first_kib": 76776,
+        "last_kib": 76776,
+        "slope_kib_per_clock": 0.0,
+        "wall_ms": 71
+      }
+    },
+    {
+      "mode": "traffic",
+      "evidence": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/runtime_evidence.json",
+        "bytes": 34374,
+        "sha256": "23712e2cfc27489e4744aecf14c0ce7c385be877d93c783a581179a22312c310"
+      },
+      "semantic_acceptance": true,
+      "terminal": "AXI_STATIC_TRAFFIC_PASS clocks=100000 pairs=1024 bytes=32768 aw=1024 b=1024 ar=1024 w=6466 r=6466 bstall32=3 rstall32=3 bstall512=3 rstall512=3",
+      "terminal_time_ns": 1000045,
+      "guard": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 5.760741991922259,
+        "finished_at": "2026-10-08T17:55:54.227408+00:00",
+        "minimum_mem_available_kb": 449757144,
+        "peak_owned_rss_kb": 855484,
+        "rss_capture_count": 28,
+        "rss_captured": true,
+        "rss_sample_count": 29,
+        "trigger": null
+      },
+      "policy_count": 4,
+      "timeline_rows": 29,
+      "phase_probes": [
+        {
+          "wall_ms": 1791482153663,
+          "pid": 3787356,
+          "sim_ps": 51000,
+          "clock": 0,
+          "label": "static_traffic",
+          "value0": 0,
+          "value1": 0,
+          "rss_kb": 76828,
+          "hwm_kb": 76828
+        },
+        {
+          "wall_ms": 1791482153800,
+          "pid": 3787356,
+          "sim_ps": 100045000,
+          "clock": 10000,
+          "label": "static_traffic",
+          "value0": 334,
+          "value1": 334,
+          "rss_kb": 76964,
+          "hwm_kb": 76964
+        },
+        {
+          "wall_ms": 1791482153910,
+          "pid": 3787356,
+          "sim_ps": 500045000,
+          "clock": 50000,
+          "label": "static_traffic",
+          "value0": 512,
+          "value1": 512,
+          "rss_kb": 76964,
+          "hwm_kb": 76964
+        },
+        {
+          "wall_ms": 1791482153971,
+          "pid": 3787356,
+          "sim_ps": 1000045000,
+          "clock": 100000,
+          "label": "static_traffic",
+          "value0": 512,
+          "value1": 512,
+          "rss_kb": 76964,
+          "hwm_kb": 76964
+        }
+      ],
+      "pre_post_frozen_records": 20,
+      "pre_post_snapshot_records": 19,
+      "exact_command_matches": true,
+      "runtime_created_files": [
+        "xsim_3786865.backup.jou"
+      ],
+      "runtime_changed_files": [
+        "xsim.dir/axi_bounded_static/xsim_script.tcl",
+        "xsim.dir/axi_bounded_static/xsimkernel.log",
+        "xsim.jou"
+      ],
+      "own_rss_10k_to_100k": {
+        "first_kib": 76964,
+        "last_kib": 76964,
+        "slope_kib_per_clock": 0.0,
+        "wall_ms": 171
+      }
+    },
+    {
+      "mode": "reject_4k",
+      "evidence": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/runtime_evidence.json",
+        "bytes": 34302,
+        "sha256": "6f14f6ff1de5211aa03017b257e46c3b90aeb60e5a4a37bf61f84a6abd895e6c"
+      },
+      "semantic_acceptance": true,
+      "terminal": "Fatal: AXI_STATIC_4K_CROSS",
+      "terminal_time_ns": 65,
+      "guard": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 5.421593440696597,
+        "finished_at": "2026-10-08T17:56:08.574891+00:00",
+        "minimum_mem_available_kb": 449743096,
+        "peak_owned_rss_kb": 855552,
+        "rss_capture_count": 27,
+        "rss_captured": true,
+        "rss_sample_count": 27,
+        "trigger": null
+      },
+      "policy_count": 4,
+      "timeline_rows": 27,
+      "phase_probes": [],
+      "pre_post_frozen_records": 20,
+      "pre_post_snapshot_records": 19,
+      "exact_command_matches": true,
+      "runtime_created_files": [
+        "xsim_3787289.backup.jou"
+      ],
+      "runtime_changed_files": [
+        "xsim.dir/axi_bounded_static/xsim_script.tcl",
+        "xsim.dir/axi_bounded_static/xsimkernel.log",
+        "xsim.jou"
+      ]
+    },
+    {
+      "mode": "reject_wlast",
+      "evidence": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/runtime_evidence.json",
+        "bytes": 34332,
+        "sha256": "8040784b74b7f3ef024a5aa918520b546142cf9ac1173d5720e0aa36ebbc18e2"
+      },
+      "semantic_acceptance": true,
+      "terminal": "Fatal: AXI_STATIC_WLAST",
+      "terminal_time_ns": 85,
+      "guard": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 5.425088573247194,
+        "finished_at": "2026-10-08T17:56:26.741370+00:00",
+        "minimum_mem_available_kb": 449718356,
+        "peak_owned_rss_kb": 855672,
+        "rss_capture_count": 27,
+        "rss_captured": true,
+        "rss_sample_count": 27,
+        "trigger": null
+      },
+      "policy_count": 4,
+      "timeline_rows": 27,
+      "phase_probes": [],
+      "pre_post_frozen_records": 20,
+      "pre_post_snapshot_records": 19,
+      "exact_command_matches": true,
+      "runtime_created_files": [
+        "xsim_3787624.backup.jou"
+      ],
+      "runtime_changed_files": [
+        "xsim.dir/axi_bounded_static/xsim_script.tcl",
+        "xsim.dir/axi_bounded_static/xsimkernel.log",
+        "xsim.jou"
+      ]
+    }
+  ],
+  "current_work_files": 27,
+  "frozen_snapshot_files": 19,
+  "runtime_created_current_files": 8,
+  "historical_runtime_hash_chain_consistent": true,
+  "coverage_limits": [
+    "FIFO saturation/four outstanding descriptors, simultaneous read/write collision,AW/W/AR backpressure,and in-flight reset are not dynamically exercised by these sequential unit pairs; source checks do not replace those scenarios.",
+    "Unknown-metadata/alignment/unmapped/overflow/WID/WSTRB guard branches exist but only4KiB andWLAST have dedicated negative runtime cases here.",
+    "Generic32-page capacity is source-supported but actual elaborated unit uses4pages per width; Q8 observed32page binding must be checked on the realDUT elaboration.",
+    "Own-process RSS is flat at the four recorded checkpoints from10k to100k in this isolated32KiB environment; this does not prove a universal leak cause/fix, whole-DUT RSS bound, HBM bandwidth or compute throughput. Traffic is complete before50k.",
+    "Prior runtime-created script/kernel logs were overwritten by subsequent XSim runs and retained as linked before/after hashes in packets; durable per-mode driver/xsim logs preserve behavioral evidence, journal backups and latest runtime files rehash. All19 frozen compiled snapshot files remain unchanged.",
+    "Q8/Attention numerical RTL,performance/OOC/timing closure,and board execution remain unaccepted."
+  ],
+  "future_use": "Accepted endpoint may be bound as source to real Q8 ACT and later Attention testbenches under their separate exact source/DUT/IP/fixture/static/runtime gates. No extra endpoint rerun needed to restate this result.",
+  "execution_consumed": [
+    "single static build",
+    "idle once",
+    "traffic once",
+    "reject_4k once",
+    "reject_wlast once"
+  ],
+  "independently_rehashed_unique_records": [
+    {
+      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xelab",
+      "bytes": 823,
+      "sha256": "be0500dad03cac9bf737f6b98dccd6458d59acb3ca7f88e4e1b86f46408298d0"
+    },
+    {
+      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xsim",
+      "bytes": 909,
+      "sha256": "b109855e4479976a51a67def22f9c1fd66def9ceef691816606149f0d0417026"
+    },
+    {
+      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xvlog",
+      "bytes": 823,
+      "sha256": "be0500dad03cac9bf737f6b98dccd6458d59acb3ca7f88e4e1b86f46408298d0"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/rtl/axi_static_memory.sv",
+      "bytes": 11415,
+      "sha256": "b33c29a0ce934f19f61b1313ca82f24ef3df60bede1b949610054f4caa7b909d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/guard/driver.log",
+      "bytes": 1633,
+      "sha256": "0e9843eca59c8307e7eb254bb0927973ea12973c7752bc46be43828fc43c32c8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/guard/guard_plan.json",
+      "bytes": 1019,
+      "sha256": "1d634b745fd32e3f66edb0d4689af83c8d2724ca62e4782d1ca0efa9a3239844"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/guard/guard_result.json",
+      "bytes": 288,
+      "sha256": "75471a9f85030ce3b70985431d6a45fba9a39e4be9a38ae155cf65c991f4c9d2"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/guard/launch.json",
+      "bytes": 168,
+      "sha256": "47ba68aa0021785dad757ccec0847dc0e77884d7880b56d8f1d6441ff350564b"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/guard/memory_timeline.csv",
+      "bytes": 2047,
+      "sha256": "e0423ca62abf1625f414169e5b30d36a973f3e4c26b6da701d9e33b6b9cf09dd"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/guard/policy_checks.json",
+      "bytes": 774,
+      "sha256": "c7099442f3128964efe03175785f13f15cb9ec9736c78228b80a80616308c124"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/invocation.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/runtime_evidence.json",
+      "bytes": 33434,
+      "sha256": "e57505c2700f6bb43809c829f431f83a7b2f2e26e90592384e31a7578e42015f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_guard4_once/xsim.log",
+      "bytes": 2909,
+      "sha256": "095d272e3f775f9f061e20ed79a71c40def504e544e7255442e27b6fa2b7005c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/idle_once/parser_failure_evidence.json",
+      "bytes": 2978,
+      "sha256": "b09aac68a8c1010e3be4faf294e09d47884fe1d833da467c9503c0491b6897ba"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/guard/driver.log",
+      "bytes": 1162,
+      "sha256": "30a36d1fa33858d15570fce1e8000626bb54f4a3ea3a1a993f1c1eb40bbb2738"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/guard/guard_plan.json",
+      "bytes": 1029,
+      "sha256": "b07298e5ab9fa0b8f021d2e5398e85aa578e0a4ad0b14c82998b371ca426721e"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/guard/guard_result.json",
+      "bytes": 288,
+      "sha256": "aab29650a78bdde72ecf315ca9dca172634ae4e92fda8981ab811d5cf197d392"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/guard/launch.json",
+      "bytes": 168,
+      "sha256": "394cbd311ad3f3be8c4fb1287343b3c2b58822a3012f41f595e63af481ab1b4e"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/guard/memory_timeline.csv",
+      "bytes": 2045,
+      "sha256": "9cbd3358f659ede4c6768bb6d3a1dcc15fe1426339ca281bcc5bc5de35df4984"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/guard/policy_checks.json",
+      "bytes": 774,
+      "sha256": "f9b7e90dbcd783879439c379a87e80d6e5dec727db24f6e941229203e4b818bb"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/invocation.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/runtime_evidence.json",
+      "bytes": 34302,
+      "sha256": "6f14f6ff1de5211aa03017b257e46c3b90aeb60e5a4a37bf61f84a6abd895e6c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_4k_guard4_once/xsim.log",
+      "bytes": 2448,
+      "sha256": "c76b9e8628a27a531e82928e3ca8f83af3136abc784b00010051f6bec2d5e54f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/guard/driver.log",
+      "bytes": 1162,
+      "sha256": "8ba6a366bbcf549b1de0416b3fbb69f5a193bd8bd5f76e8d7ef65b942964520a"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/guard/guard_plan.json",
+      "bytes": 1035,
+      "sha256": "cdc0d4d59ac189a4c4a6b15b65b08239028b90de033e362292c17c4458b85a31"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/guard/guard_result.json",
+      "bytes": 288,
+      "sha256": "baa5c20cef54cd7c6ba0f3e00175756378281a485b3819eba8da079eac666219"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/guard/launch.json",
+      "bytes": 168,
+      "sha256": "6236ae610fb634250d3efd29679858f46953139b149a2cd2133e79605e740e3b"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/guard/memory_timeline.csv",
+      "bytes": 2045,
+      "sha256": "27e5bfc99e40cbc71a45475b04dc67cd0d0b4bdfb93e102192e9bcfbc4e82b98"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/guard/policy_checks.json",
+      "bytes": 774,
+      "sha256": "ec75cd37078ca032736b09f5421103a28fccbb66e135391a9ae5c91bce676314"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/invocation.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/runtime_evidence.json",
+      "bytes": 34332,
+      "sha256": "8040784b74b7f3ef024a5aa918520b546142cf9ac1173d5720e0aa36ebbc18e2"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/reject_wlast_guard4_once/xsim.log",
+      "bytes": 2454,
+      "sha256": "d1bcce1efe11548d2fe83e3ebe555ec31f86ceba1e44f743c7b003722b473a8b"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/runtime_guard4_campaign_v1.json",
+      "bytes": 9082,
+      "sha256": "4f08293151048c42561933a704d22e608f007134a18c218e9d56254d8b2d4398"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/source_binding_v1/source_packet.json",
+      "bytes": 15116,
+      "sha256": "3ea6b27f047a18fcad271d670d631ceaf7c0ce13302b89d4324c772658a88a8c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/snapshot_manifest.json",
+      "bytes": 4004,
+      "sha256": "409824e4fcd8eaf43c85bad23b50f73f0380cbb0008f07611df86740bd6aac6d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/static_evidence.json",
+      "bytes": 5539,
+      "sha256": "2c003229513e37dceb1938f0a2098035c91d10dffa2dc46b4970a97796f92c60"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xelab.log",
+      "bytes": 2152,
+      "sha256": "9b03261b1a1420eefc341dd5ff8715380138a4aac7e5b9daa8483c0b7bf64be1"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xelab.pb",
+      "bytes": 2991,
+      "sha256": "18db44a48660310d3f066a70fc81fcf907ddb01ad54881f0655014798a3b74d8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/Compile_Options.txt",
+      "bytes": 277,
+      "sha256": "ac8e8d7c6578e4c25cb28a660f69e7f9648344b8d89b884baa7ef516494d7359"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.dbg",
+      "bytes": 59008,
+      "sha256": "f448add728962f8c568bff4feed03ee29b670e363a2b2fd113763de4ee97c75a"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.mem",
+      "bytes": 10719,
+      "sha256": "61aa7954dc6e1a6fed51b8565f13d3e576bc704262b18e7f92d5afa3e14a2697"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.reloc",
+      "bytes": 10061,
+      "sha256": "b8251ebb3466822303379e6935e74bb7e93a52c793637a21ed388d46ad5791fa"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.rtti",
+      "bytes": 1233,
+      "sha256": "8661d8e6ad960cb9973b3ce644c544311417a854f35609e60ac54a56f320441a"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.svtype",
+      "bytes": 764,
+      "sha256": "3b64c1e3d96211db47be5bad6d9459ba0ad0c7fc92a5ef4c792cbd2ebd73b5ce"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.type",
+      "bytes": 24,
+      "sha256": "cf1c5a4aa3dd8007f3756f2f3d607d67751cd98e99c8f5038c3f8b9fd06aa8c8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.version",
+      "bytes": 6,
+      "sha256": "a15b42b7cedfdc50b6ac3c608a1a64d31d64690c57ccdd42e81a93c1c12b9468"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim.xdbg",
+      "bytes": 64,
+      "sha256": "d01ff51df32f4835be471ed7da3d6dec67174ef41dbddef0f4a73134af6c813b"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsimSettings.ini",
+      "bytes": 1364,
+      "sha256": "3c6403ed7bdc72d65bb1a620761579e42b0925ec3a9f13df9d0bb3ed6166b9ab"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsim_script.tcl",
+      "bytes": 126,
+      "sha256": "441eceb30052ea35673dd548e17dde87f3c584d71836356d8eacde366a38df6c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsimcrash.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsimk",
+      "bytes": 193680,
+      "sha256": "5654863ce9b8176bd65feb124f3b819a20a5f398b790d3522d057f1bf5cd1606"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/axi_bounded_static/xsimkernel.log",
+      "bytes": 390,
+      "sha256": "c971dbeb74aa4b0c688ce1fee3cd7b0cfe0e86565725414ff7a51cc6694d994d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/work/axi_static_memory.sdb",
+      "bytes": 31262,
+      "sha256": "36c1a8e7f824eb452da3626b598c8a5df49040697a8856ff0b60d489da66a387"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/work/axi_static_unit_agent.sdb",
+      "bytes": 53240,
+      "sha256": "228f703feae8dc7920e78fa8336d70129109378ab305656a00a2138b590d6e7b"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/work/axi_static_unit_top.sdb",
+      "bytes": 6888,
+      "sha256": "6df169fec3d8f39cb37d63330f2007c13fbcbfb910650d175c76d0419e8a56ac"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/work/work.rlx",
+      "bytes": 702,
+      "sha256": "acdc88164747c90c6e80f46403dba26c21c29c0894362b8a6e6d8a1bbdd5a98f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.dir/xsim.version",
+      "bytes": 6,
+      "sha256": "a15b42b7cedfdc50b6ac3c608a1a64d31d64690c57ccdd42e81a93c1c12b9468"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim.jou",
+      "bytes": 1750,
+      "sha256": "32ace6eb184398409505a5d63a69f33d87fbafbc2b8e42d98c1a508f4a2ba587"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim_3786865.backup.jou",
+      "bytes": 1734,
+      "sha256": "cc20a3c77f0bd1a2760979a495ba9767dfc6881052e32b2459de4b269d53dee5"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim_3787289.backup.jou",
+      "bytes": 1740,
+      "sha256": "cc021018013e9cccf1bf6702ae72dd8a0b563f3567eb481dd4527ddf12656e9d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xsim_3787624.backup.jou",
+      "bytes": 1744,
+      "sha256": "955d2ec1faaaf4b8afbcf443707da56ac83cb6c0e79b52951ae96f54705ee919"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xvlog.log",
+      "bytes": 670,
+      "sha256": "0747bb366bca50edeed469bcf5fca5a014c29b79dd8f09b9765a4515031d2266"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/static_build_v1/work/xvlog.pb",
+      "bytes": 858,
+      "sha256": "1f213310fdbee78b3420bd13512bd6d4c63017b5edda08d7f98dd2b06224fbfa"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/guard/driver.log",
+      "bytes": 1735,
+      "sha256": "26e10ceb9a9d82e4d087e458082d11228d49d450470860cb6425c2d83935542f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/guard/guard_plan.json",
+      "bytes": 1025,
+      "sha256": "a3fc52536efe4c58d80362d4e6179db38ad89e6f1826a1ba6bce74b7d6b7866f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/guard/guard_result.json",
+      "bytes": 288,
+      "sha256": "00478c7b5fe28f89c183e4bd5309ec31d25fa9de72e7c5e9c13ae45a4700f86b"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/guard/launch.json",
+      "bytes": 168,
+      "sha256": "f14ae6d3395ec90b3b36f7866f3613eb161cdc71ccd185aca579aad6735fdb9d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/guard/memory_timeline.csv",
+      "bytes": 2183,
+      "sha256": "42645b5228f606c0953b187766d83e3d93584dedf475031bc9bea2845c6b5c3b"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/guard/policy_checks.json",
+      "bytes": 774,
+      "sha256": "081cb55d159fcb9f4b512cd606aaeec7692abd73c7b31c1551bf9ba321d7fac4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/invocation.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/runtime_evidence.json",
+      "bytes": 34374,
+      "sha256": "23712e2cfc27489e4744aecf14c0ce7c385be877d93c783a581179a22312c310"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/runs/traffic_guard4_once/xsim.log",
+      "bytes": 3017,
+      "sha256": "88a23e44723cfab26a68c3d8802145b78cf4bb0f9c43f4eb768f6512d17a36e4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/tb/axi_static_unit_top.sv",
+      "bytes": 22549,
+      "sha256": "fdfdae4d20d4c74a6eaca8a39f7eb9b5ba630a3245f3309ab37949b1910222ae"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/tb/build_static.sh",
+      "bytes": 835,
+      "sha256": "b9d6c683740a4999af9df2042a2e3e07f0cb802004564c2106cf70f65df1d909"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/tb/phase_rss.c",
+      "bytes": 1322,
+      "sha256": "72dcdedf1e58560f7b71ba43cd3e724423dd87f24aaa42458dc6a94e394831c4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/bounded_static_v1/tb/phase_rss.so",
+      "bytes": 16136,
+      "sha256": "77c19e28b3ca04943cb85eb887baecd42e8acd71a9cbd9f38fc9442e98877db6"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/guard_runtime_4g.py",
+      "bytes": 10212,
+      "sha256": "832f737c605975f5bd449e48f053838e8d64eeee73cff99d314b5dce72a903bc"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/hls_guard_helpers.py",
+      "bytes": 7083,
+      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/phase_rss.c",
+      "bytes": 1322,
+      "sha256": "72dcdedf1e58560f7b71ba43cd3e724423dd87f24aaa42458dc6a94e394831c4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/phase_rss.so",
+      "bytes": 16136,
+      "sha256": "77c19e28b3ca04943cb85eb887baecd42e8acd71a9cbd9f38fc9442e98877db6"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+      "bytes": 10218,
+      "sha256": "c3c3de6190945c548b4f9934aa2f5ecefb61ac53fdcd283b4381606b17e511e8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/hls_guard_helpers.py",
+      "bytes": 7083,
+      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_axi_bounded_static_v1_conditional_release.json",
+      "bytes": 16900,
+      "sha256": "c5b3a036c02deef5ebd266f225d851fb68297824e3a5d69e9b98820476da960f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_axi_bounded_static_v1_guard4_runtime_release.json",
+      "bytes": 18262,
+      "sha256": "ee63dcebbf93110a99c11360879afad29a9cecffe1ea922e8ae8655693d86574"
+    }
+  ],
+  "independently_rehashed_unique_count": 84
+}

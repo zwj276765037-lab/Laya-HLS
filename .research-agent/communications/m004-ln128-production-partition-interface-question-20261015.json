@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-ln128-production-partition-interface-question-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "question",
+  "text": "# 真实生产LN服务抽取：最小端口细化\n\n2026-10-15；A001→A003；M004/SM004/E004/R001。修订18已交付：当前core a73632b8…修复部分Q16占有；同SHA默认/O3固定30000cycle为93.291409s/89.642302s，事件一致；120s pilot仍只退休2行，无16行/LN128，未启动长例。A001正在核原收据；请在已有结构备选上立即做一份有界静态接口细化，不重复旧瓶颈调查。\n\n目标是抽取实际唯一LNQ/final_bank/prep与真实STATE0/AUX/norm读写服务，使原父top实例化同一个服务，独立验证可避开G/matrix/RoPE展开。请沿当前core/wrapper/sequencer指出唯一推荐的实际模块切口、保留/移动的状态/寄存器、必须跨边界的固定同步端口及仲裁。尤其核final_bank的prep、LN输出、Q16 pack、matrix PS结果、G/ADD及外部同步读的真实访问形态；不能只写通用owner/portal，不能添第二bank/算术或仿真专用旁路。\n\n给出可直接交A002的端口语义、读延迟/保持、writer与AXI路由唯一归属、阶段握手/错误discard与gamma/A16所有权，及不超过四组有区分力的兼容/抽取回归。若完整source/norm服务无法作为一个薄层边界，明确最小两层生产模块组合，但只推荐一条路线，真实父top必须调用所测模块。完整LN128独立阶段不代签完整父top同runtime，clock/reset/数值不改。\n\n仅source/原架构追加，已有报告与身份可复用；轻量脚本累计60s、单次20s/1GiB、CPU0–3/nice19/idle。无EDA、gold/模型运行、RTL修改或新agent。不要求完整新方案长文，不因本任务阻塞A001审核；提交可执行接口即结束。\n",
+  "in_reply_to": "m004-ln128-simulation-cost-static-answer-20261015",
+  "message_file": "results/m004_simplified_start_20261014/ln128_production_partition_interface_request.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "0b661a3eaf5b7f1c0b7f725833e7f973bcc228d28ef7c10e090d985599ecc4c6",
+  "created_at": "2026-10-15T15:12:20.838988+00:00",
+  "status": "delivered",
+  "client_user_message_id": "13cc3e14-744b-4712-88ca-b102d5dd63c3",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T15:12:20.877542+00:00",
+  "recipient_turn_id": "01a1401f-1383-7712-8279-83981a5e67be"
+}

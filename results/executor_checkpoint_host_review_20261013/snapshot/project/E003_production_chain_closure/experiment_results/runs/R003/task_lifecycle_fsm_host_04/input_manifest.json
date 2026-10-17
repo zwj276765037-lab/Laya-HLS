@@ -1,0 +1,797 @@
+{
+  "schema": "laya-task-lifecycle-fsm-host-input-v1",
+  "scope": "explicit shared lifecycle FSM with persistent action/window cursors, one 24/16 normalized transaction at a time, actual decoded completion constructing END, and internal owner cleanup retries; six bounded C++ cases: B1/S64 four-window success, PUBLISH failure then same-action nonterminal/terminal INVALIDATE, producer local cancellation and same-key nonterminal/terminal END, bad END and wrong END after legal waiting, and nonterminal BEGIN retaining reader lease; real C++ transaction adapter and controlled remote fixtures. No synchronous execute tree in FSM closure. Request/model/source states are test-seeded, no accepted-request bootstrap, true FIFO depth2 or consumer handshake, real LayerNorm arithmetic/physical hub, complete graph or hardware request, HLS generation, resources or timing.",
+  "files": [
+    {
+      "relative": "build/model-current-production-v2-20261011/laya_model_layout_generated.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/build/model-current-production-v2-20261011/laya_model_layout_generated.h",
+        "bytes": 106348,
+        "sha256": "a104d1d34df3f45b5b3a5a7273d4a3891502e9208edf3114c79077e76c5489d0"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/build/model-current-production-v2-20261011/laya_model_layout_generated.h",
+        "bytes": 106348,
+        "sha256": "a104d1d34df3f45b5b3a5a7273d4a3891502e9208edf3114c79077e76c5489d0"
+      }
+    },
+    {
+      "relative": "build/model-current-production-v2-20261011/manifest.json",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/build/model-current-production-v2-20261011/manifest.json",
+        "bytes": 147765,
+        "sha256": "e2f561280098494d702adc7214804828af73cb47ab5b8d772f771f840e7d180d"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/build/model-current-production-v2-20261011/manifest.json",
+        "bytes": 147765,
+        "sha256": "e2f561280098494d702adc7214804828af73cb47ab5b8d772f771f840e7d180d"
+      }
+    },
+    {
+      "relative": "config/full_module_registry.json",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/config/full_module_registry.json",
+        "bytes": 14659,
+        "sha256": "e65926c1a10d20195a1ce74c3e99ffd1b241b00efb96c407411874c01146f149"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/config/full_module_registry.json",
+        "bytes": 14659,
+        "sha256": "e65926c1a10d20195a1ce74c3e99ffd1b241b00efb96c407411874c01146f149"
+      }
+    },
+    {
+      "relative": "config/graph_action_registry.json",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/config/graph_action_registry.json",
+        "bytes": 5898,
+        "sha256": "baa810fd5e8f3f7159dcda1cf78666bac69692f6f42abd9c997ef7c6f52adcbb"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/config/graph_action_registry.json",
+        "bytes": 5898,
+        "sha256": "baa810fd5e8f3f7159dcda1cf78666bac69692f6f42abd9c997ef7c6f52adcbb"
+      }
+    },
+    {
+      "relative": "config/production_hls_partitions.json",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/config/production_hls_partitions.json",
+        "bytes": 13961,
+        "sha256": "a7b37a61f63b03f8024c6420ee93df83d6eff085efab987ad22b8574d316e3d5"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/config/production_hls_partitions.json",
+        "bytes": 13961,
+        "sha256": "a7b37a61f63b03f8024c6420ee93df83d6eff085efab987ad22b8574d316e3d5"
+      }
+    },
+    {
+      "relative": "config/task_lifecycle_fsm_sources.cmake",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/config/task_lifecycle_fsm_sources.cmake",
+        "bytes": 489,
+        "sha256": "10286cda7fdf3e4b4f7d0db538607aa698cfa6b188f52738cff4c5d8b9818c08"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/config/task_lifecycle_fsm_sources.cmake",
+        "bytes": 489,
+        "sha256": "10286cda7fdf3e4b4f7d0db538607aa698cfa6b188f52738cff4c5d8b9818c08"
+      }
+    },
+    {
+      "relative": "hls/common/laya_full_memory.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/common/laya_full_memory.cpp",
+        "bytes": 13573,
+        "sha256": "ca6153db487197b5b79a40a18444e393f46874a2cbc9559bab1719e5e42d9602"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_full_memory.cpp",
+        "bytes": 13573,
+        "sha256": "ca6153db487197b5b79a40a18444e393f46874a2cbc9559bab1719e5e42d9602"
+      }
+    },
+    {
+      "relative": "hls/common/laya_full_owner.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/common/laya_full_owner.cpp",
+        "bytes": 57882,
+        "sha256": "0039a7424411ceb8166602df423b0231667d58f279eaa0323ac772887c30f5ae"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_full_owner.cpp",
+        "bytes": 57882,
+        "sha256": "0039a7424411ceb8166602df423b0231667d58f279eaa0323ac772887c30f5ae"
+      }
+    },
+    {
+      "relative": "hls/common/laya_memory_map.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/common/laya_memory_map.cpp",
+        "bytes": 3637,
+        "sha256": "94a95c329e3e34eb0e0f34b14ee14ea50f9ef89146724674cbe0d2d6d5555a53"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_memory_map.cpp",
+        "bytes": 3637,
+        "sha256": "94a95c329e3e34eb0e0f34b14ee14ea50f9ef89146724674cbe0d2d6d5555a53"
+      }
+    },
+    {
+      "relative": "hls/common/laya_numeric.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/common/laya_numeric.cpp",
+        "bytes": 17034,
+        "sha256": "f9c5f849b27498ee0dc0f75f3929c37b13f16b33417b8e1912cc7ca2b26f32a9"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_numeric.cpp",
+        "bytes": 17034,
+        "sha256": "f9c5f849b27498ee0dc0f75f3929c37b13f16b33417b8e1912cc7ca2b26f32a9"
+      }
+    },
+    {
+      "relative": "hls/common/laya_task_retirement.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/common/laya_task_retirement.cpp",
+        "bytes": 3326,
+        "sha256": "547d74d0cdf8da2d256cd98e5f9cce945813fc7c4000633400a183cdca5cdc5f"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_task_retirement.cpp",
+        "bytes": 3326,
+        "sha256": "547d74d0cdf8da2d256cd98e5f9cce945813fc7c4000633400a183cdca5cdc5f"
+      }
+    },
+    {
+      "relative": "hls/common/laya_tasks.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/common/laya_tasks.cpp",
+        "bytes": 4029,
+        "sha256": "4b4f647afbfa91dc90ed0de4d729472458c00dd1e8e2ade7910262fdc3ad044f"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_tasks.cpp",
+        "bytes": 4029,
+        "sha256": "4b4f647afbfa91dc90ed0de4d729472458c00dd1e8e2ade7910262fdc3ad044f"
+      }
+    },
+    {
+      "relative": "hls/control/graph_action_protocol.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/control/graph_action_protocol.cpp",
+        "bytes": 10041,
+        "sha256": "2b89b4e7396188105f8b44d178037269a298c36d976542ca3168d0bbb89514be"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/control/graph_action_protocol.cpp",
+        "bytes": 10041,
+        "sha256": "2b89b4e7396188105f8b44d178037269a298c36d976542ca3168d0bbb89514be"
+      }
+    },
+    {
+      "relative": "hls/control/graph_program_sequencer.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/control/graph_program_sequencer.cpp",
+        "bytes": 4977,
+        "sha256": "e3af02cbd8f3475aa3e21d297a6efc6bcfac90534ff59d5ec4da02569896c520"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/control/graph_program_sequencer.cpp",
+        "bytes": 4977,
+        "sha256": "e3af02cbd8f3475aa3e21d297a6efc6bcfac90534ff59d5ec4da02569896c520"
+      }
+    },
+    {
+      "relative": "hls/control/task_lifecycle_fsm.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/control/task_lifecycle_fsm.cpp",
+        "bytes": 19804,
+        "sha256": "7e0355765d0533c2c32eabd8bec0bd1c89827f7f4eed4c2b18e808ed68665563"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/control/task_lifecycle_fsm.cpp",
+        "bytes": 19804,
+        "sha256": "7e0355765d0533c2c32eabd8bec0bd1c89827f7f4eed4c2b18e808ed68665563"
+      }
+    },
+    {
+      "relative": "hls/platform/compute_portal_client.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/compute_portal_client.cpp",
+        "bytes": 18018,
+        "sha256": "00ff6fd57cc3e5aebd77cb0b1ac867a4c8539bc6d351b78087106f16c32aaac8"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/compute_portal_client.cpp",
+        "bytes": 18018,
+        "sha256": "00ff6fd57cc3e5aebd77cb0b1ac867a4c8539bc6d351b78087106f16c32aaac8"
+      }
+    },
+    {
+      "relative": "hls/platform/compute_portal_codec.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/compute_portal_codec.cpp",
+        "bytes": 15382,
+        "sha256": "5a3ae3b2e971158cc109d6e8599984f44a8a16002cb7b93328bc56e09212b4b4"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/compute_portal_codec.cpp",
+        "bytes": 15382,
+        "sha256": "5a3ae3b2e971158cc109d6e8599984f44a8a16002cb7b93328bc56e09212b4b4"
+      }
+    },
+    {
+      "relative": "hls/platform/controller_transaction_adapter.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/controller_transaction_adapter.cpp",
+        "bytes": 21804,
+        "sha256": "f22569b4bf84be99a3d586976db5a9e6b813a2f7af8da11383b93b9fb56bece5"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/controller_transaction_adapter.cpp",
+        "bytes": 21804,
+        "sha256": "f22569b4bf84be99a3d586976db5a9e6b813a2f7af8da11383b93b9fb56bece5"
+      }
+    },
+    {
+      "relative": "hls/platform/controller_transaction_codec.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/controller_transaction_codec.cpp",
+        "bytes": 40482,
+        "sha256": "3bef111c7913e68ac0726e59caba40dc632f5247f007add9c8eaf07d23728de2"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/controller_transaction_codec.cpp",
+        "bytes": 40482,
+        "sha256": "3bef111c7913e68ac0726e59caba40dc632f5247f007add9c8eaf07d23728de2"
+      }
+    },
+    {
+      "relative": "hls/platform/generated_provenance_codec.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/generated_provenance_codec.cpp",
+        "bytes": 17241,
+        "sha256": "bd044242017c8d2b8453f6d321bb990b1e6f631298bc574b17faf641f77fb815"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/generated_provenance_codec.cpp",
+        "bytes": 17241,
+        "sha256": "bd044242017c8d2b8453f6d321bb990b1e6f631298bc574b17faf641f77fb815"
+      }
+    },
+    {
+      "relative": "hls/platform/generated_provenance_events.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/generated_provenance_events.cpp",
+        "bytes": 18735,
+        "sha256": "1412526930e4dd43a8d98b18b8a0c02936841167ef110c0995b07b0b22f18722"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/generated_provenance_events.cpp",
+        "bytes": 18735,
+        "sha256": "1412526930e4dd43a8d98b18b8a0c02936841167ef110c0995b07b0b22f18722"
+      }
+    },
+    {
+      "relative": "hls/platform/producer_engine_client.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/producer_engine_client.cpp",
+        "bytes": 9925,
+        "sha256": "534e7b73ce3249b18a5e35bce7642bfe5837b31cfeb6a58b41ca0401f749d59e"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/producer_engine_client.cpp",
+        "bytes": 9925,
+        "sha256": "534e7b73ce3249b18a5e35bce7642bfe5837b31cfeb6a58b41ca0401f749d59e"
+      }
+    },
+    {
+      "relative": "hls/platform/producer_engine_codec.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/hls/platform/producer_engine_codec.cpp",
+        "bytes": 12261,
+        "sha256": "ef71113a8d45e808928f68b7e7716bfbb01d1b6dea71432b4d34df36b567eb57"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/producer_engine_codec.cpp",
+        "bytes": 12261,
+        "sha256": "ef71113a8d45e808928f68b7e7716bfbb01d1b6dea71432b4d34df36b567eb57"
+      }
+    },
+    {
+      "relative": "include/laya_compute_portal.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_compute_portal.h",
+        "bytes": 6367,
+        "sha256": "4e124b0cf22a68efd1a6f7871575d42e8daed61d3dd6235edb747d9a438f9c9d"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_compute_portal.h",
+        "bytes": 6367,
+        "sha256": "4e124b0cf22a68efd1a6f7871575d42e8daed61d3dd6235edb747d9a438f9c9d"
+      }
+    },
+    {
+      "relative": "include/laya_compute_portal_client.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_compute_portal_client.h",
+        "bytes": 3210,
+        "sha256": "a550b86695aa981bd683b3fc91b04a21ce495df4ca490a893cab876b0b875cf6"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_compute_portal_client.h",
+        "bytes": 3210,
+        "sha256": "a550b86695aa981bd683b3fc91b04a21ce495df4ca490a893cab876b0b875cf6"
+      }
+    },
+    {
+      "relative": "include/laya_config.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_config.h",
+        "bytes": 719,
+        "sha256": "86a6ceccab5937b49f3ebe46a63ea9eac46579599b628a50dc4db2efdf394829"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_config.h",
+        "bytes": 719,
+        "sha256": "86a6ceccab5937b49f3ebe46a63ea9eac46579599b628a50dc4db2efdf394829"
+      }
+    },
+    {
+      "relative": "include/laya_controller_request_mapping.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_controller_request_mapping.h",
+        "bytes": 3240,
+        "sha256": "d1230483f73ae2e4198b886772528d500551a0394ff7bf8ad5aae5b0c676cd62"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_controller_request_mapping.h",
+        "bytes": 3240,
+        "sha256": "d1230483f73ae2e4198b886772528d500551a0394ff7bf8ad5aae5b0c676cd62"
+      }
+    },
+    {
+      "relative": "include/laya_controller_transaction.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_controller_transaction.h",
+        "bytes": 2544,
+        "sha256": "d74c4a5a69cda30f60eaf871d0f5bf0cc29827e457a37fc6f04d101ee4019c9f"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_controller_transaction.h",
+        "bytes": 2544,
+        "sha256": "d74c4a5a69cda30f60eaf871d0f5bf0cc29827e457a37fc6f04d101ee4019c9f"
+      }
+    },
+    {
+      "relative": "include/laya_controller_transaction_adapter.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_controller_transaction_adapter.h",
+        "bytes": 855,
+        "sha256": "005f3ef9b9f95569f621c85e54cf6e06e50c1bfa6269ee6072d0e9cf72be44bf"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_controller_transaction_adapter.h",
+        "bytes": 855,
+        "sha256": "005f3ef9b9f95569f621c85e54cf6e06e50c1bfa6269ee6072d0e9cf72be44bf"
+      }
+    },
+    {
+      "relative": "include/laya_controller_transaction_hls.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_controller_transaction_hls.h",
+        "bytes": 752,
+        "sha256": "6d98a7e05b2042c177e1d17a18c2524d7960db5151d6bc5ca5f06e3e17bee442"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_controller_transaction_hls.h",
+        "bytes": 752,
+        "sha256": "6d98a7e05b2042c177e1d17a18c2524d7960db5151d6bc5ca5f06e3e17bee442"
+      }
+    },
+    {
+      "relative": "include/laya_full_numeric.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_full_numeric.h",
+        "bytes": 1609,
+        "sha256": "88e779f53cd6a1ad77996efb92fdc6fb00653e23ad87f80bc15d1b1550851700"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_full_numeric.h",
+        "bytes": 1609,
+        "sha256": "88e779f53cd6a1ad77996efb92fdc6fb00653e23ad87f80bc15d1b1550851700"
+      }
+    },
+    {
+      "relative": "include/laya_full_runtime.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_full_runtime.h",
+        "bytes": 21769,
+        "sha256": "3f2a61f41d1839a7d3b4b95518fa2f88d85a19877f509a27b4c28f931c19e0b0"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_full_runtime.h",
+        "bytes": 21769,
+        "sha256": "3f2a61f41d1839a7d3b4b95518fa2f88d85a19877f509a27b4c28f931c19e0b0"
+      }
+    },
+    {
+      "relative": "include/laya_generated_provenance.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_generated_provenance.h",
+        "bytes": 3058,
+        "sha256": "69cef906bdb6d2d878ceeed5d8d0e924f814968a1fb1d7ca4db5c8c4e7ee353a"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_generated_provenance.h",
+        "bytes": 3058,
+        "sha256": "69cef906bdb6d2d878ceeed5d8d0e924f814968a1fb1d7ca4db5c8c4e7ee353a"
+      }
+    },
+    {
+      "relative": "include/laya_generated_provenance_client.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_generated_provenance_client.h",
+        "bytes": 913,
+        "sha256": "03f01da5455fe17733a547d59e82e4b80bafbc2b9f6539447317585b672393b0"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_generated_provenance_client.h",
+        "bytes": 913,
+        "sha256": "03f01da5455fe17733a547d59e82e4b80bafbc2b9f6539447317585b672393b0"
+      }
+    },
+    {
+      "relative": "include/laya_generated_provenance_events.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_generated_provenance_events.h",
+        "bytes": 3188,
+        "sha256": "2d9886e86f392c7d93a43ced5967bd19663d7639787ef378ba3ab28f3ed45337"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_generated_provenance_events.h",
+        "bytes": 3188,
+        "sha256": "2d9886e86f392c7d93a43ced5967bd19663d7639787ef378ba3ab28f3ed45337"
+      }
+    },
+    {
+      "relative": "include/laya_generated_provenance_hls.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_generated_provenance_hls.h",
+        "bytes": 576,
+        "sha256": "19284817b3038828b7715e239ddacfd85e56d36f4f49fe273c5c3d61f8d16847"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_generated_provenance_hls.h",
+        "bytes": 576,
+        "sha256": "19284817b3038828b7715e239ddacfd85e56d36f4f49fe273c5c3d61f8d16847"
+      }
+    },
+    {
+      "relative": "include/laya_graph_action_protocol.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_graph_action_protocol.h",
+        "bytes": 2863,
+        "sha256": "f46478ebd374c603049e07367784e5c42bed028efc154e942909d6068d08f39f"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_graph_action_protocol.h",
+        "bytes": 2863,
+        "sha256": "f46478ebd374c603049e07367784e5c42bed028efc154e942909d6068d08f39f"
+      }
+    },
+    {
+      "relative": "include/laya_graph_program_sequencer.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_graph_program_sequencer.h",
+        "bytes": 1037,
+        "sha256": "8608a772699b6e486d4e4432e135d7b355e40d26181e4a6deaeaf0b10567170e"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_graph_program_sequencer.h",
+        "bytes": 1037,
+        "sha256": "8608a772699b6e486d4e4432e135d7b355e40d26181e4a6deaeaf0b10567170e"
+      }
+    },
+    {
+      "relative": "include/laya_memory_map.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_memory_map.h",
+        "bytes": 868,
+        "sha256": "cc1aabcfc1c6612d17872de1457b46893dab5d64c1db8e1e596ec8afeb5cfe45"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_memory_map.h",
+        "bytes": 868,
+        "sha256": "cc1aabcfc1c6612d17872de1457b46893dab5d64c1db8e1e596ec8afeb5cfe45"
+      }
+    },
+    {
+      "relative": "include/laya_numeric_service_stats.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_numeric_service_stats.h",
+        "bytes": 865,
+        "sha256": "fc88b60755a0c7a93070e0bfa4356415bd98a9abc461315c30b12d603a07edab"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_numeric_service_stats.h",
+        "bytes": 865,
+        "sha256": "fc88b60755a0c7a93070e0bfa4356415bd98a9abc461315c30b12d603a07edab"
+      }
+    },
+    {
+      "relative": "include/laya_numeric_tasks.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_numeric_tasks.h",
+        "bytes": 5262,
+        "sha256": "d4368adbe24549509be2603fdde14aceaca6a2bf07c9194c2ce0d704204e8a2e"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_numeric_tasks.h",
+        "bytes": 5262,
+        "sha256": "d4368adbe24549509be2603fdde14aceaca6a2bf07c9194c2ce0d704204e8a2e"
+      }
+    },
+    {
+      "relative": "include/laya_producer_engine.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_producer_engine.h",
+        "bytes": 2738,
+        "sha256": "66d68ae16a95daea39ac67de8e4776220e2e07a657e6d53e65657aab6c095b20"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_producer_engine.h",
+        "bytes": 2738,
+        "sha256": "66d68ae16a95daea39ac67de8e4776220e2e07a657e6d53e65657aab6c095b20"
+      }
+    },
+    {
+      "relative": "include/laya_producer_engine_client.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_producer_engine_client.h",
+        "bytes": 2437,
+        "sha256": "b7368ce348cd703e253efb6bf7975748405788d1b3fbb0dac3b0c4c42e0f14a4"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_producer_engine_client.h",
+        "bytes": 2437,
+        "sha256": "b7368ce348cd703e253efb6bf7975748405788d1b3fbb0dac3b0c4c42e0f14a4"
+      }
+    },
+    {
+      "relative": "include/laya_task_lifecycle_fsm.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_task_lifecycle_fsm.h",
+        "bytes": 1792,
+        "sha256": "ab77e7d1c1692a0cbd06ca7ef2ed974750954c08befbc30f37a6ba95d398c3c9"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_task_lifecycle_fsm.h",
+        "bytes": 1792,
+        "sha256": "ab77e7d1c1692a0cbd06ca7ef2ed974750954c08befbc30f37a6ba95d398c3c9"
+      }
+    },
+    {
+      "relative": "include/laya_task_reservation.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_task_reservation.h",
+        "bytes": 9518,
+        "sha256": "8919f601ce4dd53c131a7188c46ff1b31030481f36fded2271edbde219cf0c33"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_task_reservation.h",
+        "bytes": 9518,
+        "sha256": "8919f601ce4dd53c131a7188c46ff1b31030481f36fded2271edbde219cf0c33"
+      }
+    },
+    {
+      "relative": "include/laya_tasks.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_tasks.h",
+        "bytes": 3028,
+        "sha256": "20a8a3a0a94e997c05d0f81657498f16f8d08e406a202eb8b08dde5b2ccd55bf"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_tasks.h",
+        "bytes": 3028,
+        "sha256": "20a8a3a0a94e997c05d0f81657498f16f8d08e406a202eb8b08dde5b2ccd55bf"
+      }
+    },
+    {
+      "relative": "include/laya_types.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/include/laya_types.h",
+        "bytes": 3034,
+        "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include/laya_types.h",
+        "bytes": 3034,
+        "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+      }
+    },
+    {
+      "relative": "tests/lifecycle_fixture_helpers.h",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/tests/lifecycle_fixture_helpers.h",
+        "bytes": 6331,
+        "sha256": "74a03839ce8ee4d1f9e75a171350771843f9dac6fee021b60057367fc74f63df"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/tests/lifecycle_fixture_helpers.h",
+        "bytes": 6331,
+        "sha256": "74a03839ce8ee4d1f9e75a171350771843f9dac6fee021b60057367fc74f63df"
+      }
+    },
+    {
+      "relative": "tests/task_lifecycle_fsm_test.cpp",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/tests/task_lifecycle_fsm_test.cpp",
+        "bytes": 9204,
+        "sha256": "be3232c2cf25a912dcbb507364df81315ceb81e3acad87a252ee5bc0bfad8da6"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/tests/task_lifecycle_fsm_test.cpp",
+        "bytes": 9204,
+        "sha256": "be3232c2cf25a912dcbb507364df81315ceb81e3acad87a252ee5bc0bfad8da6"
+      }
+    },
+    {
+      "relative": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_action_layout_v1.sv",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_action_layout_v1.sv",
+        "bytes": 1739,
+        "sha256": "f7d7ddf6721fd9982e5848a0577175ee8aeaeefbe9c1bbcb57600c6ce329770e"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_action_layout_v1.sv",
+        "bytes": 1739,
+        "sha256": "f7d7ddf6721fd9982e5848a0577175ee8aeaeefbe9c1bbcb57600c6ce329770e"
+      }
+    },
+    {
+      "relative": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+        "bytes": 1535,
+        "sha256": "5d6af6489d4f43416daf5d06bb380188c1754f9f5b9120dbaa428a5a70467a94"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+        "bytes": 1535,
+        "sha256": "5d6af6489d4f43416daf5d06bb380188c1754f9f5b9120dbaa428a5a70467a94"
+      }
+    },
+    {
+      "relative": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_task_lifecycle_fsm_host.py",
+      "original": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_task_lifecycle_fsm_host.py",
+        "bytes": 9944,
+        "sha256": "e3dbcaf01425f5d9f7656b8facb52e2564a46d5547e84ef02287ed1ea4ddd58f"
+      },
+      "frozen": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_task_lifecycle_fsm_host.py",
+        "bytes": 9944,
+        "sha256": "e3dbcaf01425f5d9f7656b8facb52e2564a46d5547e84ef02287ed1ea4ddd58f"
+      }
+    }
+  ],
+  "contract": {
+    "original": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/results/production_hls_partition_contract_20261012.md",
+      "bytes": 29614,
+      "sha256": "3f2765165ed8251820ee5dd2fbbf1f0e570ee7a7a92ce129082b7836c811bd44"
+    },
+    "frozen": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/external/production_hls_partition_contract_20261012.md",
+      "bytes": 29614,
+      "sha256": "3f2765165ed8251820ee5dd2fbbf1f0e570ee7a7a92ce129082b7836c811bd44"
+    }
+  },
+  "lifecycle_sources": [
+    "hls/common/laya_numeric.cpp",
+    "hls/common/laya_tasks.cpp",
+    "hls/common/laya_task_retirement.cpp",
+    "hls/common/laya_memory_map.cpp",
+    "hls/common/laya_full_memory.cpp",
+    "hls/common/laya_full_owner.cpp",
+    "hls/platform/compute_portal_client.cpp",
+    "hls/platform/generated_provenance_events.cpp",
+    "hls/platform/producer_engine_client.cpp",
+    "hls/platform/controller_transaction_codec.cpp",
+    "hls/control/graph_action_protocol.cpp",
+    "hls/control/task_lifecycle_fsm.cpp"
+  ],
+  "host_integration_sources": [
+    "hls/control/graph_program_sequencer.cpp",
+    "hls/platform/controller_transaction_adapter.cpp",
+    "hls/platform/compute_portal_codec.cpp",
+    "hls/platform/generated_provenance_codec.cpp",
+    "hls/platform/producer_engine_codec.cpp"
+  ],
+  "required_sources": [
+    "controller_transaction_codec.cpp",
+    "generated_provenance_events.cpp",
+    "producer_engine_client.cpp",
+    "task_lifecycle_fsm.cpp"
+  ],
+  "forbidden_present": [],
+  "launcher": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/launcher.json",
+    "bytes": 200,
+    "sha256": "2d929fbc7dfa9cb924df2746ea7b4a15d2d231f15824cdd9369305e429d6edba"
+  },
+  "compiler": {
+    "path": "/usr/bin/x86_64-linux-gnu-g++-13",
+    "bytes": 1027128,
+    "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769"
+  },
+  "external_headers": [
+    {
+      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/ap_int.h",
+      "bytes": 14768,
+      "sha256": "c109f76bca240ce731c52e519b07c2dcd41a9fd3f55dbd7eb712371608c48cf1"
+    },
+    {
+      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include/hls_stream.h",
+      "bytes": 9812,
+      "sha256": "bff7b514d1a4e4d315575c3376dd6c3c6b921eb1e68d25cd4952a28839e7ecc1"
+    }
+  ],
+  "planned_commands": [
+    [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unknown-pragmas",
+      "-Wno-unused-parameter",
+      "-Wno-aggressive-loop-optimizations",
+      "-fno-fast-math",
+      "-fno-associative-math",
+      "-ffp-contract=off",
+      "-DLAYA_PARTITIONED_PRODUCTION_CALLER",
+      "-DLAYA_CONTROLLER_TRANSACTION_SEQUENCER",
+      "-pthread",
+      "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/include",
+      "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls",
+      "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform",
+      "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/build/model-current-production-v2-20261011",
+      "-isystem",
+      "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/tests/task_lifecycle_fsm_test.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_numeric.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_tasks.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_task_retirement.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_memory_map.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_full_memory.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/common/laya_full_owner.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/compute_portal_client.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/generated_provenance_events.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/producer_engine_client.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/controller_transaction_codec.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/control/graph_action_protocol.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/control/task_lifecycle_fsm.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/control/graph_program_sequencer.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/controller_transaction_adapter.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/compute_portal_codec.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/generated_provenance_codec.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/frozen/hls/platform/producer_engine_codec.cpp",
+      "-o",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/task_lifecycle_fsm_test"
+    ],
+    [
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04/task_lifecycle_fsm_test"
+    ]
+  ],
+  "profile": {
+    "kind": "static_host",
+    "maximum_seconds": 1800,
+    "maximum_rss_gib": 24
+  }
+}

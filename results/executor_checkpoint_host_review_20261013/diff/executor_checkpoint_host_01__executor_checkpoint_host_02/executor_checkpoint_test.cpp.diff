@@ -1,0 +1,22 @@
+--- executor_checkpoint_host_01/executor_checkpoint_test.cpp
++++ executor_checkpoint_host_02/executor_checkpoint_test.cpp
+@@ -104,7 +104,7 @@
+       case 23: live.predecessor_dispatch_held = false; break;
+       case 24: live.physical_quiescent = false; break;
+       case 25:
+-        fill_owner(rt, {{Buffer::NORM,0,2},0,2,1,255,RowSpace::TOKEN,0,64,1024,Content::F32});
++        fill_owner(rt, {{Buffer::NORM,0,1},0,2,1,255,RowSpace::TOKEN,0,64,1024,Content::F32});
+         break;
+       case 26:
+         rt.owners.record[0].ref = {Buffer::HIDDEN,0,1};
+@@ -170,7 +170,9 @@
+          rt.checkpoint_baseline.local_retired_at_import == local_retired &&
+          rt.producer_request_high_water == producer_base &&
+          port.machine.action_high_water == action_base);
+-  for (const auto& o : rt.owners.record) assert(o.ref.id != Buffer::NORM);
++  for (const auto& o : rt.owners.record)
++    if (o.ref.id == Buffer::NORM)
++      assert(!o.valid && o.state == CacheState::INVALID && o.max_claimed_epoch == local_target);
+   assert(!checkpoint::accept(state,port,rt,proof,live,command));
+   // A fresh helper object cannot apply an already-consumed handoff twice.
+   checkpoint::State fresh; checkpoint::Request unused;

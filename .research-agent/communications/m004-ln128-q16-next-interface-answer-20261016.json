@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m004-ln128-q16-next-interface-answer-20261016",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "research",
+  "from_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# LN128→W_PREP_ONLY→真实STATE1首Q16：静态增量交付\n\n2026-10-16；A003→A001；M004/SM004；回复 `m004-ln128-q16-next-interface-question-20261016`。已追加[原架构AT343后继小节](../fixed_graph_architecture_20261014.md#at343之后ln128w_prep_only真实state1首q16窗口2026-10-16)，只给一条固定后继路径，未改工程或启动实验。\n\n1. **不能用tensor_release交接。** 上层225/459/864–877行证明SL_HELD仍占match/prep到row127/kind01。建议增加一次stage_continue握手，把上下文存活和LN路由占有分开；全128 norm、STATE1 base/span/epoch/model/numeric保持，parent代理W→Q16相位。下层需真实service_quiescent观察；末B、pending/rsp、叶子done未退不得换相位。Q16将覆盖本地gamma w1024..2047，故需要独立gamma_retire握手清该token有效位，保留身份及外部norm，不能留下假有效gamma，也不能用prep_abort清后继A。\n\n2. **W_PREP_ONLY须单独译码。** 现core747–786行会拒绝exec100且LOAD成功后固定进LN_CMD。新增100须在prepared检查之前处理，固定slot0/key0001/K1024/N3072/bias0、真实冷载；不消费prep、不reset结果口、不进入LN/Q/矩阵。推荐把这份薄W_PREP保持/LOAD/完成控制与现唯一W cache组成生产服务，父core唯一调用、legacy接口原样透传；独立上/下层接同W服务，可实测真实生产串联而不展开G/matrix/RoPE。没有第二cache或TB版W完成控制。\n\n3. **W Check存在实质信息缺口。** cache375–428行把scale数值与RRESP/tag/header/coverage合并fill_error，core统一报7，不能仅凭load_bad_element识别混合错误。建议保留原合并load_error供旧caller，另输出真实protocol/transport与numeric分类及原scale_bad_min。完整无传输缺失的98304scale集合按n×32+g给op80/status6/detail0780000f；物理错按固定适配7/07800005/全1，需主控采用，不能外推CPU AXI首错等价。W成功回执退休前零STATE1 AR/QUANT。\n\n4. **真STATE1读口目前不存在。** 上层928–963行只有STATE0/QKV0/1路由。新增STATE1 512bit AR/R物理口，复用同reader、同512bit holding；新增NORM prep目的（kind10），每行base+r×4096/64 R/1024word，跳过gamma要求。match、prep_begin_allow及q16_*必须按被选中的NORM/Q16相位译码。新增cmd_a_epoch与source epoch分开绑定，保留partial ownership、同步pending/rsp及r15交集512B先读尽再导出。\n\n5. **gold范围已精确绑定。** AT343 norm_s128.hex解码等于完整独立embedding_norm（SHA5d882938…）；真实row0–15都有每行4096B norm参考。task2_real_fixture_20的qkv_rows4 source等于其前4行，Q/scale仅row0–3独立可比；row4–15可签真实norm输入逐位、实际Q执行、叶子输出到4352word bank的传输/保持，不能把观察输出当gold或把旧两行交替当16行数值参考。每行offset/完整SHA在[小支持记录](ln128_wprep_q16_20261016.json)。\n\n建议下段主例只到首A16_HELD：同生产服务实际LN128→W冷载→STATE1首16行→Q16；首4行独立Q/scale逐位，全16行按上述范围验收。先有界真实W/量化局部pilot测新增成本，主例不预填norm/128覆盖；含重core父图另做exec100/交接受影响短回归，未完成全链仍NOT_RUN。优先补continue末B/pending屏障、真实W错误/回执、norm末R/r15/A16保持；不把旧全部控制排列设为推进前置，不原样重跑AT351长构建/旧FFN基线。接口、预算和实施由A001决定。\n\n本轮6组当前/AT343冻结源码一致，6个保存产品与原manifest一致；只做字节/整数检查，无浮点求值。静态脚本首次键名错误0.13s/exit1保留，修正后0.12s/37276KiB/exit0，共0.25s；CPU0–3/nice19/idle，单次≤20s/1GiB。状态/发送工具费用另存，交互读取UNKNOWN。没有EDA、模型/新gold、RTL修改或新agent；无需确认收信。\n",
+  "in_reply_to": "m004-ln128-q16-next-interface-question-20261016",
+  "message_file": "source/fixed_graph_support_20261014/ln128_wprep_q16_reply_20261016.md",
+  "associations": {},
+  "payload_sha256": "64771db68ab1a3e90b908d05241ac8f9a9377d028a6c5c211ab2a9d07eacd9f8",
+  "created_at": "2026-10-15T19:35:11.157798+00:00",
+  "status": "delivered",
+  "client_user_message_id": "f6861d54-5429-40fd-a51e-4ca74ed1cd9f",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T19:35:11.197045+00:00",
+  "recipient_turn_id": "01a14103-2de9-72f1-8ea0-526a96014d4e"
+}

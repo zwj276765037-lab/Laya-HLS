@@ -1,0 +1,11 @@
+--- AT023_GQD0_chain_01/run_gqd0_rtl_v1.tcl
++++ AT024_GQD0_chain_02/run_gqd0_rtl_v1.tcl
+@@ -11,7 +11,7 @@
+ close_sim
+ set log [file join $work vivado gqd0_chain_tb_v1.sim sim_1 behav xsim simulate.log]
+ set f [open $log r];set s [read $f];close $f
+-set marker [expr {$mode=="pilot" ? "TM4_MATRIX_RESIDENT_PILOT_PASS" : "GQD0_CHAIN_PASS"}]
++set marker [expr {$mode=="pilot" ? "GQD0_PILOT_PASS" : "GQD0_CHAIN_PASS"}]
+ if {[string first $marker $s]<0 || [regexp {(^|\n)Fatal:|(^|\n)ERROR:} $s]} {error "GQD0 $mode failed: $log"}
+ puts GQD0_SCRIPT_PASS
+ close_project

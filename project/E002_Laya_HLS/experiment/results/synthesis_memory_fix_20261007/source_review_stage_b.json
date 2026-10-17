@@ -1,0 +1,294 @@
+{
+  "reviewed_at_utc": "2026-10-07T09:41:29.900019+00:00",
+  "reviewer": {
+    "role": "laya_p1_design",
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "verdict": "ACCEPT_OWNER_INDEX_SOURCE_FOR_ACTUAL_OWNER_HLS_PILOT; FUNCTIONAL_AND_HLS_ACCEPTANCE_PENDING",
+  "production_findings": [],
+  "function_count": {
+    "baseline": 47,
+    "candidate": 46,
+    "explanation": "Two old find overloads merge to one const find_index helper."
+  },
+  "byte_identical_function_bodies": [
+    "error",
+    "protocol",
+    "same_physical",
+    "same_spec",
+    "legal_width",
+    "legal_spec",
+    "bit_index",
+    "in_scope",
+    "bit",
+    "set_bit",
+    "covered",
+    "clear_bits",
+    "fill_record",
+    "all_rows",
+    "qkv_pair_specs",
+    "qkv_rope_specs",
+    "full_check_uncovered_qkv",
+    "full_bind_quant_source",
+    "full_bind_task_source",
+    "full_soft_reset"
+  ],
+  "changed_public_function_names": [
+    "full_claim_owner",
+    "full_check_fill_owner",
+    "full_check_uncovered_owner",
+    "full_claim_qkv_pair",
+    "full_cover_qkv",
+    "full_publish_qkv_pair",
+    "full_begin_qkv_rope_pair",
+    "full_cover_qkv_rope",
+    "full_commit_qkv_rope_pair",
+    "full_cover_att_head",
+    "full_publish_att",
+    "full_require_owner",
+    "full_acquire_owner",
+    "full_release_read_owner",
+    "full_cover_owner",
+    "full_publish_owner",
+    "full_release_owner",
+    "full_invalidate_owner",
+    "full_begin_inplace_owner",
+    "full_consume_inplace_rows",
+    "full_commit_inplace_owner",
+    "full_owner_snapshot",
+    "full_recycle_request"
+  ],
+  "per_function_review": {
+    "find_index": {
+      "verdict": "ACCEPT",
+      "reason": "Returns first occupied same_physical match in ascending 0..31 order; const and mutable old overloads merged without semantic change. 32 sentinel replaces nullptr."
+    },
+    "empty_index": {
+      "verdict": "ACCEPT",
+      "reason": "Returns first ref.id==NONE in ascending order; excluded defaults32, and QKV uses first index exclusion."
+    },
+    "claim_index": {
+      "verdict": "ACCEPT",
+      "reason": "First existing physical record, else first empty; checks sentinel before reference; valid/readers/state/max-epoch/exact next-epoch checks unchanged and read-only."
+    },
+    "full_claim_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Request/model and legal-spec gates, QKV prohibition, claim/fill/count/type/attention cleanup order unchanged."
+    },
+    "full_check_fill_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Missing index returns same E_BUFFER before dereference; spec/state/identity checks unchanged."
+    },
+    "full_check_uncovered_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Adds explicit sentinel failure after prior successful fill-owner check. Existing logical path unchanged; coverage read-only."
+    },
+    "full_claim_qkv_pair": {
+      "verdict": "ACCEPT",
+      "reason": "Computes both claims before writes. When both choose same empty record, second uses first different empty. Missing/equal indices reject before fill/count/coverage clears. Preserves original fallback semantics exactly; no new epoch policy introduced."
+    },
+    "full_cover_qkv": {
+      "verdict": "ACCEPT",
+      "reason": "Both shard records checked before any coverage write; index guards replace null guards."
+    },
+    "full_publish_qkv_pair": {
+      "verdict": "ACCEPT",
+      "reason": "Both records/spec/state/identity and complete planes/heads/rows checked before updates; covered bits, states, valid flags, final refs retain order."
+    },
+    "full_begin_qkv_rope_pair": {
+      "verdict": "ACCEPT",
+      "reason": "Both shards fully validated including readers/max epoch/identity/coverage before first lease mutation; lease_old_ref, next ref, state, bits and count ordering unchanged."
+    },
+    "full_cover_qkv_rope": {
+      "verdict": "ACCEPT",
+      "reason": "Both shard checks and all duplicate-row checks occur before coverage writes; lease_old_ref and content checks retained."
+    },
+    "full_commit_qkv_rope_pair": {
+      "verdict": "ACCEPT",
+      "reason": "Both records and all RoPE coverage checked before mutations; lease clearing and final refs unchanged."
+    },
+    "full_cover_att_head": {
+      "verdict": "ACCEPT",
+      "reason": "Missing index guard before readonly reference; full duplicate scan precedes row writes."
+    },
+    "full_publish_att": {
+      "verdict": "ACCEPT",
+      "reason": "All head/batch coverage checked before covered rows/state/valid updates."
+    },
+    "full_require_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Request/model/spec/scope plus identity/valid/READY-or-READ checks unchanged; no writes."
+    },
+    "full_acquire_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Require-owner gate then missing index and UINT8_MAX readers refusal; increment/state update unchanged."
+    },
+    "full_release_read_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Missing/spec/state/readers/valid refusal preserved before decrement; zero readers returns READY."
+    },
+    "full_cover_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Missing index returned before type_extend evaluation; removes only redundant pointer truth test. All row checks precede writes."
+    },
+    "full_publish_owner": {
+      "verdict": "ACCEPT",
+      "reason": "QKV/ATT exclusions, TYPE_ROWS extension checks, nonempty mask and coverage requirements unchanged; type_valid/state/valid writes same order."
+    },
+    "full_release_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Spec/valid/READY/readers checked before FREE/valid/type_valid/coverage updates."
+    },
+    "full_invalidate_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Current or lease_old_ref may match; READ/readers refusal still precedes state/valid/lease/coverage mutation."
+    },
+    "full_begin_inplace_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Allowed operations, same physical scope, full coverage, max epoch and exact next epoch preserved; all reject conditions precede lease updates."
+    },
+    "full_consume_inplace_rows": {
+      "verdict": "ACCEPT",
+      "reason": "Spec/state/lease/identity plus duplicate/coverage checks preserved; full check loop precedes consume writes."
+    },
+    "full_commit_inplace_owner": {
+      "verdict": "ACCEPT",
+      "reason": "Spec/state/identity and both old-consumed/new coverage checks precede READY/valid/lease clear."
+    },
+    "full_owner_snapshot": {
+      "verdict": "ACCEPT",
+      "reason": "Check-ref and missing/exact-ref failure preserved; output assigned only on success."
+    },
+    "full_recycle_request": {
+      "verdict": "ACCEPT",
+      "reason": "Full busy/readers scan precedes all writes. Numeric-only valid A8 creates first empty or rejects before writes. Existing owner plus numeric ref chooses maximum epoch; owner-only retained. Remainder of invalidation/coverage/counters/refs/numeric reset/request-gate code is unchanged."
+    },
+    "full_soft_reset": {
+      "verdict": "ACCEPT",
+      "reason": "Byte-identical function: reject zero/nonincreasing generation, recycle first, then update generation/session and reset accepted request high-water."
+    }
+  },
+  "pointer_structure": {
+    "forbidden_patterns_found": [],
+    "sentinel": 32,
+    "legal_indices": [
+      0,
+      31
+    ],
+    "note": "Source form avoids nullable or dynamically selected record pointer results; local references are formed only after sentinel guards. Actual lowered IR/HLS acceptance still required."
+  },
+  "pilot_review": {
+    "actual_production_helpers_called": [
+      "full_claim_qkv_pair",
+      "full_invalidate_owner",
+      "full_recycle_request",
+      "full_claim_owner",
+      "full_soft_reset"
+    ],
+    "host_expected_checks": 26,
+    "test_cases": [
+      "QKV selects two distinct initial empty records",
+      "Failed second QKV claim leaves first epoch and claims unchanged",
+      "Busy recycle refusal retains epochs/claims",
+      "Successful recycle preserves accepted request high-water",
+      "Numeric-only A8 with table exhausted refuses without claims/coverage/numeric changes",
+      "Numeric-only A8 creates first available owner and preserves history",
+      "Owner-only A8 claim/recycle advances and restores numeric high-water",
+      "Both A8 refs: either higher owner or higher numeric epoch wins",
+      "Soft reset increments generation, clears request high-water, preserves A8 epochs"
+    ],
+    "limitations": [
+      "Pilot exercises a subset of public owner paths and only the observed fields.",
+      "HLS may eliminate control fields absent from its dynamic dataflow; a complete Runtime type declaration is not full initializer-path evidence.",
+      "The test checks status codes and selected persistent fields, not every error detail byte or all metadata.",
+      "No RTL co-simulation result at this source-review stage."
+    ]
+  },
+  "coverage_decision": {
+    "no_extra_alias_or_lease_pilot_required": true,
+    "reason": "same_physical/qkv_rope_specs/fill_record/full_soft_reset are byte-identical, and existing full_owner_tb has explicit alias and lease coverage. Preserve those tests in the new-build-tag complete CPU gate; do not replace with the 26-check pilot.",
+    "existing_required_cases": [
+      {
+        "file": "tests/full_owner_tb.cpp",
+        "line": 195,
+        "scope": "WI/DEC_FF same physical lock and monotonic shared epoch"
+      },
+      {
+        "file": "tests/full_owner_tb.cpp",
+        "line": 249,
+        "scope": "QKV RAW to FINAL paired lease transition"
+      },
+      {
+        "file": "tests/full_owner_tb.cpp",
+        "line": 347,
+        "scope": "ROPE_TABLE mode-labeled loads"
+      },
+      {
+        "file": "tests/full_owner_tb.cpp",
+        "line": 425,
+        "scope": "inplace lease operation and invalid transition"
+      },
+      {
+        "file": "tests/full_owner_tb.cpp",
+        "line": 538,
+        "scope": "soft reset preserves shared WI/DEC_FF history"
+      }
+    ]
+  },
+  "handoff_hash_checks": [
+    {
+      "file": "hls/common/laya_full_owner.cpp",
+      "sha256": "4bf7382da428d9e4cea6d8ff812ac03ea60af43111ee02b69890c08bba262abe",
+      "matches": true
+    },
+    {
+      "file": "tests/full_owner_index_pilot.cpp",
+      "sha256": "ca0d635db0a214a35572d8be262b7686ef7fed7c6ff7979d5f20643ffd409b0c",
+      "matches": true
+    },
+    {
+      "file": "tests/full_owner_index_pilot_tb.cpp",
+      "sha256": "4689bc6a2480dc229fe61bfa44fa5b3dc6c6fed42e62c977c6a2f2b19bf4f48a",
+      "matches": true
+    },
+    {
+      "file": "results/synthesis_memory_fix_20261007/owner_index_diff.patch",
+      "sha256": "e722ab4751d2c9ad25621f9c2a7957893ad1d9dc6bff52d637d72938517a01f7",
+      "matches": true
+    }
+  ],
+  "runs_as_observed": {
+    "owner_index_pilot_synthhost_run": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 0.17587956972420216,
+      "finished_at": "2026-10-07T09:37:20.720585+00:00",
+      "minimum_mem_available_kb": 439571816,
+      "peak_owned_rss_kb": 0,
+      "trigger": null
+    },
+    "owner_index_pilot_vitis/csim_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 11.277959939092398,
+      "finished_at": "2026-10-07T09:38:31.557697+00:00",
+      "minimum_mem_available_kb": 438761020,
+      "peak_owned_rss_kb": 1254688,
+      "trigger": null
+    }
+  },
+  "run_limit": "Owner synthesis-host peak_owned_rss_kb=0 means live RSS was not captured for its 0.176s process. Vitis CSim exits0 but HLS synthesis/IR review remains pending.",
+  "required_next_evidence": [
+    "Actual owner top HLS csynth exit/report and guarded measured peak",
+    "Actual live fields and initializer representation at relevant conversion stage, without equating post-GDCE type text to transformed initialization",
+    "New source identity and original full owner regression, CPU/shadow/CSim gates before final full csynth"
+  ],
+  "artifact_hashes": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_owner.cpp": "073a9664eca9926dc687c786bd8fb12947a9cbacfb729fc95c2f6fcb7eb30e1a",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/common/laya_full_owner.cpp": "4bf7382da428d9e4cea6d8ff812ac03ea60af43111ee02b69890c08bba262abe",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot.cpp": "ca0d635db0a214a35572d8be262b7686ef7fed7c6ff7979d5f20643ffd409b0c",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot_tb.cpp": "4689bc6a2480dc229fe61bfa44fa5b3dc6c6fed42e62c977c6a2f2b19bf4f48a",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_tb.cpp": "e8ca35a5ab68dee5b5bf877ad2796dbc7916a7022373c5346e331b04d3c7d1c7",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_diff.patch": "e722ab4751d2c9ad25621f9c2a7957893ad1d9dc6bff52d637d72938517a01f7",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_current_hashes.sha256": "16a5b17a706eba418c571d1602d483d24204b0164c52fa8e1503ecb464b97317"
+  }
+}

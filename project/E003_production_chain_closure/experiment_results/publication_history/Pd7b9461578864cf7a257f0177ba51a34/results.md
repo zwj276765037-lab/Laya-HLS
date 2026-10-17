@@ -1,0 +1,26 @@
+# E003本轮结果
+
+executor_stream_host_01编译FAIL保留；_02实际C++ consumer/program/port/FSM/adapter受控peer范围PASS。actor_host_10原45F17/两请求8退休兼容PASS。executor_hls_host_01原18FIFO六独立process、_02新21FIFO七独立process均PASS_SCOPED_HOST，旧身份不回写。_02完整GRANTED owner echo前零LGP，合法foreign echo保持旧commit1 ABORT且后续正确echo不能解隔离；90/90 frozen声明pair已核。build20.976673s、峰286008KiB、105owned RSS采样；短host各实际功能marker通过，部分无child采样峰null，资源完整性不能泛称全部实测。软件stream无depth限制，shell/physical fence仍受控。新owned program/真实控制transport在准备，HLS生成、同runtimeLN/Q、资源联合/时序NOT_RUN。managed LPV原355冻结与有限PASS引用先前交付，不追认为新整链证据。
+
+executor_hls_01为COST_STOP：120.081628s未观察到认可语义/产物进展，elapsed280.460530s、peak1477768KiB/1401RSS样本，Compile/Link266124/Unroll-Inline pending、0生成top。并非DUT动态FAIL或已证不可综合；根因待有界定位。新control_transport_rtl_01实际有限RTL PASS，真实shell+三depth2 FIFO、完整16拍实际写读及accepted全帧validator；actual executor端仍为TB byte-oracle，fence/终态受控，不代签同runtime硬件链。graph_program_owned_host_01静态链接FAIL（缺真实model binding助手），未执行DUT；已补实际compute_client/full_memory依赖为14源，_02运行中，原_01不回写。
+
+已核graph_program_owned_host_02 PASS_SCOPED_HOST：14源、9独立process，完整GRANTED安装/echo、原command/LAP与实际LAC receipt及成功/取消/错绑定/旧完成。tail2/tail1各12次软件调用，部分短run无child RSS，仍不签depth2或实际LN service。graph_program_owned_hls_01复用_02精确host闭包，仅HLS运行，无host重跑。A005只读定位已交：最后成功gdce后进入LTO reflow，宽端口disaggregate末事件；inclusive调用计数不相加，未证明auto-inline爆炸。选取已支持NORM的专用descriptor/BEGIN作为最小结构修复假设，需完整wire+泛型对比和受影响host。
+
+NORM专用metadata双模式12process PASS：2538完整1024B独立gold/泛型Check与seq/输出前缀对照，S1/S16原拒绝、物理presence/capacity/序号边界保持；norm_host01 354/354 frozen及声明pair。executor_host03七process PASS，91/91冻结配对；其候选同时包含NORM与完整byte-loop修复。executor_hls02仍COST_STOP：285.493267s、peak1476484KiB、语义stall/child-9、0生成top，Compile/Link226981 vs旧266124为联合变化，仅中间编译计数；不签硬件资源/周期收益。
+
+owned_hls03 HLS child0、345.905041s、peak4832216KiB，确有top但receipt FAIL_PORTS：program_pending生成input/dangling/read0，必须output8192；memcmp错误已消失，不把此生成当可用PASS。HLS top估计BRAM18=18/DSP1/FF64225/LUT203729/URAM0，仅失败候选综合估计，不计联合资源、不签P&R。399/399冻结配对已核。A004只读IR定位：gdce仍实际非null key及bound_command，a.g.0丢key/变null取消语义、WRITE_ACTION直接隔离；旧legacy在gdce已DCE，名字碰撞/同TU根因未证。A002以explicit has_issued_key＋完整Key内部调用替代综合可达nullable指针，旧软件pointer overload兼容；owned_host05九独立process PASS；复用其稳定闭包启动owned_hls04，实际guard运行，尚无终态。
+
+owned_hls04复用host05，actual tool child0/442.930003s/peak5421624KiB，8FIFO/24signal(3x8192+5x512)端口完整PASS_SCOPED_GENERATION。HLS top估计BRAM18=24/DSP1/FF69372/LUT254536/URAM0，仅本候选，不签资源联合/物理/周期。owned_rtl01因审核副本与实际top路径不同误拒绝，字节/SHA相同且无工具启动；runner保留两对象各自验证及相等hash后修复，新rtl02 actual static运行。admission_transport_rtl01实际FAIL，TB drive cancel后立即检查组合gate，root仅补结算采样，DUT未变，待新attempt验证。
+
+admission_transport_rtl02 PASS：只改TB pre-first cancel drive后组合结算采样，DUT相同；旧01真实FAIL保留。两个实际depth2 FIFO、16拍LAD收集/原包echo、真实portal全记录安装与受控physical域拒绝/取消通过，上游executor peer仍TB。guard39.502949s/peak1645560KiB/197captures。LPV_owner_sidecar_rtl01 PASS_SCOPED_RTL_SIDECAR：guard26.295958s/peak1341036KiB/131captures，旧LTX A/route→16LPV→8返回→实际LTC末pop归属保持；generated-adapter peer受控，未代签actual生成adapter。owned_program_rtl02静态PASS，success在84555ns归属安装阶段isolated动态FAIL；正在核完整输入/握手与生成逻辑，未接纳行为。executor_host04三残留memcmp完整byte-loop修复七process PASS，五宽口有界诊断正在准备，尚未生成或运行。
+
+source_guard_v2_rtl02六case/3214cycles PASS_SCOPED_RTL_SOURCE_GUARD：actual shell+control transport完整K/B/GRANTED，持久取消/旧AR-R债与F9-LAC真实尾消费；query/fence/producer等peer受控，有限AR非完整tensor。guard35.037231s/peak1651728KiB/175captures。旧01 TB string ternary触发simulator kernel异常；02仅if/else literal等价刺激，DUT相同且六case/全部assert保持。owned RTL02实际binding重验拒绝尚未修复；sidecar旧END首LTX cancel gate缺口已向主控请求具体owner合同，正常C与五宽口准备独立继续。
+
+
+五宽口executor_wide_fifo_diagnostic01 PASS_SCOPED_GENERATION：actual五8192方向/15信号、真实读写、完整byte oracle；HLS38.071846s/peak2372468KiB/189samples。仅排除五宽口组合本身足以必然stall；无actor/归属/退休，generated RTL反压NOT_RUN。owned RTL02只读诊断确认嵌套bootstrap purpose误读Message.kind；gdce正确，a.g.0及RTL取[15:0]而应[207:192]。canonical equality先前未执行，不追认已比较。live修复用真实purpose标量跨完整validator体，其他校验逐字保留；host06九processPASS，当前host07增加直接/嵌套invalid purpose/物理span/model负例。旧04/rtl02冻结不改。旧LTX cleanup主控合同已收到：真实FSM完整pending、单候选24拍收集、END/INVALIDATE唯一hub核定、普通未外发由实际adapter本地LTC拒绝；实施未验。
+
+owned_host07实际十process PASS_SCOPED_HOST；新HLS05复用其精确冻结闭包，未重复主机运行。purpose标量修复与新增负例纳入本候选；HLS05当前运行，生成/行为尚待实际出口。
+
+---
+Published: 2026-10-13T03:20:04.337168+00:00
+Publication: Pe5cd142b27bd4875b757bb602d7d63dc

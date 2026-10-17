@@ -1,0 +1,16 @@
+--- executor_checkpoint_rtl_08/laya_executor_checkpoint_tb_v2.sv
++++ executor_checkpoint_rtl_09/laya_executor_checkpoint_tb_v2.sv
+@@ -59,6 +59,13 @@
+   logic snapshot_base_valid=1;
+   logic [63:0] snapshot_base_epoch=7,snapshot_base_address=BO_BASE,snapshot_base_capacity=16920576;
+   laya_generated_provenance_axi_portal_v1 #(.MONITORED_ROLE(6),.ENABLE_EXECUTOR_CHECKPOINT(1)) dut(
++    .lpv_admission_valid(1'b0),.lpv_admission_record(8192'd0),.lpv_admission_ready(),.lpv_admission_accepted(),
++    .lpv_revoke_valid(1'b0),.lpv_revoke_owner(8192'd0),
++    .lpv_candidate_valid(1'b0),.lpv_candidate_route(1'b0),.lpv_candidate_owner(8192'd0),
++    .lpv_pending_valid(1'b0),.lpv_pending_route(1'b0),.lpv_pending_owner(8192'd0),.lpv_pending_packet(8192'd0),
++    .lpv_response_route(1'b0),.lpv_response_owner(8192'd0),
++    .lpv_owner_installed(),.lpv_owner_revoked(),.lpv_frame_owned(),.lpv_frame_route(),.lpv_owner_record(),.lpv_frame_owner(),
++
+     .checkpoint_start_permit(1'b0),.checkpoint_owner_revoked(1'b0),.checkpoint_executor_route(1'b0),
+     .checkpoint_owner_key(8192'd0),.checkpoint_closed_valid(1'b0),.checkpoint_closed_key(8192'd0),
+     .checkpoint_ingress_started(),.checkpoint_query_accepted(),.checkpoint_query_drained(),.checkpoint_query_request(),

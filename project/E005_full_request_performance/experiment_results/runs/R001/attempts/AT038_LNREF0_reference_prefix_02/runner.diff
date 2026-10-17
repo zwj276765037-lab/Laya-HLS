@@ -1,0 +1,32 @@
+--- AT037/frozen/runner
++++ AT038/frozen/runner
+@@ -92,8 +92,18 @@
+         require(len(frame) == 1152 and frame[:4] == b"LYRQ", "original ABI frame")
+         require(struct.unpack_from("<HHQQ", frame, 20) == (1, 128, 3, 1),
+                 "request3/generation1/B1/S128")
+-        require(frame[40:72] == bytes.fromhex(evidence.manifest["model"]["sha256"]),
+-                "frame model tag")
++        request_manifest_path = root / "build/cpu-embedding-requests-v4-20261010/identity_manifest.json"
++        request_manifest = json.loads(request_manifest_path.read_text())
++        request_entry = next(entry for entry in request_manifest["requests"]
++                             if entry["name"] == "B1_from_b0_S128")
++        require(request_entry["target_sha256"] == sha(frame) and
++                (request_entry["B"], request_entry["S"],
++                 request_entry["request_id"], request_entry["generation"]) == (1, 128, 3, 1),
++                "request manifest identity")
++        for tag_index, tag_name in enumerate(("model", "numeric", "layout", "build")):
++            require(frame[40 + 16 * tag_index:56 + 16 * tag_index] ==
++                    bytes.fromhex(request_manifest["tags"][tag_name]),
++                    f"frame {tag_name} package tag")
+         serialized = [inputs[0].astype("<i4").tobytes(), inputs[1].tobytes(),
+                       inputs[2].astype("<i4").tobytes(), inputs[3].tobytes(),
+                       inputs[4].astype("<i4").tobytes()]
+@@ -107,6 +117,8 @@
+             path.write_bytes(data)
+             input_files.append(identity(path))
+         report["abi_request"] = identity(frame_path)
++        report["abi_request_manifest"] = identity(request_manifest_path)
++        report["abi_package_tags"] = request_manifest["tags"]
+         report["abi_inputs"] = input_files
+         report["gguf_model"] = identity(evidence.model_path)
+ 

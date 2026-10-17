@@ -1,0 +1,12 @@
+--- executor_managed_lpv_rtl_03/laya_generated_provenance_axi_portal_v1.sv
++++ executor_managed_lpv_rtl_04/laya_generated_provenance_axi_portal_v1.sv
+@@ -219,7 +219,8 @@
+     (ENABLE_EXECUTOR_CHECKPOINT && legacy_lane_authority) : !legacy_lpv_route;
+   assign managed_lpv_candidate=lpv_owner_installed && lpv_candidate_valid &&
+     lpv_candidate_owner==lpv_owner_record &&
+-    (lpv_revoking ? lpv_routes_used[selected_route] : selected_lane_live);
++    (lpv_revoking ? (lpv_routes_used[selected_route] ||
++      (lpv_pending_valid && lpv_pending_owner==lpv_owner_record && lpv_pending_route==selected_route)) : selected_lane_live);
+ 
+   logic checkpoint_request_valid,checkpoint_request_ready;
+   logic [8191:0] checkpoint_request,checkpoint_response;

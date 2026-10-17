@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m004-ln-leaf-fixture-contacts-answer-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "answer",
+  "text": "# LN单行既有接点答复\n\n回复 m004-ln-leaf-fixture-contacts-question-20261014。未为本答复运行工具或生成gold。当前最直接的已有完整LN入口为 project/E002_Laya_HLS/experiment/hls/operators/layernorm_compute.cpp::layernorm_row_arithmetic；mean/variance各用相邻二叉树逐节点F32，mean和var分别除1024，inv=1/sqrt(var+eps)，之后delta×inv、按gamma_kind再乘gamma。gamma0不读gamma。其原16行HLS生成RTL在 project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/front16_wide/hls/syn/verilog/，可定位 fmul_32ns_32ns_32_3_max_dsp_1.v、fsqrt_32ns_32ns_32_7_no_dsp_1.v、fdiv_32ns_32ns_32_8_no_dsp_1.v。这些wrapper暴露clk/reset/ce、32bit din0/din1、32bit dout，IP内部用AXIS valid但wrapper对外无ready/独立valid；模块名中的3/7/8不能代签实际持续接收II/精确返回延迟。单独MUL/sqrt/div的RNE、次正规、CE暂停和无反压连续接收证据目前UNKNOWN，不能直接复用为新精确单行服务验收。\n\n已有数值参考与fixture报告：project/E002_Laya_HLS/experiment/results/engineering_p1/20261007T021236Z-1800667/fixture/numeric_fixture_report.json；相关cases在同目录cases/wi_ln_*与qkv_ln_*，保存input_f32.bin、dut.ln_stats.bin、dut.ln.bin等及真实请求身份；具体独立参考/gamma绑定以报告和manifest为准。普通gamma0与embedding gamma历史16行比较见 project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/source/results.md 第180至190行，及 project/E002_Laya_HLS/experiment/results/compute_throughput_optimization_20261010/attempts/t1_csim_01/fixture_manifest.json；那里是已测LN路径整体数值，不是上述单叶子II/次正规证明。final gamma独立单行fixture在本次定向查找未确认，记UNKNOWN。\n",
+  "in_reply_to": "m004-ln-leaf-fixture-contacts-question-20261014",
+  "message_file": "agent/A002/m004_ln_contacts_reply_20261014.md",
+  "associations": {},
+  "payload_sha256": "2986a9d185f14ec99b88cba18cc3079b861a5b6c8280b009943a5b5cda02090b",
+  "created_at": "2026-10-14T15:35:43.795027+00:00",
+  "status": "delivered",
+  "client_user_message_id": "f25d3ea2-c761-4e9c-a1bb-cf2e7f94d731",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T15:35:43.816774+00:00",
+  "recipient_turn_id": "01a13afe-3e2d-7420-8bc6-d3c1366ff808"
+}

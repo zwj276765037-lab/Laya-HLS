@@ -1,0 +1,250 @@
+--- v1/tb/phase_axi_monitor.sv
++++ v2/tb/phase_axi_monitor.sv
+@@ -1,7 +1,7 @@
+ `timescale 1ns/1ps
+ 
+-// Passive monitor for one actual 32-bit data / 1-bit-ID m_axi interface.
+-// Seven instances are bound in the copied generated autotb. No payload is kept.
++// Passive, stable pre-edge monitor for one actual 32-bit / 1-bit-ID m_axi.
++// Seven instances share one sampled event each. Only last response scalars are kept.
+ module d2_phase_axi_monitor #(
+     parameter string PORT = "unnamed"
+ ) (
+@@ -9,11 +9,13 @@
+     input logic awvalid, input logic awready,
+     input logic wvalid, input logic wready, input logic [3:0] wstrb,
+     input logic wlast, input logic bvalid, input logic bready,
++    input logic [0:0] bid, input logic [1:0] bresp,
+     input logic arvalid, input logic arready,
+     input logic [0:0] arid, input logic [7:0] arlen,
+     input logic [2:0] arsize,
+     input logic rvalid, input logic rready,
+-    input logic [0:0] rid, input logic rlast
++    input logic [0:0] rid, input logic rlast,
++    input logic [31:0] rdata, input logic [1:0] rresp
+ );
+     localparam int IDS = 2;
+     localparam int RING = 16;
+@@ -29,6 +31,25 @@
+     longint unsigned w_beats = 0, r_beats = 0, b_count = 0;
+     longint unsigned wlast_count = 0, rlast_count = 0;
+     longint unsigned w_strobe_bytes = 0, r_transfer_bytes = 0;
++    longint unsigned sample_cycle = 0;
++    logic [0:0] last_b_id, last_r_id;
++    logic [1:0] last_b_resp, last_r_resp;
++    logic [31:0] last_r_data;
++    logic last_r_last;
++    bit first_b_seen = 0, first_r_seen = 0;
++
++    // Every counter and response field below is derived from this one stable
++    // pre-edge image. A newly asserted active-region VALID belongs to the next
++    // edge rather than being retroactively counted on the current edge.
++    clocking sample_cb @(posedge clk);
++        default input #1step;
++        input rst_n;
++        input awvalid, awready;
++        input wvalid, wready, wstrb, wlast;
++        input bvalid, bready, bid, bresp;
++        input arvalid, arready, arid, arlen, arsize;
++        input rvalid, rready, rid, rlast, rdata, rresp;
++    endclocking
+ 
+     initial begin
+         for (int id = 0; id < IDS; id++) begin
+@@ -38,15 +59,15 @@
+         end
+     end
+ 
+-    task automatic consume_read(input int id);
++    task automatic consume_read(input int id, input logic sampled_rlast);
+         if (used[id] == 0)
+             $fatal(1, "D2_PHASE_PROBE_INVALID unmatched R port=%s id=%0d", PORT, id);
+-        if ((remaining_ring[id][head[id]] == 9'd1) != (rlast === 1'b1))
++        if ((remaining_ring[id][head[id]] == 9'd1) != (sampled_rlast === 1'b1))
+             $fatal(1, "D2_PHASE_PROBE_INVALID RLAST mismatch port=%s id=%0d remaining=%0d last=%b",
+-                   PORT, id, remaining_ring[id][head[id]], rlast);
++                   PORT, id, remaining_ring[id][head[id]], sampled_rlast);
+         r_transfer_bytes += (64'd1 << size_ring[id][head[id]]);
+         r_beats++;
+-        if (rlast === 1'b1) begin
++        if (sampled_rlast === 1'b1) begin
+             rlast_count++;
+             head[id] = (head[id] + 1) % RING;
+             used[id]--;
+@@ -56,45 +77,72 @@
+     endtask
+ 
+     // Retire an existing R first, so a full ring can accept a same-clock AR.
+-    // If the ring was empty, insert the AR first so a same-clock R can match.
+-    // The top-level samples one picosecond after these blocking updates.
+-    always @(posedge clk) begin : record_handshakes
++    // If the ring was empty, insert the sampled AR first so sampled R can match.
++    // The top-level observes these blocking updates one picosecond after the edge.
++    always @(sample_cb) begin : record_handshakes
+         int id;
+         int strobe_bytes;
+         bit read_handshake;
+         bit read_on_empty;
+-        if (rst_n === 1'b1) begin
+-            read_handshake = rvalid === 1'b1 && rready === 1'b1;
+-            if (read_handshake && $isunknown({rid, rlast}))
++        if (sample_cb.rst_n === 1'b1) begin
++            sample_cycle++;
++            read_handshake = sample_cb.rvalid === 1'b1 &&
++                             sample_cb.rready === 1'b1;
++            if (read_handshake && $isunknown({sample_cb.rid, sample_cb.rlast}))
+                 $fatal(1, "D2_PHASE_PROBE_INVALID unknown RID/RLAST port=%s", PORT);
+-            read_on_empty = read_handshake && used[int'(rid)] == 0;
+-            if (read_handshake && !read_on_empty) consume_read(int'(rid));
+-            if (awvalid === 1'b1 && awready === 1'b1) aw_count++;
+-            if (arvalid === 1'b1 && arready === 1'b1) begin
+-                if ($isunknown({arid, arlen, arsize}) || arsize > 3'd2)
++            read_on_empty = read_handshake && used[int'(sample_cb.rid)] == 0;
++            if (read_handshake) begin
++                last_r_id = sample_cb.rid;
++                last_r_resp = sample_cb.rresp;
++                last_r_last = sample_cb.rlast;
++                last_r_data = sample_cb.rdata;
++                if (!first_r_seen) begin
++                    first_r_seen = 1;
++                    $display("DIAG_FIRST_R_SAMPLE port=%s cycle=%0d count=%0d id=%b resp=%b last=%b",
++                             PORT, sample_cycle, r_beats+1,
++                             last_r_id, last_r_resp, last_r_last);
++                end
++            end
++            if (read_handshake && !read_on_empty)
++                consume_read(int'(sample_cb.rid), sample_cb.rlast);
++            if (sample_cb.awvalid === 1'b1 && sample_cb.awready === 1'b1)
++                aw_count++;
++            if (sample_cb.arvalid === 1'b1 && sample_cb.arready === 1'b1) begin
++                if ($isunknown({sample_cb.arid, sample_cb.arlen, sample_cb.arsize}) ||
++                    sample_cb.arsize > 3'd2)
+                     $fatal(1, "D2_PHASE_PROBE_INVALID AR metadata port=%s id=%b len=%b size=%b",
+-                           PORT, arid, arlen, arsize);
+-                id = int'(arid);
++                           PORT, sample_cb.arid, sample_cb.arlen, sample_cb.arsize);
++                id = int'(sample_cb.arid);
+                 if (used[id] >= RING)
+                     $fatal(1, "D2_PHASE_PROBE_INVALID read-ring overflow port=%s id=%0d", PORT, id);
+-                size_ring[id][tail[id]] = arsize;
+-                remaining_ring[id][tail[id]] = {1'b0, arlen} + 9'd1;
++                size_ring[id][tail[id]] = sample_cb.arsize;
++                remaining_ring[id][tail[id]] = {1'b0, sample_cb.arlen} + 9'd1;
+                 tail[id] = (tail[id] + 1) % RING;
+                 used[id]++;
+                 ar_count++;
+             end
+-            if (wvalid === 1'b1 && wready === 1'b1) begin
+-                if ($isunknown({wstrb, wlast}))
++            if (sample_cb.wvalid === 1'b1 && sample_cb.wready === 1'b1) begin
++                if ($isunknown({sample_cb.wstrb, sample_cb.wlast}))
+                     $fatal(1, "D2_PHASE_PROBE_INVALID WSTRB/WLAST port=%s", PORT);
+                 strobe_bytes = 0;
+                 for (int bit_idx = 0; bit_idx < 4; bit_idx++)
+-                    if (wstrb[bit_idx] === 1'b1) strobe_bytes++;
++                    if (sample_cb.wstrb[bit_idx] === 1'b1) strobe_bytes++;
+                 w_strobe_bytes += strobe_bytes;
+                 w_beats++;
+-                if (wlast === 1'b1) wlast_count++;
++                if (sample_cb.wlast === 1'b1) wlast_count++;
+             end
+-            if (read_on_empty) consume_read(int'(rid));
+-            if (bvalid === 1'b1 && bready === 1'b1) b_count++;
++            if (read_on_empty)
++                consume_read(int'(sample_cb.rid), sample_cb.rlast);
++            if (sample_cb.bvalid === 1'b1 && sample_cb.bready === 1'b1) begin
++                last_b_id = sample_cb.bid;
++                last_b_resp = sample_cb.bresp;
++                if (!first_b_seen) begin
++                    first_b_seen = 1;
++                    $display("DIAG_FIRST_B_SAMPLE port=%s cycle=%0d count=%0d id=%b resp=%b",
++                             PORT, sample_cycle, b_count+1, last_b_id, last_b_resp);
++                end
++                b_count++;
++            end
+         end
+     end
+ 
+--- v1/tb/axi_allocation_diag_top.sv
++++ v2/tb/axi_allocation_diag_top.sv
+@@ -8,12 +8,6 @@
+     longint unsigned postreset_count = 0;
+     longint unsigned pairs_done = 0;
+     string mode;
+-    logic [31:0] last_rdata;
+-    logic [1:0] last_rresp;
+-    logic last_rlast;
+-    logic last_rid;
+-    logic [1:0] last_bresp;
+-    logic last_bid;
+     always #3.33 clk = ~clk;
+     initial begin
+         #100;
+@@ -56,10 +50,12 @@
+         .awvalid(bus.AWVALID), .awready(bus.AWREADY), \
+         .wvalid(bus.WVALID), .wready(bus.WREADY), .wstrb(bus.WSTRB), \
+         .wlast(bus.WLAST), .bvalid(bus.BVALID), .bready(bus.BREADY), \
++        .bid(bus.BID), .bresp(bus.BRESP), \
+         .arvalid(bus.ARVALID), .arready(bus.ARREADY), \
+         .arid(bus.ARID), .arlen(bus.ARLEN), .arsize(bus.ARSIZE), \
+         .rvalid(bus.RVALID), .rready(bus.RREADY), \
+-        .rid(bus.RID), .rlast(bus.RLAST))
++        .rid(bus.RID), .rlast(bus.RLAST), \
++        .rdata(bus.RDATA), .rresp(bus.RRESP))
+     `ATTACH_MON(mon_fixture,bus_fixture,"fixture");
+     `ATTACH_MON(mon_io,bus_io,"io");
+     `ATTACH_MON(mon_aux,bus_aux,"aux");
+@@ -68,21 +64,6 @@
+     `ATTACH_MON(mon_att_out,bus_att_out,"att_out");
+     `ATTACH_MON(mon_observed,bus_observed,"observed");
+ `undef ATTACH_MON
+-
+-    always @(posedge clk) begin
+-        if (rst_n === 1'b1 && bus_qkv0.BVALID === 1'b1 &&
+-            bus_qkv0.BREADY === 1'b1) begin
+-            last_bresp = bus_qkv0.BRESP;
+-            last_bid = bus_qkv0.BID;
+-        end
+-        if (rst_n === 1'b1 && bus_qkv0.RVALID === 1'b1 &&
+-            bus_qkv0.RREADY === 1'b1) begin
+-            last_rdata = bus_qkv0.RDATA;
+-            last_rresp = bus_qkv0.RRESP;
+-            last_rlast = bus_qkv0.RLAST;
+-            last_rid = bus_qkv0.RID;
+-        end
+-    end
+ 
+     initial begin : uvm_start
+         // Both runtime processes use xsim --sv_seed 1.
+@@ -161,19 +142,25 @@
+             active_test.accepted_write(address, value);
+             wait(mon_qkv0.b_count >= longint'(i+1));
+             #0.001;
+-            if (last_bresp !== 2'b00 || last_bid !== 1'b0)
++            if (mon_qkv0.last_b_resp !== 2'b00 ||
++                mon_qkv0.last_b_id !== 1'b0)
+                 $fatal(1,"DIAG_INVALID write response item=%0d resp=%b id=%b",
+-                       i,last_bresp,last_bid);
++                       i,mon_qkv0.last_b_resp,mon_qkv0.last_b_id);
+             send_ar(i, aligned);
+             wait(mon_qkv0.r_beats >= longint'(i+1));
+             #0.001;
+-            if (last_rresp !== 2'b00 || last_rlast !== 1'b1 || last_rid !== 1'b0)
++            if (mon_qkv0.last_r_resp !== 2'b00 ||
++                mon_qkv0.last_r_last !== 1'b1 ||
++                mon_qkv0.last_r_id !== 1'b0)
+                 $fatal(1,"DIAG_INVALID read response item=%0d resp=%b last=%b id=%b",
+-                       i,last_rresp,last_rlast,last_rid);
++                       i,mon_qkv0.last_r_resp,mon_qkv0.last_r_last,
++                       mon_qkv0.last_r_id);
+             for (int lane=0; lane<4; lane++)
+-                if (last_rdata[lane*8 +: 8] !== active_test.expected[3][aligned+lane])
++                if (mon_qkv0.last_r_data[lane*8 +: 8] !==
++                    active_test.expected[3][aligned+lane])
+                     $fatal(1,"DIAG_INVALID readback item=%0d lane=%0d got=%02x expected=%02x",
+-                           i,lane,last_rdata[lane*8 +: 8],active_test.expected[3][aligned+lane]);
++                           i,lane,mon_qkv0.last_r_data[lane*8 +: 8],
++                           active_test.expected[3][aligned+lane]);
+             pairs_done++;
+         end
+         sample("traffic_complete");

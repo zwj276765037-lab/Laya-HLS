@@ -1,0 +1,59 @@
+{
+  "issued_at_utc": "2026-10-07T11:06:51.643340+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "decision": "AUTHORIZE_ONE_FOCUSED_REAL_VITIS_CSIM_AND_ONE_FOCUSED_CSYNTH_UNDER_8GIB_GUARD",
+  "implementation_owner": "/root/laya_p1_implementation, gpt-6-sol max",
+  "candidate_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007",
+  "config": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_preview/full_pointer_control_pilot.cfg",
+  "config_sha256": "2fa6056018309b0c70aa0b08bb066d183e668ebf7bcd993a54479402fc635a3a",
+  "pilot_plan_sha256": "dc622a382c804e42f51173b1e4adf3a391d865b9dedab4c3412d184c757c3198",
+  "top": "full_pointer_control_pilot",
+  "wrapper_sha256": "8e1f2d9286b00f342dc640d3d681fdb6bd91dc7c3693feda23116c3cad675301",
+  "testbench_sha256": "9f7bab9ae3ab0b2d0acead3684dc726f6ad6fe9c167d2d3a27c5fae1fb378f82",
+  "production_source_hashes": {
+    "hls/common/laya_full_memory.cpp": "a838cb4910ee824b42d9cd14bae009ec59c1b0b2f9df4ac5e26dda67e950ffca",
+    "hls/control/full_forward_controller.cpp": "7e73939eba00bd062a5a6d75d77a82b2d0ec7fae0d2f5a16ebb359c821536b37",
+    "hls/operators/full_tasks_attention.cpp": "c59328610b12bff2a6546f4f7064e63227a545c785b6e687770e95f80cb2ab60",
+    "hls/operators/full_tasks_vector.cpp": "cff234bf2835b7ef4bd6a86ac431b5fe4e644a1f304b8cd0f9358fd3548e10bd",
+    "include/laya_full_runtime.h": "9f518fd26db66bf0a2e865e6ba8a1150d6c2d70486856663f1e3368fa3c16621"
+  },
+  "preconditions_accepted": {
+    "source_review_sha256": "5fd6ae0782351b5fb907582f235a0d95a3dff61ce6c010e54d446cc7f2d79cf3",
+    "static_pilot_review_sha256": "3e559bf152c323b53a1a09022e2550778ce5e99984feeb6520af5edd33fad444",
+    "host_review_sha256": "7bbd97f6f6abbf6b9e7fae01f67dc50f9e90166e9e0fcadabd37c0aefd948dc2",
+    "host_binary_diff": "1,720,568 B exact f1a/current equality; 632 lookup records and 11 QK records independently decoded. Independently checked 1,441,792 full score-cache bytes against exact stimulus formula/sentinels.",
+    "host_TB": "Ordinary and __SYNTHESIS__ focused pilot 49 assertions reported pass; sources reviewed."
+  },
+  "configuration": {
+    "part": "xcu55c-fsvh2892-2L-e",
+    "freqhz": 150000000,
+    "flow_target": "vivado",
+    "pipeline_loops": 0,
+    "throughput_driven": "off",
+    "complete_threshold": 0,
+    "translation_units": "Wrapper + 24 actual production source units. Actual controller.cpp included once in wrapper, not separately compiled.",
+    "header": "Frozen f1a header constants for focused pilot only; no new final-model identity claim."
+  },
+  "guard": {
+    "maximum_owned_RSS_KiB": 8388608,
+    "minimum_MemAvailable_KiB": 201326592,
+    "maximum_seconds_per_stage": 3600,
+    "nice": 19,
+    "CPU_count": 4,
+    "IO_priority": "idle",
+    "nominal_sample_seconds": 0.2,
+    "guard_sha256": "6f9eea7076c154489c054ede97fdfffd5e9dd04d423778896d38dd8739c8f9d7",
+    "helper_sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98",
+    "one_heavy_task_at_a_time": true,
+    "ownership": "Only verified owned session/process tree with matching PID start times may be stopped/killed. No other project modification, resource setting or process impact."
+  },
+  "sequence": [
+    "Preserve exact source/header/config/command hashes in fresh followon focused result/build directories.",
+    "Run real Vitis CSim of revised 49-assertion testbench under reviewed guard; preserve stdout and return code.",
+    "If CSim passes, run exactly one focused csynth with same frozen source/config under 8 GiB guard. No full-top synthesis under this gate.",
+    "Preserve actual reflow/precheck input/output IR where available, complete logs, guard timeline/policies and generated RTL/reports.",
+    "Review actual retained three production paths: QKTask local mask staging + unchanged qk_row; required-reference lookup with production bias names; Controller fresh/invalidate scans. Check all pointer-typed comparisons, not only null comparisons. If a path optimized away, report that limit and do not claim it verified.",
+    "On failure or guard trigger preserve evidence and return for narrow review; no automatic rerun or wider source workaround."
+  ],
+  "acceptance_limit": "Focused RTL/CSim demonstrates this pilot only. Complete new tag/model export, full CPU + synthesis-host + real full CSim and separately issued one complete-top csynth gate remain required. No baseline promotion authorized."
+}

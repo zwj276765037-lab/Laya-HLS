@@ -1,0 +1,3 @@
+# Inferred from syn.compile.pipeline_loops=64
+set_directive_pipeline laya_compute_portal_fifo_probe/VITIS_LOOP_14_1
+set_directive_pipeline laya_compute_portal_fifo_probe/VITIS_LOOP_19_2

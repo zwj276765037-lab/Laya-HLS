@@ -1,0 +1,10 @@
+--- layernorm_guarded_source_02/run_layernorm_guarded_source_v1.py
++++ layernorm_guarded_source_03/run_layernorm_guarded_source_v1.py
+@@ -102,6 +102,7 @@
+         passed=result.returncode==0 and state['child_exit_code']==0 and state['trigger'] is None and marker in body and 'Fatal:' not in body and 'ERROR:' not in body
+         receipt[mode]={'status':'PASS' if passed else 'FAIL','started':True,'runner_exit_code':result.returncode,'guard':state,'marker':[s for s in body.splitlines() if marker in s],'driver_log':rec(log)}
+         receipt['native_ip']=[rec(p) for p in sorted((attempt/'work').rglob('*.xci'))]
++        if mode=='pilot':receipt['actual_protocol_captures']=[rec(p) for p in sorted(fixture.glob('actual_*.hex'))]
+         receipt['status']='PASS' if mode=='pilot' and passed else 'RUNNING' if passed else 'FAIL'
+         (attempt/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+         print('FULL_CURRENT_LAYERNORM_GUARDED_SOURCE_'+mode.upper()+'_'+('PASS' if passed else 'FAIL'),flush=True)

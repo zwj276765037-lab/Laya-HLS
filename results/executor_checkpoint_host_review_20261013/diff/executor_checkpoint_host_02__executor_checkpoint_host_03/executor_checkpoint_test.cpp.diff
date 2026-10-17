@@ -1,0 +1,72 @@
+--- executor_checkpoint_host_02/executor_checkpoint_test.cpp
++++ executor_checkpoint_host_03/executor_checkpoint_test.cpp
+@@ -64,8 +64,8 @@
+ 
+ unsigned rejection_cases(const std::vector<uint8_t>& io_gold,
+                          const std::vector<uint8_t>& aux_gold) {
+-  static full::FullRuntime runtimes[28];
+-  for (unsigned which = 0; which < 28; ++which) {
++  static full::FullRuntime runtimes[36];
++  for (unsigned which = 0; which < 36; ++which) {
+     auto io = io_gold, aux = aux_gold; full::FullMemory ports;
+     auto& rt = runtimes[which]; admitted(rt, ports, io, aux);
+     lifecycle::Port port; checkpoint::State state; checkpoint::Request req;
+@@ -111,6 +111,14 @@
+         rt.owners.record[0].max_claimed_epoch = 1;
+         break;
+       case 27: rt.last_execution_error = {Status::E_PROTOCOL,laya::detail(7,0,14)}; break;
++      case 28: proof.task_floor = 0; break;
++      case 29: proof.target_state = checkpoint::TargetState::UNKNOWN; break;
++      case 30: proof.source_epoch_floor = 0; break;
++      case 31: proof.lpv_floor = 0; break;
++      case 32: rt.provenance_event_high_water = UINT64_MAX - 2; break;
++      case 33: assert(rt.dispatch_reservations.raise_ref_floor(Buffer::NORM,0,0,kMaxEpoch)); break;
++      case 34: rt.checkpoint_baseline.valid = true; break;
++      case 35: rt.tasks_retired = UINT32_MAX; break;
+     }
+     // Whole-object byte comparison verifies that a late validation/capacity
+     // refusal cannot leave a partially imported source, baseline or allocator.
+@@ -123,7 +131,28 @@
+     assert(std::memcmp(before.data(), &rt, sizeof(rt)) == 0 &&
+            program_wire::encode(command) == previous_command && state.phase == previous_state);
+   }
+-  return 28;
++  return 36;
++}
++
++void prepare_rejections(const std::vector<uint8_t>& io_gold,
++                        const std::vector<uint8_t>& aux_gold) {
++  static full::FullRuntime rt;
++  auto io=io_gold, aux=aux_gold; full::FullMemory ports;
++  admitted(rt,ports,io,aux); lifecycle::Port port;
++  for (unsigned which=0;which<4;++which) {
++    checkpoint::State state; auto live=fence();
++    if (which==0) state.sequence_high_water=UINT64_MAX;
++    if (which==1) state.handoff_high_water=live.handoff_epoch;
++    if (which==2) live.predecessor_dispatch_held=false;
++    if (which==3) live.base.capacity=4096;
++    checkpoint::Request out; out.source.sequence=999;
++    const auto before=checkpoint::encode(out);
++    const auto sequence=state.sequence_high_water, handoff=state.handoff_high_water;
++    assert(!checkpoint::prepare(state,port,rt,ports,{Buffer::HIDDEN,0,1},live,out));
++    assert(state.phase==bootstrap::Phase::IDLE && state.sequence_high_water==sequence &&
++           state.handoff_high_water==handoff && checkpoint::encode(out)==before &&
++           rt.tasks_retired==0 && !rt.checkpoint_baseline.valid && rt.owner_claims==0);
++  }
+ }
+ 
+ void success_case(full::FullRuntime& rt, unsigned case_id,
+@@ -232,11 +261,12 @@
+   const auto req=fixed<checkpoint::kBytes>(read(path+"/checkpoint_request.bin"));
+   const auto resp=fixed<checkpoint::kBytes>(read(path+"/checkpoint_response.bin"));
+   const unsigned wire_negatives=schema(req,resp), import_negatives=rejection_cases(io,aux);
++  prepare_rejections(io,aux);
+   static full::FullRuntime success[3];
+   for(unsigned i=0;i<3;++i) success_case(success[i],i,io,aux,req,resp);
+   std::cout << "FULL_CURRENT_EXECUTOR_CHECKPOINT_HOST_PASS oracle_bytes=2048 wire_negatives="
+             << wire_negatives << " import_negatives=" << import_negatives
+-            << " dynamic_task_bases=4,7,3 lpv_bases=23,97,119 target_epochs=8,18,32"
++            << " prepare_negatives=4 dynamic_task_bases=4,7,3 lpv_bases=23,97,119 target_epochs=8,18,32"
+             << " imported_retirements=0 actual_retirements_per_action=4 persistent_numbers=1"
+             << " actual_program_port_adapter=1 controlled_hub_snapshot_and_remote=1"
+             << " rtl_handoff_pending=1\n";

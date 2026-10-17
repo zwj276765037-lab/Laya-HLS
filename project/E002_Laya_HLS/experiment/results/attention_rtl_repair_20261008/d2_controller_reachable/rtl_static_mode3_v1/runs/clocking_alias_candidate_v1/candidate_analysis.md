@@ -1,0 +1,9 @@
+# Mode3 clocking alias compatibility candidate
+
+Status: source-only hypothesis for Astra review. This candidate has **not** been compiled or simulated and does not authorize a retry. The accepted V1 source packet remains unchanged.
+
+The [first xelab log](../static_build_mode3_v1/xelab.log) stopped with `XSIM 43-4412`, “Initial value not supported yet,” at [frozen control line 32](../../tb/vector_mode3_control.svh). That line begins a clocking block whose 19 inputs use `input name = hierarchical_expression`. The diagnostic does not prove whether XSim rejects the explicit clocking-expression spelling, `#1step`, or the clocking block itself.
+
+The [candidate diff](clocking_alias_only.diff) introduces 19 typed `wire` declarations with explicit continuous `assign` statements outside the clocking block and changes each clocking input to `input name;`. It leaves `clocking mode3_cb @(posedge clk)`, `default input #1step`, every `mode3_cb` use, the pre-edge AW/W count comparison to 127, the post-edge `#1ps` settling point, first sampled `ap_done`/ready and all debt, status, traffic and timeout assertions textually unchanged. This is a narrower compatibility probe than replacing the clocking observer with a procedural sampler.
+
+The frozen preimage SHA-256 is `7ddd3b856206930c28e227de4f00ac24e815c13679432e7dffaefd1fb45484bb`; the [candidate control](vector_mode3_control_alias_candidate.svh) is `11e4966ce0015d26eb030434db8020982ccf95f4042d442cf396d884eb046954`; the diff is `a71defc442f906ebcaee410355369df43d52cef69fe368e5b089ca1be192ac35`. The [candidate manifest](candidate_manifest.json) records all 19 aliases. Any fresh compiler attempt needs an Astra-approved isolated source packet and a distinct build directory. If XSim still rejects the clocking construct, preserve that first result and return for a separate design review; this candidate does not justify an unchanged retry or relaxing first-done debt.

@@ -1,0 +1,122 @@
+{
+  "decision": "D-M004-STAGED-LNQ-01",
+  "scope": "Research sections1/2 adopted for LN128 stage and local Q16 bank fill only; STEP16/matrix/full RoPE not authorized here",
+  "research_record": {
+    "path": "source/fixed_graph_support_20261014/staged_producer_interfaces_20261015.json",
+    "sha256": "490f67d2e6e14a5217ea4dc8aee7250783ed5c65b9a18c6c27e551ba333c9b3f"
+  },
+  "identities": [
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/quant_dual_a_v1.sv",
+      "sha256": "0cf4e8b02e5559bde7644a1e4d7772b9206ad8b40a6f4eab7f5cc85c14613558"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/quant_a_row_bank_v1.sv",
+      "sha256": "62521924b97384b5113c6f66bb884c4a754279f64de29dd669e12c4504861926"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_row_pipeline_v1.sv",
+      "sha256": "280553a0fcace9838cf95c8bc4eb843d55be4e2b126ea619198d6dee41b54734"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_sync_bank_v2.sv",
+      "sha256": "1fa0e3494a06bc760e6b52f7da34648e695fd809f5cb0aadbdfe414690438daf"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_tag_v1.sv",
+      "sha256": "471c8e1097b9345e7e858b18702191565625ca83b43ed58d24750b2b11a1b3aa"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/include/laya_types.h",
+      "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/include/laya_tasks.h",
+      "sha256": "20a8a3a0a94e997c05d0f81657498f16f8d08e406a202eb8b08dde5b2ccd55bf"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/hls/operators/full_tasks_front.cpp",
+      "sha256": "5e0d9a2b5a416a6867cd463c6defefd37ddaa926f296159bf2f2eabffc8c74e4"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/results/attention_rtl_repair_20261008/d2_cpu_full_official/oracle/B1_from_b0_S128/embedding_raw.f32.bin",
+      "sha256": "d3a71978c5d32492c073259f8b4a2df02e77618e8c2c0090dafb550e1d16190c"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/results/attention_rtl_repair_20261008/d2_cpu_full_official/oracle/B1_from_b0_S128/embedding_norm.f32.bin",
+      "sha256": "5d88293829ae60ee880f931cb863fcccfa82aa41dd8ed46f791ec2e484213056"
+    }
+  ],
+  "checks": {
+    "q4096": true,
+    "scale256": true,
+    "disjoint": true,
+    "A4352contiguous": true,
+    "prior15_no_overlap": true,
+    "lastrow_exact128overlap": true,
+    "all_addresses_within656": true,
+    "LN_regions_disjoint": true,
+    "export48writes": true,
+    "fullLN_bytes": true,
+    "fullLN_B": true,
+    "noQ_pre_LNbarrier": true
+  },
+  "manual_source_review": [
+    "full_tasks_front.cpp LayerNormTask reads tile, runs rows, then writes; new physical errors remain separate from CPU Check equivalence",
+    "LN row service existing source_direct fixed1024/2624 requires explicit new modes; no arithmetic edits",
+    "Q16 finalrow overlap safe only after all norm consumed/Q physical debt zero before export; integer mapping does not prove RTL"
+  ],
+  "new_reference_evaluation": false,
+  "controller_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "controller_nice": 19,
+  "interactive_reads_complete": "UNKNOWN",
+  "controller_external_measurement": {
+    "elapsed_seconds": 0.06,
+    "peak_rss_kib": 17268,
+    "exit_code": 0,
+    "receipt": "results/m004_simplified_start_20261014/staged_lnq_rev17_static_review_20261015.time.txt"
+  },
+  "final_research_record": {
+    "path": "source/fixed_graph_support_20261014/staged_producer_interfaces_20261015.json",
+    "sha256": "2557d5545848ac77762c9442ae9a8a11d26c6d41bdbf154580ebf01ec40d767b",
+    "note": "Final delivery includes ROW/export/release and fault-discard clarifications; initial reviewed record retained separately."
+  },
+  "contract": {
+    "path": "results/m004_simplified_start_20261014/staged_lnq_frontend_rev17_decision.md",
+    "sha256": "b727a180bbabc0ece899e0fdc48a8b795c2f82458dc450508254503162d28498"
+  },
+  "dispatch_receipts": [
+    {
+      "path": ".research-agent/communications/m004-rev16-closeout-rev17-lnq-implementation-dispatch-20261015.json",
+      "id": "m004-rev16-closeout-rev17-lnq-implementation-dispatch-20261015",
+      "to_role": "engineering",
+      "status": "delivered",
+      "recipient_turn_id": "01a13f71-6e6b-7900-bf27-02134294cd1a",
+      "delivered_at": "2026-10-15T12:02:40.886839+00:00",
+      "payload_sha256": "07e1a506a77932d6085bb2b95687d42137395885efe65593ac7f27a2c5464707"
+    },
+    {
+      "path": ".research-agent/communications/m004-rev17-lnq-row-release-discard-clarification-20261015.json",
+      "id": "m004-rev17-lnq-row-release-discard-clarification-20261015",
+      "to_role": "engineering",
+      "status": "delivered",
+      "recipient_turn_id": "01a13f71-6e6b-7900-bf27-02134294cd1a",
+      "delivered_at": "2026-10-15T12:05:41.387194+00:00",
+      "payload_sha256": "8f19643fff949ee68f72565bec50d9f7d9e3bb4f9cbc6fa772ddb324aa80d964"
+    },
+    {
+      "path": ".research-agent/communications/m004-staged-producer-rev17-partial-adoption-20261015.json",
+      "id": "m004-staged-producer-rev17-partial-adoption-20261015",
+      "to_role": "research",
+      "status": "delivered",
+      "recipient_turn_id": "01a13f75-dc9b-7360-8fb7-7e51515e5f7b",
+      "delivered_at": "2026-10-15T12:07:31.240590+00:00",
+      "payload_sha256": "1d19410267f15cb17dde8801ab03a39f60380bcc3805323c3b38535bcc85d468"
+    }
+  ]
+}

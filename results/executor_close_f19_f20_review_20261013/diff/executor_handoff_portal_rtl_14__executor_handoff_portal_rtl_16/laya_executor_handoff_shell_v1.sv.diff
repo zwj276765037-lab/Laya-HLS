@@ -1,0 +1,125 @@
+--- executor_handoff_portal_rtl_14/laya_executor_handoff_shell_v1.sv
++++ executor_handoff_portal_rtl_16/laya_executor_handoff_shell_v1.sv
+@@ -37,6 +37,10 @@
+   // control endpoint never derives them from FIFO empty or current inputs.
+   input logic terminal_seal_valid,
+   input logic [8191:0] terminal_seal_record,
++  // ready/accepted certify the full terminal record, including the commit
++  // actually observed at this edge. Control/response arbitration cannot
++  // suppress this independent fact or its combinational new-start fence.
++  output logic terminal_seal_ready,terminal_seal_accepted,
+   input logic request_work_done_valid,
+   input logic [8191:0] request_work_done_record,
+   input logic host_result_consumed_valid,
+@@ -64,6 +68,9 @@
+   logic [8191:0] terminal_record;
+   logic closed_pop;
+   logic terminal_seal_fire;
++  logic control_key_ok,import_commit_fire,abort_accept_fire,observed_committed;
++  logic terminal_available;
++  logic [8191:0] effective_terminal;
+ 
+   // Remove only fields that the control header owns. Full B/S/H and request
+   // ownership remain in this exact 8192-bit key, without a short hash.
+@@ -74,13 +81,13 @@
+       v[COMMITTED_OFFSET*8+:8]=0;key=v;
+     end
+   endfunction
+-  function automatic logic terminal_ok(input logic [8191:0] p);
++  function automatic logic terminal_ok(input logic [8191:0] p,input logic committed);
+     begin
+       terminal_ok=control_header_ok(p) && p[KIND_OFFSET*8+:8]==CLOSE &&
+         p[HANDOFF_OFFSET*8+:64]!=0 && p[STATUS_OFFSET*8+:16]<=8 &&
+         (p[STATUS_OFFSET*8+:16]!=0 || (p[24*8+:32]==0 &&
+           p[32*8+:64]==64'hffffffffffffffff)) &&
+-        key(p)==key(pending_key) && p[COMMITTED_OFFSET*8+:8]=={7'b0,local_committed};
++        key(p)==key(pending_key) && p[COMMITTED_OFFSET*8+:8]=={7'b0,committed};
+     end
+   endfunction
+   function automatic logic control_header_ok(input logic [8191:0] p);
+@@ -126,9 +133,25 @@
+   // the old response consumer progressing while ABORT remains asserted.
+   assign control_ready=!response_valid && state!=QUERY && !query_ingress_owned && !query_ingress_started && !query_accepted && !query_response_pop;
+   assign control_fire=control_valid && control_ready;
+-  assign terminal_seal_fire=MANAGED_REQUEST_CLOSE && terminal_seal_valid &&
+-      !control_fire && !terminal_sealed && state!=IDLE && state!=WAIT_ADMISSION &&
+-      terminal_ok(terminal_seal_record);
++  assign control_key_ok=control_header_ok(control) && key(control)==key(pending_key);
++  // These exact predicates are shared with the actual control consumer.
++  // A terminal's self-reported commit never changes local_committed.
++  assign import_commit_fire=control_fire && control_key_ok && state==IMPORT_PENDING &&
++      control[KIND_OFFSET*8+:8]==IMPORT_OK && control[STATUS_OFFSET*8+:16]==0 &&
++      control[24*8+:32]==0 && control[32*8+:64]==64'hffffffffffffffff &&
++      control[COMMITTED_OFFSET*8+:8]==1;
++  assign abort_accept_fire=control_fire && control_key_ok && control[KIND_OFFSET*8+:8]==ABORT &&
++      control[STATUS_OFFSET*8+:16]!=0 && control[STATUS_OFFSET*8+:16]<=8 &&
++      (state==DRAIN || state==HELD_READY || state==IMPORT_PENDING || state==ACTIVE) &&
++      (!local_committed || control[COMMITTED_OFFSET*8+:8]==1);
++  assign observed_committed=local_committed || import_commit_fire ||
++      (abort_accept_fire && control[COMMITTED_OFFSET*8+:8]==1);
++  assign terminal_seal_ready=MANAGED_REQUEST_CLOSE && !terminal_sealed &&
++      state!=IDLE && state!=WAIT_ADMISSION && terminal_ok(terminal_seal_record,observed_committed);
++  assign terminal_seal_fire=terminal_seal_valid && terminal_seal_ready;
++  assign terminal_seal_accepted=terminal_seal_fire;
++  assign terminal_available=terminal_sealed || terminal_seal_fire;
++  assign effective_terminal=terminal_sealed?terminal_record:terminal_seal_record;
+   assign predecessor_done_ready=state==DRAIN && !predecessor_done;
+   assign stop_predecessor=state!=IDLE;
+   assign query_permit=state==HELD_READY && !query_ingress_owned && !revoked && !cancel && immutable_live && protection_valid &&
+@@ -167,11 +190,11 @@
+             control_rejections<=control_rejections+1'b1;
+         end
+         if(request_work_done_valid)begin
+-          if(terminal_sealed && request_work_done_record==terminal_record)request_work_done<=1;
++          if(terminal_available && request_work_done_record==effective_terminal)request_work_done<=1;
+           else control_rejections<=control_rejections+1'b1;
+         end
+         if(host_result_consumed_valid)begin
+-          if(terminal_sealed && host_result_consumed_record==terminal_record)host_result_consumed<=1;
++          if(terminal_available && host_result_consumed_record==effective_terminal)host_result_consumed<=1;
+           else control_rejections<=control_rejections+1'b1;
+         end
+         if(closed_consumer_valid && !closed_pop)control_rejections<=control_rejections+1'b1;
+@@ -184,11 +207,12 @@
+             // The response remains stable even if revoked while stalled.
+             // Its actual consumption is necessary, but cannot override revoke.
+             executor_owns_dispatch<=1;state<=ACTIVE;
+-            if(!revoked && !cancel && immutable_live && protection_valid)grants<=grants+1'b1;
++            if(!revoked && !cancel && immutable_live && protection_valid &&
++                !terminal_available)grants<=grants+1'b1;
+           end
+           ABORT_REPLY:begin
+             closed_aborts<=closed_aborts+1'b1;
+-            if(!revoked && !cancel && immutable_live)begin
++            if(!revoked && !cancel && immutable_live && !terminal_available)begin
+               locks_owned<=0;state<=IDLE;pending_key<=0;predecessor_done<=0;
+             end else state<=ISOLATED;
+           end
+@@ -258,14 +282,12 @@
+           terminal_sealed<=0;request_work_done<=0;host_result_consumed<=0;terminal_record<=0;
+         end else if(key(control)!=key(pending_key))control_rejections<=control_rejections+1'b1;
+         else if(MANAGED_REQUEST_CLOSE && control[KIND_OFFSET*8+:8]==CLOSE &&
+-            terminal_sealed && terminal_ok(control) && control==terminal_record &&
++            terminal_available && terminal_ok(control,observed_committed) && control==effective_terminal &&
+             (state==DRAIN || state==HELD_READY || state==IMPORT_PENDING ||
+              state==ACTIVE || state==ISOLATED))begin
+           state<=CLOSE_WAIT;revoked<=1;
+         end
+-        else if(state==IMPORT_PENDING && control[8*8+:8]==IMPORT_OK &&
+-            control[10*8+:16]==0 && control[24*8+:32]==0 &&
+-            control[32*8+:64]==64'hffffffffffffffff && control[792*8+:8]==1)begin
++        else if(import_commit_fire)begin
+           // Commit is a retained fact even when the same edge revokes grant.
+           local_committed<=1;
+           if(proof_success && !revoked && !cancel && immutable_live &&
+@@ -273,9 +295,7 @@
+               (!MANAGED_REQUEST_CLOSE || (!terminal_sealed && !terminal_seal_fire)))begin
+             response<=reply(pending_key,GRANTED,0,1);response_valid<=1;state<=GRANT_REPLY;
+           end else revoked<=1;
+-        end else if(control[8*8+:8]==ABORT && control[10*8+:16]!=0 &&
+-            control[10*8+:16]<=8 && (state==DRAIN || state==HELD_READY || state==IMPORT_PENDING ||
+-                                    state==ACTIVE) && (!local_committed || control[792*8+:8]==1))begin
++        end else if(abort_accept_fire)begin
+           abort_message<=control;
+           if(local_committed || control[792*8+:8]==1 || executor_owns_dispatch)begin
+             local_committed<=local_committed || control[792*8+:8]==1;

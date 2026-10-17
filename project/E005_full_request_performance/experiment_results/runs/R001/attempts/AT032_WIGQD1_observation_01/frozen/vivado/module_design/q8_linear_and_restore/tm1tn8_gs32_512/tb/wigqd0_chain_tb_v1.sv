@@ -1,0 +1,1758 @@
+// KB0 observation-only derivative of resident_regression_02 frozen TB.
+// DUT/model/gold/stimulus are unchanged except real done response consumption.
+`timescale 1ns/1ps
+// Four-row same-runtime real GATE AXI -> quant -> shared dualA -> KB1 Down.
+module wigqd0_chain_tb_v1;
+  logic clk;
+  logic rst_n;
+  logic cfg_valid;
+  logic cfg_ready;
+  logic cfg_reject;
+  logic cfg_owner_admitted;
+  logic cfg_target_invalidated;
+  logic [15:0] cfg_K;
+  logic [15:0] cfg_N;
+  logic [2:0] cfg_rows;
+  logic [3:0] cfg_row_block_base;
+  logic [671:0] cfg_numeric_identity;
+  logic [95:0] cfg_linear_context;
+  logic [63:0] cfg_source_ref;
+  logic [63:0] cfg_a_ref;
+  logic [63:0] cfg_w_ref;
+  logic [63:0] cfg_ps_ref;
+  logic [63:0] cfg_dst_ref;
+  logic [3327:0] cfg_w_model_identity;
+  logic cfg_a_slot;
+  logic cfg_w_slot;
+  logic cfg_bias_kind;
+  logic [31:0] cfg_a_epoch;
+  logic [31:0] cfg_w_epoch;
+  logic [15:0] cfg_weight_key;
+  logic [1:0][63:0] cfg_bo_base;
+  logic [1:0][63:0] cfg_bo_span;
+  logic [1:0][63:0] cfg_region_base;
+  logic [1:0][63:0] cfg_region_span;
+  logic [63:0] cfg_row_stride_bytes;
+  logic [63:0] cfg_batch_stride_bytes;
+  logic owner_invalidate_valid;
+  logic owner_retire_valid;
+  logic owner_retire_success;
+  logic owner_retire_ready;
+  logic owner_retire_error;
+  logic [3:0] owner_retire_row_block_base;
+  logic [2:0] owner_retire_rows;
+  logic done_valid;
+  logic done_ready;
+  logic [15:0] done_status;
+  logic [63:0] done_first_error_rank;
+  logic [63:0] done_bad_element;
+  logic [63:0] command_cycles;
+  logic [31:0] actual_a_reads;
+  logic [31:0] actual_a_returns;
+  logic [31:0] actual_w_reads;
+  logic [31:0] actual_w_returns;
+  logic [31:0] actual_stripes;
+  logic [31:0] actual_ps_commits;
+  logic [31:0] actual_final_copies;
+  logic [1:0][31:0] actual_aw_count;
+  logic [1:0][31:0] actual_w_count;
+  logic [1:0][31:0] actual_b_count;
+  logic [1:0][63:0] m_axi_awaddr;
+  logic [1:0][7:0] m_axi_awlen;
+  logic [1:0][2:0] m_axi_awsize;
+  logic [1:0][1:0] m_axi_awburst;
+  logic [1:0] m_axi_awvalid;
+  logic [1:0] m_axi_awready;
+  logic [1:0][511:0] m_axi_wdata;
+  logic [1:0][63:0] m_axi_wstrb;
+  logic [1:0] m_axi_wlast;
+  logic [1:0] m_axi_wvalid;
+  logic [1:0] m_axi_wready;
+  logic [1:0][1:0] m_axi_bresp;
+  logic [1:0] m_axi_bvalid;
+  logic [1:0] m_axi_bready;
+  logic a_acquire_valid;
+  logic a_acquire_ready;
+  logic a_acquire_done;
+  logic a_acquire_error;
+  logic a_acquire_slot;
+  logic [31:0] a_acquire_slot_epoch;
+  logic [12:0] a_acquire_K;
+  logic [4:0] a_acquire_rows;
+  logic [671:0] a_acquire_numeric_identity;
+  logic [95:0] a_acquire_linear_context;
+  logic [63:0] a_acquire_a_ref;
+  logic [63:0] a_acquire_w_ref;
+  logic [63:0] a_acquire_dst_ref;
+  logic a_read_valid;
+  logic a_read_ready;
+  logic a_read_error;
+  logic a_read_slot;
+  logic [31:0] a_read_slot_epoch;
+  logic [671:0] a_read_numeric_identity;
+  logic [95:0] a_read_linear_context;
+  logic [63:0] a_read_a_ref;
+  logic [3:0] a_read_row_block_base;
+  logic [2:0] a_read_rows;
+  logic [6:0] a_read_group;
+  logic a_ret_valid;
+  logic a_ret_ready;
+  logic a_ret_slot;
+  logic [31:0] a_ret_slot_epoch;
+  logic [671:0] a_ret_numeric_identity;
+  logic [95:0] a_ret_linear_context;
+  logic [63:0] a_ret_a_ref;
+  logic [3:0] a_ret_row_block_base;
+  logic [2:0] a_ret_rows;
+  logic [6:0] a_ret_group;
+  logic [3:0][255:0] a_ret_q;
+  logic [3:0][15:0] a_ret_scale;
+  logic a_release_valid;
+  logic a_release_ready;
+  logic a_release_done;
+  logic a_release_error;
+  logic a_release_slot;
+  logic [31:0] a_release_slot_epoch;
+  logic [671:0] a_release_numeric_identity;
+  logic [95:0] a_release_linear_context;
+  logic [63:0] a_release_a_ref;
+  logic a_read_debt_zero;
+  logic w_lease_valid;
+  logic w_lease_ready;
+  logic w_lease_done;
+  logic w_lease_error;
+  logic w_lease_slot;
+  logic [31:0] w_lease_epoch;
+  logic [31:0] w_lease_k;
+  logic [31:0] w_lease_n;
+  logic [15:0] w_lease_weight_key;
+  logic [3327:0] w_lease_model_identity;
+  logic [671:0] w_lease_numeric_identity;
+  logic [95:0] w_lease_task_context;
+  logic w_read_valid;
+  logic w_read_ready;
+  logic w_read_error;
+  logic w_read_slot;
+  logic [31:0] w_read_epoch;
+  logic [15:0] w_read_tile;
+  logic [7:0] w_read_group;
+  logic w_read_pair;
+  logic [3327:0] w_read_model_identity;
+  logic [671:0] w_read_numeric_identity;
+  logic [95:0] w_read_task_context;
+  logic w_ret_valid;
+  logic w_ret_ready;
+  logic w_ret_slot;
+  logic w_ret_pair;
+  logic [31:0] w_ret_epoch;
+  logic [15:0] w_ret_tile;
+  logic [7:0] w_ret_group;
+  logic [3327:0] w_ret_model_identity;
+  logic [671:0] w_ret_numeric_identity;
+  logic [95:0] w_ret_task_context;
+  logic [1:0][7:0][255:0] w_ret_q;
+  logic [1:0][7:0][15:0] w_ret_scale;
+  logic [1:0][7:0][31:0] w_ret_bias;
+  logic [1:0][7:0] w_ret_mask;
+  logic w_release_valid;
+  logic w_release_ready;
+  logic w_release_done;
+  logic w_release_error;
+  logic w_release_slot;
+  logic [31:0] w_release_epoch;
+  logic [671:0] w_release_numeric_identity;
+  logic [95:0] w_release_task_context;
+  logic fa_fill_valid;
+  logic fa_fill_ready;
+  logic fa_fill_reject;
+  logic fa_fill_owner_admitted;
+  logic fa_fill_source_published;
+  logic fa_fill_slot;
+  logic [31:0] fa_fill_slot_epoch;
+  logic [12:0] fa_fill_K;
+  logic [4:0] fa_fill_rows;
+  logic [671:0] fa_fill_numeric_identity;
+  logic [95:0] fa_fill_producer_context;
+  logic [95:0] fa_fill_quant_context;
+  logic [95:0] fa_fill_linear_context;
+  logic [63:0] fa_fill_source_ref;
+  logic [63:0] fa_fill_a_ref;
+  logic [63:0] fa_fill_w_ref;
+  logic [63:0] fa_fill_dst_ref;
+  logic fa_commit_valid;
+  logic fa_commit_ready;
+  logic fa_commit_error;
+  logic [671:0] fa_commit_numeric_identity;
+  logic [95:0] fa_commit_quant_context;
+  logic [63:0] fa_commit_a_ref;
+  logic [3:0] fa_commit_row;
+  logic [6:0] fa_commit_group;
+  logic fa_commit_half;
+  logic [127:0] fa_commit_q;
+  logic [15:0] fa_commit_scale;
+  logic fa_row_done_valid;
+  logic fa_row_done_ready;
+  logic [3:0] fa_row_done_row;
+  logic [1:0] fa_row_done_status;
+  logic [15:0] fa_row_done_bad_col;
+  logic fa_row_done_debt_zero;
+  logic fa_finish_valid;
+  logic fa_finish_ready;
+  logic fa_fill_done;
+  logic fa_fill_error;
+  logic fa_publish_valid;
+  logic fa_finish_debt_zero;
+  logic [63:0] fa_fill_bad_element;
+  logic [1:0][2:0] fa_slot_state;
+  logic [1:0][31:0] fa_slot_epoch;
+  logic [1:0][15:0] fa_slot_rows_done;
+  logic [31:0] fa_physical_half_commits;
+  logic [31:0] fa_physical_scale_commits;
+  logic fa_fill_valid;
+  logic fa_fill_ready;
+  logic fa_fill_reject;
+  logic fa_fill_owner_admitted;
+  logic fa_fill_source_published;
+  logic fa_fill_slot;
+  logic [31:0] fa_fill_slot_epoch;
+  logic [12:0] fa_fill_K;
+  logic [4:0] fa_fill_rows;
+  logic [671:0] fa_fill_numeric_identity;
+  logic [95:0] fa_fill_producer_context;
+  logic [95:0] fa_fill_quant_context;
+  logic [95:0] fa_fill_linear_context;
+  logic [63:0] fa_fill_source_ref;
+  logic [63:0] fa_fill_a_ref;
+  logic [63:0] fa_fill_w_ref;
+  logic [63:0] fa_fill_dst_ref;
+  logic fa_commit_valid;
+  logic fa_commit_ready;
+  logic fa_commit_error;
+  logic [671:0] fa_commit_numeric_identity;
+  logic [95:0] fa_commit_quant_context;
+  logic [63:0] fa_commit_a_ref;
+  logic [3:0] fa_commit_row;
+  logic [6:0] fa_commit_group;
+  logic fa_commit_half;
+  logic [127:0] fa_commit_q;
+  logic [15:0] fa_commit_scale;
+  logic fa_row_done_valid;
+  logic fa_row_done_ready;
+  logic [3:0] fa_row_done_row;
+  logic [1:0] fa_row_done_status;
+  logic [15:0] fa_row_done_bad_col;
+  logic fa_row_done_debt_zero;
+  logic fa_finish_valid;
+  logic fa_finish_ready;
+  logic fa_fill_done;
+  logic fa_fill_error;
+  logic fa_publish_valid;
+  logic fa_finish_debt_zero;
+  logic [63:0] fa_fill_bad_element;
+  logic wc_load_valid;
+  logic wc_load_ready;
+  logic wc_load_slot;
+  logic [31:0] wc_load_epoch;
+  logic [31:0] wc_load_k;
+  logic [31:0] wc_load_n;
+  logic [15:0] wc_load_weight_key;
+  logic [3327:0] wc_load_model_identity;
+  logic [1023:0] wc_load_expected_aux_header;
+  logic [2:0][63:0] wc_load_base;
+  logic [2:0][31:0] wc_load_bytes;
+  logic [63:0] wc_load_aux_base;
+  logic [63:0] wc_load_bias_base;
+  logic [31:0] wc_load_bias_bytes;
+  logic wc_load_done;
+  logic wc_load_error;
+  logic wc_load_reject;
+  logic [31:0] wc_load_scale_checks;
+  logic [31:0] wc_load_bad_element;
+  logic [1:0][2:0] wc_slot_state;
+  logic [1:0][31:0] wc_slot_epoch;
+  logic [1:0][31:0] wc_slot_readers;
+  logic [1:0][3:0][31:0] wc_slot_coverage;
+  logic [3:0] wc_commit_ready;
+  logic [2:0][63:0] wc_araddr;
+  logic [2:0][7:0] wc_arlen;
+  logic [2:0][2:0] wc_arsize;
+  logic [2:0][1:0] wc_arburst;
+  logic [2:0] wc_arvalid;
+  logic [2:0] wc_arready;
+  logic [2:0][511:0] wc_rdata;
+  logic [2:0][1:0] wc_rresp;
+  logic [2:0] wc_rlast;
+  logic [2:0] wc_rvalid;
+  logic [2:0] wc_rready;
+  logic [63:0] wc_aux_araddr;
+  logic [7:0] wc_aux_arlen;
+  logic [2:0] wc_aux_arsize;
+  logic [1:0] wc_aux_arburst;
+  logic wc_aux_arvalid;
+  logic wc_aux_arready;
+  logic [127:0] wc_aux_rdata;
+  logic [1:0] wc_aux_rresp;
+  logic wc_aux_rlast;
+  logic wc_aux_rvalid;
+  logic wc_aux_rready;
+  logic ledger_claim_valid;
+  logic ledger_claim_ready;
+  logic ledger_claim_reject;
+  logic ledger_retire_debt_zero;
+  logic [2:0] ledger_ps_state;
+  logic [2:0] ledger_dst_state;
+  logic ledger_parent_complete;
+  logic ledger_parent_error;
+  logic [15:0] ledger_checked_rows;
+  logic [15:0] ledger_covered_rows;
+  logic [31:0] ledger_claims;
+  logic [31:0] ledger_view_retirements;
+  logic [31:0] ledger_parent_publications;
+  tm4tn8_matrix_resident_v2 dut (
+    .cancel(1'b0),
+    .clk(clk),
+    .rst_n(rst_n),
+    .cfg_valid(cfg_valid),
+    .cfg_ready(cfg_ready),
+    .cfg_reject(cfg_reject),
+    .cfg_owner_admitted(cfg_owner_admitted),
+    .cfg_target_invalidated(cfg_target_invalidated),
+    .cfg_K(cfg_K),
+    .cfg_N(cfg_N),
+    .cfg_rows(cfg_rows),
+    .cfg_row_block_base(cfg_row_block_base),
+    .cfg_numeric_identity(cfg_numeric_identity),
+    .cfg_linear_context(cfg_linear_context),
+    .cfg_source_ref(cfg_source_ref),
+    .cfg_a_ref(cfg_a_ref),
+    .cfg_w_ref(cfg_w_ref),
+    .cfg_ps_ref(cfg_ps_ref),
+    .cfg_dst_ref(cfg_dst_ref),
+    .cfg_w_model_identity(cfg_w_model_identity),
+    .cfg_a_slot(cfg_a_slot),
+    .cfg_w_slot(cfg_w_slot),
+    .cfg_bias_kind(cfg_bias_kind),
+    .cfg_a_epoch(cfg_a_epoch),
+    .cfg_w_epoch(cfg_w_epoch),
+    .cfg_weight_key(cfg_weight_key),
+    .cfg_bo_base(cfg_bo_base),
+    .cfg_bo_span(cfg_bo_span),
+    .cfg_region_base(cfg_region_base),
+    .cfg_region_span(cfg_region_span),
+    .cfg_row_stride_bytes(cfg_row_stride_bytes),
+    .cfg_batch_stride_bytes(cfg_batch_stride_bytes),
+    .owner_invalidate_valid(owner_invalidate_valid),
+    .owner_retire_valid(owner_retire_valid),
+    .owner_retire_success(owner_retire_success),
+    .owner_retire_ready(owner_retire_ready),
+    .owner_retire_error(owner_retire_error),
+    .owner_retire_row_block_base(owner_retire_row_block_base),
+    .owner_retire_rows(owner_retire_rows),
+    .done_valid(done_valid),
+    .done_ready(done_ready),
+    .done_status(done_status),
+    .done_first_error_rank(done_first_error_rank),
+    .done_bad_element(done_bad_element),
+    .command_cycles(command_cycles),
+    .actual_a_reads(actual_a_reads),
+    .actual_a_returns(actual_a_returns),
+    .actual_w_reads(actual_w_reads),
+    .actual_w_returns(actual_w_returns),
+    .actual_stripes(actual_stripes),
+    .actual_ps_commits(actual_ps_commits),
+    .actual_final_copies(actual_final_copies),
+    .actual_aw_count(actual_aw_count),
+    .actual_w_count(actual_w_count),
+    .actual_b_count(actual_b_count),
+    .m_axi_awaddr(m_axi_awaddr),
+    .m_axi_awlen(m_axi_awlen),
+    .m_axi_awsize(m_axi_awsize),
+    .m_axi_awburst(m_axi_awburst),
+    .m_axi_awvalid(m_axi_awvalid),
+    .m_axi_awready(m_axi_awready),
+    .m_axi_wdata(m_axi_wdata),
+    .m_axi_wstrb(m_axi_wstrb),
+    .m_axi_wlast(m_axi_wlast),
+    .m_axi_wvalid(m_axi_wvalid),
+    .m_axi_wready(m_axi_wready),
+    .m_axi_bresp(m_axi_bresp),
+    .m_axi_bvalid(m_axi_bvalid),
+    .m_axi_bready(m_axi_bready),
+    .a_acquire_valid(a_acquire_valid),
+    .a_acquire_ready(a_acquire_ready),
+    .a_acquire_done(a_acquire_done),
+    .a_acquire_error(a_acquire_error),
+    .a_acquire_slot(a_acquire_slot),
+    .a_acquire_slot_epoch(a_acquire_slot_epoch),
+    .a_acquire_K(a_acquire_K),
+    .a_acquire_rows(a_acquire_rows),
+    .a_acquire_numeric_identity(a_acquire_numeric_identity),
+    .a_acquire_linear_context(a_acquire_linear_context),
+    .a_acquire_a_ref(a_acquire_a_ref),
+    .a_acquire_w_ref(a_acquire_w_ref),
+    .a_acquire_dst_ref(a_acquire_dst_ref),
+    .a_read_valid(a_read_valid),
+    .a_read_ready(a_read_ready),
+    .a_read_error(a_read_error),
+    .a_read_slot(a_read_slot),
+    .a_read_slot_epoch(a_read_slot_epoch),
+    .a_read_numeric_identity(a_read_numeric_identity),
+    .a_read_linear_context(a_read_linear_context),
+    .a_read_a_ref(a_read_a_ref),
+    .a_read_row_block_base(a_read_row_block_base),
+    .a_read_rows(a_read_rows),
+    .a_read_group(a_read_group),
+    .a_ret_valid(a_ret_valid),
+    .a_ret_ready(a_ret_ready),
+    .a_ret_slot(a_ret_slot),
+    .a_ret_slot_epoch(a_ret_slot_epoch),
+    .a_ret_numeric_identity(a_ret_numeric_identity),
+    .a_ret_linear_context(a_ret_linear_context),
+    .a_ret_a_ref(a_ret_a_ref),
+    .a_ret_row_block_base(a_ret_row_block_base),
+    .a_ret_rows(a_ret_rows),
+    .a_ret_group(a_ret_group),
+    .a_ret_q(a_ret_q),
+    .a_ret_scale(a_ret_scale),
+    .a_release_valid(a_release_valid),
+    .a_release_ready(a_release_ready),
+    .a_release_done(a_release_done),
+    .a_release_error(a_release_error),
+    .a_release_slot(a_release_slot),
+    .a_release_slot_epoch(a_release_slot_epoch),
+    .a_release_numeric_identity(a_release_numeric_identity),
+    .a_release_linear_context(a_release_linear_context),
+    .a_release_a_ref(a_release_a_ref),
+    .a_read_debt_zero(a_read_debt_zero),
+    .w_lease_valid(w_lease_valid),
+    .w_lease_ready(w_lease_ready),
+    .w_lease_done(w_lease_done),
+    .w_lease_error(w_lease_error),
+    .w_lease_slot(w_lease_slot),
+    .w_lease_epoch(w_lease_epoch),
+    .w_lease_k(w_lease_k),
+    .w_lease_n(w_lease_n),
+    .w_lease_weight_key(w_lease_weight_key),
+    .w_lease_model_identity(w_lease_model_identity),
+    .w_lease_numeric_identity(w_lease_numeric_identity),
+    .w_lease_task_context(w_lease_task_context),
+    .w_read_valid(w_read_valid),
+    .w_read_ready(w_read_ready),
+    .w_read_error(w_read_error),
+    .w_read_slot(w_read_slot),
+    .w_read_epoch(w_read_epoch),
+    .w_read_tile(w_read_tile),
+    .w_read_group(w_read_group),
+    .w_read_pair(w_read_pair),
+    .w_read_model_identity(w_read_model_identity),
+    .w_read_numeric_identity(w_read_numeric_identity),
+    .w_read_task_context(w_read_task_context),
+    .w_ret_valid(w_ret_valid),
+    .w_ret_ready(w_ret_ready),
+    .w_ret_slot(w_ret_slot),
+    .w_ret_pair(w_ret_pair),
+    .w_ret_epoch(w_ret_epoch),
+    .w_ret_tile(w_ret_tile),
+    .w_ret_group(w_ret_group),
+    .w_ret_model_identity(w_ret_model_identity),
+    .w_ret_numeric_identity(w_ret_numeric_identity),
+    .w_ret_task_context(w_ret_task_context),
+    .w_ret_q(w_ret_q),
+    .w_ret_scale(w_ret_scale),
+    .w_ret_bias(w_ret_bias),
+    .w_ret_mask(w_ret_mask),
+    .w_release_valid(w_release_valid),
+    .w_release_ready(w_release_ready),
+    .w_release_done(w_release_done),
+    .w_release_error(w_release_error),
+    .w_release_slot(w_release_slot),
+    .w_release_epoch(w_release_epoch),
+    .w_release_numeric_identity(w_release_numeric_identity),
+    .w_release_task_context(w_release_task_context)
+  );
+  logic  g_cfg_valid;
+  logic  g_cfg_ready;
+  logic  g_cfg_reject;
+  logic  g_cfg_owner_admitted;
+  logic [671:0] g_cfg_numeric_identity;
+  logic [95:0] g_cfg_producer_context;
+  logic [95:0] g_cfg_quant_context;
+  logic [95:0] g_cfg_linear_context;
+  logic [63:0] g_cfg_wi_ref;
+  logic [63:0] g_cfg_gate_ref;
+  logic [63:0] g_cfg_a_ref;
+  logic [63:0] g_cfg_w_ref;
+  logic [63:0] g_cfg_down_dst_ref;
+  logic [4:0] g_cfg_rows;
+  logic  g_cfg_a_slot;
+  logic [31:0] g_cfg_a_slot_epoch;
+  logic [63:0] g_cfg_bo_base;
+  logic [63:0] g_cfg_bo_span;
+  logic [63:0] g_cfg_region_base;
+  logic [63:0] g_cfg_region_span;
+  logic  g_wi_valid;
+  logic  g_wi_ready;
+  logic [31:0] g_wi_data;
+  logic [31:0] g_wi_status;
+  logic [671:0] g_wi_numeric_identity;
+  logic [63:0] g_wi_source_ref;
+  logic [15:0] g_wi_row;
+  logic [12:0] g_wi_index;
+  logic  g_wi_row_done_valid;
+  logic  g_wi_row_done_ready;
+  logic [31:0] g_wi_row_done_status;
+  logic [63:0] g_wi_row_bad_element;
+  logic  g_wi_read_debt_zero;
+  logic  g_done_valid;
+  logic  g_done_ready;
+  logic [31:0] g_done_status;
+  logic [63:0] g_done_bad_element;
+  logic [2:0] g_gate_owner_state;
+  logic [31:0] g_aw_count;
+  logic [31:0] g_w_count;
+  logic [31:0] g_b_count;
+  logic [31:0] g_accepted_words;
+  logic [63:0] g_useful_bytes;
+  logic [63:0] g_physical_bytes;
+  logic [31:0] g_source_ar_count;
+  logic [31:0] g_source_r_count;
+  logic [31:0] g_source_complete_rows;
+  logic [31:0] g_quant_starts;
+  logic [31:0] g_quant_input_beats;
+  logic [31:0] g_quant_rows;
+  logic [31:0] g_scale_issues;
+  logic [31:0] g_scale_returns;
+  logic [31:0] g_recip_issues;
+  logic [31:0] g_recip_returns;
+  logic [31:0] g_mul_halves_issued;
+  logic [31:0] g_mul_halves_returned;
+  logic [63:0] g_quant_command_cycles;
+  logic [63:0] g_m_axi_awaddr;
+  logic [7:0] g_m_axi_awlen;
+  logic [2:0] g_m_axi_awsize;
+  logic [1:0] g_m_axi_awburst;
+  logic  g_m_axi_awvalid;
+  logic  g_m_axi_awready;
+  logic [511:0] g_m_axi_wdata;
+  logic [63:0] g_m_axi_wstrb;
+  logic  g_m_axi_wlast;
+  logic  g_m_axi_wvalid;
+  logic  g_m_axi_wready;
+  logic [1:0] g_m_axi_bresp;
+  logic  g_m_axi_bvalid;
+  logic  g_m_axi_bready;
+  logic [63:0] g_m_axi_araddr;
+  logic [7:0] g_m_axi_arlen;
+  logic [2:0] g_m_axi_arsize;
+  logic [1:0] g_m_axi_arburst;
+  logic  g_m_axi_arvalid;
+  logic  g_m_axi_arready;
+  logic [511:0] g_m_axi_rdata;
+  logic [1:0] g_m_axi_rresp;
+  logic  g_m_axi_rlast;
+  logic  g_m_axi_rvalid;
+  logic  g_m_axi_rready;
+  localparam logic [63:0] DDR_BASE=64'h100000000;
+  localparam int DDR_BYTES=327680;
+  logic [7:0] ddr[0:DDR_BYTES-1];
+  bit ddr_written[0:DDR_BYTES-1];
+  logic [63:0] wi_region_base=DDR_BASE+4096;
+  integer stage=0; // 0: Wi resident, 1: G/quant/Down
+  logic prefill_select=1'b1,wi_cfg_valid,wi_cfg_ready,wi_cfg_reject,wi_reader_active;
+  logic [31:0] wi_ar_count,wi_r_count,wi_complete_rows;
+  logic [63:0] wi_araddr;
+  logic [7:0] wi_arlen;
+  logic [2:0] wi_arsize;
+  logic [1:0] wi_arburst;
+  logic wi_arvalid,wi_arready,wi_rvalid,wi_rready,wi_rlast;
+  logic [511:0] wi_rdata;
+  logic [1:0] wi_rresp;
+  laya_wi_axi_reader_v1 wi_reader(
+    .clk,.rst_n,.cancel(1'b0),.cfg_valid(wi_cfg_valid),.cfg_ready(wi_cfg_ready),
+    .cfg_reject(wi_cfg_reject),.cfg_numeric_identity(g_cfg_numeric_identity),
+    .cfg_producer_context(g_cfg_producer_context),.cfg_source_ref(g_cfg_wi_ref),
+    .cfg_bo_base(cfg_bo_base[0]),.cfg_bo_span(cfg_bo_span[0]),
+    .cfg_region_base(wi_region_base),.cfg_region_span(64'h1000000),
+    .cfg_row_stride_bytes(64'd20992),.cfg_batch_stride_bytes(64'd21495808),
+    .wi_valid(g_wi_valid),.wi_ready(g_wi_ready),.wi_data(g_wi_data),
+    .wi_status(g_wi_status),.wi_numeric_identity(g_wi_numeric_identity),
+    .wi_source_ref(g_wi_source_ref),.wi_row(g_wi_row),.wi_index(g_wi_index),
+    .wi_row_done_valid(g_wi_row_done_valid),.wi_row_done_ready(g_wi_row_done_ready),
+    .wi_row_done_status(g_wi_row_done_status),.wi_row_bad_element(g_wi_row_bad_element),
+    .read_debt_zero(g_wi_read_debt_zero),.active(wi_reader_active),
+    .ar_count(wi_ar_count),.r_count(wi_r_count),.complete_rows(wi_complete_rows),
+    .m_axi_araddr(wi_araddr),.m_axi_arlen(wi_arlen),.m_axi_arsize(wi_arsize),
+    .m_axi_arburst(wi_arburst),.m_axi_arvalid(wi_arvalid),.m_axi_arready(wi_arready),
+    .m_axi_rdata(wi_rdata),.m_axi_rresp(wi_rresp),.m_axi_rlast(wi_rlast),
+    .m_axi_rvalid(wi_rvalid),.m_axi_rready(wi_rready));
+  geglu_gate_quant_bridge_v1 #(.WI_PREFILL(1'b1)) producer (
+    .clk(clk),
+    .rst_n(rst_n),
+    .prefill_select(prefill_select),
+    .prefill_fill_valid(fa_fill_valid),
+    .prefill_fill_ready(fa_fill_ready),
+    .prefill_fill_reject(fa_fill_reject),
+    .prefill_owner_admitted(fa_fill_owner_admitted),
+    .prefill_source_published(fa_fill_source_published),
+    .prefill_slot(fa_fill_slot),
+    .prefill_slot_epoch(fa_fill_slot_epoch),
+    .prefill_K(fa_fill_K),
+    .prefill_rows(fa_fill_rows),
+    .prefill_numeric_identity(fa_fill_numeric_identity),
+    .prefill_producer_context(fa_fill_producer_context),
+    .prefill_quant_context(fa_fill_quant_context),
+    .prefill_linear_context(fa_fill_linear_context),
+    .prefill_source_ref(fa_fill_source_ref),
+    .prefill_a_ref(fa_fill_a_ref),
+    .prefill_w_ref(fa_fill_w_ref),
+    .prefill_dst_ref(fa_fill_dst_ref),
+    .prefill_commit_valid(fa_commit_valid),
+    .prefill_commit_ready(fa_commit_ready),
+    .prefill_commit_error(fa_commit_error),
+    .prefill_commit_numeric_identity(fa_commit_numeric_identity),
+    .prefill_commit_quant_context(fa_commit_quant_context),
+    .prefill_commit_a_ref(fa_commit_a_ref),
+    .prefill_commit_row(fa_commit_row),
+    .prefill_commit_group(fa_commit_group),
+    .prefill_commit_half(fa_commit_half),
+    .prefill_commit_q(fa_commit_q),
+    .prefill_commit_scale(fa_commit_scale),
+    .prefill_row_done_valid(fa_row_done_valid),
+    .prefill_row_done_ready(fa_row_done_ready),
+    .prefill_row_done_row(fa_row_done_row),
+    .prefill_row_done_status(fa_row_done_status),
+    .prefill_row_done_bad_col(fa_row_done_bad_col),
+    .prefill_row_done_debt_zero(fa_row_done_debt_zero),
+    .prefill_finish_valid(fa_finish_valid),
+    .prefill_finish_debt_zero(fa_finish_debt_zero),
+    .prefill_finish_ready(fa_finish_ready),
+    .prefill_fill_done(fa_fill_done),
+    .prefill_fill_error(fa_fill_error),
+    .prefill_publish_valid(fa_publish_valid),
+    .prefill_fill_bad_element(fa_fill_bad_element),
+    .cfg_valid(g_cfg_valid),
+    .cfg_ready(g_cfg_ready),
+    .cfg_reject(g_cfg_reject),
+    .cfg_owner_admitted(g_cfg_owner_admitted),
+    .cfg_numeric_identity(g_cfg_numeric_identity),
+    .cfg_producer_context(g_cfg_producer_context),
+    .cfg_quant_context(g_cfg_quant_context),
+    .cfg_linear_context(g_cfg_linear_context),
+    .cfg_wi_ref(g_cfg_wi_ref),
+    .cfg_gate_ref(g_cfg_gate_ref),
+    .cfg_a_ref(g_cfg_a_ref),
+    .cfg_w_ref(g_cfg_w_ref),
+    .cfg_down_dst_ref(g_cfg_down_dst_ref),
+    .cfg_rows(g_cfg_rows),
+    .cfg_a_slot(g_cfg_a_slot),
+    .cfg_a_slot_epoch(g_cfg_a_slot_epoch),
+    .cfg_bo_base(g_cfg_bo_base),
+    .cfg_bo_span(g_cfg_bo_span),
+    .cfg_region_base(g_cfg_region_base),
+    .cfg_region_span(g_cfg_region_span),
+    .wi_valid(g_wi_valid),
+    .wi_ready(g_wi_ready),
+    .wi_data(g_wi_data),
+    .wi_status(g_wi_status),
+    .wi_numeric_identity(g_wi_numeric_identity),
+    .wi_source_ref(g_wi_source_ref),
+    .wi_row(g_wi_row),
+    .wi_index(g_wi_index),
+    .wi_row_done_valid(g_wi_row_done_valid),
+    .wi_row_done_ready(g_wi_row_done_ready),
+    .wi_row_done_status(g_wi_row_done_status),
+    .wi_row_bad_element(g_wi_row_bad_element),
+    .wi_read_debt_zero(g_wi_read_debt_zero),
+    .done_valid(g_done_valid),
+    .done_ready(g_done_ready),
+    .done_status(g_done_status),
+    .done_bad_element(g_done_bad_element),
+    .gate_owner_state(g_gate_owner_state),
+    .slot_state(fa_slot_state),
+    .slot_epoch(fa_slot_epoch),
+    .slot_rows_done(fa_slot_rows_done),
+    .aw_count(g_aw_count),
+    .w_count(g_w_count),
+    .b_count(g_b_count),
+    .accepted_words(g_accepted_words),
+    .useful_bytes(g_useful_bytes),
+    .physical_bytes(g_physical_bytes),
+    .physical_half_commits(fa_physical_half_commits),
+    .physical_scale_commits(fa_physical_scale_commits),
+    .source_ar_count(g_source_ar_count),
+    .source_r_count(g_source_r_count),
+    .source_complete_rows(g_source_complete_rows),
+    .quant_starts(g_quant_starts),
+    .quant_input_beats(g_quant_input_beats),
+    .quant_rows(g_quant_rows),
+    .scale_issues(g_scale_issues),
+    .scale_returns(g_scale_returns),
+    .recip_issues(g_recip_issues),
+    .recip_returns(g_recip_returns),
+    .mul_halves_issued(g_mul_halves_issued),
+    .mul_halves_returned(g_mul_halves_returned),
+    .quant_command_cycles(g_quant_command_cycles),
+    .m_axi_awaddr(g_m_axi_awaddr),
+    .m_axi_awlen(g_m_axi_awlen),
+    .m_axi_awsize(g_m_axi_awsize),
+    .m_axi_awburst(g_m_axi_awburst),
+    .m_axi_awvalid(g_m_axi_awvalid),
+    .m_axi_awready(g_m_axi_awready),
+    .m_axi_wdata(g_m_axi_wdata),
+    .m_axi_wstrb(g_m_axi_wstrb),
+    .m_axi_wlast(g_m_axi_wlast),
+    .m_axi_wvalid(g_m_axi_wvalid),
+    .m_axi_wready(g_m_axi_wready),
+    .m_axi_bresp(g_m_axi_bresp),
+    .m_axi_bvalid(g_m_axi_bvalid),
+    .m_axi_bready(g_m_axi_bready),
+    .m_axi_araddr(g_m_axi_araddr),
+    .m_axi_arlen(g_m_axi_arlen),
+    .m_axi_arsize(g_m_axi_arsize),
+    .m_axi_arburst(g_m_axi_arburst),
+    .m_axi_arvalid(g_m_axi_arvalid),
+    .m_axi_arready(g_m_axi_arready),
+    .m_axi_rdata(g_m_axi_rdata),
+    .m_axi_rresp(g_m_axi_rresp),
+    .m_axi_rlast(g_m_axi_rlast),
+    .m_axi_rvalid(g_m_axi_rvalid),
+    .m_axi_rready(g_m_axi_rready),
+    .acquire_valid(a_acquire_valid),
+    .acquire_ready(a_acquire_ready),
+    .acquire_done(a_acquire_done),
+    .acquire_error(a_acquire_error),
+    .acquire_slot(a_acquire_slot),
+    .acquire_slot_epoch(a_acquire_slot_epoch),
+    .acquire_K(a_acquire_K),
+    .acquire_rows(a_acquire_rows),
+    .acquire_numeric_identity(a_acquire_numeric_identity),
+    .acquire_linear_context(a_acquire_linear_context),
+    .acquire_a_ref(a_acquire_a_ref),
+    .acquire_w_ref(a_acquire_w_ref),
+    .acquire_dst_ref(a_acquire_dst_ref),
+    .read_valid(a_read_valid),
+    .read_ready(a_read_ready),
+    .read_error(a_read_error),
+    .read_slot(a_read_slot),
+    .read_slot_epoch(a_read_slot_epoch),
+    .read_numeric_identity(a_read_numeric_identity),
+    .read_linear_context(a_read_linear_context),
+    .read_a_ref(a_read_a_ref),
+    .read_row_block_base(a_read_row_block_base),
+    .read_rows(a_read_rows),
+    .read_group(a_read_group),
+    .ret_valid(a_ret_valid),
+    .ret_ready(a_ret_ready),
+    .ret_slot(a_ret_slot),
+    .ret_slot_epoch(a_ret_slot_epoch),
+    .ret_numeric_identity(a_ret_numeric_identity),
+    .ret_linear_context(a_ret_linear_context),
+    .ret_a_ref(a_ret_a_ref),
+    .ret_row_block_base(a_ret_row_block_base),
+    .ret_rows(a_ret_rows),
+    .ret_group(a_ret_group),
+    .ret_q(a_ret_q),
+    .ret_scale(a_ret_scale),
+    .release_valid(a_release_valid),
+    .release_ready(a_release_ready),
+    .release_done(a_release_done),
+    .release_error(a_release_error),
+    .release_slot(a_release_slot),
+    .release_slot_epoch(a_release_slot_epoch),
+    .release_numeric_identity(a_release_numeric_identity),
+    .release_linear_context(a_release_linear_context),
+    .release_a_ref(a_release_a_ref),
+    .read_debt_zero(a_read_debt_zero)
+  );
+  t4_dual_w_cache_v1 wcache (
+    .clk(clk),
+    .rst_n(rst_n),
+    .load_cancel(1'b0),
+    .load_valid(wc_load_valid),
+    .load_ready(wc_load_ready),
+    .load_slot(wc_load_slot),
+    .load_epoch(wc_load_epoch),
+    .load_k(wc_load_k),
+    .load_n(wc_load_n),
+    .load_weight_key(wc_load_weight_key),
+    .load_model_identity(wc_load_model_identity),
+    .load_expected_aux_header(wc_load_expected_aux_header),
+    .load_base(wc_load_base),
+    .load_bytes(wc_load_bytes),
+    .load_aux_base(wc_load_aux_base),
+    .load_bias_base(wc_load_bias_base),
+    .load_bias_bytes(wc_load_bias_bytes),
+    .load_done(wc_load_done),
+    .load_error(wc_load_error),
+    .load_reject(wc_load_reject),
+    .load_scale_checks(wc_load_scale_checks),
+    .load_bad_element(wc_load_bad_element),
+    .slot_state(wc_slot_state),
+    .slot_epoch(wc_slot_epoch),
+    .slot_readers(wc_slot_readers),
+    .slot_coverage(wc_slot_coverage),
+    .commit_ready(wc_commit_ready),
+    .araddr(wc_araddr),
+    .arlen(wc_arlen),
+    .arsize(wc_arsize),
+    .arburst(wc_arburst),
+    .arvalid(wc_arvalid),
+    .arready(wc_arready),
+    .rdata(wc_rdata),
+    .rresp(wc_rresp),
+    .rlast(wc_rlast),
+    .rvalid(wc_rvalid),
+    .rready(wc_rready),
+    .aux_araddr(wc_aux_araddr),
+    .aux_arlen(wc_aux_arlen),
+    .aux_arsize(wc_aux_arsize),
+    .aux_arburst(wc_aux_arburst),
+    .aux_arvalid(wc_aux_arvalid),
+    .aux_arready(wc_aux_arready),
+    .aux_rdata(wc_aux_rdata),
+    .aux_rresp(wc_aux_rresp),
+    .aux_rlast(wc_aux_rlast),
+    .aux_rvalid(wc_aux_rvalid),
+    .aux_rready(wc_aux_rready),
+    .lease_valid(w_lease_valid),
+    .lease_ready(w_lease_ready),
+    .lease_done(w_lease_done),
+    .lease_error(w_lease_error),
+    .lease_slot(w_lease_slot),
+    .lease_epoch(w_lease_epoch),
+    .lease_k(w_lease_k),
+    .lease_n(w_lease_n),
+    .lease_weight_key(w_lease_weight_key),
+    .lease_model_identity(w_lease_model_identity),
+    .lease_numeric_identity(w_lease_numeric_identity),
+    .lease_task_context(w_lease_task_context),
+    .read_valid(w_read_valid),
+    .read_ready(w_read_ready),
+    .read_error(w_read_error),
+    .read_slot(w_read_slot),
+    .read_epoch(w_read_epoch),
+    .read_tile(w_read_tile),
+    .read_group(w_read_group),
+    .read_pair(w_read_pair),
+    .read_model_identity(w_read_model_identity),
+    .read_numeric_identity(w_read_numeric_identity),
+    .read_task_context(w_read_task_context),
+    .ret_valid(w_ret_valid),
+    .ret_ready(w_ret_ready),
+    .ret_slot(w_ret_slot),
+    .ret_pair(w_ret_pair),
+    .ret_epoch(w_ret_epoch),
+    .ret_tile(w_ret_tile),
+    .ret_group(w_ret_group),
+    .ret_model_identity(w_ret_model_identity),
+    .ret_numeric_identity(w_ret_numeric_identity),
+    .ret_task_context(w_ret_task_context),
+    .ret_q(w_ret_q),
+    .ret_scale(w_ret_scale),
+    .ret_bias(w_ret_bias),
+    .ret_mask(w_ret_mask),
+    .release_valid(w_release_valid),
+    .release_ready(w_release_ready),
+    .release_done(w_release_done),
+    .release_error(w_release_error),
+    .release_slot(w_release_slot),
+    .release_epoch(w_release_epoch),
+    .release_numeric_identity(w_release_numeric_identity),
+    .release_task_context(w_release_task_context)
+  );
+  tm4tn8_matrix_owner_ledger_v2 ledger (
+    .clk(clk),
+    .rst_n(rst_n),
+    .claim_valid(ledger_claim_valid),
+    .claim_ready(ledger_claim_ready),
+    .claim_admitted(cfg_owner_admitted),
+    .claim_reject(ledger_claim_reject),
+    .claim_K(cfg_K),
+    .claim_N(cfg_N),
+    .claim_rows(cfg_rows),
+    .claim_row_block_base(cfg_row_block_base),
+    .claim_numeric_identity(cfg_numeric_identity),
+    .claim_parent_context(cfg_linear_context),
+    .claim_source_ref(cfg_source_ref),
+    .claim_a_ref(cfg_a_ref),
+    .claim_w_ref(cfg_w_ref),
+    .claim_ps_ref(cfg_ps_ref),
+    .claim_dst_ref(cfg_dst_ref),
+    .claim_model_identity(cfg_w_model_identity),
+    .invalidate_valid(owner_invalidate_valid),
+    .retire_valid(owner_retire_valid),
+    .retire_ready(owner_retire_ready),
+    .retire_error(owner_retire_error),
+    .retire_success(owner_retire_success),
+    .retire_debt_zero(ledger_retire_debt_zero),
+    .retire_row_block_base(owner_retire_row_block_base),
+    .retire_rows(owner_retire_rows),
+    .ps_state(ledger_ps_state),
+    .dst_state(ledger_dst_state),
+    .target_invalidated(cfg_target_invalidated),
+    .parent_complete(ledger_parent_complete),
+    .parent_error(ledger_parent_error),
+    .checked_rows(ledger_checked_rows),
+    .covered_rows(ledger_covered_rows),
+    .claims(ledger_claims),
+    .view_retirements(ledger_view_retirements),
+    .parent_publications(ledger_parent_publications)
+  );
+
+  initial clk=0;always #5 clk=~clk;
+  logic [255:0] aq[0:327];logic [15:0] asc[0:327];logic [31:0] outgold[0:20991];
+  logic [511:0] wq0[0:41983],wq1[0:41983],wsc[0:5247];
+  logic [3327:0] model[0:0];logic [1023:0] header[0:0];logic [127:0] auxwords[0:7];logic [63:0] config_words[0:12];
+  logic [2047:0] vw[0:20991];logic [1023:0] vps[0:20991];
+  string afixture,wfixture,streams,gfixture,wi_afixture,wi_wfixture,wi_streams;integer pilot;
+  integer cycle=0,q_index[0:2],q_left[0:2],q_bytes[0:2],q_beats[0:2],q_bursts[0:2];
+  logic q_active[0:2];integer aux_index=0,aux_left=0,aux_bytes=0;logic aux_active=0;
+  integer ps_checks[0:3],a_checks=0,w_checks=0,output_words=0,output_beats=0,bretired=0,held_b=0;
+  logic output_seen[0:20991];logic aw_seen=0,w_seen=0,stored=0;integer bdelay=0;
+  logic [63:0] aw_addr,wd_strb;logic [511:0] wd_data;
+  // All edge timestamps below use this monitor's pre-NBA posedge sample.
+  // Exclusive state bins cover [cfg_accept_edge, first_done_valid_edge).
+  // Wait/activity counters overlap; they are never added as a latency total.
+  integer measure_a_start=-1,measure_a_publish=-1,measure_w_start=-1,measure_w_publish=-1;
+  integer measure_cfg=-1,measure_done=-1,measure_consume=-1,measure_legacy_hold_end=-1;
+  integer measure_first_issue=-1,measure_last_issue=-1,measure_first_launch=-1,measure_last_launch=-1;
+  integer measure_first_ps=-1,measure_last_ps=-1,measure_first_aw=-1,measure_last_aw=-1;
+  integer measure_first_w=-1,measure_last_w=-1,measure_first_b=-1,measure_last_b=-1;
+  integer measure_state[0:12],measure_state_sum=0,measure_consumes=0,measure_done_hold=0;
+  integer measure_a_request_wait=0,measure_a_return_wait=0,measure_a_return_blocked=0;
+  integer measure_w_request_wait=0,measure_w_return_wait=0,measure_w_return_blocked=0;
+  integer measure_front_wait=0,measure_compute_active=0,measure_launches=0,measure_ps_cycles=0;
+  integer measure_ps_blocked=0,measure_writer_packet_wait=0,measure_writer_tx=0,measure_writer_wait_b=0;
+  integer measure_aw_wait=0,measure_w_wait=0,measure_b_backpressure=0;
+  integer measure_tb_aw_gate=0,measure_tb_w_gate=0,measure_aw=0,measure_w=0,measure_b=0;
+  integer measure_useful_bytes=0,measure_physical_bytes=0,expected_output_beats=1312;
+  integer measure_w_ar_wait[0:2],measure_w_r_gap[0:2],measure_w_r_blocked[0:2];
+  integer measure_aux_ar_wait=0,measure_aux_r_gap=0,measure_aux_r_blocked=0;
+  logic [15:0] measure_done_status;logic [63:0] measure_done_rank,measure_done_bad;
+  task automatic measurement_report(input string mode);
+    integer sum;
+    sum=0;for(int st=0;st<13;st++)sum+=measure_state[st];
+    if(sum!=measure_state_sum)$fatal(1,"Down measurement state accounting");
+    if(mode=="full" && (measure_cfg<0 || measure_done<0 || measure_consume<0 ||
+       sum!=measure_done-measure_cfg || measure_consumes!=1 ||
+       measure_aw!=expected_output_beats || measure_w!=expected_output_beats || measure_b!=expected_output_beats ||
+       measure_useful_bytes!=(stage==0 ? 83968 : 16384) || measure_physical_bytes!=expected_output_beats*64))
+      $fatal(1,"Down measurement complete coverage");
+    $display("DOWN_MEASURE_BOUNDARIES mode=%s sample=pre_NBA_posedge A_fill_accept=%0d A_publish_post_NBA=%0d W_load_accept=%0d W_publish_post_NBA=%0d cfg_accept=%0d first_issue=%0d last_issue=%0d first_launch=%0d last_launch=%0d first_PS=%0d last_PS=%0d first_AW=%0d last_AW=%0d first_W=%0d last_W=%0d first_B=%0d last_B=%0d first_done_valid=%0d actual_done_consume=%0d legacy_hold_end=%0d finish=%0d",mode,measure_a_start,measure_a_publish,measure_w_start,measure_w_publish,measure_cfg,measure_first_issue,measure_last_issue,measure_first_launch,measure_last_launch,measure_first_ps,measure_last_ps,measure_first_aw,measure_last_aw,measure_first_w,measure_last_w,measure_first_b,measure_last_b,measure_done,measure_consume,measure_legacy_hold_end,cycle);
+    $display("DOWN_MEASURE_STATES mode=%s exclusive=1 start_inclusive_cfg_accept=1 end_exclusive_first_done=1 cycles=%0d s0=%0d s1=%0d s2=%0d s3=%0d s4=%0d s5=%0d s6=%0d s7=%0d s8=%0d s9=%0d s10=%0d s11=%0d s12=%0d",mode,sum,measure_state[0],measure_state[1],measure_state[2],measure_state[3],measure_state[4],measure_state[5],measure_state[6],measure_state[7],measure_state[8],measure_state[9],measure_state[10],measure_state[11],measure_state[12]);
+    $display("DOWN_MEASURE_OVERLAP mode=%s exclusive=0 A_request_not_ready=%0d A_WAIT_no_return=%0d A_return_not_ready=%0d W_request_not_ready=%0d W_pending_no_return=%0d W_return_not_ready=%0d front_issue_not_ready=%0d configured_front_not_done=%0d launch_edges=%0d PS_commit_edges=%0d PS_commit_not_ready=%0d writer_packet_not_ready=%0d writer_tx_valid=%0d writer_AW_W_sent_no_B=%0d AW_not_ready=%0d W_not_ready=%0d B_not_ready=%0d",mode,measure_a_request_wait,measure_a_return_wait,measure_a_return_blocked,measure_w_request_wait,measure_w_return_wait,measure_w_return_blocked,measure_front_wait,measure_compute_active,measure_launches,measure_ps_cycles,measure_ps_blocked,measure_writer_packet_wait,measure_writer_tx,measure_writer_wait_b,measure_aw_wait,measure_w_wait,measure_b_backpressure);
+    $display("DOWN_MEASURE_FRONT mode=%s exclusive=0 native_dependency_stall=%0d native_credit_stall=%0d native_space_stall=%0d native_launch_stall=%0d native_commit_stall=%0d",mode,dut.frontend.busy_stall_count,dut.frontend.credit_stall_count,dut.frontend.front_stall_count,dut.frontend.launch_stall_count,dut.frontend.commit_stall_count);
+    $display("DOWN_MEASURE_LOAD mode=%s exclusive=0 q0_AR_not_ready=%0d q1_AR_not_ready=%0d scale_AR_not_ready=%0d q0_active_R_gap=%0d q1_active_R_gap=%0d scale_active_R_gap=%0d q0_R_not_ready=%0d q1_R_not_ready=%0d scale_R_not_ready=%0d AUX_AR_not_ready=%0d AUX_active_R_gap=%0d AUX_R_not_ready=%0d q0_R=%0d q1_R=%0d scale_R=%0d",mode,measure_w_ar_wait[0],measure_w_ar_wait[1],measure_w_ar_wait[2],measure_w_r_gap[0],measure_w_r_gap[1],measure_w_r_gap[2],measure_w_r_blocked[0],measure_w_r_blocked[1],measure_w_r_blocked[2],measure_aux_ar_wait,measure_aux_r_gap,measure_aux_r_blocked,q_beats[0],q_beats[1],q_beats[2]);
+    $display("DOWN_MEASURE_OUTPUT mode=%s exclusive=0 expected_output_beats=%0d actual_AW=%0d actual_W=%0d actual_B=%0d useful_strobe_bytes=%0d physical_W_bytes=%0d TB_periodic_AW_gate=%0d TB_periodic_W_gate=%0d TB_B_delay_decrements=%0d done_not_ready_edges=%0d actual_done_consumes=%0d DUT_command_cycles=%0d",mode,expected_output_beats,measure_aw,measure_w,measure_b,measure_useful_bytes,measure_physical_bytes,measure_tb_aw_gate,measure_tb_w_gate,held_b,measure_done_hold,measure_consumes,command_cycles);
+  endtask
+  task automatic tick;@(posedge clk);#1;endtask
+  assign ledger_claim_valid=cfg_valid;
+  assign ledger_retire_debt_zero=a_read_debt_zero && !a_ret_valid && !w_ret_valid &&
+      wc_slot_readers[0]==0 && fa_slot_state[0]==0 &&
+      actual_aw_count[0]==actual_b_count[0] && actual_w_count[0]==actual_b_count[0];
+  always_comb begin
+    wc_commit_ready=4'hf;
+    for(int pp=0;pp<3;pp++)begin
+      wc_arready[pp]=rst_n && !q_active[pp] && cycle%3!=pp;
+      wc_rvalid[pp]=rst_n && q_active[pp] && cycle%5!=pp;
+      wc_rdata[pp]=0;
+      if(q_active[pp])case(pp)
+        0:wc_rdata[pp]=wq0[q_index[pp]];
+        1:wc_rdata[pp]=wq1[q_index[pp]];
+        2:wc_rdata[pp]=wsc[q_index[pp]];
+      endcase
+      wc_rresp[pp]=0;wc_rlast[pp]=q_active[pp] && q_left[pp]==1;
+    end
+    wc_aux_arready=rst_n && !aux_active && cycle%3!=0;
+    wc_aux_rvalid=rst_n && aux_active && cycle%5!=0;
+    wc_aux_rdata=aux_active ? auxwords[aux_index] : 0;
+    wc_aux_rresp=0;wc_aux_rlast=aux_active && aux_left==1;
+  end
+  always @(negedge clk)begin
+    m_axi_awready=0;m_axi_wready=0;
+    m_axi_awready[0]=rst_n && !aw_seen && cycle%7!=0;
+    m_axi_wready[0]=rst_n && !w_seen && cycle%11!=0;
+    if(bdelay>0)begin bdelay--;held_b++;if(bdelay==0)begin m_axi_bvalid[0]=1;m_axi_bresp[0]=0;end end
+  end
+  always @(posedge clk)begin : endpoint_monitor
+    integer n,page,remaining,seq,g,t,idx,rr,col,word;
+    cycle++;
+    if(cycle>40000000)$fatal(1,"resident cycle cap state=%0d stripes=%0d",dut.state,actual_stripes);
+    if(!rst_n)begin
+      aux_active<=0;aux_index<=0;aux_left<=0;aux_bytes<=0;
+      for(int pp=0;pp<3;pp++)begin q_active[pp]<=0;q_index[pp]<=0;q_left[pp]<=0;q_bytes[pp]<=0;q_beats[pp]<=0;q_bursts[pp]<=0;end
+      aw_seen=0;w_seen=0;stored=0;bdelay=0;m_axi_bvalid<=0;
+    end else begin
+      if(g_cfg_valid && g_cfg_ready && !g_cfg_reject && measure_a_start<0)measure_a_start=cycle;
+      if(wc_load_valid && wc_load_ready && measure_w_start<0)measure_w_start=cycle;
+      if(cfg_valid && cfg_ready)begin
+        if(measure_cfg>=0)$fatal(1,"matrix measurement duplicate cfg in stage");
+        measure_cfg=cycle;
+      end
+      if(done_valid)begin
+        if(measure_done<0)begin
+          measure_done=cycle;measure_done_status=done_status;
+          measure_done_rank=done_first_error_rank;measure_done_bad=done_bad_element;
+        end
+        if(done_status!==measure_done_status || done_first_error_rank!==measure_done_rank ||
+           done_bad_element!==measure_done_bad)$fatal(1,"Down held response payload changed");
+        if(done_ready)begin
+          measure_consumes++;measure_consume=cycle;
+          if(measure_consumes!=1)$fatal(1,"Down duplicate actual consume");
+        end else measure_done_hold++;
+      end
+      if(measure_cfg>=0 && measure_done<0)begin
+        if(int'(dut.state)<0 || int'(dut.state)>12)$fatal(1,"Down measurement state range");
+        measure_state[int'(dut.state)]++;measure_state_sum++;
+        if(a_read_valid && !a_read_ready)measure_a_request_wait++;
+        if(dut.state==5 && !a_ret_valid)measure_a_return_wait++;
+        if(a_ret_valid && !a_ret_ready)measure_a_return_blocked++;
+        if(w_read_valid && !w_read_ready)measure_w_request_wait++;
+        if(dut.state==6 && dut.w_pending_reads!=0 && !w_ret_valid)measure_w_return_wait++;
+        if(w_ret_valid && !w_ret_ready)measure_w_return_blocked++;
+        if(dut.front_issue_valid && !dut.front_issue_ready)measure_front_wait++;
+        if(dut.configured && !dut.front_done)measure_compute_active++;
+        if(dut.front_issue_valid && dut.front_issue_ready)begin
+          if(measure_first_issue<0)measure_first_issue=cycle;measure_last_issue=cycle;
+        end
+        if(dut.frontend.launch)begin
+          measure_launches++;if(measure_first_launch<0)measure_first_launch=cycle;measure_last_launch=cycle;
+        end
+        if(|(dut.commit_valid & dut.commit_ready))begin
+          measure_ps_cycles++;if(measure_first_ps<0)measure_first_ps=cycle;measure_last_ps=cycle;
+        end
+        if(|(dut.commit_valid & ~dut.commit_ready))measure_ps_blocked++;
+        if(dut.writers[0].writer.packet_valid && !dut.writers[0].writer.packet_ready)measure_writer_packet_wait++;
+        if(dut.writers[0].writer.tx_valid)measure_writer_tx++;
+        if(dut.writers[0].writer.tx_valid && dut.writers[0].writer.tx_aw_sent &&
+           dut.writers[0].writer.tx_w_sent && !m_axi_bvalid[0])measure_writer_wait_b++;
+        if(m_axi_awvalid[0] && !m_axi_awready[0])begin
+          measure_aw_wait++;if(!aw_seen)measure_tb_aw_gate++;
+        end
+        if(m_axi_wvalid[0] && !m_axi_wready[0])begin
+          measure_w_wait++;if(!w_seen)measure_tb_w_gate++;
+        end
+        if(m_axi_bvalid[0] && !m_axi_bready[0])measure_b_backpressure++;
+      end
+      if(measure_w_start>=0 && measure_w_publish<0)begin
+        for(int pp=0;pp<3;pp++)begin
+          if(wc_arvalid[pp] && !wc_arready[pp])measure_w_ar_wait[pp]++;
+          if(q_active[pp] && !wc_rvalid[pp])measure_w_r_gap[pp]++;
+          if(wc_rvalid[pp] && !wc_rready[pp])measure_w_r_blocked[pp]++;
+        end
+        if(wc_aux_arvalid && !wc_aux_arready)measure_aux_ar_wait++;
+        if(aux_active && !wc_aux_rvalid)measure_aux_r_gap++;
+        if(wc_aux_rvalid && !wc_aux_rready)measure_aux_r_blocked++;
+      end
+      if(m_axi_awvalid[0] && m_axi_awready[0])begin
+        measure_aw++;if(measure_first_aw<0)measure_first_aw=cycle;measure_last_aw=cycle;
+      end
+      if(m_axi_wvalid[0] && m_axi_wready[0])begin
+        measure_w++;measure_physical_bytes+=64;
+        for(int byte_lane=0;byte_lane<64;byte_lane++)if(m_axi_wstrb[0][byte_lane])measure_useful_bytes++;
+        if(measure_first_w<0)measure_first_w=cycle;measure_last_w=cycle;
+      end
+      if(m_axi_bvalid[0] && m_axi_bready[0])begin
+        measure_b++;if(measure_first_b<0)measure_first_b=cycle;measure_last_b=cycle;
+      end
+      for(int pp=0;pp<3;pp++)begin
+        if(wc_arvalid[pp] && wc_arready[pp])begin
+          if(q_active[pp] || wc_araddr[pp]!=wc_load_base[pp]+q_bytes[pp] || wc_arsize[pp]!=6 || wc_arburst[pp]!=1)$fatal(1,"resident physical W AR identity p=%0d",pp);
+          remaining=(wc_load_bytes[pp]-q_bytes[pp])/64;page=(4096-int'(wc_araddr[pp]%4096))/64;n=remaining<64?remaining:64;if(n>page)n=page;
+          if(n<1 || int'(wc_arlen[pp])+1!=n)$fatal(1,"resident W AR boundary");
+          q_active[pp]<=1;q_index[pp]<=q_bytes[pp]/64;q_left[pp]<=n;q_bytes[pp]<=q_bytes[pp]+n*64;q_bursts[pp]<=q_bursts[pp]+1;
+        end
+        if(wc_rvalid[pp] && wc_rready[pp])begin
+          if(!q_active[pp] || q_left[pp]<1 || wc_rlast[pp]!=(q_left[pp]==1))$fatal(1,"resident W R debt");
+          q_index[pp]<=q_index[pp]+1;q_left[pp]<=q_left[pp]-1;q_beats[pp]<=q_beats[pp]+1;if(wc_rlast[pp])q_active[pp]<=0;
+          if(pp==0 && (q_beats[0]+1)%512==0)
+            $display("MATRIX_PROGRESS cycle=%0d stage=%0d W_q0_R=%0d W_q1_R=%0d W_scale_R=%0d",cycle,stage,q_beats[0]+1,q_beats[1],q_beats[2]);
+        end
+      end
+      if(pilot && stage==0 && q_beats[0]>=1024 && q_beats[1]>=1024 && q_beats[2]>=128)begin
+        if(fa_slot_state[0]!=2 || fa_physical_half_commits!=256 || fa_physical_scale_commits!=128)
+          $fatal(1,"WIGQD pilot Wi A publication lost");
+        $display("WIGQD0_PILOT_PASS cycle=%0d Wi_A_published=1 W_q0_R=%0d W_q1_R=%0d W_scale_R=%0d Wi_output=NOT_RUN G=NOT_RUN Down=NOT_RUN",cycle,q_beats[0],q_beats[1],q_beats[2]);
+        $finish;
+      end
+      if(wc_aux_arvalid && wc_aux_arready)begin
+        if(aux_active || wc_aux_araddr!=wc_load_aux_base+aux_bytes || wc_aux_arsize!=4 || wc_aux_arburst!=1)$fatal(1,"resident physical AUX AR");
+        aux_active<=1;aux_index<=aux_bytes/16;aux_left<=int'(wc_aux_arlen)+1;aux_bytes<=aux_bytes+(int'(wc_aux_arlen)+1)*16;
+      end
+      if(wc_aux_rvalid && wc_aux_rready)begin aux_index<=aux_index+1;aux_left<=aux_left-1;if(wc_aux_rlast)aux_active<=0;end
+      if(a_ret_valid && a_ret_ready && dut.state==5)begin
+        if(a_ret_group!=a_checks || a_ret_row_block_base!=0 || a_ret_rows!=4 || a_ret_numeric_identity!==cfg_numeric_identity || a_ret_linear_context!==cfg_linear_context)$fatal(1,"resident full A return identity");
+        for(int r=0;r<4;r++)begin
+          int expected_index;
+          expected_index=r*(stage==0 ? 32 : 82)+int'(a_ret_group);
+          if(a_ret_q[r]!==aq[expected_index] || a_ret_scale[r]!==asc[expected_index])
+            $fatal(1,"resident full A actual bank q/scale stage=%0d",stage);
+        end
+        a_checks++;
+      end
+      if(w_ret_valid && w_ret_ready && dut.state==6)begin
+        seq=w_checks;g=seq/(stage==0 ? 656 : 128);t=seq%(stage==0 ? 656 : 128);
+        if(w_ret_q[0]!==vw[seq] || w_ret_tile!=t || w_ret_group!=g || w_ret_model_identity!==cfg_w_model_identity || w_ret_numeric_identity!==cfg_numeric_identity || w_ret_task_context!==cfg_linear_context || w_ret_mask[0]!=8'hff)$fatal(1,"resident full W actual bank return seq=%0d tile=%0d group=%0d",seq,w_ret_tile,w_ret_group);
+        w_checks++;
+      end
+      for(int r=0;r<4;r++)if(dut.commit_valid[r] && dut.commit_ready[r])begin
+        seq=int'(dut.commit_tag[r*192+36+:27]);
+        if(seq!=ps_checks[r] || dut.commit_bad[r*8+:8]!=0 || dut.commit_ps[r*256+:256]!==vps[seq][r*256+:256])$fatal(1,"resident PS independent gold row=%0d seq=%0d",r,seq);
+        ps_checks[r]++;
+        if(r==0 && ps_checks[r]%128==0)$display("MATRIX_PROGRESS cycle=%0d stripes=%0d ps0=%0d outputs=%0d",cycle,actual_stripes,ps_checks[0],output_words);
+      end
+      if(|m_axi_awvalid[1] || |m_axi_wvalid[1])$fatal(1,"Down shard1 issued");
+      if(m_axi_awvalid[0] && m_axi_awready[0])begin
+        if(aw_seen || m_axi_awlen[0]!=0 || m_axi_awsize[0]!=6 || m_axi_awburst[0]!=1)$fatal(1,"resident output AW");
+        aw_seen=1;aw_addr=m_axi_awaddr[0];
+      end
+      if(m_axi_wvalid[0] && m_axi_wready[0])begin
+        if(w_seen || !m_axi_wlast[0])$fatal(1,"resident output W");
+        w_seen=1;wd_data=m_axi_wdata[0];wd_strb=m_axi_wstrb[0];
+      end
+      if(aw_seen && w_seen && !stored)begin
+        if(aw_addr<cfg_region_base[0] || aw_addr>=cfg_region_base[0]+(stage==0 ? 83968 : 16384) || aw_addr[5:0]!=0)
+          $fatal(1,"resident physical output address stage=%0d addr=%h",stage,aw_addr);
+        idx=int'((aw_addr-cfg_region_base[0])/4);
+        for(int lane=0;lane<16;lane++)begin
+          if(wd_strb[lane*4+:4]!=0 && wd_strb[lane*4+:4]!=4'hf)$fatal(1,"resident output word strobe");
+          if(wd_strb[lane*4+:4]==4'hf)begin
+            if(idx+lane>=(stage==0 ? 20992 : 4096) || output_seen[idx+lane] || wd_data[lane*32+:32]!==outgold[idx+lane])$fatal(1,"resident final output gold index=%0d got=%h gold=%h",idx+lane,wd_data[lane*32+:32],outgold[idx+lane]);
+            output_seen[idx+lane]=1;output_words++;
+          end
+        end
+        for(int lane=0;lane<64;lane++)if(wd_strb[lane])begin
+          ddr[int'(aw_addr-DDR_BASE)+lane]=wd_data[lane*8+:8];
+          ddr_written[int'(aw_addr-DDR_BASE)+lane]=1;
+        end
+        output_beats++;stored=1;bdelay=17+(output_beats%3);
+      end
+      if(m_axi_bvalid[0] && m_axi_bready[0])begin m_axi_bvalid[0]<=0;aw_seen=0;w_seen=0;stored=0;bretired++;end
+      if((owner_retire_valid || done_valid || ledger_parent_publications>stage) &&
+         (aw_seen || w_seen || bdelay!=0 || m_axi_bvalid[0] || output_words!=(stage==0 ? 20992 : 4096) || bretired!=output_beats))$fatal(1,"resident published before actual last B/debt zero");
+      if(dut.protocol_fault || dut.numeric_fault || dut.front_protocol || dut.adapter_protocol || dut.bias_protocol || dut.bias_numerical || (|dut.writer_fault))$fatal(1,"resident normal fault state=%0d front=%b adapter=%b bias=%b writers=%b stripes=%0d",dut.state,dut.front_protocol,dut.adapter_protocol,dut.bias_protocol,dut.writer_fault,actual_stripes);
+    end
+  end
+
+  logic [31:0] wi_fixture[0:20991],gate_gold[0:10495],d_gold[0:327],recip_gold[0:327];
+  logic gate_written[0:2623];
+
+  integer g_write_beats=0,g_read_beats=0,g_quant_halves=0,g_held_b=0;
+  integer g_bdelay=0,g_rdelay=0,g_rleft=0,g_rindex=0;
+  integer wi_accepted=0,wi_rows_retired=0;
+  integer wi_reader_first_ar=-1,wi_reader_last_ar=-1,wi_reader_first_r=-1,wi_reader_last_r=-1;
+  integer wi_reader_row_edge[0:3];
+  integer gate_first_aw=-1,gate_last_aw=-1,gate_first_w=-1,gate_last_w=-1;
+  integer gate_first_b=-1,gate_last_b=-1,quant_first_r=-1,quant_last_r=-1;
+  integer g_cfg_edge=-1,quant_a_publish_edge=-1;
+  // WIGQD1: passive, bounded observation of accepted work. These counters
+  // never drive the DUT or memory response policy.
+  integer obs_g_cfg=0,obs_wi_cfg=0,obs_wi_ar=0,obs_wi_r=0,obs_wi_scalar=0;
+  integer obs_wi_row=0,obs_g_issue=0,obs_g_return=0,obs_g_emit=0;
+  integer obs_gate_aw=0,obs_gate_w=0,obs_gate_b=0,obs_q_ar=0,obs_q_r=0;
+  integer obs_q_half=0,obs_q_row=0,obs_a_publish=0,obs_g_cfg_cycle=-1;
+  task automatic obs_diag(input string tag);
+    $display("WIGQD_DIAG tag=%s cycle=%0d stage=%0d gphase=%0d rstate=%0d rrow=%0d rword=%0d rbeat=%0d rhold=%0b rpend=%0b vcfg=%0b/%0b var=%0b/%0b vr=%0b/%0b vw=%0b/%0b vrow=%0b/%0b debt=%0b grow=%0d gissued=%0d greturned=%0d gcredit=%0d gw=%0d gb=%0d qphase=%0d qar=%0d qr=%0d qhalf=%0d astate=%0d aepoch=%0d",
+      tag,cycle,stage,producer.phase,wi_reader.state,wi_reader.row_local,
+      wi_reader.word_count,wi_reader.beat_index,wi_reader.beat_valid,
+      wi_reader.physical_pending,wi_cfg_valid,wi_cfg_ready,wi_arvalid,
+      wi_arready,wi_rvalid,wi_rready,g_wi_valid,g_wi_ready,
+      g_wi_row_done_valid,g_wi_row_done_ready,g_wi_read_debt_zero,
+      wi_rows_retired,producer.vector_row.issued,producer.vector_row.returned,
+      producer.vector_row.credits,g_w_count,g_b_count,
+      producer.quant_task.phase,g_source_ar_count,g_source_r_count,
+      g_quant_halves,fa_slot_state[0],fa_slot_epoch[0]);
+  endtask
+  always @(posedge clk) if(rst_n && stage==1)begin : wigqd1_observation
+    if(g_cfg_valid && g_cfg_ready && g_cfg_owner_admitted)begin
+      obs_g_cfg++;
+      if(obs_g_cfg>1)$fatal(1,"WIGQD1 duplicate legal G cfg");
+      obs_g_cfg_cycle=cycle;
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_cfg n=%0d",cycle,obs_g_cfg);
+      obs_diag("g_cfg_edge");
+    end
+    if(wi_cfg_valid && wi_cfg_ready)begin
+      obs_wi_cfg++;
+      if(obs_wi_cfg>1)$fatal(1,"WIGQD1 duplicate Wi reader cfg");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_cfg n=%0d",cycle,obs_wi_cfg);
+      obs_diag("wi_cfg_edge");
+    end
+    if(wi_arvalid && wi_arready)begin
+      obs_wi_ar++;
+      if(obs_wi_ar>1312)$fatal(1,"WIGQD1 excess Wi AR");
+      if(obs_wi_ar==1 || obs_wi_ar%4==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_ar n=%0d",cycle,obs_wi_ar);
+    end
+    if(wi_rvalid && wi_rready)begin
+      obs_wi_r++;
+      if(obs_wi_r>1312)$fatal(1,"WIGQD1 excess Wi R");
+      if(obs_wi_r==1 || obs_wi_r%64==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_r n=%0d",cycle,obs_wi_r);
+    end
+    if(g_wi_valid && g_wi_ready)begin
+      obs_wi_scalar++;
+      if(obs_wi_scalar>20992)$fatal(1,"WIGQD1 excess Wi scalar");
+      if(obs_wi_scalar==1 || obs_wi_scalar%512==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_scalar n=%0d",cycle,obs_wi_scalar);
+    end
+    if(g_wi_row_done_valid && g_wi_row_done_ready)begin
+      obs_wi_row++;
+      if(obs_wi_row>4)$fatal(1,"WIGQD1 excess Wi row");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_row n=%0d",cycle,obs_wi_row);
+      obs_diag("wi_row_edge");
+    end
+    if(producer.vector_row.arithmetic_accept)begin
+      obs_g_issue++;
+      if(obs_g_issue>10496)$fatal(1,"WIGQD1 excess G issue");
+      if(obs_g_issue==1 || obs_g_issue%256==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_issue n=%0d",cycle,obs_g_issue);
+    end
+    if(producer.vector_row.core_commit && producer.vector_row.core_return_legal)begin
+      obs_g_return++;
+      if(obs_g_return>10496)$fatal(1,"WIGQD1 excess G return");
+      if(obs_g_return==1 || obs_g_return%256==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_return n=%0d",cycle,obs_g_return);
+    end
+    if(producer.v_valid && producer.v_ready)begin
+      obs_g_emit++;
+      if(obs_g_emit>10496)$fatal(1,"WIGQD1 excess G emit");
+      if(obs_g_emit==1 || obs_g_emit%512==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_emit n=%0d",cycle,obs_g_emit);
+    end
+    if(g_m_axi_awvalid && g_m_axi_awready)begin
+      obs_gate_aw++;
+      if(obs_gate_aw>656)$fatal(1,"WIGQD1 excess GATE AW");
+      if(obs_gate_aw==1 || obs_gate_aw%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=gate_aw n=%0d",cycle,obs_gate_aw);
+    end
+    if(g_m_axi_wvalid && g_m_axi_wready)begin
+      obs_gate_w++;
+      if(obs_gate_w>656)$fatal(1,"WIGQD1 excess GATE W");
+      if(obs_gate_w==1 || obs_gate_w%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=gate_w n=%0d",cycle,obs_gate_w);
+    end
+    if(g_m_axi_bvalid && g_m_axi_bready)begin
+      obs_gate_b++;
+      if(obs_gate_b>656)$fatal(1,"WIGQD1 excess GATE B");
+      if(obs_gate_b==1 || obs_gate_b%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=gate_b n=%0d",cycle,obs_gate_b);
+    end
+    if(g_m_axi_arvalid && g_m_axi_arready)begin
+      obs_q_ar++;
+      if(obs_q_ar>656)$fatal(1,"WIGQD1 excess quant AR");
+      if(obs_q_ar==1 || obs_q_ar%4==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_ar n=%0d",cycle,obs_q_ar);
+    end
+    if(g_m_axi_rvalid && g_m_axi_rready)begin
+      obs_q_r++;
+      if(obs_q_r>656)$fatal(1,"WIGQD1 excess quant R");
+      if(obs_q_r==1 || obs_q_r%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_r n=%0d",cycle,obs_q_r);
+    end
+    if(producer.quant_task.q_out_valid && producer.quant_task.q_out_ready)begin
+      obs_q_half++;
+      if(obs_q_half>656)$fatal(1,"WIGQD1 excess quant half");
+      if(obs_q_half==1 || obs_q_half%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_half n=%0d",cycle,obs_q_half);
+    end
+    if(producer.quant_task.q_done_valid && producer.quant_task.q_done_ready)begin
+      obs_q_row++;
+      if(obs_q_row>4)$fatal(1,"WIGQD1 excess quant row");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_row n=%0d",cycle,obs_q_row);
+    end
+    if(producer.quant_task.a_publish)begin
+      obs_a_publish++;
+      if(obs_a_publish>1)$fatal(1,"WIGQD1 duplicate A publish");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=a_publish n=%0d",cycle,obs_a_publish);
+    end
+    if(obs_g_cfg_cycle>=0 &&
+       (cycle-obs_g_cfg_cycle==1 || cycle-obs_g_cfg_cycle==64 ||
+        cycle-obs_g_cfg_cycle==4096 || cycle-obs_g_cfg_cycle==16384 ||
+        cycle-obs_g_cfg_cycle==32768 || cycle-obs_g_cfg_cycle==65536))
+      obs_diag("fixed_sample");
+  end
+  logic g_aw_seen=0,g_w_seen=0,g_stored=0,g_read_active=0;
+  logic [63:0] g_aw_addr,g_first_addr;
+  logic [511:0] g_w_data;
+  integer wi_rleft=0,wi_rindex=0,wi_rdelay=0,wi_read_beats=0;
+  logic wi_read_active=0;
+  always @(negedge clk)begin
+    wi_arready=rst_n && !wi_read_active && !wi_rvalid && cycle%5!=0;
+    if(wi_read_active && !wi_rvalid)begin
+      if(wi_rdelay>0)wi_rdelay--;
+      else begin
+        for(int lane=0;lane<64;lane++)begin
+          if(wi_rindex*64+lane>=DDR_BYTES || !ddr_written[wi_rindex*64+lane])
+            $fatal(1,"WIGQD Wi reader accessed unwritten byte addr=%h",DDR_BASE+wi_rindex*64+lane);
+          wi_rdata[lane*8+:8]=ddr[wi_rindex*64+lane];
+        end
+        wi_rvalid=1;wi_rresp=0;wi_rlast=wi_rleft==1;
+      end
+    end
+  end
+  always @(posedge clk)begin
+    if(!rst_n)begin wi_read_active=0;wi_rvalid<=0;wi_rleft=0;wi_rindex=0;wi_rdelay=0;end
+    else begin
+      if(wi_arvalid && wi_arready)begin
+        if(wi_read_active || wi_arsize!=6 || wi_arburst!=1 ||
+           wi_araddr<wi_region_base || wi_araddr+64'(wi_arlen+1)*64>wi_region_base+83968 ||
+           wi_araddr[11:0]+(int'(wi_arlen)+1)*64>4096)
+          $fatal(1,"WIGQD Wi reader AR bounds");
+        wi_read_active=1;wi_rindex=int'((wi_araddr-DDR_BASE)>>6);
+        wi_rleft=int'(wi_arlen)+1;wi_rdelay=3;
+        if(wi_reader_first_ar<0)wi_reader_first_ar=cycle;
+        wi_reader_last_ar=cycle;
+      end
+      if(wi_rvalid && wi_rready)begin
+        wi_rvalid<=0;wi_rindex++;wi_rleft--;wi_read_beats++;
+        wi_rdelay=1+(wi_read_beats%4);
+        if(wi_rleft==0)wi_read_active=0;
+        if(wi_reader_first_r<0)wi_reader_first_r=cycle;
+        wi_reader_last_r=cycle;
+      end
+    end
+  end
+  always @(negedge clk)begin
+    g_m_axi_awready=rst_n && !g_aw_seen && cycle%7!=0;
+    g_m_axi_wready=rst_n && !g_w_seen && cycle%11!=0;
+    g_m_axi_arready=rst_n && !g_read_active && !g_m_axi_rvalid && cycle%5!=0;
+    if(g_bdelay>0)begin
+      g_bdelay--;g_held_b++;
+      if(g_bdelay==0)begin g_m_axi_bvalid=1;g_m_axi_bresp=0;end
+    end
+    if(g_read_active && !g_m_axi_rvalid)begin
+      if(g_rdelay>0)g_rdelay--;
+      else begin
+        if(!gate_written[g_rindex])$fatal(1,"GQD0 quant read unwritten GATE beat=%0d",g_rindex);
+        g_m_axi_rvalid=1;
+        for(int lane=0;lane<64;lane++)begin
+          if(!ddr_written[int'(g_first_addr-DDR_BASE)+g_rindex*64+lane])
+            $fatal(1,"GQD0 quant read unwritten GATE byte");
+          g_m_axi_rdata[lane*8+:8]=ddr[int'(g_first_addr-DDR_BASE)+g_rindex*64+lane];
+        end
+        g_m_axi_rresp=0;g_m_axi_rlast=g_rleft==1;
+      end
+    end
+  end
+  always @(posedge clk)begin
+    if(!rst_n)begin
+      g_aw_seen=0;g_w_seen=0;g_stored=0;g_read_active=0;
+      g_bdelay=0;g_rdelay=0;g_rleft=0;
+      g_m_axi_bvalid<=0;g_m_axi_rvalid<=0;
+      for(int i=0;i<2624;i++)gate_written[i]=0;
+    end else begin
+      if(g_cfg_valid && g_cfg_ready && g_cfg_owner_admitted && g_cfg_edge<0)g_cfg_edge=cycle;
+      if(producer.quant_task.a_publish && quant_a_publish_edge<0)quant_a_publish_edge=cycle;
+      if(g_wi_valid && g_wi_ready)begin
+        if(stage!=1 || wi_accepted>=20992 || g_wi_numeric_identity!==g_cfg_numeric_identity ||
+           g_wi_source_ref!==g_cfg_wi_ref || g_wi_status!=0 ||
+           g_wi_row!=16'(wi_accepted/5248) || g_wi_index!=13'(wi_accepted%5248) ||
+           g_wi_data!==wi_fixture[wi_accepted])
+          $fatal(1,"WIGQD real Wi reader scalar mismatch index=%0d",wi_accepted);
+        wi_accepted++;
+      end
+      if(g_wi_row_done_valid && g_wi_row_done_ready)begin
+        if(wi_rows_retired>=4 || wi_accepted!=(wi_rows_retired+1)*5248 ||
+           !g_wi_read_debt_zero || g_wi_row_done_status!=0)
+          $fatal(1,"WIGQD Wi reader row barrier row=%0d",wi_rows_retired);
+        wi_reader_row_edge[wi_rows_retired]=cycle;
+        wi_rows_retired++;
+      end
+      if(g_m_axi_awvalid && g_m_axi_awready)begin
+        if(g_aw_seen || g_m_axi_awsize!=6 || g_m_axi_awlen!=0 || g_m_axi_awburst!=1)
+          $fatal(1,"GQD0 GATE AW");
+        g_aw_seen=1;g_aw_addr=g_m_axi_awaddr;
+        if(gate_first_aw<0)gate_first_aw=cycle;gate_last_aw=cycle;
+      end
+      if(g_m_axi_wvalid && g_m_axi_wready)begin
+        if(g_w_seen || g_m_axi_wstrb!==64'hffffffffffffffff || !g_m_axi_wlast)
+          $fatal(1,"GQD0 GATE W");
+        g_w_seen=1;g_w_data=g_m_axi_wdata;
+        if(gate_first_w<0)gate_first_w=cycle;gate_last_w=cycle;
+      end
+      if(g_aw_seen && g_w_seen && !g_stored)begin
+        int index;
+        if(g_aw_addr!==g_first_addr+64'(g_write_beats)*64)
+          $fatal(1,"GQD0 GATE physical address");
+        index=int'((g_aw_addr-g_first_addr)>>6);
+        for(int lane=0;lane<16;lane++)
+          if(g_w_data[lane*32+:32]!==gate_gold[index*16+lane])
+            $fatal(1,"GQD0 GATE gold row=%0d col=%0d",index/164,(index%164)*16+lane);
+        for(int lane=0;lane<64;lane++)begin
+          ddr[int'(g_aw_addr-DDR_BASE)+lane]=g_w_data[lane*8+:8];
+          ddr_written[int'(g_aw_addr-DDR_BASE)+lane]=1;
+        end
+        gate_written[index]=1;
+        g_stored=1;g_write_beats++;g_bdelay=17+(index%3);
+      end
+      if(g_m_axi_bvalid && g_m_axi_bready)begin
+        g_m_axi_bvalid<=0;g_aw_seen=0;g_w_seen=0;g_stored=0;
+        if(gate_first_b<0)gate_first_b=cycle;gate_last_b=cycle;
+      end
+      if(g_m_axi_arvalid && g_m_axi_arready)begin
+        if(g_gate_owner_state!=3 || g_aw_count!=656 || g_b_count!=656 ||
+           g_m_axi_arsize!=6 || g_m_axi_arburst!=1 ||
+           g_m_axi_araddr<g_first_addr ||
+           g_m_axi_araddr+64'(g_m_axi_arlen+1)*64>g_first_addr+4*10496 ||
+           g_m_axi_araddr[11:0]+(int'(g_m_axi_arlen)+1)*64>4096)
+          $fatal(1,"GQD0 quant AR publication/bounds");
+        g_read_active=1;g_rindex=int'((g_m_axi_araddr-g_first_addr)>>6);
+        g_rleft=int'(g_m_axi_arlen)+1;g_rdelay=3;
+      end
+      if(g_m_axi_rvalid && g_m_axi_rready)begin
+        g_m_axi_rvalid<=0;g_rindex++;g_rleft--;g_read_beats++;
+        g_rdelay=1+(g_read_beats%4);
+        if(g_rleft==0)g_read_active=0;
+        if(quant_first_r<0)quant_first_r=cycle;quant_last_r=cycle;
+      end
+      if(producer.quant_task.q_out_valid && producer.quant_task.q_out_ready)begin
+        int g,h;
+        g=int'(producer.quant_task.active_row)*82+int'(producer.quant_task.q_out_group);
+        h=producer.quant_task.q_out_half;
+        if(producer.quant_task.q_out!==aq[g][h*128+:128] ||
+           producer.quant_task.q_d!==d_gold[g] ||
+           producer.quant_task.q_recip!==recip_gold[g] ||
+           (h && producer.quant_task.q_scale!==asc[g]))
+          $fatal(1,"GQD0 quant gold group=%0d half=%0d",g,h);
+        g_quant_halves++;
+      end
+    end
+  end
+
+  initial begin : run
+    cfg_K=0;
+    cfg_N=0;
+    cfg_a_epoch=0;
+    cfg_a_ref=0;
+    cfg_a_slot=0;
+    cfg_batch_stride_bytes=0;
+    cfg_bias_kind=0;
+    cfg_bo_base=0;
+    cfg_bo_span=0;
+    cfg_dst_ref=0;
+    cfg_linear_context=0;
+    cfg_numeric_identity=0;
+    cfg_ps_ref=0;
+    cfg_region_base=0;
+    cfg_region_span=0;
+    cfg_row_block_base=0;
+    cfg_row_stride_bytes=0;
+    cfg_rows=0;
+    cfg_source_ref=0;
+    cfg_valid=0;
+    cfg_w_epoch=0;
+    cfg_w_model_identity=0;
+    cfg_w_ref=0;
+    cfg_w_slot=0;
+    cfg_weight_key=0;
+    done_ready=0;
+    fa_commit_a_ref=0;
+    fa_commit_group=0;
+    fa_commit_half=0;
+    fa_commit_numeric_identity=0;
+    fa_commit_q=0;
+    fa_commit_quant_context=0;
+    fa_commit_row=0;
+    fa_commit_scale=0;
+    fa_commit_valid=0;
+    fa_fill_K=0;
+    fa_fill_a_ref=0;
+    fa_fill_dst_ref=0;
+    fa_fill_linear_context=0;
+    fa_fill_numeric_identity=0;
+    fa_fill_owner_admitted=0;
+    fa_fill_producer_context=0;
+    fa_fill_quant_context=0;
+    fa_fill_rows=0;
+    fa_fill_slot=0;
+    fa_fill_slot_epoch=0;
+    fa_fill_source_published=0;
+    fa_fill_source_ref=0;
+    fa_fill_valid=0;
+    fa_fill_w_ref=0;
+    fa_finish_debt_zero=0;
+    fa_finish_valid=0;
+    fa_row_done_bad_col=0;
+    fa_row_done_debt_zero=0;
+    fa_row_done_row=0;
+    fa_row_done_status=0;
+    fa_row_done_valid=0;
+    m_axi_awready=0;
+    m_axi_bresp=0;
+    m_axi_bvalid=0;
+    m_axi_wready=0;
+
+    g_cfg_valid=0;g_cfg_owner_admitted=0;g_cfg_numeric_identity=0;
+    g_cfg_producer_context=0;g_cfg_quant_context=0;g_cfg_linear_context=0;
+    g_cfg_wi_ref=0;g_cfg_gate_ref=0;g_cfg_a_ref=0;g_cfg_w_ref=0;
+    g_cfg_down_dst_ref=0;g_cfg_rows=0;g_cfg_a_slot=0;g_cfg_a_slot_epoch=0;
+    g_cfg_bo_base=0;g_cfg_bo_span=0;g_cfg_region_base=0;g_cfg_region_span=0;
+    wi_cfg_valid=0;wi_rdata=0;wi_rresp=0;wi_rlast=0;wi_rvalid=0;
+    g_done_ready=0;g_m_axi_awready=0;g_m_axi_wready=0;
+    g_m_axi_bresp=0;g_m_axi_bvalid=0;g_m_axi_arready=0;
+    g_m_axi_rdata=0;g_m_axi_rresp=0;g_m_axi_rlast=0;g_m_axi_rvalid=0;
+
+    rst_n=0;
+    wc_load_aux_base=0;
+    wc_load_base=0;
+    wc_load_bias_base=0;
+    wc_load_bias_bytes=0;
+    wc_load_bytes=0;
+    wc_load_epoch=0;
+    wc_load_expected_aux_header=0;
+    wc_load_k=0;
+    wc_load_model_identity=0;
+    wc_load_n=0;
+    wc_load_slot=0;
+    wc_load_valid=0;
+    wc_load_weight_key=0;
+
+    for(int r=0;r<4;r++)ps_checks[r]=0;
+    for(int i=0;i<20992;i++)output_seen[i]=0;
+    for(int i=0;i<DDR_BYTES;i++)begin ddr[i]=8'ha5;ddr_written[i]=0;end
+    for(int st=0;st<13;st++)measure_state[st]=0;
+    for(int pp=0;pp<3;pp++)begin measure_w_ar_wait[pp]=0;measure_w_r_gap[pp]=0;measure_w_r_blocked[pp]=0;end
+    if(!$value$plusargs("AFIXTURE=%s",afixture) || !$value$plusargs("WFIXTURE=%s",wfixture) ||
+       !$value$plusargs("STREAMS=%s",streams) || !$value$plusargs("GFIXTURE=%s",gfixture) ||
+       !$value$plusargs("WI_AFIXTURE=%s",wi_afixture) ||
+       !$value$plusargs("WI_WFIXTURE=%s",wi_wfixture) ||
+       !$value$plusargs("WI_STREAMS=%s",wi_streams))
+      $fatal(1,"WIGQD fixture arguments");
+    pilot=$test$plusargs("PILOT");
+    $readmemh({gfixture,"/wi.mem"},wi_fixture);
+    $readmemh({gfixture,"/gate.mem"},gate_gold);
+    $readmemh({gfixture,"/d.mem"},d_gold);
+    $readmemh({gfixture,"/recip.mem"},recip_gold);
+    $readmemh({wi_afixture,"/q.mem"},aq);
+    $readmemh({wi_afixture,"/scale.mem"},asc);
+    $readmemh({gfixture,"/wi.mem"},outgold);
+    $readmemh({wi_wfixture,"/model_identity.hex"},model);
+    $readmemh({wi_wfixture,"/expected_aux_header.hex"},header);
+    $readmemh({wi_wfixture,"/aux_header.hex"},auxwords);
+    $readmemh({wi_wfixture,"/wi_config.hex"},config_words);
+    $readmemh({wi_wfixture,"/wi_q0.hex"},wq0);
+    $readmemh({wi_wfixture,"/wi_q1.hex"},wq1);
+    $readmemh({wi_wfixture,"/wi_scale.hex"},wsc);
+    $readmemh({wi_streams,"/w8.mem"},vw);
+    $readmemh({wi_streams,"/ps.mem"},vps);
+    cfg_K=1024;cfg_N=5248;cfg_rows=4;cfg_row_block_base=0;cfg_numeric_identity=0;
+    cfg_numeric_identity[63:0]=64'h100000001;cfg_numeric_identity[127:64]=64'h200000001;
+    cfg_numeric_identity[143:128]=1;cfg_numeric_identity[159:144]=128;
+    cfg_numeric_identity[671:160]=model[0][511:0];
+    cfg_linear_context=0;cfg_linear_context[31:0]=32'hac000003;
+    cfg_linear_context[39:32]=8'h32;cfg_linear_context[47:40]=2;cfg_linear_context[87:72]=0;
+    cfg_linear_context[95:88]=4;
+    cfg_source_ref=64'h0000000200000001;cfg_a_ref=64'h0000002200000001;
+    cfg_w_ref=64'h0000002300000001;cfg_ps_ref=64'h0000002400000001;
+    cfg_dst_ref=64'h0000000600000001;
+    cfg_w_model_identity=model[0];cfg_a_slot=0;cfg_w_slot=0;cfg_a_epoch=1;cfg_w_epoch=1;
+    cfg_weight_key=3;cfg_bias_kind=0;
+    cfg_bo_base[0]=DDR_BASE;cfg_bo_span[0]=64'h2000000;
+    cfg_region_base[0]=wi_region_base;cfg_region_span[0]=64'h1000000;
+    cfg_row_stride_bytes=20992;cfg_batch_stride_bytes=21495808;
+    repeat(6)tick();@(negedge clk);rst_n=1;repeat(16)tick();
+    @(negedge clk);
+    fa_fill_owner_admitted=1;fa_fill_source_published=1;fa_fill_slot=0;fa_fill_slot_epoch=1;fa_fill_K=1024;fa_fill_rows=4;fa_fill_numeric_identity=cfg_numeric_identity;fa_fill_producer_context=cfg_linear_context;fa_fill_producer_context[39:32]=8'h60;fa_fill_producer_context[31:0]=32'hac000001;
+    fa_fill_quant_context=cfg_linear_context;fa_fill_quant_context[39:32]=8'h61;fa_fill_quant_context[31:0]=32'hac000002;fa_fill_linear_context=cfg_linear_context;fa_fill_source_ref=cfg_source_ref;fa_fill_a_ref=cfg_a_ref;fa_fill_w_ref=cfg_w_ref;fa_fill_dst_ref=cfg_dst_ref;
+    fa_fill_valid=1;tick();if(fa_fill_reject)$fatal(1,"physical A fixture fill rejected");@(negedge clk);fa_fill_valid=0;
+    for(int r=0;r<4;r++)begin
+      for(int g=0;g<32;g++)for(int h=0;h<2;h++)begin
+        @(negedge clk);fa_commit_valid=1;fa_commit_numeric_identity=cfg_numeric_identity;fa_commit_quant_context=fa_fill_quant_context;fa_commit_a_ref=cfg_a_ref;fa_commit_row=4'(r);fa_commit_group=7'(g);fa_commit_half=1'(h);fa_commit_q=aq[r*32+g][h*128+:128];fa_commit_scale=h?asc[r*32+g]:16'd0;
+        @(posedge clk);while(!fa_commit_ready)@(posedge clk);#1;if(fa_commit_error)$fatal(1,"physical A fixture group commit");
+      end
+      @(negedge clk);fa_commit_valid=0;fa_row_done_valid=1;fa_row_done_row=4'(r);fa_row_done_status=0;fa_row_done_bad_col=0;fa_row_done_debt_zero=1;tick();@(negedge clk);fa_row_done_valid=0;
+    end
+    @(negedge clk);fa_finish_valid=1;fa_finish_debt_zero=1;tick();if(!fa_fill_done || fa_fill_error || !fa_publish_valid || fa_slot_state[0]!=2 || fa_physical_half_commits!=256 || fa_physical_scale_commits!=128)$fatal(1,"actual complete A publication");@(negedge clk);fa_finish_valid=0;
+    measure_a_publish=cycle;
+    $display("MATRIX_PROGRESS cycle=%0d physical_A_published=1 halves=%0d scales=%0d",cycle,fa_physical_half_commits,fa_physical_scale_commits);
+    wc_load_slot=0;wc_load_epoch=1;wc_load_k=1024;wc_load_n=5248;wc_load_weight_key=3;wc_load_model_identity=model[0];wc_load_expected_aux_header=header[0];wc_load_aux_base=64'h400000000;wc_load_bias_base=0;wc_load_bias_bytes=0;
+    for(int pp=0;pp<3;pp++)begin wc_load_base[pp]=64'h500000000+64'(pp)*64'h10000000+config_words[3+pp];wc_load_bytes[pp]=32'(config_words[6+pp]);end
+    @(negedge clk);wc_load_valid=1;@(posedge clk);while(!wc_load_ready)@(posedge clk);#1;@(negedge clk);wc_load_valid=0;
+    while(!wc_load_done)tick();if(wc_load_error || wc_load_reject || wc_slot_state[0]!=2 || wc_load_scale_checks!=167936)$fatal(1,"resident physical W strict load checks=%0d error=%b reject=%b state=%0d",wc_load_scale_checks,wc_load_error,wc_load_reject,wc_slot_state[0]);
+    for(int pp=0;pp<3;pp++)if(q_active[pp] || q_beats[pp]*64!=wc_load_bytes[pp])$fatal(1,"actual W final R coverage");
+    measure_w_publish=cycle;
+    $display("MATRIX_PROGRESS cycle=%0d physical_W_published=1 W_R=%0d,%0d,%0d scale_checks=%0d",cycle,q_beats[0],q_beats[1],q_beats[2],wc_load_scale_checks);
+    @(negedge clk);cfg_valid=1;#1;if(!cfg_ready || !ledger_claim_ready || !cfg_owner_admitted)$fatal(1,"matrix owner claim not admitted");tick();if(cfg_reject || ledger_claim_reject)$fatal(1,"resident command rejected");@(negedge clk);cfg_valid=0;
+    while(!done_valid)tick();
+    if(done_status!=0 || actual_stripes!=20992 || actual_ps_commits!=83968 || actual_final_copies!=2624 || a_checks!=32 || w_checks!=20992 || output_words!=20992 || actual_a_reads!=32 || actual_a_returns!=32 || actual_w_reads!=20992 || actual_w_returns!=20992 || ledger_ps_state!=2 || ledger_dst_state!=2 || ledger_checked_rows!=16'hf || ledger_covered_rows!=16'hf || ledger_parent_publications!=1 || fa_slot_state[0]!=0 || wc_slot_readers[0]!=0 || wc_slot_state[0]!=2)$fatal(1,"resident final closure status=%0d stripes=%0d ps=%0d copies=%0d A=%0d W=%0d output=%0d ledger=%0d/%0d",done_status,actual_stripes,actual_ps_commits,actual_final_copies,a_checks,w_checks,output_words,ledger_ps_state,ledger_dst_state);
+    for(int r=0;r<4;r++)if(ps_checks[r]!=20992)$fatal(1,"resident full PS coverage");
+    repeat(7)begin tick();if(!done_valid || ledger_dst_state!=2)$fatal(1,"resident held response");end
+    measure_legacy_hold_end=cycle;
+    // Preserve the seven held cycles above, then consume once at a real edge.
+    @(negedge clk);done_ready=1;tick();
+    if(measure_consumes!=1 || done_valid || dut.state!=0 || ledger_dst_state!=2 ||
+       ledger_parent_publications!=1 || !ledger_retire_debt_zero)
+      $fatal(1,"Down response consume/deassert/debt closure");
+    @(negedge clk);done_ready=0;tick();
+    if(done_valid || measure_consumes!=1 || ledger_dst_state!=2 || ledger_parent_publications!=1)
+      $fatal(1,"Down response after consume");
+    measurement_report("full");
+    if(aw_seen || w_seen || bdelay || m_axi_bvalid[0] ||
+       output_beats!=1312 || bretired!=1312 || ledger_parent_publications!=1 ||
+       fa_slot_state[0]!=0 || wc_slot_readers[0]!=0 || !a_read_debt_zero)
+      $fatal(1,"Wi to G switch with physical or cache debt");
+    for(int i=0;i<83968;i++)begin
+      if(!ddr_written[4096+i] || ddr[4096+i]!==wi_fixture[i/4][(i%4)*8+:8])
+        $fatal(1,"Wi DDR readback byte=%0d",i);
+    end
+    $display("WIGQD_WI_COMPLETE cycle=%0d Wi_AW=%0d Wi_B=%0d",cycle,actual_aw_count[0],actual_b_count[0]);
+    @(negedge clk);stage=1;prefill_select=0;
+    a_checks=0;w_checks=0;output_words=0;expected_output_beats=256;
+    for(int r=0;r<4;r++)ps_checks[r]=0;
+    for(int i=0;i<4096;i++)output_seen[i]=0;
+    for(int pp=0;pp<3;pp++)begin
+      if(q_active[pp])$fatal(1,"W reader active at Wi->Down switch");
+      q_index[pp]=0;q_left[pp]=0;q_bytes[pp]=0;q_beats[pp]=0;q_bursts[pp]=0;
+    end
+    if(aux_active)$fatal(1,"AUX reader active at switch");
+    aux_index=0;aux_left=0;aux_bytes=0;
+    measure_cfg=-1;measure_done=-1;measure_consume=-1;measure_consumes=0;
+    measure_done_hold=0;measure_state_sum=0;measure_aw=0;measure_w=0;measure_b=0;
+    measure_useful_bytes=0;measure_physical_bytes=0;measure_w_start=-1;measure_w_publish=-1;
+    measure_a_start=-1;measure_a_publish=-1;measure_legacy_hold_end=-1;
+    measure_first_issue=-1;measure_last_issue=-1;measure_first_launch=-1;measure_last_launch=-1;
+    measure_first_ps=-1;measure_last_ps=-1;measure_first_aw=-1;measure_last_aw=-1;
+    measure_first_w=-1;measure_last_w=-1;measure_first_b=-1;measure_last_b=-1;
+    measure_a_request_wait=0;measure_a_return_wait=0;measure_a_return_blocked=0;
+    measure_w_request_wait=0;measure_w_return_wait=0;measure_w_return_blocked=0;
+    measure_front_wait=0;measure_compute_active=0;measure_launches=0;measure_ps_cycles=0;
+    measure_ps_blocked=0;measure_writer_packet_wait=0;measure_writer_tx=0;measure_writer_wait_b=0;
+    measure_aw_wait=0;measure_w_wait=0;measure_b_backpressure=0;
+    measure_tb_aw_gate=0;measure_tb_w_gate=0;
+    for(int pp=0;pp<3;pp++)begin
+      measure_w_ar_wait[pp]=0;measure_w_r_gap[pp]=0;measure_w_r_blocked[pp]=0;
+    end
+    measure_aux_ar_wait=0;measure_aux_r_gap=0;measure_aux_r_blocked=0;
+    for(int st=0;st<13;st++)measure_state[st]=0;
+    $readmemh({afixture,"/q.mem"},aq);$readmemh({afixture,"/scale.mem"},asc);
+    $readmemh({afixture,"/output.mem"},outgold);
+    $readmemh({wfixture,"/model_identity.hex"},model);
+    $readmemh({wfixture,"/expected_aux_header.hex"},header);
+    $readmemh({wfixture,"/aux_header.hex"},auxwords);
+    $readmemh({wfixture,"/down_config.hex"},config_words);
+    $readmemh({wfixture,"/down_q0.hex"},wq0);$readmemh({wfixture,"/down_q1.hex"},wq1);
+    $readmemh({wfixture,"/down_scale.hex"},wsc);
+    $readmemh({streams,"/w8.mem"},vw);$readmemh({streams,"/ps.mem"},vps);
+    cfg_K=2624;cfg_N=1024;cfg_numeric_identity[671:160]=model[0][511:0];
+    cfg_linear_context[31:0]=32'hac000006;cfg_linear_context[39:32]=8'h33;
+    cfg_source_ref=64'h0000000700000001;
+    cfg_a_ref=64'h0000002200000002;cfg_w_ref=64'h0000002300000002;
+    cfg_ps_ref=64'h0000002400000002;cfg_dst_ref=64'h0000000300000001;
+    cfg_w_model_identity=model[0];cfg_a_epoch=2;cfg_w_epoch=2;cfg_weight_key=4;
+    cfg_region_base[0]=DDR_BASE+64'h40000;cfg_row_stride_bytes=4096;
+    cfg_batch_stride_bytes=4194304;
+    @(negedge clk);
+    g_cfg_numeric_identity=cfg_numeric_identity;
+    g_cfg_producer_context=cfg_linear_context;
+    g_cfg_producer_context[31:0]=32'hac000004;
+    g_cfg_producer_context[39:32]=8'h60;
+    g_cfg_quant_context=cfg_linear_context;
+    g_cfg_quant_context[31:0]=32'hac000005;
+    g_cfg_quant_context[39:32]=8'h61;
+    g_cfg_linear_context=cfg_linear_context;
+    g_cfg_wi_ref=64'h0000000600000001;
+    g_cfg_gate_ref=cfg_source_ref;
+    g_cfg_a_ref=cfg_a_ref;g_cfg_w_ref=cfg_w_ref;g_cfg_down_dst_ref=cfg_dst_ref;
+    g_cfg_rows=4;g_cfg_a_slot=cfg_a_slot;g_cfg_a_slot_epoch=cfg_a_epoch;
+    g_cfg_bo_base=64'h100000000;g_cfg_bo_span=64'h3000000;
+    g_cfg_region_base=DDR_BASE+64'h20000;g_cfg_region_span=64'h1000000;
+    g_first_addr=g_cfg_region_base;
+    // The original outer admission rejection remains a zero-issue check.
+    g_cfg_owner_admitted=0;g_cfg_valid=1;
+    @(posedge clk);while(!g_cfg_ready)@(posedge clk);#1;
+    if(!g_cfg_reject || g_aw_count!=0 || producer.vector_row.issued!=0 || g_quant_starts!=0)
+      $fatal(1,"GQD0 rejected G admission issued work");
+    @(negedge clk);g_cfg_valid=0;g_cfg_owner_admitted=1;tick();
+    @(negedge clk);g_cfg_valid=1;tick();
+    if(g_cfg_reject)$fatal(1,"GQD0 legal G command rejected");
+    @(negedge clk);g_cfg_valid=0;
+    $display("MATRIX_PROGRESS cycle=%0d GQD0_cfg_accepted=1",cycle);
+    // The physical reader owns all Wi scalar/status/row signals.
+    @(negedge clk);wi_cfg_valid=1;
+    @(posedge clk);while(!wi_cfg_ready)@(posedge clk);#1;
+    if(wi_cfg_reject)$fatal(1,"WIGQD Wi reader cfg rejected");
+    @(negedge clk);wi_cfg_valid=0;
+    if(pilot)begin
+      while(wi_complete_rows<1 || g_b_count<164)tick();
+      if(wi_r_count<328 || g_w_count<164)$fatal(1,"WIGQD pilot physical first row");
+      $display("WIGQD0_PILOT_PASS cycle=%0d Wi_AW=1312 Wi_reader_R=%0d GATE_B=%0d Down=NOT_RUN",cycle,wi_r_count,g_b_count);
+      $finish;
+    end
+    while(!g_done_valid)tick();
+    if(g_done_status!=0 || g_gate_owner_state!=0 || fa_slot_state[0]!=2 ||
+       fa_slot_rows_done[0]!=16'hf || g_quant_starts!=4 || g_quant_rows!=4 ||
+       g_quant_input_beats!=656 || fa_physical_half_commits!=656 ||
+       fa_physical_scale_commits!=328 || g_source_complete_rows!=4 ||
+       g_source_r_count!=656 || g_write_beats!=656 || g_read_beats!=656 ||
+       g_quant_halves!=656)
+      $fatal(1,"GQD0 bridge completion/physical debt");
+    repeat(7)begin tick();if(!g_done_valid || fa_slot_state[0]!=2)
+      $fatal(1,"GQD0 held bridge response");end
+    @(negedge clk);g_done_ready=1;tick();
+    @(negedge clk);g_done_ready=0;tick();
+    if(g_done_valid || fa_slot_state[0]!=2 || wi_reader_active || wi_r_count!=1312 ||
+       wi_complete_rows!=4 || wi_accepted!=20992 || wi_rows_retired!=4)
+      $fatal(1,"GQD0 bridge/Wi reader consume");
+    measure_a_publish=cycle;
+    $display("MATRIX_PROGRESS cycle=%0d GQD0_A_ready=1 gate_AW=%0d gate_W=%0d gate_B=%0d gate_AR=%0d gate_R=%0d quant_groups=%0d",cycle,g_aw_count,g_w_count,g_b_count,g_source_ar_count,g_source_r_count,fa_physical_scale_commits);
+    wc_load_slot=0;wc_load_epoch=2;wc_load_k=2624;wc_load_n=1024;wc_load_weight_key=4;wc_load_model_identity=model[0];wc_load_expected_aux_header=header[0];wc_load_aux_base=64'h400000000;wc_load_bias_base=0;wc_load_bias_bytes=0;
+    for(int pp=0;pp<3;pp++)begin wc_load_base[pp]=64'h500000000+64'(pp)*64'h10000000+config_words[3+pp];wc_load_bytes[pp]=32'(config_words[6+pp]);end
+    @(negedge clk);wc_load_valid=1;@(posedge clk);while(!wc_load_ready)@(posedge clk);#1;@(negedge clk);wc_load_valid=0;
+    while(!wc_load_done)tick();if(wc_load_error || wc_load_reject || wc_slot_state[0]!=2 || wc_load_scale_checks!=83968)$fatal(1,"resident physical W strict load checks=%0d error=%b reject=%b state=%0d",wc_load_scale_checks,wc_load_error,wc_load_reject,wc_slot_state[0]);
+    for(int pp=0;pp<3;pp++)if(q_active[pp] || q_beats[pp]*64!=wc_load_bytes[pp])$fatal(1,"actual W final R coverage");
+    measure_w_publish=cycle;
+    $display("MATRIX_PROGRESS cycle=%0d physical_W_published=1 W_R=%0d,%0d,%0d scale_checks=%0d",cycle,q_beats[0],q_beats[1],q_beats[2],wc_load_scale_checks);
+    @(negedge clk);cfg_valid=1;#1;if(!cfg_ready || !ledger_claim_ready || !cfg_owner_admitted)$fatal(1,"matrix owner claim not admitted");tick();if(cfg_reject || ledger_claim_reject)$fatal(1,"resident command rejected");@(negedge clk);cfg_valid=0;
+    if(pilot)begin
+      while(ps_checks[0]<256 || ps_checks[1]<256 || ps_checks[2]<256 || ps_checks[3]<256)tick();
+      measurement_report("pilot");
+      $display("TM4_MATRIX_RESIDENT_PILOT_PASS cycles=%0d physical_A_half_commits=%0d physical_W_R=%0d A_reads=%0d W_reads=%0d real_stripes=%0d actual_PS_gold_checks=%0d output_final_B=NOT_RUN",cycle,fa_physical_half_commits,q_beats[0]+q_beats[1]+q_beats[2],a_checks,w_checks,actual_stripes,ps_checks[0]+ps_checks[1]+ps_checks[2]+ps_checks[3]);$finish;
+    end
+    while(!done_valid)tick();
+    if(done_status!=0 || actual_stripes!=10496 || actual_ps_commits!=41984 || actual_final_copies!=512 || a_checks!=82 || w_checks!=10496 || output_words!=4096 || actual_a_reads!=82 || actual_a_returns!=82 || actual_w_reads!=10496 || actual_w_returns!=10496 || ledger_ps_state!=2 || ledger_dst_state!=2 || ledger_checked_rows!=16'hf || ledger_covered_rows!=16'hf || ledger_parent_publications!=2 || fa_slot_state[0]!=0 || wc_slot_readers[0]!=0 || wc_slot_state[0]!=2)$fatal(1,"resident final closure status=%0d stripes=%0d ps=%0d copies=%0d A=%0d W=%0d output=%0d ledger=%0d/%0d",done_status,actual_stripes,actual_ps_commits,actual_final_copies,a_checks,w_checks,output_words,ledger_ps_state,ledger_dst_state);
+    for(int r=0;r<4;r++)if(ps_checks[r]!=10496)$fatal(1,"resident full PS coverage");
+    repeat(7)begin tick();if(!done_valid || ledger_dst_state!=2)$fatal(1,"resident held response");end
+    measure_legacy_hold_end=cycle;
+    // Preserve the seven held cycles above, then consume once at a real edge.
+    @(negedge clk);done_ready=1;tick();
+    if(measure_consumes!=1 || done_valid || dut.state!=0 || ledger_dst_state!=2 ||
+       ledger_parent_publications!=2 || !ledger_retire_debt_zero)
+      $fatal(1,"Down response consume/deassert/debt closure");
+    @(negedge clk);done_ready=0;tick();
+    if(done_valid || measure_consumes!=1 || ledger_dst_state!=2 || ledger_parent_publications!=2)
+      $fatal(1,"Down response after consume");
+    for(int i=0;i<DDR_BYTES;i++)begin : final_ddr_readback
+      logic expected_written;
+      expected_written=(i>=4096 && i<4096+83968) ||
+                       (i>=131072 && i<131072+41984) ||
+                       (i>=262144 && i<262144+16384);
+      if(ddr_written[i]!==expected_written)
+        $fatal(1,"WIGQD DDR coverage/guard address=%h",DDR_BASE+i);
+      if(!expected_written && ddr[i]!==8'ha5)
+        $fatal(1,"WIGQD DDR sentinel address=%h",DDR_BASE+i);
+      if(i>=4096 && i<4096+83968 &&
+         ddr[i]!==wi_fixture[(i-4096)/4][((i-4096)%4)*8+:8])
+        $fatal(1,"WIGQD Wi DDR final readback byte=%0d",i-4096);
+      if(i>=131072 && i<131072+41984 &&
+         ddr[i]!==gate_gold[(i-131072)/4][((i-131072)%4)*8+:8])
+        $fatal(1,"WIGQD GATE DDR final readback byte=%0d",i-131072);
+      if(i>=262144 && i<262144+16384 &&
+         ddr[i]!==outgold[(i-262144)/4][((i-262144)%4)*8+:8])
+        $fatal(1,"WIGQD Down DDR final readback byte=%0d",i-262144);
+    end
+    if(wi_ar_count==0 || wi_r_count!=1312 || g_aw_count!=656 ||
+       g_b_count!=656 || g_read_beats!=656 || actual_aw_count[0]!=256 ||
+       actual_b_count[0]!=256 || g_cfg_edge<0 || quant_a_publish_edge<0 ||
+       wi_reader_first_ar<0 || wi_reader_first_r<0 || gate_first_aw<0 ||
+       gate_first_w<0 || gate_first_b<0 || quant_first_r<0)
+      $fatal(1,"WIGQD final physical transaction coverage");
+    $display("WIGQD_BOUNDARIES sample=posedge Wi_reader_AR=%0d/%0d Wi_reader_R=%0d/%0d Wi_row_done=%0d,%0d,%0d,%0d G_cfg=%0d GATE_AW=%0d/%0d GATE_W=%0d/%0d GATE_B=%0d/%0d quant_R=%0d/%0d A_publish=%0d finish=%0d",
+      wi_reader_first_ar,wi_reader_last_ar,wi_reader_first_r,wi_reader_last_r,
+      wi_reader_row_edge[0],wi_reader_row_edge[1],wi_reader_row_edge[2],wi_reader_row_edge[3],
+      g_cfg_edge,gate_first_aw,gate_last_aw,gate_first_w,gate_last_w,gate_first_b,gate_last_b,
+      quant_first_r,quant_last_r,quant_a_publish_edge,cycle);
+    measurement_report("full");
+    $display("WIGQD0_CHAIN_PASS gate_W=%0d gate_R=%0d quant_groups=%0d Down_A_reads=%0d Down_A_returns=%0d Down_AW=%0d Down_W=%0d Down_B=%0d cycle=%0d",g_write_beats,g_read_beats,fa_physical_scale_commits,actual_a_reads,actual_a_returns,actual_aw_count[0],actual_w_count[0],actual_b_count[0],cycle);
+    $display("TM4_MATRIX_RESIDENT_FULL_PASS rows=4 K=2624 N=1024 real_stripes=%0d PS_lane_groups=335872 final_packets=%0d real_output_words=%0d actual_AW=%0d actual_W=%0d actual_B=%0d held_B=%0d full_A_physical=1 W_strict_physical=1 A_fixture_prequantized=0 final_B_publication=1 local_owner_ledger=1 cycles=%0d",actual_stripes,actual_final_copies,output_words,actual_aw_count[0],actual_w_count[0],actual_b_count[0],held_b,cycle);$finish;
+  end
+endmodule

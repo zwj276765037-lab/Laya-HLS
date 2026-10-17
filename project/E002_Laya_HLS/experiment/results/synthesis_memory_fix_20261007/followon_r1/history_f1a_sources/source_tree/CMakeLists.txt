@@ -1,0 +1,165 @@
+cmake_minimum_required(VERSION 3.18)
+project(laya_contract_p0 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+include(config/module_sources.cmake)
+add_library(laya_contract STATIC ${LAYA_CONTRACT_SOURCES})
+target_include_directories(laya_contract PUBLIC include hls/control hls/platform hls/memory hls/operators hls tests)
+target_compile_options(laya_contract PRIVATE -Wall -Wextra -Wpedantic)
+add_executable(laya_fixture_check host/laya_fixture_check.cpp)
+target_link_libraries(laya_fixture_check PRIVATE laya_contract)
+enable_testing()
+add_executable(contract_core tests/core_contract_tb.cpp)
+target_link_libraries(contract_core PRIVATE laya_contract)
+add_test(NAME contract_core COMMAND contract_core)
+add_executable(contract_bitfields tests/bitfields_tb.cpp)
+target_link_libraries(contract_bitfields PRIVATE laya_contract)
+add_test(NAME contract_bitfields COMMAND contract_bitfields)
+add_executable(abi_bad_frames tests/abi_contract_tb.cpp)
+target_link_libraries(abi_bad_frames PRIVATE laya_contract)
+add_test(NAME abi_bad_frames COMMAND abi_bad_frames ${CMAKE_SOURCE_DIR}/reference/runs/typed_q8_ref_20261005/abi_replay/request_v1.bin)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+add_test(NAME abi_real_fixture COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/vivado/module_design/top/tb/fixture_contract_test.py ${CMAKE_SOURCE_DIR} $<TARGET_FILE:laya_fixture_check>)
+add_test(NAME contract_hls_gate COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/hls_gate_test.py ${CMAKE_SOURCE_DIR})
+set(LAYA_MODULES
+  top common kernel_wrapper forward_controller memory_map hbm_loader_and_cache
+  embedding_engine layernorm_engine activation_quantizer q8_linear_and_restore
+  rope_and_mask attention_and_fp_engine vector_and_ffn decision_scorer_act result_status
+)
+foreach(module IN LISTS LAYA_MODULES)
+  add_executable(contract_${module} vivado/module_design/${module}/tb/contract_tb.cpp)
+  target_link_libraries(contract_${module} PRIVATE laya_contract)
+  add_test(NAME contract_${module} COMMAND contract_${module})
+endforeach()
+
+option(LAYA_ENABLE_NUMERIC "Build isolated P1 numeric slice tests" OFF)
+if(LAYA_ENABLE_NUMERIC)
+  include(config/numeric_sources.cmake)
+  add_library(laya_numeric STATIC ${LAYA_NUMERIC_SOURCES})
+  target_include_directories(laya_numeric PUBLIC include)
+  target_compile_options(laya_numeric PRIVATE -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  foreach(module IN ITEMS layernorm_engine activation_quantizer q8_linear_and_restore)
+    add_executable(numeric_${module}
+      vivado/module_design/${module}/tb/numeric_tb.cpp)
+    target_include_directories(numeric_${module} PRIVATE tests)
+    target_compile_options(numeric_${module} PRIVATE -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+    target_link_libraries(numeric_${module} PRIVATE laya_numeric)
+    add_test(NAME numeric_${module} COMMAND numeric_${module})
+  endforeach()
+  add_executable(numeric_cli tests/numeric_cli.cpp)
+  target_include_directories(numeric_cli PRIVATE tests)
+  target_compile_options(numeric_cli PRIVATE -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  target_link_libraries(numeric_cli PRIVATE laya_numeric)
+endif()
+
+option(LAYA_ENABLE_FULL_NUMERIC "Build isolated P2 A-batch arithmetic tests" OFF)
+if(LAYA_ENABLE_FULL_NUMERIC)
+  include(config/full_numeric_sources.cmake)
+  add_library(laya_full_numeric STATIC ${LAYA_FULL_NUMERIC_SOURCES})
+  target_include_directories(laya_full_numeric PUBLIC include)
+  target_compile_options(laya_full_numeric PRIVATE
+    -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  foreach(module IN ITEMS embedding_engine rope_and_mask attention_and_fp_engine
+                          vector_and_ffn decision_scorer_act)
+    add_executable(full_numeric_${module}
+      vivado/module_design/${module}/tb/full_numeric_tb.cpp)
+    target_include_directories(full_numeric_${module} PRIVATE tests)
+    target_compile_options(full_numeric_${module} PRIVATE
+      -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+    target_link_libraries(full_numeric_${module} PRIVATE laya_full_numeric)
+    add_test(NAME full_numeric_${module} COMMAND full_numeric_${module})
+  endforeach()
+  add_executable(full_cli tests/full_cli.cpp)
+  target_include_directories(full_cli PRIVATE tests)
+  target_compile_options(full_cli PRIVATE
+    -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  target_link_libraries(full_cli PRIVATE laya_full_numeric)
+endif()
+
+option(LAYA_ENABLE_FULL_FORWARD "Build the P2 complete forward implementation" OFF)
+set(LAYA_FULL_MODEL_DIR "${CMAKE_SOURCE_DIR}/build/model-repair" CACHE PATH
+    "Generated fixed P2 model package directory")
+option(LAYA_ENABLE_XRT_HOST "Build the real XRT deployment Host" OFF)
+if(LAYA_ENABLE_XRT_HOST)
+  if(NOT EXISTS "${LAYA_FULL_MODEL_DIR}/laya_model_layout_generated.h")
+    message(FATAL_ERROR
+      "LAYA_ENABLE_XRT_HOST requires a generated P2 model package: ${LAYA_FULL_MODEL_DIR}")
+  endif()
+  find_path(LAYA_XRT_INCLUDE_DIR NAMES xrt/xrt_bo.h
+    HINTS ENV XILINX_XRT PATH_SUFFIXES include)
+  find_library(LAYA_XRT_COREUTIL_LIBRARY NAMES xrt_coreutil
+    HINTS ENV XILINX_XRT PATH_SUFFIXES lib lib64)
+  if(NOT LAYA_XRT_INCLUDE_DIR OR
+     NOT EXISTS "${LAYA_XRT_INCLUDE_DIR}/xrt/xrt_device.h" OR
+     NOT EXISTS "${LAYA_XRT_INCLUDE_DIR}/xrt/xrt_kernel.h" OR
+     NOT EXISTS "${LAYA_XRT_INCLUDE_DIR}/ert.h" OR
+     NOT LAYA_XRT_COREUTIL_LIBRARY)
+    message(FATAL_ERROR
+      "LAYA_ENABLE_XRT_HOST requires real XRT C++ headers "
+      "(xrt_bo.h, xrt_device.h, xrt_kernel.h, ert.h) and libxrt_coreutil. "
+      "Set XILINX_XRT or CMAKE_PREFIX_PATH to the installed XRT root.")
+  endif()
+  find_package(OpenSSL REQUIRED COMPONENTS Crypto)
+  add_executable(laya_host host/laya_host.cpp)
+  target_include_directories(laya_host PRIVATE
+    "${LAYA_XRT_INCLUDE_DIR}" "${LAYA_FULL_MODEL_DIR}")
+  target_link_libraries(laya_host PRIVATE
+    laya_contract "${LAYA_XRT_COREUTIL_LIBRARY}" OpenSSL::Crypto)
+  target_compile_options(laya_host PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+if(LAYA_ENABLE_FULL_FORWARD)
+  if(NOT EXISTS "${LAYA_FULL_MODEL_DIR}/laya_model_layout_generated.h")
+    message(FATAL_ERROR "P2 model package is absent: ${LAYA_FULL_MODEL_DIR}")
+  endif()
+  include(config/full_sources.cmake)
+  add_library(laya_full STATIC ${LAYA_FULL_SOURCES})
+  target_include_directories(laya_full PUBLIC include hls "${LAYA_FULL_MODEL_DIR}")
+  target_compile_options(laya_full PRIVATE
+    -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  add_executable(full_memory tests/full_memory_tb.cpp)
+  target_link_libraries(full_memory PRIVATE laya_full)
+  target_compile_options(full_memory PRIVATE -Wall -Wextra -Wpedantic)
+  add_test(NAME full_memory COMMAND full_memory
+    "${LAYA_FULL_MODEL_DIR}"
+    "${CMAKE_SOURCE_DIR}/reference/runs/typed_q8_ref_20261005/abi_replay/request_v1.bin")
+  if(EXISTS "${CMAKE_SOURCE_DIR}/tests/full_owner_tb.cpp")
+    add_executable(full_owner tests/full_owner_tb.cpp)
+    target_link_libraries(full_owner PRIVATE laya_full)
+    target_compile_options(full_owner PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME full_owner COMMAND full_owner
+      "${LAYA_FULL_MODEL_DIR}"
+      "${CMAKE_SOURCE_DIR}/reference/runs/typed_q8_ref_20261005/abi_replay/request_v1.bin")
+  endif()
+  if(EXISTS "${CMAKE_SOURCE_DIR}/tests/full_matrix_dut_tb.cpp")
+    add_executable(full_matrix_dut tests/full_matrix_dut_tb.cpp)
+    target_link_libraries(full_matrix_dut PRIVATE laya_full)
+    target_compile_options(full_matrix_dut PRIVATE
+      -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  endif()
+  if(EXISTS "${CMAKE_SOURCE_DIR}/tests/full_front_dut_tb.cpp")
+    add_executable(full_front_dut tests/full_front_dut_tb.cpp)
+    target_link_libraries(full_front_dut PRIVATE laya_full)
+    target_compile_options(full_front_dut PRIVATE
+      -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  endif()
+  if(EXISTS "${CMAKE_SOURCE_DIR}/tests/full_attention_dut_tb.cpp")
+    add_executable(full_attention_dut tests/full_attention_dut_tb.cpp)
+    target_link_libraries(full_attention_dut PRIVATE laya_full)
+    target_compile_options(full_attention_dut PRIVATE
+      -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  endif()
+  if(EXISTS "${CMAKE_SOURCE_DIR}/tests/full_shape_dut_tb.cpp")
+    add_executable(full_shape_dut_tb tests/full_shape_dut_tb.cpp)
+    target_link_libraries(full_shape_dut_tb PRIVATE laya_full)
+    target_compile_options(full_shape_dut_tb PRIVATE
+      -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  endif()
+  if(EXISTS "${CMAKE_SOURCE_DIR}/tests/full_forward_dut_runner.cpp")
+    add_executable(full_forward_dut_runner
+      tests/full_forward_dut_runner.cpp)
+    target_link_libraries(full_forward_dut_runner PRIVATE laya_full)
+    target_compile_options(full_forward_dut_runner PRIVATE
+      -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off)
+  endif()
+endif()

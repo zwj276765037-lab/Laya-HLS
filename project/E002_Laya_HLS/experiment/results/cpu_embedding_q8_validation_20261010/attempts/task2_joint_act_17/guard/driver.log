@@ -1,0 +1,164 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sat Oct 10 13:12:58 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_joint_act.tcl
+# if {[llength $argv] != 2} {
+#     error "usage: run_joint_act.tcl FRESH_WORK ACT_VECTORS"
+# }
+# lassign $argv work vectors
+# set work [file normalize $work]
+# set vectors [file normalize $vectors]
+# if {![file isdirectory $work] || [file exists [file join $work vivado]] ||
+#     ![file isfile [file join $vectors manifest.json]]} {
+#     error "fresh work and materialized ACT vectors required"
+# }
+# set module [file normalize [file join [file dirname [info script]] ..]]
+# create_project tm1tn8_joint_act [file join $work vivado] \
+#     -part xcu55c-fsvh2892-2L-e
+# set_param general.maxThreads 4
+# add_files -norecurse -fileset sources_1 [list \
+#     [file join $module rtl tm1tn8_integer_tree.sv] \
+#     [file join $module rtl tm1tn8_fp_restore.sv] \
+#     [file join $module rtl tm1tn8_reserved_store.sv] \
+#     [file join $module rtl tm1tn8_arithmetic_pipeline.sv] \
+#     [file join $module rtl tm1tn8_ps_controller.sv] \
+#     [file join $module rtl tm1tn8_bias_output.sv] \
+#     [file join $module rtl tm1tn8_axi512_writer.sv] \
+#     [file join $module rtl tm1tn8_writer_bridge.sv] \
+#     [file join $module rtl tm1tn8_trace_axi32_writer.sv] \
+#     [file join $module rtl tm1tn8_joint_bridge.sv]]
+# add_files -norecurse -fileset sim_1 \
+#     [file join $module tb tm1tn8_joint_act_tb.sv]
+# source [file join $module tb create_fp_ip.tcl]
+## if {[get_property PART [current_project]] ne "xcu55c-fsvh2892-2L-e"} {
+##     error "TM1TN8 FP part mismatch"
+## }
+## foreach kind {sitofp fmul fadd} {
+##     set name tm1tn8_${kind}_ip
+##     if {[llength [get_ips -quiet $name]]} { error "FP IP already exists: $name" }
+##     create_ip -name floating_point -version 7.1 -vendor xilinx.com \
+##         -library ip -module_name $name
+##     set common [list CONFIG.c_rate 1 CONFIG.flow_control NonBlocking \
+##         CONFIG.c_optimization Speed_Optimized \
+##         CONFIG.c_result_exponent_width 8 CONFIG.c_result_fraction_width 24 \
+##         CONFIG.result_precision_type Single \
+##         CONFIG.has_a_tlast false CONFIG.has_a_tuser false \
+##         CONFIG.has_b_tlast false CONFIG.has_b_tuser false \
+##         CONFIG.has_result_tready false CONFIG.has_aresetn true \
+##         CONFIG.maximum_latency true]
+##     if {$kind eq "sitofp"} {
+##         set specific [list CONFIG.operation_type Fixed_to_Float \
+##             CONFIG.a_precision_type Custom \
+##             CONFIG.c_a_exponent_width 32 CONFIG.c_a_fraction_width 0 \
+##             CONFIG.c_mult_usage No_Usage \
+##             CONFIG.has_aclken false]
+##     } elseif {$kind eq "fmul"} {
+##         set specific [list CONFIG.operation_type Multiply \
+##             CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Max_Usage \
+##             CONFIG.has_aclken false]
+##     } else {
+##         set specific [list CONFIG.operation_type Add_Subtract \
+##             CONFIG.add_sub_value Add CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Full_Usage \
+##             CONFIG.has_aclken true]
+##     }
+##     set_property -dict [concat $common $specific] [get_ips $name]
+##     set expected_latency [expr {$kind eq "fadd" ? 11 : 6}]
+##     set actual_latency [get_property CONFIG.C_LATENCY [get_ips $name]]
+##     if {$actual_latency != $expected_latency} {
+##         error "FP IP latency changed: $name actual=$actual_latency expected=$expected_latency"
+##     }
+##     set xci [get_files -quiet ${name}.xci]
+##     if {[llength $xci] != 1} { error "FP XCI missing: $name" }
+##     set_property generate_synth_checkpoint false $xci
+##     generate_target {synthesis simulation} $xci
+##     puts "TM1TN8_FP_IP_READY $name [get_property IP_FILE [get_ips $name]]"
+## }
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/ip'.
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_sitofp_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_sitofp_ip'...
+TM1TN8_FP_IP_READY tm1tn8_sitofp_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.srcs/sources_1/ip/tm1tn8_sitofp_ip/tm1tn8_sitofp_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fmul_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fmul_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fmul_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.srcs/sources_1/ip/tm1tn8_fmul_ip/tm1tn8_fmul_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fadd_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fadd_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fadd_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.srcs/sources_1/ip/tm1tn8_fadd_ip/tm1tn8_fadd_ip.xci
+# set_property top tm1tn8_joint_bridge [get_filesets sources_1]
+# set_property top tm1tn8_joint_act_tb [get_filesets sim_1]
+# set_property target_simulator XSim [current_project]
+# set_property xsim.simulate.runtime {all} [get_filesets sim_1]
+# set_property -name xsim.simulate.xsim.more_options \
+#     -value "-testplusarg VEC_DIR=$vectors" -objects [get_filesets sim_1]
+# update_compile_order -fileset sim_1
+update_compile_order: Time (s): cpu = 00:00:15 ; elapsed = 00:00:08 . Memory (MB): peak = 1727.426 ; gain = 8.176 ; free physical = 93362 ; free virtual = 399379
+# puts "TM1TN8_JOINT_ACT_SIM_BEGIN"
+TM1TN8_JOINT_ACT_SIM_BEGIN
+# launch_simulation -simset sim_1 -mode behavioral
+Command: launch_simulation  -simset sim_1 -mode behavioral
+INFO: [Vivado 12-25911] Executing simulation for 'XSim' simulator
+INFO: [Project 1-5737] Running on host user (64) - Ubuntu 24.04.4 LTS
+INFO: [Vivado 12-28535] Process started - Sat Oct 10 13:13:12 2026
+
+INFO: [Vivado 12-12493] Simulation top is 'tm1tn8_joint_act_tb'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-13660] Precompiled IP simulation library mode is enabled (default). The design IP libraries will be referenced from the compiled library path. Please note that if the precompiled version of the library is not found from the path or the IP is in locked state, then the library source files for these IPs will be compiled locally as part of the compile order.
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/xsim/xsim.ini' copied to run dir:'/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'tm1tn8_joint_act_tb' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj tm1tn8_joint_act_tb_vlog.prj
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_arithmetic_pipeline.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_arithmetic_pipeline
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_axi512_writer.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_axi512_writer
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_bias_output.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_bias_output
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_fp_restore.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_fp_restore
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_integer_tree.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_integer_tree
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_joint_bridge.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_joint_bridge
+WARNING: [VRFC 10-3380] identifier 'ps_group_ready' is used before its declaration [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_joint_bridge.sv:110]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_ps_controller
+ERROR: [VRFC 10-4982] syntax error near 'task' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:45]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'task' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:45]
+ERROR: [VRFC 10-4982] syntax error near 'task' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:125]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'task' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:125]
+ERROR: [VRFC 10-4982] syntax error near 'task' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:197]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'task' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:197]
+ERROR: [VRFC 10-4982] syntax error near 'task' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:231]
+ERROR: [VRFC 10-8549] SystemVerilog keyword 'task' used in incorrect context [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:231]
+ERROR: [VRFC 10-8530] module 'tm1tn8_ps_controller' is ignored due to previous errors [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_ps_controller.sv:6]
+INFO: [USF-XSim-69] 'compile' step finished in '2' seconds
+INFO: [USF-XSim-99] Step results log file:'/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.sim/sim_1/behav/xsim/xvlog.log'
+ERROR: [USF-XSim-62] 'compile' step failed with error(s). Please check the Tcl console output or '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/cpu_embedding_q8_validation_20261010/attempts/task2_joint_act_17/work/vivado/tm1tn8_joint_act.sim/sim_1/behav/xsim/xvlog.log' file for more information.
+ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation.
+launch_simulation: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1727.426 ; gain = 0.000 ; free physical = 93530 ; free virtual = 399547
+ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.
+
+    while executing
+"launch_simulation -simset sim_1 -mode behavioral"
+    (file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_joint_act.tcl" line 37)
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 10 13:13:18 2026...

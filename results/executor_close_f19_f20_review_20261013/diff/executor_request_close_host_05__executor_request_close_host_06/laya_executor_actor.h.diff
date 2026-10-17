@@ -1,0 +1,12 @@
+--- executor_request_close_host_05/laya_executor_actor.h
++++ executor_request_close_host_06/laya_executor_actor.h
+@@ -66,6 +66,9 @@
+   program_wire::ResultPacket result_packet{};
+   unsigned beat = 0, result_beat = 0;
+   bool request_seen = false, result_consumed_pending = false;
++  // Managed consumption is established only by the complete bound record.
++  // Keep it separate from the legacy untagged last-read notification.
++  bool managed_result_consumed = false;
+   bool import_pending = false, program_result_consumed = false;
+   bool control_pending = false, control_sent = false, revoked = false;
+   bool managed_close = false, request_committed = false, closed_consumed = false;

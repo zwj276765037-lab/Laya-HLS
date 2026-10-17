@@ -1,0 +1,75 @@
+{
+  "aggregate_cycles_per_group": {
+    "down": 4.158536585365853,
+    "note": "full command envelope including fill, reset quarantine and tail; not a measured per-group issue interval or 4-clock sustained proof",
+    "wi": 4.40625
+  },
+  "created_utc": "2026-10-10T16:27:44.333503+00:00",
+  "first_difference": {
+    "input_description": "1e-38 at group0 lane0; original CPU boundary",
+    "input_f32_bits": "006ce3ee",
+    "observed_amax_bits": "006ce3ee",
+    "observed_d_full_bits": "00000000",
+    "observed_recip_issues": 0,
+    "observed_reciprocal_bits": "00000000",
+    "observed_status": "READY",
+    "required_behavior": "nonzero subnormal d_full followed by nonfinite reciprocal and INVALID; no A publication",
+    "result": "FAIL"
+  },
+  "guard": {
+    "child_exit_code": 1,
+    "elapsed_seconds": 40.06154484115541,
+    "finished_at": "2026-10-10T16:25:06.531900+00:00",
+    "minimum_mem_available_kb": 392149024,
+    "peak_owned_rss_kb": 1904936,
+    "rss_capture_count": 200,
+    "rss_captured": true,
+    "rss_sample_count": 200,
+    "trigger": null
+  },
+  "identity": {
+    "guard_result": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_real_03/guard/guard_result.json",
+    "guard_result_sha256": "5fd78b608296b6bda3a043528b20d81df13d934eae7d20904a23bc146317503a",
+    "input_manifest": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_real_03/input_manifest.json",
+    "input_manifest_sha256": "e1cfd98536151c7eff71f73b922c762fbd37de860df438bcd995a9470aab741d",
+    "simulate_log": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_real_03/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim/simulate.log",
+    "simulate_log_sha256": "0f230d827b17163c9ab57a5f13bbc217f4c0ae3c4df11c54830d5f18b4bc8c34"
+  },
+  "overall_status": "NUMERIC_FAIL",
+  "passed_boundaries": [
+    "zero group and +/-0.5 +/-1.5 roundf tie-away",
+    "malformed second-half mask returns protocol without partial output",
+    "1e10 half scale overflow",
+    "+Inf input earliest lane",
+    "later group nonfinite returns before earlier group half-overflow but first error remains earlier group",
+    "independent poison for two nonfinite slots",
+    "divider in-flight reset discard plus fresh valid row",
+    "FMUL in-flight reset discard plus fresh valid row"
+  ],
+  "real_row_checks": "Every q byte and each group half scale, d_full, reciprocal against frozen independent fixture; divider operand/amax, issue/return conservation, 2 AMAX + 2 REPLAY bank reads per group, 2 sixteen-lane FMUL halves per group, 128-bit output handshakes and READY only after all output returns. Output sink backpressure period five clocks.",
+  "real_rows": [
+    {
+      "case": "LN_FFN to Wi",
+      "cycles_from_start_to_done": 141,
+      "groups": 32,
+      "q_bytes_checked": 1024,
+      "result": "PASS_SCOPED"
+    },
+    {
+      "case": "GEGLU to Down",
+      "cycles_from_start_to_done": 341,
+      "groups": 82,
+      "q_bytes_checked": 2624,
+      "result": "PASS_SCOPED"
+    }
+  ],
+  "schema": "laya-quant16-stream-real-rtl-receipt-v1",
+  "scope": "one external real Wi K1024 row, one external real Down K2624 row, and short numerical/protocol/reset boundaries",
+  "tool": "Vivado/XSim 2025.2; original syn03 F32 fdiv and sixteen original F32 fmul IP instances",
+  "uncovered": [
+    "tiny numeric contract for this original FP IP",
+    "direct per-group service gap/first-last issue timing",
+    "full NumericIdentity/BufferRef, physical dual A slot lease and producer chain",
+    "synthesis/P&R/board"
+  ]
+}

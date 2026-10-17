@@ -1,0 +1,39 @@
+# WIGQD1正常四行连续链接纳，转真实量化供数
+
+R-SM005-WIGQD1-20261013；M004/SM005/E005/R001。回复`measurement-first-WIGQD1-AT032-scoped-full-result-20261013`，合并`measurement-first-WIGQD1-upstream-LN-identity-20261013`。
+
+**限定接纳AT032同runtime正常四行Wi→真实DDR/reader→G→量化→同dualA→同resident Down整链PASS。全冷TB205314cycles，全部原独立gold、末B/lease/完成消费及有效区/保护字节终读回通过。下一D-M004-QWIGQD-INTEGRATION-01复用现有量化器处理同源LN_FFN浮点输入，去掉Wi入口预量化A；暂不接不同来源的LQ0，也不恢复整体控制。** 普通实施与验证直接沿既有授权继续。
+
+## 数值、真实交接与存储
+
+本次只有初始reset；一套矩阵引擎/dualW/dualA，Wi用epoch1，真实排空后G量化/Down用epoch2。Wi完整20992F32/671744 PS lane-group及1312 AW/W/B；真实DDR提供1312 R、四次row_done及20992个按完整身份核验的标量给G；G完整10496F32/656 AW/W/B；原量化真实重读656R、328组；Down完整335872 PS/4096F32和256 AW/W/B均对原独立gold通过。Wi与Down末B、lease/读债归零、局部发布、7拍响应保持及各一次真实消费保持。
+
+最终全扫327680B：Wi83968、GATE41984、Down16384逐字节gold与written覆盖；其余185344B仍为0xA5且未写。冻结TB1724–1742的原final_ddr_readback全部执行后才到1755的CHAIN_PASS。它补齐本新样本的最终保护区覆盖；不回写旧WI0缺失项或旧AT031 COST_STOP。
+
+## 周期口径与停止判断
+
+Wi cfg54416→first done101327=46911、→消费101334=46918，完成marker101335。G实际接受101339；reader配置101341、首AR/R101343/101347，四row_done106944/121440/135936/150435。GATE首B110109、末B159328；量化首末R159341/161680，新A实际发布162045，bridge响应后ready观察162057。
+
+Down cfg189122→first done205306=16184，→真实消费205313=16191；全TB205314。**G接受→全TB结束的区间为103975cycles，不能写成“结束cycle103975”或当作单独G计算时间。** G接受→最终消费为103974，→新A发布60706。相对独立KB1/GQD0的Down16190差1拍，来自不同集成边界/绝对响应相位的本次样本，不能直接判新优化或退化。
+
+原WIGQD_BOUNDARIES的A_publish=290是Wi前初始A发布；新量化A用stage1实际marker162045，162057仅ready-by。原Down观察A_fill_accept101337是拒绝探针，不是合法G接受；held_B28225累计跨Wi/Down，不能拿来计算Down独立B延迟。以上原日志保持不变，在派生报告按语义区分，不为标签问题重跑已过数值。
+
+AT032只增加被动观察而同DUT/响应策略完整推进，确认这条冻结连接在本profile有完整正常出口。AT031没有这些G阶段事务观察，历史停止不构成DUT死锁证据，也不能回写为旧full实际通过；本次更不能证明所有背压/profile或恢复均安全。
+
+## 冻结与成本核验
+
+103条manifest、101不同冻结路径；相对AT031只改第57行TB并新增runner。删除新增126行被动观察后TB逐字符等于AT031，原驱动、连接与所有断言保留。主控核216个引用/211路径（含206个source/frozen、工具、receipt与guard正则来源），零SHA/bytes差异。实际12条诊断快照及其模板/展开例均不匹配冻结guard；17类真实进度计数单调，guard规则未改变。工程verification的diagnostic_guard_check=false表示“不匹配”，不是验证失败。
+
+3guard串行，49条实际policy核定（31/9/9），child0/trigger null。static82.816283s、pilot22.584340s、full1750.811857s/峰1504888KiB；启动前估计2871.684102s<3600s。pilot仅Wi W前缀，完整链依据full。主控未运行DUT工具，所有耗时为工具成本，不换算部署性能。
+
+## 后继选择
+
+当前尚有明确外部边界：Wi A是TB预量化LN_FFN。主控核本项目原`wi_rows4_source_f32.bin`16384B等于完整enc0 LN_FFN capture前四行；原4096B q/256B scale与AT032 mem按正确字节序解码逐字节一致。旧LQ0来自layer1 LN_ATTN、其fixture不同，不能直接拼接或改名。
+
+选择[QWIGQD0执行合同](../mission/quant_wi_g_quant_down_stage_20261013.md)：以这份LN_FFN F32作为声明外部源，真实AXI读→原quant_task→同一dualA epoch1→Wi，然后复用同一量化器处理GATE/epoch2并走完Down。现有quant_task已支持NORM类2/K1024；必要有限命令/响应/source AXI透传将共享实例从G桥硬接K2624中显式选出，保持原校验、唯一状态、债务排空与返回归属。没有第二量化器/缓存/矩阵引擎。
+
+新源Q应生成128组、4096 INT8/128 FP16 scale，与旧Wi独立期望比；保留本次完整链数值和存储终读回。新输入区域与输出/哨兵分开定义且只读保持，新增基线独立计量。一个接入实现及最多两轮有据修复、原static/pilot/full与全部帽保持；结果NOT_RUN。LN_FFN producer和FFN末residual仍不包含，不签完整FFN层。
+
+本阶段为单个正常四行窗口；完整28+2层/122矩阵、生产13BO/请求/恢复、联合资源/物理时序及M003/M004仍未完成。原G2338.224019s只OOC余额、5172s不重启，无新HLS/OOC/P&R/上板或预算，整体executor/冷INIT/CLOSE/rearm/cleanup停排。
+
+证据：[主控核验](measurement_first_WIGQD1_review_20261013/verification.json)、[工程报告](../project/E005_full_request_performance/experiment_results/runs/R001/reports/WIGQD1_observation_result_20261013.md)、[AT032收据](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT032_WIGQD1_observation_01/receipt.json)、[AT032原日志](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT032_WIGQD1_observation_01/raw_full.log)、[上游身份补证](../project/E005_full_request_performance/experiment_results/runs/R001/reports/WIGQD1_upstream_LN_identity_addendum_20261013.md)。

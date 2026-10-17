@@ -1,0 +1,24 @@
+# FFN1：固定末目的与描述符负例的入口澄清
+
+2026-10-14；D-M004-FFN-PROGRESS-REPLAY-01-A1；M004/SM005/E005/R001；A001→A002。回复 `measurement-first-FFN1-residual-destination-entry-question-20261014`，补充[FFN1合同](../mission/ffn_progress_replay_stage_20261014.md)的短测第3项。此项是原验证义务的入口澄清，不新增功能候选、接口或运行额度。
+
+**选择保留适配器固定目的，不增加 residual 目的输入。** 适配器层采用静态固定值/实际接线核查，加短测与正常full的真实输出检查；“错最终目的拒绝”放在已有可配置残差wrapper的真实descriptor输入测试。两层证据分别报告，不把wrapper拒绝说成适配器支持可变目的任务。
+
+## 核查事实
+
+- AT057适配器 `laya_ffn0_down_residual_admission_v1.sv` SHA `22801bb8a8879b672e67dd6cce62d639cc1dc7429ed92579fdd0b9b0a47fbd85`。第80–82、121、146–153行：输入 `cfg_dst_ref` 是Down目标，必须为 `TMP_REF=0x0000000300000001`；`residual_dst_ref` 和 `residual_local_context[224+:64]` 固定取 `HIDDEN_REF=0x0000010100000002`。后者解码为HIDDEN/id1、bank1、epoch2，region/padding为0。不存在最终HIDDEN目的输入。
+- AT057联合TB第1681–1685行，将该Ref的role/bank/epoch直接接残差wrapper，base为STATE1 `0x310000000`，capacity为16919104B，bytes为16384B。原source-Q的FUTURE_DST_REF属于前段绑定，不是此末目的。
+- AT057残差wrapper SHA `a09a244a6e7bc21a60629e03f165f119a7fb810761f82f1655b7c377861f0884`。第36–41行已有 `cfg_dst_role/bank/epoch/base/capacity/bytes` 输入；第161–186行检查HIDDEN/bank1/epoch2/STATE1及长度容量。描述符失败进入status7响应，不进入源读或目的写状态。此处为静态路径判断，新增短测尚未执行。
+- AT054旧TB第343–362行已有错目的bank0、base=STATE0的独立拒绝探针。但AT054 wrapper SHA `d5ea133258fedac03448a6be2ce0628f58aada6e705f7bd66134b12e9850f3e0` 与AT057不同，不能以旧PASS替代当前wrapper的受影响接入检查。
+
+文件路径、bytes/SHA及本次修订前合同保存在[核查身份](measurement_first_FFN1_destination_clarification_20261014/input_identities.json)；原AT057/AT054证据和原FFN1派发记录不回写。
+
+## 工程执行口径
+
+1. **适配器真实输入负例**：在Down `cfg_dst_ref` 注入旧TMP/bank1/epoch2及错误HIDDEN Ref，保留原合同的拒绝、无新matrix受理和零新增残差AXI检查。不要force适配器输出，也不要替换上游Q的FUTURE_DST_REF冒充此测试。
+2. **固定末目的检查**：静态核完整64bit常量、local context目的字段和上述真实端口映射。在短适配器合法对照的 `residual_cfg_valid` 等待及真实 `valid&&ready` 边沿，检查这两个目的编码一致且保持原值，并保留内部目标预约与一次受理/消费检查。正常联合full只加被动断言/打印，核实际wrapper受理同一目的；原256次AW/W/B、STATE1 HIDDEN写集合/独立gold、655360B局部保护与末B后发布义务保持。短测受控响应不代签真实full。
+3. **wrapper已有目的输入负例**：独立短TB例化同SHA的AT057 `laya_ffn0_residual_four_row_v1`，使用其canonical身份、TMP/bank0/epoch1及其他全部合法字段。复用原两类测试，分别只把 `cfg_dst_bank` 改0、把 `cfg_dst_base` 改STATE0 `0x300000000`，不得同时损坏其他字段造成假覆盖。各自取得E_PROTOCOL=7、两源AR及目的AW/W均零新增、无成功发布、响应保持/单次消费；同时记录真实握手和计数，不能只读会被cfg清零的本地计数。用合法descriptor对照证明该套输入能进入真实源读路径；无需为此重跑完整四行数值。冷短例可各自reset，正常联合full仍仅初始reset。此项只证明当前wrapper的局部目的拒绝，生产完整任务包/可变目的授权保持未验。
+
+以上均落在FFN1已允许的短适配器/残差descriptor测试台与被动观测范围内，A002可继续完成，不等新的用户批准。功能DUT、正常full驱动/反压/profile、存储映射、gold、生成叶子/ROM逐SHA保持；不得为测试增加descriptor端口或改变目的策略。若真实入口补测暴露功能缺陷，按原合同保存反例并停止full准入，不能在本轮修DUT。
+
+本澄清不重置一方案、full前最多一次有因准备/观察/测试脚本纠正、至多一次冷full及原资源/停止帽。static、host逻辑时间、观察器微测试、缺项短测、≤120s真实前缀和本次成本准入全部保持。当前只完成只读接口核查与合同澄清，未取得新RTL或full结果；普通Q/L/整体生产控制停排，M003/M004继续开放。

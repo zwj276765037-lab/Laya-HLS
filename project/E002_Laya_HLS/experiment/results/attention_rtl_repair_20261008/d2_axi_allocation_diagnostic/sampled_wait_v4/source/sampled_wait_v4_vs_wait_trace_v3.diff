@@ -1,0 +1,70 @@
+--- wait_trace_v3/tb/axi_allocation_diag_top.sv
++++ sampled_wait_v4/tb/axi_allocation_diag_top.sv
+@@ -154,7 +154,10 @@
+                        mon_qkv0.aw_count >= longint'(i+1));
+         bus_qkv0.AWID=0; bus_qkv0.AWADDR=address; bus_qkv0.AWLEN=0;
+         bus_qkv0.AWSIZE=0; bus_qkv0.AWBURST=1; bus_qkv0.AWVALID=1;
+-        wait(mon_qkv0.aw_count >= longint'(i+1));
++        while ((mon_qkv0.aw_count >= longint'(i+1)) !== 1'b1) begin
++            @(posedge clk);
++            #0.001;
++        end
+         if (i == 0)
+             trace_wait("AW", "after_wait", i, mon_qkv0.aw_count,
+                        mon_qkv0.aw_count >= longint'(i+1));
+@@ -172,7 +175,10 @@
+                        mon_qkv0.w_beats >= longint'(i+1));
+         bus_qkv0.WID=0; bus_qkv0.WDATA=32'(value) << (8*lane);
+         bus_qkv0.WSTRB=4'(1<<lane); bus_qkv0.WLAST=1; bus_qkv0.WVALID=1;
+-        wait(mon_qkv0.w_beats >= longint'(i+1));
++        while ((mon_qkv0.w_beats >= longint'(i+1)) !== 1'b1) begin
++            @(posedge clk);
++            #0.001;
++        end
+         if (i == 0)
+             trace_wait("W", "after_wait", i, mon_qkv0.w_beats,
+                        mon_qkv0.w_beats >= longint'(i+1));
+@@ -188,7 +194,10 @@
+                        mon_qkv0.ar_count >= longint'(i+1));
+         bus_qkv0.ARID=0; bus_qkv0.ARADDR=aligned_address; bus_qkv0.ARLEN=0;
+         bus_qkv0.ARSIZE=2; bus_qkv0.ARBURST=1; bus_qkv0.ARVALID=1;
+-        wait(mon_qkv0.ar_count >= longint'(i+1));
++        while ((mon_qkv0.ar_count >= longint'(i+1)) !== 1'b1) begin
++            @(posedge clk);
++            #0.001;
++        end
+         if (i == 0)
+             trace_wait("AR", "after_wait", i, mon_qkv0.ar_count,
+                        mon_qkv0.ar_count >= longint'(i+1));
+@@ -213,7 +222,10 @@
+             if (i == 0)
+                 trace_wait("B", "before_wait", i, mon_qkv0.b_count,
+                            mon_qkv0.b_count >= longint'(i+1));
+-            wait(mon_qkv0.b_count >= longint'(i+1));
++            while ((mon_qkv0.b_count >= longint'(i+1)) !== 1'b1) begin
++                @(posedge clk);
++                #0.001;
++            end
+             if (i == 0)
+                 trace_wait("B", "after_wait", i, mon_qkv0.b_count,
+                            mon_qkv0.b_count >= longint'(i+1));
+@@ -228,7 +240,10 @@
+             if (i == 0)
+                 trace_wait("R", "before_wait", i, mon_qkv0.r_beats,
+                            mon_qkv0.r_beats >= longint'(i+1));
+-            wait(mon_qkv0.r_beats >= longint'(i+1));
++            while ((mon_qkv0.r_beats >= longint'(i+1)) !== 1'b1) begin
++                @(posedge clk);
++                #0.001;
++            end
+             if (i == 0)
+                 trace_wait("R", "after_wait", i, mon_qkv0.r_beats,
+                            mon_qkv0.r_beats >= longint'(i+1));
+--- wait_trace_v3/tb/build_static.sh
++++ sampled_wait_v4/tb/build_static.sh
+@@ -17,4 +17,4 @@
+ 
+ "$vivado_bin/xelab" work.axi_allocation_diag_top \
+   -L uvm --sv_lib phase_rss --sv_root "$module_root/tb" \
+-  -s axi_wait_trace --relax -mt off -log xelab.log
++  -s axi_sampled_wait --relax -mt off -log xelab.log

@@ -1,0 +1,33 @@
+# Managed query冻结源码与动态证据审核
+
+审核R-SM003-EXECUTOR-MANAGED-QUERY-20261013。主控只做原始证据、字节、源码与TB核查，没有启动DUT/编译/仿真/HLS；完整复核见verification.json，原始输入及控制记录preimage已保存在snapshot目录。
+
+## 范围判断
+
+接纳portal_rtl_06–10的有限managed query wrapper行为以及decode_host_02的真实捕获离线拒绝导入。shell_05保持19项F18、checkpoint_08保持默认5例、guard_10保持F15/F16、monitor_16保持原fixture兼容。未发现需要新增F编号的未披露阻塞；不把有限PASS提升为完整请求关闭或生产整链验收。
+
+## 源码与实际接线
+
+以下RTL位于R003/executor_handoff_portal_rtl_10/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl；五个选中portal的五项核心DUT SHA已独立核为相同。
+
+- `laya_executor_handoff_portal_shell_v1.sv`：完整pending_key接checkpoint owner；query_permit且无control_valid才可开始首拍。前序LPV VALID/READY同门，executor LPV按旧owner路由；STATE0 writer AW/W VALID/READY同门。source-query及snapshot保持门进入模块。old_channels_drained由实际portal/monitor状态和FIFO占用形成，adapter_pending_zero及准入/前序完成仍为受控输入。第135行起的checkpoint_closed_valid仅引用kind6 ABORT_CLOSED实际消费和query_drained，没有实现请求CLOSE/CLOSED。
+- `laya_executor_checkpoint_transport_v2.sv`：首次真实ingress锁存owner_key及完整expected_request，后续余帧不受持续撤销阻断；request逐字比较。foreign帧到ISOLATED且不向hub发请求。持久撤销产生abort_only，绑定旧base的合法请求仍可返回完整负响应。真实第16次rsp_pop令managed态DONE，不产生legacy authority。仅完整匹配、已消费ABORT_CLOSED及query_drained可清查询phase，不清shell权威下界。
+- `laya_executor_handoff_shell_v1.sv`：control_ready排斥query_ingress_started/owned及query返回；首拍开始后保存该查询所有权，避免ABORT抢占半帧。真实返回末拍到IMPORT_PENDING，仍须完整IMPORT与GRANTED消费；撤销保持，原F18唯一响应仲裁继续。
+- `laya_generated_provenance_axi_portal_v1.sv`及hub：managed只用shell ownership选择旧route，legacy最后read直接authority仍屏蔽。abort-only query保留原全帧checker及无scope/pending END/旧返回/lease等条件；绑定合法撤销返回E_PROTOCOL而不给成功下界。正常情况仍从唯一transport/hub原数组读取事实。
+- `laya_generated_provenance_v1.sv:65`：旧transport_abort仍由cancel和service_domain_drained形成，第66行复位私有FIFO，后续分支清拍状态。与工程主动披露一致；当前取消例LPV已排空，不能把本轮PASS当作活动LPV半帧/返回保留证据。该项是整链接线前置，不是本轮新增动态故障。
+
+## TB、捕获和主机检查
+
+各portal冻结TB完整前序经正常CLAIM/BEGIN/monitor真实AW/W/B/END/PUBLISH建立task1–7和历史target epoch8，旧末B与END返回延迟时HOLD处于DRAIN，后续必要发布和历史操作完成后才给出显式前序完成键。可信坏event177由真实transport耗号，LPV179不能用hub accepted count替代。HELD期间实际writer/source-query探测只在后续TB身份中增加，因此保留_06/07/08的TB差异，不声称所有冻结TB相同。
+
+_06/07在2次真实ingress后持续cancel或base epoch变化；_08在尾部返回撤销。三例实际收齐16拍查询及返回，末2/末1各12周期反压，返回稳定，ABORT只在查询消费后接受一次，ABORT_CLOSED消费后仍隔离。_09foreign全帧16拍但query/可信返回0，未测试恢复。_10正常实际前序及offline helper GRANT消费后CLAIM180/epoch9，typed仍7；cancel后仅route保留，没有旧END完整cleanup证据。
+
+两负捕获hex SHA为164dc492d3d00c371fe2a8d05ded95bd474c54d183144a4fb7c1f56c7e85483c；raw1024B SHA为b6dc2a9345af331329b627f676bd4b49fe3d6ee634413899a99af2aaca375b66。晚cancel的成功捕获hex SHA为c2442fd8a8c35c39777229f95075c47958fde0c77c41dd8e52affa5b82a9ccc6；raw SHA为05fd66a4d50e3bcca0d086a3cb2503202f595ed10a6d1e287cc817a34e1a64a6。按16行逐行逆字节恢复raw，全部直接匹配literal及host frozen external字节；没有改写S/H。
+
+host_02冻结`tests/executor_managed_query_decode_test.cpp`使用现checkpoint decoder/encoder/helper。两份合法负响应的Check返回错误同时保留完整绑定响应，区别于坏wire清输出；第三份成功在fence.cancel下拒绝accept。三个FullRuntime字节不变，3×18处wire修改清输出，功能marker与原始run一致。host_01编译错误与_01→02唯一TB初始化diff已保留；原DUT/gold/断言不变。
+
+## 证据口径与未覆盖
+
+30交付SHA、401 frozen/声明pair、1402递归引用独立重算；current378、引用1379，23项差异为17 catalog和6披露TB/runner。七组历史diff一致。12段guard串行、194实际policy符合原帽；shell oracle和host run没有child RSS/policy，resource_observation_complete=false。登记前395匹配值只是重建，不冒充历史采样。
+
+实际request admission/session/request/predecessor_done/adapter_pending_zero与host fence仍受控；离线helper不是同硬件runtime。原地址pattern不是encoder计算。LHC1 kind8/9、完整请求Host/CLOSED消费及accepted-request rearm、活动LPV清理、LAP1硬件、8/4 action、F10 24/16、source AR/F9及全部修改入口、合法Q lease/读债、生成executor和LN/hub/Q/fullA/13BO仍待。所有旧有限关闭与总任务状态保持。

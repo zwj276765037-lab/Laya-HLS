@@ -1,0 +1,37 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/axi_allocation_diag_top.sv
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/axi_allocation_diag_top.sv
+@@ -7,6 +7,7 @@
+     logic rst_n = 0;
+     longint unsigned postreset_count = 0;
+     longint unsigned pairs_done = 0;
++    bit diag_v5_first_w_loop_seen = 0;
+     string mode;
+     typedef longint unsigned diag_u64_t;
+     always #3.33 clk = ~clk;
+@@ -175,7 +176,26 @@
+                        mon_qkv0.w_beats >= longint'(i+1));
+         bus_qkv0.WID=0; bus_qkv0.WDATA=32'(value) << (8*lane);
+         bus_qkv0.WSTRB=4'(1<<lane); bus_qkv0.WLAST=1; bus_qkv0.WVALID=1;
++        if (i == 0) begin
++            $display("DIAG_GUARD_V5 phase=before_loop fullguard=%b relation=%b item=%0d threshold=%0d count=%0d postreset_count=%0d sim_ps=%0d monitor_sample_cycle=%0d seen=%b",
++                     ((mon_qkv0.w_beats >= longint'(i+1)) !== 1'b1),
++                     (mon_qkv0.w_beats >= longint'(i+1)),
++                     i, longint'(i+1), mon_qkv0.w_beats, postreset_count,
++                     longint'($realtime*1000.0), mon_qkv0.sample_cycle,
++                     diag_v5_first_w_loop_seen);
++            $fflush();
++        end
+         while ((mon_qkv0.w_beats >= longint'(i+1)) !== 1'b1) begin
++            if (i == 0 && !diag_v5_first_w_loop_seen) begin
++                diag_v5_first_w_loop_seen = 1;
++                $display("DIAG_GUARD_V5 phase=first_loop_entry fullguard=%b relation=%b item=%0d threshold=%0d count=%0d postreset_count=%0d sim_ps=%0d monitor_sample_cycle=%0d seen=%b",
++                         ((mon_qkv0.w_beats >= longint'(i+1)) !== 1'b1),
++                         (mon_qkv0.w_beats >= longint'(i+1)),
++                         i, longint'(i+1), mon_qkv0.w_beats, postreset_count,
++                         longint'($realtime*1000.0), mon_qkv0.sample_cycle,
++                         diag_v5_first_w_loop_seen);
++                $fflush();
++            end
+             @(posedge clk);
+             #0.001;
+         end

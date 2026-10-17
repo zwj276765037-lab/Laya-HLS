@@ -1,0 +1,515 @@
+{
+  "reviewed_at_utc": "2026-10-07T09:35:50.397168+00:00",
+  "reviewer": {
+    "role": "laya_p1_design",
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh",
+    "actions": "read-only source/log/IR/RTL/report review; this JSON is the only reviewer write in this stage"
+  },
+  "verdict": "ACCEPT_13_NUMERIC_GLOBALS_AND_PACKING_FOR_CANDIDATE_WRAPPER; COMPLETE_RUNTIME_INITIALIZATION_AND_FULL_TOP_GATES_REMAIN_OPEN",
+  "permitted_next_steps": [
+    "Add only approved cyclic ARRAY_RESHAPE factor=8 Q8 and factor=4 scale, dim=1, to candidate production wrapper.",
+    "Implement and review contract B owner-index refactor, then actual production-owner small-top validation."
+  ],
+  "contract": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/repair_plan.md",
+    "sha256": "3c711516a3c39f15c2d5609e8fc54731304ea481a54f83a4f67fd57335fc3fba"
+  },
+  "packing_semantics": {
+    "verdict": "ACCEPT_WITH_SCOPE",
+    "arrays": 2,
+    "software_evidence": [
+      "ordinary Vitis CSim exit0 and explicit independent expected values",
+      "separate -D__SYNTHESIS__ host executable exit0 and same expected values"
+    ],
+    "cases": [
+      "zero first/last and adjacent entries",
+      "Q8 word boundary 7/8, signed -128/-1/-37 and +127",
+      "scale boundary 3/4, raw16 values 0x8001/0xffff/0x1234/0xabcd",
+      "upper-bound writes refused; last valid entries preserved"
+    ],
+    "hls_shape": [
+      {
+        "name": "weight_q",
+        "words": 671744,
+        "bits": 64,
+        "banks": 1,
+        "binding": "RAM_1P_URAM_1R1W"
+      },
+      {
+        "name": "weight_scale",
+        "words": 41984,
+        "bits": 64,
+        "banks": 1,
+        "binding": "RAM_1P_URAM_1R1W"
+      }
+    ],
+    "rtl_review": "Full dynamic address ranges retained, read-first single-port arrays, ram_style=hls_ultra, cascade_height=1, readmemh initialization. No array copy found in the two-array report/RTL.",
+    "limits": [
+      "No RTL behavioral co-simulation performed; CSim and synthesis-host runs prove software semantics only.",
+      "Two-array top cannot prove the other 11 globals or full Runtime metadata path.",
+      "No numerical lane parallelism or throughput conclusion follows from the 64-bit word."
+    ]
+  },
+  "physical_mapping": {
+    "verdict": "ACCEPT_TWO_ARRAY_PRIMITIVE_MAPPING_ONLY",
+    "tool": "Vivado 2025.2",
+    "part": "xcu55c-fsvh2892-2L-e",
+    "mode": "out_of_context synth_design -flatten_hierarchy none",
+    "input_manifest_all_11_match": true,
+    "actual_uram288": {
+      "weight_q": 164,
+      "weight_scale": 11,
+      "total": 175
+    },
+    "actual_total_lut": 3872,
+    "actual_total_ff": 398,
+    "actual_bram": 0,
+    "hls_estimate_rejected": {
+      "weight_q_uram": 16,
+      "weight_scale_uram": 16,
+      "reason": "The HLS Memory estimate contradicts required capacity and actual primitive mapping; it is not accepted for physical resource claims."
+    },
+    "synthesis_errors": 0,
+    "synthesis_critical_warnings": 0,
+    "synthesis_warnings": 5,
+    "warnings_scope": "Unpipelined URAM warnings and large hierarchy floorplanning warning preserved. Cascade height 1 uses non-cascaded URAM and extra mux/LUT logic.",
+    "limits": [
+      "The OOC Tcl did not create a clock or read timing constraints; no 150MHz timing acceptance.",
+      "No placement, routing, platform link, or hardware test.",
+      "175 URAM applies only to these two numeric memories in this pilot; not a full-top resource fit claim."
+    ]
+  },
+  "thirteen_array_structure": {
+    "verdict": "ACCEPT_ARRAY_SEPARATION_AND_FULL_LOGICAL_RANGES",
+    "live_numeric_global_count": 13,
+    "all_zero_initializers": true,
+    "global_definitions": [
+      {
+        "line": 330,
+        "name": "@_ZN4laya4full21g_full_cache_weight_qE",
+        "definition": "@_ZN4laya4full21g_full_cache_weight_qE = dso_local global [5373952 x i8] zeroinitializer, align 1, !dbg !0"
+      },
+      {
+        "line": 331,
+        "name": "@_ZN4laya4full25g_full_cache_weight_scaleE",
+        "definition": "@_ZN4laya4full25g_full_cache_weight_scaleE = dso_local global [167936 x i16] zeroinitializer, align 2, !dbg !15"
+      },
+      {
+        "line": 332,
+        "name": "@_ZN4laya4full24g_full_cache_weight_biasE",
+        "definition": "@_ZN4laya4full24g_full_cache_weight_biasE = dso_local global [5248 x float] zeroinitializer, align 4, !dbg !25"
+      },
+      {
+        "line": 333,
+        "name": "@_ZN4laya4full25g_full_cache_activation_qE",
+        "definition": "@_ZN4laya4full25g_full_cache_activation_qE = dso_local global [16 x [128 x [32 x i8]]] zeroinitializer, align 1, !dbg !32"
+      },
+      {
+        "line": 334,
+        "name": "@_ZN4laya4full29g_full_cache_activation_scaleE",
+        "definition": "@_ZN4laya4full29g_full_cache_activation_scaleE = dso_local global [16 x [128 x i16]] zeroinitializer, align 2, !dbg !40"
+      },
+      {
+        "line": 335,
+        "name": "@_ZN4laya4full23g_full_cache_input_tileE",
+        "definition": "@_ZN4laya4full23g_full_cache_input_tileE = dso_local global [16 x [4096 x float]] zeroinitializer, align 4, !dbg !45"
+      },
+      {
+        "line": 336,
+        "name": "@_ZN4laya4full20g_full_cache_ps_tileE",
+        "definition": "@_ZN4laya4full20g_full_cache_ps_tileE = dso_local global [16 x [5248 x float]] zeroinitializer, align 4, !dbg !51"
+      },
+      {
+        "line": 337,
+        "name": "@_ZN4laya4full18g_full_cache_gammaE",
+        "definition": "@_ZN4laya4full18g_full_cache_gammaE = dso_local global [2 x [1024 x float]] zeroinitializer, align 4, !dbg !56"
+      },
+      {
+        "line": 338,
+        "name": "@_ZN4laya4full23g_full_cache_rope_tableE",
+        "definition": "@_ZN4laya4full23g_full_cache_rope_tableE = dso_local global [2 x [1025 x [64 x float]]] zeroinitializer, align 4, !dbg !63"
+      },
+      {
+        "line": 339,
+        "name": "@_ZN4laya4full15g_full_cache_kvE",
+        "definition": "@_ZN4laya4full15g_full_cache_kvE = dso_local global [2 x [2 x [1024 x [64 x float]]]] zeroinitializer, align 4, !dbg !70"
+      },
+      {
+        "line": 340,
+        "name": "@_ZN4laya4full18g_full_cache_scoreE",
+        "definition": "@_ZN4laya4full18g_full_cache_scoreE = dso_local global [2 x [16 x [1024 x float]]] zeroinitializer, align 4, !dbg !75"
+      },
+      {
+        "line": 341,
+        "name": "@_ZN4laya4full23g_full_cache_av_partialE",
+        "definition": "@_ZN4laya4full23g_full_cache_av_partialE = dso_local global [16 x [64 x float]] zeroinitializer, align 4, !dbg !80"
+      },
+      {
+        "line": 342,
+        "name": "@_ZN4laya4full26g_full_cache_fp_act_weightE",
+        "definition": "@_ZN4laya4full26g_full_cache_fp_act_weightE = dso_local global [256 x [1028 x i16]] zeroinitializer, align 2, !dbg !85"
+      }
+    ],
+    "source_objects_bytes": 8641536,
+    "memory_report": "13 full-range numeric memories, each one bank; separate 32x3 owner-state memory. No duplicate numeric memory instance reported.",
+    "test_scope": [
+      "All 13 arrays: independent literal dimensions, first/last zero, first/last writes and readbacks, neighbor preservation, first-dimension upper bound refusal.",
+      "Actual production accessors and production storage definitions are linked.",
+      "F32 cells use numeric uint32/float casts with small exact positive values; not arbitrary F32 bit-pattern coverage.",
+      "Owner metadata test mutates state only and reads layer; no actual owner helper path in this pilot."
+    ]
+  },
+  "remaining_runtime_initializer_gate": {
+    "status": "OPEN",
+    "linked_post_gdce_runtime_type_bytes": 78704,
+    "initializer_text_line": 344,
+    "initializer_text_bytes": 13221,
+    "evidence_interpretation": "The post-GDCE module retains the complete reduced Runtime type and initializer text, but most uses only pass Runtime to accessors. Generated hardware retains owner state[32] with 3-bit elements; owner layer folds to 255. This is not proof that all control defaults survived the hotspot conversion unchanged.",
+    "required_closure": "Use actual production owner pilot live-field IR/initializer evidence and, as needed, final candidate exact-input reflow under the 8 GiB guard. Do not initiate an extra full csynth for this gate. A final candidate full reflow that successfully passes global/function conversion can close the memory-path concern when its actual input and measured peak are preserved.",
+    "forbidden_claims": [
+      "13221 bytes of textual IR is the initializer size seen by GenerateBitConcat",
+      "maximum integer in output IR equals maximum transient integer",
+      "small pilot proves complete production Runtime initialization memory fixed"
+    ]
+  },
+  "guard_review": {
+    "active_contract": {
+      "rss_gib_choices": [
+        8,
+        32
+      ],
+      "minimum_mem_available_gib": 192,
+      "nominal_sample_seconds": 0.2,
+      "nice": 19,
+      "cpu_count": 4,
+      "io_priority": "idle"
+    },
+    "ownership": "Unique session/group leader verified at launch; PIDs retained only with matching process start time; cleanup targets verified group and owned descendants.",
+    "passed_policy_evidence": "All captured policy records in accepted heavy pilot runs match nice19, selected affinity subset and idle I/O.",
+    "review_findings": [
+      "Imported helper retains dormant legacy 380GiB/64GiB main. It does not run on import and does not control current guard thresholds; remove unused executable legacy entry before final source freeze.",
+      "Finally-path orphan cleanup currently creates an emergency reason without assigning it to trigger, so result/exit can incorrectly remain successful after cleanup. Requested implementation correction before final source freeze.",
+      "Short synthesis-host runs have no live RSS sample and no policy capture. Report this as uncaptured, not 0-memory or confirmed policy sampling.",
+      "Sampling is nominal 0.2s and includes process inspection overhead; actual sample gaps are recorded per run. No claim of a kernel-enforced hard RSS cap."
+    ]
+  },
+  "runs": {
+    "packing_pilot_vitis/csim_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 11.779250549152493,
+      "finished_at": "2026-10-07T09:21:49.156336+00:00",
+      "minimum_mem_available_kb": 438739004,
+      "peak_owned_rss_kb": 1251972,
+      "trigger": null,
+      "policy_count": 16,
+      "all_sampled_policies_match": true,
+      "timeline_sample_count": 59,
+      "live_positive_rss_sample_count": 58,
+      "maximum_sample_gap_seconds": 0.208444,
+      "median_sample_gap_seconds": 0.20029999999999998,
+      "peak_interpretation": "sampled tree RSS peak, not a hard maximum between samples",
+      "pass_lines": [
+        "CACHE_PACKING_PILOT_PASS q8=8 scale=4 cold_and_boundaries"
+      ]
+    },
+    "packing_pilot_vitis/csynth_vpp_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 32.66097865626216,
+      "finished_at": "2026-10-07T09:24:49.324975+00:00",
+      "minimum_mem_available_kb": 438182580,
+      "peak_owned_rss_kb": 2334656,
+      "trigger": null,
+      "policy_count": 27,
+      "all_sampled_policies_match": true,
+      "timeline_sample_count": 163,
+      "live_positive_rss_sample_count": 162,
+      "maximum_sample_gap_seconds": 0.280337,
+      "median_sample_gap_seconds": 0.20064900000000002,
+      "peak_interpretation": "sampled tree RSS peak, not a hard maximum between samples",
+      "pass_lines": []
+    },
+    "packing_pilot_synthhost_run": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 0.1602154839783907,
+      "finished_at": "2026-10-07T09:20:22.218920+00:00",
+      "minimum_mem_available_kb": 439844084,
+      "peak_owned_rss_kb": 0,
+      "trigger": null,
+      "policy_count": 0,
+      "all_sampled_policies_match": null,
+      "timeline_sample_count": 1,
+      "live_positive_rss_sample_count": 0,
+      "maximum_sample_gap_seconds": null,
+      "median_sample_gap_seconds": null,
+      "peak_interpretation": "live RSS peak not captured; zero is not a zero-memory result",
+      "pass_lines": [
+        "CACHE_PACKING_PILOT_PASS q8=8 scale=4 cold_and_boundaries"
+      ]
+    },
+    "structure_pilot_vitis/csim_guard_v2": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 11.076058937236667,
+      "finished_at": "2026-10-07T09:27:30.335523+00:00",
+      "minimum_mem_available_kb": 438711948,
+      "peak_owned_rss_kb": 1222760,
+      "trigger": null,
+      "policy_count": 14,
+      "all_sampled_policies_match": true,
+      "timeline_sample_count": 53,
+      "live_positive_rss_sample_count": 52,
+      "maximum_sample_gap_seconds": 0.508701,
+      "median_sample_gap_seconds": 0.2011045,
+      "peak_interpretation": "sampled tree RSS peak, not a hard maximum between samples",
+      "pass_lines": [
+        "CACHE_STRUCTURE_PILOT_PASS arrays=13 first_last_neighbor_bounds"
+      ]
+    },
+    "structure_pilot_vitis/csynth_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 34.402617026120424,
+      "finished_at": "2026-10-07T09:28:37.344506+00:00",
+      "minimum_mem_available_kb": 438104864,
+      "peak_owned_rss_kb": 2402572,
+      "trigger": null,
+      "policy_count": 27,
+      "all_sampled_policies_match": true,
+      "timeline_sample_count": 172,
+      "live_positive_rss_sample_count": 172,
+      "maximum_sample_gap_seconds": 0.22442,
+      "median_sample_gap_seconds": 0.201278,
+      "peak_interpretation": "sampled tree RSS peak, not a hard maximum between samples",
+      "pass_lines": []
+    },
+    "structure_pilot_vitis/synthhost_run_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 0.16276537999510765,
+      "finished_at": "2026-10-07T09:27:54.765859+00:00",
+      "minimum_mem_available_kb": 439536388,
+      "peak_owned_rss_kb": 0,
+      "trigger": null,
+      "policy_count": 0,
+      "all_sampled_policies_match": null,
+      "timeline_sample_count": 1,
+      "live_positive_rss_sample_count": 0,
+      "maximum_sample_gap_seconds": null,
+      "median_sample_gap_seconds": null,
+      "peak_interpretation": "live RSS peak not captured; zero is not a zero-memory result",
+      "pass_lines": [
+        "CACHE_STRUCTURE_PILOT_PASS arrays=13 first_last_neighbor_bounds"
+      ]
+    },
+    "packing_pilot_vitis/vivado_ooc_guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 69.51808238215744,
+      "finished_at": "2026-10-07T09:31:14.023704+00:00",
+      "minimum_mem_available_kb": 436414224,
+      "peak_owned_rss_kb": 4021236,
+      "trigger": null,
+      "policy_count": 7,
+      "all_sampled_policies_match": true,
+      "timeline_sample_count": 347,
+      "live_positive_rss_sample_count": 347,
+      "maximum_sample_gap_seconds": 0.30134,
+      "median_sample_gap_seconds": 0.200646,
+      "peak_interpretation": "sampled tree RSS peak, not a hard maximum between samples",
+      "pass_lines": []
+    }
+  },
+  "input_manifest_checks": {
+    "packing_pilot_vitis/input_hashes.sha256": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/packing_pilot_vitis/packing.cfg",
+        "expected_sha256": "c261f05ee5ec0f0e042d46dd79993c11b593559ab0c64eb6361885d54beed4fe",
+        "current_sha256": "c261f05ee5ec0f0e042d46dd79993c11b593559ab0c64eb6361885d54beed4fe",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_packing_pilot.cpp",
+        "expected_sha256": "cd123418c9559b85f05eee1f85eed7720abf17c521846593708a2fb06d2f913e",
+        "current_sha256": "cd123418c9559b85f05eee1f85eed7720abf17c521846593708a2fb06d2f913e",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_packing_pilot_tb.cpp",
+        "expected_sha256": "52f1ff10f849dece2c8db933e1e23287e96ca38544684765f10cd8b81de7a4ed",
+        "current_sha256": "52f1ff10f849dece2c8db933e1e23287e96ca38544684765f10cd8b81de7a4ed",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/platform/full_cache_storage.cpp",
+        "expected_sha256": "f857f002634f43d1dbe275e87f948185c7a8f00b3dc86688dba2582dd18ca036",
+        "current_sha256": "f857f002634f43d1dbe275e87f948185c7a8f00b3dc86688dba2582dd18ca036",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_full_cache_storage.h",
+        "expected_sha256": "8960eb1cd1f919173a279913a74870e29f83bd007f107e144281c55bad511329",
+        "current_sha256": "8960eb1cd1f919173a279913a74870e29f83bd007f107e144281c55bad511329",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_full_runtime.h",
+        "expected_sha256": "1e1afd9ae3bb31f341a96ed08c3fa918995256831c4e5c564d419536c2aa71b8",
+        "current_sha256": "1e1afd9ae3bb31f341a96ed08c3fa918995256831c4e5c564d419536c2aa71b8",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/run_guarded_hls.py",
+        "expected_sha256": "dcec168fd6eaad6d09d8edabf9d066e50066f5d032d79bad8e57b6bd68474a38",
+        "current_sha256": "dcec168fd6eaad6d09d8edabf9d066e50066f5d032d79bad8e57b6bd68474a38",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/hls_guard_helpers.py",
+        "expected_sha256": "61efd282999acb029972eeb782ec7f945058223be74ce348c385cf231ee1bfd8",
+        "current_sha256": "61efd282999acb029972eeb782ec7f945058223be74ce348c385cf231ee1bfd8",
+        "matches": true
+      }
+    ],
+    "structure_pilot_vitis/input_hashes_v2.sha256": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/structure_pilot_vitis/structure.cfg",
+        "expected_sha256": "33ffce6859fc1846dba31d2ea6b6d84ae44ca577441fa28ab74512120bbe5230",
+        "current_sha256": "33ffce6859fc1846dba31d2ea6b6d84ae44ca577441fa28ab74512120bbe5230",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_structure_pilot.cpp",
+        "expected_sha256": "29c9d13bd9d8611814028f4ee29daead917632ce38ba78f799eacee506ff32cc",
+        "current_sha256": "29c9d13bd9d8611814028f4ee29daead917632ce38ba78f799eacee506ff32cc",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_structure_pilot_tb.cpp",
+        "expected_sha256": "841d40366250794dfe6b6f6218a48630a0197c1364fcf4261ae32cd3963d62ca",
+        "current_sha256": "841d40366250794dfe6b6f6218a48630a0197c1364fcf4261ae32cd3963d62ca",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/platform/full_cache_storage.cpp",
+        "expected_sha256": "f857f002634f43d1dbe275e87f948185c7a8f00b3dc86688dba2582dd18ca036",
+        "current_sha256": "f857f002634f43d1dbe275e87f948185c7a8f00b3dc86688dba2582dd18ca036",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_full_cache_storage.h",
+        "expected_sha256": "8960eb1cd1f919173a279913a74870e29f83bd007f107e144281c55bad511329",
+        "current_sha256": "8960eb1cd1f919173a279913a74870e29f83bd007f107e144281c55bad511329",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_full_runtime.h",
+        "expected_sha256": "1e1afd9ae3bb31f341a96ed08c3fa918995256831c4e5c564d419536c2aa71b8",
+        "current_sha256": "1e1afd9ae3bb31f341a96ed08c3fa918995256831c4e5c564d419536c2aa71b8",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/run_guarded_hls.py",
+        "expected_sha256": "dcec168fd6eaad6d09d8edabf9d066e50066f5d032d79bad8e57b6bd68474a38",
+        "current_sha256": "dcec168fd6eaad6d09d8edabf9d066e50066f5d032d79bad8e57b6bd68474a38",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/hls_guard_helpers.py",
+        "expected_sha256": "61efd282999acb029972eeb782ec7f945058223be74ce348c385cf231ee1bfd8",
+        "current_sha256": "61efd282999acb029972eeb782ec7f945058223be74ce348c385cf231ee1bfd8",
+        "matches": true
+      }
+    ],
+    "packing_pilot_vitis/vivado_ooc_inputs.sha256": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/packing_pilot_vitis/vivado_ooc.tcl",
+        "expected_sha256": "93354e6d703bdf4ce4a1858aa7ca7321eb09f590caaa752c4ab7a576f1696f85",
+        "current_sha256": "93354e6d703bdf4ce4a1858aa7ca7321eb09f590caaa752c4ab7a576f1696f85",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot.v",
+        "expected_sha256": "cf934a9b33f4b72d887bdbd7127772d2778966e2361b1b8dec62a9004d69a8c3",
+        "current_sha256": "cf934a9b33f4b72d887bdbd7127772d2778966e2361b1b8dec62a9004d69a8c3",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_control_s_axi.v",
+        "expected_sha256": "f3745538144b478887e4bf0131e12babe283e57b7cd510b924632634637cb7b0",
+        "current_sha256": "f3745538144b478887e4bf0131e12babe283e57b7cd510b924632634637cb7b0",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_g_full_cache_weight_q_2_RAM_1P_URAM_1R1W.v",
+        "expected_sha256": "981df1122503a994c759de46e3b4ea9052e5e865d3f7ca7cab0e5b71e0c72387",
+        "current_sha256": "981df1122503a994c759de46e3b4ea9052e5e865d3f7ca7cab0e5b71e0c72387",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_g_full_cache_weight_scale_1_RAM_1P_URAM_1R1W.v",
+        "expected_sha256": "10cb304441a5a0d9c5edcd84b3a3dcbf2733f358a3d988c89c95f8e2bf793fc7",
+        "current_sha256": "10cb304441a5a0d9c5edcd84b3a3dcbf2733f358a3d988c89c95f8e2bf793fc7",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_partselect_16ns_64ns_6ns_16_1_1.v",
+        "expected_sha256": "e3103452a6057d28a507d584b942c98aad51ec28568e0bc5190847e553631133",
+        "current_sha256": "e3103452a6057d28a507d584b942c98aad51ec28568e0bc5190847e553631133",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_partselect_8ns_64ns_6ns_8_1_1.v",
+        "expected_sha256": "fece73ef8895345569ef5db022b2378450b924350bb46e1923269f815effc90d",
+        "current_sha256": "fece73ef8895345569ef5db022b2378450b924350bb46e1923269f815effc90d",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_partset_64ns_64ns_16ns_6ns_64_1_1.v",
+        "expected_sha256": "d209d20c2c6b6d8d223fa93c0ae385f5dd1c3938d425320e8355852ff26972d0",
+        "current_sha256": "d209d20c2c6b6d8d223fa93c0ae385f5dd1c3938d425320e8355852ff26972d0",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_partset_64ns_64ns_8ns_6ns_64_1_1.v",
+        "expected_sha256": "1d3b0883076e7325cd25ca3c7840998c101d4f34fc1f6000701a8b1aac10c4ea",
+        "current_sha256": "1d3b0883076e7325cd25ca3c7840998c101d4f34fc1f6000701a8b1aac10c4ea",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_g_full_cache_weight_q_2_RAM_1P_URAM_1R1W.dat",
+        "expected_sha256": "91d06290b0dc4754eda3a88c3ea1aa2405a44a2c4fb0b78f819b8c7c01dcf042",
+        "current_sha256": "91d06290b0dc4754eda3a88c3ea1aa2405a44a2c4fb0b78f819b8c7c01dcf042",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/verilog/full_cache_packing_pilot_g_full_cache_weight_scale_1_RAM_1P_URAM_1R1W.dat",
+        "expected_sha256": "d522b57fa0e4ad243e38e3d090ec6b4726cadf72548bf78d61c343bc35f0098b",
+        "current_sha256": "d522b57fa0e4ad243e38e3d090ec6b4726cadf72548bf78d61c343bc35f0098b",
+        "matches": true
+      }
+    ]
+  },
+  "input_manifest_limit": "Pilot manifests cover the listed direct sources/configs/guard and OOC files. Final source-identity closure still must include all real production headers/sources/scripts via strict-current-sources and a new build tag; these pilot manifests do not substitute for that gate.",
+  "pending_gates": [
+    "Owner-index semantic/source and actual small-top HLS acceptance",
+    "Full reduced-control initializer path",
+    "Final source closure and new model build identity",
+    "Full strict CPU regression",
+    "True 13-port synthesis-branch CPU shadow with persistent failure/recovery",
+    "True 13-port Vitis CSim",
+    "One final bounded full-top csynth and review",
+    "Explicit reviewed promotion list and baseline backup"
+  ],
+  "reviewed_artifact_hashes": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_packing_pilot.cpp": "cd123418c9559b85f05eee1f85eed7720abf17c521846593708a2fb06d2f913e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_packing_pilot_tb.cpp": "52f1ff10f849dece2c8db933e1e23287e96ca38544684765f10cd8b81de7a4ed",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_structure_pilot.cpp": "29c9d13bd9d8611814028f4ee29daead917632ce38ba78f799eacee506ff32cc",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_cache_structure_pilot_tb.cpp": "841d40366250794dfe6b6f6218a48630a0197c1364fcf4261ae32cd3963d62ca",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/run_guarded_hls.py": "dcec168fd6eaad6d09d8edabf9d066e50066f5d032d79bad8e57b6bd68474a38",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/hls_guard_helpers.py": "61efd282999acb029972eeb782ec7f945058223be74ce348c385cf231ee1bfd8",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/packing_pilot_vitis/post_gdce.ll": "15b1264b9b9cb5e3cc68e694f89b7f619682c137d9a44e710079ac24709f970d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/structure_pilot_vitis/post_gdce.ll": "d3aa57295f10bdd525ca7dc13f5dedec9e4dedcd9e4f87ebd9042f1cf43a9066",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/packing_pilot_vitis/vivado_ooc.tcl": "93354e6d703bdf4ce4a1858aa7ca7321eb09f590caaa752c4ab7a576f1696f85",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/packing_pilot_vitis/vivado_ooc_utilization.rpt": "a8305ca5c45471aefc4cccb56de3f53f121bb73f2d494fc0e2f7a9b366b234c7",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/packing_pilot_vitis/vivado_ooc_hierarchy.rpt": "bd4880ee0ba8a1366fdb8f8014e000902a313adc13b2b721e8d77e8b9b0c503f",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/packing-pilot-vitis/csynth_vpp/hls/syn/report/full_cache_packing_pilot_csynth.rpt": "6863121f4dcfccf07e603280194bbaf616d025036870fe149b49a11adab28b71",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/structure-pilot-vitis/csynth/hls/syn/report/full_cache_structure_pilot_csynth.rpt": "d61652b61519eda66c093d8866c55543a654a8840c7085adb974ef1280cd8410"
+  }
+}

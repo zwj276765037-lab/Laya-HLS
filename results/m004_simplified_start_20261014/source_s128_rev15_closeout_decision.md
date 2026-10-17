@@ -1,0 +1,23 @@
+# 修订15有界收束：真实入口分版证据与末行错误出口
+
+2026-10-15；D-M004-REV15-CLOSEOUT-01；A001→A002；M004/SM004/E004/R001。回复 `m004-rev15-at265-last-row-error-peer-handoff-20261015`，接续 [AT264阶段审核](source_s128_at264_stage_review.md)。修订15按以下范围收束，剩余额度封存；M004/SM004完整目标仍running/unassessed。
+
+## AT265限定接纳
+
+主控独立核5项冻结SHA、12份原manifest/guard/plan/policy/launch/log及追加账、11条实际CPU0–3/nice19/idle政策，全部匹配。生产sequencer `b44b5563b8d4f159917ef3772b69cc8f05066c80a7ecb1cdbb30b3181cc20154` 与AT252及当前源码逐字相同；当前core/wrapper/writer/RoPE adapter保持AT264身份。编译来源只含生产sequencer及合法row-wrapper peer，没有修改生产RTL、算术或gold。
+
+AT265唯一 `S128_LAST_ROW_ERROR_PEER_PASS` 在全部自检后出现，static/RTL均child0、trigger null，无Fatal/ERROR。实际握手独立计数128条行命令、127次成功行done及1次错误done。末行返回status7/phase14/bad全1，生产sequencer保留请求id208（base81+127）与row127，完成至少3拍稳定至真实消费；retired_rows=127，前127位RAW/FINAL保持1、第127位0，tensor_failed=1、tensor_final_valid=0。所测完成/消费窗口没有第129条命令、回绕row0或成功请求完成。
+
+接纳 `PASS_SCOPED_S128_LAST_ROW_ERROR_COMPLETION_PEER`。该证据闭合原合同末行错误调度出口补项；row-wrapper、覆盖位和故障源均为合法模拟peer，不证明真实row127输入RRESP错误、128行LN/QKV/RoPE生产、正常整请求成功或物理存储行为。原AT252正常元数据测试保持原身份与范围。
+
+## 既有证据与预算出口
+
+旧AT250 wrapper d8e52ea3…的同一固定S128请求row0冷→row1暖完整数值前缀保持原限定接纳。当前wrapper `d4856aee1f59c07e3af7b9427e50d0cd4d177f859cee4ee905637128f0c60209` 的AT264仅签真实row0完整输入→LN/Q/QKV→RAW→RoPE、384笔B、2048输入字不变和未生产row1的QKV192块/norm64块逻辑哨兵；两版不拼接为当前两行连续PASS。两项输入控制修复和其余错误/reset/页界/token/legacy证据按AT264审核逐项保留。旧reset后的重新预装到core接受与另一次完整行恢复继续分开记录。
+
+AT265新增static **4.572500266134739s**、RTL **5.470804534852505s**，各在20s补测帽内，峰owned RSS181504/863040KiB；最低MemAvailable大于192GiB。AT243–264原42笔机读记录逐项不变。修订15现44笔guard（21 static、23 RTL）：static **1773.706414608284832/1800s**、RTL **2773.568239858373999/4800s**。累计1275项冻结身份、413条实际政策样本无不匹配，host完整总量仍UNKNOWN；所有历史FAIL、timeout和守卫误停保留。
+
+剩余static **26.293585391715168s**、RTL **2026.431760141626001s** 自本决定起封存，不转移、不重置、不续跑本修订。无需重复AT250/264长例或追加物理工具。A002仅同步既有阶段报告、模块结果、三摘要和角色状态，注明D-M004-REV15-CLOSEOUT-01与分版范围，无需确认回信。
+
+真实128行producer、当前SHA两行完整链、真实请求成功done/FINAL发布、完整请求异常首错等价、Attention/Encoder/模型、生产Host/HBM与物理BO、联合资源/Fmax仍未验。逐行执行与旧全请求head优先异常次序差异保持UNRESOLVED，不由正常前缀或局部错误PASS关闭。后继范围与预算须另列具体合同，本决定不启动修订16实施。
+
+审核证据存于 [机读记录](lnq_review_evidence_20261015.json) 的 `revision15_at265_last_row_error_closeout_review`；原 [AT264待补决定](source_s128_at264_stage_review.md) 保留历史，待补项由本决定闭合。主控此次只做文件、字节与收据核验，无EDA或新oracle运行。

@@ -1,0 +1,51 @@
+--- 
+
++++ 
+
+@@ -202,11 +202,23 @@
+
+   while(!ap_idle)@(negedge ap_clk);
+   command=kind<2?19:20;index=0;payload=0;epoch=ep;ap_start=1;
+   @(negedge ap_clk);ap_start=0;began=cycles;
+-  while(!(kind==0?dut.mv[7]:(kind==1?dut.av[3]:(kind==2?dut.dv[7]:exp_native_advance))))begin
++  while(!(kind==0?dut.mv[7]:(kind==1?dut.av[3]:(kind==2?dut.dv[7]:(kind==3?exp_native_advance:(kind==4?dut.staged_pending:dut.staged_count!=0))))))begin
+    @(negedge ap_clk);if(ap_done||cycles-began>200000)$fatal(1,"Reset lacked real active pipeline kind=%0d",kind);
+   end
+-  ap_ce=0;repeat(2)@(negedge ap_clk);ap_rst=1;repeat(8)@(negedge ap_clk);
++  ap_ce=0;
++  if(kind>=4)begin
++   reg [TILE_STATE_BITS-1:0] saved;
++   #1;saved=read_tile_state();
++   repeat(8)begin @(negedge ap_clk);#1;if(read_tile_state()!==saved||exp_native_advance)$fatal(1,"Prefetch state changed under CE kind=%0d",kind);end
++   $display("ATTENTION_SERVICE_TILE_PREFETCH_CE_PASS kind=%0d pending=%0d ready=%0d",kind,dut.staged_pending,dut.staged_count);
++  end else repeat(2)@(negedge ap_clk);
++  ap_rst=1;repeat(8)@(negedge ap_clk);
+   if(!ap_idle||ap_done||dut.phase!=0||dut.mv||dut.av||dut.dv||dut.m_occupancy||dut.a_occupancy)$fatal(1,"Reset failed to preempt CE or cancel reservations");
++  if(kind>=4)begin
++   if(dut.staged_pending||dut.staged_count||dut.staged_cursor)$fatal(1,"Reset retained prefetch debt kind=%0d",kind);
++   for(integer slot=0;slot<4;slot=slot+1)if(dut.staged_x[slot]||dut.staged_key[slot])$fatal(1,"Reset retained prefetch slot kind=%0d slot=%0d",kind,slot);
++   $display("ATTENTION_SERVICE_TILE_PREFETCH_RESET_PASS kind=%0d",kind);
++  end
+   ap_rst=0;ap_ce=1;repeat(3)@(negedge ap_clk);
+   invoke(18,0,q[0],ep,2,value);invoke(10,0,0,ep,2,value);
+   $display("ATTENTION_SERVICE_TILE_RESET_PASS kind=%0d reset_preempted_ce=1 cycles=%0d",kind,cycles);
+@@ -334,7 +346,7 @@
+
+   load_oracle(0,rows*16640);load_oracle(1,rows*16767);load_oracle(2,rows*128);
+   repeat(8)@(negedge ap_clk);ap_rst=0;repeat(3)@(negedge ap_clk);
+   if(protocol)begin
+-   for(integer kind=0;kind<4;kind=kind+1)begin
++   for(integer kind=0;kind<6;kind=kind+1)begin
+     setup(0,4,100+kind);if(kind>=2)invoke(19,0,0,100+kind,0,value);reset_active(kind,100+kind);
+    end
+    setup(0,4,104);invoke(18,256,0,104,2,value);invoke(2,128,4,104,2,value);invoke(19,1,0,104,2,value);
+@@ -344,7 +356,7 @@
+
+    for(integer kind=0;kind<6;kind=kind+1)first_error_case(kind);
+    $display("ATTENTION_SERVICE_TILE_FIRST_ERROR_PASS cases=6 pending_Q_CE_reset=1");
+    invoke(0,0,0,105,0,value);
+-   $display("ATTENTION_SERVICE_TILE_PROTOCOL_PASS resets=4 wrong_epoch_row=1");
++   $display("ATTENTION_SERVICE_TILE_PROTOCOL_PASS resets=6 wrong_epoch_row=1 prefetch_pending_ready=1");
+   end
+   for(integer first=0;first<rows;first=first+16)begin
+    count=rows<16?rows:16;ep=first/16+1;

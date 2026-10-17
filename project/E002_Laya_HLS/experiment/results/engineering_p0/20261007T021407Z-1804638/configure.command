@@ -1,0 +1,1 @@
+/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/cmake-3.31.8-linux-x86_64/bin/cmake -S /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline -B /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/contract-20261007T021407Z-1804638 -DCMAKE_BUILD_TYPE=Release 

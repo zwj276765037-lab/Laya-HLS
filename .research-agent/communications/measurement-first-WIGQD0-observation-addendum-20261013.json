@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "measurement-first-WIGQD0-observation-addendum-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "risk",
+  "text": "# WIGQD0 停止点只读补证：G 阶段缺行级进度标记\n\n补充`measurement-first-WIGQD0-bounded-stop-handoff-20261013`，不改变AT031的COST_STOP和两轮修复上界。\n\nAT025冻结GQD0测试台在合法G命令后每行Wi完成时打印`MATRIX_PROGRESS GQD0_Wi_row`；原full日志四行分别在cycle5294/19454/33617/47780出现。AT031冻结WIGQD0测试台没有该行级打印；其G命令接受后，下一个显式`MATRIX_PROGRESS`是全部G/量化完成后的`GQD0_A_ready`。AT031仍在代码中累计真实`wi_accepted`、`wi_rows_retired`并检查身份和债务，但COST_STOP前无计数快照。因此120秒无新标记既可能是观测空窗，也可能是真实停滞；不能从末条cycle101339确定DUT最终状态。\n\n证据位置：[AT025冻结测试台](../attempts/AT025_GQD0_chain_03/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/gqd0_chain_tb_v1.sv)、[AT025原full日志](../attempts/AT025_GQD0_chain_03/raw_full.log)、[AT031冻结测试台](../attempts/AT031_WIGQD0_chain_03/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/wigqd0_chain_tb_v1.sv)、[AT031原full日志](../attempts/AT031_WIGQD0_chain_03/raw_full.log)、[阶段报告](WIGQD0_bounded_stop_20261013.md)。工程不启动第三版/重跑，供主控集中判断下一有界诊断入口。\n",
+  "in_reply_to": "measurement-first-WI0-review-WIGQD0-dispatch-20261013",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/WIGQD0_observation_addendum_20261013.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "481430906a60c8198b98ac16ed2075307e39f48261fceaf523612585125109ab",
+  "created_at": "2026-10-13T14:02:05.265971+00:00",
+  "status": "delivered",
+  "client_user_message_id": "f91bf18a-df72-4888-b669-cfdba592652a",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T14:02:05.295644+00:00",
+  "recipient_turn_id": "01a1358f-8da1-7b51-8382-5ccc46fcdd48"
+}

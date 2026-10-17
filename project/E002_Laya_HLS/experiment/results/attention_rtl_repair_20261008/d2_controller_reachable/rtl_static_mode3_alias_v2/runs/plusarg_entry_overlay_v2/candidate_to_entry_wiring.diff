@@ -1,0 +1,34 @@
+--- reviewed_candidate/run_mode3.sh
++++ entry_overlay/run_mode3_entry.sh
+@@ -2,8 +2,8 @@
+ # Source prepared only. A separate reviewed gate must release this one run.
+ set -euo pipefail
+ export LC_ALL=C
+-if [[ $# -ne 5 ]]; then
+-  echo 'usage: /usr/bin/bash run_mode3.sh STATIC_BUILD_ROOT RUNTIME_ROOT PREPARED_ROOT DUT_CYCLE_LIMIT TOTAL_CYCLE_LIMIT' >&2
++if [[ $# -ne 6 ]]; then
++  echo 'usage: /usr/bin/bash run_mode3.sh STATIC_BUILD_ROOT RUNTIME_ROOT PREPARED_ROOT DUT_CYCLE_LIMIT TOTAL_CYCLE_LIMIT PACKET' >&2
+   exit 2
+ fi
+ STATIC_BUILD_ROOT=$1
+@@ -11,9 +11,10 @@
+ PREPARED_ROOT=$3
+ DUT_CYCLE_LIMIT=$4
+ TOTAL_CYCLE_LIMIT=$5
++PACKET=$6
+ MODULE_ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/rtl_static_mode3_alias_v2
+ VIVADO_BIN=/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin
+-python3 "$MODULE_ROOT/tb/verify_binding.py" "$MODULE_ROOT/source/source_packet.json" \
++python3 "$MODULE_ROOT/tb/verify_binding.py" "$PACKET" \
+   --stage runtime --static-build-root "$STATIC_BUILD_ROOT" \
+   --runtime-root "$RUNTIME_ROOT" --prepared-root "$PREPARED_ROOT"
+ if [[ ! -d "$RUNTIME_ROOT" || -e "$RUNTIME_ROOT/xsim.dir" || -e "$RUNTIME_ROOT/xsim.log" ]]; then
+@@ -43,7 +44,7 @@
+   -testplusarg "MODE3_DUT_LIMIT=$DUT_CYCLE_LIMIT" \
+   -testplusarg "MODE3_TOTAL_LIMIT=$TOTAL_CYCLE_LIMIT" -log xsim.log || sim_status=$?
+ seal_status=0
+-python3 "$MODULE_ROOT/tb/seal_runtime.py" "$MODULE_ROOT/source/source_packet.json" \
++python3 "$MODULE_ROOT/tb/seal_runtime.py" "$PACKET" \
+   "$STATIC_BUILD_ROOT" "$RUNTIME_ROOT" "$sim_status" || seal_status=$?
+ # The first XSim failure remains the command's exit status even if archival
+ # also finds a problem. A successful XSim still requires a successful seal.

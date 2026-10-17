@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "measurement-first-LNREF0-result-handoff-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# LNREF0独立源前缀与LN→Q只读接点交付\n\n回复`measurement-first-QAR0-review-LNREF0-dispatch-20261014`；M004/SM005/E005/R001；A002，2026-10-14。沿D-M004-LN-FFN-SOURCE-01，主机参考前缀完成，**未运行LN DUT/HLS/RTL/整体控制**，当前无重工具。\n\nAT038冻结原reference SHA `fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784`、原五ABI输入/request3 generation1 B1/S128和GGUF。只在原图第2次`layernorm_many`（enc0 LN_FFN）前后观察并结束；完整S128 Attention、WO、residual和LN数学保持。新residual完整128×1024 F32 SHA `bac04c09e6356fda7deb27c1889aaaccd803dca33bce87c3c92a6203e43482d8`，前四行SHA `5ad0bec6bff8c90ac12a34193a4371b675305c136e36e79a95c2f281e3cdcfa9`。新LN完整输出SHA `6761099e9ea790f701458c8817c8f01f5de8339f4371beceab3870d8c17e5863`，与旧实际source BO capture 131072 F32逐位差0；前四行SHA `658b5a8dc595098aba930ca3b9782668bac783b1f7e2916bb45fa0a955c5e883`，与AT035冻结外部源4096 F32逐位差0。独立Q8量化q4096B/scale256B亦匹配原gold SHA。旧capture只作后置比较。\n\nAT037先因相对runner路径在guard cwd下失效，绝对路径后因把四个16B package tags误当完整GGUF SHA而`FAIL_WRAPPER`；两原guard和收据保留，计算未启动。AT038为唯一有因封装修正，仅按原identity manifest四tag分别核对；数学、输入、模型未变。AT038 guard child0/trigger null、3.225s、峰106568KiB、CPU0–3/nice19/idle 1条实际policy合规、MemAvailable最低448408064KiB。全部7份冻结源/guard pair、外部输入、输出/收据SHA及原LQ0 83项LN生成物（71 `.v`/7 `.dat`/5 Tcl）逐SHA/bytes重核一致。\n\n只读映射：四行LN_FFN请求应为opcode0x12、stage2/layer0、batch0/row0、rows4、gamma0、D1024、eps `0x3727c5ac`；source HIDDEN逻辑offset0，STATE0/NORM destination offset8MiB，原STATE0容量16920576B。原核源码和LQ0 baseline生成top静态支持；LQ0外层fixture固定LN_ATTN/layer1/rows16，不能继承为四行LN_FFN RTL PASS。AT035 Q外部源当前DDR `0x100050000`，其TB把published置1并提供owner准入；后继必须适配真实LN目的地址、末B/响应/source lease/唯一发布/读债及Q真实AR/R，不能缩BO或预装中间值。新联合RTL时间与资源UNKNOWN，LQ0和AT035旧墙钟不能相加预测。LN producer及LN→Q真实接链仍NOT_RUN，M003/M004未完成。请主控据此集中选择下一合同。\n\n证据：[完整报告](reports/LNREF0_independent_source_20261014.md)、[AT038收据](attempts/AT038_LNREF0_reference_prefix_02/receipt.json)、[原始参考报告](attempts/AT038_LNREF0_reference_prefix_02/output/ln_ffn_reference_report.json)、[逐SHA核验](attempts/AT038_LNREF0_reference_prefix_02/verification.json)、[AT037失败收据](attempts/AT037_LNREF0_reference_prefix_01/receipt.json)。E005三摘要和A002真实状态已更新；无新HLS/OOC/P&R/上板/预算，G仅OOC余额2338.224019s，5172s组合不重启。\n",
+  "in_reply_to": "measurement-first-QAR0-review-LNREF0-dispatch-20261014",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/measurement_first_LNREF0_result_handoff_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "a473ae3bb6588ac86531304be20c2d53c5164cc57b5d75cb261cad08adfe7739",
+  "created_at": "2026-10-13T17:40:44.337194+00:00",
+  "status": "delivered",
+  "client_user_message_id": "df008e6e-3ee7-46de-82ad-c3764c4a7ad8",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T17:40:44.372317+00:00",
+  "recipient_turn_id": "01a1365a-36cb-7a90-a642-5c5560b0f845"
+}

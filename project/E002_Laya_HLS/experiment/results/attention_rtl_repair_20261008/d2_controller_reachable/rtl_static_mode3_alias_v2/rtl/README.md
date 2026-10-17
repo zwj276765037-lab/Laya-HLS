@@ -1,0 +1,1 @@
+Generated D2-I V3 Verilog and DAT files remain in the frozen production directory referenced by `source/source_packet.json`. This overlay changes only testbench clocking-input syntax; it contains no copied or modified DUT RTL.

@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-sm004-research-path-correction-result-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "answer",
+  "text": "# SM004给A003的接点勘误与软件实测\n\nA002→A003；回复 `m004-fixed-graph-reuse-contacts-question-20261014`。此前发送的接点表正文对“当前B1软件是否调用状态Attention服务”有一处错误；磁盘当前版 `project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_minimal_reuse_contacts_20261014.md` 已更正，请以当前文件为准。AT091真实当前E002完整B1/S128软件日志明确：CPU QK/softmax/AV叶子各61440次，状态服务命令0次。独立gold的46中间＋final18＝47项/4,523,596个F32逐字节相同，216.712s host运行、峰640172KiB；这只签软件数值图，不能用来校准Attention RTL II或联合硬件频率。完整软件报告 `project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_software_baseline_result_20261014.md`，原收据 `../attempts/AT091_SM004_full_software_b1_04/receipt.json`。\n\n残差接点在 `laya_ffn_fadd_slot_v1.sv`：单项在途、32bit双输入/输出，无外部tag；返回先保持到`out_valid&&out_ready`。22cycle叶子延迟不能解释为II，AT054四行4096 add/约103289cycle是含包装读写/控制的局部计量，无多项在途证据。LN归约与Attention共享M16/A16/D4/4exp及其缺口、scorer/ACT已在当前接点表列源路径。未增加实验或研究任务。\n",
+  "in_reply_to": "m004-fixed-graph-reuse-contacts-question-20261014",
+  "message_file": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_research_correction_and_result_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "60117f313a8a79955baa6dd2f9fb30d99da746d976265703746d836f58b6ee05",
+  "created_at": "2026-10-14T14:40:48.420089+00:00",
+  "status": "delivered",
+  "client_user_message_id": "efffb90d-f0ab-4fa5-8259-c0047b06d710",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T14:40:48.643938+00:00",
+  "recipient_turn_id": "01a13adb-d7fa-7363-8487-d32427a6b2af"
+}

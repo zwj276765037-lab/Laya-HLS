@@ -1,0 +1,33 @@
+{
+  "reviewed_at_utc": "2026-10-07T10:46:40.276162+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "verdict": "ACCEPT_EXACT_FIVE_FILE_NARROW_CONTROL_SOURCE_CHANGE; ACTUAL_PILOT_GATE_PENDING",
+  "contract_sha256": "e31b7009f8fb344ffb758d582de7624be6e17fab3165ab9364a83c96f74fb2d3",
+  "patch_sha256": "7efcbf8d428d0f5b26d62b46161a4f8843dd8e43eb9ff49c1a00cdb3d6e8b16b",
+  "snapshot_manifest_sha256": "355823ad747cf23374b2e4e375aee5f95860904e4e15247e49e45ade9601152b",
+  "identity_checks": {
+    "snapshot_source_count": 103,
+    "all_snapshot_hashes_and_bytes_verified": true,
+    "changed_source_count": 5,
+    "only_contract_five_files_changed": true,
+    "four_package_identity_files_verified": true,
+    "nine_arithmetic_sources_match_f1a_and_baseline": true,
+    "numeric_preimage_sha256": "aeb13e7937d29fe6a2c68c407249f294212aa24f4e45fd3862b092795ab066f7",
+    "numeric_preimage_bytes": 4953
+  },
+  "source_hashes_after": {
+    "hls/common/laya_full_memory.cpp": "a838cb4910ee824b42d9cd14bae009ec59c1b0b2f9df4ac5e26dda67e950ffca",
+    "hls/control/full_forward_controller.cpp": "7e73939eba00bd062a5a6d75d77a82b2d0ec7fae0d2f5a16ebb359c821536b37",
+    "hls/operators/full_tasks_attention.cpp": "c59328610b12bff2a6546f4f7064e63227a545c785b6e687770e95f80cb2ab60",
+    "hls/operators/full_tasks_vector.cpp": "cff234bf2835b7ef4bd6a86ac431b5fe4e644a1f304b8cd0f9358fd3548e10bd",
+    "include/laya_full_runtime.h": "9f518fd26db66bf0a2e865e6ba8a1150d6c2d70486856663f1e3368fa3c16621"
+  },
+  "reverse_transform_proof": "Independently reversed only each permitted edit in memory; all five reconstructed files match frozen f1a snapshot byte-for-byte. All remaining 98 identity source files match f1a snapshot.",
+  "semantic_review": {
+    "controller": "Both scans visit records 0..31 in same order; matching/early-return/epoch/invalidating statements preserved byte-for-byte; no changed loop body.",
+    "lookup": "Required-reference core preserves name-null rejection, 153x48 scan order, descriptor-before-index writes and failure no-write behavior. Optional original wrapper still accepts null/default index, writes non-null index only after success. Existing production three sites always supply local variable references. Original API callers remain unchanged; alias-visible successful result-before-index order preserved.",
+    "qk": "Mask copy guarded by success after both acquisitions; prior task/context/shape checks bound batch, S and rows. Copy preserves invalid mask bytes for original numeric leaf validation, performs no new status check/write or external read, and occurs once per task into automatic 1024-byte storage. Row query/q-read/numeric call/score writes/cleanup retain sequence. Plain uint8_t runtime mask is stable for sequential task execution. No FP expressions or numerical guards changed.",
+    "resource_change": "At most 1024 bytes automatic logical mask storage plus S byte-copy iterations per QKTask; no static allocation or parallelism pragma. Physical mapping/latency requires synthesis."
+  },
+  "next_gate": "Await exact actual-production focused wrapper/config and meaningful host tests. This review alone does not authorize full csynth or baseline promotion."
+}

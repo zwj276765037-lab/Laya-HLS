@@ -1,0 +1,49 @@
+# 修订16：FINAL存储到Attention tile的真实读算写消费者
+
+2026-10-15；D-M004-ATT-CONSUMER-01；A001→A002；M004/SM004/E004/R001。
+
+用户追问“怎么长实验停下了”。修订15收束后，A001未及时衔接后继合同造成空档；这不是用户暂停M004，也不是资源失败。按已批准Goal v4/M004继续本段实现、编译、仿真及普通修复，无逐步审批。修订15原账和封存余额保持；本合同只给新消费者工作独立额度，不重启旧失败长例。
+
+A002仍独占E002实现及E004运行/三摘要，使用既有工程对话与当前模型配置；A003只作独立静态研究。各角色并行维护自己的文件，保留他人改动，不新建agent、活动工程副本或通用任务框架。模块落在既有attention_and_fp_engine的source/rtl/tb，维护原design/results，不为普通修复增加审批文档。
+
+## 本段实际边界与复用
+
+实现最薄的单tile消费者：已发布FINAL描述符和当前请求mask → 真实QKV AXI读 → 既有Attention tile服务QK/SM/AV → 真实ATT_OUT写B → 一次tile完成。完整模型仍B1/S128，tile为16query、完整128key、D64；不得缩S/K/D。复用 `attention_tile_service_prefetch_v1.sv`（module attention_tile_service_v1，SHA11b7dff21ea5bf882444eac44a68316fe12b472d7d7c486108a75174a6017c16），原M16/A16/D4/EXP4、数值树、mask公式、key顺序及首错保持，不改FP叶子或重做HLS。
+
+生产adapter采用借用资源接口：原 `t4_w_reader_port_v1` SCALE_MODE0的load/stream/done/error，原rearm版 `tm1tn8_axi512_writer` 的tile/flush/debt/fault。局部harness各实例化一套生产reader/writer和一个Attention服务，AXI接真实握手存储peer；不在现QKV生产wrapper中增加第二套reader/writer或并行计算。后续顶层统一mux在双方无债后切换，本段不接未经128行完成的真实producer，也不把夹具内存称为上游生产成功。
+
+adapter锁存一次命令的id、request/generation、完整NumericIdentity与55word绑定、head0..15、row0（0..112且16对齐）、service epoch、QKV0/1的FINAL base/span/epoch、ATT_OUT base/span/epoch、128个实际mask byte，以及FINAL有效/无failed/128行覆盖和无源写债证明。只有这些准入条件真实满足才启动服务与读口。局部测试用明确标记的模拟发布peer提供有效上下文；不修改生产128位，也不将测试peer接入生产。请求/epoch、地址与绑定内容不符时零AR/零服务拒绝。命令活动中caller变化不影响已接受内容。
+
+当前request3/gen1的mask取current-production-requests-v2包offset832的128byte，不能硬编码72个1。mask作为现请求解码后的锁存命令数据输入，不在本段实现Host驱动；其身份/长度与NumericIdentity绑定。55word原布局/读回校验沿已核研究与服务源码，QKV两ref为真正FINAL epoch e+1，norm仍e，service epoch为本tile独立非零任务身份，score/prob epoch关系沿原约束。精确比较55word读回，不用常量成功取代绑定。
+
+## 顺序、地址和真实完成
+
+服务命令固定：0 RESET → 1逐55word BIND → 17逐字读回 → 2 CONFIG(S128,row0/head/full模式) → 4K/5V按key、d交替装载 → 6 MASK → 18 Q_TILE → 19 QK → 20 SM → 21 AV。接受条件用实际IDLE/ap_start/ap_ce（该RTL的ap_ready是REPORT退休信号，不能误当初次启动ready）；每命令等待ap_done及result/status有效，记录真实返回后以ap_continue退休，再发下一条。可保持ap_ce=1，所测停顿必须按服务CE合同，不改算术。
+
+QKV地址沿既有head-parity：shard=head&1，offset=((((plane*2+batch)*8+head/2)*1024+s)*64+d)*4，batch0、plane Q/K/V=0/1/2。QKV每BO仍12MiB，源FINAL两epoch一致；检查64B对齐、65bit加法溢出、完整稀疏窗口包含及固定路由。ATT_OUT为独立写域，span≥8MiB，地址base+s*4096+head*256；不得只换STATE1数值base冒充不同物理域。
+
+维持K/V原交替消费顺序：用两个64B stripe保持区，从同一reader顺序load K64B、V64B，再逐d交替向服务送4/5。每次完整load_done成功才允许消费该stripe；收到数据项数不能替代最后load_error。每个tile K/V各8192 F32，1024个64B读事务；Q为16×64 F32的4096B窗口，允许原reader真实4KiB分段并顺序送18。只增加这128B stripe、一个32B输出组包及必要命令寄存器；原reader FIFO/Attention银行/writer160B都实际计入，不宣称总存储仅160B，不添整tensor RAM。
+
+AV成功后通过CONFIG选择tile内每个query，12 OUTPUT逐d读取64个真实结果，8值组一个256bit tile交writer的线性模式。每行目的base为上述ATT_OUT行/head地址、span256B、local n0=0..56；行末flush，真debt_zero、flush_done消费并撤下后再切下一行base。每tile1024F32/4096B、128个writer tile、64笔单拍AW/W/B、16次flush。最后64个OKAY B、全部服务结果/读债/组包/writer债退休才报tile成功，保持到消费者接受。按原协议释放服务；不得释放复合QKV/norm上下文，norm留给后续WO残差。adapter只输出所测tile完成，不伪造完整ATT_OUT tensor发布。
+
+外层status0成功；服务原status1映射数值6，原status2或总线/身份错映射协议7；本消费者phase15，另保留原service command/status/result、head/row用于诊断，不重编码为旧全请求首先遇错。RRESP错必须排到真实RLAST/FIFO/load_done；已启动算术等原done真实退休；BRESP错不撤销已展示AW/W，排B至debt_zero。错误不置tile成功，部分写保持隐藏，完成只一次。错误后资源全退再合法RESET/rearm支持下一局部命令。共同reset只签DUT及受控总线peer共同取消；不签独立AXI reset。
+
+## 独立参考与连续验证
+
+唯一新消费者参考复用 `results/compute_throughput_optimization_20261010/attempts/t5_attention_fixture_01/work/fixture`：head0完整128query Q/K/V输入为已注明的软件捕获；score/prob/out等是给定该输入的独立gold，原manifest 2c4ab1b982d7c2f9ac4d5baba97c489a361b06e8c2541c67e365e1d78c2c1e2c。实际producer尚未得到的126行不能用此内存补成上游PASS。不得调用generator、oracle/full_forward或新建gold；字节切片/无损编码可做，冻结来源与offset。
+
+1. 同新adapter、真实生产reader/service/writer先跑head0/query0..15的完整tile。真实内存返回Q/K/V，末写逐地址/data/strb与原out对应1024F32比较；保留可实际观测的score/prob逐位checker。以实际银行写/服务诊断接口观察，不把gold喂入计算。输入和邻行/邻head逻辑哨兵终检；准入前FINAL不足/身份不符零服务零AR；锁存字段和最后B屏障合并到这次正常场景。
+2. 在同版短profile有完整读/加载/QK/SM/AV/写回分段计量，且保守估计落帽后，连续执行head0的8个tile覆盖全部128query，逐位检查8192F32及512笔B。每tile真实重装K/V/mask，不假设跨tile驻留。该长例属全head消费者局部，仍不是128行QKV producer或完整Encoder。若实际profile不足以支持成本估计，保留明确缺口，不能用旧AT021时间乘倍数直接开长例。
+3. 原预算内补有界RRESP、末B错误/保持、无reset下一合法tile、页界与有限AR/R/AW/W/B停顿。正常数值场景已通过则复用同身份，不为局部控制例重演全部8tile；局部peer说明替代边界。优先主读算写链，不扩成全面恢复框架。普通TB/runner/适配错误连续修复，原FAIL/成本保留；只有实质接口/数值冲突才报A001，同时继续独立工作。
+
+## 新工作预算及自动衔接
+
+本修订独立host准备累计300s/8GiB；static/IP展开累计1800s/24GiB、单次600s；RTL（含pilot和失败）累计3600s/8GiB、单次1800s/40Mcycle。首次同版真实消费者pilot固定≤120s，计入RTL；完整8tile长例须冻结分阶段实测估计，保守预计≤1440s且剩余账可容纳1800s帽后自动启动，无需再请批。重工具全项目只一个，CPU0–3/nice19/idle、MemAvailable>192GiB，120s无真实进展停。复用同SHA已生成FP/IP依赖，禁止HLS重综/OOC/P&R/新agent。
+
+阶段里程碑不停止仍在合同内的独立工作。阶段交付要同时给出实际瓶颈、未覆盖项和后继最小可执行边界；A001负责在接纳时衔接下一合同，不以“等用户确认”造成空档。修订15余额不恢复，本段额度只用于新增消费者。真实完整128 producer、全请求异常次序、全16head/Encoder/模型、Host/HBM和联合物理另列，不因新消费者PASS关闭。
+
+### 2026-10-15研究交叉核查后的实现细化（不新增停点）
+
+Q的4096B可以随真实流送命令18，但命令19 QK必须同时等待完整Q装载计数、reader成功load_done及无load_error/残留读债；仅收到末项或out_last不够，迟到RRESP错误不能进入算术。writer错误出口保持已展示AW/W并真实排B，按debt_zero及内部holding/read债退休退出，不要求错误路径出现成功flush_done。正常路径仍必须消费真实成功flush并撤下，再切base/route。CONFIG输出query始终在已绑定16行内，OUTPUT12的index为d0..63；tile结束不释放QKV/norm复合上下文。
+
+全请求异常顺序差异已进一步定位到LN128屏障、Q16/矩阵TN8顺序与完整RoPE表前检，仍UNRESOLVED。后继生产器分阶段接口由A001/A003并行准备，不阻塞本消费者。研究提出的900s生产器profile及head0派生参考均仅为提案，不占本修订预算，不由本补充启动。

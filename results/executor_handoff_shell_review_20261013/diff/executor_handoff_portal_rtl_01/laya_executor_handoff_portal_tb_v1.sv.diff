@@ -1,0 +1,36 @@
+--- executor_handoff_portal_rtl_01/laya_executor_handoff_portal_tb_v1.sv
++++ executor_handoff_portal_rtl_02/laya_executor_handoff_portal_tb_v1.sv
+@@ -116,6 +116,8 @@
+   always @(posedge clk)begin
+     cycles<=cycles+1;
+     if(cycles>100000)$fatal(1,"store monitor cycle cap phase=%0d",phase);
++    if(rst_n && (checkpoint_authority_valid || checkpoint_handoff_pulse))
++      $fatal(1,"managed portal exported legacy last-read authority");
+   end
+   always_ff @(posedge clk)begin
+     if(!rst_n)begin
+@@ -386,7 +388,7 @@
+     checkpoint_response_read=0;snapshot_base_epoch=7;monitored_bo_base=BO_BASE;handoffs=0;
+     repeat(5)tick();rst_n=1;tick();
+   endtask
+-  logic [8191:0] hold_control,import_control,held_expected,grant_expected;
++  logic [8191:0] hold_control,import_control,held_expected,grant_expected,imported_proof;
+   string control_fixture;
+   int proof_only=0;
+   task automatic shell_send(input logic [8191:0] p);
+@@ -405,6 +407,7 @@
+     load_control("hold",hold_control);load_control("query",query);
+     load_control("import_ok",import_control);load_control("held_gold",held_expected);
+     load_control("grant_gold",grant_expected);
++    load_control("proof",imported_proof);
+     load_packet("checkpoint_good",checkpoint_gold);checkpoint_gold[16*8+:64]=1;checkpoint_gold[680*8+:64]=1;
+     shell_identity=hold_control[64*8+:768];reset_session();
+     event_ok("target_claim");
+@@ -483,6 +486,7 @@
+     end
+     provenance_cmd_write=0;executor_provenance_cmd_write=0;
+     if(!proof_only)begin
++      if(checkpoint_received!==imported_proof)$fatal(1,"offline helper did not import this exact real response");
+       shell_send(import_control);
+       if(!shell_response_valid || shell_response!==grant_expected || shell_authority || shell_owner)
+         $fatal(1,"bound helper grant");

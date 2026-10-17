@@ -1,0 +1,9 @@
+set(LAYA_CONTROLLER_ADAPTER_SOURCES
+  hls/common/laya_numeric.cpp
+  hls/common/laya_tasks.cpp
+  hls/platform/compute_portal_codec.cpp
+  hls/platform/generated_provenance_codec.cpp
+  hls/platform/producer_engine_codec.cpp
+  hls/platform/controller_transaction_codec.cpp
+  hls/platform/controller_transaction_adapter.cpp
+)

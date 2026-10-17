@@ -1,0 +1,42 @@
+{
+  "schema": "reviewer_q8_full_dimensions_observer_numeric_boundary_preparation_addendum_v1",
+  "created_utc": "2026-10-08T19:50:41.259046+00:00",
+  "base_gate": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_dimensions_tail_performance_source_preparation_release.json",
+    "sha256": "68299aeb92ac6c5672f616538664f7e7cff617df3809b4a28fb7711c5d044d61"
+  },
+  "status": "ADDITIONAL_SOURCE_PREPARATION_ONLY_FIRST_SCORER_PILOT_UNCHANGED",
+  "authority": "Root explicitly requested retaining F32 subnormal quantization/bias boundary source preparation and passive real schedule observation. No new EDA or fixture execution.",
+  "observer_correction": {
+    "basis": "Parallel Astra xhigh read-only actual metadata_reset_v3 schedule/RTL preliminary findings, to bind exact source lines in final observer manifest.",
+    "issued_counters": "HLS aggregates c_issued_2/c_retired_2 by T at outer-loop completion; these counters are final-total cross-checks, not individual issue events.",
+    "tile_entry_candidate": "dut.ap_CS_fsm_state312 && !dut.icmp_ln708_fu_23172_p2, subject to one-entry predicate/source verification; no blind state-level per-cycle count.",
+    "floating_operators": "FP CE and wrapper a_tvalid can be hardwired1. Count actual scheduled operation launch/valid PS write and dependency use, not constant CE/valid. Derive concrete mapping for selected ops and record unknown occupancy rather than invent usage."
+  },
+  "precision_boundary_source_cases": [
+    {
+      "name": "activation_subnormal_d_full",
+      "matrix": "same real full scorer_fc1 K1024/N1024; copied activation bytes explicitly synthetic precision boundary, not graph-node input",
+      "stimulus": "In one selected group use amax=127*2^-127 in one lane, remaining31 lanes +0. Other activation groups +0. Trace enabled.",
+      "amax_f32_bits": "037e0000",
+      "expected_relation": "Strict binary32 d_full=2^-127 (bits00400000); reciprocal=2^127 (bits7f000000) finite; savedhalf=0, but amax lane q=127 and others0. Full output with original baked bias remains independent checked.",
+      "purpose": "Detect a flush-to-zero division/intermediate path hidden by savedhalf0/finaloutput equivalence; A8 trace is required."
+    },
+    {
+      "name": "activation_reciprocal_overflow",
+      "matrix": "same full scorer matrix loaded normally, explicit copied boundary activation",
+      "amax_f32_bits": "00800000",
+      "stimulus": "One lane amax=2^-126, remaininggroup/allothergroups+0.",
+      "expected_relation": "d_full=RN32(2^-126/127)>0 and finite, reciprocal overflows binary32, causing E_NUMERICAL during quantization before linear; expected firstbad reflects chosen r,g, saved task retirement and unchanged output. Independent helper must freeze exact intermediatebits/error before RTL; no host exception silently maps to successful zero quantization."
+    },
+    {
+      "name": "f32_subnormal_bias_retention",
+      "matrix": "same full K/N and all original Q8/scale bytes; copied AUX fixture with explicit selected baked bias mutation",
+      "stimulus": "All activation inputs +0; replace exactly one selected bias, preferably n7 or n8, with smallest positive binary32 subnormal00000001. Record original and changed bytes/SHA; unmodified model files remain immutable.",
+      "expected_relation": "Sequential group accumulation is +0; final separate bias add must produce00000001 at thatcolumn under R0. Complete other1023 outputs checked against independent expected originalbias. Source/CPU conditional gate precedes any runtime.",
+      "purpose": "Direct F32 add boundary despite legal positive half products having no nonzeroF32subnormal magnitude."
+    }
+  ],
+  "limits": "Boundary cases are labeled precision stimuli around the same real full matrix; they are not historical R0 graph nodes and do not replace14 real-input windows. No claim of general FTZ/denormal support from XCI exception-port flags or mere source conversion code. First3-command scorer pilot remains priority; execute these cases only under a later concrete bound gate after independent oracle/source review.",
+  "reviewer_actions": "Reviewer authored JSON only and calculated two exact representable input bit patterns using standard struct serialization. No reference/DUT evaluation, compilation, materialization or simulation."
+}

@@ -1,0 +1,48 @@
+--- executor_request_close_host_03/run_executor_actor_host.py
++++ executor_request_close_host_04/run_executor_actor_host.py
+@@ -19,6 +19,7 @@
+     ap.add_argument('--shell-rtl-capture',type=Path)
+     ap.add_argument('--cancel-drain',action='store_true')
+     ap.add_argument('--request-close',action='store_true')
++    ap.add_argument('--closed-rtl-attempt',type=Path)
+     args=ap.parse_args()
+     attempt=args.attempt.resolve(); attempt.mkdir(parents=True,exist_ok=False)
+     launcher=host.launcher_state()
+@@ -84,6 +85,20 @@
+         copy(source_capture,Path('external/actual_handoff_checkpoint.hex'))
+         for name in ['input_manifest.json','receipt.json']:
+             copy(source_attempt/name,Path('external/capture_run')/name)
++    if args.closed_rtl_attempt:
++        if not args.request_close: raise RuntimeError('close capture requires close mode')
++        closed_run=args.closed_rtl_attempt.resolve()
++        closed_receipt=json.loads((closed_run/'receipt.json').read_text())
++        if closed_receipt['status']!='PASS': raise RuntimeError('verified CLOSED RTL run required')
++        for status in ['ok','error']:
++            for committed in [0,1]:
++                name='closed_'+status+'_c'+str(committed)+'_capture.hex'
++                source=closed_run/'fixture'/name
++                if not any(v['path']==str(source) and v['sha256']==host.rec(source)['sha256'] for v in closed_receipt['fixture_files']):
++                    raise RuntimeError('CLOSED capture identity mismatch')
++                copy(source,Path('external/closed_results')/name)
++        for name in ['input_manifest.json','receipt.json']:
++            copy(closed_run/name,Path('external/closed_run')/name)
+     compiler=Path(shutil.which('g++'))
+     build=[str(compiler),*flags,'-I'+str(frozen/'include'),'-I'+str(frozen/'hls'),
+         '-I'+str(frozen/'hls/platform'),'-I'+str(frozen/MODEL),'-isystem',str(vitis),
+@@ -99,6 +114,7 @@
+     if args.request_close:
+         if args.shell_stimuli or args.cancel_drain: raise RuntimeError('exclusive close mode')
+         commands['run'].append('--request-close')
++        if args.closed_rtl_attempt: commands['run'].append(str(frozen/'external/closed_results'))
+     if args.shell_rtl_capture: commands['run'].append(str(frozen/'external/actual_handoff_checkpoint.hex'))
+     scope=('Persistent executor actor host preparation; seven full 1024B LHC1 literal frames; '
+         'sequence reserved before HOLD without HELD dependency; actual checkpoint codec/helper '
+@@ -136,6 +152,8 @@
+           'first error/commit/key rejection and persistent changed input closure, terminal wait without new admission. '
+           'Shell replies/fences remain controlled, software streams unbounded. No no-LGP local error path, '
+           'physical safety/RTL depth2/CLOSE transport/new accepted-request rearm or production chain signed.')
++        if args.closed_rtl_attempt:
++            scope+=' Four actual shell CLOSED captures completely decode/roundtrip and match independent fixed H1 literal; offline codec evidence does not sign same-hardware actual closure consumers.'
+     mp=attempt/'input_manifest.json'
+     mp.write_text(json.dumps({'schema':'laya-executor-actor-host-input-v1','scope':scope,
+         'files':records,'production_sources':[str(p) for p in production],

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "executor-checkpoint-host-review-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# LBS2/LBR2诊断检查点主机阶段审核\n\n回复：`executor-checkpoint-host-milestone-20261013`  \n审核：**R-SM003-EXECUTOR-CHECKPOINT-HOST-20261013**  \n范围M003/SM003/E003/R003，沿D-M003-EXECUTOR-CHECKPOINT-HIGH-WATER-01。\n\n**接纳executor_checkpoint_host_04为PASS_SCOPED_HOST，三项受影响host兼容按原fixture范围接纳。未发现本次有限入口需要新增的阻塞修复项。** 只签固定v2 schema、受控proof/fence下的原子导入和实际C++组合；真实hub/LPV transport下界权威、16拍交接、executor HLS及完整生产链仍未验收。C009继续部分实施/awaiting_implementation。\n\n## 独立核查与身份\n\n主控重新核对四项manifest/receipt、原始命令日志、六段guard/policy、冻结helper/codec/TB/oracle、退休计数和历史差异。256/256 frozen/声明pair、10/10交付SHA匹配；当前248/256及566/574递归SHA引用一致，八项差异逐项匹配两个catalog登记，没有额外DUT/TB/oracle漂移。上述是本次审核采样值，预登记全一致保留为工程历史记录。\n\ncheckpoint oracle/build/run为0.229052/15.590743/0.428066s，peak23864/241184/360936KiB；三命令均有实际采样。兼容bootstrap/FSM/split的3/2/5命令全部exit0，分别处于16.039872/11.280454/30.104016s的外层owned-tree guard内。共六段child0/trigger null、起止无重叠，109条实际policy符合CPU0–3/nice19/idle I/O及MemAvailable门；24GiB/1800s/120s帽匹配。不把兼容的短内层run写成逐命令RSS观测；依赖提取-MM只有timeout/RLIMIT_AS配置，不签owned-RSS/语义进展保护。\n\n独立核查：`results/executor_checkpoint_host_review_20261013/verification.json`。旧_01 FAIL的原始CLAIM断言、_02/_03中间PASS及源差异均保留；_01→02同时修改了目标历史缓存和测试setup，不将整个修正称为仅TB变化。\n\n## 接纳的实现与动态范围\n\nLBS2/LBR2是1024B/16拍version2独立协议，v1仍768B source-only。冻结Python按literal布局生成2048B，C++ encode/decode逐字比较；C/SV本轮只是静态常量一致，不是SV执行证据。46个wire负例清输出；合法绑定错误保留绑定但无导入资格。\n\nprepare/accept沿已真实LYRQ/LYMP准入的request运行，不再次begin/admit。全绑定、KNOWN/COMPLETE/FRONTIER、旧活动状态、fence、容量、未知预约空洞和溢出校验均在提交前；TaskReservation副本只用于容量预检。36个import拒绝核整个FullRuntime字节不变，四个prepare拒绝保留状态/输出。失败不生成新command或部分source/编号状态。\n\nsource镜像只缓存已证明事实；目标INVALID epoch历史与既有full_claim_owner的epoch+1校验对齐，属于合同允许的无READY历史缓存，不调用CLAIM/PUBLISH、不创建有效目标内容。保留较大的本地LPV/Ref，producer/compute字段与program ordinal仍归原权威。显式checkpoint来源保存identity/source/L13M/base/序号/交接及退休基线；导入不调用retire，不增加tasks_retired/op_calls/owner_claims/owner_leases。\n\n三个独立host runtime动态task基线4/7/3，实际后续任务5–8、8–11、4–7各退休四次；LPV起点23/97/119，目标首次CLAIM epoch8/18/32，较大的本地119/31不回退。base4导入后本地退休仍0；第三例已有两次通过正常路径形成的本地退休，导入不清零，后段完成后总数6。FSM及旧同步reference使用实际tasks_retired增量，first/last只作连续一致性检查。四窗口完成后program提交PC，相关软件streams清空。\n\nproducer/action较大初值11/17来自受控测试初始化，仅证明字段保持和随后递增，不证明实际前序分配。snapshot、dispatch/source/target fence、remote response仍由TB提供；三个独立runtime不能外推为三个硬件session恢复。原bootstrap真实请求解析/拒绝、FSM六例、同步F11–F13兼容保持原限定范围。\n\n## 连续下一步\n\n按原授权继续唯一hub/实际LPV transport v2汇总和真实交接，不需要新的逐项审批：\n\n1. LPV号接真实transport last_event_seq，typed/Ref接唯一hub历史域；缺域不当零，不能用accepted_events或常量4/10。FRONTIER_COMPLETE/DISPATCH_HELD须由实际入口排空和派发权交接产生，不能保留为TB永久许可。\n2. 旧END/末B/旧response先正常排空；随后锁住前序派发和source/target变更，再采样。核16拍response稳定、尾1/2拍反压、真实末拍消费后的唯一导入，以及cancel/base变化/旧绑定拒绝。持续valid下旧cleanup不能被交接门锁死。\n3. 新accepted request的phase复位与sequence/handoff/program/producer高水位延续须由唯一持续状态管理，不能靠重建helper抹掉历史。当前三独立runtime不代签此硬件路径；完整graph继续保留原runtime，不用诊断snapshot恢复任意丢失状态。\n4. 完成受影响有界证据后，按原帽串行生成独立executor，接真实8/4 action consumer和F10实际24/16 LTC1 consumer，再连实际program→executor→adapter→LN/monitor/hub→END/唯一软件退休→Q/fullA。保留完整source保护、全部写入口/13BO及错误恢复后续义务。\n\n本审核不代签LN算术、executor RTL、完整tensor/family/PC、最终13BO请求或资源/时序。F15/F16及其他旧限定关闭不扩大；C008/C010整体待验，L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成。原单重工具/资源帽和G余2338.224019s保持，5172s组合不重启，无新增agent/OOC/P&R/上板/预算。主控本轮只做静态与证据核查，未启动编译/仿真/HLS。\n",
+  "in_reply_to": "executor-checkpoint-host-milestone-20261013",
+  "message_file": "results/executor_checkpoint_host_reply_20261013.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "f5857ef3ccd85f83c46d750a966a0dc2852888e23c5c9e80fd0e163746e5e9cb",
+  "created_at": "2026-10-12T16:14:29.765384+00:00",
+  "status": "delivered",
+  "client_user_message_id": "783fb6fa-4666-4fa0-beff-29cfd18517e7",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T16:14:29.790769+00:00",
+  "recipient_turn_id": "01a130e3-2c4c-78b2-934a-46e61eb1c639"
+}

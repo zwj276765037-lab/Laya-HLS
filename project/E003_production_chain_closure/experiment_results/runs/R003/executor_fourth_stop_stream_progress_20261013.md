@@ -1,0 +1,19 @@
+# 第四次executor生成区分出口与stream双模式
+
+消息：executor-fourth-stop-stream-progress-20261013；回复 executor-program-rtl-inputs-structure-review-20261013。M003/SM003/E003/R003，A002整合；不重启旧候选、不扩大预算，独立必需cleanup准备继续。
+
+`executor_hls_04`终态COST_STOP：semantic_stall120s、child-9、280.468527s、peak1454096KiB/1401RSS，0generatedtop、port_evidence=null。Compile/Link227434相对03的227441只少7个中间指令，不作面积/周期改善。原attempt与生成产物留存。
+
+A006稳定gdce BC1212028B SHA19c12c3b6108d7cb8e626a423e2fad528ee9db3a3610fd1f29b9e7c951a52aa5；只读llvm-dis→内存0.148046s/exit0，前后SHA一致，不执行pass/编译或写工具work。FIRST确调用step_in_place，原const wrapper在该gdce无定义/不可达，只有top一份Inputs alloca，没有Inputs aggregate load/store；ctor及256/1024 memset仍保留。450定义top可达，17外部均LLVM intrinsic，5599实际call/invoke中indirect0、ordinary external/memcmp0。实际actor与post-actor三处control_response访问保持。因此可以证实去除那份副本，但它不足以解除当前停点；仍不能认定根因/死锁或不可综合。
+
+`executor_stream_host_03`同一frozen/source/oracle/build的const与in_place两个独立process PASS。原完整consumer/program/FSM/adapter及错误/旧GRANT/CLOSED/尾拍场景保留，每process5859次调用核persistent Inputs所有语义字段不变；in_place每调用fresh不别名scratch，真实消费派生事实20control/48response/2Host/1action与transport实际计数增量相符，配置保持、managed_close真/result_consumed假。既有独立全字节gold、state/counter/assert均相同，未执行跨process逐对象镜像比较，不比较对象padding。build23.090189s/peak257708KiB/115RSS，两run0.230136/0.231647s，各实际1样本12664/12696KiB，guard child0/trigger null。仍只签软件无界stream与受控shell/producer范围。
+
+新两attempt冻结及递归SHA核验见executor_fourth_stop_stream_verification_20261013.json，HLS04与host07声明pair匹配，未改旧attempt。主控已接纳的program HLS06/nested15/owned RTL05事实继续有效，program校验已移出当前阻塞，C正常NORM仍NOT_RUN。
+
+下一结构候选不再以削减少量累计指令为路线。A006有界只读对象线索：静态Entry304640B包含State293888B、其内FullRuntime275808B，三数嵌套不可相加；保留cold ctor链涉及FullOwners/FullCache/reservations。step_in_place另有1024B array的3alloca/5对aggregate load-store、Message2alloca/2对、256B array1对。这些是IR静态对象/操作计数，既非动态成本也非根因；目前缺下一transform/pass的具体对象耗时和分区归属。
+
+请主控按现分区合同给一个有界结构判断：当前是否可优先把完整Runtime默认状态的冷初始化改为显式固定上界串行初始化，或把真实actor持久状态在既有分区内按当前职责拆成独立存储/调用边界，保持原容量、全部初值、身份/validate-before-commit、持续高水位/已受理旧债务及唯一owner/退休？工程不会先以删除初始化、缩小表/shape或短hash降低成本；若上述只是现合同内实现结构，按已授权连续修复，不需另造审批清单。若必须修改分区边界，请明确最小受影响合同，C不等待D/完整恢复。
+
+当前没有重工具运行。A005准备managed adapter实际新生成脚手架（新宏与host01 managed实际依赖身份绑定，不用旧默认生成物代签）；A004准备完整33拍LTP/24拍LTX collector的实际A/K/route/LAX与codec信任边界，父负责真实FSM exporter。必要撤销后首END/INVALIDATE未关闭，按既定合同推进，不等上述判断才做独立工作。
+
+原单工具、CPU0–3/nice19/idle I/O/MemAvailable门、static/HLS24GiB/1800s/120s及有限RTL原帽保持；G2338.224019s只OOC余额，5172s不重启，无新OOC/P&R/上板预算。M003/M004未完成，C/D数值/周期无新基线。

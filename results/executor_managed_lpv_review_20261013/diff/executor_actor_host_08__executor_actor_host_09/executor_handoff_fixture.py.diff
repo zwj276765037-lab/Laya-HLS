@@ -1,0 +1,11 @@
+--- executor_actor_host_08/executor_handoff_fixture.py
++++ executor_actor_host_09/executor_handoff_fixture.py
+@@ -44,6 +44,8 @@
+                     shell=bytearray(p);struct.pack_into('<Q',shell,680,1)
+                     (a.output/('shell_'+name+'.bin')).write_bytes(shell)
+     (a.output/'all_close_control.bin').write_bytes(b''.join(closing))
++    subprocess.run([sys.executable,str(Path(__file__).with_name('admission_owner_fixture.py')),
++        '--request',str(a.output/'v2/checkpoint_request.bin'),'--out',str(a.output/'admission_owner.bin')],check=True)
+     subprocess.run([sys.executable,str(Path(__file__).with_name('program_pending_fixture.py')),
+         '--output',str(a.output)],check=True)
+     print('FULL_CURRENT_EXECUTOR_HANDOFF_FIXTURE_PASS control_bytes=7168 close_bytes=8192 independent=1')

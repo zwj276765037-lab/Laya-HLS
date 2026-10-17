@@ -1,0 +1,29 @@
+--- v2/attention_slice.cpp
++++ v3/attention_slice.cpp
+@@ -47,10 +47,10 @@
+ #ifdef __SYNTHESIS__
+ #pragma HLS INTERFACE m_axi port=fixture offset=slave bundle=fixture depth=786432 num_read_outstanding=1
+ #pragma HLS INTERFACE m_axi port=io offset=slave bundle=io depth=32768 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=aux offset=slave bundle=aux depth=1671872 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=qkv0 offset=slave bundle=qkv0 depth=12582912 num_read_outstanding=1 num_write_outstanding=1
+-#pragma HLS INTERFACE m_axi port=qkv1 offset=slave bundle=qkv1 depth=12582912 num_read_outstanding=1 num_write_outstanding=1
+-#pragma HLS INTERFACE m_axi port=att_out offset=slave bundle=att_out depth=8388608 num_read_outstanding=1 num_write_outstanding=1
++#pragma HLS INTERFACE m_axi port=aux offset=slave bundle=aux depth=128 num_read_outstanding=1
++#pragma HLS INTERFACE m_axi port=qkv0 offset=slave bundle=qkv0 depth=10240064 num_read_outstanding=1 num_write_outstanding=1
++#pragma HLS INTERFACE m_axi port=qkv1 offset=slave bundle=qkv1 depth=10240064 num_read_outstanding=1 num_write_outstanding=1
++#pragma HLS INTERFACE m_axi port=att_out offset=slave bundle=att_out depth=4100 num_read_outstanding=1 num_write_outstanding=1
+ #pragma HLS INTERFACE m_axi port=observed offset=slave bundle=observed depth=256 num_write_outstanding=1
+ #pragma HLS INTERFACE s_axilite port=return bundle=control
+ #endif
+--- v2/test_attention_slice.cpp
++++ v3/test_attention_slice.cpp
+@@ -103,6 +103,9 @@
+         qkv_bytes_checked += 256;
+       }
+   require(qkv_bytes_checked == raw_qkv.size(), "entire fixture written");
++  for (unsigned byte = 10240000u; byte < 10240064u; ++byte)
++    require(qkv0[byte] == 0xa5 && qkv1[byte] == 0xa5,
++            "both QKV RTL memory tails untouched");
+ 
+   for (unsigned key = 0; key < 64; ++key) {
+     require(observed[16 + key] == bits(score.data() + 4 * key),

@@ -1,0 +1,13 @@
+# 下一生产器接口准备：LN-only、Q16紧密bank与TN8退休
+
+2026-10-15；A001→A003；M004/SM004/E004/R001；接续m004-s128-completion-error-order-continuation-answer-20261015。主控已核26身份/10事件/16整数式，接纳新增顺序冲突的静态结论。采用“恢复原阶段屏障和任务遍历”作为后继接口设计方向；它尚不是实施放行或完整Check等价结论。工程修订16正常继续，不等待本研究。
+
+请只把已提出方案中工程尚不能直接实现的三个接口问题细化为一个可执行方案，不再重复前述历史与身份大表。仍仅写source架构文档和小支持记录，不改RTL/TB、E002/E004或主控合同；各角色共享工程，不回退他人修改，不新增agent。
+
+1. LN-only与direct-norm1024：明确最小模式编码/命令锁存/真实输出ready或bank提交/完成与债零接口，保留现FFN direct2624及行模式。给出原LN输出到STATE1写B屏障后释放bank的确切生命期，说明gamma完整前检与LN128排序的边界，避免额外整行RAM或第二LN/Q。局部数值复用已有row0/1 norm与Q/scale即可，不能以16行接口设计要求新gold求值。
+2. final_bank的逐地址映射：16行×1088B Q/scale、最后一行norm准备区与16×8 F32 PS的32bit bank/addr/byte-enable布局、同步读延迟和占有相位。证明量化输出覆盖同块norm时不会覆盖未读字；标明额外保持寄存器/FIFO实际字节。现有quant bank/fullA/front哪些能直接借用、哪些接口必须改，只选一条最薄路径；容量算式不能代替端口冲突分析。
+3. 保持K1024/N3072/rows16描述符的TN8退休：核现front、row pipeline、W/Q读服务能否按n0→4row block→group32发射并在完成16行当前tile的数值/poison归并后进入下一n0。列出确切需要增加的range/step/hold/complete字段及期望计数，禁止用N=8配置或清债伪造整体工作量。给出原Check的op/detail/bad/rank如何跨4个block和TN8窗口保留；区分算术错误与提前写回的传输错误优先，不能仅按任意已观察min代签旧task结果。给一个不跑冷载长前缀即可区分row0/n8与row1/n0顺序的合法局部事务方案。
+
+RAW隐藏覆盖与e/e+1、完整RoPE表前检和head/window顺序沿上一研究，只有影响这三个接口的关联才补充。本轮出口是A001能直接转成后继工程合同的接口/存储表、必须修改的模块和最少受影响验证，不启动实现、900s profile或派生参考。
+
+新增轻量脚本累计≤60s、单次≤20s、RSS≤1GiB，CPU0–3/nice19/idle，交互读取总量UNKNOWN；无EDA/前向/oracle/gold。复用已核身份，对确实新增依赖才记录SHA。此准备与工程并行，交付后主控及时衔接具体阶段，避免再出现无任务空档。

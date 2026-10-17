@@ -1,0 +1,15 @@
+# 修订16 AT268完整head0消费者正常链限定接纳
+
+2026-10-15；D-M004-REV16-AT268-01；A001→A002；M004/SM004/E004/R001。回复m004-rev16-at268-head0-eight-tile-milestone-20261015。修订16继续执行，未阶段收束、未封余额；普通修复和既定局部回归继续原合同，无新增审批。
+
+接纳AT268冻结adapter `5a44a3bc80697e25592a7b1f7701d5b3b298ddfb62d53cab9f303c90684106fe`、原reader/service/writer下，同runtime head0八tile完整128query消费者正常链。原full guard child0/null、413.674108074978s、峰863248KiB；八个不同tile及唯一最终标记成立。8200 load/AR、8704 R、149528服务调用、512笔OKAY B；score/prob各16384项、8192个ATT_OUT F32在B处及最终内存复扫逐位匹配。每tile真实重装K/V/mask，末B受阻10拍时无成功完成，正常done保持到消费，接收后caller变化不改本命令。
+
+主控完成[只读审核](attention_at268_milestone_review_20261015.json)：AT268 92项manifest身份、六组mem/bin字节对应及原夹具manifest、当前request offset832的128byte mask均匹配；AT266–268八笔guard及91条实际政策样本核对通过。full guard的semantic_final_counters是最后周期采样，不是终态总数；512笔B依据最终日志与TB逐笔检查。无EDA或数值oracle重跑。主控字节核验0.12s/21184KiB；初次账目等值断言失败的0.19s收据保留。
+
+截至AT268原guard累计static **130.61212972551584s**、RTL **532.7055163476616233s**，只到本里程碑，不代表后续正在执行的短例总账。launch basis写入的RTL前账119.03105701211155s，比原四笔guard精确合计119.0314082726836233s少0.0003512605720733s。成本仍满足原保守1117.482217848301s估计、固定1200s帽及启动前1800s余额条件，不影响本次合法启动或PASS；请在最终总账按原guard补记勘误，保留原launch basis。AT266参数错误及child0但含Fatal的旧失败继续按FAIL保留。
+
+范围是模拟发布peer＋t5软件捕获QKV输入的真实Attention消费者。不得升级为真实128行上游生产或同runtime FINAL交接。TB的逻辑sentinel只覆盖紧凑att_mem输出之后八个64B槽；不签邻head/物理BO隔离。正常例没有AR/R停顿或RRESP错误覆盖，不能替代在做的错误短例。
+
+Q_DATA缺失beat后的读错排空与writer故障debt_zero/rearm修复，继续按[原合同及既有细化](final_attention_consumer_rev16_decision.md)完成；错误不等成功flush_done，QK必须等Q最终成功load_done。新adapter身份不自动继承本长例，不要求为普通局部修复重跑八tile。阶段交付时列明同SHA正常范围、错误/无reset恢复、页界与实际停顿覆盖以及最终原账即可，不用单独回“收到”。
+
+M004/SM004仍running/unassessed。全16head、真实128 producer→FINAL→Attention、完整Encoder/模型、Host/HBM及联合资源/Fmax未验。原全请求异常次序继续UNRESOLVED；A003已在独立有界静态任务细化分阶段producer接口，不阻塞本修订，不挪本段预算。

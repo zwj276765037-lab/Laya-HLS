@@ -1,0 +1,41 @@
+--- matrix_parent_cache_02/laya_matrix_parent_cache_tb_v2.sv
++++ matrix_parent_cache_03/laya_matrix_parent_cache_tb_v2.sv
+@@ -705,8 +705,8 @@
+         w_seen=1;wd_data=m_axi_wdata[0];wd_strb=m_axi_wstrb[0];w_handshakes++;
+       end
+       if(aw_seen && w_seen && !stored)begin
+-        if(aw_addr<cfg_region_base[0]+7*4096 || aw_addr>=cfg_region_base[0]+23*4096 || aw_addr[5:0]!=0)$fatal(1,"parent-cache physical output address %h",aw_addr);
+-        idx=int'((aw_addr-(cfg_region_base[0]+7*4096))/4);
++        if(aw_addr<cfg_region_base[0] || aw_addr>=cfg_region_base[0]+16*4096 || aw_addr[5:0]!=0)$fatal(1,"parent-cache physical output address %h",aw_addr);
++        idx=int'((aw_addr-cfg_region_base[0])/4);
+         for(int lane=0;lane<16;lane++)begin
+           if(wd_strb[lane*4+:4]!=0 && wd_strb[lane*4+:4]!=4'hf)$fatal(1,"resident output word strobe");
+           if(wd_strb[lane*4+:4]==4'hf)begin
+@@ -814,7 +814,7 @@
+     cfg_numeric_identity[63:0]=64'h100000001;cfg_numeric_identity[127:64]=64'h200000001;
+     cfg_numeric_identity[143:128]=2;cfg_numeric_identity[159:144]=128;cfg_numeric_identity[671:160]=model[0][511:0];
+     cfg_linear_context=0;cfg_linear_context[31:0]=32'hac000003;cfg_linear_context[39:32]=8'h33;
+-    cfg_linear_context[47:40]=2;cfg_linear_context[87:72]=7;cfg_linear_context[95:88]=16;
++    cfg_linear_context[47:40]=2;cfg_linear_context[87:72]=0;cfg_linear_context[95:88]=16;
+     cfg_source_ref=64'h0000000700000001;cfg_a_ref=64'h0000002200000001;
+     cfg_w_ref=64'h0000002300000001;cfg_ps_ref=64'h0000002400000001;cfg_dst_ref=64'h0000000300000001;
+     cfg_w_model_identity=model[0];cfg_a_slot=0;cfg_w_slot=0;cfg_a_epoch=1;cfg_w_epoch=1;
+@@ -882,7 +882,8 @@
+     if(commands!=4 || replies!=4 || parent_completions!=1 || ledger_parent_error ||
+        ledger_claims!=4 || ledger_view_retirements!=4 || ledger_parent_publications!=1 ||
+        ledger_checked_rows!=16'hffff || ledger_covered_rows!=16'hffff ||
+-       dut.ledger_tensor_publications!=1 || fa_slot_state[0]!=0 || wc_slot_readers[0]!=0 || wc_slot_state[0]!=2 ||
++       dut.ledger_tensor_publications!=0 || dut.ledger_tensor_state!=1 ||
++       fa_slot_state[0]!=0 || wc_slot_readers[0]!=0 || wc_slot_state[0]!=2 ||
+        a_checks!=328 || w_checks!=41984 || output_words!=16384 || output_beats!=2048 ||
+        aw_handshakes!=2048 || w_handshakes!=2048 || b_handshakes!=2048 || bretired!=2048)
+       $fatal(1,"parent-cache closure cmd/rsp=%0d/%0d parent=%0d ledger=%0d/%0d/%0d rows=%h/%h Astate=%0d Wreaders=%0d A/W=%0d/%0d output=%0d beats=%0d AW/W/B=%0d/%0d/%0d",
+@@ -890,7 +891,7 @@
+         ledger_checked_rows,ledger_covered_rows,fa_slot_state[0],wc_slot_readers[0],a_checks,w_checks,
+         output_words,output_beats,aw_handshakes,w_handshakes,b_handshakes);
+     for(int r=0;r<4;r++)if(ps_checks[r]!=41984)$fatal(1,"parent-cache full PS coverage row=%0d checks=%0d",r,ps_checks[r]);
+-    $display("L0_PARENT_CACHE_FULL_PASS parent_rows=16 views=4 distinct_generations=4 parent_taskdone=1 real_A_acquire_release=1 real_W_lease_release=1 physical_A_halves=%0d physical_W_R=%0d real_stripes=%0d PS_gold_checks=%0d output_gold_words=%0d actual_AW=%0d actual_W=%0d actual_B=%0d held_B=%0d final_parent_coverage=%h cycles=%0d",
++    $display("L0_PARENT_CACHE_FULL_PASS parent_rows=16 views=4 distinct_generations=4 parent_taskdone=1 tensor_partial_not_ready=1 real_A_acquire_release=1 real_W_lease_release=1 physical_A_halves=%0d physical_W_R=%0d real_stripes=%0d PS_gold_checks=%0d output_gold_words=%0d actual_AW=%0d actual_W=%0d actual_B=%0d held_B=%0d final_parent_coverage=%h cycles=%0d",
+       fa_physical_half_commits,q_beats[0]+q_beats[1]+q_beats[2],w_checks,
+       ps_checks[0]+ps_checks[1]+ps_checks[2]+ps_checks[3],output_words,
+       aw_handshakes,w_handshakes,b_handshakes,held_b,ledger_covered_rows,cycle);

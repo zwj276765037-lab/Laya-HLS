@@ -1,0 +1,31 @@
+# Controller adapter F10消费门控审核
+
+回复：`controller-transaction-adapter-f10-milestone-20261012`  
+审核：`R-SM003-CONTROLLER-TRANSACTION-ADAPTER-F10-20261012`  
+范围：M003/SM003/E003/R003，沿用D-M003-CONTROLLER-INTERNAL-SPLIT-01。
+
+**接纳 `controller_transaction_adapter_rtl_03` 的 PASS_SCOPED_RTL_INDEPENDENT_PROTOCOL_CASES，F10在当前真实shell、HLS_03 adapter及八个独立协议用例范围关闭。** 本轮没有发现需要新增的审核修复项；C009仍为部分实施，继续真实生产连接。
+
+主控独立核305/305 current、305/305 frozen、305/305声明pair和686/686 manifest/receipt递归引用匹配；五个交付SHA全部一致。16份DAT落位一致，实际top与HLS_03相同，复用248份Verilog/16份DAT。RTL_01→RTL_03共同304项中只TB、runner和Tcl改变，另新增shell；生成adapter、协议codec、fixture生成器及数值/协议定义没有改变。[核查记录](controller_transaction_adapter_f10_review_20261012/verification.json)保存检查、原始日志和主控记录更新前副本。
+
+## F10关闭依据
+
+shell同时门控adapter侧`request_empty_n`与实际request FIFO的`read`，以真实`read && empty_n`累计当前24拍；收齐后保持准入关闭。completion计数使用完成FIFO消费端实际`consumer_read && consumer_empty_n`，不是adapter入队握手。第16次消费后下一周期才重新开放，当前请求余拍可正常前进，cancel不清除该边界状态。共同复位保持shell、adapter和FIFO一致；生产连接必须继续使用同一完成FIFO的真实consumer信号。
+
+八个case均在后继descriptor两拍已排队时消费当前completion前14拍，等待完成FIFO再次满（保证末两拍已入队），再停读12周期；取走第15拍后再停读12周期。两段均核当前`tx_reads`保持24、后继外部写无增量、输入FIFO保持两拍、输出头稳定。第16拍消费后才等待`tx_reads`达到26，再补完后继请求，执行原cancel cleanup或LOCAL_REJECT并核八FIFO清空。这覆盖此前“末拍入队便重新读取后继请求”的具体反例，既有逐字比较保留。
+
+接纳的runtime协议范围包括compute、BEGIN、producer、未排空END、错绑定END、坏producer完成、producer本地取消拒绝和终态END。它们使用受控远端fixture；错绑定/坏帧的信任标志、非终态状态和cleanup行为按当前断言接纳，不代签真实hub错误排空、实际producer算术或typed退休。
+
+## 运行、成本与历史
+
+static112.119966s、峰值4550912KiB；八case分别44862–62475cycles、15.987420–17.779543s，峰值856644–856908KiB。九段guard全部child0/trigger null，原始PASS marker、全部policy采样、CPU0–3/nice19/idle I/O、MemAvailable、墙钟/RSS及每case1Mcycle帽一致；各阶段开始均晚于前一阶段结束。没有本轮主控重跑。
+
+runner编译一次后按冻结case_order启动八个分别复位的120s入口；每个case内部的尾拍反压及后继取消/cleanup在同一次runtime完成。**这些证据按独立协议用例接纳，原RTL_01的八case组合仍为COST_STOP/started:false；没有同runtime完整图结论。** HLS_03原分类FAIL、此前生成/端口审核及旧尝试保持原身份。
+
+RTL_02确实只有`launcher.json`，其CPU affinity/nice/ionice不符，入口在冻结/编译/重工具之前拒绝。保留preflight失败，不将其称为DUT失败。后续分区JSON登记SHA=`69bbb69d8718214dc1132b95575a1d05e7faf9bec9a8e4be3ec483ac1b505fd6`已核；该文件不在RTL_03的305项闭包内，冻结attempt没有漂移。三摘要publication `Pe3df6816249a4421b4196a75bed1f01b`及A002状态已同步。
+
+## 连续下一步
+
+按原授权继续真实graph sequencer↔本shell/adapter↔LayerNorm/hub连接，使生产LTX1请求、BEGIN→producer→实际completion→END及唯一typed退休在同runtime闭合。将本shell消费门控接到真实sequencer读取端，保留depth2反压、错误返回隔离和已有LN→Q/fullA独立gold。之后推进完整tensor、多窗口、部分提交/活动取消和错旧返回安全恢复，以及LOAD/MATRIX、当前完整CPU/实际CSim和最终13BO请求。
+
+C009保持awaiting_implementation，C008/C010整体awaiting_verification；F9及F6/F7/F8/C012既有限定关闭不扩大。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成。5172s组合不重启，G余2338.224019s和原资源帽不变；无新增OOC/P&R/上板、agent或预算，无新增逐项审批。主控本轮只读核查与更新审核记录，未运行编译、仿真或综合。

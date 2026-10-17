@@ -1,0 +1,477 @@
+--- rtl_static_finite_monitor_v2/rtl/README.md
++++ rtl_static_finite_monitor_v3/rtl/README.md
+@@ -1,3 +1,3 @@
+ # RTL boundary
+ 
+-Reuse the exact accepted v5 generated DUT/IP. This sibling repairs passive TB observations only; no DUT RTL edit.
++Reuse the exact accepted v5 generated DUT/IP. This sibling adds an explicit observation output through the passive TB monitor and port; no DUT RTL edit.
+--- rtl_static_finite_monitor_v2/tb/README.md
++++ rtl_static_finite_monitor_v3/tb/README.md
+@@ -1,5 +1,5 @@
+-# Testbench source preparation
++# Head15 monitor-v3 testbench source preparation
+ 
+-The owning monitor now records checked R-accept scalars. The control observes the tagged one-entry adapter at a settled negedge and checks its ordinal against the endpoint monitor. `source/design.md` is the frozen contract; `source/implementation_mapping.md` maps the implementation.
++The owning monitor drives one packed 119-bit accepted-R output after its checked RAM-side handshake. Each port forwards that output, and both top variants connect all seven ports to the same-index record array. Bounded reset and first-R lines identify the first boundary that disagrees. The selected held-R check retains the original adapter, count, address, last-beat and ID requirements. `source/design.md` is the frozen contract; `source/implementation_mapping.md` maps the implementation.
+ 
+-Only `base_h15_r63` is eligible for later separately released build/runtime commands. This source tree has not run a compiler, simulator, DUT, materializer or oracle. Copied v1 `generate_top.py`, `make_source_packet.py` and `materialize_cold_pages.py` are held historical helpers and are not future commands.
++Only `base_h15_r63` is eligible for later separately released build/runtime commands. This source tree has not run a compiler, simulator, DUT, materializer or oracle. `generate_top.py` was used only to regenerate the two literal top source files. The inherited `make_source_packet.py` and `materialize_cold_pages.py` remain historical helpers and are not future commands.
+--- rtl_static_finite_monitor_v2/tb/att_axi_monitor.sv
++++ rtl_static_finite_monitor_v3/tb/att_axi_monitor.sv
+@@ -43,7 +43,8 @@
+     output logic [31:0] ar_count, r_count, rlast_count,
+     output logic [63:0] read_bus_bytes, write_bus_bytes,
+     output logic [63:0] write_useful_bytes,
+-    output logic write_pending, read_pending
++    output logic write_pending, read_pending,
++    output logic [118:0] accepted_r_record
+ );
+   localparam int BEAT_BYTES = DATA_BITS/8;
+   localparam int Q = 16;
+@@ -59,14 +60,12 @@
+   logic w_last [0:WQ-1], w_id [0:WQ-1], w_user [0:WQ-1];
+   integer aw_head, aw_tail, aw_used, ar_head, ar_tail, ar_used;
+   integer w_head, w_tail, w_used, b_head, b_tail, b_used;
+-  // Passive record of the last checked R handshake on this monitor's side.
+-  // The parent reads these fixed scalars after the accepting edge settles.
+-  logic r_accept_valid;
+-  logic [31:0] r_accept_ordinal;
+-  logic [63:0] r_accept_address;
+-  logic [7:0] r_accept_beat, r_accept_arlen;
+-  logic [2:0] r_accept_arsize;
+-  logic r_accept_arid, r_accept_rid, r_accept_last;
++  // {valid, absolute ordinal, effective address, beat, ARLEN, ARSIZE,
++  //  ARID, RID, RLAST}. The record block is the sole procedural owner.
++  localparam int RREC_BITS = 1+32+64+8+8+3+1+1+1;
++  logic reset_diag_emitted = 1'b0;
++  logic first_r_diag_emitted;
++  initial if (RREC_BITS != 119) $fatal(1,"ATT_R_RECORD_WIDTH");
+ 
+   assign write_pending = aw_used != 0 || w_used != 0 || b_used != 0;
+   assign read_pending = ar_used != 0;
+@@ -109,10 +108,18 @@
+       aw_count=0; w_count=0; b_count=0;
+       ar_count=0; r_count=0; rlast_count=0;
+       read_bus_bytes=0; write_bus_bytes=0; write_useful_bytes=0;
+-      r_accept_valid=0; r_accept_ordinal=0; r_accept_address=0;
+-      r_accept_beat=0; r_accept_arlen=0; r_accept_arsize=0;
+-      r_accept_arid=0; r_accept_rid=0; r_accept_last=0;
++      accepted_r_record='0;
++      first_r_diag_emitted=1'b0;
++      if (!reset_diag_emitted) begin
++        if ($isunknown({accepted_r_record,r_count}) ||
++            accepted_r_record !== 119'd0 || r_count !== 32'd0)
++          $fatal(1,"ATT_R_RECORD_MON_RESET port=%0d side=%0d",PORT,SIDE);
++        $display("ATT_R_RECORD_MON_RESET port=%0d side=%0d raw=%h count=%0d",
++                 PORT,SIDE,accepted_r_record,r_count);
++        reset_diag_emitted=1'b1;
++      end
+     end else begin
++      reset_diag_emitted=1'b0;
+       if ($isunknown({awvalid,awready,wvalid,wready,bvalid,bready,
+                       arvalid,arready,rvalid,rready}))
+         $fatal(1,"ATT_AXI_CHANNEL_UNKNOWN port=%0d side=%0d",PORT,SIDE);
+@@ -213,16 +220,23 @@
+         if (last_byte[64] || !allowed_read(first_byte[63:0],last_byte[63:0]))
+           $fatal(1,"ATT_AXI_R_RANGE port=%0d side=%0d",PORT,SIDE);
+         read_bus_bytes += 64'd1<<ar_size[ar_head];
+-        r_accept_valid=1'b1;
+-        r_accept_ordinal=r_count+32'd1;
+-        r_accept_address=first_byte[63:0];
+-        r_accept_beat=ar_beat[ar_head];
+-        r_accept_arlen=ar_length[ar_head];
+-        r_accept_arsize=ar_size[ar_head];
+-        r_accept_arid=ar_id[ar_head];
+-        r_accept_rid=rid;
+-        r_accept_last=rlast;
++        accepted_r_record={1'b1,r_count+32'd1,first_byte[63:0],
++                           ar_beat[ar_head],ar_length[ar_head],
++                           ar_size[ar_head],ar_id[ar_head],rid,rlast};
+         r_count++;
++        if (SIDE==1 && !first_r_diag_emitted) begin
++          if ($isunknown({accepted_r_record,r_count}) ||
++              accepted_r_record[118] !== 1'b1 ||
++              accepted_r_record[117:86] !== r_count || r_count !== 32'd1)
++            $fatal(1,"ATT_R_RECORD_MON_FIRST port=%0d side=%0d",PORT,SIDE);
++          $display("ATT_R_RECORD_MON_FIRST port=%0d side=%0d raw=%h valid=%b ordinal=%0d addr=%h beat=%0d len=%0d size=%0d arid=%b rid=%b last=%b",
++                   PORT,SIDE,accepted_r_record,accepted_r_record[118],
++                   accepted_r_record[117:86],accepted_r_record[85:22],
++                   accepted_r_record[21:14],accepted_r_record[13:6],
++                   accepted_r_record[5:3],accepted_r_record[2],
++                   accepted_r_record[1],accepted_r_record[0]);
++          first_r_diag_emitted=1'b1;
++        end
+         if (rlast) begin
+           ar_head=(ar_head+1)%Q;
+           ar_used--;
+--- rtl_static_finite_monitor_v2/tb/att_axi_port.sv
++++ rtl_static_finite_monitor_v3/tb/att_axi_port.sv
+@@ -58,6 +58,7 @@
+     output logic [63:0] ram_read_bus_bytes, ram_write_bus_bytes,
+     output logic [63:0] ram_write_useful_bytes,
+     output logic ram_write_pending, ram_read_pending,
++    output logic [118:0] ram_accepted_r_record,
+     output logic [31:0] accepted [0:4], delivered [0:4]
+ );
+   localparam int WB = DATA_BITS/8;
+@@ -82,6 +83,51 @@
+   logic [W_PAYLOAD-1:0] w_packet;
+   logic [3:0] b_packet;
+   logic [R_PAYLOAD-1:0] r_packet;
++  logic [118:0] dut_monitor_accepted_r_record, ram_monitor_accepted_r_record;
++  logic port_reset_seen_posedge = 1'b0;
++  logic port_reset_diag_emitted = 1'b0;
++  logic port_first_r_diag_emitted = 1'b0;
++  assign ram_accepted_r_record = ram_monitor_accepted_r_record;
++
++  // Both observations occur after the monitor's positive-edge record update.
++  // The reset witness requires a preceding reset positive edge, not time zero.
++  always @(posedge clk) port_reset_seen_posedge <= !resetn;
++  always @(negedge clk) begin
++    if (!resetn) begin
++      port_first_r_diag_emitted=1'b0;
++      if (port_reset_seen_posedge && !port_reset_diag_emitted) begin
++        if ($isunknown({dut_monitor_accepted_r_record,
++                        ram_monitor_accepted_r_record,ram_accepted_r_record,
++                        dut_r_count,ram_r_count}) ||
++            dut_monitor_accepted_r_record !== 119'd0 ||
++            ram_monitor_accepted_r_record !== 119'd0 ||
++            ram_accepted_r_record !== 119'd0 ||
++            dut_r_count !== 32'd0 || ram_r_count !== 32'd0)
++          $fatal(1,"ATT_R_RECORD_PORT_RESET port=%0d",PORT);
++        $display("ATT_R_RECORD_PORT_RESET port=%0d raw=%h count=%0d",
++                 PORT,ram_accepted_r_record,ram_r_count);
++        port_reset_diag_emitted=1'b1;
++      end
++    end else begin
++      port_reset_diag_emitted=1'b0;
++      if (!port_first_r_diag_emitted && ram_r_count !== 32'd0) begin
++        if ($isunknown({ram_monitor_accepted_r_record,
++                        ram_accepted_r_record,ram_r_count}) ||
++            ram_r_count !== 32'd1 ||
++            ram_accepted_r_record !== ram_monitor_accepted_r_record ||
++            ram_accepted_r_record[118] !== 1'b1 ||
++            ram_accepted_r_record[117:86] !== ram_r_count)
++          $fatal(1,"ATT_R_RECORD_PORT_FIRST port=%0d",PORT);
++        $display("ATT_R_RECORD_PORT_FIRST port=%0d raw=%h valid=%b ordinal=%0d addr=%h beat=%0d len=%0d size=%0d arid=%b rid=%b last=%b",
++                 PORT,ram_accepted_r_record,ram_accepted_r_record[118],
++                 ram_accepted_r_record[117:86],ram_accepted_r_record[85:22],
++                 ram_accepted_r_record[21:14],ram_accepted_r_record[13:6],
++                 ram_accepted_r_record[5:3],ram_accepted_r_record[2],
++                 ram_accepted_r_record[1],ram_accepted_r_record[0]);
++        port_first_r_diag_emitted=1'b1;
++      end
++    end
++  end
+ 
+   att_static_axi_stall #(.WIDTH(A_PAYLOAD),.SEED(17),.PORT(PORT),.CHANNEL(0)) aw_delay (
+     .clk(clk),.resetn(resetn),.source_valid(awvalid),.source_ready(awready),
+@@ -158,7 +204,8 @@
+     .ar_count(dut_ar_count),.r_count(dut_r_count),.rlast_count(dut_rlast_count),
+     .read_bus_bytes(dut_read_bus_bytes),.write_bus_bytes(dut_write_bus_bytes),
+     .write_useful_bytes(dut_write_useful_bytes),
+-    .write_pending(dut_write_pending),.read_pending(dut_read_pending));
++    .write_pending(dut_write_pending),.read_pending(dut_read_pending),
++    .accepted_r_record(dut_monitor_accepted_r_record));
+   att_axi_monitor #(.DATA_BITS(DATA_BITS),.PORT(PORT),.SIDE(1)) ram_mon (
+     .clk(clk),.resetn(resetn),.read_lo(read_lo),.read_hi(read_hi),
+     .write_lo(write_lo),.write_hi(write_hi),
+@@ -178,5 +225,6 @@
+     .ar_count(ram_ar_count),.r_count(ram_r_count),.rlast_count(ram_rlast_count),
+     .read_bus_bytes(ram_read_bus_bytes),.write_bus_bytes(ram_write_bus_bytes),
+     .write_useful_bytes(ram_write_useful_bytes),
+-    .write_pending(ram_write_pending),.read_pending(ram_read_pending));
++    .write_pending(ram_write_pending),.read_pending(ram_read_pending),
++    .accepted_r_record(ram_monitor_accepted_r_record));
+ endmodule
+--- rtl_static_finite_monitor_v2/tb/att_finite_base_h15_r63_top.sv
++++ rtl_static_finite_monitor_v3/tb/att_finite_base_h15_r63_top.sv
+@@ -735,6 +735,7 @@
+   logic ram_write_pending [0:6];
+   logic ram_read_pending [0:6];
+   logic [31:0] accepted [0:6][0:4], delivered [0:6][0:4];
++  logic [118:0] ram_accepted_r_record [0:6];
+   logic r_hold_applied [0:6], b_hold_applied [0:6];
+   logic [31:0] r_special_wait_cycles [0:6], b_special_wait_cycles [0:6];
+   logic hold_final_r [0:6], hold_final_b [0:6];
+@@ -814,6 +815,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[0]),
+     .ram_write_pending(ram_write_pending[0]),
+     .ram_read_pending(ram_read_pending[0]),
++    .ram_accepted_r_record(ram_accepted_r_record[0]),
+     .accepted(accepted[0]),.delivered(delivered[0])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(1),.PAGE_COUNT(8),
+@@ -892,6 +894,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[1]),
+     .ram_write_pending(ram_write_pending[1]),
+     .ram_read_pending(ram_read_pending[1]),
++    .ram_accepted_r_record(ram_accepted_r_record[1]),
+     .accepted(accepted[1]),.delivered(delivered[1])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(2),.PAGE_COUNT(1),
+@@ -970,6 +973,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[2]),
+     .ram_write_pending(ram_write_pending[2]),
+     .ram_read_pending(ram_read_pending[2]),
++    .ram_accepted_r_record(ram_accepted_r_record[2]),
+     .accepted(accepted[2]),.delivered(delivered[2])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(3),.PAGE_COUNT(96),
+@@ -1048,6 +1052,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[3]),
+     .ram_write_pending(ram_write_pending[3]),
+     .ram_read_pending(ram_read_pending[3]),
++    .ram_accepted_r_record(ram_accepted_r_record[3]),
+     .accepted(accepted[3]),.delivered(delivered[3])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(4),.PAGE_COUNT(96),
+@@ -1126,6 +1131,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[4]),
+     .ram_write_pending(ram_write_pending[4]),
+     .ram_read_pending(ram_read_pending[4]),
++    .ram_accepted_r_record(ram_accepted_r_record[4]),
+     .accepted(accepted[4]),.delivered(delivered[4])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(5),.PAGE_COUNT(64),
+@@ -1204,6 +1210,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[5]),
+     .ram_write_pending(ram_write_pending[5]),
+     .ram_read_pending(ram_read_pending[5]),
++    .ram_accepted_r_record(ram_accepted_r_record[5]),
+     .accepted(accepted[5]),.delivered(delivered[5])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(6),.PAGE_COUNT(1),
+@@ -1282,6 +1289,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[6]),
+     .ram_write_pending(ram_write_pending[6]),
+     .ram_read_pending(ram_read_pending[6]),
++    .ram_accepted_r_record(ram_accepted_r_record[6]),
+     .accepted(accepted[6]),.delivered(delivered[6])
+   );
+   logic lite_cmd_valid_0,lite_cmd_ready_0,lite_cmd_write_0,lite_cmd_done_0;
+--- rtl_static_finite_monitor_v2/tb/att_finite_changed_h0_r0_top.sv
++++ rtl_static_finite_monitor_v3/tb/att_finite_changed_h0_r0_top.sv
+@@ -735,6 +735,7 @@
+   logic ram_write_pending [0:6];
+   logic ram_read_pending [0:6];
+   logic [31:0] accepted [0:6][0:4], delivered [0:6][0:4];
++  logic [118:0] ram_accepted_r_record [0:6];
+   logic r_hold_applied [0:6], b_hold_applied [0:6];
+   logic [31:0] r_special_wait_cycles [0:6], b_special_wait_cycles [0:6];
+   logic hold_final_r [0:6], hold_final_b [0:6];
+@@ -814,6 +815,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[0]),
+     .ram_write_pending(ram_write_pending[0]),
+     .ram_read_pending(ram_read_pending[0]),
++    .ram_accepted_r_record(ram_accepted_r_record[0]),
+     .accepted(accepted[0]),.delivered(delivered[0])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(1),.PAGE_COUNT(8),
+@@ -892,6 +894,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[1]),
+     .ram_write_pending(ram_write_pending[1]),
+     .ram_read_pending(ram_read_pending[1]),
++    .ram_accepted_r_record(ram_accepted_r_record[1]),
+     .accepted(accepted[1]),.delivered(delivered[1])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(2),.PAGE_COUNT(1),
+@@ -970,6 +973,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[2]),
+     .ram_write_pending(ram_write_pending[2]),
+     .ram_read_pending(ram_read_pending[2]),
++    .ram_accepted_r_record(ram_accepted_r_record[2]),
+     .accepted(accepted[2]),.delivered(delivered[2])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(3),.PAGE_COUNT(96),
+@@ -1048,6 +1052,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[3]),
+     .ram_write_pending(ram_write_pending[3]),
+     .ram_read_pending(ram_read_pending[3]),
++    .ram_accepted_r_record(ram_accepted_r_record[3]),
+     .accepted(accepted[3]),.delivered(delivered[3])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(4),.PAGE_COUNT(96),
+@@ -1126,6 +1131,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[4]),
+     .ram_write_pending(ram_write_pending[4]),
+     .ram_read_pending(ram_read_pending[4]),
++    .ram_accepted_r_record(ram_accepted_r_record[4]),
+     .accepted(accepted[4]),.delivered(delivered[4])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(5),.PAGE_COUNT(64),
+@@ -1204,6 +1210,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[5]),
+     .ram_write_pending(ram_write_pending[5]),
+     .ram_read_pending(ram_read_pending[5]),
++    .ram_accepted_r_record(ram_accepted_r_record[5]),
+     .accepted(accepted[5]),.delivered(delivered[5])
+   );
+   att_axi_port #(.DATA_BITS(32),.PORT(6),.PAGE_COUNT(1),
+@@ -1282,6 +1289,7 @@
+     .ram_write_useful_bytes(ram_write_useful_bytes[6]),
+     .ram_write_pending(ram_write_pending[6]),
+     .ram_read_pending(ram_read_pending[6]),
++    .ram_accepted_r_record(ram_accepted_r_record[6]),
+     .accepted(accepted[6]),.delivered(delivered[6])
+   );
+   logic lite_cmd_valid_0,lite_cmd_ready_0,lite_cmd_write_0,lite_cmd_done_0;
+--- rtl_static_finite_monitor_v2/tb/att_finite_control.svh
++++ rtl_static_finite_monitor_v3/tb/att_finite_control.svh
+@@ -45,24 +45,27 @@
+       u_port_qkv0.r_delay.held_special : u_port_qkv1.r_delay.held_special;
+   wire [31:0] selected_r_adapter_accepted_count = SELECTED_PORT==3 ?
+       u_port_qkv0.r_delay.accepted_count : u_port_qkv1.r_delay.accepted_count;
+-  wire selected_r_accept_valid = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_valid : u_port_qkv1.ram_mon.r_accept_valid;
+-  wire [31:0] selected_r_accept_ordinal = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_ordinal : u_port_qkv1.ram_mon.r_accept_ordinal;
+-  wire [63:0] selected_r_accept_address = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_address : u_port_qkv1.ram_mon.r_accept_address;
+-  wire [7:0] selected_r_accept_beat = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_beat : u_port_qkv1.ram_mon.r_accept_beat;
+-  wire [7:0] selected_r_accept_arlen = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_arlen : u_port_qkv1.ram_mon.r_accept_arlen;
+-  wire [2:0] selected_r_accept_arsize = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_arsize : u_port_qkv1.ram_mon.r_accept_arsize;
+-  wire selected_r_accept_arid = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_arid : u_port_qkv1.ram_mon.r_accept_arid;
+-  wire selected_r_accept_rid = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_rid : u_port_qkv1.ram_mon.r_accept_rid;
+-  wire selected_r_accept_last = SELECTED_PORT==3 ?
+-      u_port_qkv0.ram_mon.r_accept_last : u_port_qkv1.ram_mon.r_accept_last;
++  localparam int RREC_VALID_BIT=118;
++  localparam int RREC_ORD_HI=117, RREC_ORD_LO=86;
++  localparam int RREC_ADDR_HI=85, RREC_ADDR_LO=22;
++  localparam int RREC_BEAT_HI=21, RREC_BEAT_LO=14;
++  localparam int RREC_LEN_HI=13, RREC_LEN_LO=6;
++  localparam int RREC_SIZE_HI=5, RREC_SIZE_LO=3;
++  localparam int RREC_ARID_BIT=2, RREC_RID_BIT=1, RREC_LAST_BIT=0;
++  wire [118:0] selected_r_accept_record=ram_accepted_r_record[SELECTED_PORT];
++  wire selected_r_accept_valid=selected_r_accept_record[RREC_VALID_BIT];
++  wire [31:0] selected_r_accept_ordinal=selected_r_accept_record[RREC_ORD_HI:RREC_ORD_LO];
++  wire [63:0] selected_r_accept_address=selected_r_accept_record[RREC_ADDR_HI:RREC_ADDR_LO];
++  wire [7:0] selected_r_accept_beat=selected_r_accept_record[RREC_BEAT_HI:RREC_BEAT_LO];
++  wire [7:0] selected_r_accept_arlen=selected_r_accept_record[RREC_LEN_HI:RREC_LEN_LO];
++  wire [2:0] selected_r_accept_arsize=selected_r_accept_record[RREC_SIZE_HI:RREC_SIZE_LO];
++  wire selected_r_accept_arid=selected_r_accept_record[RREC_ARID_BIT];
++  wire selected_r_accept_rid=selected_r_accept_record[RREC_RID_BIT];
++  wire selected_r_accept_last=selected_r_accept_record[RREC_LAST_BIT];
++  logic top_reset_seen_posedge=1'b0;
++  logic top_reset_diag_emitted=1'b0;
++  logic [6:0] top_first_r_diag_emitted='0;
++  always @(posedge clk) top_reset_seen_posedge <= !resetn;
+   localparam int OUT_SAMPLE=4;
+   typedef struct packed {
+     logic [31:0] ordinal;
+@@ -526,6 +529,41 @@
+     end
+     if (total_cycles>TOTAL_CLOCK_LIMIT)
+       $fatal(1,"ATT_FINITE_TOTAL_WATCHDOG cmd=%0d state=%0d",cmd_idx,test_state);
++    if (!resetn) begin
++      top_first_r_diag_emitted='0;
++      if (top_reset_seen_posedge && !top_reset_diag_emitted) begin
++        for (int p=0;p<7;p++)
++          if ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) ||
++              ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0)
++            $fatal(1,"ATT_R_RECORD_TOP_RESET port=%0d",p);
++        $display("ATT_R_RECORD_TOP_RESET selected_port=%0d raw=%h count=%0d",
++                 SELECTED_PORT,ram_accepted_r_record[SELECTED_PORT],
++                 ram_r_count[SELECTED_PORT]);
++        top_reset_diag_emitted=1'b1;
++      end
++    end else begin
++      top_reset_diag_emitted=1'b0;
++      for (int p=0;p<7;p++)
++        if (!top_first_r_diag_emitted[p] && ram_r_count[p] !== 32'd0) begin
++          if ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) ||
++              ram_r_count[p] !== 32'd1 ||
++              ram_accepted_r_record[p][RREC_VALID_BIT] !== 1'b1 ||
++              ram_accepted_r_record[p][RREC_ORD_HI:RREC_ORD_LO] !== ram_r_count[p])
++            $fatal(1,"ATT_R_RECORD_TOP_FIRST port=%0d",p);
++          $display("ATT_R_RECORD_TOP_FIRST port=%0d raw=%h valid=%b ordinal=%0d addr=%h beat=%0d len=%0d size=%0d arid=%b rid=%b last=%b",
++                   p,ram_accepted_r_record[p],
++                   ram_accepted_r_record[p][RREC_VALID_BIT],
++                   ram_accepted_r_record[p][RREC_ORD_HI:RREC_ORD_LO],
++                   ram_accepted_r_record[p][RREC_ADDR_HI:RREC_ADDR_LO],
++                   ram_accepted_r_record[p][RREC_BEAT_HI:RREC_BEAT_LO],
++                   ram_accepted_r_record[p][RREC_LEN_HI:RREC_LEN_LO],
++                   ram_accepted_r_record[p][RREC_SIZE_HI:RREC_SIZE_LO],
++                   ram_accepted_r_record[p][RREC_ARID_BIT],
++                   ram_accepted_r_record[p][RREC_RID_BIT],
++                   ram_accepted_r_record[p][RREC_LAST_BIT]);
++          top_first_r_diag_emitted[p]=1'b1;
++        end
++    end
+     if (!resetn) begin r_hold_reg<=0; b_hold_reg<=0; end
+     else begin
+       r_hold_reg <= cmd_idx==2 && running && r_special_count==before_r_special &&
+--- rtl_static_finite_monitor_v2/tb/build_static.sh
++++ rtl_static_finite_monitor_v3/tb/build_static.sh
+@@ -2,7 +2,7 @@
+ # SOURCE ONLY. Execute one mode only after its separate compiler release.
+ set -euo pipefail
+ export LC_ALL=C
+-ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v2
++ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3
+ V5="$ROOT/.."
+ TB="$ROOT/tb"
+ RTL="$V5/runs/local_csynth_v1/work/hls/syn/verilog"
+--- rtl_static_finite_monitor_v2/tb/generate_top.py
++++ rtl_static_finite_monitor_v3/tb/generate_top.py
+@@ -86,6 +86,7 @@
+             width='[63:0] ' if count.endswith('bytes') else '' if count.endswith('pending') else '[31:0] '
+             lines.append(f'  logic {width}{side}_{count} [0:6];')
+     lines += ['  logic [31:0] accepted [0:6][0:4], delivered [0:6][0:4];',
++              '  logic [118:0] ram_accepted_r_record [0:6];',
+               '  logic r_hold_applied [0:6], b_hold_applied [0:6];',
+               '  logic [31:0] r_special_wait_cycles [0:6], b_special_wait_cycles [0:6];',
+               '  logic hold_final_r [0:6], hold_final_b [0:6];']
+@@ -114,6 +115,7 @@
+         for f in AXI_FIELDS: lines.append(f'    .{f.lower()}(m_axi_{name}_{f}),')
+         for side in ('dut','ram'):
+             for count in COUNTS: lines.append(f'    .{side}_{count}({side}_{count}[{idx}]),')
++        lines.append(f'    .ram_accepted_r_record(ram_accepted_r_record[{idx}]),')
+         lines += [f'    .accepted(accepted[{idx}]),.delivered(delivered[{idx}])','  );']
+     for bank,prefix,width in ((0,'s_axi_control',5),(1,'s_axi_control_r',7)):
+         lines += [f'  logic lite_cmd_valid_{bank},lite_cmd_ready_{bank},lite_cmd_write_{bank},lite_cmd_done_{bank};',
+--- rtl_static_finite_monitor_v2/tb/run_mode.sh
++++ rtl_static_finite_monitor_v3/tb/run_mode.sh
+@@ -2,7 +2,7 @@
+ # SOURCE ONLY. Execute one mode only after its separate runtime release.
+ set -euo pipefail
+ export LC_ALL=C
+-ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v2
++ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3
+ TB="$ROOT/tb"
+ XBIN=/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin
+ if [[ $# -ne 4 || "$1" != base_h15_r63 ||
+--- rtl_static_finite_monitor_v2/tb/verify_binding.py
++++ rtl_static_finite_monitor_v3/tb/verify_binding.py
+@@ -59,20 +59,21 @@
+     if args.expected_snapshot_report: assert args.snapshot
+     if args.runtime: assert args.prepared and args.snapshot
+     packet=json.loads(args.packet.read_text())
+-    assert packet['schema']=='attention_v5_head15_passive_r_accept_monitor_source_packet_v1'
++    assert packet['schema']=='attention_v5_head15_explicit_r_record_monitor_source_packet_v1'
+     assert len(packet['verilog_modules'])==216 and len(packet['dat_files'])==35
+     assert len(packet['fp_sim_vhdl_wrappers'])==6
+     mode_row=packet['modes'][args.mode]
+     assert mode_row['mode']==args.mode
+     sources=[]
+     for key in ('source_gate','monitor_source_gate','monitor_design','first_failure_review',
+-                'first_failure_actual','prior_finite_source_packet','source_diff',
+-                'source_mapping','source_static_audit','cold_gate','accepted_endpoint',
++                'first_failure_actual','prior_finite_source_packet','prior_monitor_source_packet',
++                'preimage_archive','source_diff','source_mapping','source_static_audit',
++                'frozen_rehash','cold_gate','accepted_endpoint',
+                 'cold_v2_numeric_acceptance','xsim_ini','xsim_lookup_manual'):
+         sources.append(packet[key])
+     for key in ('verilog_modules','dat_files','fp_sim_vhdl_wrappers',
+-                'testbench_and_runner','frozen_inputs','guard_scripts','schedule_reports',
+-                'accepted_prepared_files'):
++                'testbench_and_runner','preimage_files','source_seal_evidence',
++                'frozen_inputs','guard_scripts','schedule_reports','accepted_prepared_files'):
+         sources.extend(packet[key])
+     for group in packet['installed_library_files'].values(): sources.extend(group)
+     seen=set()

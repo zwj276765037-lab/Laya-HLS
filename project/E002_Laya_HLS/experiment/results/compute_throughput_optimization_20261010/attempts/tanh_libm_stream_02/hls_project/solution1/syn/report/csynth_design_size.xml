@@ -1,0 +1,554 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">, 15435, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll, 20931, user unroll pragmas are applied</column>
+            <column name="">(2) simplification, 17679, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline, 17627, user inline pragmas are applied</column>
+            <column name="">(4) simplification, 17591, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition, 14685, user array partition pragmas are applied</column>
+            <column name="">(2) simplification, 14685, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate, 14685, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape, 14685, apply array reshape pragmas</column>
+            <column name="">(5) access patterns, 14685, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification, 14685, loop and instruction simplification</column>
+            <column name="">(2) parallelization, 14685, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition, 14685, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification, 14685, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering, 14688, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations, 14775, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="tanh_libm_stream_leaf" col1="tanh_libm_stream_bits.cpp:280" col2="15435" col3="17591" col4="14685" col5="14685" col6="14775">
+                    <row id="22" col0="stream_graph" col1="tanh_libm_stream_bits.cpp:199" col2="15424" col3="" col4="" col5="" col6="">
+                        <row id="2" col0="stream_mul_node&lt;0&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="12" col0="stream_mul_node&lt;1&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="20" col0="stream_add_node&lt;0&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="1" col0="to_int" col1="tanh_libm_stream_bits.cpp:160" col2="20" col3="" col4="" col5="" col6=""/>
+                        <row id="21" col0="from_int" col1="tanh_libm_stream_bits.cpp:154" col2="131" col3="" col4="" col5="" col6="">
+                            <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="37" col0="stream_mul_node&lt;2&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="13" col0="stream_mul_node&lt;3&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="52" col0="stream_add_node&lt;1&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="54" col0="stream_add_node&lt;2&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="7" col0="stream_add_node&lt;3&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="46" col0="stream_add_node&lt;4&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="9" col0="stream_mul_node&lt;4&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="56" col0="stream_mul_node&lt;5&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="35" col0="stream_mul_node&lt;6&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="41" col0="stream_add_node&lt;5&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="47" col0="stream_mul_node&lt;7&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="42" col0="stream_add_node&lt;6&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="5" col0="stream_mul_node&lt;8&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="3" col0="stream_add_node&lt;7&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="14" col0="stream_mul_node&lt;9&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="24" col0="stream_add_node&lt;8&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="33" col0="stream_mul_node&lt;10&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="40" col0="stream_add_node&lt;9&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="44" col0="stream_mul_node&lt;11&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="30" col0="stream_add_node&lt;10&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="18" col0="stream_mul_node&lt;12&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="10" col0="stream_add_node&lt;11&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="51" col0="stream_add_node&lt;12&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="32" col0="stream_div_node&lt;0&gt;" col1="tanh_libm_stream_bits.cpp:191" col2="295" col3="" col4="" col5="" col6="">
+                            <row id="19" col0="fp_div_bits" col1="tanh_libm_stream_bits.cpp:128" col2="293" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="39" col0="stream_mul_node&lt;13&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="38" col0="stream_add_node&lt;13&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="31" col0="stream_mul_node&lt;14&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="49" col0="stream_add_node&lt;14&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="53" col0="stream_add_node&lt;15&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="27" col0="stream_add_node&lt;16&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="15" col0="stream_add_node&lt;17&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="25" col0="stream_add_node&lt;18&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="16" col0="stream_mul_node&lt;15&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="36" col0="stream_add_node&lt;19&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="4" col0="stream_add_node&lt;20&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="45" col0="stream_div_node&lt;1&gt;" col1="tanh_libm_stream_bits.cpp:191" col2="295" col3="" col4="" col5="" col6="">
+                            <row id="19" col0="fp_div_bits" col1="tanh_libm_stream_bits.cpp:128" col2="293" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="26" col0="stream_add_node&lt;21&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="11" col0="stream_add_node&lt;22&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="17" col0="stream_mul_node&lt;16&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="286" col3="" col4="" col5="" col6="">
+                            <row id="43" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="284" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="80" col2_disp="   80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="19" col3="" col4="" col5="" col6=""/>
+                                <row id="50" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                    <row id="55" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="29" col0="stream_add_node&lt;23&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="397" col3="" col4="" col5="" col6="">
+                            <row id="34" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="395" col3="" col4="" col5="" col6="">
+                                <row id="28" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="134" col2_disp="  134 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="78" col2_disp="   78 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="17" col3="" col4="" col5="" col6=""/>
+                                <row id="23" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="133" col3="" col4="" col5="" col6="">
+                                    <row id="48" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="39" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="34" col2_disp="   34 (2 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                        </row>
+                    </row>
+                    <row id="2" col0="stream_mul_node&lt;0&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="12" col0="stream_mul_node&lt;1&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="444" col4="356" col5="356" col6="358"/>
+                    <row id="20" col0="stream_add_node&lt;0&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="37" col0="stream_mul_node&lt;2&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="445" col4="357" col5="357" col6="359"/>
+                    <row id="13" col0="stream_mul_node&lt;3&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="445" col4="357" col5="357" col6="359"/>
+                    <row id="52" col0="stream_add_node&lt;1&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="54" col0="stream_add_node&lt;2&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="7" col0="stream_add_node&lt;3&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="46" col0="stream_add_node&lt;4&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="9" col0="stream_mul_node&lt;4&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="445" col4="357" col5="357" col6="359"/>
+                    <row id="56" col0="stream_mul_node&lt;5&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="35" col0="stream_mul_node&lt;6&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="446" col4="358" col5="358" col6="360"/>
+                    <row id="41" col0="stream_add_node&lt;5&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="47" col0="stream_mul_node&lt;7&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="42" col0="stream_add_node&lt;6&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="5" col0="stream_mul_node&lt;8&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="3" col0="stream_add_node&lt;7&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="14" col0="stream_mul_node&lt;9&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="24" col0="stream_add_node&lt;8&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="33" col0="stream_mul_node&lt;10&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="40" col0="stream_add_node&lt;9&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="44" col0="stream_mul_node&lt;11&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="30" col0="stream_add_node&lt;10&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="18" col0="stream_mul_node&lt;12&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="10" col0="stream_add_node&lt;11&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="51" col0="stream_add_node&lt;12&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="32" col0="stream_div_node&lt;0&gt;" col1="tanh_libm_stream_bits.cpp:191" col2="" col3="855" col4="679" col5="679" col6="681"/>
+                    <row id="39" col0="stream_mul_node&lt;13&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="38" col0="stream_add_node&lt;13&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="31" col0="stream_mul_node&lt;14&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="49" col0="stream_add_node&lt;14&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="53" col0="stream_add_node&lt;15&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="27" col0="stream_add_node&lt;16&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="15" col0="stream_add_node&lt;17&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="25" col0="stream_add_node&lt;18&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="16" col0="stream_mul_node&lt;15&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                    <row id="36" col0="stream_add_node&lt;19&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="253" col4="253" col5="253" col6="255"/>
+                    <row id="4" col0="stream_add_node&lt;20&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="45" col0="stream_div_node&lt;1&gt;" col1="tanh_libm_stream_bits.cpp:191" col2="" col3="855" col4="679" col5="679" col6="681"/>
+                    <row id="26" col0="stream_add_node&lt;21&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="11" col0="stream_add_node&lt;22&gt;" col1="tanh_libm_stream_bits.cpp:181" col2="" col3="188" col4="188" col5="188" col6="190"/>
+                    <row id="17" col0="stream_mul_node&lt;16&gt;" col1="tanh_libm_stream_bits.cpp:186" col2="" col3="675" col4="499" col5="499" col6="501"/>
+                </row>
+            </rows>
+            <notes/>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>

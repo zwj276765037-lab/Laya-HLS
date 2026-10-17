@@ -1,0 +1,96 @@
+{
+  "schema": "laya_axi_wait_trace_v3_source_static_release",
+  "created_utc": "2026-10-08T14:18:58.399654+00:00",
+  "reviewer": {
+    "agent": "/root/resource_explain_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "verdict": "SOURCE_ACCEPTED_ONE_BOUNDED_STATIC_BUILD_RELEASED",
+  "identity": "wait_trace_v3",
+  "source_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/wait_trace_v3/source/source_preparation_packet.json",
+    "bytes": 69467,
+    "sha256": "ba07fc803befda20da4aa17427ec9cf00f65cef7766823423c8a0b0fbebe55ca"
+  },
+  "audit": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_wait_trace_v3_source_hashcheck.json",
+    "bytes": 34732,
+    "sha256": "80d08649d5f304695864ef1bbb4554d1754cdbc39167b66dabc93f39550e051d"
+  },
+  "diff": {
+    "bytes": 8433,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/wait_trace_v3/source/wait_trace_v3_vs_v2.diff",
+    "sha256": "5652380a506beb99487f9ee6cb10466c94aa8d781a5c3f173758238a70ac1963"
+  },
+  "review": [
+    "40 files copied independently from frozen v2; only top/monitor instrumentation and snapshot label differ. All 35 actual SV closure files verified.",
+    "Read full initial and corrected diffs. Original waits and all original top/monitor statements are unchanged in order; original response checks retained.",
+    "First-pair calls are externally gated by i==0, maximum10 records; raw task calls occur only within clocks9998..10024, plus monitor #1step sampled tuple, maximum81 records. No per-clock string task calls outside window, no new queues/class objects.",
+    "Post-wait checks use original full predicate !==1'b1 so false or unknown cannot silently pass; wait expressions and VIP timing are unchanged.",
+    "Records expose index, typed threshold, actual count/predicate/time, monitor cycle and first-B/R markers; raw posedge/negedge+1ps and monitor preedge tuple include channels, responses/data and all five counts."
+  ],
+  "release": {
+    "owner": "/root/vivado_project_sol_max",
+    "action": "One fresh xvlog/xelab static build",
+    "snapshot": "axi_wait_trace",
+    "planned_static": {
+      "argv": [
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/wait_trace_v3/tb/build_static.sh"
+      ],
+      "cwd": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/wait_trace_v3/runs/static_build_v1/work",
+      "guard_argv": [
+        "taskset",
+        "-c",
+        "0-3",
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+        "--out",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/wait_trace_v3/runs/static_build_v1/guard",
+        "--cwd",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/wait_trace_v3/runs/static_build_v1/work",
+        "--rss-gib",
+        "16",
+        "--timeout-seconds",
+        "300",
+        "--",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/wait_trace_v3/tb/build_static.sh"
+      ],
+      "limits": {
+        "cpus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ionice": "idle",
+        "memavailable_floor_gib": 192,
+        "nice": 19,
+        "rss_gib": 16,
+        "sample_seconds": 0.2,
+        "wall_seconds": 300
+      },
+      "release": "not_released"
+    },
+    "rss_gib": 16,
+    "wall_seconds": 300,
+    "cpus": 4,
+    "nice": 19,
+    "ionice": "idle",
+    "rss_sample_seconds": 0.2,
+    "host_mem_available_floor_gib": 192,
+    "serialization": "Laya workflow/agent tree heavy tools only, Attention priority.",
+    "evidence_required": [
+      "actual tool argv and exact source/tool hashes",
+      "full compile/elaboration logs and exit/error scan",
+      "snapshot xsimk and work-product manifests",
+      "all guard/policy/RSS evidence"
+    ]
+  },
+  "runtime": "NOT_RELEASED. Return static snapshot packet for separate bounded one-traffic runtime gate.",
+  "limits": [
+    "Diagnostic instrumentation can change scheduling/optimization; changed failure behavior is an observation, not root-cause proof.",
+    "No queue_exists_v1 changes, no VIP transaction changes, no production source changes.",
+    "No accepted AXI traffic path or numerical RTL evidence yet."
+  ]
+}

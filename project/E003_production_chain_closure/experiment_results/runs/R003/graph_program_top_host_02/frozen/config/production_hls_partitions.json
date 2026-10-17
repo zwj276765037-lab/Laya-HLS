@@ -1,0 +1,192 @@
+{
+  "schema": "laya-production-hls-partitions-v3",
+  "contract": "results/production_hls_partition_contract_20261012.md",
+  "host_abi": "original 13BO plus control; unchanged",
+  "compute_and_provenance_fifos": {
+    "count": 4,
+    "width_bits": 512,
+    "depth": 2,
+    "external_signal_count": 12,
+    "changed": false
+  },
+  "adapter_external_fifos": {
+    "names": [
+      "compute_command",
+      "compute_response",
+      "provenance_command",
+      "provenance_response",
+      "producer_request",
+      "producer_completion"
+    ],
+    "count": 6,
+    "width_bits": 512,
+    "depth": 2,
+    "signal_count": 18,
+    "host_visible": false
+  },
+  "controller_internal_boundary": {
+    "request_bytes": 1536,
+    "request_beats": 24,
+    "completion_bytes": 1024,
+    "completion_beats": 16,
+    "wire_version": 1,
+    "maximum_inflight_transactions": 1,
+    "request_slots": 1,
+    "completion_slots": 1,
+    "header": "include/laya_controller_transaction.h",
+    "codec": "hls/platform/controller_transaction_codec.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_controller_transaction_layout_v1.sv"
+  },
+  "internal_producer_boundary": {
+    "request_bytes": 1024,
+    "request_beats": 16,
+    "completion_bytes": 512,
+    "completion_beats": 8,
+    "wire_version": 1,
+    "maximum_active_non_portal_tasks": 1,
+    "header": "include/laya_producer_engine.h",
+    "codec": "hls/platform/producer_engine_codec.cpp",
+    "hls_adapter": "hls/platform/producer_engine_hls.cpp"
+  },
+  "partitions": [
+    {
+      "name": "graph_program_sequencer",
+      "top": "laya_graph_program_sequencer",
+      "state": "host_top_validated_hls_generation_pending",
+      "responsibility": "full model PC, next action, logical slot handles and monotonic action ordinal",
+      "owner_or_typed_authority": false,
+      "sources": "config/graph_program_sources.cmake",
+      "internal_fifos": [
+        "accepted_command",
+        "request_result",
+        "action_request",
+        "action_completion"
+      ],
+      "consumer_handshakes": [
+        "request_result_consumed"
+      ],
+      "external_protocol_fifos": []
+    },
+    {
+      "name": "task_lifecycle_executor",
+      "top": "laya_task_lifecycle_executor",
+      "state": "host_layernorm_action_validated_hls_top_pending",
+      "responsibility": "identity/task/ref reservations, owner/lease state, BEGIN/producer/END, fence and unique typed retirement",
+      "next_action_authority": false,
+      "sources": "config/task_lifecycle_executor_sources.cmake",
+      "supported_scope": "NORM via real LayerNorm producer over all BxS rows16 windows; remaining 16 action kinds reject before side effect",
+      "internal_fifos": [
+        "action_request",
+        "action_completion",
+        "transaction_request",
+        "transaction_completion"
+      ],
+      "external_protocol_fifos": []
+    },
+    {
+      "name": "legacy_graph_sequencer",
+      "top": "laya_typed_q8_forward_graph_sequencer",
+      "state": "failed_semantic_stall_no_rtl",
+      "responsibility": "historical combined graph/action lifecycle closure; superseded by D-M003-GRAPH-LIFECYCLE-SPLIT-01",
+      "arithmetic_fallback_allowed": false,
+      "sources": "config/graph_sequencer_sources.cmake",
+      "internal_fifos": [
+        "transaction_request",
+        "transaction_completion"
+      ],
+      "external_protocol_fifos": [],
+      "evidence": {
+        "attempt": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_sequencer_hls_01",
+        "status": "FAIL/semantic_stall",
+        "rtl_generated": false
+      }
+    },
+    {
+      "name": "command_provenance_adapter",
+      "top": "laya_command_provenance_adapter",
+      "state": "generated_top_verified_rtl_bounded_protocol_subsets",
+      "responsibility": "one normalized compute/provenance/producer transaction, frame construction, beat transport, response parsing and binding result",
+      "graph_or_owner_authority": false,
+      "typed_retirement_authority": false,
+      "sources": "config/controller_adapter_sources.cmake",
+      "internal_fifos": [
+        "transaction_request",
+        "transaction_completion"
+      ],
+      "external_protocol_fifos": [
+        "compute_command",
+        "compute_response",
+        "provenance_command",
+        "provenance_response",
+        "producer_request",
+        "producer_completion"
+      ],
+      "implementation": {
+        "request_mapping": "include/laya_controller_request_mapping.h",
+        "schedule": "finite semantic phases plus one-word serialized external request construction",
+        "wire_changed": false,
+        "consumer_handshake_interlock": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_controller_transaction_adapter_shell_v1.sv"
+      },
+      "evidence": {
+        "project_relative_generation": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_03",
+        "project_relative_top_port_audit": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_adapter_hls_03_port_verification_20261012.json",
+        "project_relative_rtl": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_rtl_03",
+        "rtl_scope": "eight independently reset bounded compute/provenance/producer protocol cases with real depth2 FIFOs and tail14/tail15 completion-consumer interlock; prior eight-case combined profile remains COST_STOP",
+        "integration": "graph sequencer/LayerNorm/physical hub not connected to this adapter evidence",
+        "project_relative_f10_verification": "project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_f10_verification_20261012.json"
+      }
+    },
+    {
+      "name": "layernorm_producer_engine",
+      "top": "laya_layernorm_producer_engine",
+      "state": "generated_shell_integration_under_test",
+      "supported_scope": "gamma0 LN_ATTN/LN_FFN, TOKEN rows1..16, D1024",
+      "sources": [
+        "hls/operators/layernorm_producer_engine.cpp",
+        "hls/operators/layernorm_compute.cpp",
+        "hls/platform/producer_engine_codec.cpp",
+        "hls/platform/producer_engine_hls.cpp",
+        "hls/common/laya_numeric.cpp",
+        "hls/common/laya_tasks.cpp"
+      ],
+      "masters": [
+        "source_read",
+        "destination_write"
+      ],
+      "publication_authority": false,
+      "typed_retirement_authority": false
+    }
+  ],
+  "graph_action_boundary": {
+    "request_bytes": 512,
+    "request_beats": 8,
+    "completion_bytes": 256,
+    "completion_beats": 4,
+    "wire_version": 1,
+    "width_bits": 512,
+    "depth": 2,
+    "maximum_inflight_actions": 1,
+    "request_slots": 1,
+    "completion_slots": 1,
+    "header": "include/laya_graph_action_protocol.h",
+    "codec": "hls/control/graph_action_protocol.cpp",
+    "registry": "config/graph_action_registry.json",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_action_layout_v1.sv"
+  },
+  "accepted_request_boundary": {
+    "command_bytes": 256,
+    "command_beats": 4,
+    "result_bytes": 256,
+    "result_beats": 4,
+    "wire_version": 1,
+    "width_bits": 512,
+    "depth": 2,
+    "maximum_inflight_requests": 1,
+    "command_slots": 1,
+    "result_slots": 1,
+    "header": "include/laya_graph_program_protocol.h",
+    "codec": "hls/control/graph_program_protocol.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+    "next_command_gate": "prior result last beat consumed by the real executor/shell consumer"
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "reviewer": {
+    "model": "GPT-6 Astra",
+    "reasoning_effort": "xhigh",
+    "agent": "/root/laya_p1_design"
+  },
+  "reviewed_at_utc": "2026-10-07T08:49:44.541497+00:00",
+  "scope": "Bounded diagnosis of compiler host-memory growth; documentation and evidence review. No production fix or full synthesis acceptance.",
+  "verdict": "ACCEPT_DIAGNOSIS_WITH_EXPLICIT_LIMITS",
+  "conclusions": {
+    "specific_hotspot_measured": "HLSGen / generateGlobals / rewriteGlobalVariableInitializer / mapBytes / GenerateBitConcat / ConstantInt::get",
+    "runtime_initializer_attribution": "Supported by unique initializer-only IR control, equal metrics at 15 preceding stages, and reaching matching FunctionBuilder errors after global generation. No direct global name was captured at the original breakpoint.",
+    "wide_constant_storage_mechanism": "Disassembly creates cumulative shift offsets at measured full W, before zero-result elimination, and interns wide APInt key and ConstantInt value payloads.",
+    "zero_control_outcome": "Reached later function pointer conversion error with 3.566 GiB sampled peak; HLSGen failed, no a.g.lto.bc.",
+    "original_360_GiB_attribution": "Mechanism and conditional magnitude explained; original allocation count and every byte of peak were not traced."
+  },
+  "measurements": {
+    "W_bits": 2653009,
+    "M_input_fragments": 6480158,
+    "callsite_W_bits": 2653009,
+    "sampled_offset": 0
+  },
+  "conditional_arithmetic": {
+    "one_dense_APInt_bytes": 331632,
+    "key_plus_value_payload_bytes": 663264,
+    "distinct_offsets_equivalent_to_360_GiB": 582795.1715154147,
+    "fraction_of_M": 0.08993533360072621,
+    "not_measured_allocation_count": true
+  },
+  "input_control_review": {
+    "changed_line_numbers": [
+      2638
+    ],
+    "only_top_level_initializer_changed": true,
+    "linkage_type_alignment_debug_metadata_unchanged": true,
+    "all_other_input_text_byte_identical": true,
+    "defined_functions_unchanged": 1045,
+    "llvm_assembly_roundtrip_only_ModuleID_change": true,
+    "argv_items": 172,
+    "normalized_reflow_argv_identical": true,
+    "normalization_only": "Replace the diagnostic build directory prefix."
+  },
+  "preceding_stage_independent_recheck": [
+    {
+      "stage": "cmplx.3.000.fe.link.json",
+      "rows": 345,
+      "function_self_instructions_sum": 35853,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "44dd16f2eb8d875d3c314df4c0244c756aa1a850f012246d84de94e3ebd63059",
+      "modified_sha256": "7bdf5cf4a36b03c346f04e8a6a863390c17ab120e16e48a17459bfb57be13887"
+    },
+    {
+      "stage": "cmplx.3.001.fe.unroll-raw.json",
+      "rows": 366,
+      "function_self_instructions_sum": 67963,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "d400a2461b3bb4c4978b480befdb58fe2b765cf5e5d5455cd0a8f1ad3f85a8f1",
+      "modified_sha256": "b80e428a5dd51580d74541462f69fcca3a8e945831b01979b677fe5d289e12b7"
+    },
+    {
+      "stage": "cmplx.3.002.fe.unroll-simplified.json",
+      "rows": 366,
+      "function_self_instructions_sum": 59678,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "aaf5cf50a6b33fee6781afd579c398119c65b067a523cb096a5d38fb5678299a",
+      "modified_sha256": "81235d2fc35f1c1c61be657bc616dc7edfdc3543b51d200655676ef41d7f3913"
+    },
+    {
+      "stage": "cmplx.3.003.fe.inline-raw.json",
+      "rows": 169,
+      "function_self_instructions_sum": 81572,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "379ea4c2f8da9461bc295f9905246744970859649140807da361deee07e014c9",
+      "modified_sha256": "98d51a5dcb39ff0d8d6c323a788f859af9c03afc29f6844851914da37be77a57"
+    },
+    {
+      "stage": "cmplx.3.004.fe.inline-simplified.json",
+      "rows": 169,
+      "function_self_instructions_sum": 72186,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "69faf56e6c0b8edf408533b110521395e8907ef43154d8fc14fd26ea9eef5d75",
+      "modified_sha256": "2ce94ca1091636006783f5f3d19f0dfbcbde7ecc4676cd6a106ffd4208d58513"
+    },
+    {
+      "stage": "cmplx.3.005.fe.array-partition-raw.json",
+      "rows": 173,
+      "function_self_instructions_sum": 67113,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "e782a1534a35444d03d71fb96252f75120a005208b5b9649e8b89a1b271d9fb9",
+      "modified_sha256": "8cb307ecd638504a5e78335703f63abfb5460e533308412878c732285fee3b68"
+    },
+    {
+      "stage": "cmplx.3.006.fe.array-partition-simplified.json",
+      "rows": 172,
+      "function_self_instructions_sum": 66674,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "986906c2f81333d22dbe5b57c87e802b0400a91a07ed7b3fe8b0ab5a5c45c328",
+      "modified_sha256": "7c27c9dd8609e6e007fe68590bbb99b029234a48c6e43259264d001c9451d447"
+    },
+    {
+      "stage": "cmplx.3.007.fe.aggregate.json",
+      "rows": 172,
+      "function_self_instructions_sum": 66674,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "986906c2f81333d22dbe5b57c87e802b0400a91a07ed7b3fe8b0ab5a5c45c328",
+      "modified_sha256": "7c27c9dd8609e6e007fe68590bbb99b029234a48c6e43259264d001c9451d447"
+    },
+    {
+      "stage": "cmplx.3.008.fe.array-reshape.json",
+      "rows": 172,
+      "function_self_instructions_sum": 66672,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "8665c5f991681251078462ac44d23345aefce126ecfc9927fe0e638ed86e4863",
+      "modified_sha256": "b97d509cf564d30e1c840bcfa2c995fdea54209e564c07e2ef5ce9477d40aaed"
+    },
+    {
+      "stage": "cmplx.3.009.fe.infer-access-pattern.json",
+      "rows": 172,
+      "function_self_instructions_sum": 66624,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "ddad286c357cf4d2796589320853d7adb5de0d5b87c9e4080fec595083b83b92",
+      "modified_sha256": "d8d00dacc2dc6b4c7797678e5b76d67af841cf8f098d4edd4f42bd855c34720f"
+    },
+    {
+      "stage": "cmplx.3.010.fe.performance-prep.json",
+      "rows": 172,
+      "function_self_instructions_sum": 63469,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "a2626133fcb4c08a13563bfd3dd9ac5ffbdd552e9bfc5e0ec7c1f8a8777cbd22",
+      "modified_sha256": "fe60d7583f7517f4e27ef0d923152092b61ad67e9986acb83e170b3941179310"
+    },
+    {
+      "stage": "cmplx.3.011.fe.performance-parallel.json",
+      "rows": 172,
+      "function_self_instructions_sum": 61458,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "f4a20f196572792e89c614a77a1ea3348af66f66677cd935bed5a3e45350986d",
+      "modified_sha256": "684aa77a175f8d8cb60688d57f349281daefefbf8e6effdc0a276ef36d39bfab"
+    },
+    {
+      "stage": "cmplx.3.012.fe.performance-array-partition-raw.json",
+      "rows": 172,
+      "function_self_instructions_sum": 72264,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "89edf49a5259664031e8e12220fedbcca84d8959329da1180e2a4cdce63e7d26",
+      "modified_sha256": "38f733758e1e8a174fe00a929dcc8bde2ed193741df7e468f2ae104867a2056b"
+    },
+    {
+      "stage": "cmplx.3.013.fe.performance-final.json",
+      "rows": 172,
+      "function_self_instructions_sum": 61991,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "75627b5f7205e36580a40d563682603266cf1c4717af899aeebcc54398cfc0ad",
+      "modified_sha256": "05f4a76054f77b5fcb08560fa5f716eb66b8a9fa959a1edf0b79430f03ef206f"
+    },
+    {
+      "stage": "cmplx.3.014.fe.simplify.json",
+      "rows": 172,
+      "function_self_instructions_sum": 62066,
+      "same_normalized_function_metrics": true,
+      "original_sha256": "987bca02d9b6fcd43a05b7452493448e39c56fbb05203a0cae644a3759121963",
+      "modified_sha256": "392e83a9c999e3336f87cbb9a97fd96eac0754e695c377853e8f7c24c91b1d01"
+    }
+  ],
+  "zero_control_result": {
+    "cc1_exit_code": 1,
+    "child_rusage_maxrss_kb": 3738504,
+    "elapsed_seconds": 202.56727507337928,
+    "finished_at": "2026-10-07T08:39:18.757526+00:00",
+    "hlsgen_completed": false,
+    "hlsgen_completed_at": null,
+    "hlsgen_entered": true,
+    "hlsgen_entered_at": "2026-10-07T08:39:15.419946+00:00",
+    "minimum_mem_available_kb": 436453228,
+    "peak_clang_rss_kb": 3738992,
+    "peak_owned_rss_kb": 3738992,
+    "trigger": "cc1_exited"
+  },
+  "static_order_evidence": {
+    "generateGlobals_call": "0x23c0b1e",
+    "generateFunctions_call": "0x23c0b36",
+    "buildFunction_call": "0x23c02e6",
+    "emitUnsupportedSelectOnPointers_call": "0x23fa2eb",
+    "emitUnsupportedSelectOnDiffTypes_call": "0x23fa33f"
+  },
+  "resource_protection": {
+    "zero_probe_sample_seconds": 0.2,
+    "zero_probe_configured_rss_stop_GiB": 8,
+    "zero_probe_available_floor_GiB": 192,
+    "zero_probe_minimum_available_GiB": 416.2342338562012,
+    "zero_probe_threshold_triggered": false,
+    "observed_nice_affinity_idle_io_checks_passed": true,
+    "zero_probe_leader_pid_absent_at_review": true,
+    "earlier_width_probe_overshoot_disclosed": "Configured 8 GiB RSS threshold, actual sampled tree peak approximately 8.44 GiB at one-second sampling; probe stopped and cleaned.",
+    "no_global_policy_changes_or_other_process_control": "Per execution contract and recorded owned-process cleanup. Absolute zero impact on other workloads is not established."
+  },
+  "frozen_production_check": {
+    "executed_by": "/root",
+    "command": "sha256sum --check --quiet results/engineering_p2/csynth_expanded_memory_20261007T072000Z/input_hashes.sha256",
+    "exit_code": 0,
+    "output": "",
+    "provenance": "Controller tool result reported to reviewer through collaboration message. No standalone persistent command log or exact execution timestamp was recorded.",
+    "input_manifest_sha256": "cc4b519f03ca068570e6eb0aed81f9ed617cfb7f0924bef20205eb187d6cd618"
+  },
+  "phase_status": {
+    "previous_cpu_and_stdmath_csim": "Previously accepted in their recorded scope; not rerun for diagnostic documentation.",
+    "production_full_hls_synthesis": "INCOMPLETE",
+    "zero_control_hlsgen": "FAILED_ON_POINTER_CONVERSION",
+    "production_source_fix": "NOT_IMPLEMENTED",
+    "complete_network_rtl": "NOT_GENERATED",
+    "placement_routing_timing_platform_board": "NOT_ACCEPTED"
+  },
+  "limitations": [
+    "M is input fragment count, not observed allocations.",
+    "No terminal-peak prediction or proven quadratic scaling.",
+    "Constant interning is not by itself evidence of a memory leak.",
+    "The zero initializer intentionally changes initial-state semantics.",
+    "The diagnostic pointer error may be latent or initializer-dependent; production ownership of that error is not established.",
+    "The sampled IntegerType width is not the source aggregate total bit size.",
+    "Small State source probes were decomposed into separate globals and did not reproduce the relevant aggregate path."
+  ],
+  "reviewed_file_sha256": {
+    "results/synthesis_memory_diagnosis_20261007/report.md": "c0da96de7cc86eda227dca38d711e5106666e118e0a1c270a417af9947d1491e",
+    "results/synthesis_memory_diagnosis_20261007/analysis_plan.md": "9462b34cd5eff3c2d7c9859967d4e4928b41b5dcfb19a0e8a5a63a7403fe848e",
+    "results/synthesis_memory_diagnosis_20261007/binary_evidence.json": "7740a11bc1278928772ee05f293294bfe13e381386790a161002e73b0caec116",
+    "results/synthesis_memory_diagnosis_20261007/review_prechecks.json": "9867c5203002cd7e28ae8ce5f38a7e31ef5718dc0b2282a88dcc6e149a0f114e",
+    "results/synthesis_memory_diagnosis_20261007/GenerateBitConcat.disassembly.txt": "873ea4f5e45a0b8804f9ecc9288abe220045bf5573fd3aeb7441ebb8e96150d7",
+    "results/synthesis_memory_diagnosis_20261007/ConstantInt_get.disassembly.txt": "60a707ab6e72566127f5ce4169fc1a8e967391453f218e18c0097c4ada0ed3e3",
+    "results/synthesis_memory_diagnosis_20261007/HLSBuilder_buildModule.disassembly.txt": "04f9f828fcd10434c77eaefd888bc94927dfbaa0cf52ccb5b531944d131aff5b",
+    "results/synthesis_memory_diagnosis_20261007/HLSBuilder_generateFunctions.disassembly.txt": "3c7508696f9b178c7af2599558e7dba1c2ff678363c7e226a786d386095d7cce",
+    "results/synthesis_memory_diagnosis_20261007/FunctionBuilder_visitSelectInst.disassembly.txt": "57439468c6067fc777d6d4427d3235c193ea6aa92de0aac69bda4f59b6a15253",
+    "results/synthesis_memory_diagnosis_20261007/emitUnsupportedSelectOnPointers.disassembly.txt": "b7fb6b19672ed08ec9a1a74382bd0635d68a26372bbbaab7820ea84109c4cfa7",
+    "results/synthesis_memory_diagnosis_20261007/reflow_probe/probe_result.json": "dbabb74c24336ec7919e432900a773a08994f310f40a03deee809224cf67b87b",
+    "results/synthesis_memory_diagnosis_20261007/reflow_probe/stack_captures.json": "59d51e01d77da59d5b600278b37a09a8b273496716d8dfdaabd23d5be5af6a87",
+    "results/synthesis_memory_diagnosis_20261007/reflow_width_probe/width_captures.json": "107a062d001801f100a60102bc6ec326ba928a17d6cc332004b0e3760829bf63",
+    "results/synthesis_memory_diagnosis_20261007/reflow_width_probe/probe_result.json": "5de0b705bb4c6891ce53981ab34932dc1ab79328bca9396df4a5f6b0241bc915",
+    "results/synthesis_memory_diagnosis_20261007/reflow_runtime_zero_probe/probe_result.json": "ac50277de61eaea7ad878c9ddd16de7beaff7a63668560abed5f64cecaeaa96f",
+    "results/synthesis_memory_diagnosis_20261007/reflow_runtime_zero_probe/cmplx_comparison.json": "8c917e6b0d035c1c360f4ef7c3365948a3a208536e44455f59b186af209a6401",
+    "results/synthesis_memory_diagnosis_20261007/reflow_runtime_zero_probe/transform_manifest.json": "8371deb2b47c2ea316dfcd6f49660ab69f8d965efbb5704420b76e843049a0f1",
+    "results/synthesis_memory_diagnosis_20261007/reflow_runtime_zero_probe/policy_checks.json": "0444600d01bfb2c2daba0d8186c29100407bf14cbf2f84134f3ee986b9b3b904",
+    "results/synthesis_memory_diagnosis_20261007/reflow_runtime_zero_probe/probe_plan.json": "19c882ba59fccf41fcb61b73a4a64ecba00e0bf1135aa14c40abcd852e83e9a1",
+    "results/synthesis_memory_diagnosis_20261007/reflow_runtime_zero_probe/runtime_zero_probe_findings.md": "db8559067868ae06395ffdd55fdb77facb156a2c4482f2cdc66aa3b4f1aeb9c5",
+    "README.md": "7c040897f28f6db7117d052dc1f9b2cf2711d06854da5fb6c7e7f1ec0c02cfd5",
+    "hardware_agent/task.md": "74e2bf365bcd3fb80ed0ddbab0106f8096bac6389f15ce821b1e01ed0655c973",
+    "vivado/module_design/top/source/results.md": "d4344470a709c47c7f38c733cbe24df8e04e12800fb237f4060062c45a78add1",
+    "vivado/module_design/kernel_wrapper/source/results.md": "34b75c477113c7b5650954660b19b8897526a2521d80170aac0c5799dee8137b"
+  },
+  "documentation_updates": [
+    "README.md",
+    "hardware_agent/task.md",
+    "vivado/module_design/top/source/results.md",
+    "vivado/module_design/kernel_wrapper/source/results.md",
+    "results/synthesis_memory_diagnosis_20261007/report.md"
+  ],
+  "further_experiments_authorized_or_needed_for_this_diagnosis": false,
+  "report_local_links_checked": [
+    "reflow_probe/probe_findings.md",
+    "reflow_width_probe/width_captures.json",
+    "GenerateBitConcat.disassembly.txt",
+    "ConstantInt_get.disassembly.txt",
+    "../../hls/platform/full_kernel_wrapper.cpp:5",
+    "../../include/laya_full_runtime.h:102",
+    "review_prechecks.json",
+    "reflow_runtime_zero_probe/probe_result.json",
+    "reflow_runtime_zero_probe/cmplx_comparison.json",
+    "reflow_runtime_zero_probe/driver.log:994092",
+    "../../hardware_agent/task.md",
+    "reflow_width_probe/probe_result.json",
+    "init_probe/init_probe_findings.md",
+    "analysis_plan.md",
+    "binary_evidence.json",
+    "final_review.json",
+    "HLSBuilder_buildModule.disassembly.txt",
+    "HLSBuilder_generateFunctions.disassembly.txt",
+    "FunctionBuilder_visitSelectInst.disassembly.txt",
+    "emitUnsupportedSelectOnPointers.disassembly.txt"
+  ],
+  "report_no_pending_placeholder": true
+}

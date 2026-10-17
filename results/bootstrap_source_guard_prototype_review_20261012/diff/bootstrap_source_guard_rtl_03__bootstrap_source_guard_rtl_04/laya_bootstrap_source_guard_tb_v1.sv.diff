@@ -1,0 +1,14 @@
+--- bootstrap_source_guard_rtl_03/laya_bootstrap_source_guard_tb_v1.sv
++++ bootstrap_source_guard_rtl_04/laya_bootstrap_source_guard_tb_v1.sv
+@@ -386,7 +386,10 @@
+     if(active_owners!=1 || published_owners!=1 || terminal_tasks!=4 ||
+        accepted_events!=10 || forwarded_aw!=64 || forwarded_w!=4096 || retired_b!=64 || domain_drained)
+       $fatal(1,"full controlled source prelude mismatch");
+-    normal_query(0,63);
++    adapter_pending_zero=0;normal_query(E_PROTOCOL,3);
++    if(guard_active || proof_valid || guard_error || published_owners!=1)
++      $fatal(1,"negative nonquiescent snapshot poisoned cleanup/proof");
++    adapter_pending_zero=1;normal_query(0,63);
+     phase=7;
+     if(!guard_active || !proof_valid || !guard_match || base_change_ready)
+       $fatal(1,"source exclusion not established after snapshot consumption");

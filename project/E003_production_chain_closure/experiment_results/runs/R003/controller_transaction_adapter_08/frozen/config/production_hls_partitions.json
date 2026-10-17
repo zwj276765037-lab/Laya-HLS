@@ -1,0 +1,92 @@
+{
+  "schema": "laya-production-hls-partitions-v2",
+  "contract": "results/production_hls_partition_contract_20261012.md",
+  "host_abi": "original 13BO plus control; unchanged",
+  "compute_and_provenance_fifos": {
+    "count": 4,
+    "width_bits": 512,
+    "depth": 2,
+    "external_signal_count": 12,
+    "changed": false
+  },
+  "adapter_external_fifos": {
+    "names": [
+      "compute_command", "compute_response",
+      "provenance_command", "provenance_response",
+      "producer_request", "producer_completion"
+    ],
+    "count": 6,
+    "width_bits": 512,
+    "depth": 2,
+    "signal_count": 18,
+    "host_visible": false
+  },
+  "controller_internal_boundary": {
+    "request_bytes": 1536,
+    "request_beats": 24,
+    "completion_bytes": 1024,
+    "completion_beats": 16,
+    "wire_version": 1,
+    "maximum_inflight_transactions": 1,
+    "request_slots": 1,
+    "completion_slots": 1,
+    "header": "include/laya_controller_transaction.h",
+    "codec": "hls/platform/controller_transaction_codec.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_controller_transaction_layout_v1.sv"
+  },
+  "internal_producer_boundary": {
+    "request_bytes": 1024,
+    "request_beats": 16,
+    "completion_bytes": 512,
+    "completion_beats": 8,
+    "wire_version": 1,
+    "maximum_active_non_portal_tasks": 1,
+    "header": "include/laya_producer_engine.h",
+    "codec": "hls/platform/producer_engine_codec.cpp",
+    "hls_adapter": "hls/platform/producer_engine_hls.cpp"
+  },
+  "partitions": [
+    {
+      "name": "graph_sequencer",
+      "top": "laya_typed_q8_forward_graph_sequencer",
+      "state": "implementation_in_progress",
+      "responsibility": "full task graph, identities, reservations, owner events, BEGIN/END, unique typed retirement",
+      "arithmetic_fallback_allowed": false,
+      "sources": "config/graph_sequencer_sources.cmake",
+      "internal_fifos": ["transaction_request", "transaction_completion"],
+      "external_protocol_fifos": []
+    },
+    {
+      "name": "command_provenance_adapter",
+      "top": "laya_command_provenance_adapter",
+      "state": "host_validated_hls_generation_pending",
+      "responsibility": "one normalized compute/provenance/producer transaction, frame construction, beat transport, response parsing and binding result",
+      "graph_or_owner_authority": false,
+      "typed_retirement_authority": false,
+      "sources": "config/controller_adapter_sources.cmake",
+      "internal_fifos": ["transaction_request", "transaction_completion"],
+      "external_protocol_fifos": [
+        "compute_command", "compute_response",
+        "provenance_command", "provenance_response",
+        "producer_request", "producer_completion"
+      ]
+    },
+    {
+      "name": "layernorm_producer_engine",
+      "top": "laya_layernorm_producer_engine",
+      "state": "generated_pending_shell_integration",
+      "supported_scope": "gamma0 LN_ATTN/LN_FFN, TOKEN rows1..16, D1024",
+      "sources": [
+        "hls/operators/layernorm_producer_engine.cpp",
+        "hls/operators/layernorm_compute.cpp",
+        "hls/platform/producer_engine_codec.cpp",
+        "hls/platform/producer_engine_hls.cpp",
+        "hls/common/laya_numeric.cpp",
+        "hls/common/laya_tasks.cpp"
+      ],
+      "masters": ["source_read", "destination_write"],
+      "publication_authority": false,
+      "typed_retirement_authority": false
+    }
+  ]
+}

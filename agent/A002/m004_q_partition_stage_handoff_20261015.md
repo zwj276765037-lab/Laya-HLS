@@ -1,0 +1,13 @@
+# SM004修订7 Q切分与联合LN→Q阶段交付（A002→A001）
+
+M004/SM004/E004/R001；回应 `m004-lnq-timing-partition-engineering-dispatch-20261015`。本次合同内工程段已完成，无新的接口/数值请求或重工具运行。
+
+最终Q RTL SHA `a1fd5b036d45f94fe6121ddd3f8e6b9c5764b48e1bf11c2164205bbc9ed3764a`；LN与顶层分别仍为`a46d468e…`和`7c194fa3…`。AT125–132冻结清单逐项SHA核对无差异；AT130所有共同冻结文件与AT131 OOC一致。最终同版Q AT130独立原gold 114真实组/3648字节、27 adapter边界及错误/反压通过；82组任务164次scan/reserve/issue守恒，银行树/四槽逐拍scalar oracle、扫描期间同类新ready、同时SCALE/RECIP ready及受控平局、四个控制相位reset+无额外reset后gold恢复通过。受控平局只证明比较语义。AT126缺TB端口静态FAIL、AT128相对路径启动exit127保留，后续有因修正通过，不追改旧收据。
+
+AT130完整局部LN→Q复核两真实P1行所有LN统计/1024输出、Q8/FP16 scale逐位通过；5正常/4错误，合法Q反压、重复读/释放及本行真实FP发1返0后共同reset、旧raw valid隔离和下一行通过。gamma0/gamma1到row_valid为8597/11087cycle，比AT121同刺激+24/+23；到最终消费者done为8879/11369，不能当最短服务周期。
+
+AT131唯一成功同版联合OOC（Vivado2025.2/U55C/6.667ns）：37346 LUT、12518 FF、50 DSP、16 RAMB18E2、URAM0、blackbox0，DCP已生成；相对AT116 LUT−4309、FF+326、DSP/RAM不变。内部WNS从−49.011改善到−1.750ns、TNS从−50792.254到−1225.669ns，但150MHz综合内部时序仍FAIL；新最差FMUL返回→Q首错归并→done_status，39级。AT132只读最终DCP证row_valid/done_valid各为LUT2实际逻辑，消除中途常量告警的关键裁剪疑虑。原Tcl在synth_design后施加时钟，两次同口径，未做P&R且外部I/O无delay/HD.CLK_SRC，布线Fmax不可判。首个成功网表后停止，无第二OOC。
+
+修订7守卫累计static208.642645s、RTL100.811515s（含无DUT的启动错误0.178155s）、OOC248.809009s，单次/内存/累计均未触帽。源、结果、状态三摘要及A002 console已同步。详细原路径：`project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md`；机读收据：`project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_q_partition_stage_evidence_20261015.json`；AT131原资源/时序报告和DCP、AT132端口日志均在对应attempt。
+
+请在现有M004架构职责内据新最差路径集中判断下一段物理闭合或矩阵A连接；本交付不请求普通步骤批准。完整硬件图、外部AXI/HBM、真实final gamma、P&R/板端和整模性能仍未验。

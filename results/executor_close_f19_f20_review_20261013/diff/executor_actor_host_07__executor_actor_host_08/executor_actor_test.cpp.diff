@@ -1,0 +1,106 @@
+--- executor_actor_host_07/executor_actor_test.cpp
++++ executor_actor_host_08/executor_actor_test.cpp
+@@ -171,9 +171,9 @@
+   assert(s.phase==executor::Phase::WAIT_RESULT_CONSUMED && !s.control_pending);
+   auto wrong=s.result;++wrong.identity.request_id;
+   h.in.host_result_valid=true;h.in.host_result=program_wire::encode(wrong);h.call();
+-  assert(s.phase==executor::Phase::WAIT_RESULT_CONSUMED && !s.result_consumed_pending);
++  assert(s.phase==executor::Phase::WAIT_RESULT_CONSUMED && !s.managed_result_consumed && !s.result_consumed_pending);
+   h.in.host_result=consumed;h.call();h.in.host_result_valid=false;
+-  assert(s.phase==executor::Phase::WAIT_CLOSE && s.control_pending && s.result_consumed_pending);
++  assert(s.phase==executor::Phase::WAIT_CLOSE && s.control_pending && s.managed_result_consumed && !s.result_consumed_pending);
+   auto expected=s.control_request;assert(expected.kind==handoff::Kind::CLOSE && expected.local_committed);
+   const auto literal=packet<1024>(bytes(fixture+(expected.result?"/close_ok_c1.bin":"/close_error_c1.bin")));
+   assert(handoff::encode(expected)==literal);
+@@ -565,7 +565,7 @@
+       finish_managed_close(h,fixture,result,"cancel"+std::to_string(mode));
+     }
+     else {h.in.result_consumed=true;h.call();h.in.result_consumed=false;}
+-    assert(state->result_consumed_pending);
++    assert(managed?state->managed_result_consumed:state->result_consumed_pending);
+     for(unsigned i=0;i<24;++i) {program_call();h.call();assert(state->phase==(managed?executor::Phase::WAIT_NEW_ADMISSION:executor::Phase::WAIT_RESULT_CONSUMED));}
+     assert(std::equal(before.begin(),before.end(),reinterpret_cast<const uint8_t*>(&state->runtime)) &&
+       h.tx.transaction_request.empty() && h.tx.transaction_completion.empty() &&
+@@ -641,6 +641,70 @@
+     <<"replay_no_second_completion=1 result_tail2_tail1_wait=1 "
+     <<(managed?"Host_tagged_close_cases=5 ":"host_result_consumed_retained_no_CLOSE_no_rearm=1 ")
+     <<"depth2_RTL_NOT_RUN=1 hardware_rearm_NOT_RUN=1\n";
++}
++// F19: real bound program error results reach the final actor write.
++// Software queues have no depth limit. Tail read delays test retained facts;
++// the co-present complete record tests the abstract consumer interface at the
++// WRITE_RESULT -> WAIT_RESULT_CONSUMED boundary, not RTL FIFO timing.
++void managed_result_boundary(const std::string& fixture,const checkpoint::Response& gold) {
++  for(unsigned mode=0;mode<6;++mode) {
++    auto state=std::make_unique<executor::State>();Harness h(*state,fixture);
++    program_hls::State graph;h.in.managed_close=true;grant_only(h,gold);
++    auto key=old_program_key(h);h.in.cancel=true;h.call();h.in.cancel=false;
++    auto advance=[&]() {
++      program_hls::step(graph,state->revoked,state->program_result_consumed,&key,
++        h.commands,h.program_results,h.actions,h.completions);h.call();
++    };
++    for(unsigned i=0;i<100 && !(state->phase==executor::Phase::WRITE_RESULT && state->beat==3);++i)advance();
++    assert(state->phase==executor::Phase::WRITE_RESULT && state->beat==3 && h.results.size()==3);
++    const auto before=std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(&state->runtime),
++      reinterpret_cast<const uint8_t*>(&state->runtime)+sizeof(state->runtime));
++    const auto S=state->checkpoint.sequence_high_water,H=state->checkpoint.handoff_high_water;
++    const auto ordinal=state->port.machine.action_high_water;
++    const auto expected=state->result_packet;
++    if(mode<2)h.in.result_consumed=true;
++    if(mode==2 || mode==3) {
++      auto wrong=state->result;
++      if(mode==2)++wrong.identity.request_id;
++      else ++wrong.pc;
++      h.in.host_result_valid=true;h.in.host_result=program_wire::encode(wrong);
++      program_wire::Result decoded;assert(program_wire::decode(h.in.host_result,decoded));
++    }
++    if(mode==4) {h.in.host_result_valid=true;h.in.host_result=expected;}
++    advance();
++    assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED && !state->control_pending &&
++      !state->result_consumed_pending && state->managed_result_consumed==(mode==4) && h.results.size()==4);
++    if(mode!=1)h.in.result_consumed=false;
++    if(mode==4)h.in.host_result_valid=false;
++    program_wire::ResultPacket consumed{};
++    for(unsigned beat=0;beat<4;++beat) {
++      if(beat>=2)for(unsigned i=0;i<12;++i) {
++        advance();assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED &&
++          !state->control_pending && h.results.size()==4-beat && !state->result_consumed_pending);
++      }
++      const auto w=h.results.read();
++      for(unsigned byte=0;byte<64;++byte)consumed[beat*64+byte]=uint8_t(w.range(byte*8+7,byte*8));
++    }
++    program_wire::Result decoded;assert(program_wire::decode(consumed,decoded) && consumed==expected &&
++      !decoded.result && (decoded.flags&program_wire::LOCAL_REJECT));
++    if(mode!=4) {
++      for(unsigned i=0;i<12;++i) {advance();assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED &&
++        !state->control_pending && !state->managed_result_consumed && !state->result_consumed_pending);}
++      h.in.host_result_valid=true;h.in.host_result=consumed;
++    }
++    advance();h.in.host_result_valid=false;h.in.result_consumed=false;
++    assert(state->phase==executor::Phase::WAIT_CLOSE && state->managed_result_consumed &&
++      !state->result_consumed_pending && state->control_request.kind==handoff::Kind::CLOSE);
++    const auto close=h.outgoing();auto closed=close;closed.kind=handoff::Kind::CLOSED;
++    h.incoming(closed);h.incoming(closed);
++    assert(state->closed_requests==1 && state->phase==executor::Phase::WAIT_NEW_ADMISSION &&
++      state->checkpoint.sequence_high_water==S && state->checkpoint.handoff_high_water==H &&
++      state->port.machine.action_high_water==ordinal && !state->runtime.tasks_retired &&
++      !state->runtime.producer_request_high_water && h.tx.transaction_request.empty() &&
++      std::equal(before.begin(),before.end(),reinterpret_cast<const uint8_t*>(&state->runtime)));
++    std::cout<<"F19_RESULT_BOUNDARY_PASS case="<<mode<<" final_write_legacy_ignored=1 tagged_fact="<<state->managed_result_consumed
++      <<" close_once="<<state->closed_requests<<" tail2_tail1_read_wait=1 runtime_unchanged=1\n";
++  }
+ }
+ void helper_shell_stimuli(const std::string& fixture,const checkpoint::Response& gold,
+                           const std::string& rtl_capture) {
+@@ -688,9 +752,9 @@
+   if(argc>=3 && std::string(argv[2])=="--request-close") {
+     close_wire(fixture);
+     if(argc==4)actual_closed_capture(fixture,argv[3]);
+-    managed_success_host(fixture,proof);cancel_drain_host(fixture,proof,true);
++    managed_success_host(fixture,proof);cancel_drain_host(fixture,proof,true);managed_result_boundary(fixture,proof);
+     std::cout<<"FULL_CURRENT_EXECUTOR_REQUEST_CLOSE_PASS wire_literals=8 wire_mutants=156 real_success_cases=1 real_cancel_cases=3 real_no_action_cases=2 "
+-      <<"host_full_result_required=1 real_program_action_completion_results=1 exact_closed_error_commit=1 old_live_changed_close=1 "
++      <<"F19_boundary_cases=6 managed_legacy_fact_separate=1 tagged_final_transition_retained=1 host_full_result_required=1 real_program_action_completion_results=1 exact_closed_error_commit=1 old_live_changed_close=1 "
+       <<"closed_once_wait_new_admission=1 runtime_unchanged_close=1 actual_closed_rtl_capture_frames="<<(argc==4?4:0)
+       <<" no_LGP_error_NOT_RUN=1 same_hardware_consumer_NOT_RUN=1 hardware_rearm_NOT_RUN=1\n";return 0;
+   }

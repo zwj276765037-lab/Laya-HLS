@@ -1,0 +1,185 @@
+{
+  "accounting_scope": "Implemented shell total is only source-declared RTL arrays/registers. Inherited bank, arithmetic boundary, writer and archived control metadata terms are separately enumerated but excluded while real services and bridges are unbound. Physical mapping and generated storage remain UNMEASURED.",
+  "arithmetic_service_proposal_not_live_v3": {
+    "actual_generated_integer_bank_fp_latency_ii_ce": "UNMEASURED",
+    "bank_return_boundary_bits": 4406,
+    "binding": "UNBOUND; archived stage-v2 software/dataflow candidate is not a no-ready hardware service",
+    "excluded_old_final_return_fifo_reason": "Stage-v2 blocking 1557-bit FinalReturn stream is archived only; no v3 live full-result FIFO.",
+    "old_full_result_final_fifo_bits_removed_from_v3_live": 1557,
+    "other_archived_nonlive_source_items_bits": {
+      "a_slots": 2328,
+      "bank_return_fifo": 4406,
+      "command_counts": 1505,
+      "pending_bank_request": 154,
+      "session_state": 1218
+    },
+    "stage_v2_reference": "source/prior_stage_v2/source/service_ledger.json",
+    "unfinished_internal_boundary_widths_bits": {
+      "AddOutput": 1463,
+      "DotBank": 4214,
+      "DotConverted": 2198,
+      "Products": 17526,
+      "ScaleBank": 310,
+      "ScaleDecoded": 502,
+      "ScaleProducts": 1270,
+      "TermInput": 3351,
+      "TermOutput": 2423,
+      "Tree1": 9846,
+      "Tree2": 5750,
+      "Tree3": 3574,
+      "Tree4": 2422,
+      "Tree5": 1814
+    },
+    "unfinished_internal_depth_one_fifos_bits": 56663
+  },
+  "d4_payload_bits": 1024,
+  "first_use_contracts": [
+    "Q64 issue uses pre-edge free count; same-edge commit cannot supply credit.",
+    "Return has ret_valid and no ret_ready. Matching pre-edge RESERVED slot is written at every valid return edge; unexpected return is terminal protocol error.",
+    "Q64 payload is unreset and read only after a registered RETURNED state, at least the edge following return.",
+    "D4 payload is unreset and read only after return plus ordered physical commit publishes READY; canceled traces are never read.",
+    "Trace SENDING frees only on matching post-write_response ACK; command/B stalls cannot gate arithmetic return writes.",
+    "PS/lane_bad old-operand access is an unbound arithmetic-service obligation: g0 and inactive/failed lanes must emit canonical +0 without PS read; every active g>0 read follows prior same-tile physical commit.",
+    "Wq/Ws/Aq/As/FP first-use guards remain source requirements from archived stage-v2 ledger; no v3 bank implementation or physical port proof exists."
+  ],
+  "implemented_shell_items": [
+    {
+      "bits": 83136,
+      "first_use": "ret_valid with pre-edge RESERVED matching slot/tag; no reset",
+      "formula": "64 x 1299",
+      "name": "q64_payload",
+      "requested_role": "dedicated return write; registered controller read"
+    },
+    {
+      "bits": 5217,
+      "first_use": "reset states/heads/counts; owner fields written at issue, read only while RESERVED/RETURNED",
+      "formula": "64 x 2 state + 64 x 79 owner tag/shape/trace bits + 12 heads + 21 counts",
+      "name": "q64_state_and_owner",
+      "requested_role": "single metadata writer"
+    },
+    {
+      "bits": 1024,
+      "first_use": "ret_valid with matching trace reservation; no reset; read only at READY",
+      "formula": "4 x 256",
+      "name": "d4_payload",
+      "requested_role": "dedicated return write; registered trace writer read"
+    },
+    {
+      "bits": 215,
+      "first_use": "reset state/head/count; seq at issue; expected ACK at send; matching ACK retires SENDING",
+      "formula": "4 x 3 state + 4 x 17 seq + 4 x 32 expected ACK + 4 heads + 3 free count",
+      "name": "d4_state_and_owner",
+      "requested_role": "single metadata writer"
+    },
+    {
+      "bits": 678,
+      "first_use": "reset busy/valid; set on accepted issue, clear only on physical commit",
+      "formula": "656 busy + 2 guard valid + 2 x 10 guard tile",
+      "name": "tile_hazards",
+      "requested_role": "source arbitration guard; real service clock timing UNMEASURED"
+    },
+    {
+      "bits": 1306,
+      "first_use": "read only pre-edge RETURNED oldest slot; held until commit_ready",
+      "formula": "1299 payload + 6 slot + 1 valid",
+      "name": "registered_result_commit_read",
+      "requested_role": "one post-store read/commit staging boundary, not an arithmetic return FIFO"
+    },
+    {
+      "bits": 276,
+      "first_use": "read only pre-edge READY oldest trace; held until writer command accepts",
+      "formula": "256 payload + 2 slot + 17 seq + 1 valid",
+      "name": "registered_trace_send_read",
+      "requested_role": "one post-store writer staging boundary"
+    },
+    {
+      "bits": 7,
+      "first_use": "set on accepted ret_valid; debug/probe only",
+      "formula": "1 pulse + 6 slot",
+      "name": "return_observation",
+      "requested_role": "registers may optimize away without probe"
+    },
+    {
+      "bits": 1,
+      "first_use": "reset before new quiescent command; set on invalid issue/return/commit/ACK",
+      "formula": "1 sticky bit",
+      "name": "protocol_error",
+      "requested_role": "terminal, no silent drop"
+    }
+  ],
+  "implemented_shell_source_declared_bits": 91860,
+  "inherited_bank_payload_not_live_v3_bits": 49193472,
+  "inherited_bank_payload_not_live_v3_items": [
+    {
+      "bits": 42991616,
+      "first_use": "LOAD_W writes every T*G address from both q shards before w_valid; linear reads only after successful LOAD_W",
+      "formula": "8 x 20992 x 256",
+      "implementation_intent": "requested 8 column URAM banks; ports/collision UNMEASURED",
+      "name": "wq"
+    },
+    {
+      "bits": 2686976,
+      "first_use": "LOAD_W writes every T*G address before scale validation or linear; w_valid gates linear",
+      "formula": "8 x 20992 x 16",
+      "implementation_intent": "requested 8 column BRAM banks; ports UNMEASURED",
+      "name": "ws"
+    },
+    {
+      "bits": 167936,
+      "first_use": "LOAD_W writes n<N, including explicit zero when bias_kind=0; final output reads only n<N after w_valid",
+      "formula": "8 x 656 x 32",
+      "implementation_intent": "requested BRAM banks",
+      "name": "bias_bits"
+    },
+    {
+      "bits": 2097152,
+      "first_use": "RUN_TILE loads all r<rows,k<K values before quant_group reads",
+      "formula": "8 x 8192 x 32",
+      "implementation_intent": "requested 8 lane BRAM banks",
+      "name": "fp"
+    },
+    {
+      "bits": 524288,
+      "first_use": "quant_group writes each r<rows,g<G only on success; linear starts only after all quant groups succeed",
+      "formula": "4 x 512 x 256",
+      "implementation_intent": "requested 4 row BRAM banks",
+      "name": "aq"
+    },
+    {
+      "bits": 32768,
+      "first_use": "written atomically with Aq after successful quant_group; A preparation reads only after full quant retirement",
+      "formula": "4 x 512 x 16",
+      "implementation_intent": "requested 4 row BRAM banks",
+      "name": "as"
+    },
+    {
+      "bits": 671744,
+      "first_use": "g0 emits canonical +0 and does not read PS; later g reads only shape-active and nonfailed lanes after prior same-tile physical commit; final bias reads only nonfailed in-shape lanes",
+      "formula": "32 x 656 x 32",
+      "implementation_intent": "requested 32 lane BRAM banks; read/write collision behavior HELD",
+      "name": "ps"
+    },
+    {
+      "bits": 20992,
+      "first_use": "cleared for tile<T before each m0; every bank read and final-output check is tile<T; failed lanes set on physical commit",
+      "formula": "32 x 656 x 1",
+      "implementation_intent": "requested 32 lane BRAM banks",
+      "name": "lane_bad"
+    }
+  ],
+  "mapping": "Only source-declared logical bits and requested port roles are known. HLS/netlist register, BRAM, URAM, LUTRAM, DSP, latency, II and timing are UNMEASURED.",
+  "no_double_count": "Q64 payload, its state/owner metadata, D4 payload/state, post-store read staging, writer FIFO/packet/ACK, and unbound arithmetic proposal are separate terms. Proposed arithmetic terms are excluded from implemented shell total.",
+  "q64_additional_owner_head_count_metadata_bits": 5089,
+  "q64_original_payload_plus_state_bits": 83264,
+  "schema": "q8_c1_v3_direct_return_storage_first_use_v1",
+  "status": "SOURCE_CANDIDATE_UNMEASURED",
+  "writer_service_inherited_source_intent": {
+    "actual_generated_bits": "UNMEASURED",
+    "binding": "source/c1_writer_service.cpp + c1_write_response.h; RTL bridge UNBOUND",
+    "router_credit_metadata_bits_if_bound": 217,
+    "subtotal_bits": 3819,
+    "three_ack_fifo_bits": 111,
+    "three_command_fifo_bits": 1854,
+    "three_packet_register_bits": 1854
+  }
+}

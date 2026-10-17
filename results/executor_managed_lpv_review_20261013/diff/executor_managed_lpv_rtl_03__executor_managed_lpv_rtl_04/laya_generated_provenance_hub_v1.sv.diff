@@ -1,0 +1,12 @@
+--- executor_managed_lpv_rtl_03/laya_generated_provenance_hub_v1.sv
++++ executor_managed_lpv_rtl_04/laya_generated_provenance_hub_v1.sv
+@@ -671,6 +671,9 @@
+       (!ENABLE_BOOTSTRAP_SNAPSHOT ||
+        (!snapshot_request_valid && !snapshot_response_valid)) &&
+       !request_valid && !response_valid && !cancel_pending &&
++      (!MANAGED_LPV_OWNER || (managed_owner_valid && !cancel &&
++        source_query_command[laya_compute_portal_layout_v1::IDENTITY*8+:672]==managed_owner[64*8+:672] &&
++        source_query_command[laya_compute_portal_layout_v1::MODEL_IDENTITY*8+:3328]==managed_owner[160*8+:3328])) &&
+       (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active);
+     source_query_granted=0;slot=-1;window=-1;descriptor=0;
+     producer=source_query_command[laya_compute_portal_layout_v1::PRODUCER_CONTEXT*8+:96];

@@ -1,0 +1,14 @@
+--- executor_actor_host_05/executor_actor.cpp
++++ executor_actor_host_06/executor_actor.cpp
+@@ -367,6 +367,11 @@
+       }
+       return;
+     case Phase::WAIT_RESULT_CONSUMED:
++      if (in.result_consumed) s.result_consumed_pending = true;
++      // Revoked results retain their consumed fact and all imported floors.
++      // A result read alone is not the missing bound CLOSE/physical release
++      // protocol. Keep this path closed until that protocol is connected.
++      if (s.revoked) return;
+       if ((s.result_consumed_pending || in.result_consumed) &&
+           in.admission.physical_quiescent && !s.runtime.lifecycle_action.active &&
+           !s.runtime.generated_store.active && !s.runtime.generated_store.source_lease_active) {

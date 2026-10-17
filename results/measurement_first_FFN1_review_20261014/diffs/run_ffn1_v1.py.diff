@@ -1,0 +1,76 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT058_FFN1_progress_replay_01/frozen_new/run_ffn1_v1.py
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT059_FFN1_progress_replay_02/frozen_new/run_ffn1_v1.py
+@@ -15,7 +15,8 @@
+ TB = E002 / "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb"
+ RUNS = ROOT / "project/E005_full_request_performance/experiment_results/runs/R001/attempts"
+ PARENT = RUNS / "AT057_FFN0_single_runtime_03"
+-ATTEMPT = RUNS / "AT058_FFN1_progress_replay_01"
++ATTEMPT = RUNS / "AT059_FFN1_progress_replay_02"
++PREPARATION = RUNS / "AT058_FFN1_progress_replay_01"
+ DOWN = RUNS / "AT035_QAR0_shared_admission_01/frozen"
+ LN = RUNS / "AT040_LNF0_ffn4_02/frozen"
+ LEAF = (E002 / "results/compute_throughput_optimization_20261010/attempts/"
+@@ -121,6 +122,47 @@
+         if identity(Path(item["path"]), item["role"]) != item:
+             raise RuntimeError(f"frozen identity changed: {item['path']}")
+     return manifest
++
++
++def reuse_unaffected():
++    """Carry forward successful preflight tests with identical input closure."""
++    verify()
++    previous = PREPARATION / "frozen_new"
++    current = ATTEMPT / "frozen_new"
++    # The only changed test source is the observer micro TB's reserved-word
++    # task name. The runner's attempt path is deliberately different.
++    shared = (*OLD_NEW, *(name for name in CURRENT if name not in
++                          ("ffn1_progress_observer_micro_tb_v1.sv",
++                           "run_ffn1_v1.py")))
++    changed = [name for name in shared if identity(previous / name, "compare")[
++        "sha256"] != identity(current / name, "compare")["sha256"]]
++    changed += [name for name in FFN if identity(PREPARATION / "frozen_ffn" /
++                name, "compare")["sha256"] != identity(ATTEMPT /
++                "frozen_ffn" / name, "compare")["sha256"]]
++    if changed:
++        raise RuntimeError(f"unaffected-test closure changed: {changed}")
++    for phase in ("static", "negative", "wrapper"):
++        old_result = PREPARATION / f"result_{phase}.json"
++        if json.loads(old_result.read_text()).get("verdict") != "PASS":
++            raise RuntimeError(f"cannot inherit failed {phase}")
++        output = ATTEMPT / f"result_{phase}.json"
++        if output.exists():
++            raise RuntimeError(f"reuse would overwrite {phase}")
++        write(output, {"verdict": "PASS", "reused": True,
++                       "reused_from": str(old_result),
++                       "guard": str(PREPARATION / f"guard_{phase}"),
++                       "identity_match": True,
++                       "excluded_changed_file":
++                       "ffn1_progress_observer_micro_tb_v1.sv"})
++    write(ATTEMPT / "preparation_correction.json", {
++        "reason": "micro TB task named SystemVerilog reserved keyword edge",
++        "earlier_attempt": str(PREPARATION),
++        "changed_sources": ["ffn1_progress_observer_micro_tb_v1.sv",
++                            "run_ffn1_v1.py"],
++        "unchanged_closure_sha_matched": len(shared) + len(FFN),
++        "reused_phases": ["static", "negative", "wrapper"],
++        "remaining_pre_full_correction_allowance": 0})
++    print("FFN1_REUSE_PASS static=1 negative=1 wrapper=1")
+ 
+ 
+ def guard_run(phase, tcl, tclargs, marker, seconds, rss, guard_phase):
+@@ -256,12 +298,14 @@
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("phase", choices=("freeze", "verify", "static", "micro",
+                                           "host", "negative", "wrapper", "pilot",
+-                                          "runtime-negative", "full"))
++                                          "runtime-negative", "reuse", "full"))
+     phase = parser.parse_args().phase
+     if phase == "freeze":
+         freeze(); return 0
+     if phase == "verify":
+         print(f"FFN1_VERIFY_PASS entries={len(verify()['files'])}"); return 0
++    if phase == "reuse":
++        reuse_unaffected(); return 0
+     if phase == "host":
+         return run_host()
+     if phase == "runtime-negative":

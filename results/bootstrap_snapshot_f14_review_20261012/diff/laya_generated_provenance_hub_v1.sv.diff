@@ -1,0 +1,15 @@
+--- 02/laya_generated_provenance_hub_v1.sv
++++ 03/laya_generated_provenance_hub_v1.sv
+@@ -91,9 +91,11 @@
+   assign request_action=request[ACTION*8+:16];
+   assign needs_physical=request_action==END_EVENT || request_action==PUBLISH ||
+                         request_action==RELEASE || request_action==INVALIDATE;
++  // LPV and old-action cleanup have priority over an unaccepted snapshot.
++  // A held accepted snapshot response still excludes all owner mutation.
+   assign request_ready=!response_valid && !pending_end &&
+                        (!ENABLE_BOOTSTRAP_SNAPSHOT ||
+-                        (!snapshot_request_valid && !snapshot_response_valid)) &&
++                        (!snapshot_response_valid)) &&
+                        (request_action!=BEGIN_EVENT || begin_external_ready) &&
+                        (!needs_physical || physical_observation_valid);
+   assign physical_observation_ready=(pending_end && !response_valid) ||

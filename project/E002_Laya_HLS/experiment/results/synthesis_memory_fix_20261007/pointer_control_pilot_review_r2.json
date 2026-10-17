@@ -1,0 +1,80 @@
+{
+  "reviewed_at_utc": "2026-10-07T11:21:06.825084+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "verdict": "ACCEPT_FOCUSED_REAL_CSIM_AND_CSYNTH_WITH_LIVE_PRODUCTION_PATHS; AUTHORIZE_NEW_IDENTITY_AND_FULL_FUNCTIONAL_REGRESSIONS",
+  "CSim": {
+    "result": "49 assertions PASS; 0 errors; actual Vitis CSim",
+    "TB_sha256": "af73fa18c644b2aa411bc9a066c8f7e42124645cf68f7a03f1c8983f19076fe3",
+    "earlier_r1_failure": "Preserved testbench static-constructor compiler crash. R2 only moved same vector allocation to main and passed references; no production/tool/acceptance change."
+  },
+  "CSynth": {
+    "result": "Completed actual focused synthesis and generated Verilog/VHDL/IP; no full-top completion inference.",
+    "actual_precheck_bc_sha256": "5e806250af657fcec0eb49301ddd8fecaf3734915ffa17ba26475706574772a4",
+    "actual_precheck_ll_sha256": "9dba1d44ce6772aa2b607262835e5217ee05379dc1c3855310db92050a2450f9",
+    "actual_reflow_output_bc_sha256": "ffe7c78d1937dc868c1299382eae7c3eb0f37c9e4bd580fc723d812a0763c30b",
+    "all_pointer_typed_icmp_instruction_count": 0,
+    "scan_method": "Scan LLVM icmp instruction opcode and its operand type, anchored after assignment; do not mistake SSA names such as %icmp.ln141 in call arguments for comparison instructions.",
+    "path_liveness": {
+      "QKTask": "Actual full_run_task remains; automatic1024xi8 qk_mask allocated, dynamic S copy from batch slice retained at precheck lines1001-1017, exact same fixed-base buffer passed to unchanged qk_row at1065; qk_row and qk_mask RAM modules are instantiated in RTL.",
+      "lookup": "Both actual full_lookup_tensor_indexed clones called from live top branch at precheck5940/5948; corresponding RTL modules and table ROMs generated. No optional-pointer compare remains.",
+      "controller": "Actual fresh/invalidate_incomplete were inlined into live run_controller; two full32-bound integer scans at precheck7616 and7666 retained, with owner field loads, epoch result, busy early return and actual full_invalidate_owner call. Live run_controller RTL generated."
+    },
+    "pilot_only_HLS_estimates": {
+      "resources": {
+        "BRAM_18K": 47,
+        "DSP": 6,
+        "FF": 9472,
+        "LUT": 42008,
+        "URAM": 0
+      },
+      "estimated_clock_ns": 4.867,
+      "overall_latency": "undef",
+      "limitation": "HLS pilot estimates only. No full capacity/timing, physical post-synthesis/P&R, platform link, board or performance claim."
+    }
+  },
+  "guards": {
+    "csim": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 16.576028492301702,
+      "finished_at": "2026-10-07T11:14:20.438167+00:00",
+      "minimum_mem_available_kb": 439172824,
+      "peak_owned_rss_kb": 1237716,
+      "rss_capture_count": 82,
+      "rss_captured": true,
+      "rss_sample_count": 82,
+      "trigger": null,
+      "peak_owned_rss_GiB": 1.1803779602050781,
+      "policy_records": 54,
+      "all_policy_matches": true
+    },
+    "csynth": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 124.68777541071177,
+      "finished_at": "2026-10-07T11:17:10.395451+00:00",
+      "minimum_mem_available_kb": 437904608,
+      "peak_owned_rss_kb": 3016100,
+      "rss_capture_count": 623,
+      "rss_captured": true,
+      "rss_sample_count": 623,
+      "trigger": null,
+      "peak_owned_rss_GiB": 2.8763771057128906,
+      "policy_records": 193,
+      "all_policy_matches": true
+    }
+  },
+  "artifact_verification": {
+    "input_files_checked": 62,
+    "captured_artifacts_checked": 418,
+    "actual_build_bc_equals_captured_bc": true,
+    "input_manifest_sha256": "497f851728ded9e2c446f85e59d394067eb97eb79c90aa1d99755beecd5cf465",
+    "artifact_manifest_sha256": "ce9e89a817ac708b924ea63eaeab0b16b0b14d0a1cda54b8ecc7804dfff02116",
+    "full_pilot_report_sha256": "606612ce6c683e7958b7726096daa8ee48240f41c595b24e6ce955715954b325"
+  },
+  "next_authorized_sequence": [
+    "Archive oldf1a package intact with preservation/path mapping; export current exact approved five-file source follow-on to new final model identity at default build/model-repair. No overwrite of old package/evidence.",
+    "Freeze source/header/package and provide delta identity evidence. Use followon_review_reuse_and_promotion_matrix_r1.json to reuse accepted old hashes/oracles.",
+    "Run same complete CPU regression, actual25source synthesis-host shadow and real13portfullVitisCSim, one heavy job at a time under accepted32GiB RSS/192GiB floor/nice19/4CPU/idleIO guard. Bind all results to new exact source/tag and retain frozen oracles/75positive+1negative acceptance.",
+    "After functional evidence review, obtain separately issued ONE full-top csynth gate bound to newtag. No full-top run or baseline promotion authorized by this focused review."
+  ],
+  "review_reuse_matrix_sha256": "58de751e5c35bd85e39a3f61be723dbbb77e5127e0f860fa48f7d4de95b3b2f1"
+}

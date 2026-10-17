@@ -1,0 +1,11 @@
+--- v1/create_project.tcl
++++ v2/create_project.tcl
+@@ -70,7 +70,7 @@
+ }
+ close $map
+ set checker [file join [file dirname [info script]] verify_imported_xci.py]
+-puts [exec /usr/bin/python3 $checker $run_dir $map_path]
++puts [exec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 $checker $run_dir $map_path]
+ if {[llength $locked_names] != 0} { error "imported IP locked: $locked_names" }
+ foreach obj $imported_xci { generate_target {synthesis simulation} $obj }
+ update_compile_order -fileset sources_1

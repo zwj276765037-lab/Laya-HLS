@@ -1,0 +1,30 @@
+# M003 普通source账本、原子lease与真实QUANT里程碑
+
+交付ID：`ordinary-source-quant-milestone-20261012`  
+范围：M003/SM003/E003/R003，当前persistent provenance hub、普通QUANT共享实例和受影响AXI monitor。  
+结论：一个B1/S64、role6、stage2/K1024 owner的四窗口P证明、整tensor发布、原子source lease和同runtime真实QUANT/fullA取得限定PASS；M003/M004总体状态不变。
+
+## 实现与运行证据
+
+`laya_generated_provenance_hub_v1`现在为受支持的B/S tensor保存每个rows16窗口的真实成功producer Context和覆盖状态。PUBLISH只有在全部窗口覆盖后才置owner published；query在副作用前核完整NumericIdentity、L13M、P/Q/L、归一化Ref、role、K、窗口范围、source/row/batch stride及单调portal generation，并原子取得唯一活动读lease。release必须精确匹配冻结的命令绑定且`source_release_drained=1`。活动lease阻止owner RELEASE/INVALIDATE。
+
+`laya_gate_quant_portal_binding_v1`已移除普通Q的布尔published准入，改由上述query/release握手驱动共享quant/fullA实例。`gate_quant_source_lease_03`先验证未发布命令不产生AXI读，再以四个不同P Context完成B1/S64发布；stage2/K1024的窗口0执行16个真实AR、1024个R、512个quant group、1024个half commit和512个scale commit。16,384个F32输入/INT8输出和512个FP16 scale逐项与冻结gold比较；fullA的128个四行group全部读回。数值由八个独立冻结group在每行内重复四个group block并跨16行使用，不能表述为16,384个唯一向量。source lease在服务response反压期间保持，只有读债为零且response退休后才释放。
+
+当前受影响回归也通过：`generated_provenance_portal_14`保持148个accepted、152个retired、35个terminal task、33-request typed槽回收、QKV原子性和取消/fence边界；`generated_store_monitor_05`保持活动cancel、BEGIN response背压、posted store、W-before-AW、末B和adapter fence路径；`generated_source_lease_01`独立覆盖四窗口发布、身份/模型/Ref/range拒绝、generation防重放、更大generation重读和owner release排斥。
+
+| attempt | 结果 | 关键资源/周期 | manifest SHA256 | receipt SHA256 |
+| --- | --- | --- | --- | --- |
+| `generated_source_lease_01` | PASS | 26.483698s，1,487,968KiB，688cycles | `56d39f1b396bfc9942d659cf4c3312aa64c48ef6f7886e2766f41955e0c1e758` | `64e28d4f77bab1f6358df406b0cdea10ff58a9b7900e46794e6c75704276a61c` |
+| `gate_quant_source_lease_03` | static/pilot PASS | 56.994760s/2,203,220KiB；12.619174s/856,736KiB；4493cycles | `96ee46727356d2cf413ab5c645efd56a827207e42e711130facc163c2933e970` | `8008dd7038b9a2d389fe0da6fa2014188c9548ab920e51d3a430e4676aca8ea6` |
+| `generated_store_monitor_05` | PASS | 26.074358s，1,536,064KiB，6073cycles | `68ea7e534c6770f7605a31a9d71f26f0bc50baf2d388d4d2ae95d6b436ddca06` | `7ec4fbf080f6f305051f9a372ab2e75759ce7a0b4fb10e7b31e4c580d7128901` |
+| `generated_provenance_portal_14` | PASS | 26.630436s，1,500,580KiB，7161cycles | `64545e3446cb6c7229fa620bcf6fb3d020cf6d777d4e13d1a114a27237073103` | `e2cf65563b90efc1f568934b98e2bd5f1aefd02e7e2c6a381cf0c818fe242ed1` |
+
+四项当前attempt合计93/93 current、93/93 frozen、93/93 pair及435/435 manifest引用匹配，0 mismatch。核查记录：`generated_source_quant_stage_20261012/verification.json`，SHA256=`3ba2edbcad017bdc3617ae4ed4167bdad3ed6ae673e40d7134664dad44a8faab`。所有实际入口均记录CPU0–3、nice19、idle I/O与MemAvailable门槛；static/pilot未超24/8GiB及1800/120s帽。
+
+`generated_provenance_portal_12`的保留字/漏索引编译FAIL、`gate_quant_source_lease_01`的END geometry拒绝及`_02`的stage2/K256白名单拒绝均保留，不覆盖或重标。
+
+## 证据边界与下一步
+
+四窗口producer物理观察仍由TB控制，因此本里程碑不证明production generated-HLS master提交与`adapter_pending_zero`的真实因果。当前只覆盖role6连续owner和一个被Q消费的窗口；普通/GATE无复位切换、其它K/row-space、跨batch、多role/QKV、dispatcher预约、LOAD、matrix、完整请求和当前CPU/实际CSim仍未闭合。
+
+下一步连接production generated master的真实store提交/adapter fence因果，再扩普通/GATE切换和其它shape/role；之后继续LOAD、其余Q/L、matrix、L2/L3和完整CPU/实际CSim。L0/L1保持PARTIAL，L2–L5 NOT_RUN，组合full保持NOT_RUN_COST，M003/M004未完成；本轮无OOC、P&R或上板。

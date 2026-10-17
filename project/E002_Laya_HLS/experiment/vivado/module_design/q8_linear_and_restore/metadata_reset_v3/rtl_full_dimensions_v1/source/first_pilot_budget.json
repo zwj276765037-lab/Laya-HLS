@@ -1,0 +1,72 @@
+{
+  "schema": "q8_full_scorer_first_pilot_finite_source_budget_v1",
+  "status": "UNMEASURED_SOURCE_ESTIMATE_ASTRA_REVIEW_REQUIRED",
+  "shape": {"K":1024,"N":1024,"G":32,"T":128,"rows":1,"m_blocks":1,"commands":3},
+  "source_counts": {
+    "weight_q_bytes_each_shard":524288,
+    "weight_q_512b_beats_each_shard":8192,
+    "weight_q_512b_beats_total":16384,
+    "scale_bytes":65536,
+    "scale_512b_beats":1024,
+    "scale_inner_ii1_iterations":4096,
+    "bias_validation_elements":1024,
+    "scale_validation_elements":32768,
+    "bias_read_bytes":4096,
+    "header_read_bytes":128,
+    "activation_512b_beats_per_run":64,
+    "activation_half_ii1_iterations_per_run":128,
+    "quant_groups_per_run":32,
+    "quant_scan_blocks_per_run":128,
+    "quant_pack_blocks_per_run":128,
+    "tile_group_issues_per_run":4096,
+    "tile_group_retires_per_run":4096,
+    "integer_macs_per_run":1048576,
+    "valid_fp_output_values_per_run":1024,
+    "trace_group_records":32,
+    "trace_q_words":256,
+    "trace_scale_words":16,
+    "trace_group_words":256,
+    "report_header_words_per_command":256
+  },
+  "physical_axi_useful_bytes": {
+    "load":{"descriptor":512,"w_q0":524288,"w_q1":524288,"w_scale":65536,"aux":4224,"observed":1024,"total":1119872},
+    "trace_on_run":{"descriptor":512,"activation":4096,"out0":4096,"observed":3136,"total":11840},
+    "trace_off_run":{"descriptor":512,"activation":4096,"out0":4096,"observed":1024,"total":9728},
+    "all_three_total":1141440
+  },
+  "physical_axi_beat_counts": {
+    "load":{"descriptor_r_32b":128,"q0_r_512b":8192,"q1_r_512b":8192,"scale_r_512b":1024,"aux_r_32b":1056,"observed_w_32b":256,"total":18848},
+    "trace_on_run":{"descriptor_r_32b":128,"activation_r_512b":64,"out0_w_32b":1024,"observed_w_32b":784,"total":2000},
+    "trace_off_run":{"descriptor_r_32b":128,"activation_r_512b":64,"out0_w_32b":1024,"observed_w_32b":256,"total":1472},
+    "three_command_total":22320,
+    "burst_range_note":"AXI AW/AR are bounded length<=16 by q8_axi_monitor; actual burst splitting is measured, not assumed. Minimum requests if every contiguous region uses full16 bursts: read1186, write209; maximum is one request per beat. R/W beat bytes are exact for legal full-word accesses."
+  },
+  "schedule_basis": {
+    "report":"../../runs/csynth_local_v1/work/hls/syn/report/q8_joint_tm4tn8_csynth.rpt",
+    "hls_source":"../../source/q8_joint_tm4tn8.cpp",
+    "report_subcall_no_external_stall_cycles":1134,
+    "report_loop_708_per_tile_cycles":"23..1294 per legal tile/g iteration; 4096 concrete iterations gives at most 5300224 serialized schedule cycles before any external stalls, using this per-iteration ceiling only, not the report's unconstrained dynamic whole-loop maximum",
+    "independent_static_precheck":"../../../../../../../results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_static_schedule_precheck.json; SHA256 eecc2f4624125827d83e46fb0c2a9ed54934fa41e57add8d68b3639fb46cb55a",
+    "conditional_unstalled_core":"135 selected FSM states plus eight 42-cycle dot child calls imply 471 cycles between adjacent same-g tile issue edges; 4096 vectors contribute 1929216 core cycles. Trace-on adds 32*12=384 non-wait state samples. This omits between-g work, LOAD, quant, output/report, AXI wait and control overhead; it is neither a measured issue interval nor a full-run cycle forecast.",
+    "report_loop_705_tile_clear":"C++ loop 705 iterates T=128 tiles and loop 706 clears 32 lane_bad entries per tile; report 66 cycles per tile gives 128*66=8448 nominal cycles for one m0 block, plus entry/exit. The g-loop is 707 and its actual boundary overhead remains unmeasured.",
+    "report_loop_762_output":"at most 463 cycles per tile in report, 128 tiles = 59264 nominal cycles plus entry/exit",
+    "scalar_validation":"32768 scale elements then 1024 bias elements; FSM state116/160 first/last and visit counts are measured, with no ACT MAC-ratio scaling",
+    "load_transport":"16384 q beats, 1024 scale beats, 1056 aux 32-bit beats, plus descriptor128 and observed256; bounded legal adapter delays and response drain are measured separately"
+  },
+  "guards_proposed": {
+    "per_command_clocks":7000000,
+    "all_three_clocks":16000000,
+    "source_reason":"4096*1294=5300224 is a conditional legal issue/retire path ceiling, not a full-run bound. The scale validation inner loop alone is 53*32768=1736704 clocks, before outer, transport, control, quant/trace, output/report and AXI waits. The unchanged 7000000/16000000 limits are fail-stop watchdog proposals, not WCET or runtime approval.",
+    "materialization_rss_gib":4,
+    "static_compile_rss_gib":16,
+    "runtime_rss_gib":16,
+    "materialization_wall_seconds":900,
+    "static_compile_wall_seconds":900,
+    "runtime_wall_seconds":36000,
+    "progress_clock_interval":131072,
+    "progress_record_note":"The TB flushes a passive progress.log record at command start and every 131072 command clocks; records expose actual simulator progress without extending watchdogs or predicting completion.",
+    "wall_basis":"Prior ACT suite 38302 clocks/14.376505s and other modes 15951/9.473611s, 79971/21.229002s include startup and small-page behavior. At a deliberately slower 500 clocks/s, 16M guard is 32000s plus setup/raw checks; 36000s is a finite first-pilot runtime allowance, not a predicted completion time."
+  },
+  "policy":"one Laya heavy tool, at most four CPUs, nice19, idle I/O, owned RSS every0.2s, MemAvailable strictly>192GiB; stop and seal first unexpected guard, protocol or numerical result",
+  "conditional_next_step":"After the first three commands seal, fit actual per-stage clocks, simulator rate and RSS. Do not release later rows/families/faults from this budget."
+}

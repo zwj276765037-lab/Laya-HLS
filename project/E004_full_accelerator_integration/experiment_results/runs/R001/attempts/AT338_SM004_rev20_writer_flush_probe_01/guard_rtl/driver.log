@@ -1,0 +1,55 @@
+
+****** xsim v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Fri Oct 16 02:19:47 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/rev20_norm_store_parent_sim/xsim_script.tcl
+# xsim {rev20_norm_store_parent_sim} -testplusarg FIXTURE=../fixture -testplusarg PREFIX_ROW0 -autoloadwcfg -tclbatch {/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT338_SM004_rev20_writer_flush_probe_01/probe.tcl}
+Time resolution is 1 ps
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT338_SM004_rev20_writer_flush_probe_01/probe.tcl
+## run 160 us
+STAGED_LN_SIM_START
+STAGED_LN_PROGRESS gamma=0 raw=0 norm=0 B=0 state=0 core=0
+STAGED_LN_PROGRESS gamma=256 raw=64 norm=0 B=0 state=4 core=35
+STAGED_LN_PROGRESS gamma=256 raw=64 norm=0 B=0 state=4 core=35
+STAGED_LN_PROGRESS gamma=256 raw=64 norm=1024 B=2 state=34 core=35
+run: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:44 . Memory (MB): peak = 1429.258 ; gain = 0.000 ; free physical = 88141 ; free virtual = 402152
+## set top /laya_staged_ln128_pilot_tb/dut/row_engine
+## set service $top/source_norm_service
+## set writer $service/writer
+## foreach pair [list [list $top {writer_flush_req writer_flush_done writer_tile_ready writer_debt_zero}] [list $service {writer_flush_req writer_flush_done writer_tile_ready writer_debt_zero stage_store_state stage_store_error}] [list $writer {flush_req flush_done flushing flush_reported held_valid pack_valid tx_valid fault bad_held b_error}]] {
+##   lassign $pair base leaves
+##   foreach leaf $leaves {
+##     set path $base/$leaf
+##     if {[llength [get_objects -quiet $path]]} {puts "PROBE $path=[get_value -radix unsigned $path]"}
+##   }
+## }
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/writer_flush_req=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/writer_flush_done=X
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/writer_tile_ready=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/writer_debt_zero=1
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer_flush_req=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer_flush_done=X
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer_tile_ready=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer_debt_zero=1
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/stage_store_state=4
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/stage_store_error=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/flush_req=1
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/flush_done=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/flushing=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/flush_reported=1
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/held_valid=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/pack_valid=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/tx_valid=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/fault=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/bad_held=0
+PROBE /laya_staged_ln128_pilot_tb/dut/row_engine/source_norm_service/writer/b_error=0
+## puts "PROBE_TIME [current_time]"
+PROBE_TIME 160 us
+## exit
+INFO: xsimkernel Simulation Memory Usage: 451440 KB (Peak: 502004 KB), Simulation CPU Usage: 45750 ms
+INFO: [Common 17-206] Exiting xsim at Fri Oct 16 02:20:35 2026...

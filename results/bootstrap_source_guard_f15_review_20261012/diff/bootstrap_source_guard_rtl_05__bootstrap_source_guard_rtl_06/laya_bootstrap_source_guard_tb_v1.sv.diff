@@ -1,0 +1,11 @@
+--- bootstrap_source_guard_rtl_05/laya_bootstrap_source_guard_tb_v1.sv
++++ bootstrap_source_guard_rtl_06/laya_bootstrap_source_guard_tb_v1.sv
+@@ -443,7 +443,7 @@
+     load_packet("invalidate",packet);reject_source_mutation(packet,1);
+     if(!scope_active || retired_b!=64 || monitor_drained || !guard_match)
+       $fatal(1,"conflict destroyed partial task/final B binding");
+-    load_packet("guard_end_partial",packet);request=packet;request_valid=1;
++    load_packet("guard_end_partial",packet);request=packet;request_valid=1;#1;
+     repeat(12)begin
+       if(request_ready || !scope_active || !guard_active || !guard_match)
+         $fatal(1,"partial END bypassed final B/source protection");

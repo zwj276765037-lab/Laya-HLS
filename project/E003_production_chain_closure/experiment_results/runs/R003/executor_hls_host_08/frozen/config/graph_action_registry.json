@@ -1,0 +1,212 @@
+{
+  "schema": "laya-graph-action-registry-v1",
+  "contract": "results/production_hls_partition_contract_20261012.md#8",
+  "wire": {
+    "version": 1,
+    "endianness": "little",
+    "width_bits": 512,
+    "depth": 2,
+    "request_bytes": 512,
+    "request_beats": 8,
+    "completion_bytes": 256,
+    "completion_beats": 4,
+    "header": "include/laya_graph_action_protocol.h",
+    "codec": "hls/control/graph_action_protocol.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_action_layout_v1.sv"
+  },
+  "accepted_request_boundary": {
+    "version": 1,
+    "endianness": "little",
+    "width_bits": 512,
+    "depth": 2,
+    "command_bytes": 256,
+    "command_beats": 4,
+    "result_bytes": 256,
+    "result_beats": 4,
+    "header": "include/laya_graph_program_protocol.h",
+    "codec": "hls/control/graph_program_protocol.cpp",
+    "sv_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_graph_program_layout_v1.sv",
+    "producer_authority": "unique accepted-request executor/shell",
+    "result_consumer_interlock": "the next accepted command remains blocked until the prior LGR1 last beat is consumed"
+  },
+  "authority": {
+    "program": [
+      "pc",
+      "layer_shape_batch_loops",
+      "next_action",
+      "slot_handles",
+      "action_ordinal"
+    ],
+    "executor": [
+      "numeric_identity",
+      "task_and_ref_reservation",
+      "protocol_sequences",
+      "owners_and_leases",
+      "typed_retirement"
+    ],
+    "adapter": [
+      "one_normalized_transaction",
+      "external_frame_transport"
+    ],
+    "hub": [
+      "physical_coverage",
+      "physical_debt",
+      "publication",
+      "source_lease"
+    ]
+  },
+  "executor_steps": [
+    "validate_action_and_source_version",
+    "reserve_target_and_task_window",
+    "claim_owner",
+    "begin_generated_scope",
+    "run_selected_engine",
+    "record_actual_issued_store",
+    "end_and_fence",
+    "retire_typed_task",
+    "advance_window_cursor",
+    "publish_owner",
+    "return_bound_completion"
+  ],
+  "actions": [
+    {
+      "id": 0,
+      "name": "EMBED",
+      "service": "embedding",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 1,
+      "name": "LOAD_GAMMA",
+      "service": "LOAD",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 2,
+      "name": "NORM",
+      "service": "layernorm_producer",
+      "state": "implemented_b1_b2_s64_s128_s256_s512_s1024_rows16_windows"
+    },
+    {
+      "id": 3,
+      "name": "RELEASE",
+      "service": "provenance",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 4,
+      "name": "LINEAR",
+      "service": "LOAD_QUANT_MATRIX",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 5,
+      "name": "ATTENTION",
+      "service": "attention",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 6,
+      "name": "RESIDUAL",
+      "service": "vector",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 7,
+      "name": "GEGLU_DOWN",
+      "service": "GEGLU_LOAD_QUANT_MATRIX",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 8,
+      "name": "TYPE_ADD",
+      "service": "vector",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 9,
+      "name": "TRANSFORM",
+      "service": "vector",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 10,
+      "name": "GATHER",
+      "service": "gather",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 11,
+      "name": "LOOKUP_BIAS",
+      "service": "metadata",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 12,
+      "name": "FP_LINEAR",
+      "service": "fp_linear",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 13,
+      "name": "CANDIDATE_MASKED",
+      "service": "vector",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 14,
+      "name": "CANDIDATE_PROBABILITY",
+      "service": "softmax",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 15,
+      "name": "CANDIDATE_STATISTICS",
+      "service": "statistics",
+      "state": "reject_before_side_effect"
+    },
+    {
+      "id": 16,
+      "name": "ACT_CONCAT",
+      "service": "concat",
+      "state": "reject_before_side_effect"
+    }
+  ],
+  "persistent_state": {
+    "program": [
+      "identity_read_only_copy",
+      "pc",
+      "slot_version_and_owner_handle",
+      "action_high_water",
+      "pending_action_key",
+      "cancel_pending",
+      "request_result_consumer_wait"
+    ],
+    "executor": [
+      "accepted_identity",
+      "task_and_ref_high_water",
+      "owner_source_ledgers",
+      "protocol_high_water",
+      "active_action_snapshot",
+      "window_cursor",
+      "generated_store_tracker",
+      "first_error"
+    ],
+    "maximum_active_actions": 1,
+    "maximum_request_slots": 1,
+    "maximum_completion_slots": 1
+  },
+  "executor_fsm": {
+    "sources": "config/task_lifecycle_fsm_sources.cmake",
+    "header": "include/laya_task_lifecycle_fsm.h",
+    "implementation": "hls/control/task_lifecycle_fsm.cpp",
+    "host_validation": "task_lifecycle_fsm_host_02",
+    "dynamic_scope": "B1/S64 NORM four windows and six controlled protocol cases",
+    "bootstrap": "real LYRQ/LYMP host parse plus readonly fully bound snapshot mirror; physical source guard/executor top pending",
+    "completion_admission": "safe action completion remains pending until actual program final consumer handshake",
+    "isolation": "bad END/old key or nondrained BEGIN retains original action/lease; no recovery claim",
+    "action_port": "hls/control/task_lifecycle_port.cpp",
+    "production_sources": "config/executor_bootstrap_sources.cmake",
+    "validation": "task_lifecycle_port_host_02, executor_bootstrap_host_02; controlled host services and snapshot; no new hardware action consumer or physical recovery claim"
+  }
+}

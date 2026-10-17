@@ -1,0 +1,21 @@
+# E004：状态
+
+execution_state: running（M004完整目标）；verdict: unassessed（完整加速器）。SM004修订14工程截至AT241已完成原合同内两项控制修复与受影响局部回归，当前没有重工具运行，交主控集中审核。AT225旧wrapper真实两行RAW→RoPE正常链按冻结身份限定PASS；当前wrapper `0d3e340e…`仅有AT230–241受影响局部控制/原叶子样本和AT232真实core/IP展开，未取得同SHA真实两行长链PASS。AT240的128行FINAL发布是合法模拟core/快速叶子peer元数据验证，非真实128行算术。严格MUL IP已接受未返回reset窗口NOT_RUN，HLS尚未采样时的共同reset局部隔离PASS。
+
+截至AT241的53笔guard实耗static/IP978.93351217359304232/1800s、RTL1241.301459711045058/4800s；余额留在修订14，host完整累计UNKNOWN。AT220/221 timeout、AT222 TB ready Fatal、AT227启动路径、AT231旧sticky复现与AT238/239 TB断言原FAIL/COST_STOP保留。后续以主控审核决定继续M004；真实128行producer、物理BO/邻区哨兵、全请求首错、Attention/完整Encoder/模型、生产Host/HBM、联合OOC/P&R/Fmax均开放。详见修订14阶段报告和逐guard账。
+
+---
+Published: 2026-10-15T06:17:42.271727+00:00
+Publication: P95e6369eca78477cb4b83dccb07c9b0f
+Execution state: running
+Research verdict: unassessed
+Applicability: SM004修订14 AT225旧wrapper两行真实RAW→RoPE正常链限定PASS；当前wrapper仅受影响局部回归及真实core/IP展开，M004完整加速器未验收。
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev14_guard_ledger_AT215_AT241_20261015.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT225_SM004_rev14_rope_real_rows01_progress_02/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT230_SM004_rev14_rope_sticky_reentry_fullcheck_01/guard_rtl_order/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT230_SM004_rev14_rope_sticky_reentry_fullcheck_01/guard_rtl_sticky/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT232_SM004_rev14_rope_order_sticky_real_core_elab_01/guard_static/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT240_SM004_rev14_rope_final_meta128_hold_fix_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT241_SM004_rev14_final_local_tb_original_leaf_01/guard_rtl_page/guard_result.json

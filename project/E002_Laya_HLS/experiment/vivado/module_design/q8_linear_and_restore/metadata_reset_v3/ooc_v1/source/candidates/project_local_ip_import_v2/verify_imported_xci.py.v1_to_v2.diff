@@ -1,0 +1,64 @@
+--- v1/verify_imported_xci.py
++++ v2/verify_imported_xci.py
+@@ -13,7 +13,11 @@
+ 
+ ROOT = Path(__file__).resolve().parents[3]
+ MANIFEST = ROOT / "source/input_manifest.json"
+-ALLOWED_DIFFS = {"/ip_inst/gen_directory", "/checksum"}
++ALLOWED_DIFFS = {
++    "/ip_inst/gen_directory",
++    "/checksum",
++    "/ip_inst/parameters/runtime_parameters/OUTPUTDIR/0/value",
++}
+ 
+ 
+ def digest(path: Path) -> dict:
+@@ -45,6 +49,16 @@
+ 
+ def real_inside(path: Path, root: Path) -> bool:
+     return path.is_absolute() and path.resolve().is_relative_to(root.resolve()) and path.resolve() != root.resolve()
++
++
++def outputdir_value(xci: dict) -> str:
++    """Require the exact observed one-element runtime OUTPUTDIR structure."""
++    rows = xci["ip_inst"]["parameters"]["runtime_parameters"]["OUTPUTDIR"]
++    if (not isinstance(rows, list) or len(rows) != 1 or
++            not isinstance(rows[0], dict) or set(rows[0]) != {"value"} or
++            not isinstance(rows[0]["value"], str) or not rows[0]["value"]):
++        raise ValueError("OUTPUTDIR must be one object containing only a nonempty string value")
++    return rows[0]["value"]
+ 
+ 
+ def main() -> int:
+@@ -103,6 +117,21 @@
+         unexpected = [item for item in diff if item["path"] not in ALLOWED_DIFFS]
+         if unexpected:
+             failures.append(f"{name}: imported XCI has non-path configuration differences")
++        try:
++            original_outputdir = outputdir_value(original_json)
++            imported_outputdir = outputdir_value(imported_json)
++        except (KeyError, TypeError, ValueError) as error:
++            failures.append(f"{name}: malformed OUTPUTDIR structure: {error}")
++            original_outputdir = None
++            imported_outputdir = None
++        if imported_outputdir is not None:
++            outputdir_path = Path(imported_outputdir)
++            resolved_outputdir = (outputdir_path if outputdir_path.is_absolute()
++                                  else imported.parent / outputdir_path).resolve()
++            if not real_inside(resolved_outputdir, project_dir) or resolved_outputdir != expected_output.resolve():
++                failures.append(f"{name}: imported OUTPUTDIR does not resolve to project output")
++        else:
++            resolved_outputdir = None
+         gen_directory = imported_json.get("ip_inst", {}).get("gen_directory")
+         if not isinstance(gen_directory, str) or not gen_directory:
+             failures.append(f"{name}: imported gen_directory missing")
+@@ -122,6 +151,9 @@
+             "expected_output_dir": str(expected_output),
+             "imported_gen_directory": gen_directory,
+             "resolved_gen_directory": str(resolved_gen) if resolved_gen is not None else None,
++            "original_runtime_outputdir": original_outputdir,
++            "imported_runtime_outputdir": imported_outputdir,
++            "resolved_runtime_outputdir": str(resolved_outputdir) if resolved_outputdir is not None else None,
+             "exact_json_differences": diff,
+         })
+     result = {

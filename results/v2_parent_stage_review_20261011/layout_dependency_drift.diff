@@ -1,0 +1,25 @@
+--- load_native_v2_01 frozen layout
++++ current layout at review
+@@ -117,6 +117,13 @@
+     end else valid=0;
+     return valid;
+   endfunction
++  function automatic logic command_header_ok(input logic [511:0] h);
++    return h[MAGIC*8+:32]==CMD_MAGIC && h[VER*8+:16]==VERSION &&
++      h[OP_STATUS*8+:16]>=1 && h[OP_STATUS*8+:16]<=4 && h[GENERATION*8+:64]!=0 &&
++      h[TASK*8+:32]!=0 && h[TASK*8+:32]!=32'hffffffff &&
++      h[COMMAND_BEATS*8+:16]==CMD_BEATS && h[RESPONSE_BEATS*8+:16]==RSP_BEATS &&
++      h[FLAGS_DETAIL*8+:32]==0 && h[28*8+:36*8]==0;
++  endfunction
+   function automatic logic command_frame_ok(input logic [8191:0] p);
+     logic valid;
+     valid=p[0+:32]==CMD_MAGIC && p[VER*8+:16]==VERSION &&
+@@ -131,7 +138,7 @@
+     for(int refbyte=SOURCE_REF;refbyte<=DST_REF;refbyte+=8)
+       valid=valid && p[(refbyte+7)*8+:8]==0;
+     valid=valid && p[(A_REF+6)*8+:8]==0 && p[(W_REF+6)*8+:8]==0 && p[(PS_REF+6)*8+:8]==0;
+-    return valid && operation_fields_ok(p);
++    return valid && command_header_ok(p[0+:512]) && operation_fields_ok(p);
+   endfunction
+   function automatic logic response_binding_ok(input logic [4095:0] r,input logic [8191:0] c);
+     logic valid;

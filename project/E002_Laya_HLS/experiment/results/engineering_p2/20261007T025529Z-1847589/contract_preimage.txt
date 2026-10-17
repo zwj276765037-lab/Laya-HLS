@@ -1,0 +1,67 @@
+LAYA_P2_A_CONTRACT_V1
+## 12. 续任务：全部模块与完整F0前向工程（2026-10-07）
+
+用户明确要求继续完成其余所有模块搭建。本轮范围覆盖全部15模块的实际算术、数据搬运、完整调度与单forward顶层，包括28层Encoder、2层Decision、scorer和act，不以contract-only骨架、固定返回值、原生runtime代算或任意缩小K/N/层数代替。GPT-6 Astra（`gpt-6-astra`，`xhigh`）负责本节及模块设计/最终审核；GPT-6 Sol（`gpt-6-sol`，`max`）分别负责唯一DUT/工程实现与独立参考/测试。§10、§11已验历史保留，P1算术规则复用。
+
+### 12.1 实施范围、来源与分批发布
+
+权威来源为[总体研究§2–5/§7/§12](../source/laya_baseline_design.md)、[04固定布局§7](../vivado/design_source/04_model_package_and_memory_map.md)、[06 Embedding](../vivado/design_source/06_embedding_engine.md)、[10 RoPE](../vivado/design_source/10_rope_and_mask.md)、[11 Attention/FP](../vivado/design_source/11_attention_and_fp_engine.md)、[12 Vector](../vivado/design_source/12_vector_and_ffn.md)、[13 Decision/head](../vivado/design_source/13_decision_scorer_act.md)、[15任务/生命周期§10–15](../vivado/design_source/15_integration_interfaces_and_pipeline.md)，2026-10-07实际读取。另直接解析固定GGUF的`ggmlc.graph_spec`：1364节点、153参数、5输入、2输出；该JSON原字符串UTF-8 SHA-256为`f33f7848434b73048f957dcd232e1bd4ff99e95b8cf41c98191b69fddad815f9`。模型及[abi_replay manifest](../reference/runs/typed_q8_ref_20261005/abi_replay/manifest.json)身份沿§11.5，所有原始reference只读。
+
+分批发布只控制实施依赖，不缩小最终交付：A为算术叶函数；B为模型包、完整矩阵/任务、数据与owner；C为控制器/单forward/Host及完整图验证。A/B/C全部完成后才允许本轮整体验收。板无关工程、CPU/CSim、实验part综合及可执行RTL联测继续；缺少本机XRT/platform/板卡只阻止依赖这些条件的编译/链接/上板阶段，不能把该缺口当作剩余模块无需实现的理由。首版F0单任务阻塞、固定数组，性能优化另列，不启用F1重叠。
+
+### 12.2 P2 F0算术合同
+
+版本名为`P2 F0 FP32 Q8-F R0`。所有显式基本运算单独IEEE binary32 RNE，禁止FMA、重结合、FTZ/DAZ；保持P1 LN、quant、Q8 R0及half转换不变。每个活跃输入、权重和中间算术结果均须有限，否则`E_NUMERICAL`；允许exp下溢为+0、合法次正规及signed zero。非法shape/mask/index在数组读写前拒绝。下列叶函数不发布共享存储有效位；领取前/后错误的owner语义由完整任务包装落实§11.2.1和15§11，不能把纯函数返回当作完整TaskDone。
+
+| 算术 | 本轮冻结的顺序与边界 |
+| --- | --- |
+| Embedding | 真实token/type表每行1024维、32个原34B Q8_0组；逐组FP16 scale精确转F32，每项`FP32(float(S8 q)*scale)`。scale须有限非负，q限[-127,127]；词表50368/type3；PAD正常查表。表ID和完整字节范围由任务层在任何HBM读前检查 |
+| RoPE | 完整64维head先捕获再改写；对i=0…31，`a=FP32(x[i]*cos[i])`、`b=FP32(x[i+32]*sin[i])`、`y[i]=FP32(a-b)`；`c=FP32(x[i+32]*cos[i+32])`、`d=FP32(x[i]*sin[i+32])`、`y[i+32]=FP32(c+d)`。使用真实cos/sin F32位模式，不重算三角函数；Encoder layer%3==0用full，其余slide，位置为题内s；Decision旁路，V不变 |
+| QK与mask | 64项分别FP32乘法，按相邻二叉树64→32→…→1求和；`scaled=FP32(dot*0.125)`。mask U8仅0/1，`pad=FP32(FP32(float(mask[k])-1)*10000)`；full的bias=pad，slide的local为abs(q-k)<=64时+0否则-10000，`bias=FP32(local+pad)`；最后`score=FP32(scaled+bias)`。所有S个key均计算，padding query不清零，不以-inf或跳key替换finite mask |
+| softmax | length仅16或合法S桶64/128/256/512/1024，均为2的幂。max从x[0]开始按位置升序、仅`>`更新；每项`z=FP32(x-max)`、`e=expf(z)`；对完整length个e用相邻二叉树求和；sum须有限且>0；`p=FP32(e/sum)`。不先求sum倒数后乘，不在线分块，不删finite masked项；尾部不读写 |
+| AV | 每个64维输出acc从+0开始，key k=0…S-1：`product=FP32(p[k]*V[k,d])`，`acc=FP32(acc+product)`；不改变key归约顺序。S个概率和V都须有效，输出恰64维 |
+| 浮点尾层 | scorer FC2 F32 K1024/N1；act FC1 F16 K1028/N256，权重先精确扩F32；每输出acc=+0，k升序乘法后单独加法。scorer FC2最后加一次其原bias；act FC1此阶段不加bias，由后续BIAS_GELU_ACT单独加。1028全部参与，不padding到1056量化 |
+| GELU | 常数c=`FP32(0.7978845608028654)`、a=`FP32(0.044715)`。按`u=FP32(a*x)`、`v=FP32(u*x)`、`w=FP32(1+v)`、`t=FP32(c*x)`、`z=FP32(t*w)`、`h=tanhf(z)`、`r=FP32(1+h)`、`s=FP32(0.5*x)`、`y=FP32(s*r)`执行。采用GGML tanh形式，不替换erf；每一步有限检查，负大值中间溢出也报错，不擅自饱和 |
+| GEGLU/向量 | Wi前2624为U、后2624为G；先上述GELU(U)，再`FP32(gelu*G)`。ReLU为`x>0 ? x : +0`，NaN先拒绝。residual/type add逐项单独F32加，type只加本题且在final LN之后。scorer先由Q8 FC1加baked bias，再单独FP32加原scorer_fc1.bias并GELU；act FC1同样先输出dot再加act_fc1.bias/GELU，禁止提前合并bias |
+| 候选mask | 全16列：`m=FP32(1-float(marker_mask[i]))`、`b=FP32(m*(-10000))`、`masked=FP32(raw[i]+b)`；无效列仍gather本题CLS并做完整scorer，不覆盖成常数、不跳列 |
+| 候选统计 | 概率p输入16个有限[0,1]值；valid_options由实际marker mask计数绑定，k=max(valid_options,2)。`t[i]=FP32(p[i]*logf(max(p[i],FP32(1e-9))))`，相邻16项树求sum，`entropy=FP32((-sum)/logf(float(k)))`。top1从p[0]开始，i=1…15依次`m=FP32(ReLU(FP32(m-p[i]))+p[i])`；每项delta=`FP32(top1-p[i])`、denom=`FP32(delta+FP32(1e-6))`、ratio=`FP32(delta/denom)`、r=`FP32(p[i]*ratio)`，denom为0或中间非有限报错；top2对r执行同样链。输出顺序[top1,FP32(top1-top2),entropy,FP32(float(k)/255)]；无温度/排序/硬top-k |
+| concat/gather | gather按ABI marker扁平索引检查同batch后读完整1024；固定16列含无效CLS填充。concat复制最终Decision本题s0的1024个CLS值，再复制4stats，恰1028个元素 |
+
+CPU/CSim的expf/tanhf/logf固定为当前系统单精度libm函数，运行记录glibc/编译器/链接版本及FP环境；独立Python参考可直接通过libm标准ABI调用这些基础函数，不能调用DUT或其自定义helper，表达式/归约/布局仍独立实现，并以高精度值审计函数误差和输入范围。CPU/CSim同输入按该明确参考逐位比较。综合后HLS数学实现须单独记录；P1基本运算/量化/dot的精确判据不放宽。新增exp/tanh/log近似在RTL同算子输入下采用源研究§12.1的预设工程线`abs_err<=1e-4+1e-4*abs(ref)`，全图raw logits采用`1e-3+1e-3*abs(ref)`、最终概率abs<=1e-3，同时保存首差和后续quant变化。这是本轮冻结的实现检查线，不等于native逐位或400例质量通过；不得以该线掩盖运算顺序/地址/所有权错误。
+
+### 12.3 A批接口、文件责任与验证——RELEASE_TO_IMPLEMENTATION
+
+新增唯一共享头`include/laya_full_numeric.h`，命名空间`laya::full`。原P1声明/实现保留，A批可复用其half和位模式辅助，不依赖P0动态容器。下列均返回`Check`；数组维度为固定最大容量，实际有效数量由规定shape决定。结果数组允许在领取后数值失败时部分写入但无共享发布；输入shape/mask错误不得开始运算。`rope_head`、`softmax_row`、`relu_row`和`add_row`允许明确原地调用，先保留必要输入；其他部分重叠不允许，任务层负责拒绝。
+
+```cpp
+Check embedding_row(const uint8_t raw[1088], float y[1024]);
+Check rope_head(const float x[64], const float cosine[64],
+                const float sine[64], float y[64]);
+Check qk_row(const float q[64], const float k[1024][64],
+             const uint8_t mask[1024], uint16_t S, uint16_t query,
+             bool sliding, float score[1024]);
+Check softmax_row(const float x[1024], uint16_t length, float p[1024]);
+Check av_row(const float p[1024], const float v[1024][64],
+             uint16_t S, float y[64]);
+Check fp_scorer_row(const float x[1024], const float w[1024],
+                    float bias, float& y);
+Check fp_act_row(const float x[1028], const uint16_t w[256][1028],
+                 float y[256]);
+Check gelu_scalar(float x, float& y);
+Check geglu_row(const float wi[5248], float y[2624]);
+Check relu_row(const float x[4096], float y[4096]);
+Check add_row(const float a[1024], const float b[1024], float y[1024]);
+Check bias_gelu_row(const float x[1024], const float bias[1024],
+                    uint16_t length, float y[1024]); // length 256 or 1024
+Check candidate_mask(const float logits[16], const uint8_t mask[16],
+                      float y[16]);
+Check candidate_stats(const float p[16], uint8_t valid_options,
+                       float stats[4]);
+Check concat_act_row(const float cls[1024], const float stats[4],
+                      float y[1028]);
+```
+
+DUT负责人维护`hls/operators/embedding_full_compute.cpp`、`rope_full_compute.cpp`、`attention_full_compute.cpp`、`vector_full_compute.cpp`、`decision_full_compute.cpp`及上述共享头、独立构建源清单/runner；需要共享数学辅助时唯一维护于`hls/common/laya_full_math.cpp`。独立测试负责人仅新增`tests/full_reference.py`、`tests/full_*`及各模块`tb/full_*`，不能改DUT/include/config/CMake/主runner或P1 oracle。DUT负责人接入测试与运行；新架构、接口或数值变化先交Astra，不能由测试反向定义合同。
+
+A批必须完成真实输入和边界：token首尾/CLS/PAD/重复/type3行及原34B精确反量化；真实ir_238/239经ne/nb取完整head与四张GGUF RoPE表；full/slide、q-k=±64/±65、S64/128/1024与无窗口内真实key的有限mask；完整QK→softmax→AV（native融合内部无score/prob，用候选oracle生成）；真实ir_269两半、ir_272/273作为native诊断，GEGLU尾2623；Decision ReLU4096；scorer两个bias分步、act F16 K1028最后4项/输出255、N1尾；16候选1/2/3/16有效、ties/近ties、均匀分布、熵log下限、top2先除后乘；NaN/Inf和有界shape错误/尾部sentinel。真实候选链使用同一候选上游值对DUT/oracle，不拿native替代；标准库与高精度误差审计独立列出。每个叶函数至少CPU与isolated CSim，适合的小入口尝试综合和RTL cosim；阶段未执行如实记录，A批通过不解锁完整forward。
+

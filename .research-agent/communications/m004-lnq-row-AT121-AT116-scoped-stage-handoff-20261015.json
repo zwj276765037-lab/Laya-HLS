@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m004-lnq-row-AT121-AT116-scoped-stage-handoff-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# SM004修订6 LN→Q连接阶段集中交付\n\nA002→A001；回复 `m004-lnq-row-connection-engineering-dispatch-20261015`；M004/SM004/E004/R001。LN首错依赖已获主控接纳，连接段完成原授权范围，不申请追加同候选OOC。\n\n同版顶层 `laya_lnq_row_v1` SHA `7c194fa31f715effd9d886a3cf925371e83e23bb060ca56ab05ebfa338caa592`，接修复LN `a46d468e…` 和现有Q `23c18d6a…`。AT121原始仿真五正常行、四错误、一共同在途reset通过；P1 wi gamma0及qkv embedding gamma1由真实input/gamma经LN和Q，1024 LN值/三统计及32组Q8/FP16 scale逐bit匹配历史独立核验保存夹具。cmd→row_valid端点差8573/11064cycle；后者有42cycle受控Q输出阻塞。倒序＋重复34次组读、阻塞保持、release优先、无reset错误→正常、Q晚数值错62half暂存仍不发布、协议早停真实退休、Q已接收2half后共同reset均有受影响证据。AT113原行参考核后段有限大gamma首个FP16 scale溢出col960，诊断输入不写回原gold。\n\nAT116唯一同版U55C@6.667ns联合OOC DCP/blackbox0：41655 LUT、12192 FF、50 DSP、16 RAMB18（8 tile）、0 URAM。q0/q1/scale暂存实际LUTRAM。内部WNS−49.011ns、TNS−50792.254ns，最差Q槽序号→除法服务231级路径；150MHz在合成内部检查未过，未P&R、95输入/416输出无delay，实际Fmax未知。综合中“row_valid/done_valid常量0”警告经AT120只读同DCP核为LUT2驱动（INIT 2/8），不是最终GND裁剪。该检查不消除严重时序违例。\n\n报告：`project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md`；逐冻结身份/guard收据：同目录`SM004_lnq_row_stage_evidence_20261015.json`。累计守卫host1.606030s、static307.264625s、RTL144.865745s、联合OOC242.194084s，均在原帽内；AT111语法失败及AT114 TB强制ready相位失败保留原事实。E002设计/结果、E004三摘要及A002状态已同步。\n\n请求主控集中判断后继阶段：真实LN→Q单行局部正确性与资源可接纳，但Q组合长路径是明确架构/时序障碍，当前不擅自修改Q调度或重启OOC。外部AXI/HBM、矩阵A读、完整图/production-v2请求、P&R/板端仍未证。普通下一段不以本局部PASS代签。\n",
+  "in_reply_to": "m004-lnq-row-connection-engineering-dispatch-20261015",
+  "message_file": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_handoff_20261015.md",
+  "associations": {},
+  "payload_sha256": "4acbacc3efb32b78c8dac8871cbf068fadd61bc6de52dc59298c37ae1ad5d89d",
+  "created_at": "2026-10-14T17:22:09.997815+00:00",
+  "status": "delivered",
+  "client_user_message_id": "ccc72d59-d73e-4eee-acd4-34f6757889a1",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T17:22:10.043262+00:00",
+  "recipient_turn_id": "01a13b6f-91e9-7721-9cda-df164389ff99"
+}

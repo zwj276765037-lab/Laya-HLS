@@ -1,0 +1,13 @@
+{
+  "source": "# E004：完整软件基线与固定图最小复用接点\n\nM004/SM004；A002唯一E002实现和工具owner。现阶段用当前E002/experiment的g++软件 `full_execute_cpu_request` 执行真实production-v2 B1/S128 id3/generation1一次正常全模型请求，原模型包、raw输入和47项独立gold不变；按46中间＋final18逐字节比较，记录完整输出、服务路径、资源和源码/输入SHA。历史四请求软件338.283s/峰630752KiB及构建10.278s作成本准入，不当本次实测。首段累计host≤1800s/16GiB、单次≤900s、同用例最多两次；CPU0–3/nice19/idle，MemAvailable>192GiB，单重工具。当前不运行EDA/GPU/参考gold生成。最小复用接点见R001报告。硬件完整请求、联合资源/时序和加速比仍为后段目标。\n",
+  "results": "# E004：首段结果\n\n**软件限定PASS**：[project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_software_baseline_result_20261014.md](runs/R001/reports/SM004_software_baseline_result_20261014.md)。AT091当前E002 g++ host全图B1/S128正常请求，47项/4,523,596个F32逐字节等于原独立gold，18,887任务、962 QUANT；actual final18/32KiB IO留存。运行216.712s、峰640172KiB，guard child0/null；全部4次构建＋2次完整请求累计463.241s。首例AT089数值比较全到但旧B1 stateful Attention路径断言失败；第二次AT091显式软件CPU叶子QK/SM/AV各61440、状态服务命令0，故本PASS不包含Attention RTL。源码编译闭包95项；模型/请求/raw及47 oracle SHA留存。硬件完整推理、独立反压、II、资源、频率及加速比NOT_RUN。接点表：[project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_minimal_reuse_contacts_20261014.md](runs/R001/reports/SM004_minimal_reuse_contacts_20261014.md)。\n",
+  "status": "# E004：状态\n\nexecution_state: running；verdict: unassessed（整个M004加速器）；applicability: 当前E002当前源码、production-v2 B1/S128单正常g++ host软件图。SM004首段软件数值/独立gold限定PASS，最小算术接点表已交；AT088构建FAIL、AT089旧路径断言FAIL、AT090仅构建、AT091最终软件PASS均保留。下一步由A001据接点确定固定图最简控制/存储职责及下一段实现预算，A002再按补充合同推进。没有启动本轮RTL/HLS/OOC/P&R或板卡；软件PASS不代表硬件或性能已证。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "当前E002源码、production-v2 B1/S128 id3/generation1一次g++ host全模型正常请求；不适用于RTL/性能",
+  "evidence": [
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_software_baseline_result_20261014.md",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_minimal_reuse_contacts_20261014.md",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT091_SM004_full_software_b1_04/receipt.json"
+  ]
+}

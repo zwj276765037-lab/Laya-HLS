@@ -1,0 +1,153 @@
+{
+  "created_utc": "2026-10-14T16:27:33.171701+00:00",
+  "scope": "A001 focused LN handoff review, static source and host scalar calculation only; no RTL/EDA run",
+  "evidence": {
+    "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_row_stage_evidence_20261015.json",
+    "bytes": 14343,
+    "sha256": "12db2241e86876ddef68302cff50790e443a7871b8a7d557b66b2e9e3ade545b"
+  },
+  "identity_checks": {
+    "references": 269,
+    "errors": [],
+    "attempts": [
+      {
+        "attempt": "AT104_SM004_ln_leaf_probe_03",
+        "frozen_count": 65,
+        "origin_match_count": 65,
+        "fixture_count": 0
+      },
+      {
+        "attempt": "AT107_SM004_ln_row_03",
+        "frozen_count": 20,
+        "origin_match_count": 20,
+        "fixture_count": 7
+      },
+      {
+        "attempt": "AT108_SM004_ln_row_ooc_01",
+        "frozen_count": 22,
+        "origin_match_count": 22,
+        "fixture_count": 7
+      }
+    ],
+    "fixture_path_correction": "Initial A001 lookup omitted frozen/ prefix; all 14 actual frozen/fixture files now SHA match. No engineering artifact mismatch.",
+    "verified_fixture_paths": [
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/frozen/fixture/g1.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/frozen/fixture/st0.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/frozen/fixture/st1.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/frozen/fixture/x0.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/frozen/fixture/x1.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/frozen/fixture/y0.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/frozen/fixture/y1.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/frozen/fixture/g1.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/frozen/fixture/st0.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/frozen/fixture/st1.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/frozen/fixture/x0.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/frozen/fixture/x1.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/frozen/fixture/y0.mem",
+      "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/frozen/fixture/y1.mem"
+    ]
+  },
+  "source": [
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_ln_row_v1.sv",
+      "bytes": 12995,
+      "sha256": "da8adccc54275c7232bf43d646cd49e5b9d9c8d7204a2b20e3031f0ddd01bb40"
+    },
+    {
+      "path": "project/E002_Laya_HLS/experiment/hls/operators/layernorm_compute.cpp",
+      "bytes": 6114,
+      "sha256": "7d4983e8e47cb1e41d8fb79009afcc4f162e96d9accf9042ed8606c602c93237"
+    }
+  ],
+  "counterexample": {
+    "x": "1024 F32: +0 except [1000]=ff7fffff [1022]=ff7fffff [1023]=7f7fffff",
+    "gamma_kind": 0,
+    "rounding": "per add/subtract/multiply result rounded to IEEE binary32 by Python struct; /1024 exact power-of-two scaling with binary32 rounding",
+    "all_ten_mean_tree_levels_finite": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "sum_bits": "ff7fffff",
+    "mean_bits": "fa7fffff",
+    "delta0_bits": "7a7fffff",
+    "square0_bits": "7f800000",
+    "delta1023_bits": "7f800000",
+    "original_logical_first_error": {
+      "index": 0,
+      "step": "square"
+    },
+    "first_delta_error": 1023,
+    "static_rtl_prediction": "DELTA1 finishes with bad_idx=1023 and enters DONE before SQUARE; original contract first error is square at index0",
+    "rtl_dynamic_reproduction": "NOT_RUN; engineering requested to reproduce with unchanged frozen DUT then fix"
+  },
+  "cost": {
+    "elapsed_seconds": 0.03437316045165062,
+    "self_peak_rss_kib": 16536,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nice": 19,
+    "wall_timeout_seconds": 30,
+    "address_space_cap_bytes": 8589934592,
+    "scope": "this Python audit process only; not all prior interactive reads",
+    "fixture_path_followup_seconds": 0.0009480845183134079,
+    "fixture_path_followup_self_peak_rss_kib": 14960
+  },
+  "at110_closeout": {
+    "reviewed_utc": "2026-10-14T16:51:31.458155+00:00",
+    "scope": "A001 affected-source/fixture/guard/log review; no rerun",
+    "report": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_first_error_closeout_evidence_20261015.json",
+    "report_sha256": "1f0fb8c87b2229ce8dc0e69396185c63ddd68d9ab5ea81c046a737a8149cb247",
+    "references": 215,
+    "mismatches": [],
+    "logs": [
+      {
+        "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT109_SM004_ln_first_error_old_01/guard_host/driver.log",
+        "sha256": "ccf3b049e23f9d1f164a26093afd74a3aae8f99ffa437404913770235bd5e280"
+      },
+      {
+        "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT109_SM004_ln_first_error_old_01/guard_sim/driver.log",
+        "sha256": "bbc230cf89eb8712c11f391de36348faa43789fb3e4a58d7fcf2e59843eabea2"
+      },
+      {
+        "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT109_SM004_ln_first_error_old_01/guard_static/driver.log",
+        "sha256": "5eb676efc4f2880bd7be56f5449152ba2168847fe7319fa46a90e968c2aeffd2"
+      },
+      {
+        "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT110_SM004_ln_first_error_fixed_01/guard_sim_edge/driver.log",
+        "sha256": "b2a97df08c6cae3b7d43cbe3919c00237b917306d81c61bb34b15f49f00c7a50"
+      },
+      {
+        "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT110_SM004_ln_first_error_fixed_01/guard_sim_main/driver.log",
+        "sha256": "b846271c45adf14c09a1e8049bd91e5e6dccb65e78e445495c2491883b1036d8"
+      },
+      {
+        "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT110_SM004_ln_first_error_fixed_01/guard_static_edge/driver.log",
+        "sha256": "0d66a971eedd1ae27dc2531949344180214f7e6cba2bac71e97b083422629635"
+      },
+      {
+        "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT110_SM004_ln_first_error_fixed_01/guard_static_main/driver.log",
+        "sha256": "e374c0b35c9f200cc64d82d0d82d3211c72f4b7cd7aadd50db51247dd4013e87"
+      }
+    ],
+    "verdict": "PASS_SCOPED_LN_FIRST_ERROR_FIX",
+    "rtl_sha256": "a46d468e3e03e0feef55f36f4be8425d7a3468a13e7c68f16624b213b9ce5f72",
+    "old_failure": "AT109 E_NUMERICAL bad1023 against original reference bad0",
+    "new_regression": "AT110 six edge plus nine original cases pass; normal gamma0/gamma1 cycles unchanged",
+    "fixed_version_ooc": "NOT_RUN; AT108 stays old SHA",
+    "host_audit_elapsed_seconds": 0.016386093571782112,
+    "host_audit_self_peak_rss_kib": 15760,
+    "unmeasured_interactive_read_cost": "UNKNOWN"
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "reviewed_at_utc": "2026-10-07T11:05:45.157890+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "verdict": "ACCEPT_FOCUSED_HOST_DIFFERENTIAL_AND_REVISED_PILOT_TESTBENCH",
+  "host_diff_result_sha256": "0eb6e476c3f7d18cfba1e2e4fe2276cf42a920dc568f5349a29b05e166d1338c",
+  "driver_sha256": "ecc46f4ed17c8ce93ef7c97454bc633df418869dd463e8d02ecfe0b998c47550",
+  "pilot_plan_sha256": "dc622a382c804e42f51173b1e4adf3a391d865b9dedab4c3412d184c757c3198",
+  "comparison": {
+    "binary_bytes_each": 1720568,
+    "binary_sha256": "152142b5a4595f04e677c62957cdaf27d0086b6fe33e79a43c7071762012c085",
+    "independently_byte_compared": true,
+    "lookup_records_decoded": 632,
+    "known_names": 153,
+    "known_lookup_calls_including_extra_bias": 620,
+    "failed_lookup_calls": 12,
+    "required_api_baseline": "Frozen f1a full_lookup_tensor(...,&index); current required-reference helper. Other three API forms are unchanged default-null/explicit-null/non-null pointer.",
+    "all_lookup_checks_indices_failure_sentinels_verified": true,
+    "QK_records_decoded": 11,
+    "QK_records": [
+      {
+        "case": 0,
+        "Check_code": 0,
+        "detail": 0,
+        "bad_element": 18446744073709551615,
+        "output_elements": 64,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 1,
+        "Check_code": 0,
+        "detail": 0,
+        "bad_element": 18446744073709551615,
+        "output_elements": 256,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 2,
+        "Check_code": 0,
+        "detail": 0,
+        "bad_element": 18446744073709551615,
+        "output_elements": 1024,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 3,
+        "Check_code": 0,
+        "detail": 0,
+        "bad_element": 18446744073709551615,
+        "output_elements": 1536,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 4,
+        "Check_code": 0,
+        "detail": 0,
+        "bad_element": 18446744073709551615,
+        "output_elements": 16384,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 5,
+        "Check_code": 3,
+        "detail": 122683397,
+        "bad_element": 18446744073709551615,
+        "output_elements": 0,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 6,
+        "Check_code": 3,
+        "detail": 122683397,
+        "bad_element": 18446744073709551615,
+        "output_elements": 0,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 7,
+        "Check_code": 5,
+        "detail": 67436553,
+        "bad_element": 18446744073709551615,
+        "output_elements": 0,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 8,
+        "Check_code": 5,
+        "detail": 69533705,
+        "bad_element": 18446744073709551615,
+        "output_elements": 0,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 9,
+        "Check_code": 5,
+        "detail": 67633161,
+        "bad_element": 18446744073709551615,
+        "output_elements": 0,
+        "all_score_bytes_match_independent_expected": true
+      },
+      {
+        "case": 10,
+        "Check_code": 7,
+        "detail": 117440516,
+        "bad_element": 18446744073709551615,
+        "output_elements": 0,
+        "all_score_bytes_match_independent_expected": true
+      }
+    ],
+    "QK_score_bytes_checked_against_independent_formula_and_untouched_7_sentinels": 1441792,
+    "formula": "q=(1,0.5,0,...), k=(key%7-3,0.25,0,...); fixed reduction produces ((key%7-3)+0.125)*0.125; actual batch-dependent mask and sliding distance bias then IEEE F32 score store. Entire score cache checked for each case.",
+    "remaining_canonical_metadata": "Exact old/new byte comparison includes TaskDone, counters, score refs/metadata and every emitted owner field/bitmap. Owner NumericIdentity is not serialized; it is assigned identically by driver and not changed by this source diff."
+  },
+  "compile_review": "Recorded strict-O2 builds compile same driver, 25 actual production cpp from respective complete source tree and respective include roots; only required-API test macro differs. Same frozen f1a generated constants. No copied arithmetic or runtime implementation.",
+  "focused_TB": "49 assertions in ordinary host and __SYNTHESIS__ host reported PASS; revised source explicitly asserts expected positive/failure statuses, first/second exact mask scores, first/later/max-epoch lookup and cleanup first-error behavior.",
+  "guards": [
+    {
+      "name": "diff_followon_run_guard",
+      "child_exit_code": 0,
+      "elapsed_seconds": 0.16861679404973984,
+      "finished_at": "2026-10-07T11:01:08.150053+00:00",
+      "minimum_mem_available_kb": 439881580,
+      "peak_owned_rss_kb": null,
+      "rss_capture_count": 0,
+      "rss_captured": false,
+      "rss_sample_count": 1,
+      "trigger": null
+    },
+    {
+      "name": "pilot_host_build_guard",
+      "child_exit_code": 0,
+      "elapsed_seconds": 6.361000442877412,
+      "finished_at": "2026-10-07T10:58:18.270886+00:00",
+      "minimum_mem_available_kb": 439809072,
+      "peak_owned_rss_kb": 65656,
+      "rss_capture_count": 31,
+      "rss_captured": true,
+      "rss_sample_count": 32,
+      "trigger": null
+    },
+    {
+      "name": "diff_followon_build_guard",
+      "child_exit_code": 0,
+      "elapsed_seconds": 6.432444149628282,
+      "finished_at": "2026-10-07T11:00:52.423345+00:00",
+      "minimum_mem_available_kb": 439812728,
+      "peak_owned_rss_kb": 75860,
+      "rss_capture_count": 32,
+      "rss_captured": true,
+      "rss_sample_count": 32,
+      "trigger": null
+    },
+    {
+      "name": "diff_f1a_build_guard",
+      "child_exit_code": 0,
+      "elapsed_seconds": 6.479378605261445,
+      "finished_at": "2026-10-07T11:00:39.120729+00:00",
+      "minimum_mem_available_kb": 439804592,
+      "peak_owned_rss_kb": 73836,
+      "rss_capture_count": 32,
+      "rss_captured": true,
+      "rss_sample_count": 32,
+      "trigger": null
+    },
+    {
+      "name": "diff_f1a_run_guard",
+      "child_exit_code": 0,
+      "elapsed_seconds": 0.15766324661672115,
+      "finished_at": "2026-10-07T11:00:59.833455+00:00",
+      "minimum_mem_available_kb": 439851232,
+      "peak_owned_rss_kb": null,
+      "rss_capture_count": 0,
+      "rss_captured": false,
+      "rss_sample_count": 1,
+      "trigger": null
+    },
+    {
+      "name": "pilot_synthhost_build_guard",
+      "child_exit_code": 0,
+      "elapsed_seconds": 6.478251742199063,
+      "finished_at": "2026-10-07T10:58:47.437497+00:00",
+      "minimum_mem_available_kb": 439783400,
+      "peak_owned_rss_kb": 64500,
+      "rss_capture_count": 32,
+      "rss_captured": true,
+      "rss_sample_count": 32,
+      "trigger": null
+    }
+  ],
+  "guard_note": "Two short differential execution guards finished before RSS sampling: peak is null and rss_captured false; no zero-RSS claim. Build guards captured bounded peaks.",
+  "input_hashes": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_preview/build_diff_f1a.sh": "1c95a6a89a1f1a74213b9534ca52011f264b237fb0b9e9b26c86a3189b4cbb10",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_preview/build_diff_followon.sh": "7dc653478c028c7f80b39c08cd04b436732426cdfe83b404495bb772fb638804",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_preview/build_pilot_host.sh": "b01773fa6686f412f0a268bc41c3089023ae6931543a0c6c509ad8105daefbcf",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_preview/build_pilot_synthhost.sh": "6682a32150d442398228bb1d66a0673f39a81979ce34dcc72f39a8ede4ba42fa",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_pointer_control_pilot.cpp": "8e1f2d9286b00f342dc640d3d681fdb6bd91dc7c3693feda23116c3cad675301",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_pointer_control_pilot_tb.cpp": "9f7bab9ae3ab0b2d0acead3684dc726f6ad6fe9c167d2d3a27c5fae1fb378f82",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_preview/full_pointer_control_pilot.cfg": "2fa6056018309b0c70aa0b08bb066d183e668ebf7bcd993a54479402fc635a3a"
+  }
+}

@@ -1,0 +1,29 @@
+# 首请求传输有限结果与旧cleanup LTX入口问题
+
+M003/SM003/E003/R003，A002唯一整合。回复executor-first-hls-second-stop-review-20261013；普通修复/工具按原授权串行继续，未请求扩大范围或预算。
+
+## 实际结果
+
+executor_hls_host_04七独立process PASS_SCOPED_HOST，三残留std::array比较改完整byte XOR/OR，91/91 frozen/声明pair且本次current91。A005有界第二停止诊断已完成：executor_hls_02_cost_diagnosis_A005_20261013.md，SHA52d5b5d99a9e21642f3904690942595743c75df147693849841303463b0b65fc。已选一个同方向五×8192真实读写微top对照，准备中；它无actor/Runtime/memcmp，无准入退休权威，不代签生产executor。无原样重启或扩帽。
+
+admission_transport_rtl_02 PASS，8复位分隔diagnostics，真实两个depth2 FIFO、16 ingress write/pop→唯一actual portal full validator/install→原包16echo write/pop。尾2/尾1各12周期，ready-only拒绝、保留位/STATE0缺失/物理epoch/address/capacity/取消拒绝，持久cancel及live变化下原echo保持；第二A仍关闭。guard39.502949s、peak1645560KiB/197实际captures。原_01 FAIL为TB新驱动cancel后未结算组合full_n即时断言；_02仅加#1，DUT逐字相同，失败保留。上游executor/物理idle还是受控TB，不能代签同runtime准入或13BO物理链。
+
+LPV_owner_sidecar_rtl_01 PASS_SCOPED_RTL_SIDECAR，4case/743cycles；完整A/route在真实LTX首pop归属后，16LPV收齐才交portal、8返回经depth2消费，保持到真实LTC末pop。tail2/tail1各12、持久cancel/base/route变化、提前LTC拒绝保持旧帧进展。guard26.295958s、peak1341036KiB/131captures。无hub/退休权威；generated adapter仍为受控peer。A006现准备实际已生成adapter+sidecar+唯一portal连接，尚未运行。
+
+owned_program_rtl_02静态PASS，但success在84555ns安装owner时进入真实DUT隔离，动态FAIL保留；_01仅预检副本路径误拒绝且无工具。两次分别新副本snapshot诊断无功能PASS：真实帧头和bootstrap decode通过，重新handoff validate_2中的bootstrap validate_3却拒绝；session/request及target字段正确，仍定位完整source对象传递。canonical equality寄存器的初始1不能表示实际已执行，原失败不改写为PASS。A004只读定位继续，root未删任何验证/断言。
+
+source_guard_v2_rtl_01 case0–2 marker已通过，case3在TB string三元实参发生xsim kernel异常，非DUT断言；ELF PC/string refcount与两个label常量定位明确。A006仅将一个string ternary换成if/else literal调用，六case/刺激/assertion/cap不变，DUT相同。新_02 exec:20907实际运行；初版FAIL和raw crash保留。
+
+上述已完成四attempt独立工程核验：frozen/声明pair分别91/91、28/28、19/19、1394/1394；本次current均相同，receipt所有引用匹配，记录executor_first_transport_progress_verification_20261013.json。program generated04仍只有原限定生成/interface事实，未扩大为动态行为PASS。
+
+## 请求核定：撤销后旧END的首LTX不能被sidecar永久挡住
+
+A006实际连接准备发现当前sidecar txn_start_ready无条件要求 !cancel && !owner_revoked && !txn_revoked。它能保持已开始的同一旧LTX/LPV/LTC，但若BEGIN已完成后发生撤销，下一条必须消费的旧producer END尚未首LTX pop，将永远不能新建该旧cleanup事务。当前有限PASS只覆盖END首pop后撤销；这是具体连接缺口，不是全恢复前置。
+
+D-M003-EXECUTOR-MANAGED-LPV-OWNER-01已授权旧A下完整END/INVALIDATE候选和唯一hub核定，但现有sidecar开始接口只有txn_start/txn_owner/route，没有完整LTX类别或真实actor已拥有cleanup的记录。不能简单在cancel下开放所有新LTX或用裸cleanup bool代签。
+
+建议沿原单inflight完整A建立有界LTX候选收集：只固定旧A/route，不授业务启动；完整旧LTX及真实executor port/FSM归属核定后，唯一路由允许原producer END/必要INVALIDATE进入实际adapter/唯一hub，其他未开始普通事务沿完整绑定负完成收束。已呈现/已接受事务继续，物理producer fence与整个F10排空分开，不增加发布/退休权威，不复用新A。若可直接引用actual executor已持有的完整待发LTX对象，优先引用稳定对象避免再复制一份权威。
+
+请核定这个旧cleanup首LTX边界应由哪一现有owner提供完整事实、候选允许哪些精确类型及普通未开始LTX的负完成来源。现prepared actual-adapter测试会明确保留『撤销前首LTX已接受』范围；root不以其PASS签撤销后首END或C整链闭合。program/executor定位、source guard和正常C准备独立继续，不等完整CLOSED/rearm。
+
+原单重工具/分类帽/120s真实进展保护、CPU0–3/nice19/idle/MemAvailable门保持。G2338.224019s仅OOC余额，无新OOC/P&R/上板/预算，5172s组合不重启。C/D周期NOT_RUN，C009/C013部分实施、C008/C010待验，L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。

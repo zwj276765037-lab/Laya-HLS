@@ -1,0 +1,32 @@
+--- host02/include/laya_full_runtime.h
++++ host03/include/laya_full_runtime.h
+@@ -200,6 +200,29 @@
+     bool active = false, source_lease_active = false;
+     Check first_error = ok();
+   } generated_store;
++  // One graph action remains live until every logical lease and physical
++  // owner event has reached a bound terminal state.  This tracker is kept in
++  // the lifecycle partition rather than inferred from generated_store: an
++  // action can still need owner cleanup after its last producer scope closes.
++  struct LifecycleActionTracker {
++    NumericIdentity identity;
++    FullOwnerSpec source, output;
++    Check first_error = ok();
++    uint64_t ordinal = 0, source_version = 0, target_slot_version = 0;
++    uint64_t begin_event_seq = 0;
++    uint32_t request_flags = 0, previous_task_id = 0;
++    uint8_t kind = 0, pc = 0, op = 0, stage = 0, layer = 255;
++    uint8_t source_slot = 0, target_slot = 0, target_buffer = 0;
++    uint8_t target_bank = 0, target_region = 0, gamma = 0;
++    bool active = false;
++    bool owner_local_claimed = false;
++    bool claim_sent = false, claim_remote_terminal = false;
++    bool publish_sent = false, publish_remote_terminal = false;
++    bool begin_response_bound = false, begin_scope_active = false;
++    bool source_release_pending = false;
++    bool cleanup_pending = false, cleanup_remote_terminal = false;
++    bool cleanup_local_complete = false;
++  } lifecycle_action;
+   GDownPlan g_down_plan;
+   DispatchBinding dispatch_binding;
+   uint32_t last_task_id = 0, tasks_retired = 0;

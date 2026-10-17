@@ -1,0 +1,578 @@
+{
+  "schema": "axi_guard_trace_v5_source_static_release_v1",
+  "at_utc": "2026-10-08T16:02:31.165176+00:00",
+  "reviewer": {
+    "agent": "/root/q8_proto_design_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "verdict": "V5_OBSERVATION_ONLY_SOURCE_ACCEPTED_ONE_STATIC_BUILD_RELEASED",
+  "source_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/source/source_preparation_packet.json",
+    "bytes": 49261,
+    "sha256": "8da6975730346b3483998fe42545a85688cc02b3f4e4a8168f2a1e0715fa4740"
+  },
+  "design": {
+    "bytes": 28345,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/design.md",
+    "sha256": "087e1d81516d41e8247daa60cdc3f61e22f781a22452a93979887bda353f045a"
+  },
+  "source_authority": {
+    "bytes": 3992,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_guard_trace_v5_source_preparation_release.json",
+    "sha256": "a964500afd6f613e51e70dd430630908df0230409ebdc59b58c9d3fcb8ca4cf4"
+  },
+  "base_failure_review": {
+    "bytes": 14274,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_sampled_wait_v4_runtime_review.json",
+    "sha256": "de10151b63bcdf29bf5d76de5d57ca8e043b6b874009408538c128ef40c569fc"
+  },
+  "audit": {
+    "unique_files_rehashed": 92,
+    "all_hashes_sizes_match": true,
+    "copy_pairs_compared": 40,
+    "byte_identical_pairs": 38,
+    "changed_paths": [
+      "tb/axi_allocation_diag_top.sv",
+      "tb/build_static.sh"
+    ],
+    "source_changes_only_insertions": true,
+    "insertions": [
+      {
+        "v5_start_line": 10,
+        "lines": 1,
+        "text": "    bit diag_v5_first_w_loop_seen = 0;\n"
+      },
+      {
+        "v5_start_line": 179,
+        "lines": 9,
+        "text": "        if (i == 0) begin\n            $display(\"DIAG_GUARD_V5 phase=before_loop fullguard=%b relation=%b item=%0d threshold=%0d count=%0d postreset_count=%0d sim_ps=%0d monitor_sample_cycle=%0d seen=%b\",\n                     ((mon_qkv0.w_beats >= longint'(i+1)) !== 1'b1),\n                     (mon_qkv0.w_beats >= longint'(i+1)),\n                     i, longint'(i+1), mon_qkv0.w_beats, postreset_count,\n                     longint'($realtime*1000.0), mon_qkv0.sample_cycle,\n                     diag_v5_first_w_loop_seen);\n            $fflush();\n        end\n"
+      },
+      {
+        "v5_start_line": 189,
+        "lines": 10,
+        "text": "            if (i == 0 && !diag_v5_first_w_loop_seen) begin\n                diag_v5_first_w_loop_seen = 1;\n                $display(\"DIAG_GUARD_V5 phase=first_loop_entry fullguard=%b relation=%b item=%0d threshold=%0d count=%0d postreset_count=%0d sim_ps=%0d monitor_sample_cycle=%0d seen=%b\",\n                         ((mon_qkv0.w_beats >= longint'(i+1)) !== 1'b1),\n                         (mon_qkv0.w_beats >= longint'(i+1)),\n                         i, longint'(i+1), mon_qkv0.w_beats, postreset_count,\n                         longint'($realtime*1000.0), mon_qkv0.sample_cycle,\n                         diag_v5_first_w_loop_seen);\n                $fflush();\n            end\n"
+      }
+    ],
+    "build_change_only_snapshot_label": true,
+    "resolved_local_sv_closure": 35,
+    "direct_sv_inputs": 7,
+    "vendor_include_names": [
+      "uvm_macros.svh"
+    ],
+    "records": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_sampled_wait_v4_runtime_review.json",
+        "bytes": 14274,
+        "sha256": "de10151b63bcdf29bf5d76de5d57ca8e043b6b874009408538c128ef40c569fc"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/source/source_preparation_packet.json",
+        "bytes": 60886,
+        "sha256": "7a2d5f9048e40afbe26d7433f6cb13b35c83e37d233ec4bfb5f13e2eda2a1358"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/source/static_build_evidence_packet.json",
+        "bytes": 36252,
+        "sha256": "5a6fdce5c9d725c2e6bb81fbd160d6eed17d383f4f43b11f450cd38aaf82f624"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/source/v4_to_v5_build.diff",
+        "bytes": 587,
+        "sha256": "47da54bd4a2cc02cab7965f8e43e485433b85ffc8bbd339c2436d9b806a61480"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_base_sequence.sv",
+        "bytes": 1524,
+        "sha256": "24de6017962107b2705ddca12391a8b05f42f01230c2ad17f200864494defeac"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_base_sequence.sv",
+        "bytes": 1524,
+        "sha256": "24de6017962107b2705ddca12391a8b05f42f01230c2ad17f200864494defeac"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_cfg.sv",
+        "bytes": 1880,
+        "sha256": "6dad4c655bb38dcf7cb88b87e565fa2b0e8e0438b139029a13d2170a83ed67e9"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_cfg.sv",
+        "bytes": 1880,
+        "sha256": "6dad4c655bb38dcf7cb88b87e565fa2b0e8e0438b139029a13d2170a83ed67e9"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_driver_base.sv",
+        "bytes": 3055,
+        "sha256": "c5482d9be71c60b111da18f3970c90d29124ec69467919432913317e021cd774"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_driver_base.sv",
+        "bytes": 3055,
+        "sha256": "c5482d9be71c60b111da18f3970c90d29124ec69467919432913317e021cd774"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_env.sv",
+        "bytes": 3911,
+        "sha256": "2f090aa034987654e1014858780201ad0c0dece3089c5abe9d32bc370d5204e7"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_env.sv",
+        "bytes": 3911,
+        "sha256": "2f090aa034987654e1014858780201ad0c0dece3089c5abe9d32bc370d5204e7"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_if.sv",
+        "bytes": 2890,
+        "sha256": "2dbeb4c36279b20599d4a313ced0fc89ce871f04f03ddcf715d5cb093cf53c2e"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_if.sv",
+        "bytes": 2890,
+        "sha256": "2dbeb4c36279b20599d4a313ced0fc89ce871f04f03ddcf715d5cb093cf53c2e"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_info.sv",
+        "bytes": 900,
+        "sha256": "7347f773fe23a57240a5dfaa9f93222db543ee0bc804cc3125c182e25927b4a1"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_info.sv",
+        "bytes": 900,
+        "sha256": "7347f773fe23a57240a5dfaa9f93222db543ee0bc804cc3125c182e25927b4a1"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_master_agent.sv",
+        "bytes": 3170,
+        "sha256": "a9cc440e05ea10451791ab4c027594af36f990688c79a837247c31d1df20e2af"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_master_agent.sv",
+        "bytes": 3170,
+        "sha256": "a9cc440e05ea10451791ab4c027594af36f990688c79a837247c31d1df20e2af"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_master_ardrv.sv",
+        "bytes": 2463,
+        "sha256": "8d4f4a8ecbd84ca1ec7eda7cf22a7fb3b71f1070c8266af903d9e57c0b2dd1c8"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_master_ardrv.sv",
+        "bytes": 2463,
+        "sha256": "8d4f4a8ecbd84ca1ec7eda7cf22a7fb3b71f1070c8266af903d9e57c0b2dd1c8"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_master_awdrv.sv",
+        "bytes": 2481,
+        "sha256": "27718b2b9b252a49c717933956a64c91755c7a5fccf1d162beaeb69decf20c36"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_master_awdrv.sv",
+        "bytes": 2481,
+        "sha256": "27718b2b9b252a49c717933956a64c91755c7a5fccf1d162beaeb69decf20c36"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_master_bdrv.sv",
+        "bytes": 1935,
+        "sha256": "caa68efeaf59786ae84bccd97febd12af8e34f411a64c57ac334d8cb583eb792"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_master_bdrv.sv",
+        "bytes": 1935,
+        "sha256": "caa68efeaf59786ae84bccd97febd12af8e34f411a64c57ac334d8cb583eb792"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_master_rdrv.sv",
+        "bytes": 1929,
+        "sha256": "aebeacd9cf0c476ca63b1f1146f697f8ff2f0b9968ed2b5c09ac24c796f419b7"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_master_rdrv.sv",
+        "bytes": 1929,
+        "sha256": "aebeacd9cf0c476ca63b1f1146f697f8ff2f0b9968ed2b5c09ac24c796f419b7"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_master_seq_lib.sv",
+        "bytes": 14021,
+        "sha256": "e3dc1df1d7666f29233129a06064e577df04935be1ff0621c3c70ef5c151aedf"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_master_seq_lib.sv",
+        "bytes": 14021,
+        "sha256": "e3dc1df1d7666f29233129a06064e577df04935be1ff0621c3c70ef5c151aedf"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_master_wdrv.sv",
+        "bytes": 2310,
+        "sha256": "376680ae4f48d7afa2b3db92fb89912df86e0babc0c2f775de1c91d0eb90232c"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_master_wdrv.sv",
+        "bytes": 2310,
+        "sha256": "376680ae4f48d7afa2b3db92fb89912df86e0babc0c2f775de1c91d0eb90232c"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_monitor.sv",
+        "bytes": 13847,
+        "sha256": "488672a53c0edef11d62c217b8b2e922c38810a723e9ad2721ffa4c833d60f98"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_monitor.sv",
+        "bytes": 13847,
+        "sha256": "488672a53c0edef11d62c217b8b2e922c38810a723e9ad2721ffa4c833d60f98"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_pkg.sv",
+        "bytes": 1488,
+        "sha256": "9f2a74160a909567107462b6959b7c17b083e86122fc4382e05de8aaf9db507d"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_pkg.sv",
+        "bytes": 1488,
+        "sha256": "9f2a74160a909567107462b6959b7c17b083e86122fc4382e05de8aaf9db507d"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_sequencer.sv",
+        "bytes": 911,
+        "sha256": "8d0b25ace89631ad73b2b8f49d93d56bd5b755be9e2467333bc596e5f3dafe15"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_sequencer.sv",
+        "bytes": 911,
+        "sha256": "8d0b25ace89631ad73b2b8f49d93d56bd5b755be9e2467333bc596e5f3dafe15"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_slave_agent.sv",
+        "bytes": 3156,
+        "sha256": "bd3635f6ba0f071a269df886cd53b6b32c86275afb23140993ceba1d987f0382"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_slave_agent.sv",
+        "bytes": 3156,
+        "sha256": "bd3635f6ba0f071a269df886cd53b6b32c86275afb23140993ceba1d987f0382"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_slave_ardrv.sv",
+        "bytes": 1902,
+        "sha256": "308211173b84f09a2513d9931e3a9a5237ac65ad58f8ee2d211a000ca8d970d8"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_slave_ardrv.sv",
+        "bytes": 1902,
+        "sha256": "308211173b84f09a2513d9931e3a9a5237ac65ad58f8ee2d211a000ca8d970d8"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_slave_awdrv.sv",
+        "bytes": 1904,
+        "sha256": "03d93dcdaa11e471d5693397842b53e680f50629fe2dc8d909e0adcedda60ffb"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_slave_awdrv.sv",
+        "bytes": 1904,
+        "sha256": "03d93dcdaa11e471d5693397842b53e680f50629fe2dc8d909e0adcedda60ffb"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_slave_bdrv.sv",
+        "bytes": 2060,
+        "sha256": "79cd96a9996537673e607f576f7fcbd5cfc5024ac4719ae7c1a12a43e5197ab9"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_slave_bdrv.sv",
+        "bytes": 2060,
+        "sha256": "79cd96a9996537673e607f576f7fcbd5cfc5024ac4719ae7c1a12a43e5197ab9"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_slave_rdrv.sv",
+        "bytes": 2280,
+        "sha256": "4c27db799c2d9388f61564ead2abfdf16598f7ef913646d8ee5a4cd0cf94e578"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_slave_rdrv.sv",
+        "bytes": 2280,
+        "sha256": "4c27db799c2d9388f61564ead2abfdf16598f7ef913646d8ee5a4cd0cf94e578"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_slave_seq_lib.sv",
+        "bytes": 10590,
+        "sha256": "e04336f176da7c5a9fa7e75d89003ae773aa6c0ef34f518909d4660167ea6437"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_slave_seq_lib.sv",
+        "bytes": 10590,
+        "sha256": "e04336f176da7c5a9fa7e75d89003ae773aa6c0ef34f518909d4660167ea6437"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_slave_wdrv.sv",
+        "bytes": 1899,
+        "sha256": "229a724b1de2a3acc9f2c5b8096c95e25593a4def56842d230f2a64288f64eac"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_slave_wdrv.sv",
+        "bytes": 1899,
+        "sha256": "229a724b1de2a3acc9f2c5b8096c95e25593a4def56842d230f2a64288f64eac"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_state.sv",
+        "bytes": 16964,
+        "sha256": "24616dd77d25db56750cfe8341b66bbc2fb1de58cc978f55d7002ac13736d620"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_state.sv",
+        "bytes": 16964,
+        "sha256": "24616dd77d25db56750cfe8341b66bbc2fb1de58cc978f55d7002ac13736d620"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_transfer.sv",
+        "bytes": 10430,
+        "sha256": "83941edaefb1d74143697dc889674d49904779b994c5c0b6e1b8dbe268093ada"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_transfer.sv",
+        "bytes": 10430,
+        "sha256": "83941edaefb1d74143697dc889674d49904779b994c5c0b6e1b8dbe268093ada"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_type.sv",
+        "bytes": 3784,
+        "sha256": "0f8ab0be73912e52ab82d1360dc593bfec13e78701aa3842b8c0cf10e47790f4"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_type.sv",
+        "bytes": 3784,
+        "sha256": "0f8ab0be73912e52ab82d1360dc593bfec13e78701aa3842b8c0cf10e47790f4"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/axivip/axi_virtual_sequencer.sv",
+        "bytes": 1341,
+        "sha256": "9946340118d2a0876303ea5736be194ece0070578ee10df6e1072d4da39d9a9e"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/axivip/axi_virtual_sequencer.sv",
+        "bytes": 1341,
+        "sha256": "9946340118d2a0876303ea5736be194ece0070578ee10df6e1072d4da39d9a9e"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/file_agent/file_agent_pkg.sv",
+        "bytes": 807,
+        "sha256": "5b8483a0f96be3f71813963e0c3f4ba6a9632577d853cb41d42005ed731be83b"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/file_agent/file_agent_pkg.sv",
+        "bytes": 807,
+        "sha256": "5b8483a0f96be3f71813963e0c3f4ba6a9632577d853cb41d42005ed731be83b"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/file_agent/file_read_agent.sv",
+        "bytes": 26459,
+        "sha256": "ef4dda368ae406bcdde10598cd47d5164865d34f2215ceec2d2711c8bdf8205d"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/file_agent/file_read_agent.sv",
+        "bytes": 26459,
+        "sha256": "ef4dda368ae406bcdde10598cd47d5164865d34f2215ceec2d2711c8bdf8205d"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/file_agent/file_write_agent.sv",
+        "bytes": 19327,
+        "sha256": "291a8655a542ff4171737fa58fca85213f8fd50679da1cb45236f49484e4ea65"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/file_agent/file_write_agent.sv",
+        "bytes": 19327,
+        "sha256": "291a8655a542ff4171737fa58fca85213f8fd50679da1cb45236f49484e4ea65"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/file_agent/mem_model.sv",
+        "bytes": 16677,
+        "sha256": "d84eac49b881df08e74da3693e69dbd39db04a1e4b45637dd5ed851035452ad6"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/file_agent/mem_model.sv",
+        "bytes": 16677,
+        "sha256": "d84eac49b881df08e74da3693e69dbd39db04a1e4b45637dd5ed851035452ad6"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/rtl/misc_interface.sv",
+        "bytes": 1219,
+        "sha256": "471a88fc2cfd3407eb3baa2cc51e264ae7d3d0a50211a8e0437c4285b9913bca"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/rtl/misc_interface.sv",
+        "bytes": 1219,
+        "sha256": "471a88fc2cfd3407eb3baa2cc51e264ae7d3d0a50211a8e0437c4285b9913bca"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/axi_allocation_diag_test.sv",
+        "bytes": 8698,
+        "sha256": "9d27241a46b456eecd0a6c8f9402bd7491046c89d034319ec4c2b14bee03781c"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/axi_allocation_diag_test.sv",
+        "bytes": 8698,
+        "sha256": "9d27241a46b456eecd0a6c8f9402bd7491046c89d034319ec4c2b14bee03781c"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/axi_allocation_diag_top.sv",
+        "bytes": 15711,
+        "sha256": "1218bbe663e41247c7d0d5ab1156784fdb627873b7bd4e473dbf445336cb427f"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/axi_allocation_diag_top.sv",
+        "bytes": 16990,
+        "sha256": "73d315c250bef3de46c244ec09ef512953ab59c480477ac6452b867ceca0466c"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/build_static.sh",
+        "bytes": 753,
+        "sha256": "61e8fd2c76a8396419803425ef16be4a7878d78c4b58b59583d9c3b9e7ec1749"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/build_static.sh",
+        "bytes": 752,
+        "sha256": "dfc17d4d9095b4f25f0901cf22d673c4b870f9bdaebb24c70ed6ac5b74a26183"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/guard_runtime_4g.py",
+        "bytes": 10212,
+        "sha256": "832f737c605975f5bd449e48f053838e8d64eeee73cff99d314b5dce72a903bc"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/guard_runtime_4g.py",
+        "bytes": 10212,
+        "sha256": "832f737c605975f5bd449e48f053838e8d64eeee73cff99d314b5dce72a903bc"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/hls_guard_helpers.py",
+        "bytes": 7083,
+        "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/hls_guard_helpers.py",
+        "bytes": 7083,
+        "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/phase_axi_monitor.sv",
+        "bytes": 8616,
+        "sha256": "3290a5ea2890a3290d758314fd1d75b91580c6da0f73c9379b05570df8ea3f4a"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/phase_axi_monitor.sv",
+        "bytes": 8616,
+        "sha256": "3290a5ea2890a3290d758314fd1d75b91580c6da0f73c9379b05570df8ea3f4a"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/phase_rss.c",
+        "bytes": 1322,
+        "sha256": "72dcdedf1e58560f7b71ba43cd3e724423dd87f24aaa42458dc6a94e394831c4"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/phase_rss.c",
+        "bytes": 1322,
+        "sha256": "72dcdedf1e58560f7b71ba43cd3e724423dd87f24aaa42458dc6a94e394831c4"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/sampled_wait_v4/tb/phase_rss.so",
+        "bytes": 16136,
+        "sha256": "77c19e28b3ca04943cb85eb887baecd42e8acd71a9cbd9f38fc9442e98877db6"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/phase_rss.so",
+        "bytes": 16136,
+        "sha256": "77c19e28b3ca04943cb85eb887baecd42e8acd71a9cbd9f38fc9442e98877db6"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/design.md",
+        "bytes": 28345,
+        "sha256": "087e1d81516d41e8247daa60cdc3f61e22f781a22452a93979887bda353f045a"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_guard_trace_v5_source_preparation_release.json",
+        "bytes": 3992,
+        "sha256": "a964500afd6f613e51e70dd430630908df0230409ebdc59b58c9d3fcb8ca4cf4"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/source/v4_to_v5_guard_trace.diff",
+        "bytes": 2229,
+        "sha256": "a655ac6c82e9841dfa7b6d7d188129c4f2a752fcdd26b45a45c1fcf750f16791"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+        "bytes": 10218,
+        "sha256": "c3c3de6190945c548b4f9934aa2f5ecefb61ac53fdcd283b4381606b17e511e8"
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/hls_guard_helpers.py",
+        "bytes": 7083,
+        "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+      },
+      {
+        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xvlog",
+        "bytes": 823,
+        "sha256": "be0500dad03cac9bf737f6b98dccd6458d59acb3ca7f88e4e1b86f46408298d0"
+      },
+      {
+        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xelab",
+        "bytes": 823,
+        "sha256": "be0500dad03cac9bf737f6b98dccd6458d59acb3ca7f88e4e1b86f46408298d0"
+      },
+      {
+        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xsim",
+        "bytes": 909,
+        "sha256": "b109855e4479976a51a67def22f9c1fd66def9ceef691816606149f0d0417026"
+      }
+    ]
+  },
+  "findings": [
+    "Modulebit only bounds the loop-entry display. No new automatic local, task frame, helper, delay or control-transfer statement is introduced.",
+    "Before-loop record immediately follows original W payload/VALID assignments; it prints complete case-inequalityguard and relation,i,threshold,count,clock,time,monitorcycle andseen.",
+    "First-loop-entry observation is the first body statement before original posedge/#1ps suspension, onceonlyfori0. Both records use inline expressions andflush.",
+    "Mechanical reconstruction preserves allfive original whileconditions/postwaitassertions, automatic nestedfork hierarchy, drive/VALID, B/Rdelays, monitor/VIP/queue/memory/DPI,1024pairs/10kprefix/90kdrain/100kendpoint/7x65536bytechecks.",
+    "Atmost2newrecords pertraffic andnone inidle. Observations may perturb compilation/scheduling; a newPASS alone doesnotidentifyoriginalrootcause."
+  ],
+  "release": {
+    "owner": "/root/vivado_project_sol_max",
+    "one_static_build": true,
+    "exact_guard_command": [
+      "python3",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+      "--out",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/runs/static_build_v1/guard",
+      "--cwd",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/runs/static_build_v1/work",
+      "--rss-gib",
+      "16",
+      "--timeout-seconds",
+      "300",
+      "--",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/tb/build_static.sh"
+    ],
+    "cwd": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/guard_trace_v5/runs/static_build_v1/work",
+    "snapshot": "axi_guard_trace",
+    "rss_gib": 16,
+    "wall_seconds": 300,
+    "cpus": 4,
+    "nice": 19,
+    "ionice": "idle",
+    "minimum_memavailable_gib": 192,
+    "sample_seconds": 0.2,
+    "one_heavy_laya_tool_at_a_time": true,
+    "q8_priority": true
+  },
+  "before_launch": [
+    "Rehash boundfiles; createfresh static_build_v1/work; verifyqueueclear/availablememory. Use exactcommand; noDPIrecompile or testchanges."
+  ],
+  "after_build": [
+    "Preserve fullxvlog/xelablogs, guard/timeline/policies, versions, sourceclosure andactualsnapshotmanifest/binaryhash.",
+    "Returnsnapshotpacket toAstra before planned traffic-only4GiB/90s. Static success doesnotreleaseruntime oraccepttraffic."
+  ],
+  "not_released": [
+    "idle/runtime",
+    "traffic/runtime",
+    "secondbuild",
+    "numericRTL",
+    "matchedRSScomparison",
+    "wait/task/fork/predicatechanges",
+    "retry/capexpansion"
+  ]
+}

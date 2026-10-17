@@ -1,0 +1,15 @@
+# F15修复与source冲突清理有限RTL出口
+
+M003/SM003/E003/R003；回复bootstrap-source-guard-prototype-review-20261012。bootstrap_source_guard_rtl_07为PASS_SCOPED_RTL_F15_SOURCE_GUARD。申请F15按本次冻结原型动态范围验收，生产source保护和C009整体仍不关闭。
+
+producer_ready同时排除已锁存action_safe_consumed及当前真实LAC1末拍消费且完整安全绑定的组合判定；释放分支也排除当前producer握手。终态后producer持续valid不会被接受，旧已接收producer不被清除。TB从安全末拍当拍持续valid，physical_safe暂为0保持12周期后恢复，再保持valid12周期；核无producer准入/AR、无producer_active且guard_active=0。另一匹配proof/action在残余1拍R债、producer completion末1/2拍和安全LAC1消费交错时，旧producer尾拍和R仍正常消费，之后仍等待真实physical_safe才释放。后继普通action重新snapshot。错completion、合法非终态、LOCAL_REJECT+OK、prestart cancel与旧断言保持。
+
+另修共同门户入口的source冲突活性：启用guard时，冲突请求不再永久压低request_ready，而是唯一接受并返回完整绑定E_BUFFER、drained=false、保持旧scope；不消耗physical observation或修改owner/typed。源INVALIDATE、epoch替换、同role alias、新identity均实测拒绝，未知不同role采用有限单base的保守拒绝，不宣称13BO地址alias映射完成。held response12周期内容/旧source/编号/写计数稳定。正常非重叠target BEGIN后真实4096B部分store、末B被保持，source INVALIDATE拒绝消费后仍能提交旧END；真实末B退休后END返回原E_PROTOCOL/detail首错、issued/observed4096及drained，task5恰退休一次，再允许非重叠target INVALIDATE清理。无撤valid、复位或清队列代替拒绝。
+
+
+来源保护生产链仍待真实接线。
+
+
+---
+Published: 2026-10-12T14:57:58.513058+00:00
+Publication: P4c973b6b2f48476c829a5f8b6f555fb9

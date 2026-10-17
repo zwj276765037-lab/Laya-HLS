@@ -1,0 +1,1085 @@
+--- a/config/c1_candidate.json
++++ b/config/c1_candidate.json
+@@ -2,7 +2,10 @@
+   "design_sha256": "c8f03e7adaf09ad007e876f502e53a4ee54cfe7278f43d6e55abc1a1b688c294",
+   "flow": {
+     "credit_reuse_after_commit_edges": 2,
++    "current_delay_representation": "issue_evaluated_1299bit_result_plus_256bit_trace_plus_valid_in_18_stages_REVIEW_BLOCKER",
++    "current_full_result_delay_bits_outside_result_ring": 28008,
+     "error_key_bits": 28,
++    "fixed_return_live_hardware_proved": false,
+     "issue_requires_atomic_result_and_possible_trace_reservation": true,
+     "result_candidate_register_bits": 83264,
+     "result_payload_bits": 1299,
+@@ -64,14 +67,16 @@
+     ],
+     "wrapper_latency_and_II": "UNMEASURED"
+   },
+-  "schema": "q8_c1_isolated_source_candidate_v1",
++  "schema": "q8_c1_write_response_source_candidate_v1",
+   "source_policy": {
+     "c1_physical_fit_proved": false,
++    "compiler_or_eda_executed": false,
+     "old_v3_changed": false,
+     "old_ws_effective_capacity_proved": false,
+     "production_fe067_changed": false,
+     "runner_execution_released": false,
+     "source_and_test_execution_released": false,
++    "source_review_accepted": false,
+     "strict_fp_compile_flags": [
+       "-std=c++17",
+       "-O2",
+@@ -80,6 +85,21 @@
+       "-frounding-math"
+     ]
+   },
+-  "source_preparation_gate_sha256": "571debe27dcf2c90376ee2d22ba471f98be28d9e422e4197ab820dcd6f460e7e",
+-  "status": "SOURCE_ONLY_UNREVIEWED_NO_COMPILER_OR_EDA_EXECUTION"
++  "source_preparation_gate_sha256": "97c82f40f375ad8d3495ec57bd9f254442855cff2d5454f41386c2d54b29eb06",
++  "status": "SOURCE_ONLY_UNREVIEWED_FULL_RESULT_DELAY_GAP_NO_EXECUTION",
++  "write_response_source_intent": {
++    "ack_bits": 37,
++    "command_bits": 618,
++    "fifo_depth_each": 1,
++    "generated_dataflow_actor_independence": "UNPROVEN",
++    "packet_registers": 3,
++    "packet_storage_bits": 3819,
++    "physical_b_aggregation": "UNPROVEN",
++    "response_order": "write_request_all_beats_write_response_ack",
++    "write_owners": [
++      "out0",
++      "out1",
++      "observed"
++    ]
++  }
+ }
+--- /dev/null
++++ b/source/c1_write_response.h
+@@ -0,0 +1,224 @@
++#pragma once
++
++// Source contract for three independent bounded write-response owners.
++// The installed Vitis synthesis and C simulation headers define burst_maxi.
++#include "ap_int.h"
++#include "hls_burst_maxi.h"
++#include "hls_stream.h"
++#include <cstddef>
++#include <cstdint>
++#ifndef __SYNTHESIS__
++#include <mutex>
++#endif
++
++namespace c1_write {
++constexpr unsigned kCommandBits = 618;
++constexpr unsigned kAckBits = 37;
++constexpr unsigned kPayloadWords = 16;
++constexpr unsigned kCommandFifoDepth = 1;
++constexpr unsigned kAckFifoDepth = 1;
++constexpr unsigned kPorts = 3;
++constexpr unsigned kPacketStorageBits =
++    kPorts * (kCommandBits * (kCommandFifoDepth + 1) +
++              kAckBits * kAckFifoDepth);
++static_assert(kCommandBits == 64 + 5 + 3 + 2 + 32 + 512,
++              "packed command width changed");
++static_assert(kAckBits == 3 + 2 + 32, "packed acknowledgment width changed");
++static_assert(kPacketStorageBits == 3819,
++              "three FIFO pairs and three packet registers changed");
++
++enum Kind : uint8_t {
++  QUANT_Q = 0, QUANT_SCALE = 1, GROUP_TRACE = 2,
++  FINAL_OUTPUT = 3, REPORT = 4, EOS = 7
++};
++
++// LSB first: offset[63:0], count[68:64], kind[71:69], slot[73:72],
++// sequence[105:74], payload[617:106]. count=0 is reserved for EOS.
++struct Command {
++  ap_uint<64> word_offset;
++  ap_uint<5> count;
++  ap_uint<3> kind;
++  ap_uint<2> trace_slot;
++  ap_uint<32> sequence;
++  ap_uint<512> payload;
++};
++struct Ack {
++  ap_uint<3> kind;
++  ap_uint<2> trace_slot;
++  ap_uint<32> sequence;
++};
++using CommandWord = ap_uint<kCommandBits>;
++using AckWord = ap_uint<kAckBits>;
++using CommandStream = hls::stream<CommandWord>;
++using AckStream = hls::stream<AckWord>;
++
++inline CommandWord pack(const Command& c) {
++  CommandWord raw = 0;
++  raw.range(63, 0) = c.word_offset;
++  raw.range(68, 64) = c.count;
++  raw.range(71, 69) = c.kind;
++  raw.range(73, 72) = c.trace_slot;
++  raw.range(105, 74) = c.sequence;
++  raw.range(617, 106) = c.payload;
++  return raw;
++}
++inline Command unpack(CommandWord raw) {
++  Command c = {};
++  c.word_offset = raw.range(63, 0);
++  c.count = raw.range(68, 64);
++  c.kind = raw.range(71, 69);
++  c.trace_slot = raw.range(73, 72);
++  c.sequence = raw.range(105, 74);
++  c.payload = raw.range(617, 106);
++  return c;
++}
++inline AckWord pack(const Ack& a) {
++  AckWord raw = 0;
++  raw.range(2, 0) = a.kind;
++  raw.range(4, 3) = a.trace_slot;
++  raw.range(36, 5) = a.sequence;
++  return raw;
++}
++inline Ack unpack(AckWord raw) {
++  Ack a = {};
++  a.kind = raw.range(2, 0);
++  a.trace_slot = raw.range(4, 3);
++  a.sequence = raw.range(36, 5);
++  return a;
++}
++inline bool valid(const Command& c, bool observed_port) {
++  if (c.kind == EOS)
++    return c.count == 0 && c.trace_slot == 0;
++  if (c.count == 0 || c.count > kPayloadWords) return false;
++  if (!observed_port) return c.kind == FINAL_OUTPUT && c.trace_slot == 0 &&
++                            c.count == 1;
++  if (c.kind == QUANT_Q || c.kind == QUANT_SCALE || c.kind == REPORT)
++    return c.trace_slot == 0;
++  return c.kind == GROUP_TRACE && c.count == 8;
++}
++inline bool matches(const Ack& a, const Command& c) {
++  return a.kind == c.kind && a.trace_slot == c.trace_slot &&
++         a.sequence == c.sequence;
++}
++
++// Core-side one-debt ledger. The at-edge snapshot prohibits immediate reuse
++// of credit released by an acknowledgment in this same logical edge.
++struct Credit {
++  bool unsettled;
++  bool free_at_edge;
++  bool stopped;
++  ap_uint<32> next_sequence;
++  Command expected;
++  void reset_quiescent() {
++    unsettled = false;
++    free_at_edge = false;
++    stopped = false;
++    next_sequence = 0;
++    expected = {};
++  }
++  void start_edge() { free_at_edge = !unsettled && !stopped; }
++  bool poll(AckStream& acks, bool& got, Ack& received) {
++    got = false;
++    AckWord raw;
++    if (!acks.read_nb(raw)) return true;
++    received = unpack(raw);
++    got = true;
++    if (!unsettled || !matches(received, expected)) {
++      stopped = true;
++      return false;
++    }
++    unsettled = false;
++    return true;
++  }
++  bool submit(CommandStream& commands, Command command, bool observed_port) {
++    if (!free_at_edge || unsettled || stopped ||
++        next_sequence == 0xffffffffu || !valid(command, observed_port))
++      return false;
++    command.sequence = next_sequence;
++    if (!commands.write_nb(pack(command))) return false;
++    expected = command;
++    unsettled = true;
++    free_at_edge = false;
++    next_sequence = next_sequence + 1;
++    return true;
++  }
++  bool drained() const { return !unsettled && !stopped; }
++};
++
++#ifndef __SYNTHESIS__
++// The vendor CPU model stores all pointer records in one std::map. Guard
++// calls from the three host actor threads; this is not a hardware mutex.
++inline std::mutex& cpu_maxi_mutex() {
++  static std::mutex lock;
++  return lock;
++}
++#endif
++
++// Exactly one packet register per actor. This is the only owner of its port.
++// write_response returns only after the logical burst response is consumed;
++// physical split-B aggregation still needs generated RTL proof.
++inline void writer(hls::burst_maxi<uint32_t>& port, CommandStream& commands,
++                   AckStream& acknowledgments, bool observed_port) {
++#pragma HLS INLINE off
++  while (true) {
++    CommandWord packet = commands.read();
++    const Command c = unpack(packet);
++    if (!valid(c, observed_port)) {
++#ifndef __SYNTHESIS__
++      __builtin_trap();
++#endif
++      while (true) {}  // verification failure; never grant credit
++    }
++    if (c.kind == EOS) {
++      acknowledgments.write(pack(Ack{c.kind, c.trace_slot, c.sequence}));
++      break;
++    }
++#ifndef __SYNTHESIS__
++    {
++      std::lock_guard<std::mutex> lock(cpu_maxi_mutex());
++#endif
++    port.write_request(static_cast<size_t>(c.word_offset),
++                       static_cast<unsigned>(c.count));
++#ifndef __SYNTHESIS__
++    }
++#endif
++    for (unsigned i = 0; i < static_cast<unsigned>(c.count); ++i) {
++#pragma HLS PIPELINE II=1
++      const uint32_t value = static_cast<uint32_t>(
++          c.payload.range(i * 32 + 31, i * 32));
++#ifndef __SYNTHESIS__
++      {
++        std::lock_guard<std::mutex> lock(cpu_maxi_mutex());
++#endif
++      port.write(value, ap_int<4>(-1));
++#ifndef __SYNTHESIS__
++      }
++#endif
++    }
++#ifndef __SYNTHESIS__
++    {
++      std::lock_guard<std::mutex> lock(cpu_maxi_mutex());
++#endif
++    port.write_response();
++#ifndef __SYNTHESIS__
++    }
++#endif
++    acknowledgments.write(pack(Ack{c.kind, c.trace_slot, c.sequence}));
++  }
++}
++inline void write_out0(hls::burst_maxi<uint32_t>& port,
++                       CommandStream& commands, AckStream& acks) {
++#pragma HLS INLINE off
++  writer(port, commands, acks, false);
++}
++inline void write_out1(hls::burst_maxi<uint32_t>& port,
++                       CommandStream& commands, AckStream& acks) {
++#pragma HLS INLINE off
++  writer(port, commands, acks, false);
++}
++inline void write_observed(hls::burst_maxi<uint32_t>& port,
++                           CommandStream& commands, AckStream& acks) {
++#pragma HLS INLINE off
++  writer(port, commands, acks, true);
++}
++}  // namespace c1_write
+--- /dev/null
++++ b/source/c1_write_router.h
+@@ -0,0 +1,67 @@
++#pragma once
++
++#include "c1_write_response.h"
++
++namespace c1_write {
++// The core owns exactly one expected token and one debt bit per physical port.
++// It never accesses a burst_maxi object. The three writers are the sole owners.
++enum Port : uint8_t { OUT0 = 0, OUT1 = 1, OBSERVED = 2 };
++
++struct Router {
++  CommandStream& out0_commands;
++  CommandStream& out1_commands;
++  CommandStream& observed_commands;
++  AckStream& out0_acks;
++  AckStream& out1_acks;
++  AckStream& observed_acks;
++  Credit out0;
++  Credit out1;
++  Credit observed;
++  bool invalid;
++
++  Router(CommandStream& o0c, CommandStream& o1c, CommandStream& obc,
++         AckStream& o0a, AckStream& o1a, AckStream& oba)
++      : out0_commands(o0c), out1_commands(o1c), observed_commands(obc),
++        out0_acks(o0a), out1_acks(o1a), observed_acks(oba), invalid(false) {
++    out0.reset_quiescent();
++    out1.reset_quiescent();
++    observed.reset_quiescent();
++  }
++  Credit& credit(Port port) {
++    return port == OUT0 ? out0 : port == OUT1 ? out1 : observed;
++  }
++  CommandStream& commands(Port port) {
++    return port == OUT0 ? out0_commands :
++           port == OUT1 ? out1_commands : observed_commands;
++  }
++  // One logical edge. All admission snapshots precede any acknowledgment.
++  bool edge(bool& observed_got, Ack& observed_ack) {
++    out0.start_edge(); out1.start_edge(); observed.start_edge();
++    bool got = false; Ack ignored = {};
++    if (!out0.poll(out0_acks, got, ignored) ||
++        !out1.poll(out1_acks, got, ignored) ||
++        !observed.poll(observed_acks, observed_got, observed_ack))
++      invalid = true;
++    return !invalid;
++  }
++  bool submit(Port port, Command command) {
++    return !invalid && credit(port).submit(commands(port), command,
++                                            port == OBSERVED);
++  }
++  bool drained() const {
++    return !invalid && out0.drained() && out1.drained() &&
++           observed.drained();
++  }
++  // Used only outside the fixed-return interval: quant trace, final output,
++  // report and EOS. The live result interval uses edge/submit without wait.
++  bool send_and_wait(Port port, Command command) {
++    bool submitted = false;
++    while (true) {
++      bool got = false; Ack ack = {};
++      if (!edge(got, ack)) return false;
++      if (!submitted) submitted = submit(port, command);
++      else if (credit(port).drained()) return true;
++    }
++  }
++};
++}  // namespace c1_write
+--- a/source/design.md
++++ b/source/design.md
+@@ -53,3 +53,13 @@
+ The prior conditional oneDSP/product plus64restoreFMULx3DSP and32FADDx2DSP remains1280DSP; adding8quantFMUL and old29other blocks gives the provisional1333 only under those coefficients. Adapter bit logic, div127,half conversion,registers,muxes,bias route and any changed FP mapping remain extra measured costs. Do not increase32channels or inherit the old41DSP top count as a C1 budget. Record Q payload, trace payload, A slots, tree registers, product registers and32PS/32bad banks explicitly. No shell fit or50ms claim: even ideal same-geometry B1Q8 is about307ms, serial8lane quant scans about37.11ms and currentout0 service lower bound224.242ms at150MHz.
+ 
+ The first delivery is source-only: complete candidate diff/config, dependency and instance-intent maps, exact CPU reference bindings, half65536pattern and INT8-extreme test definitions, R0 finite-table regressions, independent queue/rank/credit ledger sources, actual-wrapper streaming probe source, and frozen full-K/N ACT N2 plus Scorer distinct-valid-row candidates. Old accepted runs are not repeated. Subsequent order is source review → narrowly budgeted new-identity arithmetic/flow checks and streaming latency characterization → revised measured schedule/source → selected CPUtop validation → separately gated HLS/RTL/OOC. Each later execution requires actual source review and root's single heavy slot. Nothing here releases any such run or upgrades productionfe067.
++
++## Additive write-response source mapping (unreviewed)
++
++The additive [write-response authority](../../../../../results/attention_rtl_repair_20261008/reviewer_q8_c1_explicit_write_response_source_preparation_release.json) is SHA256 `97c82f40f375ad8d3495ec57bd9f254442855cff2d5454f41386c2d54b29eb06`; the exact fourteen-file prior candidate [preimage manifest](../evidence/preimage_manifest.json) is SHA256 `c0a3911f34df3f341cd52c79b98b79061b0dcf916ede12c4010b862090b30cdf`. This sibling preserves the old candidate and accepted v3. The additive gate changes only the three write argument types to `hls::burst_maxi<uint32_t>` and their internal paths; the six read argument types, bundle names, arithmetic, and status ABI stay source-identical or source-equivalent, pending review.
++
++`c1_write_response.h` defines one 618-bit command and 37-bit acknowledgment per port, FIFO depth one, one actor-held command register per port, and `write_request` → all data beats → `write_response` → matched acknowledgment. `c1_write_router.h` tracks one unsettled token per port and snapshots credit before polling acknowledgments, so a B-side completion cannot grant same-edge replacement credit. The top in `q8_joint_tm4tn8.cpp` creates three independent writer actors with DATAFLOW intent. The CPU-only thread bridge uses the installed vendor model and a host mutex because that model shares one global pointer-record map; it does not model physical B timing.
++
++The live linear event loop reserves one result slot and, when selected, one trace slot before issue. It walks m0 → g → tile without bypassing a blocked tile, uses a fixed eighteen-edge source delay, returns to the reserved 1299-bit result slot without writer wait, commits oldest RETURNED data to PS/lane_bad and error counters, and waits for matched GROUP_TRACE responses before freeing trace payload. It drains all non-report responses before building the header, waits for the report response, then sends EOS to all three actors. The dormant cooperative writer model in `tb/test_c1_write_response_model.cpp` describes AW/W/B stalls and split responses without asserting vendor-model B behavior. The top caller binding is `tb/c1_top_call_binding.h`.
++
++The fixed delay currently uses `C1Flight flight[18]` containing a full 1299-bit result, 256-bit trace payload and valid bit at every stage: **28,008 additional logical bits** beyond the 83,264-bit result ring. `evaluate_c1_return` computes that payload at issue before this delay. This is an explicit source feasibility gap against the no-hidden-duplicate-result-queues budget and the intended measured bank/FP service schedule. The source does not prove a physical one-cycle bank return, 18-cycle arithmetic return, service II, or the no-duplicate-queue mapping. Astra must resolve this representation before any C1 execution release. The command FIFO/register/ack storage adds 3,819 bits; the trace payload/state/tag adds at least 1,104 bits, before pointers and control. These are logical source counts, not mapped resources.
+--- a/source/q8_joint_tm4tn8.cpp
++++ b/source/q8_joint_tm4tn8.cpp
+@@ -2,11 +2,15 @@
+ #include "q8_joint_abi.h"
+ #include "c1_arithmetic.h"
+ #include "c1_flow.h"
++#include "c1_write_router.h"
+ #include "laya_model_layout_generated.h"
+ 
+ #include <cmath>
+ #include <cstdint>
+ #include <cstring>
++#ifndef __SYNTHESIS__
++#include <thread>
++#endif
+ 
+ #pragma STDC FP_CONTRACT OFF
+ 
+@@ -214,7 +218,7 @@
+   return base % align == 0 && span >= need && base <= UINT64_MAX - span;
+ }
+ 
+-void report(uint32_t* observed, const Descriptor& d, const State& st,
++void build_report(uint32_t observed[O_HEADER_WORDS], const Descriptor& d, const State& st,
+             Counts& c, uint32_t status, uint32_t error_detail,
+             uint64_t bad_element, uint32_t done_task, uint32_t done_elements,
+             uint32_t done_unit, uint32_t quant_done, uint32_t quant_status,
+@@ -392,23 +396,49 @@
+   }
+   return flight;
+ }
++bool send_word(c1_write::Router& router, c1_write::Port port,
++               c1_write::Kind kind, uint64_t word_offset, uint32_t value) {
++  c1_write::Command command = {};
++  command.word_offset = word_offset;
++  command.count = 1;
++  command.kind = kind;
++  command.payload.range(31, 0) = value;
++  return router.send_and_wait(port, command);
++}
++
++bool send_report(c1_write::Router& router,
++                 const uint32_t header[O_HEADER_WORDS]) {
++  for (unsigned start = 0; start < O_HEADER_WORDS; start += 16) {
++    c1_write::Command command = {};
++    command.word_offset = start;
++    command.count = O_HEADER_WORDS - start < 16 ? O_HEADER_WORDS - start : 16;
++    command.kind = c1_write::REPORT;
++    for (unsigned j = 0; j < unsigned(command.count); ++j)
++      command.payload.range(j * 32 + 31, j * 32) = header[start + j];
++    if (!router.send_and_wait(c1_write::OBSERVED, command)) return false;
++  }
++  return true;
++}
++
++bool send_eos(c1_write::Router& router, c1_write::Port port) {
++  c1_write::Command command = {};
++  command.kind = c1_write::EOS;
++  return router.send_and_wait(port, command);
++}
++
+ }  // namespace
+ 
+-extern "C" void q8_joint_tm4tn8(
++void run_c1_core(
+     const uint32_t* descriptor, const ap_uint<512>* w_q0,
+     const ap_uint<512>* w_q1, const ap_uint<512>* w_scale,
+     const uint32_t* aux, const ap_uint<512>* activation,
+-    uint32_t* out0, uint32_t* out1, uint32_t* observed) {
+-#pragma HLS INTERFACE m_axi port=descriptor offset=slave bundle=gmem_descriptor max_read_burst_length=16 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=w_q0 offset=slave bundle=gmem_w_q0 max_read_burst_length=16 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=w_q1 offset=slave bundle=gmem_w_q1 max_read_burst_length=16 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=w_scale offset=slave bundle=gmem_w_scale max_read_burst_length=16 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=aux offset=slave bundle=gmem_aux max_read_burst_length=16 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=activation offset=slave bundle=gmem_activation max_read_burst_length=16 num_read_outstanding=1
+-#pragma HLS INTERFACE m_axi port=out0 offset=slave bundle=gmem_out0 max_write_burst_length=16 num_write_outstanding=1
+-#pragma HLS INTERFACE m_axi port=out1 offset=slave bundle=gmem_out1 max_write_burst_length=16 num_write_outstanding=1
+-#pragma HLS INTERFACE m_axi port=observed offset=slave bundle=gmem_observed max_write_burst_length=16 num_write_outstanding=1
+-#pragma HLS INTERFACE s_axilite port=return bundle=control
++    c1_write::CommandStream& out0_commands,
++    c1_write::CommandStream& out1_commands,
++    c1_write::CommandStream& observed_commands,
++    c1_write::AckStream& out0_acks,
++    c1_write::AckStream& out1_acks,
++    c1_write::AckStream& observed_acks) {
++#pragma HLS INLINE off
+ 
+   static State st;
+ #ifdef __SYNTHESIS__
+@@ -437,6 +467,8 @@
+ #pragma HLS bind_storage variable=bias_bits type=ram_2p impl=bram
+ 
+   Counts c;
++  c1_write::Router router(out0_commands, out1_commands, observed_commands,
++                          out0_acks, out1_acks, observed_acks);
+   uint32_t words[kDescriptorWords];
+   for (unsigned i = 0; i < kDescriptorWords; ++i) words[i] = descriptor[i];
+   bytes(c, P_DESCRIPTOR, kDescriptorWords * 4);
+@@ -730,8 +762,10 @@
+           for (unsigned g = 0; g < G; ++g) {
+             const ap_uint<256> packed = aq[r % 4][(r / 4) * 128 + g];
+             for (unsigned j = 0; j < 8; ++j) {
+-              observed[kTraceQWord + (r * G + g) * 8 + j] =
+-                  uint32_t(packed.range(j * 32 + 31, j * 32));
++              if (!send_word(router, c1_write::OBSERVED, c1_write::QUANT_Q,
++                             kTraceQWord + (r * G + g) * 8 + j,
++                             uint32_t(packed.range(j * 32 + 31, j * 32))))
++                return;
+               ++c.trace_words;
+             }
+           }
+@@ -743,7 +777,10 @@
+             const unsigned r1 = (idx + 1) / G, g1 = (idx + 1) % G;
+             hi = as[r1 % 4][(r1 / 4) * 128 + g1];
+           }
+-          observed[kTraceScaleWord + idx / 2] = lo | (hi << 16);
++          if (!send_word(router, c1_write::OBSERVED,
++                         c1_write::QUANT_SCALE,
++                         kTraceScaleWord + idx / 2, lo | (hi << 16)))
++            return;
+           ++c.trace_words;
+         }
+       }
+@@ -763,53 +800,159 @@
+ #pragma HLS bind_storage variable=lane_bad type=ram_2p impl=bram
+         for (unsigned tile = 0; tile < T; ++tile)
+           for (unsigned bank = 0; bank < 32; ++bank) lane_bad[bank][tile] = false;
+-        for (unsigned g = 0; g < G; ++g)
+-          for (unsigned tile = 0; tile < T; ++tile) {
+-            ++c.issued;
+-            for (unsigned rr = 0; rr < 4; ++rr) {
++        // All result returns advance at their reserved fixed source edge.
++        // The return path below has no stream or AXI wait. Q64 and D4 only
++        // request storage/credit; the physical L_return=18/F=21 needs proof.
++        c1::ResultRing results = {};
++        c1::TraceRing traces = {};
++        c1::TileHazards hazards = {};
++        results.reset_metadata(); traces.reset_metadata(); hazards.reset_metadata();
++        c1::ASlot a_slots[2] = {};
++        C1Flight flight[kC1FlightStages + 1] = {};
++        const unsigned total_vectors = G * T;
++        unsigned issued_here = 0, retired_here = 0;
++        unsigned next_g = 0, next_tile = 0;
++        uint32_t edge = 0;
++        while (issued_here != total_vectors || retired_here != total_vectors ||
++               traces.free_count != c1::kTraceSlots ||
++               !router.observed.drained()) {
++          results.start_edge(); traces.start_edge();
++          bool observed_got = false;
++          c1_write::Ack observed_ack = {};
++          if (!router.edge(observed_got, observed_ack)) return;
++          if (observed_got) {
++            if (observed_ack.kind != c1_write::GROUP_TRACE ||
++                observed_ack.trace_slot != traces.drain_head ||
++                !traces.retire_head_after_b()) return;
++          }
++          if (traces.head_canceled() && !traces.retire_head_after_b()) return;
++
++          // Ordered physical PS/lane_bad commit. A result returned at this
++          // edge is not visible to this pre-return commit attempt.
++          c1::ResultPayload committed = {};
++          if (results.can_commit()) {
++            if (!results.commit_oldest(committed)) return;
++            const unsigned tile = unsigned(committed.tile);
++            for (unsigned bank = 0; bank < 32; ++bank) {
+ #pragma HLS UNROLL
+-              const unsigned r = m0 + rr;
+-              if (r >= d.rows) continue;
+-              const ap_uint<256> av = aq[r % 4][(r / 4) * 128 + g];
+-              const uint32_t sa_raw = c1::half_to_f32_bits(as[r % 4][(r / 4) * 128 + g]);
++              if (committed.success_mask[bank])
++                ps[bank][tile] = c1::f32(uint32_t(committed.next_ps[bank]));
++              if (committed.failure_mask[bank]) lane_bad[bank][tile] = true;
++            }
++            c.macs += uint64_t(unsigned(committed.active_dot_count)) * 32;
++            ++c.retired; ++retired_here;
++            if (committed.error_valid &&
++                uint32_t(committed.error_key) < first_rank) {
++              first_rank = uint32_t(committed.error_key);
++              bad_element = uint64_t(committed.error_bad_element);
++            }
++            if (committed.trace_reserved) {
++              const unsigned rr = d.trace_row_local - m0;
++              const unsigned cc = d.trace_column % 8;
++              const bool success = committed.success_mask[rr * 8 + cc];
++              if (!traces.publish(committed.trace_slot, committed.seq,
++                                  success)) return;
++              if (success) {
++                c.trace_words += kTraceGroupWords;
++                ++c.trace_groups;
++              }
++            }
++            hazards.on_physical_commit(tile, edge);
++          }
++
++          // Fixed return: every accepted issue owns one arrival even if all
++          // lanes are masked or have failed. No writer/credit operation here.
++          const C1Flight returned = flight[kC1FlightStages];
++          if (returned.valid) {
++            if (!results.return_result(returned.result.result_slot,
++                                       returned.result)) return;
++            if (returned.result.trace_reserved &&
++                !traces.return_payload(returned.result.trace_slot,
++                                       returned.result.seq,
++                                       returned.trace_payload)) return;
++          }
++          for (unsigned stage = kC1FlightStages; stage > 0; --stage)
++            flight[stage] = flight[stage - 1];
++          flight[0] = {};
++
++          // A ready trace holds its full eight-word payload until the
++          // observed writer has returned its matched B-side acknowledgment.
++          if (traces.head_ready() && router.observed.free_at_edge) {
++            const ap_uint<2> slot = traces.drain_head;
++            const ap_uint<256> payload = traces.payload[slot];
++            c1_write::Command command = {};
++            command.kind = c1_write::GROUP_TRACE;
++            command.count = 8;
++            command.trace_slot = slot;
++            command.word_offset = kTraceGroupWord +
++                unsigned(payload.range(223, 192)) * kTraceGroupWords;
++            command.payload.range(255, 0) = payload;
++            if (router.submit(c1_write::OBSERVED, command)) {
++              ap_uint<256> copied = 0;
++              if (!traces.start_send(copied) || copied != payload) return;
++            }
++          }
++
++          if (issued_here < total_vectors &&
++              hazards.issue_ready(next_tile, edge) &&
++              results.can_reserve()) {
++            const bool trace_needed = d.flags &&
++                d.trace_row_local >= m0 && d.trace_row_local < m0 + 4 &&
++                d.trace_column / 8 == next_tile;
++            if (!trace_needed || traces.can_reserve()) {
++              ap_uint<6> result_slot = 0;
++              ap_uint<2> trace_slot = 0;
++              if (!results.reserve(result_slot)) return;
++              if (trace_needed &&
++                  !traces.reserve(ap_uint<17>(issued_here), trace_slot))
++                return;
++              if (next_tile == 0)
++                prepare_c1_a(a_slots[next_g & 1u], m0, next_g,
++                             d.rows, aq, as);
++              const c1::ASlot& a_slot = a_slots[next_g & 1u];
++              C1BankReturn read = {};
++              read.valid = true;
++              read.seq = issued_here;
++              read.m0 = m0;
++              read.g = next_g;
++              read.tile = next_tile;
++              read.result_slot = result_slot;
++              read.trace_reserved = trace_needed;
++              read.trace_slot = trace_slot;
++              for (unsigned rr = 0; rr < 4; ++rr) {
++#pragma HLS UNROLL
++                read.a[rr] = a_slot.data.range(rr * 288 + 255, rr * 288);
++                read.sa[rr] = uint16_t(a_slot.data.range(rr * 288 + 271,
++                                                          rr * 288 + 256));
++                for (unsigned cc = 0; cc < 8; ++cc) {
++#pragma HLS UNROLL
++                  const unsigned bank = rr * 8 + cc;
++                  const unsigned n = next_tile * 8 + cc;
++                  if (m0 + rr < d.rows && n < d.N)
++                    read.shape_mask[bank] = 1;
++                  if (lane_bad[bank][next_tile]) read.bad_mask[bank] = 1;
++                  read.old_ps[bank] = next_g == 0 ? 0 :
++                                           bits(ps[bank][next_tile]);
++                }
++              }
+               for (unsigned cc = 0; cc < 8; ++cc) {
+ #pragma HLS UNROLL
+-                const unsigned n = tile * 8 + cc;
+-                const unsigned bank = rr * 8 + cc;
+-                if (n >= d.N || lane_bad[bank][tile]) continue;
+-                const int32_t dot = c1::dot32(av, wq[cc][tile * G + g]);
+-                c.macs += 32;
+-                const uint32_t sw_raw = c1::half_to_f32_bits(ws[cc][tile * G + g]);
+-                const uint32_t old_raw = g == 0 ? 0 : bits(ps[bank][tile]);
+-                const c1::RestoreLane lane = c1::restore_lane(dot,sa_raw,sw_raw,old_raw,g==0);
+-                const unsigned phase = lane.phase;
+-                if (phase != 4) {
+-                  lane_bad[bank][tile] = true;
+-                  const uint64_t rank = uint32_t(c1::error_key(tile,r,cc,g,phase));
+-                  if (rank < first_rank) {
+-                    first_rank = rank;
+-                    bad_element = uint64_t(r) * 5248 * 128 + uint64_t(n) * 128 + g;
+-                  }
+-                  continue;
+-                }
+-                ps[bank][tile] = c1::f32(lane.next_raw);
+-                if (d.flags && r == d.trace_row_local && n == d.trace_column) {
+-                  const unsigned at = kTraceGroupWord + g * kTraceGroupWords;
+-                  observed[at + T_DOT] = uint32_t(dot);
+-                  observed[at + T_SA] = lane.sa_raw;
+-                  observed[at + T_SW] = lane.sw_raw;
+-                  observed[at + T_PRODUCT] = lane.product_raw;
+-                  observed[at + T_TERM] = lane.term_raw;
+-                  observed[at + T_PS] = lane.next_raw;
+-                  observed[at + T_GROUP] = g;
+-                  observed[at + T_VALID] = 1;
+-                  c.trace_words += kTraceGroupWords;
+-                  ++c.trace_groups;
+-                }
++                read.w[cc] = wq[cc][next_tile * G + next_g];
++                read.sw[cc] = ws[cc][next_tile * G + next_g];
+               }
++              flight[0] = evaluate_c1_return(read, d.rows, d.N, G,
++                  d.flags, d.trace_row_local, d.trace_column);
++              hazards.on_issue(next_tile);
++              ++c.issued; ++issued_here;
++              ++next_tile;
++              if (next_tile == T) { next_tile = 0; ++next_g; }
+             }
+-            ++c.retired;
+-          }
++          }
++          if (!results.conserved()) return;
++          ++edge;
++        }
++        if (!router.drained() || results.free_count != c1::kResultSlots)
++          return;
+         for (unsigned tile = 0; tile < T; ++tile)
+           for (unsigned rr = 0; rr < 4; ++rr) {
+             const unsigned r = m0 + rr;
+@@ -837,10 +980,21 @@
+                 const unsigned dim = n % 64;
+                 offset = (((((uint64_t(plane) * 2 + d.batch) * 8 + head / 2) *
+                             1024 + d.row0 + r) * 64 + dim) * 4);
+-                if (head % 2) { out1[(d.out1_base + offset) / 4] = value_raw; bytes(c, P_OUT1, 4); }
+-                else { out0[(d.out0_base + offset) / 4] = value_raw; bytes(c, P_OUT0, 4); }
++                if (head % 2) {
++                  if (!send_word(router, c1_write::OUT1,
++                                 c1_write::FINAL_OUTPUT,
++                                 (d.out1_base + offset) / 4, value_raw)) return;
++                  bytes(c, P_OUT1, 4);
++                } else {
++                  if (!send_word(router, c1_write::OUT0,
++                                 c1_write::FINAL_OUTPUT,
++                                 (d.out0_base + offset) / 4, value_raw)) return;
++                  bytes(c, P_OUT0, 4);
++                }
+               } else {
+-                out0[(d.out0_base + offset) / 4] = value_raw;
++                if (!send_word(router, c1_write::OUT0,
++                               c1_write::FINAL_OUTPUT,
++                               (d.out0_base + offset) / 4, value_raw)) return;
+                 bytes(c, P_OUT0, 4);
+               }
+               ++c.writes;
+@@ -865,7 +1019,77 @@
+       }
+     }
+   }
+-  report(observed, d, st, c, status, error_detail, bad_element,
+-         done_task, done_elements, done_unit, quant_done, quant_status,
+-         linear_started, load_started, error_phase);
+-}
++  // Every non-report logical write has a matched response before the header
++  // is constructed. The report's final response precedes EOS and top done.
++  if (!router.drained()) return;
++  uint32_t header[O_HEADER_WORDS];
++  build_report(header, d, st, c, status, error_detail, bad_element,
++               done_task, done_elements, done_unit, quant_done, quant_status,
++               linear_started, load_started, error_phase);
++  if (!send_report(router, header)) return;
++  if (!router.drained()) return;
++  if (!send_eos(router, c1_write::OUT0) ||
++      !send_eos(router, c1_write::OUT1) ||
++      !send_eos(router, c1_write::OBSERVED)) return;
++}
++
++// The only top-level master owners are the three command-scoped writer actors.
++// The C++ source expresses DATAFLOW intent; generated process/feedback structure
++// and physical B aggregation remain separate mandatory review gates.
++extern "C" void q8_joint_tm4tn8(
++    const uint32_t* descriptor, const ap_uint<512>* w_q0,
++    const ap_uint<512>* w_q1, const ap_uint<512>* w_scale,
++    const uint32_t* aux, const ap_uint<512>* activation,
++    hls::burst_maxi<uint32_t> out0,
++    hls::burst_maxi<uint32_t> out1,
++    hls::burst_maxi<uint32_t> observed) {
++#pragma HLS INTERFACE m_axi port=descriptor offset=slave bundle=gmem_descriptor max_read_burst_length=16 num_read_outstanding=1
++#pragma HLS INTERFACE m_axi port=w_q0 offset=slave bundle=gmem_w_q0 max_read_burst_length=16 num_read_outstanding=1
++#pragma HLS INTERFACE m_axi port=w_q1 offset=slave bundle=gmem_w_q1 max_read_burst_length=16 num_read_outstanding=1
++#pragma HLS INTERFACE m_axi port=w_scale offset=slave bundle=gmem_w_scale max_read_burst_length=16 num_read_outstanding=1
++#pragma HLS INTERFACE m_axi port=aux offset=slave bundle=gmem_aux max_read_burst_length=16 num_read_outstanding=1
++#pragma HLS INTERFACE m_axi port=activation offset=slave bundle=gmem_activation max_read_burst_length=16 num_read_outstanding=1
++#pragma HLS INTERFACE m_axi port=out0 offset=slave bundle=gmem_out0 max_write_burst_length=16 num_write_outstanding=1
++#pragma HLS INTERFACE m_axi port=out1 offset=slave bundle=gmem_out1 max_write_burst_length=16 num_write_outstanding=1
++#pragma HLS INTERFACE m_axi port=observed offset=slave bundle=gmem_observed max_write_burst_length=16 num_write_outstanding=1
++#pragma HLS INTERFACE s_axilite port=return bundle=control
++
++  c1_write::CommandStream out0_commands("out0_commands");
++  c1_write::CommandStream out1_commands("out1_commands");
++  c1_write::CommandStream observed_commands("observed_commands");
++  c1_write::AckStream out0_acks("out0_acks");
++  c1_write::AckStream out1_acks("out1_acks");
++  c1_write::AckStream observed_acks("observed_acks");
++#pragma HLS STREAM variable=out0_commands depth=1
++#pragma HLS STREAM variable=out1_commands depth=1
++#pragma HLS STREAM variable=observed_commands depth=1
++#pragma HLS STREAM variable=out0_acks depth=1
++#pragma HLS STREAM variable=out1_acks depth=1
++#pragma HLS STREAM variable=observed_acks depth=1
++#ifdef __SYNTHESIS__
++#pragma HLS DATAFLOW
++  run_c1_core(descriptor, w_q0, w_q1, w_scale, aux, activation,
++              out0_commands, out1_commands, observed_commands,
++              out0_acks, out1_acks, observed_acks);
++  c1_write::write_out0(out0, out0_commands, out0_acks);
++  c1_write::write_out1(out1, out1_commands, out1_acks);
++  c1_write::write_observed(observed, observed_commands, observed_acks);
++#else
++  // The host hls::stream implementation is thread-safe. The CPU burst_maxi
++  // record map is guarded inside each writer; this gives real concurrent
++  // actor calls in CSim, but its responses are immediate logical models.
++  std::thread writer0([&] {
++    c1_write::write_out0(out0, out0_commands, out0_acks);
++  });
++  std::thread writer1([&] {
++    c1_write::write_out1(out1, out1_commands, out1_acks);
++  });
++  std::thread writer_observed([&] {
++    c1_write::write_observed(observed, observed_commands, observed_acks);
++  });
++  run_c1_core(descriptor, w_q0, w_q1, w_scale, aux, activation,
++              out0_commands, out1_commands, observed_commands,
++              out0_acks, out1_acks, observed_acks);
++  writer0.join(); writer1.join(); writer_observed.join();
++#endif
++}
+--- a/source/q8_joint_tm4tn8.h
++++ b/source/q8_joint_tm4tn8.h
+@@ -2,6 +2,7 @@
+ 
+ #include <cstdint>
+ #include "ap_int.h"
++#include "hls_burst_maxi.h"
+ 
+ extern "C" void q8_joint_tm4tn8(
+     const uint32_t* descriptor,
+@@ -10,6 +11,6 @@
+     const ap_uint<512>* w_scale,
+     const uint32_t* aux,
+     const ap_uint<512>* activation,
+-    uint32_t* out0,
+-    uint32_t* out1,
+-    uint32_t* observed);
++    hls::burst_maxi<uint32_t> out0,
++    hls::burst_maxi<uint32_t> out1,
++    hls::burst_maxi<uint32_t> observed);
+--- a/source/results.md
++++ b/source/results.md
+@@ -1,5 +1,5 @@
+ # C1 candidate evidence status
+ 
+-2026-10-09. Source-preparation contract only; no C1 implementation or execution has completed. Candidate settings Q64/Dtrace4 and requested L_return18/F21 are design values, not hardware measurements. Conditional DSP1333 excludes newly measured adapter/control costs. Result registers83264bits and tree registers17696bits are explicit source budgets; physical mapping is unmeasured. Original R0 leaf finite acceptance does not establish streaming/atomic C1 behavior. Old Ws capacity proof is held; C1 source can proceed with complete logical geometry, while new C1 physical address proof remains later.
++2026-10-09. The isolated C1 write-response source candidate is integrated but unreviewed and uncompiled. Candidate settings Q64/Dtrace4 and requested L_return18/F21 are design values, not hardware measurements. Conditional DSP1333 excludes newly measured adapter/control costs. Result registers83264bits and tree registers17696bits are original explicit source budgets; physical mapping is unmeasured. The current full-result fixed-delay representation adds 28008 logical bits outside that result-ring budget. The three writer command FIFO/register/ack structures add 3819 logical bits, and four trace payload/state/tag slots add at least 1104 bits, before control. Source-stage arithmetic is evaluated at issue, so bank/FP latency and II are not established. This is a review gate, not an implementation success claim. Original R0 leaf finite acceptance does not establish streaming/atomic C1 behavior. Old Ws capacity proof is held; C1 physical address proof remains later.
+ 
+-Future source revisions must preserve exact accepted preimages and update a separate source packet. Functional CPU/RTL, HLS, OOC, placement/routing, frequency, fullmodel and board are all NOT_EXECUTED for this new identity.
++The source packet and exact diff live under this sibling root. The ABI header is unchanged from the archived prior candidate; the top declaration changes only three write-argument types to `hls::burst_maxi<uint32_t>`. The installed API provides `write_request`, `write`, and void `write_response`; physical split-B aggregation, generated DATAFLOW actor independence, bundle/CSR parity, payload RAM mapping, and final done-after-B are not evidenced by source alone. The dormant `test_c1_write_response_model.cpp` and `c1_top_call_binding.h` were written but not executed. Functional CPU/CSim/RTL, HLS, OOC, placement/routing, frequency, full model and board are all NOT_EXECUTED for this new identity. No source execution gate has been released.
+--- /dev/null
++++ b/tb/c1_top_call_binding.h
+@@ -0,0 +1,19 @@
++#pragma once
++
++// Dormant CPU caller binding. The vendor simulation constructor takes the
++// respective backing-memory pointer; it does not model physical B latency.
++#include "q8_joint_tm4tn8.h"
++
++inline void call_c1_candidate(const uint32_t* descriptor,
++                              const ap_uint<512>* w_q0,
++                              const ap_uint<512>* w_q1,
++                              const ap_uint<512>* w_scale,
++                              const uint32_t* aux,
++                              const ap_uint<512>* activation,
++                              uint32_t* out0, uint32_t* out1,
++                              uint32_t* observed) {
++  q8_joint_tm4tn8(descriptor, w_q0, w_q1, w_scale, aux, activation,
++                  hls::burst_maxi<uint32_t>(out0),
++                  hls::burst_maxi<uint32_t>(out1),
++                  hls::burst_maxi<uint32_t>(observed));
++}
+--- a/tb/prepare_c1_cpu.sh
++++ b/tb/prepare_c1_cpu.sh
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env bash
+ # Dormant source recipe. A later independent gate must authorize any compile/run.
+ set -euo pipefail
+-root=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1
++root=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1_write_response_v1
+ baseline=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline
+ hls_include=/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include
+ model_include="$baseline/build/model-attention-rtl-repair-20261008"
+@@ -10,8 +10,12 @@
+   exit 2
+ fi
+ mkdir -- "$1"
+-/usr/bin/g++ -std=c++17 -O2 -fno-fast-math -ffp-contract=off -frounding-math \
++/usr/bin/g++ -std=c++17 -O2 -fno-fast-math -ffp-contract=off -frounding-math -pthread \
+   -I"$hls_include" -I"$model_include" -I"$root/source" \
+   "$root/source/q8_joint_tm4tn8.cpp" "$root/tb/test_c1_contract.cpp" \
+   -o "$1/test_c1_contract" 2>&1 | tee "$1/compile.log"
++/usr/bin/g++ -std=c++17 -O2 -fno-fast-math -ffp-contract=off -frounding-math -pthread \
++  -I"$hls_include" -I"$root/source" \
++  "$root/tb/test_c1_write_response_model.cpp" \
++  -o "$1/test_c1_write_response_model" 2>&1 | tee "$1/model_compile.log"
+ printf '%s\n' 'SOURCE_RECIPE_ONLY: binary execution requires a later gate' > "$1/README.txt"
+--- /dev/null
++++ b/tb/test_c1_write_response_model.cpp
+@@ -0,0 +1,205 @@
++// Dormant cooperative actor-step model. This is logical/physical-stall test
++// source, not a claim that the vendor CPU header models real B timing.
++#include "c1_write_response.h"
++
++#include <cstdint>
++#include <stdexcept>
++#include <iostream>
++
++namespace {
++void require(bool good, const char* reason) {
++  if (!good) throw std::runtime_error(reason);
++}
++
++struct Stalls { bool aw_ready, w_ready, b_valid; };
++struct ModelWriter {
++  enum Stage { IDLE, AW, W, B, ACK, STOPPED } stage = IDLE;
++  c1_write::Command held = {};
++  uint64_t registered_base_bytes = 0;
++  unsigned sent = 0, beat_left = 0, physical_b = 0;
++  unsigned accepted_w = 0, emitted_ack = 0;
++  bool eos = false;
++
++  void step(c1_write::CommandStream& commands,
++            c1_write::AckStream& acknowledgments, Stalls stalls) {
++    switch (stage) {
++      case IDLE: {
++        c1_write::CommandWord raw;
++        if (!commands.read_nb(raw)) break;
++        held = c1_write::unpack(raw);
++        require(c1_write::valid(held, true), "invalid observed packet");
++        sent = 0;
++        eos = held.kind == c1_write::EOS;
++        stage = eos ? ACK : AW;
++        break;
++      }
++      case AW:
++        if (stalls.aw_ready) {
++          const uint64_t addr = registered_base_bytes +
++                                (uint64_t(held.word_offset) + sent) * 4;
++          const unsigned to_boundary = unsigned((4096 - (addr & 4095)) / 4);
++          require(to_boundary != 0, "unaligned registered physical base");
++          const unsigned unsent = unsigned(held.count) - sent;
++          beat_left = unsent < to_boundary ? unsent : to_boundary;
++          stage = W;
++        }
++        break;
++      case W:
++        if (stalls.w_ready) {
++          require(beat_left != 0, "extra W beat");
++          ++sent; ++accepted_w; --beat_left;
++          if (!beat_left) stage = B;
++        }
++        break;
++      case B:
++        if (stalls.b_valid) {
++          ++physical_b;
++          stage = sent == unsigned(held.count) ? ACK : AW;
++        }
++        break;
++      case ACK:
++        require(commands.size() <= 1 && acknowledgments.size() <= 1,
++                "model FIFO exceeded depth one");
++        if (acknowledgments.size() == 0) {
++          acknowledgments.write(c1_write::pack(
++              c1_write::Ack{held.kind, held.trace_slot, held.sequence}));
++          ++emitted_ack;
++          stage = eos ? STOPPED : IDLE;
++        }
++        break;
++      case STOPPED:
++        require(commands.size() == 0, "command after EOS");
++        break;
++    }
++  }
++};
++
++struct Rig {
++  c1_write::CommandStream commands;
++  c1_write::AckStream acks;
++  c1_write::Credit credit = {};
++  ModelWriter writer;
++  Rig(uint64_t registered_base = 0) {
++    credit.reset_quiescent();
++    writer.registered_base_bytes = registered_base;
++  }
++  c1_write::Command make(unsigned count, c1_write::Kind kind,
++                         uint64_t word_offset, unsigned slot = 0) {
++    c1_write::Command c = {};
++    c.count = count; c.kind = kind; c.word_offset = word_offset;
++    c.trace_slot = slot;
++    for (unsigned i = 0; i < count; ++i)
++      c.payload.range(i * 32 + 31, i * 32) = 0x51000000u | i;
++    return c;
++  }
++  void submit(c1_write::Command c) {
++    credit.start_edge();
++    require(credit.submit(commands, c, true), "command admission failed");
++    require(commands.size() == 1 && credit.unsettled,
++            "one command must own exactly one debt");
++  }
++  bool tick(Stalls stalls, bool poll_core) {
++    bool got = false; c1_write::Ack ack = {};
++    credit.start_edge();
++    if (poll_core) require(credit.poll(acks, got, ack), "unexpected acknowledgment");
++    writer.step(commands, acks, stalls);
++    require(commands.size() <= 1 && acks.size() <= 1,
++            "unbounded CPU stream masked finite channel");
++    return got;
++  }
++  void drain_after_stalls(unsigned expected_physical_b) {
++    bool received = false;
++    for (unsigned edge = 0; edge < 200; ++edge) {
++      // Independent AW/W and B stalls. Final-WLAST B is held for 11 edges.
++      const Stalls stalls{edge % 3 != 0, edge % 4 != 0,
++                          edge > 15 && edge % 5 != 0};
++      received |= tick(stalls, true);
++      if (received) break;
++      require(credit.unsettled, "credit freed before matched B");
++    }
++    require(received && writer.physical_b == expected_physical_b &&
++            credit.drained(), "all physical B must precede matched ACK");
++  }
++};
++
++void count_and_boundary_cases() {
++  for (unsigned count : {1u, 8u, 16u}) {
++    Rig rig;
++    const c1_write::Kind kind = count == 8 ? c1_write::GROUP_TRACE :
++                                 c1_write::REPORT;
++    rig.submit(rig.make(count, kind, 64, count == 8 ? 2 : 0));
++    rig.drain_after_stalls(1);
++    require(rig.writer.accepted_w == count && rig.writer.emitted_ack == 1,
++            "packet count or response mismatch");
++  }
++  Rig crossing(4092);  // Registered base makes a legal 16-word request split.
++  crossing.submit(crossing.make(16, c1_write::REPORT, 0));
++  crossing.drain_after_stalls(2);
++  require(crossing.writer.accepted_w == 16,
++          "4 KiB physical split lost a word");
++}
++
++void ack_backpressure_and_credit() {
++  Rig rig;
++  rig.submit(rig.make(8, c1_write::GROUP_TRACE, 2048, 1));
++  for (unsigned edge = 0; edge < 40; ++edge)
++    rig.tick({true, true, true}, false); // core deliberately holds ACK_READY low
++  require(rig.acks.size() == 1 && rig.credit.unsettled &&
++          rig.writer.stage == ModelWriter::IDLE && rig.writer.physical_b == 1,
++          "logical acknowledgment must remain pending under core stall");
++  rig.credit.start_edge();
++  bool got = false; c1_write::Ack ack = {};
++  require(rig.credit.poll(rig.acks, got, ack) && got && rig.credit.drained(),
++          "matched response was not consumed");
++  require(!rig.credit.submit(rig.commands,
++          rig.make(1, c1_write::QUANT_Q, 1), true),
++          "same-edge acknowledgment credit reused");
++  rig.submit(rig.make(1, c1_write::QUANT_Q, 1));
++  rig.drain_after_stalls(2);
++}
++
++void unmatched_token_and_quiescent_eos() {
++  Rig bad;
++  bad.submit(bad.make(1, c1_write::REPORT, 0));
++  bad.acks.write(c1_write::pack(c1_write::Ack{c1_write::FINAL_OUTPUT, 0, 0}));
++  bad.credit.start_edge();
++  bool got = false; c1_write::Ack ack = {};
++  require(!bad.credit.poll(bad.acks, got, ack) && bad.credit.stopped &&
++          bad.credit.unsettled, "unexpected token granted credit");
++
++  Rig clean;
++  clean.submit(clean.make(1, c1_write::REPORT, 0));
++  clean.drain_after_stalls(1);
++  require(clean.credit.drained() && clean.acks.size() == 0,
++          "m0 boundary has response debt");
++  clean.credit.reset_quiescent(); // warm metadata reset only after drain
++  clean.submit(clean.make(0, c1_write::EOS, 0));
++  clean.drain_after_stalls(1); // physical count remains prior one; EOS adds none
++  require(clean.writer.stage == ModelWriter::STOPPED &&
++          clean.writer.physical_b == 1, "EOS had a physical write");
++}
++
++void canceled_trace_has_no_command() {
++  Rig rig;
++  // A failed result marks its reserved trace CANCELED and retires the slot
++  // locally; the core must never submit a GROUP_TRACE command for it.
++  require(rig.commands.size() == 0 && rig.writer.accepted_w == 0 &&
++          rig.writer.physical_b == 0,
++          "canceled trace created physical debt");
++}
++}  // namespace
++
++int main() {
++  try {
++    count_and_boundary_cases();
++    ack_backpressure_and_credit();
++    unmatched_token_and_quiescent_eos();
++    canceled_trace_has_no_command();
++    std::cout << "C1_WRITE_RESPONSE_MODEL_SOURCE_PASS counts=1,8,16"
++                 " split4k=2b token_guard=1\n";
++    return 0;
++  } catch (const std::exception& e) {
++    std::cerr << "C1_WRITE_RESPONSE_MODEL_SOURCE_FAIL " << e.what() << '\n';
++    return 1;
++  }
++}

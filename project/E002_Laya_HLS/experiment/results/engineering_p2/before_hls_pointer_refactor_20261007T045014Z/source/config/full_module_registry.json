@@ -1,0 +1,30 @@
+{
+  "schema": "laya_p2_f0_module_registry_v1",
+  "target": "laya_full",
+  "top": "laya_typed_q8_forward",
+  "implementation_state": "implemented_pending_final_validation",
+  "phase_baseline": {
+    "cpu": "unverified_current_build",
+    "csim": "unverified_current_build",
+    "csynth": "unverified_current_build",
+    "rtl_cosim": "unverified_current_build",
+    "platform": "unverified_current_build"
+  },
+  "modules": {
+    "top": ["hls/laya_forward_full.cpp"],
+    "common": ["hls/common/laya_numeric.cpp", "hls/common/laya_tasks.cpp"],
+    "kernel_wrapper": ["hls/platform/full_kernel_wrapper.cpp", "hls/common/laya_full_io.cpp"],
+    "forward_controller": ["hls/control/full_forward_controller.cpp", "hls/operators/full_tasks.cpp"],
+    "memory_map": ["hls/common/laya_memory_map.cpp", "hls/common/laya_full_memory.cpp"],
+    "hbm_loader_and_cache": ["hls/memory/full_loader.cpp", "hls/common/laya_full_owner.cpp"],
+    "embedding_engine": ["hls/operators/embedding_full_compute.cpp", "hls/operators/full_tasks_front.cpp"],
+    "layernorm_engine": ["hls/operators/layernorm_compute.cpp", "hls/operators/full_tasks_front.cpp"],
+    "activation_quantizer": ["hls/operators/activation_quantizer_compute.cpp", "hls/operators/full_tasks_front.cpp"],
+    "q8_linear_and_restore": ["hls/operators/q8_linear_compute.cpp", "hls/operators/full_tasks_front.cpp"],
+    "rope_and_mask": ["hls/operators/rope_full_compute.cpp", "hls/operators/full_tasks_attention.cpp"],
+    "attention_and_fp_engine": ["hls/operators/attention_full_compute.cpp", "hls/operators/full_tasks_attention.cpp", "hls/operators/full_tasks_tail.cpp"],
+    "vector_and_ffn": ["hls/operators/vector_full_compute.cpp", "hls/operators/full_tasks_vector.cpp"],
+    "decision_scorer_act": ["hls/operators/decision_full_compute.cpp", "hls/operators/full_tasks_tail.cpp"],
+    "result_status": ["hls/control/full_result.cpp"]
+  }
+}

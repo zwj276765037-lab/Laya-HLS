@@ -1,0 +1,48 @@
+--- project/E003_production_chain_closure/experiment_results/runs/R003/executor_bootstrap_host_01/frozen/tests/executor_bootstrap_test.cpp
++++ project/E003_production_chain_closure/experiment_results/runs/R003/executor_bootstrap_host_02/frozen/tests/executor_bootstrap_test.cpp
+@@ -148,10 +148,19 @@
+   hls::stream<ap_uint<512>> commands, results, actions, completions;
+   enqueue(commands, program_wire::encode(command));
+   unsigned events = 0, producers = 0, completion_reads = 0;
+-  bool consumed = false;
++  bool consumed = false, active_admission_blocked = false;
+   for (unsigned cycle = 0; cycle < 100000 && results.size() != 4; ++cycle) {
+     lifecycle::port_step(port, rt, memory_ports, false, consumed, actions, completions,
+                          streams.transaction_request, streams.transaction_completion);
++    if (!active_admission_blocked && rt.lifecycle_action.active && rt.generated_store.active) {
++      const auto task_high = rt.dispatch_reservations.task_high_water(rt.last_task_id);
++      const auto event_high = rt.provenance_event_high_water;
++      assert(!bootstrap::admit_new(state, port, rt, memory_ports, safe));
++      assert(rt.request_valid && rt.lifecycle_action.active && rt.generated_store.active &&
++             rt.provenance_event_high_water == event_high &&
++             rt.dispatch_reservations.task_high_water(rt.last_task_id) == task_high);
++      active_admission_blocked = true;
++    }
+     laya_command_provenance_adapter(false, streams.transaction_request,
+         streams.transaction_completion, streams.compute_command, streams.compute_response,
+         streams.provenance_command, streams.provenance_response,
+@@ -175,7 +184,7 @@
+     laya_graph_program_sequencer(false, false, commands, results, actions, completions);
+     if (completions.size() < before && ++completion_reads == 4) consumed = true;
+   }
+-  assert(results.size() == 4 && events == 10 && producers == 4 &&
++  assert(active_admission_blocked && results.size() == 4 && events == 10 && producers == 4 &&
+          rt.last_task_id == 8 && rt.tasks_retired == 8 &&
+          port.machine.completion.first_task_id == 5 &&
+          port.machine.completion.last_task_id == 8 && port.machine.completion.retired_tasks == 4);
+@@ -191,15 +200,7 @@
+          streams.provenance_command.empty() && streams.provenance_response.empty() &&
+          streams.producer_request.empty() && streams.producer_completion.empty());
+ 
+-  // A new bootstrap attempt while an old action is active must not clear its
+-  // tracker or request/task/protocol high waters.  The caller can keep stepping
+-  // that action; bootstrap has no blocking loop or dispatch side effects.
+-  rt.lifecycle_action.active = true;
+   const auto event_high = rt.provenance_event_high_water;
+-  assert(!bootstrap::admit_new(state, port, rt, memory_ports, safe));
+-  assert(rt.lifecycle_action.active && rt.request_valid && rt.last_task_id == 8 &&
+-         rt.provenance_event_high_water == event_high);
+-  rt.lifecycle_action.active = false;
+   // Restore no new state by parsing the same accepted request. It is rejected
+   // by the original identity monotonicity check, without advancing acceptance.
+   assert(!bootstrap::admit_new(state, port, rt, memory_ports, safe));

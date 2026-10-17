@@ -1,0 +1,84 @@
+{
+  "utc": "2026-10-07T05:21:00.942167+00:00",
+  "reviewer": "GPT-6 Astra xhigh",
+  "status": "F0_LOW_AUTOMATION_CONFIGURATION_RETRY_APPROVED_ZERO_BEHAVIOR_CONFIRMED_IN_SMALL_PILOT",
+  "affected_run": "results/engineering_p2/csynth_owner_uram_20261007",
+  "observed": {
+    "clang_pid": 1981551,
+    "RSS_KiB": 323891380,
+    "MemAvailable_KiB": 121098652,
+    "sample_scope": "review-time process and /proc/meminfo snapshot; implementation owner retains full process/log evidence",
+    "IR_performance_step3": 64221604,
+    "IR_performance_step4": 1249039,
+    "actual_compile_arguments": [
+      "reflow-auto-pipeline-threshold=64",
+      "enable-reflow-auto-loop-pipeline"
+    ]
+  },
+  "protective_stop_authorized": {
+    "condition": "MemAvailable below 128 GiB or own synthesis RSS above 310 GiB",
+    "reason": "avoid resource exhaustion on shared server",
+    "scope": "this synthesis process tree only; preserve failed/terminated run evidence"
+  },
+  "retry_configuration": {
+    "public_option": "hls.syn.compile.pipeline_loops",
+    "ini_within_hls": "syn.compile.pipeline_loops=0",
+    "installed_tool_default": 64,
+    "installed_tool_option_file": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/data/hls/hls_ide_config_data.json",
+    "installed_tool_option_file_sha256": "bc8676d4bf8ef053dc57a5319c6a9e7235e757722defcc875b92b136c3dc8371",
+    "intent": "disable automatic loop pipelining for serial functional F0 synthesis",
+    "effect_evidence_required": "save actual reflow/compiler options and tool help or behavior confirming zero disables automatic loop pipeline; public option JSON only describes threshold and does not explain zero sentinel"
+  },
+  "design_basis": [
+    "F0 is serialized functional engineering; no throughput or II target has been accepted.",
+    "Changing automatic HLS optimization may alter scheduling/resources/performance, but must not alter task graph, interfaces, arithmetic source or numerical acceptance.",
+    "Keep named-port and QKV pair fixes plus actual RAM/URAM requests; physical recognition/fit remains pending.",
+    "Any final config/source change is captured in final source/model/HLS identities and rerun evidence."
+  ],
+  "not_a_synthesis_or_resource_acceptance": true,
+  "pilot_evidence": {
+    "path": "results/engineering_p2/uram_binding_pilot_20261007/comparison.json",
+    "sha256": "67586fd81003691e3b056b79ebcb224eb73d42e13f33acc16d5d221c75068927",
+    "observed_default_auto_pipeline_messages": 3,
+    "observed_zero_auto_pipeline_messages": 0,
+    "scope": "small nested-cache synthesis only; full-top outcome/resources still pending"
+  },
+  "followup_array_partition": {
+    "run": "results/engineering_p2/csynth_serial_f0_candidate_20261007",
+    "design_size_report": "build/full-hls-csynth-serial-f0-candidate-20261007/csynth/hls/syn/report/csynth_design_size.rpt",
+    "observed_IR": {
+      "Performance_parallelization": 1093686,
+      "Performance_array_partition": 63796796,
+      "Performance_simplification": 1151161
+    },
+    "conclusion": "Disabling auto pipeline alone did not prevent temporary IR explosion; report identifies automatic array partition as peak.",
+    "approved_next_ini": [
+      "syn.array_partition.throughput_driven=off",
+      "syn.array_partition.complete_threshold=0"
+    ],
+    "retain": [
+      "syn.compile.pipeline_loops=0",
+      "actual cache URAM requests",
+      "all numerical/task/interface source contracts"
+    ],
+    "installed_tool_support": "hls_ide_config_data.json lines430/436: threshold for complete partition and off=Disable automatic array partitioning",
+    "verification_required": "actual applied config and full-top Performance step3 size/host resources; do not claim resource mapping or fit",
+    "scope": "targeted optimization configuration only, no blanket noinline or arithmetic/source architecture changes approved here",
+    "observed_effect": {
+      "run": "results/engineering_p2/csynth_array_f0_final_20261007",
+      "Performance_parallelization": 1079924,
+      "Performance_array_partition": 1361775,
+      "Performance_simplification": 1078825,
+      "finding": "Targeted automatic-array-partition disable removed the previous 63.8M-instruction peak; full synthesis still in progress at review."
+    }
+  },
+  "final_outcome": {
+    "build_tag": "4f12ecfe940ecf2a8998a8626fc1ed1c",
+    "report": "results/p2_environment_20261007/final_synthesis_attempt_mechanical_check.json",
+    "status": "CURRENT_SOURCE_FULL_TOP_ATTEMPT_TERMINATED_SHARED_HOST_MEMORY_GUARD",
+    "clang_RSS_KiB": 255519100,
+    "MemAvailable_KiB": 187985632,
+    "complete_resource_interface_RTL_reports": 0,
+    "FPGA_fit": "UNVERIFIED"
+  }
+}

@@ -1,0 +1,51 @@
+--- executor_handoff_shell_rtl_02/laya_executor_handoff_shell_v1.sv
++++ executor_handoff_shell_rtl_04/laya_executor_handoff_shell_v1.sv
+@@ -37,6 +37,7 @@
+   logic [4:0] response_beats;
+   logic [8191:0] captured_response,abort_message;
+   logic immutable_live;
++  logic control_fire;
+   logic [8191:0] assembled;
+ 
+   // Remove only fields that the control header owns. Full B/S/H and request
+@@ -85,7 +86,12 @@
+     current_request==pending_key[784*8+:64] && current_identity==pending_key[64*8+:768] &&
+     base_epoch==pending_key[40*8+:64] && base_address==pending_key[48*8+:64] &&
+     base_capacity==pending_key[56*8+:64];
+-  assign control_ready=!response_valid;
++  // A presented response owns the channel until consumption. Control wins
++  // over autonomous HELD acquisition. An actual accepted query owns its
++  // entire return before a pending control can be accepted. This also keeps
++  // the old response consumer progressing while ABORT remains asserted.
++  assign control_ready=!response_valid && state!=QUERY && !query_accepted && !query_response_pop;
++  assign control_fire=control_valid && control_ready;
+   assign predecessor_done_ready=state==DRAIN && !predecessor_done;
+   assign stop_predecessor=state!=IDLE;
+   assign query_permit=state==HELD_READY && !revoked && !cancel && immutable_live && protection_valid;
+@@ -132,7 +138,7 @@
+           predecessor_done<=1;
+         else control_rejections<=control_rejections+1'b1;
+       end
+-      if(state==DRAIN && predecessor_done && old_channels_drained && physical_safe &&
++      if(state==DRAIN && !control_fire && !response_valid && predecessor_done && old_channels_drained && physical_safe &&
+           !revoked && !cancel && immutable_live)begin
+         locks_owned<=1;response<=reply(pending_key,HELD,0,0);
+         response_valid<=1;state<=HELD_REPLY;
+@@ -159,7 +165,7 @@
+           end
+         end else control_rejections<=control_rejections+1'b1;
+       end
+-      if(control_valid && control_ready)begin
++      if(control_fire)begin
+         if(!control_header_ok(control))control_rejections<=control_rejections+1'b1;
+         else if(state==IDLE && control[8*8+:8]==HOLD && control[10*8+:16]==0 &&
+             control[24*8+:32]==0 && control[32*8+:64]==64'hffffffffffffffff &&
+@@ -193,7 +199,7 @@
+           end else state<=ABORT_WAIT;
+         end else control_rejections<=control_rejections+1'b1;
+       end
+-      if(state==ABORT_WAIT && old_channels_drained && physical_safe)begin
++      if(state==ABORT_WAIT && !response_valid && old_channels_drained && physical_safe)begin
+         response<=reply(abort_message,ABORT_CLOSED,abort_message[10*8+:16],0);
+         response_valid<=1;state<=ABORT_REPLY;
+       end

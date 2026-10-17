@@ -1,0 +1,204 @@
+{
+  "schema": "reviewer_q8_r0_adapter_v2_actual_source_acceptance_and_finite_vector_release_v1",
+  "created_utc": "2026-10-09T01:29:20.578070+00:00",
+  "reviewer": "GPT-6 Astra / xhigh",
+  "status": "V2_CORRECTED_SOURCE_ACCEPTED_FINITE_REFERENCE_VECTOR_GENERATION_RELEASED_STATIC_AND_RUNTIME_PENDING_GENERATED_GOLD_REVIEW",
+  "source_design_release": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_finite_domain_r0_adapter_design_source_release.json",
+    "bytes": 3447,
+    "sha256": "0aa2bd54981146adf051f39b2a1b198b240362ecadaba56aa70ac8e6dc7c98cc"
+  },
+  "source_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/source/source_packet.json",
+    "bytes": 23872,
+    "sha256": "742823345cab23113eb91df5c8ead56f1f230fc8d7847bcd4867abd0726a7c4a"
+  },
+  "current_source_check": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/source/source_check.json",
+    "bytes": 381,
+    "sha256": "48743eb205f9e093e6243f43753bb4bd338c437a801401093cf593a90ca0032a"
+  },
+  "inherited_fp_characterization": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_actual_fp_boundary_119_characterization_acceptance.json",
+    "bytes": 19783,
+    "sha256": "bdd1bf48fdae08733a3ce3294cc4b6e08e01fc2cb2e6e8b73f5919acb9ba3736"
+  },
+  "independent_hash_checks": {
+    "direct_unique_packet_refs": 60,
+    "additional_v1_archives": 18,
+    "additional_inherited_scorer_immutable_records": 712,
+    "helper_probe_and_reference_v1_byte_identical": [
+      "rtl/r0_fp_bits_pkg.sv",
+      "tb/r0_adapter_probe_top.sv",
+      "tb/original_r0_reference.py"
+    ],
+    "original_astra_design_prefix": {
+      "bytes": 13914,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/source/preimages/astra_original_design.md",
+      "sha256": "321080d93185336aba66048af759cd982be143fe524f669f3de0c06c7729077b"
+    },
+    "prefix_exact_bytes": 13914,
+    "schema_and_source_check": "v2 packet742823\u2026; freshsourcecheck48743e\u2026 names samepacket,28direct/16maintained/no snapshot/no mutables. Preimage18archive preserved; immutablev1packet7efb andsourcecheckc9b unchanged."
+  },
+  "corrections_accepted": {
+    "half_group_boundaries": "Replaced incorrect4abef020/4abef810. Exact65504*127=8319008 raw4afde040; overflow midpoint65520*127=8321040 raw4afdf020, withimmediateF32 predecessor4afdf01f/successor4afdf021. Scalarhalf477fe000/477fefff/477ff000 preserved.",
+    "independent_raw_audit": "Expected_contract derives exactkeyset+allsemanticbits fromverified generatedtable; compares both rawactual andloggedexpected againsttable. Includesd,reciprocal,half,q,status,bad,commit,routes,product,restore,smoke. Only2pairwise stabilityrecords/service remain dynamicactual-vsactual. Finalservice outputs feed table-checkedsemantic bits and scalar normalizeddividerresult checks. Missing/duplicate/extra/unknown/nonmonotone-cycle/incomplete evidence fails.",
+    "design_identity": "Original13914-byte authoritativedesign preserved verbatim as prefixandpreimage; appendedmapping/reviewcorrections explicit. No arithmeticcontract revision.",
+    "execution_identity": "v2make_packet --check and verifier acceptv2, validate18v1preimages and originaldesignprefix. Fresh sourcecheck updatedonly after oldpreimageidentityverified. No mathematicalvector orsimulationexecution occurred."
+  },
+  "source_math_review": {
+    "tiny_division": "Unsigned30-bit U grid,exact /127 and%127,remainder>=64 implementsRNE because denominatorodd; inclusiveamax03fe0000 produces minnormal00800000. Noapproximation.",
+    "zero_controls": "Same raw d_is_zero bit predicate governsreciprocal andquant decisions. Nonzerosubnormal cannotmisclassifyzero. Finiteinputscan andfirstbad index staybefore groupdivision.",
+    "reciprocal": "Exactsubnormal-up24 encoding, actualunchangednormaldivider1/D, wideexponent+24 recovery preservesRNE includingInfboundaryM200000/200001.",
+    "quantization": "Zero/smallproduct bypass emits onlyprovedq0; nofalse rawproduct equality. RemainingFPproducts normal, subnormalx-up24/reciprocal-down24 exactproduct preserved; actualbothmultiplierwrappers sampled. Originalroundf-away andrange rejectionkept,no clipping.",
+    "restore": "PS+0 returnsrawfinitebias exceptzeros\u2192+0; nonzero reachablePS andzero/subnormalbias returnsPS; otherwiseactualnormaladder. PS-0 classifiedoutsideproveddomain. Existingdot/scale/term/PS numericalorder untouched."
+  },
+  "finite_vector_contract": {
+    "group_cases": 65,
+    "scalar_reciprocal": 7,
+    "scalar_half": 7,
+    "restore_cases": 18,
+    "normal_wrapper_smoke": 7,
+    "max_group_lanes": 32,
+    "maximum_cycles_watchdog": 500000,
+    "no_exhaustive_sweep": true,
+    "oracle": "Frozen exactFraction binary32/halfRNE plus originalorderedQ8rules; no DUT output/goldrepair/hostfloat oracle. Literalboundaries,signs,nonfiniteall32positions,oneacceptedrealScorergroup,restoreextremes.",
+    "count_scope": "All65groupsincludeexpanded32positionnonfinitesweep; vectorsremainfinite,notallfiniteFPdomain enumeration."
+  },
+  "released_stage": {
+    "name": "finite_cpu_reference_vector_generation_and_structural_verify",
+    "maximum_invocations": 1,
+    "rss_gib": 4,
+    "wall_seconds": 120,
+    "fresh_vector_dir": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_vectors",
+    "fresh_control_dir": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_control",
+    "argv": [
+      "/usr/bin/taskset",
+      "-c",
+      "0,1,2,3",
+      "/usr/bin/python3",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+      "--out",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_control/vectors_guard",
+      "--cwd",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_control",
+      "--rss-gib",
+      "4",
+      "--timeout-seconds",
+      "120",
+      "--",
+      "/usr/bin/env",
+      "-u",
+      "PYTHONHOME",
+      "-u",
+      "PYTHONPATH",
+      "/usr/bin/bash",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/tb/run_vectors.sh",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_vectors"
+    ],
+    "preconditions": "Root hands singleheavyLayaslot. Rehashsourcepacket andallboundfiles; existingread-only make_source_packet.py --check and verify_source_binding.py must passfreshout. Allnewroots initiallyabsent; createcontrolonly. Do notexecuteorresavev1suite/original119gold.",
+    "post": "Sealcase_table.json/generated_cases.svh hashes,actualargv/versions/guardlogs/RSS/timing,sourcepre/postbindings. Require65/14/18finitecounts andindependent reviewer checks ofactualgeneratedhalf/tiny/reciprocal/error/restore expectationbytes beforestaticstage."
+  },
+  "prepared_later_stages_not_yet_released": [
+    {
+      "name": "actual_seven_wrapper_static_build",
+      "maximum_invocations": 1,
+      "rss_gib": 4,
+      "aggregate_wall_seconds": 900,
+      "fresh_build_dir": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_static",
+      "argv": [
+        "/usr/bin/taskset",
+        "-c",
+        "0,1,2,3",
+        "/usr/bin/python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+        "--out",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_control/static_guard",
+        "--cwd",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_control",
+        "--rss-gib",
+        "4",
+        "--timeout-seconds",
+        "900",
+        "--",
+        "/usr/bin/env",
+        "-u",
+        "PYTHONHOME",
+        "-u",
+        "PYTHONPATH",
+        "/usr/bin/bash",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/tb/build_static.sh",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_vectors",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_static"
+      ],
+      "condition": "Only aftergeneratedtableactualreview accepts originalR0expectedbits andbindshashes. Builddir freshandempty,outsidecontrol. Useexact7actualouterVerilog+7simulationVHDL,installedfrozenlibraries,bithelper/probe/generatedinclude. NoFPIPregeneration,RTLsubstitution orproductiontopcompile."
+    },
+    {
+      "name": "actual_seven_wrapper_adapter_probe_and_raw_audit",
+      "maximum_invocations": 1,
+      "rss_gib": 4,
+      "aggregate_wall_seconds": 600,
+      "fresh_runtime_dir": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_runtime",
+      "argv": [
+        "/usr/bin/taskset",
+        "-c",
+        "0,1,2,3",
+        "/usr/bin/python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+        "--out",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_control/runtime_guard",
+        "--cwd",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_control",
+        "--rss-gib",
+        "4",
+        "--timeout-seconds",
+        "600",
+        "--",
+        "/usr/bin/env",
+        "-u",
+        "PYTHONHOME",
+        "-u",
+        "PYTHONPATH",
+        "/usr/bin/bash",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/tb/run_adapter.sh",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_vectors",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_static",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_runtime"
+      ],
+      "condition": "Only afterstaticactualclosure/snapshotreview andseparate executionrelease bindgeneratedgold/snapshot. Exact500000-cyclewatchdog,whole65/14/18suite once. BothXSimexit andstrictaudit andsource/snapshotbindingmustPASS."
+    }
+  ],
+  "service_valid_scope": "Probeholdsoperands32clocksandchecks3equaloutputs,butr_tvalidischeckedonlyatfinalsample. Do notclaimvalidonall3samples. Nochange requiredforthisisolatedsettledserviceprobe.",
+  "production_scope": "group_committed/status/bad are localTBmodeled group decisions; probe does not execute productioncontrollerA8/half writes,atomiccommit,credits,ownership,tags orretirement. Passing mayvalidate numericalhelper+actualservice composition only. C1integration/protocolandsynthesis remainseparate. Generaloriginal119primitiveconformance remainsFAILED;old119evidence neverreplaced.",
+  "policy": {
+    "guard": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+      "bytes": 10219,
+      "sha256": "23f63b79d0bbb05d6a01612eb63914c7b46d9724693a4a52e348827a7a026d70"
+    },
+    "helper": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/hls_guard_helpers.py",
+      "bytes": 7083,
+      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+    },
+    "cpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nice": 19,
+    "ionice": "idle",
+    "owned_rss_sample_seconds": 0.2,
+    "MemAvailable_strictly_above_KiB": 201326592,
+    "single_heavy_slot": true,
+    "failure": "Stopfirstunexpectedfailure/guard,sealpartials,returnslot.No unchangedretry/exhaustivescan/budgetincrease."
+  },
+  "not_released": [
+    "actualwrapperstatic/runtimeuntilpostvectorgate",
+    "productionHLS/RTLpatch",
+    "C1productionatomicity",
+    "fullQ8/Attention/model rerun",
+    "board/Fmax150MHz/50ms"
+  ]
+}

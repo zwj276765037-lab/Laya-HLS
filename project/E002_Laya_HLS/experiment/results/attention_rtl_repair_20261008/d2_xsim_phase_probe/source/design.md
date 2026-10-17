@@ -1,0 +1,9 @@
+# Full generated XSim environment phase probe
+
+Astra xhigh设计依据为[修复合同§7.9](../../repair_contract.md#79-真实完整xsim环境的被动阶段观测)，2026-10-08核查。实现由Sol max执行。本模块复制[v3真实环境](../../d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice.prj)并保留DUT/数值IP/驱动/全CTV逐byte，仅读取阶段、reset/start/done/cycle、七口AXI握手与实际per-ID队列长度，将其与DPI自身RSS和外部树RSS对齐。具体观察点、计数口径与停止准则以§7.9为准。
+
+真实来源：[autotb进度逻辑](../../d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice.autotb.v)、[reference_model七口初始化](../../d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice_subsystem/attention_slice_reference_model.sv)、[axi_state队列](../../d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/axivip/axi_state.sv)、[已审核小模型观测](../../reviewer_d2_xsim_small_memory_review.json)和[进度归因修正](../../reviewer_d2_r_progress_phase_correction.json)。
+
+编译/展开16GiB/300s/4CPU；Astra审核实际绑定后放行唯一一次8GiB/180s/1000000cycles运行，nice19/idleIO/主机可用192GiB/单重任务。不得修改算术、owner、memory初值、AXI行为或比较，不保留逐笔数据或打开波形。窗口终点与功能PASS严格分开；原事务若完整结束，另按原C postcheck/raw-TV核验。该唯一窗口的实际诊断性timeout和数值状态记录于[results.md](results.md)。
+
+实际观测映射：[`attention_slice.autotb.v`](../rtl/verilog/attention_slice.autotb.v)只读真实kernel `AESL_inst_attention_slice.ap_start/ap_done`、TB辅助边沿、reset、clock与七个AXI接口；[`phase_axi_monitor.sv`](../tb/phase_axi_monitor.sv)按握手统计通道与每ID固定16槽读事务元数据。[`axi_state.sv`](../rtl/verilog/axivip/axi_state.sv)在采样时只读七组队列的聚合及ID0/ID1长度。[`file_read_agent.sv`](../rtl/verilog/file_agent/file_read_agent.sv)、[`mem_model.sv`](../rtl/verilog/file_agent/mem_model.sv)和[`attention_slice_reference_model.sv`](../rtl/verilog/attention_slice_subsystem/attention_slice_reference_model.sv)报告原TV的二进制帧、ASCII offset、逐口copy/page数及初始化阶段；[`phase_rss.c`](../tb/phase_rss.c)读取进程RSS/HWM与ASCII文件大小。原TB start/done与kernel start/done使用不同标签；生成C postcheck仅在原事务完整结束时调用。实际源/绑定/静态展开证据在[`binding_packet_v5.json`](binding_packet_v5.json)。

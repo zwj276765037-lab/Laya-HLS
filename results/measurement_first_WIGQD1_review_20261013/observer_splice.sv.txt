@@ -1,0 +1,126 @@
+  // WIGQD1: passive, bounded observation of accepted work. These counters
+  // never drive the DUT or memory response policy.
+  integer obs_g_cfg=0,obs_wi_cfg=0,obs_wi_ar=0,obs_wi_r=0,obs_wi_scalar=0;
+  integer obs_wi_row=0,obs_g_issue=0,obs_g_return=0,obs_g_emit=0;
+  integer obs_gate_aw=0,obs_gate_w=0,obs_gate_b=0,obs_q_ar=0,obs_q_r=0;
+  integer obs_q_half=0,obs_q_row=0,obs_a_publish=0,obs_g_cfg_cycle=-1;
+  task automatic obs_diag(input string tag);
+    $display("WIGQD_DIAG tag=%s cycle=%0d stage=%0d gphase=%0d rstate=%0d rrow=%0d rword=%0d rbeat=%0d rhold=%0b rpend=%0b vcfg=%0b/%0b var=%0b/%0b vr=%0b/%0b vw=%0b/%0b vrow=%0b/%0b debt=%0b grow=%0d gissued=%0d greturned=%0d gcredit=%0d gw=%0d gb=%0d qphase=%0d qar=%0d qr=%0d qhalf=%0d astate=%0d aepoch=%0d",
+      tag,cycle,stage,producer.phase,wi_reader.state,wi_reader.row_local,
+      wi_reader.word_count,wi_reader.beat_index,wi_reader.beat_valid,
+      wi_reader.physical_pending,wi_cfg_valid,wi_cfg_ready,wi_arvalid,
+      wi_arready,wi_rvalid,wi_rready,g_wi_valid,g_wi_ready,
+      g_wi_row_done_valid,g_wi_row_done_ready,g_wi_read_debt_zero,
+      wi_rows_retired,producer.vector_row.issued,producer.vector_row.returned,
+      producer.vector_row.credits,g_w_count,g_b_count,
+      producer.quant_task.phase,g_source_ar_count,g_source_r_count,
+      g_quant_halves,fa_slot_state[0],fa_slot_epoch[0]);
+  endtask
+  always @(posedge clk) if(rst_n && stage==1)begin : wigqd1_observation
+    if(g_cfg_valid && g_cfg_ready && g_cfg_owner_admitted)begin
+      obs_g_cfg++;
+      if(obs_g_cfg>1)$fatal(1,"WIGQD1 duplicate legal G cfg");
+      obs_g_cfg_cycle=cycle;
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_cfg n=%0d",cycle,obs_g_cfg);
+      obs_diag("g_cfg_edge");
+    end
+    if(wi_cfg_valid && wi_cfg_ready)begin
+      obs_wi_cfg++;
+      if(obs_wi_cfg>1)$fatal(1,"WIGQD1 duplicate Wi reader cfg");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_cfg n=%0d",cycle,obs_wi_cfg);
+      obs_diag("wi_cfg_edge");
+    end
+    if(wi_arvalid && wi_arready)begin
+      obs_wi_ar++;
+      if(obs_wi_ar>1312)$fatal(1,"WIGQD1 excess Wi AR");
+      if(obs_wi_ar==1 || obs_wi_ar%4==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_ar n=%0d",cycle,obs_wi_ar);
+    end
+    if(wi_rvalid && wi_rready)begin
+      obs_wi_r++;
+      if(obs_wi_r>1312)$fatal(1,"WIGQD1 excess Wi R");
+      if(obs_wi_r==1 || obs_wi_r%64==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_r n=%0d",cycle,obs_wi_r);
+    end
+    if(g_wi_valid && g_wi_ready)begin
+      obs_wi_scalar++;
+      if(obs_wi_scalar>20992)$fatal(1,"WIGQD1 excess Wi scalar");
+      if(obs_wi_scalar==1 || obs_wi_scalar%512==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_scalar n=%0d",cycle,obs_wi_scalar);
+    end
+    if(g_wi_row_done_valid && g_wi_row_done_ready)begin
+      obs_wi_row++;
+      if(obs_wi_row>4)$fatal(1,"WIGQD1 excess Wi row");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=wi_row n=%0d",cycle,obs_wi_row);
+      obs_diag("wi_row_edge");
+    end
+    if(producer.vector_row.arithmetic_accept)begin
+      obs_g_issue++;
+      if(obs_g_issue>10496)$fatal(1,"WIGQD1 excess G issue");
+      if(obs_g_issue==1 || obs_g_issue%256==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_issue n=%0d",cycle,obs_g_issue);
+    end
+    if(producer.vector_row.core_commit && producer.vector_row.core_return_legal)begin
+      obs_g_return++;
+      if(obs_g_return>10496)$fatal(1,"WIGQD1 excess G return");
+      if(obs_g_return==1 || obs_g_return%256==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_return n=%0d",cycle,obs_g_return);
+    end
+    if(producer.v_valid && producer.v_ready)begin
+      obs_g_emit++;
+      if(obs_g_emit>10496)$fatal(1,"WIGQD1 excess G emit");
+      if(obs_g_emit==1 || obs_g_emit%512==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=g_emit n=%0d",cycle,obs_g_emit);
+    end
+    if(g_m_axi_awvalid && g_m_axi_awready)begin
+      obs_gate_aw++;
+      if(obs_gate_aw>656)$fatal(1,"WIGQD1 excess GATE AW");
+      if(obs_gate_aw==1 || obs_gate_aw%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=gate_aw n=%0d",cycle,obs_gate_aw);
+    end
+    if(g_m_axi_wvalid && g_m_axi_wready)begin
+      obs_gate_w++;
+      if(obs_gate_w>656)$fatal(1,"WIGQD1 excess GATE W");
+      if(obs_gate_w==1 || obs_gate_w%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=gate_w n=%0d",cycle,obs_gate_w);
+    end
+    if(g_m_axi_bvalid && g_m_axi_bready)begin
+      obs_gate_b++;
+      if(obs_gate_b>656)$fatal(1,"WIGQD1 excess GATE B");
+      if(obs_gate_b==1 || obs_gate_b%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=gate_b n=%0d",cycle,obs_gate_b);
+    end
+    if(g_m_axi_arvalid && g_m_axi_arready)begin
+      obs_q_ar++;
+      if(obs_q_ar>656)$fatal(1,"WIGQD1 excess quant AR");
+      if(obs_q_ar==1 || obs_q_ar%4==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_ar n=%0d",cycle,obs_q_ar);
+    end
+    if(g_m_axi_rvalid && g_m_axi_rready)begin
+      obs_q_r++;
+      if(obs_q_r>656)$fatal(1,"WIGQD1 excess quant R");
+      if(obs_q_r==1 || obs_q_r%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_r n=%0d",cycle,obs_q_r);
+    end
+    if(producer.quant_task.q_out_valid && producer.quant_task.q_out_ready)begin
+      obs_q_half++;
+      if(obs_q_half>656)$fatal(1,"WIGQD1 excess quant half");
+      if(obs_q_half==1 || obs_q_half%32==0)
+        $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_half n=%0d",cycle,obs_q_half);
+    end
+    if(producer.quant_task.q_done_valid && producer.quant_task.q_done_ready)begin
+      obs_q_row++;
+      if(obs_q_row>4)$fatal(1,"WIGQD1 excess quant row");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=q_row n=%0d",cycle,obs_q_row);
+    end
+    if(producer.quant_task.a_publish)begin
+      obs_a_publish++;
+      if(obs_a_publish>1)$fatal(1,"WIGQD1 duplicate A publish");
+      $display("MATRIX_PROGRESS cycle=%0d stage=1 kind=a_publish n=%0d",cycle,obs_a_publish);
+    end
+    if(obs_g_cfg_cycle>=0 &&
+       (cycle-obs_g_cfg_cycle==1 || cycle-obs_g_cfg_cycle==64 ||
+        cycle-obs_g_cfg_cycle==4096 || cycle-obs_g_cfg_cycle==16384 ||
+        cycle-obs_g_cfg_cycle==32768 || cycle-obs_g_cfg_cycle==65536))
+      obs_diag("fixed_sample");
+  end

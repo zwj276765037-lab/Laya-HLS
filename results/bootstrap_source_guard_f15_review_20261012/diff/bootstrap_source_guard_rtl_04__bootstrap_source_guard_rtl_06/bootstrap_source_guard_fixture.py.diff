@@ -1,0 +1,30 @@
+--- bootstrap_source_guard_rtl_04/bootstrap_source_guard_fixture.py
++++ bootstrap_source_guard_rtl_06/bootstrap_source_guard_fixture.py
+@@ -60,7 +60,26 @@
+         event[612] = 2; event[625] = 1
+         struct.pack_into('<Q', event, 648, 262144)
+         save(name, event)
+-    print('FULL_CURRENT_BOOTSTRAP_SOURCE_GUARD_FIXTURE_PASS controlled_action_producer_safe_error=1')
++    # A real monitored partial destination task remains live while a source
++    # mutation gets rejected. Its first error survives the required old END.
++    begin = bytearray((args.fixture / 'begin0.bin').read_bytes())
++    begin[612] = 2; begin[625] = 1
++    struct.pack_into('<I', begin, 16, 5)
++    struct.pack_into('<Q', begin, 8, 20)
++    struct.pack_into('<Q', begin, 32, 20)
++    struct.pack_into('<IBBBBBHB', begin, 148, 5, 0x11, 2, 1, 0, 0, 0, 16)
++    struct.pack_into('<Q', begin, 648, 262144)
++    struct.pack_into('<Q', begin, 864, 262144)
++    save('guard_begin', begin)
++    end = bytearray(begin)
++    struct.pack_into('<H', end, 6, 3)
++    struct.pack_into('<Q', end, 8, 21)
++    struct.pack_into('<H', end, 40, 7)
++    struct.pack_into('<I', end, 48, 0x0700000e)
++    struct.pack_into('<Q', end, 56, (1 << 64)-1)
++    struct.pack_into('<Q', end, 584, 4096)
++    save('guard_end_partial', end)
++    print('FULL_CURRENT_BOOTSTRAP_SOURCE_GUARD_FIXTURE_PASS controlled_action_producer_safe_error=1 partial_target_task=5')
+ 
+ 
+ if __name__ == '__main__':

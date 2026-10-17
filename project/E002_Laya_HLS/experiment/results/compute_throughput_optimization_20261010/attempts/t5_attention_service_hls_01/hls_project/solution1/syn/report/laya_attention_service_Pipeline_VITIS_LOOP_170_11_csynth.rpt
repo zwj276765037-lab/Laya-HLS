@@ -1,0 +1,169 @@
+
+
+================================================================
+== Vitis HLS Report for 'laya_attention_service_Pipeline_VITIS_LOOP_170_11'
+================================================================
+* Date:           Sun Oct 11 10:03:41 2026
+
+* Version:        2025.2 (Build 6295257 on Nov 14 2025)
+* Project:        hls_project
+* Solution:       solution1 (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  6.67 ns|  2.867 ns|     1.80 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+----------+----------+-----+-----+---------+
+    |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
+    |   min   |   max   |    min   |    max   | min | max |   Type  |
+    +---------+---------+----------+----------+-----+-----+---------+
+    |        ?|        ?|         ?|         ?|    ?|    ?|       no|
+    +---------+---------+----------+----------+-----+-----+---------+
+
+    + Detail: 
+        * Instance: 
+        +--------------------------+---------------+---------+---------+-----------+-----------+-----+-----+---------+
+        |                          |               |  Latency (cycles) |   Latency (absolute)  |  Interval | Pipeline|
+        |         Instance         |     Module    |   min   |   max   |    min    |    max    | min | max |   Type  |
+        +--------------------------+---------------+---------+---------+-----------+-----------+-----+-----+---------+
+        |grp_attention_add_fu_141  |attention_add  |       11|       11|  73.333 ns|  73.333 ns|    1|    1|      yes|
+        +--------------------------+---------------+---------+---------+-----------+-----------+-----+-----+---------+
+
+        * Loop: 
+        +---------------------+---------+---------+----------+-----------+-----------+------+----------+
+        |                     |  Latency (cycles) | Iteration|  Initiation Interval  | Trip |          |
+        |      Loop Name      |   min   |   max   |  Latency |  achieved |   target  | Count| Pipelined|
+        +---------------------+---------+---------+----------+-----------+-----------+------+----------+
+        |- VITIS_LOOP_170_11  |        ?|        ?|        14|         14|          1|     ?|       yes|
+        +---------------------+---------+---------+----------+-----------+-----------+------+----------+
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|       72|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     -|        -|        -|    -|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|      113|    -|
+|Register             |        -|     -|       50|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     0|       50|      185|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    N/A
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +----------------------+----------+----+---+----+------------+------------+
+    |     Variable Name    | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +----------------------+----------+----+---+----+------------+------------+
+    |add_ln170_fu_164_p2   |         +|   0|  0|  17|          10|           1|
+    |icmp_ln14_fu_216_p2   |      icmp|   0|  0|  38|          31|          25|
+    |icmp_ln170_fu_159_p2  |      icmp|   0|  0|  17|          10|          10|
+    +----------------------+----------+----+---+----+------------+------------+
+    |Total                 |          |   0|  0|  72|          51|          36|
+    +----------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +----------------------------------------+----+-----------+-----+-----------+
+    |                  Name                  | LUT| Input Size| Bits| Total Bits|
+    +----------------------------------------+----+-----------+-----+-----------+
+    |ap_NS_fsm                               |  86|         18|    1|         18|
+    |ap_phi_mux_UnifiedRetVal_phi_fu_133_p4  |   9|          2|    1|          2|
+    |ap_return                               |   9|          2|    1|          2|
+    |i_fu_62                                 |   9|          2|   10|         20|
+    +----------------------------------------+----+-----------+-----+-----------+
+    |Total                                   | 113|         24|   13|         42|
+    +----------------------------------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +-----------------------+----+----+-----+-----------+
+    |          Name         | FF | LUT| Bits| Const Bits|
+    +-----------------------+----+----+-----+-----------+
+    |UnifiedRetVal_reg_129  |   1|   0|    1|          0|
+    |add_ln170_reg_249      |  10|   0|   10|          0|
+    |ap_CS_fsm              |  17|   0|   17|          0|
+    |ap_return_preg         |   1|   0|    1|          0|
+    |i_1_reg_238            |  10|   0|   10|          0|
+    |i_fu_62                |  10|   0|   10|          0|
+    |icmp_ln170_reg_245     |   1|   0|    1|          0|
+    +-----------------------+----+----+-----+-----------+
+    |Total                  |  50|   0|   50|          0|
+    +-----------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++-----------------------------------------------------------------------------------------+-----+-----+------------+--------------------------------------------------------------------------------+--------------+
+|                                        RTL Ports                                        | Dir | Bits|  Protocol  |                                  Source Object                                 |    C Type    |
++-----------------------------------------------------------------------------------------+-----+-----+------------+--------------------------------------------------------------------------------+--------------+
+|ap_clk                                                                                   |   in|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|ap_rst                                                                                   |   in|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|ap_start                                                                                 |   in|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|ap_done                                                                                  |  out|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|ap_idle                                                                                  |  out|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|ap_ready                                                                                 |  out|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|ap_return                                                                                |  out|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|grp_attention_add_fu_1159_p_din1                                                         |  out|   32|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|grp_attention_add_fu_1159_p_din2                                                         |  out|   32|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|grp_attention_add_fu_1159_p_dout0                                                        |   in|   32|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|grp_attention_add_fu_1159_p_ce                                                           |  out|    1|  ap_ctrl_hs|                               laya_attention_service_Pipeline_VITIS_LOOP_170_11|  return value|
+|width_4                                                                                  |   in|   10|     ap_none|                                                                         width_4|        scalar|
+|i_1_out                                                                                  |  out|   10|      ap_vld|                                                                         i_1_out|       pointer|
+|i_1_out_ap_vld                                                                           |  out|    1|      ap_vld|                                                                         i_1_out|       pointer|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_address0  |  out|    9|   ap_memory|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_ce0       |  out|    1|   ap_memory|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_q0        |   in|   32|   ap_memory|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_address1  |  out|    9|   ap_memory|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_ce1       |  out|    1|   ap_memory|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_we1       |  out|    1|   ap_memory|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_d1        |  out|   32|   ap_memory|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_address0    |  out|    9|   ap_memory|    laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_ce0         |  out|    1|   ap_memory|    laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_q0          |   in|   32|   ap_memory|    laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_address1    |  out|    9|   ap_memory|    laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_ce1         |  out|    1|   ap_memory|    laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_we1         |  out|    1|   ap_memory|    laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_d1          |  out|   32|   ap_memory|    laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
++-----------------------------------------------------------------------------------------+-----+-----+------------+--------------------------------------------------------------------------------+--------------+
+

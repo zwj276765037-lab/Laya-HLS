@@ -1,0 +1,909 @@
+
+
+================================================================
+== Vitis HLS Report for 'activation_quantizer_compute'
+================================================================
+* Date:           Wed Oct  7 19:56:40 2026
+
+* Version:        2025.2 (Build 6295257 on Nov 14 2025)
+* Project:        csynth
+* Solution:       hls (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  6.67 ns|  4.783 ns|     1.80 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+-----------+-----------+-----------+-----+-----------+---------+
+    |   Latency (cycles)  |   Latency (absolute)  |     Interval    | Pipeline|
+    |   min   |    max    |    min    |    max    | min |    max    |   Type  |
+    +---------+-----------+-----------+-----------+-----+-----------+---------+
+    |        5|  199929146|  33.335 ns|  1.333 sec|    5|  199929146|       no|
+    +---------+-----------+-----------+-----------+-----+-----------+---------+
+
+    + Detail: 
+        * Instance: 
+        +------------------------------------+------------------------+---------+---------+-----------+----------+-----+-----+---------+
+        |                                    |                        |  Latency (cycles) |  Latency (absolute)  |  Interval | Pipeline|
+        |              Instance              |         Module         |   min   |   max   |    min    |    max   | min | max |   Type  |
+        +------------------------------------+------------------------+---------+---------+-----------+----------+-----+-----+---------+
+        |grp_numeric_check_context_fu_3059   |numeric_check_context   |        2|      137|  13.334 ns|  0.913 us|    2|  137|       no|
+        |grp_numeric_check_source_3_fu_3093  |numeric_check_source_3  |        2|      487|  13.334 ns|  3.247 us|    2|  487|       no|
+        |grp_numeric_claim_a8_fu_3159        |numeric_claim_a8        |        1|       31|   6.667 ns|  0.207 us|    1|   31|       no|
+        +------------------------------------+------------------------+---------+---------+-----------+----------+-----+-----+---------+
+
+        * Loop: 
+        +----------------------+---------+-----------+------------+-----------+-----------+----------+----------+
+        |                      |   Latency (cycles)  |  Iteration |  Initiation Interval  |   Trip   |          |
+        |       Loop Name      |   min   |    max    |   Latency  |  achieved |   target  |   Count  | Pipelined|
+        +----------------------+---------+-----------+------------+-----------+-----------+----------+----------+
+        |- VITIS_LOOP_65_1     |        0|  199928446|  4 ~ 784033|          -|          -|   0 ~ 255|        no|
+        | + VITIS_LOOP_66_2    |        0|     784029|    23 ~ 383|          -|          -|  0 ~ 2047|        no|
+        |  ++ VITIS_LOOP_68_3  |        0|         97|           3|          -|          -|    0 ~ 32|        no|
+        |  ++ VITIS_LOOP_80_4  |        0|        263|       3 ~ 8|          -|          -|    0 ~ 32|        no|
+        +----------------------+---------+-----------+------------+-----------+-----------+----------+----------+
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|     2464|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     3|      481|     4751|    -|
+|Memory               |        0|     -|       96|       99|    0|
+|Multiplexer          |        -|     -|        0|     5220|    -|
+|Register             |        -|     -|     1294|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     3|     1871|    12534|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|    ~0|       ~0|        2|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +-------------------------------------+-------------------------------+---------+----+-----+------+-----+
+    |               Instance              |             Module            | BRAM_18K| DSP|  FF |  LUT | URAM|
+    +-------------------------------------+-------------------------------+---------+----+-----+------+-----+
+    |fcmp_32ns_32ns_1_2_no_dsp_1_U3760    |fcmp_32ns_32ns_1_2_no_dsp_1    |        0|   0|    0|     0|    0|
+    |fcmp_32ns_32ns_1_2_no_dsp_1_U3761    |fcmp_32ns_32ns_1_2_no_dsp_1    |        0|   0|    0|     0|    0|
+    |fdiv_32ns_32ns_32_8_no_dsp_1_U3759   |fdiv_32ns_32ns_32_8_no_dsp_1   |        0|   0|    0|     0|    0|
+    |fmul_32ns_32ns_32_3_max_dsp_1_U3758  |fmul_32ns_32ns_32_3_max_dsp_1  |        0|   3|  128|    77|    0|
+    |grp_numeric_check_context_fu_3059    |numeric_check_context          |        0|   0|   71|   934|    0|
+    |grp_numeric_check_source_3_fu_3093   |numeric_check_source_3         |        0|   0|  231|  1823|    0|
+    |grp_numeric_claim_a8_fu_3159         |numeric_claim_a8               |        0|   0|   51|  1883|    0|
+    |sparsemux_9_3_16_1_1_U3762           |sparsemux_9_3_16_1_1           |        0|   0|    0|    14|    0|
+    |sparsemux_9_5_32_1_1_U3763           |sparsemux_9_5_32_1_1           |        0|   0|    0|    20|    0|
+    +-------------------------------------+-------------------------------+---------+----+-----+------+-----+
+    |Total                                |                               |        0|   3|  481|  4751|    0|
+    +-------------------------------------+-------------------------------+---------+----+-----+------+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    +------------------+---------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+    |      Memory      |                          Module                         | BRAM_18K| FF | LUT| URAM| Words| Bits| Banks| W*Bits*Banks|
+    +------------------+---------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+    |group_U           |activation_quantizer_compute_group_RAM_AUTO_1R1W         |        0|  32|  33|    0|    32|   32|     1|         1024|
+    |mask_table_U      |activation_quantizer_compute_mask_table_ROM_AUTO_1R      |        0|  32|  33|    0|    32|   23|     1|          736|
+    |one_half_table_U  |activation_quantizer_compute_one_half_table_ROM_AUTO_1R  |        0|  32|  33|    0|    32|   24|     1|          768|
+    +------------------+---------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+    |Total             |                                                         |        0|  96|  99|    0|    96|   79|     3|         2528|
+    +------------------+---------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +------------------------------------------------------------------------+----------+----+---+-----+------------+------------+
+    |                              Variable Name                             | Operation| DSP| FF| LUT | Bitwidth P0| Bitwidth P1|
+    +------------------------------------------------------------------------+----------+----+---+-----+------------+------------+
+    |add_ln317_fu_4969_p2                                                    |         +|   0|  0|   16|           9|           8|
+    |add_ln364_fu_4518_p2                                                    |         +|   0|  0|   31|          24|           2|
+    |add_ln365_fu_4534_p2                                                    |         +|   0|  0|   16|           9|           2|
+    |add_ln65_fu_3893_p2                                                     |         +|   0|  0|   12|           5|           1|
+    |add_ln66_fu_4045_p2                                                     |         +|   0|  0|   15|           8|           1|
+    |add_ln68_fu_4095_p2                                                     |         +|   0|  0|   13|           6|           1|
+    |add_ln80_fu_4653_p2                                                     |         +|   0|  0|   13|           6|           1|
+    |add_ln89_1_fu_4668_p2                                                   |         +|   0|  0|   23|          16|          16|
+    |add_ln89_fu_4055_p2                                                     |         +|   0|  0|   18|          11|          11|
+    |col_19_fu_4105_p2                                                       |         +|   0|  0|   19|          12|          12|
+    |data_3_fu_4771_p2                                                       |         +|   0|  0|   39|          32|          32|
+    |half_exp_fu_4374_p2                                                     |         +|   0|  0|   16|           9|           8|
+    |result_1_fu_4568_p2                                                     |         +|   0|  0|   23|          16|           1|
+    |result_4_fu_4442_p2                                                     |         +|   0|  0|   22|          15|           1|
+    |shift_fu_4481_p2                                                        |         -|   0|  0|   15|           7|           8|
+    |sub_ln18_fu_4983_p2                                                     |         -|   0|  0|   15|           7|           8|
+    |sub_ln59_fu_5049_p2                                                     |         -|   0|  0|   15|           1|           8|
+    |and_ln125_fu_3461_p2                                                    |       and|   0|  0|    2|           1|           1|
+    |and_ln129_1_fu_3649_p2                                                  |       and|   0|  0|    2|           1|           1|
+    |and_ln129_2_fu_3661_p2                                                  |       and|   0|  0|    2|           1|           1|
+    |and_ln129_3_fu_3685_p2                                                  |       and|   0|  0|    2|           1|           1|
+    |and_ln129_4_fu_3749_p2                                                  |       and|   0|  0|    2|           1|           1|
+    |and_ln129_5_fu_3320_p2                                                  |       and|   0|  0|    2|           1|           1|
+    |and_ln129_fu_3431_p2                                                    |       and|   0|  0|    2|           1|           1|
+    |and_ln28_1_fu_3589_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln28_2_fu_3595_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln28_3_fu_3613_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln28_4_fu_3619_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln28_5_fu_3691_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln28_6_fu_3697_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln28_fu_3577_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |and_ln31_fu_3559_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |and_ln366_fu_4562_p2                                                    |       and|   0|  0|    2|           1|           1|
+    |and_ln36_fu_3601_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |and_ln372_fu_4436_p2                                                    |       and|   0|  0|    2|           1|           1|
+    |and_ln38_2_fu_3517_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln38_3_fu_3523_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln38_4_fu_3529_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln38_fu_3511_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |and_ln41_1_fu_3541_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln41_2_fu_3547_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln41_3_fu_3553_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln41_fu_3535_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |and_ln72_3_fu_4230_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln72_fu_4224_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |and_ln76_fu_4310_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |and_ln87_1_fu_4917_p2                                                   |       and|   0|  0|    2|           1|           1|
+    |and_ln87_fu_4911_p2                                                     |       and|   0|  0|    2|           1|           1|
+    |ap_condition_3786                                                       |       and|   0|  0|    2|           1|           1|
+    |ap_condition_3791                                                       |       and|   0|  0|    2|           1|           1|
+    |ap_condition_3795                                                       |       and|   0|  0|    2|           1|           1|
+    |remainder_fu_4524_p2                                                    |       and|   0|  0|   24|          24|          24|
+    |xs_sig_fu_4786_p2                                                       |       and|   0|  0|   23|          23|          23|
+    |icmp_ln128_16_fu_3302_p2                                                |      icmp|   0|  0|   12|           4|           3|
+    |icmp_ln128_fu_3296_p2                                                   |      icmp|   0|  0|   12|           4|           1|
+    |icmp_ln129_7_fu_3342_p2                                                 |      icmp|   0|  0|   12|           5|           1|
+    |icmp_ln129_8_fu_3348_p2                                                 |      icmp|   0|  0|   15|           8|           1|
+    |icmp_ln129_fu_3326_p2                                                   |      icmp|   0|  0|   12|           4|           4|
+    |icmp_ln167_fu_4739_p2                                                   |      icmp|   0|  0|   15|           8|           7|
+    |icmp_ln170_fu_4745_p2                                                   |      icmp|   0|  0|   15|           8|           8|
+    |icmp_ln27_10_fu_3488_p2                                                 |      icmp|   0|  0|   12|           3|           4|
+    |icmp_ln27_7_fu_3467_p2                                                  |      icmp|   0|  0|   10|           3|           3|
+    |icmp_ln27_8_fu_3472_p2                                                  |      icmp|   0|  0|   10|           3|           3|
+    |icmp_ln27_9_fu_3477_p2                                                  |      icmp|   0|  0|   10|           3|           2|
+    |icmp_ln27_fu_3380_p2                                                    |      icmp|   0|  0|    9|           2|           1|
+    |icmp_ln28_10_fu_3499_p2                                                 |      icmp|   0|  0|   12|           4|           2|
+    |icmp_ln28_11_fu_3505_p2                                                 |      icmp|   0|  0|   12|           4|           5|
+    |icmp_ln28_fu_3482_p2                                                    |      icmp|   0|  0|   20|          13|          12|
+    |icmp_ln31_fu_3413_p2                                                    |      icmp|   0|  0|   12|           4|           3|
+    |icmp_ln33_fu_3493_p2                                                    |      icmp|   0|  0|   21|          13|          14|
+    |icmp_ln355_fu_4369_p2                                                   |      icmp|   0|  0|   15|           8|           2|
+    |icmp_ln356_fu_4602_p2                                                   |      icmp|   0|  0|   30|          23|           1|
+    |icmp_ln358_fu_4380_p2                                                   |      icmp|   0|  0|   16|           9|           5|
+    |icmp_ln359_fu_4386_p2                                                   |      icmp|   0|  0|   16|           9|           5|
+    |icmp_ln360_fu_4392_p2                                                   |      icmp|   0|  0|   16|           9|           1|
+    |icmp_ln366_1_fu_4556_p2                                                 |      icmp|   0|  0|   39|          32|          32|
+    |icmp_ln366_fu_4550_p2                                                   |      icmp|   0|  0|   39|          32|          32|
+    |icmp_ln36_fu_3419_p2                                                    |      icmp|   0|  0|   12|           4|           4|
+    |icmp_ln372_1_fu_4431_p2                                                 |      icmp|   0|  0|   21|          13|          14|
+    |icmp_ln372_fu_4426_p2                                                   |      icmp|   0|  0|   21|          13|          14|
+    |icmp_ln37_fu_3385_p2                                                    |      icmp|   0|  0|    9|           2|           1|
+    |icmp_ln38_fu_3395_p2                                                    |      icmp|   0|  0|   20|          13|          11|
+    |icmp_ln40_fu_3390_p2                                                    |      icmp|   0|  0|   10|           2|           3|
+    |icmp_ln41_fu_3401_p2                                                    |      icmp|   0|  0|   20|          13|           9|
+    |icmp_ln42_fu_3407_p2                                                    |      icmp|   0|  0|   15|           8|           2|
+    |icmp_ln65_4_fu_3888_p2                                                  |      icmp|   0|  0|   12|           5|           5|
+    |icmp_ln65_fu_3875_p2                                                    |      icmp|   0|  0|   12|           5|           1|
+    |icmp_ln66_fu_4040_p2                                                    |      icmp|   0|  0|   15|           8|           8|
+    |icmp_ln68_fu_4089_p2                                                    |      icmp|   0|  0|   14|           6|           7|
+    |icmp_ln72_2_fu_4178_p2                                                  |      icmp|   0|  0|   30|          23|           1|
+    |icmp_ln72_3_fu_4206_p2                                                  |      icmp|   0|  0|   15|           8|           2|
+    |icmp_ln72_4_fu_4212_p2                                                  |      icmp|   0|  0|   30|          23|           1|
+    |icmp_ln72_fu_4172_p2                                                    |      icmp|   0|  0|   15|           8|           2|
+    |icmp_ln76_2_fu_4299_p2                                                  |      icmp|   0|  0|   30|          23|           1|
+    |icmp_ln76_fu_4294_p2                                                    |      icmp|   0|  0|   15|           8|           2|
+    |icmp_ln79_fu_4641_p2                                                    |      icmp|   0|  0|   22|          15|          12|
+    |icmp_ln80_fu_4647_p2                                                    |      icmp|   0|  0|   14|           6|           7|
+    |icmp_ln87_1_fu_4899_p2                                                  |      icmp|   0|  0|   30|          23|           1|
+    |icmp_ln87_fu_4893_p2                                                    |      icmp|   0|  0|   15|           8|           2|
+    |icmp_ln8_179_fu_4149_p2                                                 |      icmp|   0|  0|   38|          31|          25|
+    |icmp_ln8_180_fu_4345_p2                                                 |      icmp|   0|  0|   38|          31|          25|
+    |icmp_ln8_181_fu_4725_p2                                                 |      icmp|   0|  0|   38|          31|          25|
+    |icmp_ln8_182_fu_4883_p2                                                 |      icmp|   0|  0|   38|          31|          25|
+    |icmp_ln8_fu_4288_p2                                                     |      icmp|   0|  0|   38|          31|          25|
+    |icmp_ln9_201_fu_3290_p2                                                 |      icmp|   0|  0|   23|          16|           1|
+    |icmp_ln9_202_fu_3806_p2                                                 |      icmp|   0|  0|   23|          16|           1|
+    |icmp_ln9_203_fu_3820_p2                                                 |      icmp|   0|  0|   23|          16|           1|
+    |icmp_ln9_fu_3793_p2                                                     |      icmp|   0|  0|   23|          16|           1|
+    |lshr_ln18_fu_5009_p2                                                    |      lshr|   0|  0|  163|          55|          55|
+    |result_fu_4494_p2                                                       |      lshr|   0|  0|   92|          32|          32|
+    |empty_fu_3308_p2                                                        |        or|   0|  0|    2|           1|           1|
+    |or_ln125_1_fu_3455_p2                                                   |        or|   0|  0|    2|           1|           1|
+    |or_ln125_fu_3449_p2                                                     |        or|   0|  0|    2|           1|           1|
+    |or_ln129_1_fu_3737_p2                                                   |        or|   0|  0|    2|           1|           1|
+    |or_ln129_2_fu_3743_p2                                                   |        or|   0|  0|    2|           1|           1|
+    |or_ln129_3_fu_3679_p2                                                   |        or|   0|  0|    2|           1|           1|
+    |or_ln129_fu_3437_p2                                                     |        or|   0|  0|    2|           1|           1|
+    |or_ln28_1_fu_3571_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln28_2_fu_3583_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln28_3_fu_3607_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln28_4_fu_3625_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln28_5_fu_3631_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln28_6_fu_3637_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln28_7_fu_3667_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln28_fu_3565_p2                                                      |        or|   0|  0|    2|           1|           1|
+    |or_ln366_fu_4574_p2                                                     |        or|   0|  0|    2|           1|           1|
+    |or_ln368_fu_4588_p2                                                     |        or|   0|  0|   16|          16|          16|
+    |or_ln372_fu_4448_p2                                                     |        or|   0|  0|    2|           1|           1|
+    |or_ln72_1_fu_4218_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln72_fu_4202_p2                                                      |        or|   0|  0|    2|           1|           1|
+    |or_ln76_fu_4304_p2                                                      |        or|   0|  0|    2|           1|           1|
+    |or_ln87_1_fu_4929_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln87_2_fu_4923_p2                                                    |        or|   0|  0|    2|           1|           1|
+    |or_ln87_fu_4905_p2                                                      |        or|   0|  0|    2|           1|           1|
+    |or_ln92_fu_5101_p2                                                      |        or|   0|  0|   32|          32|          32|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_we0  |        or|   0|  0|    2|           1|           1|
+    |amax_2_fu_4236_p3                                                       |    select|   0|  0|   32|           1|          32|
+    |reciprocal_fu_4316_p3                                                   |    select|   0|  0|   32|           1|           1|
+    |result_2_fu_4580_p3                                                     |    select|   0|  0|   16|           1|          16|
+    |result_5_fu_4454_p3                                                     |    select|   0|  0|   15|           1|          15|
+    |result_7_fu_5055_p3                                                     |    select|   0|  0|    8|           1|           8|
+    |select_ln18_fu_4993_p3                                                  |    select|   0|  0|    9|           1|           9|
+    |select_ln356_fu_4607_p3                                                 |    select|   0|  0|   12|           1|          11|
+    |val_fu_5041_p3                                                          |    select|   0|  0|    8|           1|           8|
+    |halfway_fu_4544_p2                                                      |       shl|   0|  0|   92|           1|          32|
+    |shl_ln18_fu_5015_p2                                                     |       shl|   0|  0|  163|          55|          55|
+    |shl_ln364_fu_4508_p2                                                    |       shl|   0|  0|   92|           1|          32|
+    |shl_ln92_fu_5095_p2                                                     |       shl|   0|  0|   92|           1|          32|
+    |xor_ln129_1_fu_3643_p2                                                  |       xor|   0|  0|    2|           1|           2|
+    |xor_ln129_2_fu_3655_p2                                                  |       xor|   0|  0|    2|           1|           2|
+    |xor_ln129_4_fu_3314_p2                                                  |       xor|   0|  0|    2|           1|           2|
+    |xor_ln129_5_fu_3673_p2                                                  |       xor|   0|  0|    2|           1|           2|
+    |xor_ln129_fu_3443_p2                                                    |       xor|   0|  0|    2|           1|           2|
+    |xor_ln184_fu_4780_p2                                                    |       xor|   0|  0|   23|          23|           2|
+    |xor_ln9_fu_3425_p2                                                      |       xor|   0|  0|    2|           1|           2|
+    +------------------------------------------------------------------------+----------+----+---+-----+------------+------------+
+    |Total                                                                   |          |   0|  0| 2464|        1199|        1017|
+    +------------------------------------------------------------------------+----------+----+---+-----+------------+------------+
+
+    * Multiplexer: 
+    +------------------------------------------------------------------------------------------------+-----+-----------+-----+-----------+
+    |                                              Name                                              | LUT | Input Size| Bits| Total Bits|
+    +------------------------------------------------------------------------------------------------+-----+-----------+-----+-----------+
+    |agg_result_01_3_reg_2963                                                                        |   26|          5|   16|         80|
+    |agg_result_12_3_reg_2996                                                                        |   26|          5|   32|        160|
+    |agg_result_23_2_reg_3029                                                                        |   37|          7|   17|        119|
+    |amax_reg_2906                                                                                   |    9|          2|   32|         64|
+    |ap_NS_fsm                                                                                       |  422|         87|    1|         87|
+    |ap_phi_mux_agg_result_01_3_phi_fu_2967_p20                                                      |    9|          2|   16|         32|
+    |ap_phi_mux_agg_result_12_3_phi_fu_3000_p20                                                      |    9|          2|   32|         64|
+    |ap_phi_mux_agg_result_23_2_phi_fu_3033_p20                                                      |    9|          2|   17|         34|
+    |ap_return_0                                                                                     |    9|          2|   16|         32|
+    |ap_return_1                                                                                     |    9|          2|   32|         64|
+    |ap_return_2                                                                                     |    9|          2|   64|        128|
+    |dc_3_reg_2947                                                                                   |   20|          4|   32|        128|
+    |g_reg_2882                                                                                      |    9|          2|    8|         16|
+    |group_address0_local                                                                            |   14|          3|    5|         15|
+    |grp_fu_3255_p0                                                                                  |   14|          3|   32|         96|
+    |grp_fu_3255_p1                                                                                  |   14|          3|   32|         96|
+    |grp_fu_3262_opcode                                                                              |   20|          4|    5|         20|
+    |grp_fu_3262_p0                                                                                  |   20|          4|   32|        128|
+    |grp_fu_3262_p1                                                                                  |   20|          4|   32|        128|
+    |i_172_reg_2935                                                                                  |    9|          2|    6|         12|
+    |i_reg_2894                                                                                      |    9|          2|    6|         12|
+    |p_anonymous_namespace_runtime_cache_activation_meta_K                                           |   14|          3|   13|         39|
+    |p_anonymous_namespace_runtime_cache_activation_meta_K_ap_vld                                    |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_batch                                       |   14|          3|    8|         24|
+    |p_anonymous_namespace_runtime_cache_activation_meta_batch_ap_vld                                |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_content                                     |   14|          3|    3|          9|
+    |p_anonymous_namespace_runtime_cache_activation_meta_content_ap_vld                              |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_address0                     |    9|          2|    6|         12|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_address0_local               |   14|          3|    6|         18|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_ce0                          |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_ce1                          |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_d0                           |    9|          2|   32|         64|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_we0                          |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_we1                          |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_B                                  |   14|          3|   16|         48|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_B_ap_vld                           |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_S                                  |   14|          3|   16|         48|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_S_ap_vld                           |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_address0                 |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_address0_local           |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_address1                 |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_address1_local           |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_ce0                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_ce1                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_d0                       |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_d0_local                 |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_d1                       |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_d1_local                 |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_we0                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_we1                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_generation                         |   14|          3|   64|        192|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_generation_ap_vld                  |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_address0                |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_address0_local          |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_address1                |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_address1_local          |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_ce0                     |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_ce1                     |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_d0                      |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_d0_local                |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_d1                      |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_d1_local                |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_we0                     |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_we1                     |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_address0                 |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_address0_local           |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_address1                 |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_address1_local           |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_ce0                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_ce1                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_d0                       |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_d0_local                 |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_d1                       |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_d1_local                 |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_we0                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_we1                      |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_address0               |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_address0_local         |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_address1               |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_address1_local         |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_ce0                    |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_ce1                    |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_d0                     |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_d0_local               |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_d1                     |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_d1_local               |   54|         10|    8|         80|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_we0                    |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_we1                    |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_request_id                         |   14|          3|   64|        192|
+    |p_anonymous_namespace_runtime_cache_activation_meta_identity_request_id_ap_vld                  |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_layer                                       |   14|          3|    6|         18|
+    |p_anonymous_namespace_runtime_cache_activation_meta_layer_ap_vld                                |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_producer_task_id                            |   14|          3|   32|         96|
+    |p_anonymous_namespace_runtime_cache_activation_meta_producer_task_id_ap_vld                     |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch_o                                 |   14|          3|   32|         96|
+    |p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch_o_ap_vld                          |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_ref_id_o                                    |   14|          3|    6|         18|
+    |p_anonymous_namespace_runtime_cache_activation_meta_ref_id_o_ap_vld                             |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_row0                                        |   14|          3|   16|         48|
+    |p_anonymous_namespace_runtime_cache_activation_meta_row0_ap_vld                                 |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_row_space                                   |   14|          3|    2|          6|
+    |p_anonymous_namespace_runtime_cache_activation_meta_row_space_ap_vld                            |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_rows                                        |   14|          3|    5|         15|
+    |p_anonymous_namespace_runtime_cache_activation_meta_rows_ap_vld                                 |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_K                                    |   14|          3|   16|         48|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_K_ap_vld                             |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_batch                                |   14|          3|    8|         24|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_batch_ap_vld                         |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_content                              |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_content_ap_vld                       |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_address0              |    9|          2|    6|         12|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_address0_local        |  152|         33|    6|        198|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_address1              |    9|          2|    6|         12|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_address1_local        |  152|         33|    6|        198|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_ce0                   |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_ce1                   |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_d0                    |    9|          2|   32|         64|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_d1                    |    9|          2|   32|         64|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_we0                   |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_we1                   |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_B                           |   14|          3|   16|         48|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_B_ap_vld                    |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_S                           |   14|          3|   16|         48|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_S_ap_vld                    |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_address0          |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_address0_local    |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_address1          |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_address1_local    |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_ce0               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_ce1               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_d0                |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_d1                |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_we0               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_we1               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_generation                  |   14|          3|   64|        192|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_generation_ap_vld           |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_address0         |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_address0_local   |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_address1         |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_address1_local   |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_ce0              |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_ce1              |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_d0               |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_d1               |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_we0              |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_we1              |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_address0          |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_address0_local    |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_address1          |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_address1_local    |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_ce0               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_ce1               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_d0                |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_d1                |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_we0               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_we1               |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_address0        |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_address0_local  |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_address1        |    9|          2|    4|          8|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_address1_local  |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_ce0             |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_ce1             |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_d0              |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_d1              |    9|          2|    8|         16|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_we0             |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_we1             |    9|          2|    1|          2|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_request_id                  |   14|          3|   64|        192|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_identity_request_id_ap_vld           |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_ref_bank                             |   14|          3|    8|         24|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_ref_bank_ap_vld                      |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_ref_epoch                            |   14|          3|   32|         96|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_ref_epoch_ap_vld                     |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_ref_id                               |   14|          3|    8|         24|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_ref_id_ap_vld                        |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_region                               |   14|          3|    8|         24|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_region_ap_vld                        |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_row0                                 |   14|          3|   16|         48|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_row0_ap_vld                          |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_row_space                            |   14|          3|    8|         24|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_row_space_ap_vld                     |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_rows                                 |   14|          3|    8|         24|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_rows_ap_vld                          |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_state                                |   14|          3|    3|          9|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_state_ap_vld                         |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_valid                                |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_source_valid_ap_vld                         |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_stage                                       |   14|          3|    3|          9|
+    |p_anonymous_namespace_runtime_cache_activation_meta_stage_ap_vld                                |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_state_o                                     |   20|          4|    3|         12|
+    |p_anonymous_namespace_runtime_cache_activation_meta_state_o_ap_vld                              |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_cache_activation_meta_valid_o                                     |   20|          4|    1|          4|
+    |p_anonymous_namespace_runtime_cache_activation_meta_valid_o_ap_vld                              |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_address0                                |   14|          3|    4|         12|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_address0_local                          |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_address1_local                          |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_ce0                                     |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_address0                               |   14|          3|    4|         12|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_address0_local                         |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_address1_local                         |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_ce0                                    |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_address0                                |   14|          3|    4|         12|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_address0_local                          |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_address1_local                          |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_ce0                                     |   14|          3|    1|          3|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_address0                              |   14|          3|    4|         12|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_address0_local                        |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_address1_local                        |   49|          9|    4|         36|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_ce0                                   |   14|          3|    1|          3|
+    |r_fu_1102                                                                                       |    9|          2|    5|         10|
+    |saved_reg_2918                                                                                  |   26|          5|   16|         80|
+    |source_covered_groups_address0                                                                  |    9|          2|    6|         12|
+    |source_covered_groups_address0_local                                                            |  152|         33|    6|        198|
+    |source_covered_groups_address1_local                                                            |  152|         33|    6|        198|
+    |source_covered_groups_ce0                                                                       |    9|          2|    1|          2|
+    |source_identity_build_tag_address0                                                              |    9|          2|    4|          8|
+    |source_identity_build_tag_address0_local                                                        |   49|          9|    4|         36|
+    |source_identity_build_tag_address1_local                                                        |   49|          9|    4|         36|
+    |source_identity_build_tag_ce0                                                                   |    9|          2|    1|          2|
+    |source_identity_layout_tag_address0                                                             |    9|          2|    4|          8|
+    |source_identity_layout_tag_address0_local                                                       |   49|          9|    4|         36|
+    |source_identity_layout_tag_address1_local                                                       |   49|          9|    4|         36|
+    |source_identity_layout_tag_ce0                                                                  |    9|          2|    1|          2|
+    |source_identity_model_tag_address0                                                              |    9|          2|    4|          8|
+    |source_identity_model_tag_address0_local                                                        |   49|          9|    4|         36|
+    |source_identity_model_tag_address1_local                                                        |   49|          9|    4|         36|
+    |source_identity_model_tag_ce0                                                                   |    9|          2|    1|          2|
+    |source_identity_numeric_tag_address0                                                            |    9|          2|    4|          8|
+    |source_identity_numeric_tag_address0_local                                                      |   49|          9|    4|         36|
+    |source_identity_numeric_tag_address1_local                                                      |   49|          9|    4|         36|
+    |source_identity_numeric_tag_ce0                                                                 |    9|          2|    1|          2|
+    +------------------------------------------------------------------------------------------------+-----+-----------+-----+-----------+
+    |Total                                                                                           | 5220|       1059| 1701|       6817|
+    +------------------------------------------------------------------------------------------------+-----+-----------+-----+-----------+
+
+    * Register: 
+    +----------------------------------------------------------------------------------+----+----+-----+-----------+
+    |                                       Name                                       | FF | LUT| Bits| Const Bits|
+    +----------------------------------------------------------------------------------+----+----+-----+-----------+
+    |add_ln65_reg_6125                                                                 |   5|   0|    5|          0|
+    |add_ln66_reg_6190                                                                 |   8|   0|    8|          0|
+    |add_ln68_reg_6222                                                                 |   6|   0|    6|          0|
+    |add_ln80_reg_6353                                                                 |   6|   0|    6|          0|
+    |agg_result_01_3_reg_2963                                                          |  16|   0|   16|          0|
+    |agg_result_12_3_reg_2996                                                          |  32|   0|   32|          0|
+    |agg_result_23_2_reg_3029                                                          |  17|   0|   17|          0|
+    |amax_reg_2906                                                                     |  32|   0|   32|          0|
+    |and_ln76_reg_6297                                                                 |   1|   0|    1|          0|
+    |ap_CS_fsm                                                                         |  86|   0|   86|          0|
+    |ap_return_0_preg                                                                  |  16|   0|   16|          0|
+    |ap_return_1_preg                                                                  |  32|   0|   32|          0|
+    |ap_return_2_preg                                                                  |  64|   0|   64|          0|
+    |bits_reg_6266                                                                     |  32|   0|   32|          0|
+    |c_code_193_reg_5321                                                               |  16|   0|   16|          0|
+    |c_detail_215_reg_5327                                                             |  32|   0|   32|          0|
+    |col_reg_6214                                                                      |   7|   0|   12|          5|
+    |data_4_reg_6389                                                                   |  32|   0|   32|          0|
+    |dc_3_reg_2947                                                                     |  32|   0|   32|          0|
+    |exponent_reg_6286                                                                 |   8|   0|    8|          0|
+    |g_full_cache_activation_q_addr_reg_6358                                           |  16|   0|   16|          0|
+    |g_full_cache_activation_scale_addr_reg_6200                                       |  11|   0|   11|          0|
+    |g_reg_2882                                                                        |   8|   0|    8|          0|
+    |groups_reg_6105                                                                   |   8|   0|    8|          0|
+    |grp_numeric_check_context_fu_3059_ap_start_reg                                    |   1|   0|    1|          0|
+    |grp_numeric_check_source_3_fu_3093_ap_start_reg                                   |   1|   0|    1|          0|
+    |grp_numeric_claim_a8_fu_3159_ap_start_reg                                         |   1|   0|    1|          0|
+    |i_172_reg_2935                                                                    |   6|   0|    6|          0|
+    |i_reg_2894                                                                        |   6|   0|    6|          0|
+    |icmp_ln65_4_reg_6121                                                              |   1|   0|    1|          0|
+    |icmp_ln65_reg_6110                                                                |   1|   0|    1|          0|
+    |icmp_ln72_2_reg_6251                                                              |   1|   0|    1|          0|
+    |icmp_ln72_reg_6246                                                                |   1|   0|    1|          0|
+    |icmp_ln9_202_reg_5755                                                             |   1|   0|    1|          0|
+    |icmp_ln9_203_reg_5769                                                             |   1|   0|    1|          0|
+    |icmp_ln9_reg_5741                                                                 |   1|   0|    1|          0|
+    |mag_reg_6240                                                                      |  31|   0|   32|          1|
+    |mantissa_reg_6279                                                                 |  23|   0|   23|          0|
+    |p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_addr_reg_6373  |   6|   0|    6|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_10_reg_6003          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_11_reg_6008          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_12_reg_6043          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_13_reg_6048          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_14_reg_6095          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_15_reg_6100          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_1_reg_5808           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_2_reg_5843           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_3_reg_5848           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_4_reg_5883           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_5_reg_5888           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_6_reg_5923           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_7_reg_5928           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_8_reg_5963           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_9_reg_5968           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_build_tag_load_reg_5803             |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_10_reg_5993         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_11_reg_5998         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_12_reg_6033         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_13_reg_6038         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_14_reg_6085         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_15_reg_6090         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_1_reg_5798          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_2_reg_5833          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_3_reg_5838          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_4_reg_5873          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_5_reg_5878          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_6_reg_5913          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_7_reg_5918          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_8_reg_5953          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_9_reg_5958          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_layout_tag_load_reg_5793            |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_10_reg_5893          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_11_reg_5898          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_12_reg_5933          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_13_reg_5938          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_14_reg_5973          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_15_reg_5978          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_16_reg_6013          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_17_reg_6018          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_18_reg_6065          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_19_reg_6070          |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_5_reg_5778           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_6_reg_5813           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_7_reg_5818           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_8_reg_5853           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_9_reg_5858           |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_model_tag_load_reg_5773             |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_10_reg_5983        |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_11_reg_5988        |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_12_reg_6023        |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_13_reg_6028        |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_14_reg_6075        |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_15_reg_6080        |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_1_reg_5788         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_2_reg_5823         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_3_reg_5828         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_4_reg_5863         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_5_reg_5868         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_6_reg_5903         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_7_reg_5908         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_8_reg_5943         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_9_reg_5948         |   8|   0|    8|          0|
+    |p_anonymous_namespace_runtime_inputs_identity_numeric_tag_load_reg_5783           |   8|   0|    8|          0|
+    |product_reg_6383                                                                  |  32|   0|   32|          0|
+    |r_fu_1102                                                                         |   5|   0|    5|          0|
+    |reciprocal_reg_6302                                                               |  32|   0|   32|          0|
+    |reg_3276                                                                          |  32|   0|   32|          0|
+    |remainder_1_reg_6273                                                              |  13|   0|   13|          0|
+    |saved_reg_2918                                                                    |  16|   0|   16|          0|
+    |tmp_152_reg_6195                                                                  |  11|   0|   16|          5|
+    |tmp_310_reg_6182                                                                  |   4|   0|   11|          7|
+    |tmp_312_reg_6227                                                                  |  16|   0|   16|          0|
+    |trunc_ln65_reg_6130                                                               |   4|   0|    4|          0|
+    |trunc_ln69_reg_6205                                                               |   7|   0|    7|          0|
+    |trunc_ln92_reg_6368                                                               |   5|   0|    5|          0|
+    +----------------------------------------------------------------------------------+----+----+-----+-----------+
+    |Total                                                                             |1294|   0| 1312|         18|
+    +----------------------------------------------------------------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++------------------------------------------------------------------------------------------+-----+-----+------------+---------------------------------------------------------------------------------+--------------+
+|                                         RTL Ports                                        | Dir | Bits|  Protocol  |                                  Source Object                                  |    C Type    |
++------------------------------------------------------------------------------------------+-----+-----+------------+---------------------------------------------------------------------------------+--------------+
+|ap_clk                                                                                    |   in|    1|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_rst                                                                                    |   in|    1|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_start                                                                                  |   in|    1|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_done                                                                                   |  out|    1|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_idle                                                                                   |  out|    1|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_ready                                                                                  |  out|    1|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_return_0                                                                               |  out|   16|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_return_1                                                                               |  out|   32|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|ap_return_2                                                                               |  out|   64|  ap_ctrl_hs|                                                     activation_quantizer_compute|  return value|
+|task_ctx_task_id_val                                                                      |   in|   32|     ap_none|                                                             task_ctx_task_id_val|        scalar|
+|task_ctx_stage_val                                                                        |   in|    3|     ap_none|                                                               task_ctx_stage_val|        scalar|
+|task_ctx_layer_val                                                                        |   in|    6|     ap_none|                                                               task_ctx_layer_val|        scalar|
+|task_ctx_batch_val                                                                        |   in|    8|     ap_none|                                                               task_ctx_batch_val|        scalar|
+|task_ctx_row_space_val                                                                    |   in|    2|     ap_none|                                                           task_ctx_row_space_val|        scalar|
+|task_ctx_row0_val                                                                         |   in|   16|     ap_none|                                                                task_ctx_row0_val|        scalar|
+|task_ctx_rows_val                                                                         |   in|    5|     ap_none|                                                                task_ctx_rows_val|        scalar|
+|task_src_id_val                                                                           |   in|    4|     ap_none|                                                                  task_src_id_val|        scalar|
+|task_src_bank_val                                                                         |   in|    1|     ap_none|                                                                task_src_bank_val|        scalar|
+|task_src_epoch_val                                                                        |   in|   32|     ap_none|                                                               task_src_epoch_val|        scalar|
+|task_a_dst_epoch_val                                                                      |   in|   32|     ap_none|                                                             task_a_dst_epoch_val|        scalar|
+|task_K_val                                                                                |   in|   13|     ap_none|                                                                       task_K_val|        scalar|
+|task_src_region_val                                                                       |   in|    8|     ap_none|                                                              task_src_region_val|        scalar|
+|source_identity_request_id_val                                                            |   in|   64|     ap_none|                                                   source_identity_request_id_val|        scalar|
+|source_identity_generation_val                                                            |   in|   64|     ap_none|                                                   source_identity_generation_val|        scalar|
+|source_identity_B_val                                                                     |   in|   16|     ap_none|                                                            source_identity_B_val|        scalar|
+|source_identity_S_val                                                                     |   in|   16|     ap_none|                                                            source_identity_S_val|        scalar|
+|source_identity_model_tag_address0                                                        |  out|    4|   ap_memory|                                                        source_identity_model_tag|         array|
+|source_identity_model_tag_ce0                                                             |  out|    1|   ap_memory|                                                        source_identity_model_tag|         array|
+|source_identity_model_tag_q0                                                              |   in|    8|   ap_memory|                                                        source_identity_model_tag|         array|
+|source_identity_model_tag_address1                                                        |  out|    4|   ap_memory|                                                        source_identity_model_tag|         array|
+|source_identity_model_tag_ce1                                                             |  out|    1|   ap_memory|                                                        source_identity_model_tag|         array|
+|source_identity_model_tag_q1                                                              |   in|    8|   ap_memory|                                                        source_identity_model_tag|         array|
+|source_identity_numeric_tag_address0                                                      |  out|    4|   ap_memory|                                                      source_identity_numeric_tag|         array|
+|source_identity_numeric_tag_ce0                                                           |  out|    1|   ap_memory|                                                      source_identity_numeric_tag|         array|
+|source_identity_numeric_tag_q0                                                            |   in|    8|   ap_memory|                                                      source_identity_numeric_tag|         array|
+|source_identity_numeric_tag_address1                                                      |  out|    4|   ap_memory|                                                      source_identity_numeric_tag|         array|
+|source_identity_numeric_tag_ce1                                                           |  out|    1|   ap_memory|                                                      source_identity_numeric_tag|         array|
+|source_identity_numeric_tag_q1                                                            |   in|    8|   ap_memory|                                                      source_identity_numeric_tag|         array|
+|source_identity_layout_tag_address0                                                       |  out|    4|   ap_memory|                                                       source_identity_layout_tag|         array|
+|source_identity_layout_tag_ce0                                                            |  out|    1|   ap_memory|                                                       source_identity_layout_tag|         array|
+|source_identity_layout_tag_q0                                                             |   in|    8|   ap_memory|                                                       source_identity_layout_tag|         array|
+|source_identity_layout_tag_address1                                                       |  out|    4|   ap_memory|                                                       source_identity_layout_tag|         array|
+|source_identity_layout_tag_ce1                                                            |  out|    1|   ap_memory|                                                       source_identity_layout_tag|         array|
+|source_identity_layout_tag_q1                                                             |   in|    8|   ap_memory|                                                       source_identity_layout_tag|         array|
+|source_identity_build_tag_address0                                                        |  out|    4|   ap_memory|                                                        source_identity_build_tag|         array|
+|source_identity_build_tag_ce0                                                             |  out|    1|   ap_memory|                                                        source_identity_build_tag|         array|
+|source_identity_build_tag_q0                                                              |   in|    8|   ap_memory|                                                        source_identity_build_tag|         array|
+|source_identity_build_tag_address1                                                        |  out|    4|   ap_memory|                                                        source_identity_build_tag|         array|
+|source_identity_build_tag_ce1                                                             |  out|    1|   ap_memory|                                                        source_identity_build_tag|         array|
+|source_identity_build_tag_q1                                                              |   in|    8|   ap_memory|                                                        source_identity_build_tag|         array|
+|source_ref_id_val                                                                         |   in|    8|     ap_none|                                                                source_ref_id_val|        scalar|
+|source_ref_bank_val                                                                       |   in|    8|     ap_none|                                                              source_ref_bank_val|        scalar|
+|source_ref_epoch_val                                                                      |   in|   32|     ap_none|                                                             source_ref_epoch_val|        scalar|
+|source_region_val                                                                         |   in|    8|     ap_none|                                                                source_region_val|        scalar|
+|source_row_space_val                                                                      |   in|    8|     ap_none|                                                             source_row_space_val|        scalar|
+|source_batch_val                                                                          |   in|    8|     ap_none|                                                                 source_batch_val|        scalar|
+|source_row0_val                                                                           |   in|   16|     ap_none|                                                                  source_row0_val|        scalar|
+|source_rows_val                                                                           |   in|    8|     ap_none|                                                                  source_rows_val|        scalar|
+|source_K_val                                                                              |   in|   16|     ap_none|                                                                     source_K_val|        scalar|
+|source_covered_groups_address0                                                            |  out|    6|   ap_memory|                                                            source_covered_groups|         array|
+|source_covered_groups_ce0                                                                 |  out|    1|   ap_memory|                                                            source_covered_groups|         array|
+|source_covered_groups_q0                                                                  |   in|   32|   ap_memory|                                                            source_covered_groups|         array|
+|source_covered_groups_address1                                                            |  out|    6|   ap_memory|                                                            source_covered_groups|         array|
+|source_covered_groups_ce1                                                                 |  out|    1|   ap_memory|                                                            source_covered_groups|         array|
+|source_covered_groups_q1                                                                  |   in|   32|   ap_memory|                                                            source_covered_groups|         array|
+|p_anonymous_namespace_runtime_inputs_identity_S                                           |   in|   16|     ap_none|                                  p_anonymous_namespace_runtime_inputs_identity_S|       pointer|
+|p_anonymous_namespace_runtime_inputs_identity_request_id                                  |   in|   64|     ap_none|                         p_anonymous_namespace_runtime_inputs_identity_request_id|       pointer|
+|p_anonymous_namespace_runtime_inputs_identity_generation                                  |   in|   64|     ap_none|                         p_anonymous_namespace_runtime_inputs_identity_generation|       pointer|
+|p_anonymous_namespace_runtime_inputs_identity_B                                           |   in|   16|     ap_none|                                  p_anonymous_namespace_runtime_inputs_identity_B|       pointer|
+|p_anonymous_namespace_runtime_inputs_identity_model_tag_address0                          |  out|    4|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_model_tag_ce0                               |  out|    1|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_model_tag_q0                                |   in|    8|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_model_tag_address1                          |  out|    4|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_model_tag_ce1                               |  out|    1|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_model_tag_q1                                |   in|    8|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_numeric_tag_address0                        |  out|    4|   ap_memory|                        p_anonymous_namespace_runtime_inputs_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_numeric_tag_ce0                             |  out|    1|   ap_memory|                        p_anonymous_namespace_runtime_inputs_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_numeric_tag_q0                              |   in|    8|   ap_memory|                        p_anonymous_namespace_runtime_inputs_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_numeric_tag_address1                        |  out|    4|   ap_memory|                        p_anonymous_namespace_runtime_inputs_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_numeric_tag_ce1                             |  out|    1|   ap_memory|                        p_anonymous_namespace_runtime_inputs_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_numeric_tag_q1                              |   in|    8|   ap_memory|                        p_anonymous_namespace_runtime_inputs_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_layout_tag_address0                         |  out|    4|   ap_memory|                         p_anonymous_namespace_runtime_inputs_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_layout_tag_ce0                              |  out|    1|   ap_memory|                         p_anonymous_namespace_runtime_inputs_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_layout_tag_q0                               |   in|    8|   ap_memory|                         p_anonymous_namespace_runtime_inputs_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_layout_tag_address1                         |  out|    4|   ap_memory|                         p_anonymous_namespace_runtime_inputs_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_layout_tag_ce1                              |  out|    1|   ap_memory|                         p_anonymous_namespace_runtime_inputs_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_layout_tag_q1                               |   in|    8|   ap_memory|                         p_anonymous_namespace_runtime_inputs_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_build_tag_address0                          |  out|    4|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_build_tag_ce0                               |  out|    1|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_build_tag_q0                                |   in|    8|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_build_tag_address1                          |  out|    4|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_build_tag_ce1                               |  out|    1|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_inputs_identity_build_tag_q1                                |   in|    8|   ap_memory|                          p_anonymous_namespace_runtime_inputs_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_state_i                               |   in|    3|     ap_ovld|                        p_anonymous_namespace_runtime_cache_activation_meta_state|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_state_o                               |  out|    3|     ap_ovld|                        p_anonymous_namespace_runtime_cache_activation_meta_state|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_state_o_ap_vld                        |  out|    1|     ap_ovld|                        p_anonymous_namespace_runtime_cache_activation_meta_state|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_valid_i                               |   in|    1|     ap_ovld|                        p_anonymous_namespace_runtime_cache_activation_meta_valid|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_valid_o                               |  out|    1|     ap_ovld|                        p_anonymous_namespace_runtime_cache_activation_meta_valid|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_valid_o_ap_vld                        |  out|    1|     ap_ovld|                        p_anonymous_namespace_runtime_cache_activation_meta_valid|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_ref_id_i                              |   in|    6|     ap_ovld|                       p_anonymous_namespace_runtime_cache_activation_meta_ref_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_ref_id_o                              |  out|    6|     ap_ovld|                       p_anonymous_namespace_runtime_cache_activation_meta_ref_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_ref_id_o_ap_vld                       |  out|    1|     ap_ovld|                       p_anonymous_namespace_runtime_cache_activation_meta_ref_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch_i                           |   in|   32|     ap_ovld|                    p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch_o                           |  out|   32|     ap_ovld|                    p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch_o_ap_vld                    |  out|    1|     ap_ovld|                    p_anonymous_namespace_runtime_cache_activation_meta_ref_epoch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_request_id                   |  out|   64|      ap_vld|          p_anonymous_namespace_runtime_cache_activation_meta_identity_request_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_request_id_ap_vld            |  out|    1|      ap_vld|          p_anonymous_namespace_runtime_cache_activation_meta_identity_request_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_generation                   |  out|   64|      ap_vld|          p_anonymous_namespace_runtime_cache_activation_meta_identity_generation|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_generation_ap_vld            |  out|    1|      ap_vld|          p_anonymous_namespace_runtime_cache_activation_meta_identity_generation|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_B                            |  out|   16|      ap_vld|                   p_anonymous_namespace_runtime_cache_activation_meta_identity_B|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_B_ap_vld                     |  out|    1|      ap_vld|                   p_anonymous_namespace_runtime_cache_activation_meta_identity_B|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_S                            |  out|   16|      ap_vld|                   p_anonymous_namespace_runtime_cache_activation_meta_identity_S|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_S_ap_vld                     |  out|    1|      ap_vld|                   p_anonymous_namespace_runtime_cache_activation_meta_identity_S|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_request_id            |  out|   64|      ap_vld|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_request_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_request_id_ap_vld     |  out|    1|      ap_vld|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_request_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_generation            |  out|   64|      ap_vld|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_generation|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_generation_ap_vld     |  out|    1|      ap_vld|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_generation|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_B                     |  out|   16|      ap_vld|            p_anonymous_namespace_runtime_cache_activation_meta_source_identity_B|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_B_ap_vld              |  out|    1|      ap_vld|            p_anonymous_namespace_runtime_cache_activation_meta_source_identity_B|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_S                     |  out|   16|      ap_vld|            p_anonymous_namespace_runtime_cache_activation_meta_source_identity_S|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_S_ap_vld              |  out|    1|      ap_vld|            p_anonymous_namespace_runtime_cache_activation_meta_source_identity_S|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_ref_id                         |  out|    8|      ap_vld|                p_anonymous_namespace_runtime_cache_activation_meta_source_ref_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_ref_id_ap_vld                  |  out|    1|      ap_vld|                p_anonymous_namespace_runtime_cache_activation_meta_source_ref_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_ref_bank                       |  out|    8|      ap_vld|              p_anonymous_namespace_runtime_cache_activation_meta_source_ref_bank|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_ref_bank_ap_vld                |  out|    1|      ap_vld|              p_anonymous_namespace_runtime_cache_activation_meta_source_ref_bank|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_ref_epoch                      |  out|   32|      ap_vld|             p_anonymous_namespace_runtime_cache_activation_meta_source_ref_epoch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_ref_epoch_ap_vld               |  out|    1|      ap_vld|             p_anonymous_namespace_runtime_cache_activation_meta_source_ref_epoch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_region                         |  out|    8|      ap_vld|                p_anonymous_namespace_runtime_cache_activation_meta_source_region|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_region_ap_vld                  |  out|    1|      ap_vld|                p_anonymous_namespace_runtime_cache_activation_meta_source_region|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_row_space                      |  out|    8|      ap_vld|             p_anonymous_namespace_runtime_cache_activation_meta_source_row_space|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_row_space_ap_vld               |  out|    1|      ap_vld|             p_anonymous_namespace_runtime_cache_activation_meta_source_row_space|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_batch                          |  out|    8|      ap_vld|                 p_anonymous_namespace_runtime_cache_activation_meta_source_batch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_batch_ap_vld                   |  out|    1|      ap_vld|                 p_anonymous_namespace_runtime_cache_activation_meta_source_batch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_row0                           |  out|   16|      ap_vld|                  p_anonymous_namespace_runtime_cache_activation_meta_source_row0|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_row0_ap_vld                    |  out|    1|      ap_vld|                  p_anonymous_namespace_runtime_cache_activation_meta_source_row0|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_rows                           |  out|    8|      ap_vld|                  p_anonymous_namespace_runtime_cache_activation_meta_source_rows|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_rows_ap_vld                    |  out|    1|      ap_vld|                  p_anonymous_namespace_runtime_cache_activation_meta_source_rows|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_K                              |  out|   16|      ap_vld|                     p_anonymous_namespace_runtime_cache_activation_meta_source_K|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_K_ap_vld                       |  out|    1|      ap_vld|                     p_anonymous_namespace_runtime_cache_activation_meta_source_K|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_state                          |  out|    3|      ap_vld|                 p_anonymous_namespace_runtime_cache_activation_meta_source_state|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_state_ap_vld                   |  out|    1|      ap_vld|                 p_anonymous_namespace_runtime_cache_activation_meta_source_state|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_content                        |  out|    1|      ap_vld|               p_anonymous_namespace_runtime_cache_activation_meta_source_content|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_content_ap_vld                 |  out|    1|      ap_vld|               p_anonymous_namespace_runtime_cache_activation_meta_source_content|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_valid                          |  out|    1|      ap_vld|                 p_anonymous_namespace_runtime_cache_activation_meta_source_valid|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_valid_ap_vld                   |  out|    1|      ap_vld|                 p_anonymous_namespace_runtime_cache_activation_meta_source_valid|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_producer_task_id                      |  out|   32|      ap_vld|             p_anonymous_namespace_runtime_cache_activation_meta_producer_task_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_producer_task_id_ap_vld               |  out|    1|      ap_vld|             p_anonymous_namespace_runtime_cache_activation_meta_producer_task_id|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_stage                                 |  out|    3|      ap_vld|                        p_anonymous_namespace_runtime_cache_activation_meta_stage|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_stage_ap_vld                          |  out|    1|      ap_vld|                        p_anonymous_namespace_runtime_cache_activation_meta_stage|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_layer                                 |  out|    6|      ap_vld|                        p_anonymous_namespace_runtime_cache_activation_meta_layer|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_layer_ap_vld                          |  out|    1|      ap_vld|                        p_anonymous_namespace_runtime_cache_activation_meta_layer|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_row_space                             |  out|    2|      ap_vld|                    p_anonymous_namespace_runtime_cache_activation_meta_row_space|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_row_space_ap_vld                      |  out|    1|      ap_vld|                    p_anonymous_namespace_runtime_cache_activation_meta_row_space|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_batch                                 |  out|    8|      ap_vld|                        p_anonymous_namespace_runtime_cache_activation_meta_batch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_batch_ap_vld                          |  out|    1|      ap_vld|                        p_anonymous_namespace_runtime_cache_activation_meta_batch|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_row0                                  |  out|   16|      ap_vld|                         p_anonymous_namespace_runtime_cache_activation_meta_row0|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_row0_ap_vld                           |  out|    1|      ap_vld|                         p_anonymous_namespace_runtime_cache_activation_meta_row0|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_rows                                  |  out|    5|      ap_vld|                         p_anonymous_namespace_runtime_cache_activation_meta_rows|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_rows_ap_vld                           |  out|    1|      ap_vld|                         p_anonymous_namespace_runtime_cache_activation_meta_rows|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_K                                     |  out|   13|      ap_vld|                            p_anonymous_namespace_runtime_cache_activation_meta_K|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_K_ap_vld                              |  out|    1|      ap_vld|                            p_anonymous_namespace_runtime_cache_activation_meta_K|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_content                               |  out|    3|      ap_vld|                      p_anonymous_namespace_runtime_cache_activation_meta_content|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_content_ap_vld                        |  out|    1|      ap_vld|                      p_anonymous_namespace_runtime_cache_activation_meta_content|       pointer|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_address0           |  out|    4|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_ce0                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_we0                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_d0                 |  out|    8|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_address1           |  out|    4|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_ce1                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_we1                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag_d1                 |  out|    8|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_address0         |  out|    4|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_ce0              |  out|    1|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_we0              |  out|    1|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_d0               |  out|    8|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_address1         |  out|    4|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_ce1              |  out|    1|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_we1              |  out|    1|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag_d1               |  out|    8|   ap_memory|         p_anonymous_namespace_runtime_cache_activation_meta_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_address0          |  out|    4|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_ce0               |  out|    1|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_we0               |  out|    1|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_d0                |  out|    8|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_address1          |  out|    4|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_ce1               |  out|    1|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_we1               |  out|    1|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag_d1                |  out|    8|   ap_memory|          p_anonymous_namespace_runtime_cache_activation_meta_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_address0           |  out|    4|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_ce0                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_we0                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_d0                 |  out|    8|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_address1           |  out|    4|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_ce1                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_we1                |  out|    1|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag_d1                 |  out|    8|   ap_memory|           p_anonymous_namespace_runtime_cache_activation_meta_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_address0    |  out|    4|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_ce0         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_we0         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_d0          |  out|    8|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_address1    |  out|    4|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_ce1         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_we1         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag_d1          |  out|    8|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_model_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_address0  |  out|    4|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_ce0       |  out|    1|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_we0       |  out|    1|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_d0        |  out|    8|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_address1  |  out|    4|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_ce1       |  out|    1|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_we1       |  out|    1|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag_d1        |  out|    8|   ap_memory|  p_anonymous_namespace_runtime_cache_activation_meta_source_identity_numeric_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_address0   |  out|    4|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_ce0        |  out|    1|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_we0        |  out|    1|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_d0         |  out|    8|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_address1   |  out|    4|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_ce1        |  out|    1|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_we1        |  out|    1|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag_d1         |  out|    8|   ap_memory|   p_anonymous_namespace_runtime_cache_activation_meta_source_identity_layout_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_address0    |  out|    4|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_ce0         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_we0         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_d0          |  out|    8|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_address1    |  out|    4|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_ce1         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_we1         |  out|    1|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag_d1          |  out|    8|   ap_memory|    p_anonymous_namespace_runtime_cache_activation_meta_source_identity_build_tag|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_address0        |  out|    6|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_ce0             |  out|    1|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_we0             |  out|    1|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_d0              |  out|   32|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_address1        |  out|    6|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_ce1             |  out|    1|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_we1             |  out|    1|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups_d1              |  out|   32|   ap_memory|        p_anonymous_namespace_runtime_cache_activation_meta_source_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_address0               |  out|    6|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_ce0                    |  out|    1|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_we0                    |  out|    1|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_d0                     |  out|   32|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_q0                     |   in|   32|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_address1               |  out|    6|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_ce1                    |  out|    1|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_we1                    |  out|    1|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|p_anonymous_namespace_runtime_cache_activation_meta_covered_groups_d1                     |  out|   32|   ap_memory|               p_anonymous_namespace_runtime_cache_activation_meta_covered_groups|         array|
+|g_full_cache_activation_scale_address0                                                    |  out|   11|   ap_memory|                                                    g_full_cache_activation_scale|         array|
+|g_full_cache_activation_scale_ce0                                                         |  out|    1|   ap_memory|                                                    g_full_cache_activation_scale|         array|
+|g_full_cache_activation_scale_we0                                                         |  out|    1|   ap_memory|                                                    g_full_cache_activation_scale|         array|
+|g_full_cache_activation_scale_d0                                                          |  out|   16|   ap_memory|                                                    g_full_cache_activation_scale|         array|
+|g_full_cache_input_tile_address0                                                          |  out|   16|   ap_memory|                                                          g_full_cache_input_tile|         array|
+|g_full_cache_input_tile_ce0                                                               |  out|    1|   ap_memory|                                                          g_full_cache_input_tile|         array|
+|g_full_cache_input_tile_q0                                                                |   in|   32|   ap_memory|                                                          g_full_cache_input_tile|         array|
+|g_full_cache_activation_q_address0                                                        |  out|   16|   ap_memory|                                                        g_full_cache_activation_q|         array|
+|g_full_cache_activation_q_ce0                                                             |  out|    1|   ap_memory|                                                        g_full_cache_activation_q|         array|
+|g_full_cache_activation_q_we0                                                             |  out|    1|   ap_memory|                                                        g_full_cache_activation_q|         array|
+|g_full_cache_activation_q_d0                                                              |  out|    8|   ap_memory|                                                        g_full_cache_activation_q|         array|
++------------------------------------------------------------------------------------------+-----+-----+------------+---------------------------------------------------------------------------------+--------------+
+

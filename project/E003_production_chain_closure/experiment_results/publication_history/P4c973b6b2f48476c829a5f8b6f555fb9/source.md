@@ -1,0 +1,27 @@
+# Source guard有限RTL原型与受影响兼容出口
+
+范围M003/SM003/E003/R003；沿D-M003-EXECUTOR-BOOTSTRAP-SOURCE-01，回复bootstrap-snapshot-f14-review-20261012。
+
+## 当前结论与明确未闭合边界
+
+bootstrap_source_guard_rtl_04为PASS_SCOPED_RTL_SOURCE_GUARD_PROTOTYPE；两项公共hub回归为各自原fixture限定PASS。F14既有主控限定关闭保持。本出口是source排他/读债/真实consumer原型，不申报完整生产source保护关闭，也没有executor HLS top、生成LN/完整caller/全部旁路/13BO准入或错误恢复的验收。
+
+新laya_bootstrap_source_guard_v1仅缓存完整LBS1事务键，唯一hub仍使用原owner/identity/L13M/descriptor/window数组实时比较。hub增加默认禁用guard参数/键，排斥相同source的INVALIDATE、epoch/recycle和同role重叠alias，阻止新identity切换；合法非重叠NORM目标CLAIM及其INVALIDATE cleanup能正常通过。cancel时保留被保护source的published/valid/完整绑定，直到本action真实安全完成末拍消费后才允许hub原取消清理。snapshot仍为只读，没有暗取通用lease，也没有第二发布表或typed分配器。
+
+shell在snapshot接受时保持键；成功响应全绑定并消费后建立proof。合法非quiescent负响应不建立保护/READY，也不锁死旧cleanup。action与producer启动前再次比较来源完整NumericIdentity、L13M、Ref/epoch、role、source geometry及live base/cancel；来源事实由同hub实时重核。当前有限入口固定NORM_LAYER1_ATTN；action宽帧及producer宽帧由TB提供，尚未从实际executor/F9完整槽连接。
+
+source AR gate须在真实连接中同时用于memory侧VALID及producer侧READY，不能只屏蔽一边。原型的受控读peer按相同allowed/ready握手核1 AR、64 R和64拍实际债务；越界地址0 AR。R消耗前持12周期时保护不释放。没有比较source数值或执行LN算术，该4096B读取不等于完整rows16任务payload。
+
+两个真实depth2 FIFO分别观察producer完成8次、action完成4次实际consumer握手。各自前6/2拍取走后，尾2拍与尾1拍分别停读12周期；producer_active/旧action/来源保护保持，输出头稳定。producer FIFO内容是0..7逐拍传输probe，不是合法LPC1，更没有上游F9校验运行证据；生产必须绑定F9已核LPC1的同一个consumer，坏完成零拍隔离仍依F9，不以8个任意pop当可信完成。action LAC1由独立字节fixture提供，宽action/producer keys和安全错误报告是受控对象，没有本action实际typed退休或物理BEGIN→END证明。
+
+LAC1实际consumer收齐后核完整action键、Status/flags/保留区、LOCAL_REJECT+OK禁项；安全成功另核目标slot/geometry及完整任务退休数。动态错ordinal、合法非终态、坏保留位和LOCAL_REJECT+OK均保持旧保护/action；匹配SAFE_TERMINAL/REMOTE_DRAINED的受控错误报告最后一拍实际消费、读债归零及外部physical_safe条件同时成立后，保护才释放。该条件还需在生产接到真实monitor/hub/adapter全部待发/返回/写债/fence，不是TB布尔永久授权。
+
+同runtime再次snapshot/action后，在producer启动前cancel：旧source保持发布和完整匹配，producer未获准且AR无增量；匹配安全错误LAC1消费后guard释放，hub原cancel完成，source失效，再query诚实拒绝。只签prestart取消，不签已提交部分store或坏完成后的硬件恢复。
+
+source修改负例持续保持12周期时ready为0，随后由TB撤回以测试下一独立负例；这是准入排斥证据，不是任意冲突请求/cleanup竞争的活性证明。完整写仲裁、跨role/不同base的物理alias及全部旁路尚未封口，当前生产LN shell还未实例化本guard。SOURCE_READY_PROOF不得据本结果成为生产永久许可；真实source保护仍是下一实施项。
+
+
+
+---
+Published: 2026-10-12T14:25:11.488265+00:00
+Publication: P28ece0dda6954bb9b74cf7d761c7a178

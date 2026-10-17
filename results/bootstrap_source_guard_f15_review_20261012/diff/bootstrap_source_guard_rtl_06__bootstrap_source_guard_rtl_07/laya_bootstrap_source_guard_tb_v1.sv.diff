@@ -1,0 +1,133 @@
+--- bootstrap_source_guard_rtl_06/laya_bootstrap_source_guard_tb_v1.sv
++++ bootstrap_source_guard_rtl_07/laya_bootstrap_source_guard_tb_v1.sv
+@@ -281,6 +281,7 @@
+     .source_rlast(raw_rlast),.source_rresp(2'd0),.read_debt,
+     .producer_active(guard_producer_active),.action_active(guard_action_active),.protocol_error(guard_error));
+   always @(posedge clk)if(rst_n)begin
++    if(guard_producer_active && !guard_active)$fatal(1,"producer accepted without source exclusion");
+     if(raw_arvalid && ar_allowed)source_peer_ar<=source_peer_ar+1;
+     if(raw_rvalid)source_peer_r<=source_peer_r+1;
+   end
+@@ -311,7 +312,8 @@
+       end
+     join
+   endtask
+-  task automatic consume_action(input logic [2047:0] value,input bit releases);
++  task automatic consume_action(input logic [2047:0] value,input bit releases,
++                                input bit collision=0);
+     fork
+       begin
+         for(int beat=0;beat<4;beat++)begin
+@@ -334,7 +336,27 @@
+         end
+         action_out_read=1;tick();action_out_read=0;
+         repeat(12)begin if(!guard_active || !guard_action_active || base_change_ready)$fatal(1,"action tail1 released guard");tick();end
+-        action_out_read=1;tick();action_out_read=0;tick();tick();
++        if(collision)begin
++          adapter_pending_zero=0;producer_valid=1;
++        end
++        action_out_read=1;#1;
++        if(collision && producer_ready)$fatal(1,"producer accepted on terminal action pop");
++        tick();action_out_read=0;tick();
++        if(collision)begin
++          repeat(12)begin
++            if(producer_ready || guard_producer_active || !guard_active || base_change_ready)
++              $fatal(1,"terminal action admitted producer during delayed physical fence");
++            tick();
++          end
++          adapter_pending_zero=1;tick();tick();
++          repeat(12)begin
++            if(producer_ready || guard_producer_active || guard_active || source_peer_ar!=1)
++              $fatal(1,"terminal action release raced persistent producer");
++            tick();
++          end
++          producer_valid=0;
++        end
++        tick();
+         if(releases && guard_active)$fatal(1,"safe consumed completion guard remained active");
+       end
+     join
+@@ -513,29 +535,77 @@
+     load_short("guard_completion",completion_key);completion_key[148*8+:16]=0;
+     completion_key[16*8+:32]=79;consume_action(completion_key,0);
+     if(!guard_active)$fatal(1,"LOCAL_REJECT OK completion released source");
+-    load_short("guard_completion",completion_key);consume_action(completion_key,1);
++    load_short("guard_completion",completion_key);consume_action(completion_key,1,1);
+     if(guard_active || guard_action_active || !base_change_ready || guard_error)
+       $fatal(1,"safe error consumption did not release clean guard");
++    // Fresh proof/action: a terminal action report does not discard the old
++    // producer's tail or its residual real R debt. Persistent next producer
++    // must stay rejected through all three release conditions.
++    normal_query(0,63);
++    load_packet("guard_action",packet);action_key=packet[0+:4096];action_key[24*8+:64]=2;
++    action_valid=1;tick();action_valid=0;
++    load_packet("guard_producer",producer_key);producer_valid=1;tick();producer_valid=0;
++    raw_araddr=BO_BASE;raw_arlen=63;raw_arvalid=1;tick();raw_arvalid=0;
++    for(int beat=0;beat<63;beat++)begin raw_rvalid=1;raw_rlast=0;tick();end
++    raw_rvalid=0;adapter_pending_zero=0;
++    fork
++      begin
++        for(int beat=0;beat<8;beat++)begin
++          producer_in_data=512'(beat);producer_in_valid=1;
++          do begin @(posedge clk);end while(!producer_in_ready);
++          #1;@(negedge clk);producer_in_valid=0;
++        end
++      end
++      begin
++        for(int beat=0;beat<6;beat++)begin
++          producer_out_read=1;do begin @(posedge clk);end while(!producer_out_valid);
++          #1;@(negedge clk);producer_out_read=0;
++        end
++        while(producer_occupancy!=2)tick();
++        repeat(12)begin if(!guard_active || !guard_producer_active || read_debt!=1)$fatal(1,"overlap tail2 discarded old debt");tick();end
++        producer_out_read=1;tick();producer_out_read=0;
++        repeat(12)begin if(!guard_active || !guard_producer_active || read_debt!=1)$fatal(1,"overlap tail1 discarded old debt");tick();end
++        producer_valid=1;
++        load_short("guard_completion",completion_key);completion_key[24*8+:64]=2;
++        consume_action(completion_key,0);
++        if(!guard_active || !guard_producer_active || producer_ready || read_debt!=1)
++          $fatal(1,"terminal action ignored old producer tail/R");
++        producer_out_read=1;tick();producer_out_read=0;tick();
++      end
++    join
++    repeat(12)begin
++      if(!guard_active || guard_producer_active || producer_ready || read_debt!=1)
++        $fatal(1,"producer tail completion discarded residual R");tick();
++    end
++    raw_rvalid=1;raw_rlast=1;tick();raw_rvalid=0;raw_rlast=0;
++    repeat(12)begin
++      if(!guard_active || guard_producer_active || producer_ready || read_debt!=0)
++        $fatal(1,"terminal action admitted next producer before physical safe");tick();
++    end
++    adapter_pending_zero=1;tick();tick();
++    if(guard_active || guard_producer_active || producer_ready || source_peer_ar!=2 || source_peer_r!=128)
++      $fatal(1,"overlapped producer/action completion release inconsistent");
++    producer_valid=0;
+     // Same runtime: new proof then cancel before producer admission. Source
+     // stays published through the safe action completion's actual consumption.
+     normal_query(0,63);
+-    load_packet("guard_action",packet);action_key=packet[0+:4096];action_key[24*8+:64]=2;
++    load_packet("guard_action",packet);action_key=packet[0+:4096];action_key[24*8+:64]=3;
+     action_valid=1;tick();action_valid=0;cancel=1;tick();cancel=0;
+     load_packet("guard_producer",producer_key);producer_valid=1;
+     repeat(12)begin
+-      if(producer_ready || !guard_active || !guard_match || published_owners!=1 || source_peer_ar!=1)
++      if(producer_ready || !guard_active || !guard_match || published_owners!=1 || source_peer_ar!=2)
+         $fatal(1,"prestart cancel consumed/recycled guarded source");
+       tick();
+     end
+-    producer_valid=0;load_short("guard_completion",completion_key);completion_key[24*8+:64]=2;
++    producer_valid=0;load_short("guard_completion",completion_key);completion_key[24*8+:64]=3;
+     consume_action(completion_key,1);repeat(4)tick();
+     if(guard_active || cancel_pending || published_owners!=0 || active_owners!=0 || guard_error)
+       $fatal(1,"cancel safe consumption did not finish hub cleanup");
+     normal_query(E_BUFFER,3);
+-    if(guard_active || producer_occupancy || action_occupancy || source_peer_ar!=1 || source_peer_r!=64 ||
++    if(guard_active || producer_occupancy || action_occupancy || source_peer_ar!=2 || source_peer_r!=128 ||
+        accepted_events!=20 || terminal_tasks!=5 || snapshot_sequence_high_water!=next_snapshot-1)
+       $fatal(1,"source guard final highwater/debt/owner/FIFO mismatch");
+-    $display("FULL_CURRENT_BOOTSTRAP_SOURCE_GUARD_RTL_PASS cycles=%0d source_AR=1 source_R=64 read_debt=0 source_mutation_alias_epoch_rejected=1 different_role_rejected=1 conflict_response_held=1 old_partial_END_after_conflict=1 typed5_once=1 live_base_recheck=1 producer_identity_epoch_rejected=1 action_key_nonterminal_retained=1 depth2_tail2_tail1=1 safe_error_consumed_release=1 prestart_cancel_retained=1 readonly_snapshot=1 controlled_keys_completion=1 no_generated_producer_executor=1",cycles);
++    $display("FULL_CURRENT_BOOTSTRAP_SOURCE_GUARD_RTL_PASS cycles=%0d source_AR=2 source_R=128 read_debt=0 source_mutation_alias_epoch_rejected=1 different_role_rejected=1 conflict_response_held=1 old_partial_END_after_conflict=1 typed5_once=1 live_base_recheck=1 producer_identity_epoch_rejected=1 action_key_nonterminal_retained=1 depth2_tail2_tail1=1 safe_error_consumed_release=1 F15_terminal_pop_persistent_producer_blocked=1 F15_delayed_physical_safe=1 F15_producer_tail_residual_R_retained=1 prestart_cancel_retained=1 readonly_snapshot=1 controlled_keys_completion=1 no_generated_producer_executor=1",cycles);
+     $finish;
+   end
+ endmodule

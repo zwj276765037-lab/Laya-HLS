@@ -1,0 +1,23 @@
+--- executor_request_close_shell_rtl_02/laya_executor_handoff_shell_tb_v1.sv
++++ executor_request_close_shell_rtl_03/laya_executor_handoff_shell_tb_v1.sv
+@@ -122,7 +122,10 @@
+     closed_gold=commit?(failed?closed_error1:closed_ok1):(failed?closed_error0:closed_ok0);
+   endtask
+   task automatic seal_terminal();
+-    @(negedge clk);terminal_seal_record=close_frame;terminal_seal_valid=1;tick();
++    @(negedge clk);terminal_seal_record=close_frame;terminal_seal_valid=1;#1;
++    if(close_frame[792*8+:8]=={7'b0,local_committed} && (authority_valid || query_permit))
++      $fatal(1,"sealed request has same-cycle new-start authority");
++    tick();
+     @(negedge clk);terminal_seal_valid=0;
+   endtask
+   task automatic work_done();
+@@ -390,7 +393,7 @@
+     send(close_frame);work_done();host_done();tick();
+     if(!response_valid || response!==closed_gold)$fatal(1,"old owner cancel prevented close cleanup");
+     consume_closed();close_cases++;
+-    $display("FULL_CURRENT_EXECUTOR_HANDOFF_SHELL_RTL_PASS cases=%0d cycles=%0d close_cases=%0d sealed_terminal_commit=1 full_closed_consumer=1 closed_wait_new_admission=1 old_cancel_close_progress=1 close_safety_inputs_controlled=1 F18_drain_abort_same_edge=1 F18_held_query_abort_priority=1 F18_accepted_query_persistent_abort=1 response_stall_stable=1 actual_helper_import_abort=1 held_query_import_grant=1 final_read_no_authority=1 tail2_tail1_stalls=1 unique_grant=1 no_reset_precommit_retry=1 cancel_base_same_edge=1 active_session_request_revoke=1 cleanup_owner_retained=1 controlled_safety_inputs=1 hardware_rearm_NOT_RUN=1",cases,cycles,close_cases);
++    $display("FULL_CURRENT_EXECUTOR_HANDOFF_SHELL_RTL_PASS cases=%0d cycles=%0d close_cases=%0d sealed_terminal_commit=1 terminal_same_edge_no_start=1 full_closed_consumer=1 closed_wait_new_admission=1 old_cancel_close_progress=1 close_safety_inputs_controlled=1 F18_drain_abort_same_edge=1 F18_held_query_abort_priority=1 F18_accepted_query_persistent_abort=1 response_stall_stable=1 actual_helper_import_abort=1 held_query_import_grant=1 final_read_no_authority=1 tail2_tail1_stalls=1 unique_grant=1 no_reset_precommit_retry=1 cancel_base_same_edge=1 active_session_request_revoke=1 cleanup_owner_retained=1 controlled_safety_inputs=1 hardware_rearm_NOT_RUN=1",cases,cycles,close_cases);
+     $finish;
+   end
+ endmodule

@@ -1,0 +1,72 @@
+{
+  "cases": {
+    "AV": {
+      "context_check_subcall_signal": "grp_check_context",
+      "issue_report": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/p_anonymous_namespace_issue_AVTask_s_csynth.rpt",
+      "issue_report_sha256": "ca43485b6da7f9f4cabd39ef31f1a0b72a8d22f5a79c31a25f42bd12f791bd8b",
+      "numeric_leaf_source": [
+        "hls/operators/attention_full_compute.cpp:95",
+        "hls/operators/attention_full_compute.cpp:104",
+        "hls/operators/attention_full_compute.cpp:106"
+      ],
+      "numeric_leaf_source_sha256": "53eddc686607c63dc10b18f9139cac21dca6d578e8d17a0dd31a534d698f2c9f",
+      "reported_task_latency_cycles": "3-5",
+      "rtl_evidence_lines": {
+        "context_ok_comparator": 745,
+        "fixed_shape_detail": 570,
+        "fixed_shape_status": 584,
+        "fixed_zero_elements": 246
+      },
+      "shape_detail_decimal": 122814469,
+      "shape_detail_hex": "0x7520005",
+      "successful_context_rtl_result": "E_SHAPE (Status=3), zero elements; no QK/AV numeric datapath in this task RTL",
+      "task_report": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/full_run_task_35_csynth.rpt",
+      "task_report_sha256": "db3518f6cb6fc158e0981af00c337fa7063d553a62008ac9d76c15033ee4c09b",
+      "task_rtl": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/rtl_verilog/laya_typed_q8_forward_full_run_task_35.v",
+      "task_rtl_direct_instantiated_modules": [
+        "finish_r"
+      ],
+      "task_rtl_sha256": "c8e9ac505c23c5b362e032a1c8c73e22f64e25c5d12628c410d694293963bb4a",
+      "task_source": "hls/operators/full_tasks_attention.cpp:307",
+      "task_source_sha256": "c59328610b12bff2a6546f4f7064e63227a545c785b6e687770e95f80cb2ab60"
+    },
+    "QK": {
+      "context_check_subcall_signal": "grp_check_context",
+      "issue_report": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/p_anonymous_namespace_issue_QKTask_s_csynth.rpt",
+      "issue_report_sha256": "65f0ad7a4213e017da02fef5d6155d8546e289fc073f5fcf3f3690a75cfb7b1c",
+      "numeric_leaf_source": [
+        "hls/operators/attention_full_compute.cpp:21",
+        "hls/operators/attention_full_compute.cpp:32",
+        "hls/operators/attention_full_compute.cpp:33",
+        "hls/operators/attention_full_compute.cpp:38"
+      ],
+      "numeric_leaf_source_sha256": "53eddc686607c63dc10b18f9139cac21dca6d578e8d17a0dd31a534d698f2c9f",
+      "reported_task_latency_cycles": "3-5",
+      "rtl_evidence_lines": {
+        "context_ok_comparator": 745,
+        "fixed_shape_detail": 570,
+        "fixed_shape_status": 584,
+        "fixed_zero_elements": 246
+      },
+      "shape_detail_decimal": 122683397,
+      "shape_detail_hex": "0x7500005",
+      "successful_context_rtl_result": "E_SHAPE (Status=3), zero elements; no QK/AV numeric datapath in this task RTL",
+      "task_report": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/full_run_task_33_csynth.rpt",
+      "task_report_sha256": "591311cb20a5c61f21bc16c832a2db49146bc2aa6404ea42077d7155d4f8626e",
+      "task_rtl": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/rtl_verilog/laya_typed_q8_forward_full_run_task_33.v",
+      "task_rtl_direct_instantiated_modules": [
+        "finish_r"
+      ],
+      "task_rtl_sha256": "0ed4e5a0c4c4c2073486fd2d126349406edbd2cda94798c1a8076f173cbea7a4",
+      "task_source": "hls/operators/full_tasks_attention.cpp:138",
+      "task_source_sha256": "c59328610b12bff2a6546f4f7064e63227a545c785b6e687770e95f80cb2ab60"
+    }
+  },
+  "compiled_source_matches_current_sha256": true,
+  "compiled_source_snapshot": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/operators/full_tasks_attention.cpp",
+  "interpretation": "The QK and AV task RTL has only context/finish logic and returns E_SHAPE when context succeeds. The HLS 3-5-cycle estimates describe this anomalous synthesized path, not a successful QK/AV computation. This evidence alone does not establish the root cause or end-to-end runtime behavior.",
+  "schema": "laya_attention_synthesis_anomaly_evidence_v1",
+  "scope": "Captured HLS task RTL from the existing csynth run; no fresh simulation or hardware execution.",
+  "status_enum": "include/laya_types.h:8",
+  "status_enum_sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+}

@@ -1,0 +1,96 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/results/compute_throughput_optimization_20261010/attempts/t5_attention_tile_v1_01/frozen_source/attention_tile_run.py
+
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT020_ATN0_attention_measurement_02/frozen_source/attention_tile_run.py
+
+@@ -1,27 +1,66 @@
+
+ #!/usr/bin/env python3
+-"""Replay the real compiled tile snapshot and require its exact terminal PASS."""
++"""Replay the ATN0 snapshot and require numeric and measurement terminals."""
+ from pathlib import Path
+-import argparse,os,subprocess,re,sys,json,hashlib,shutil
+-def rec(p):
+- b=p.read_bytes();return dict(path=str(p.resolve()),bytes=len(b),sha256=hashlib.sha256(b).hexdigest())
++import argparse
++import hashlib
++import json
++import os
++import re
++import shutil
++import subprocess
++import sys
++
++
++def rec(path):
++    data = path.read_bytes()
++    return {"path": str(path.resolve()), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
++
++
+ def main():
+- p=argparse.ArgumentParser();p.add_argument('attempt',type=Path);p.add_argument('name');p.add_argument('rows',type=int);p.add_argument('--protocol',type=int,default=0);p.add_argument('--manifest',required=True);p.add_argument('--kind',choices=['tile','helper','capacity'],default='tile');args=p.parse_args()
+- a=args.attempt.resolve();work=a/args.name;work.mkdir(exist_ok=False)
+- build=a/'build/vivado/attention_tile.sim/sim_1/behav/xsim'
+- shutil.copytree(build/'xsim.dir',work/'xsim.dir')
+- for f in [*build.glob('*.dat'),*build.glob('*.ini')]:shutil.copy2(f,work/f.name)
+- manifest_path=a/args.manifest;manifest=json.loads(manifest_path.read_text())
+- for r in manifest['sources']:assert rec(Path(r['frozen']['path']))==r['frozen']
+- (work/'run.tcl').write_text('run all\nquit\n')
+- os.environ['SIM_VER_XSIM']='2025.2';os.environ['GCC_VER_XSIM']='9.3.0'
+- snapshot={'tile':'attention_tile_tb_behav','helper':'attention_tile_helpers_tb_behav','capacity':'attention_tile_capacity_tb_behav'}[args.kind]
+- command=['/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xsim',snapshot,'-tclbatch',str(work/'run.tcl'),'-log',str(work/'simulate.log'),'-wdb',str(work/'tile.wdb'),
+-  '-testplusarg',f"FIXTURE={manifest['fixture']}",'-testplusarg',f'TRACE={a}/trace','-testplusarg',f'ROWS={args.rows}','-testplusarg',f'PROTOCOL={args.protocol}']
+- (work/'input_manifest.json').write_text(json.dumps(dict(source_manifest=rec(manifest_path),compiled_snapshot={str(f.relative_to(work)):rec(f) for f in (work/'xsim.dir').rglob('*') if f.is_file()},command=command,rows=args.rows,protocol=args.protocol,kind=args.kind),indent=2,sort_keys=True)+'\n')
+- print(f'ATTENTION_SERVICE_TILE_RTL_BEGIN rows={args.rows}',flush=True)
+- rc=subprocess.call(command,cwd=work)
+- log=(work/'simulate.log').read_text(errors='replace') if (work/'simulate.log').exists() else ''
+- marker={'tile':f'ATTENTION_SERVICE_TILE_RTL_PASS rows={args.rows} keys128 D64','helper':'ATTENTION_SERVICE_TILE_HELPER_PASS div4=1620 exp4=48','capacity':'ATTENTION_SERVICE_TILE_CAPACITY_PASS'}[args.kind]
+- if rc or marker not in log or re.search(r'(^|\n)(Fatal:|ERROR:)',log):sys.exit(rc if rc else 1)
+- print(f'ATTENTION_SERVICE_TILE_RTL_END rows={args.rows} exact_pass=1',flush=True)
+-if __name__=='__main__':main()
++    parser = argparse.ArgumentParser()
++    parser.add_argument("attempt", type=Path)
++    parser.add_argument("name")
++    parser.add_argument("rows", type=int, choices=(1, 4, 16, 128))
++    parser.add_argument("--manifest", default="source_manifest.json")
++    args = parser.parse_args()
++    attempt = args.attempt.resolve()
++    manifest_path = attempt / args.manifest
++    manifest = json.loads(manifest_path.read_text())
++    for source in manifest["sources"]:
++        if rec(Path(source["frozen"]["path"])) != source["frozen"]:
++            raise RuntimeError("ATN0 frozen input changed")
++    work = attempt / args.name
++    work.mkdir(exist_ok=False)
++    build = attempt / "build/vivado/attention_tile.sim/sim_1/behav/xsim"
++    shutil.copytree(build / "xsim.dir", work / "xsim.dir")
++    for path in [*build.glob("*.dat"), *build.glob("*.ini")]:
++        shutil.copy2(path, work / path.name)
++    (work / "run.tcl").write_text("run all\nquit\n")
++    command = ["/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xsim",
++               "attention_tile_tb_behav", "-tclbatch", str(work / "run.tcl"),
++               "-log", str(work / "simulate.log"), "-wdb", str(work / "tile.wdb"),
++               "-testplusarg", f"FIXTURE={manifest['fixture']}",
++               "-testplusarg", f"TRACE={attempt / 'trace'}",
++               "-testplusarg", f"ROWS={args.rows}", "-testplusarg", "PROTOCOL=0"]
++    (work / "input_manifest.json").write_text(json.dumps({
++        "source_manifest": rec(manifest_path), "command": command, "rows": args.rows,
++        "compiled_snapshot": {str(path.relative_to(work)): rec(path)
++                              for path in (work / "xsim.dir").rglob("*") if path.is_file()},
++    }, indent=2, sort_keys=True) + "\n")
++    environment = os.environ.copy()
++    environment["SIM_VER_XSIM"] = "2025.2"
++    environment["GCC_VER_XSIM"] = "9.3.0"
++    print(f"ATTENTION_ATN0_RTL_BEGIN rows={args.rows}", flush=True)
++    result = subprocess.run(command, cwd=work, env=environment, check=False)
++    log = (work / "simulate.log").read_text(errors="replace") if (work / "simulate.log").exists() else ""
++    required = [f"ATTENTION_SERVICE_TILE_RTL_PASS rows={args.rows} keys128 D64",
++                "ATTENTION_SERVICE_TILE_SM_MEASURE commands=",
++                "ATTENTION_SERVICE_TILE_CMD_MEASURE cmd=20",
++                "ATTENTION_SERVICE_TILE_EXP_MEASURE worker=3"]
++    if result.returncode or any(marker not in log for marker in required) or re.search(r"(^|\n)(Fatal:|ERROR:)", log):
++        sys.exit(result.returncode or 1)
++    print(f"ATTENTION_ATN0_RTL_END rows={args.rows} numeric_and_measurement=1", flush=True)
++
++
++if __name__ == "__main__":
++    main()

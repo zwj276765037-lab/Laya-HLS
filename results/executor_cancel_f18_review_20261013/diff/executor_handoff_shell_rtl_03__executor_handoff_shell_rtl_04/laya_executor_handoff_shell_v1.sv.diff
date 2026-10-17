@@ -1,0 +1,21 @@
+--- executor_handoff_shell_rtl_03/laya_executor_handoff_shell_v1.sv
++++ executor_handoff_shell_rtl_04/laya_executor_handoff_shell_v1.sv
+@@ -87,13 +87,14 @@
+     base_epoch==pending_key[40*8+:64] && base_address==pending_key[48*8+:64] &&
+     base_capacity==pending_key[56*8+:64];
+   // A presented response owns the channel until consumption. Control wins
+-  // over autonomous HELD acquisition and over a new query; actual response
+-  // reads win over control so the last beat has one unambiguous transition.
+-  assign control_ready=!response_valid && !query_accepted && !query_response_pop;
++  // over autonomous HELD acquisition. An actual accepted query owns its
++  // entire return before a pending control can be accepted. This also keeps
++  // the old response consumer progressing while ABORT remains asserted.
++  assign control_ready=!response_valid && state!=QUERY && !query_accepted && !query_response_pop;
+   assign control_fire=control_valid && control_ready;
+   assign predecessor_done_ready=state==DRAIN && !predecessor_done;
+   assign stop_predecessor=state!=IDLE;
+-  assign query_permit=state==HELD_READY && !control_valid && !revoked && !cancel && immutable_live && protection_valid;
++  assign query_permit=state==HELD_READY && !revoked && !cancel && immutable_live && protection_valid;
+   assign import_pending=state==IMPORT_PENDING;
+   // Physical quiescence is checked at grant only. Normal active work creates
+   // debt; authority then depends on its immutable binding and held protection.

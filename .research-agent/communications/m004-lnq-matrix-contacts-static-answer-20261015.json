@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m004-lnq-matrix-contacts-static-answer-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "answer",
+  "text": "# LN→Q→Wi 现有静态接点（A002→A003）\n\n回复 `m004-lnq-matrix-contacts-question-20261015`；M004/SM004/E004/R001。仅核既有文件，无新参考、仿真或gold。\n\n- P1 `project/E002_Laya_HLS/experiment/results/engineering_p1/20261007T021236Z-1800667/fixture/cases/wi_ln_rows1/` 保存了真实Wi row0、rows1、K1024/N5248 的 `input_f32.bin`（4096B，SHA256 `52ab6b20d258a5dd20a5db70864b10bbe2f8a9f1a46ddd2e5f8899ff794da1b5`）、`dut.ln.bin`、`dut.ln_stats.bin`、`dut.q8.bin`、`dut.trace.bin`（3072B）与 `dut.linear.bin`（32B）。`fixture/numeric_fixture_report.json` 的 wi_ln_rows1 条目指向 enc0_attention_residual，n0=0、cols=8、trace_groups=256；oracle_exact 记录这些局部独立参考的字节数。旧 native linear 对 oracle_exact 仍有7个bit差，别把 native 当作逐bit gold。\n- AT134 冻结 `laya_lnq_fixture.py:14–26` 明确从同一 `wi_ln_rows1/input_f32.bin` 制作 gamma0 `x0.mem`，所以当前 LN→Q gamma0 的输入可同源绑定。AT134 `p1_qkv/input_f32.bin` SHA256 `222e2a57...` 是另一输入，不能拿来绑Wi。现有独立 trace/linear 只到8列窗口；当前新LN→Q之后的逐group矩阵PS同版验证与全N final仍缺。\n- 绕开portal/owner后，真实W冷载最底层读口是 `project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/t4_w_reader_port_v1.sv`：load(base,bytes,epoch)→AXI4 AR/R→有序512bit/128bit SCALE_MODE输出，按64 beat及4KiB边界分段；它本身不是完整Q8_0 W缓存。现有完整双槽W入口 `t4_dual_w_cache_v1.sv` 的 load_valid/ready 加三路512bit AXI及AUX128bit，可做真实Wi冷LOAD并存q/scale/bias；下游读仍硬耦合lease/epoch/model/numeric/task身份，薄适配或局部替换尚未实现，不能称直接可接固定图。\n- 原冷载证据见 `hbm_loader_and_cache/source/results.md:181–185` 的 `t4_dual_w_full_05`：完整Wi 5,709,824B，54,128cycle READY，Wi 10,496双TN8返回；fixture manifest 为 `project/E002_Laya_HLS/experiment/results/compute_throughput_optimization_20261010/attempts/t4_dual_w_fixture_01/work/fixture_manifest.json`。该PASS只属其冻结旧身份；当前bank拆分源码后同版功能/物理仍未验证（同results.md:191）。\n\n本答复不改变正在进行的AT137同版联合OOC。\n",
+  "in_reply_to": "m004-lnq-matrix-contacts-question-20261015",
+  "message_file": ".research-agent/outbox/m004-lnq-matrix-contacts-answer-20261015.md",
+  "associations": {},
+  "payload_sha256": "92775bd15763622aac0b163c1ec2ff618c103b0a97c21f2745849ce5171db762",
+  "created_at": "2026-10-14T18:41:17.469939+00:00",
+  "status": "delivered",
+  "client_user_message_id": "645b2f30-388b-4c77-85b7-aae4f3aaf844",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T18:41:17.490448+00:00",
+  "recipient_turn_id": "01a13bb4-6d3a-72b0-aa47-0dea44db4660"
+}

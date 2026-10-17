@@ -1,0 +1,23 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/production_patch/after_p2.cpp	2026-10-08 14:29:35.630565638 +0800
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/production_patch/after_p3.cpp	2026-10-08 14:29:55.428364392 +0800
+@@ -592,17 +592,17 @@
+     checkpoint("embedding_norm", hidden);
+ 
+     for (uint8_t layer = 0; layer < 28; ++layer) {
+-      const FullOwnerSpec* att_source = &hidden;
++      FullOwnerSpec att_source = hidden;
+       FullOwnerSpec normalized;
+       if (layer) {
+         c = norm(Op::LN_ATTN, hidden, 2, layer,
+                  fresh(Buffer::NORM), 0, 0, normalized);
+         if (!c) return c;
+-        att_source = &normalized;
++        att_source = normalized;
+       }
+       FullOwnerSpec qkv[2];
+       FullOwnerSpec qkv_primary;
+-      c = linear(Op::LIN_QKV, {1, layer}, *att_source,
++      c = linear(Op::LIN_QKV, {1, layer}, att_source,
+                  2, layer, fresh(Buffer::QKV, 0), 0,
+                  qkv_primary, qkv);
+       if (!c) return c;

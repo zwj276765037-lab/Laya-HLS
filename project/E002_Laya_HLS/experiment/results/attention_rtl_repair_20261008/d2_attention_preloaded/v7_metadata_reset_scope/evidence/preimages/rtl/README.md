@@ -1,0 +1,1 @@
+No V6 RTL has been generated or copied. This directory reserves an isolated location for separately reviewed generated RTL and warm-reset evidence. The V5 cold and finite RTL packages remain immutable inputs, not V6 proof.

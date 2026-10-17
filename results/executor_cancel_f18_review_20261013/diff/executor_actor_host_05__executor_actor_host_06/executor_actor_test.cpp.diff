@@ -1,0 +1,38 @@
+--- executor_actor_host_05/executor_actor_test.cpp
++++ executor_actor_host_06/executor_actor_test.cpp
+@@ -440,11 +440,22 @@
+     assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED && h.results.size()==4 &&
+       graph.graph.pc==0 && graph.graph.action_high_water==1 && !graph.graph.action_active &&
+       !graph.graph.slot[1].valid && state->port.machine.action_high_water==1 && state->results==1);
+-    const auto result=dequeue<256>(h.results);program_wire::Result decoded;
++    program_wire::ResultPacket result{};
++    for(unsigned beat=0;beat<4;++beat) {
++      if(beat>=2)for(unsigned i=0;i<12;++i) {
++        program_call();h.call();assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED &&
++          h.results.size()==4-beat && !state->result_consumed_pending);
++      }
++      const auto w=h.results.read();
++      for(unsigned byte=0;byte<64;++byte)result[beat*64+byte]=uint8_t(w.range(byte*8+7,byte*8));
++    }
++    program_wire::Result decoded;
+     assert(program_wire::decode(result,decoded) && !decoded.result && decoded.action_ordinal==1 &&
+       !(decoded.flags&program_wire::LOCAL_REJECT) && result==packet<256>(bytes(fixture+"/cancel_result.bin")));
+-    // The Host is deliberately not acknowledged here. A result written to a
+-    // software queue cannot be mistaken for bound Host consumption or CLOSE.
++    // The actual Host-side last read is acknowledged. It is retained, but
++    // cannot substitute for the still-missing bound CLOSE/safe-release path.
++    h.in.result_consumed=true;h.call();h.in.result_consumed=false;
++    assert(state->result_consumed_pending);
+     for(unsigned i=0;i<24;++i) {program_call();h.call();assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED);}
+     assert(std::equal(before.begin(),before.end(),reinterpret_cast<const uint8_t*>(&state->runtime)) &&
+       h.tx.transaction_request.empty() && h.tx.transaction_completion.empty() &&
+@@ -512,7 +523,8 @@
+     <<" bad_key_cases="<<bad_keys<<" real_program_no_action_cases=2 shared_action_highwater=1 "
+     <<"completion_literal=1 result_literal=1 first_read_owner_unique=1 runtime_byte_unchanged=1 "
+     <<"action_tail2_tail1_wait=1 completion_tail2_tail1_wait=1 zero_tasks_retired=1 zero_transactions=1 "
+-    <<"replay_no_second_completion=1 host_result_ack_missing_blocks=1 depth2_RTL_NOT_RUN=1 CLOSE_rearm_NOT_RUN=1\n";
++    <<"replay_no_second_completion=1 result_tail2_tail1_wait=1 host_result_consumed_retained_no_CLOSE_no_rearm=1 "
++    <<"depth2_RTL_NOT_RUN=1 CLOSE_rearm_NOT_RUN=1\n";
+ }
+ void helper_shell_stimuli(const std::string& fixture,const checkpoint::Response& gold,
+                           const std::string& rtl_capture) {

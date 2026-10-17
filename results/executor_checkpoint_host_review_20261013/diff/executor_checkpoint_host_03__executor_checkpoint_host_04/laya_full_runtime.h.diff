@@ -1,0 +1,16 @@
+--- executor_checkpoint_host_03/laya_full_runtime.h
++++ executor_checkpoint_host_04/laya_full_runtime.h
+@@ -230,9 +230,12 @@
+   // Importing this baseline is not a local TaskDone or retirement statistic.
+   struct CheckpointBaseline {
+     NumericIdentity identity;
++    FullOwnerSpec source;
++    std::array<uint8_t, 416> model_identity{};
+     uint64_t snapshot_sequence = 0, handoff_epoch = 0;
+     uint64_t base_epoch = 0, base_address = 0, base_capacity = 0;
+-    uint32_t task_base = 0, local_retired_at_import = 0;
++    uint64_t lpv_floor = 0;
++    uint32_t task_base = 0, local_retired_at_import = 0, target_epoch_floor = 0;
+     bool valid = false;
+   } checkpoint_baseline;
+   uint32_t op_calls[256] = {};

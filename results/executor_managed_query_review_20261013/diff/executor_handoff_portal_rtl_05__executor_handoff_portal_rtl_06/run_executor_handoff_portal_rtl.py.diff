@@ -1,0 +1,54 @@
+--- executor_handoff_portal_rtl_05/run_executor_handoff_portal_rtl.py
++++ executor_handoff_portal_rtl_06/run_executor_handoff_portal_rtl.py
+@@ -48,6 +48,7 @@
+     parser.add_argument('--attempt', type=Path, required=True)
+     parser.add_argument('--control-fixture', type=Path, required=True)
+     parser.add_argument('--proof-only', action='store_true')
++    parser.add_argument('--query-case',type=int,choices=[0,1,2,3],default=0)
+     args = parser.parse_args()
+     attempt = args.attempt.resolve()
+     attempt.mkdir(exist_ok=False)
+@@ -68,7 +69,7 @@
+     files += [MODULE / 'tb/laya_executor_handoff_portal_tb_v1.sv',
+         MODULE / 'tb/run_executor_handoff_portal.tcl', MODULE / 'tb/production_guard.py',
+         Path('tools/hls_guard_helpers.py'), runner_rel,
+-        Path('tests/executor_checkpoint_rtl_fixture.py'),
++        Path('tests/executor_checkpoint_rtl_fixture.py'),Path('tests/executor_managed_query_fixture.py'),
+         Path('tests/executor_bootstrap_fixture.py'),
+         Path('tests/bootstrap_snapshot_rtl_fixture.py'),
+         Path('include/laya_executor_checkpoint.h'),
+@@ -87,9 +88,12 @@
+ 
+     control_fixture=attempt/'control_fixture';control_fixture.mkdir()
+     control_records=[]
+-    for name in ['hold.hex','query.hex','proof.hex','import_ok.hex','held_gold.hex','grant_gold.hex','scope.json']:
++    for name in ['hold.hex','query.hex','proof.hex','import_ok.hex','held_gold.hex','grant_gold.hex','abort.hex','abort_closed_gold.hex','scope.json']:
+         original=args.control_fixture.resolve()/name;target=control_fixture/name;shutil.copyfile(original,target)
+         control_records.append({'original':rec(original),'frozen':rec(target)})
++    oracle_command=[sys.executable,str(source/'tests/executor_managed_query_fixture.py'),'--fixture',str(control_fixture)]
++    subprocess.run(oracle_command,check=True,cwd=source,timeout=120)
++    control_oracle=[rec(control_fixture/'revoked_proof_gold.hex')]
+     host_fixture = attempt / 'host_fixture'
+     fixture_command = [sys.executable, str(source / 'tests/executor_bootstrap_fixture.py'),
+         '--model-header', str(source / 'build/model-current-production-v2-20261011/laya_model_layout_generated.h'),
+@@ -119,9 +123,9 @@
+         '-notrace', '-log', str(attempt / 'vivado.log'), '-journal',
+         str(attempt / 'vivado.jou'), '-source',
+         str(source / MODULE / 'tb/run_executor_handoff_portal.tcl'),
+-        '-tclargs', str(attempt / 'work'), str(source), str(fixture),str(control_fixture),str(int(args.proof_only)),
++        '-tclargs', str(attempt / 'work'), str(source), str(fixture),str(control_fixture),str(int(args.proof_only)),str(args.query_case),
+     ]
+-    scope = ('Bounded shell/actual provenance portal/hub/monitor handoff: explicit normal '
++    scope = ('Actual managed wrapper owns predecessor LPV/executor LPV/shared writer/snapshot/source-query gates; old query first ingress retains full K through persistent cancel/base revoke; complete frame byte binding and actual hub abort-only negative response; response consumption waits bound ABORT_CLOSED; canceled shell stays isolated. Query case='+str(args.query_case)+'. Bounded shell/actual provenance portal/hub/monitor handoff: explicit normal '
+       'diagnostic predecessor completion after 7 real typed terminals and 112AW/7168W/112B; '
+       'prequery HOLD while old final B/END/response progresses; full-key HELD; '
+       'real depth2 LBS2/LBR2 16/16 transfer and tail stalls, last read only import pending; '
+@@ -136,7 +140,7 @@
+         'scope': scope,
+         'files': records,
+         'control_files':control_records,
+-        'proof_only':args.proof_only,
++        'proof_only':args.proof_only,'query_case':args.query_case,'control_oracle':control_oracle,'oracle_command':oracle_command,
+         'contract': {'original': rec(contract), 'frozen': rec(contract_copy)},
+         'import_contract': {'original': rec(import_contract), 'frozen': rec(import_contract_copy)},
+         'fixture_command': fixture_command, 'prelude_command': prelude_command,

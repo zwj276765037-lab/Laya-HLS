@@ -1,0 +1,28 @@
+{
+  "schema": "d2_type_producer_binary_sparse_axi_mapping_source_v1",
+  "status": "SOURCE_PROPOSAL_NO_MATERIALIZATION_OR_RTL_EXECUTION",
+  "page_bytes": 4096,
+  "top_ports": [
+    {"name": "hidden_input", "direction": "read", "capacity_bytes": 262144, "base_hex": "0x0000000100000000", "mapped_page_runs": [[0, 64]]},
+    {"name": "embedding", "direction": "read", "capacity_bytes": 54803648, "base_hex": "0x0000000200000000", "mapped_page_runs": [[54800384, 1]]},
+    {"name": "io", "direction": "read_write", "capacity_bytes": 32768, "base_hex": "0x0000000300000000", "mapped_page_runs": [[0, 8]]},
+    {"name": "aux", "direction": "read", "capacity_bytes": 1671872, "base_hex": "0x0000000400000000", "mapped_page_runs": [[0, 1]]},
+    {"name": "state0", "direction": "read_write", "capacity_bytes": 16920576, "base_hex": "0x0000000500000000", "mapped_page_runs": [[0, 64], [16908288, 3]]},
+    {"name": "state1", "direction": "read_write", "capacity_bytes": 16919104, "base_hex": "0x0000000600000000", "mapped_page_runs": [[0, 64]]},
+    {"name": "observed", "direction": "write", "capacity_bytes": 128, "base_hex": "0x0000000700000000", "mapped_page_runs": [[0, 1]]}
+  ],
+  "mapped_page_total": 206,
+  "qtype_cases": [
+    {"qtype": 2, "type_q8_row_byte_offset": 54802560, "type_q8_row_bytes": 1088, "type_f32_row_byte_offset": 16916480, "type_f32_row_bytes": 4096},
+    {"qtype": 1, "type_q8_row_byte_offset": 54801472, "type_q8_row_bytes": 1088, "type_f32_row_byte_offset": 16912384, "type_f32_row_bytes": 4096}
+  ],
+  "sentinels": {
+    "initial_byte": 165,
+    "state0_hidden": "Only offsets 0..262143 may change to frozen native HIDDEN ingress; every other mapped hidden byte stays 0xa5.",
+    "state0_type_rows": "Exactly the selected 4096-byte row may change; both unselected 4096-byte rows stay 0xa5 in all bytes.",
+    "state1_output": "Offsets 0..262143 contain all 65536 independent F32 output words; the remaining mapped pages stay 0xa5.",
+    "embedding": "The final 3264 Q8 bytes are the exact packaged type_emb.weight payload; no other model page is mapped.",
+    "observed": "All 32 diagnostic words are checked against original task/owner behavior, with any unspecified fields retained at 0xffffffff."
+  },
+  "future_protocol": "Reuse accepted AXI endpoint and adapter debt accounting, first sampled ap_done checks, terminal R/B stalls, all mapped-page scan, and disjoint 64-bit base identity; generate new exact source and cycle limits before any RTL invocation."
+}

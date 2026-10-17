@@ -1,0 +1,55 @@
+{
+  "schema": "reviewer_q8_finite_domain_r0_adapter_design_source_release_v2",
+  "created_utc": "2026-10-09T00:27:53.330211+00:00",
+  "designer_reviewer": "GPT-6 Astra / xhigh",
+  "status": "MATHEMATICAL_DESIGN_SELECTED_ISOLATED_SOURCE_PREPARATION_ONLY",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1",
+  "design": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/source/design.md",
+    "bytes": 13914,
+    "sha256": "321080d93185336aba66048af759cd982be143fe524f669f3de0c06c7729077b"
+  },
+  "results": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/source/results.md",
+    "bytes": 1620,
+    "sha256": "297dde8fe7fb0f7e354806746b28c56a868c6a9f1588e823002793f0d9887df8"
+  },
+  "actual_FP_review": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_actual_fp_boundary_119_characterization_acceptance.json",
+    "bytes": 19783,
+    "sha256": "bdd1bf48fdae08733a3ce3294cc4b6e08e01fc2cb2e6e8b73f5919acb9ba3736"
+  },
+  "restore_domain_proof": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_restore_reachable_f32_domain_precision_analysis.json",
+    "bytes": 7438,
+    "sha256": "f8833da440907cd14fb19595adfcb5cbff5e8ef1fb84127cfec07b245ee2df70"
+  },
+  "selected_remedy": [
+    "finite raw-bit absmax",
+    "same raw-bit d_is_zero at both original reciprocal line625 and rounded-selection line641; never FP equality for subnormal d",
+    "exact30bit integerdiv127/remRNE in tiny branch",
+    "normal-operand reciprocal via2^24 upscaling then exactexponent recovery",
+    "small-product q0 exactrefinement;remaining subnormalx normalizedup24 andreciprocaldown24",
+    "reachablezeroPS/bias andtinybias bypass withcorrectsignedzero"
+  ],
+  "semantic_guards": [
+    "Originalfinite/nonfinite/E_NUMERICAL/halfRNE/roundf-away/range-reject behavior",
+    "Originalfirsterrorrow/group/lane andno-group-commit onfailure",
+    "Originalrestoregrouporder/trace/ABI/counters",
+    "No unrestrictedprimitiveIEEEconformanceclaim",
+    "NoC1pipeline implementationorresource/IIclaim"
+  ],
+  "release": {
+    "owner": "GPT-6 Sol / max vivado_project_sol_max",
+    "allowed": "Prepareisolatedhelper/reference/probe/binding/runnersources underthisroot;staticgrammar,hash andliteralvectorchecks only. Updateactualcodemappingwithsources. Do notchangeexistingv3,Scorer,FP119,productiontoporgold.",
+    "not_allowed": [
+      "Compile or execute CPU reference",
+      "Run adapter RTL simulation/HLS/OOC",
+      "Integrate C1",
+      "Change R0 tolerance/gold",
+      "ExhaustiveCPUscanwithoutbudget"
+    ],
+    "next_gate": "Astra independentlycheckshelpers,referenceindependence,vectorcoverage,normalFPoperand/resultproof andconcretefinitebudgets beforeexecution.",
+    "priority": "Prepare the R0 adapter source before integrating C1 numerical services. A separately accepted normal rows3 characterization of frozen v3 may run independently; it cannot waive the accepted 119-case primitive failures or replace adapter conformance evidence."
+  }
+}

@@ -1,0 +1,39 @@
+# 修订19：实际共享LN前端与source/norm服务抽取
+
+2026-10-15；D-M004-LN-SHARED-SERVICE-01；A001→A002；M004/SM004/E004/R001。承接[修订18审核](lnq_cost_owner_rev18_closeout_decision.md)。本段新增生产模块边界以取得真实LN128阶段证据，不对旧大top原样加时。M004/SM004继续running/unassessed。
+
+正式采用[原架构“LN128实际生产服务抽取：固定切口与端口”](../../source/fixed_graph_architecture_20261014.md)的两层职责、逐种bank端口、reader/writer固定客户端和路由锁存表；[静态依据](../../source/fixed_graph_support_20261014/ln128_production_partition_20261015.json)的8项身份已由主控核到当前源码。以下为本段执行与验收边界；研究文中建议回归不另增实验预算或完成宣称。
+
+## 生产边界与唯一资源
+
+采用A003已给出的两层实际生产路线：一份共享LNQ/bank前端，一份source/norm I/O及固定LN128阶段调度服务。两层必须成为完整父top实际例化的模块；独立阶段TB连接这些同版生产模块及原AXI peer。不要另写功能相似的精简核、用参数/宏删原生产实例取得独立PASS，或让完整父top继续使用旧复制实现。外部原请求字段/Check语义保持；模块命名与机械端口拆分由A002在原模块design.md中落地。
+
+共享前端拥有唯一`laya_lnq_row_v1`、原8×656×32bit final_bank（20992B）、prep/token/gamma身份、回放、LN norm保存、Q16填充/覆盖与占有生命周期。保留全部四种source_mode及现cmd_exec，不实现尚未授权的MATRIX16/STEP16/W_PREP_ONLY。W cache、matrix/PS front、G、ADD/skip和RoPE算术保持原本体与唯一实例；仅将其原共享bank与LNQ访问接回新边界，不新增整行/整tensor RAM或第二算术副本。原skip_bank、Q内部bank、reader FIFO容量如实计入，不因抽取从资源说明消失。
+
+下层建议名`laya_lnq_bank_service_v1`，上层建议名`laya_source_norm_service_v1`。两层可经原core外壳透传连接，独立阶段直接接同一端口；exec001/010由下层完成，exec000由原重FSM通过原LNQ接口调用。legacy命令须两侧同时准入才发生一次真实接受。上层移动原staged 128行循环与16行错误屏障，原sequencer该分支只代理，禁止第二份循环/位图。下层保留固定bank_phase与ps_store、G x/gate同步读/无ready返回写、ADD同步读/无ready返回写、原结果rd/rsp；读保持在原采样沿更新，不能机械新增一拍通用总线而破坏父状态使用时刻。
+
+source/norm服务移动现真实STATE0/AUX读取、预装/读债、norm同步读取/单writer写债、固定LN128推进所需控制及状态；旧source reader、AUX reader与writer整体各保留原有数量和本体，原RoPE/RAW/legacy通过固定相位端口继续复用。父top原tensor/epoch及legacy路径的状态归属须明确，任何状态只能有一个写入者；不建立通用owner/portal或动态任务框架。独立测试不例化非活动matrix/G/RoPE，但所测生产模块在完整父top中必须只有一份，并由实际请求调用。
+
+## 必须保持的接口语义
+
+1. 原cmd_exec/source_mode、id/row、model/numeric、source/destination/a_epoch，prep begin/write/commit/abort，norm result_exec与同步read/rsp/release-discard，A16_ready/window_release及完整Check均保留真实握手和身份锁存。完整状态/端口归属表写入既有design.md；父top输入变化不能改活动上下文。部分Q16占有保护必须采用当前a73632b8…修复行为，临时prep abort不得释放已有效A。
+2. bank地址与读延迟保持：norm为tile384..511，Q16为4352word紧密布局，当前norm临时区4224..5247，最后Q16行有512B重叠，只在1024norm真实消费、Q完成/零债后导出。legacy矩阵final、G in-place、Down/QD及ADD的原标量/8lane读写映射原样搬移。保留G的8lane同步读与标量返回写同拍能力，不能把所有访问序列化成单事务口而丢返回；G/ADD及已发射矩阵返回的接收能力必须在发射前成立，不能事后拉ready停住没有反压的结果。原holding寄存器迁移，新增payload逐项实报；不改变FP/CE/tag或归约顺序。
+3. AXI reader与writer路由在真实load/write握手后锁定，保持到全部RLAST/FIFO/holding/load_done或AW/W/B/flush债排净。source晚RRESP错仍须排净再abort，不能用已收满字数代替最终load_done/error。writer失败出口依据真实debt_zero，不能等待第二个成功flush脉冲或清计数假排空。受阻AW/W全字段稳定，B前不得释放/置成功覆盖。
+4. 切相位须相关FIFO、holding、bank pending/rsp、LN/Q物理债、writer债真实为零，同时保留gamma/A16等仍有效的所有权；单纯IDLE不是释放许可。共同clk/reset保持，不门控时钟、不新造CE/reset行为。原共同reset隔离边界不升级为独立AXI reset。错误Check、逐行/16行窗口延后store错误和numeric优先规则不因拆模块改变；原全请求首错等价仍UNRESOLVED。
+
+## 集中验证与成本门
+
+先冻结同版新层次、父top和诊断TB，核原leaf/FP/IP/reader/writer/gold不变、唯一实例及真实编译依赖。只机械重绑定层次checker，保留全部原检查、Fatal、地址/覆盖与独立参考。以下四组在新预算内连续实施与修复，不逐步请示。
+
+1. **真实阶段与成本。** 独立生产服务由一次固定B1/S128请求触发，真实STATE0与AUX gamma→预装→原LN→norm写B，不用保存norm代替producer。首次pilot≤120s，记录每行source/LN/B/退休cycle及单调墙钟。必须完整退休首16行并核16384个独立norm、1024源R/1024成功B、gamma256R；不能人工填余位。若同版完整16行的保守全128估计≤1440s，且RTL余额可容纳1800s，自动一次≤1800s/40Mcycle真实LN128，估计原则不小于所测16行总墙钟×8×2.5。全例核131072 norm、8192源R、8192成功B、128唯一行/末B/退休屏障、最终内存复扫，NORM_STAGE_READY真实成立但request_done/RAW/FINAL仍不得发布。没有完整16行或不落帽，保留COST_STOP，给实际阶段成本和下一最小边界；不重复同配置加时或拼接重启前缀。
+2. **生产共享与兼容。** 完整父top真实展开并核新模块唯一调用；至少同版父top一行真实LN_ONLY的输入/输出/写回与独立阶段一致。抽取下层Q16以原row0/1 norm交替16行，核全部4352word/512响应及r15最后输入受阻的重叠边界，明确只有两种独立输入样本；合并部分窗口拒绝、合法继续、abort/discard及下一epoch。共享bank的原matrix final/G并行读回写/QD/ADD访问以合法同步客户逐事务核映射/保持/无覆盖，局部客户不得冒充完整matrix/FFN算术。父图已授权受影响短前缀中核真实W-AUX→source-AUX与RoPE读写客户端转交、无ready返回零丢失；未到的路径保留NOT_RUN，不伪造完成。原leaf算术和不受影响的旧测试按SHA复用；未跑完整父top legacy链明确留缺口，不为本段重跑旧长基线。
+3. **读写错误与恢复。** 一条真实source晚RRESP或gamma load_done错误及一条真实norm末B错误；验证读债排净、错误完成保持、不置失败行覆盖、无reset显式discard及新epoch恢复。对norm B错后的LN继续/discard与numeric优先，沿原16行窗口规则，用明确原始错误位置和真实完成计数区分；端点局部覆盖不能升级未运行的完整窗口。
+4. **相位边界与reset。** 实际有限AR/R/AW/W/B停顿、至少一个跨4KiB页界合法输入；在prep或LN/回放真实在途点共同reset，清覆盖/活动后510拍无旧可见写，再真实新行恢复。共享服务向legacy/下一阶段交接需实测pending/rsp或writer末B受阻时禁止提前切换；仅模拟客户的交接明确标签。不要重复AT301–306不受影响旧配置来充数。
+
+## 新预算、交付与未覆盖
+
+本段独立host准备累计300s/8GiB；static/IP累计1800s/24GiB，单次600s；RTL累计3600s/8GiB，单次1800s/40Mcycle，首pilot≤120s、真实语义停滞120s保护。完整父top有限回归也计本段，首次未知路径先≤120s pilot，失败和构建成本全部入账。CPU0–3/nice19/idle、MemAvailable>192GiB及全项目单重工具不变。旧修订18余额封存不转移；不启动HLS/OOC/P&R、gold/完整oracle、新agent或无关进程管理。
+
+A002独占E002实现/TB/design/results与E004原始证据和三摘要；A003只补充静态源依据，A001负责合同与集中审核。普通代码/连接/构建/TB错误在帽内连续修复；数值、CE/时钟或额外存储变化属于实质边界，及时定向交主控，无关已授权工作继续。
+
+交付需分别报告生产抽取与唯一资源、同版父top和独立服务覆盖、完整16行/128行是否真正完成、原guard费用与每项PASS/FAIL/NOT_RUN/COST_STOP。独立LN128通过不证明完整父top同runtime提速或全模型通过；Q16父图、STEP16/完整matrix、全RoPE/FINAL→Attention、旧首错等价、Host/HBM/物理BO及联合资源/Fmax仍按未测范围保留。

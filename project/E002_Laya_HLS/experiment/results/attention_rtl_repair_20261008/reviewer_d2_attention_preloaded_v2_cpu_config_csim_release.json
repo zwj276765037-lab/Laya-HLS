@@ -1,0 +1,113 @@
+{
+  "schema": "laya_independent_attention_v2_cpu_config_csim_release_v1",
+  "created_utc": "2026-10-08T14:07:16.651046+00:00",
+  "reviewer": {
+    "agent": "/root/resource_explain_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "identity": "d2_attention_preloaded_v2_direct_cleanup",
+  "verdict": "STRICT_CPU_ACCEPTED_AND_ONE_STANDARD_LIBM_CSIM_RELEASED",
+  "evidence": {
+    "cpu_packet": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/final_cpu_evidence_packet.json",
+      "bytes": 11491,
+      "sha256": "11eb206acfd48a59b4cdd2f2076d1b811e6c001c685579ca420c146ff6a1b849"
+    },
+    "source_binding": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/pre_cpu_source_binding_packet_v2.json",
+      "bytes": 38650,
+      "sha256": "78c137385e6c22d71574ae10dfbd29fc931ca40527b8d186db9744adc5688303"
+    },
+    "independent_hashcheck": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_cpu_hashcheck.json",
+      "bytes": 47258,
+      "sha256": "a02043580117f404f9ca90a5c5bfcf393aa3a3289c1949d9b526e18bad00d3e9"
+    },
+    "wrapper": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/attention_preloaded_slice.cpp",
+      "bytes": 15509,
+      "sha256": "843df3247473ae2a3e908eac3bab295ed968ee105c0afca83674cb124090f252"
+    },
+    "wrapper_diff": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/wrapper_v1_to_v2.diff",
+      "bytes": 9687,
+      "sha256": "be364ea5b393f6ba87008c9059750dd4e95efc3cc72ff818c72842cf1176bca8"
+    },
+    "config": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/config.cfg",
+      "bytes": 4959,
+      "sha256": "598b811ee3c853ac898ccfd935d8f7a8fe94faed8bf5ba8b02338b4b501697c2"
+    },
+    "config_diff": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/config_v1_to_v2.diff",
+      "bytes": 5170,
+      "sha256": "f7c1ac37df8886a2660d49461d589ec7d190321571c4463df7ec36d8f082303a"
+    },
+    "runner_diff": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/runner_v1_to_v2.diff",
+      "bytes": 648,
+      "sha256": "06a56341db1dcdf58bf966bdb82b8297c5dd6066852630ead3ba7eb6adb43e64"
+    },
+    "documentation_addendum": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/documentation_identity_addendum_after_cpu.json",
+      "bytes": 2414,
+      "sha256": "8a3af23267ccc4dfdd5a90c01f8de529eca69feb65efdd45e667e7fe937109b0"
+    }
+  },
+  "source_review": [
+    "Read complete wrapper diff: old fail helper removed; 25 top-level macro callsites each evaluate observed, first Check, phase and close flag once; direct controller.invalidate_incomplete() records cleanup, reports first error while pending remains visible, then closes pending. False branch only reports. Unknown-command branch captures original pending.valid once.",
+    "Controller construction, four run_task helpers, success report/cleanup/close ordering and all numeric task code remain unchanged. Parenthesized Check aggregate only protects preprocessor comma. Macro is undefined after top.",
+    "85 actual build/execute inputs agree with pre-CPU binding. All referenced production sources and copied TB/fixture hashes verified; one exact archived documentation preimage resolves the only changed expected path. 464 references, 118 unique path/hash pairs, no unresolved mismatches.",
+    "Copied CPU runner initially failed before compilation because root depth changed. Exact failure retained; only parents[2] to parents[3] fixed. Successful build and execution are separately guarded and bound.",
+    "Config differs from accepted v1 only by variant path relocation: same top, xcu55c-fsvh2892-2L-e, 150 MHz target, no auto pipeline/partition, wrapper plus 24 official translation units, included Controller not duplicated, strict floating-point flags, csim.stdmath=true and sim.ldflags=-lm."
+  ],
+  "cpu_acceptance": {
+    "legal": 3,
+    "negative": 17,
+    "log_byte_identical_to_accepted_v1": true,
+    "build_wall_seconds": 8.852638760581613,
+    "build_peak_owned_rss_kib": 162388,
+    "execute_wall_seconds": 7.696092829108238,
+    "execute_peak_owned_rss_kib": 66740,
+    "guard_exit_codes": [
+      0,
+      0
+    ],
+    "guard_triggers": [
+      null,
+      null
+    ],
+    "coverage": "Unchanged accepted testbench: exact 64 scores, nonlinear probability tolerance, exact AV with actual probability plus separate end-to-end tolerance; full QKV host images and ATT_OUT sentinel, descriptor and owner/ticket/epoch/negative protocol checks. CPU evidence only."
+  },
+  "release": {
+    "owner": "/root/vivado_project_sol_max",
+    "action": "One fresh Vitis HLS CSim using exact bound v2 config and source/TB/fixtures",
+    "rss_gib": 16,
+    "wall_seconds": 600,
+    "cpus": 4,
+    "nice": 19,
+    "ionice": "idle",
+    "rss_sample_seconds": 0.2,
+    "host_mem_available_floor_gib": 192,
+    "serialization_scope": "Only this Laya workflow/agent tree; no concurrent owned heavy tool. Unrelated server jobs are not governed.",
+    "requirements": [
+      "Freeze command, tool version, config, actual compile inputs and fixture hashes before launch.",
+      "Preserve fresh run logs, full guard/policy/memory evidence and all legal/negative case results, including failures.",
+      "Require actual exit status and PASS markers; no semantic or numeric tolerance changes.",
+      "Return evidence for independent CSim review before synthesis."
+    ]
+  },
+  "not_released": [
+    "local synthesis",
+    "RTL/static elaboration",
+    "cosimulation",
+    "OOC",
+    "production source or package changes"
+  ],
+  "limitations": [
+    "Direct-cleanup helper-escape hypothesis remains unproved. CPU equivalence does not establish HLS representability; new synthesis IR/source checks remain required after CSim acceptance.",
+    "150 MHz is requested clock, not measured timing/Fmax.",
+    "Canonical current documents are module root source/design.md and source/results.md. v2 documents remain frozen variant evidence; do not maintain a second current pair."
+  ]
+}

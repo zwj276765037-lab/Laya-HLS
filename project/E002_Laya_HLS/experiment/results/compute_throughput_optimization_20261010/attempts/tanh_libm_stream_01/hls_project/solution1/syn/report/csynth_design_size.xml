@@ -1,0 +1,78 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">, 15349, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll, 20372, user unroll pragmas are applied</column>
+            <column name="">(2) simplification, 17157, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline, 17103, user inline pragmas are applied</column>
+            <column name="">(4) simplification, 17070, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition, 14254, user array partition pragmas are applied</column>
+            <column name="">(2) simplification, 14254, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate, 14254, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape, 14254, apply array reshape pragmas</column>
+            <column name="">(5) access patterns, 14254, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification, 14254, loop and instruction simplification</column>
+            <column name="">(2) parallelization, 14254, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition, 14254, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification, 14254, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering, 14257, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations, 14260, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="tanh_libm_stream_leaf" col1="tanh_libm_stream_bits.cpp:265" col2="15349" col3="17070" col4="14254" col5="14254" col6="14260">
+                    <row id="11" col0="stream_graph" col1="tanh_libm_stream_bits.cpp:184" col2="15338" col3="" col4="" col5="" col6="">
+                        <row id="5" col0="fp_mul_bits" col1="tanh_libm_stream_bits.cpp:115" col2="4828" col2_disp="4,828 (17 calls)" col3="" col4="" col5="" col6="">
+                            <row id="13" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="1360" col2_disp="1,360 (34 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="2" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="323" col2_disp="  323 (17 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="9" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="1921" col2_disp="1,921 (17 calls)" col3="" col4="" col5="" col6="">
+                                <row id="2" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="646" col2_disp="  646 (34 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="6" col0="fp_add_bits" col1="tanh_libm_stream_bits.cpp:89" col2="9480" col2_disp="9,480 (24 calls)" col3="" col4="" col5="" col6="">
+                            <row id="4" col0="add_unpack" col1="tanh_libm_stream_bits.cpp:61" col2="3216" col2_disp="3,216 (48 calls)" col3="" col4="" col5="" col6="">
+                                <row id="10" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="1872" col2_disp="1,872 (48 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                            <row id="12" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="408" col2_disp="  408 (24 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="1" col0="add_pack" col1="tanh_libm_stream_bits.cpp:72" col2="3192" col2_disp="3,192 (24 calls)" col3="" col4="" col5="" col6="">
+                                <row id="10" col0="add_clz32" col1="tanh_libm_stream_bits.cpp:45" col2="936" col2_disp="  936 (24 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="12" col0="add_jam" col1="tanh_libm_stream_bits.cpp:55" col2="816" col2_disp="  816 (48 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="3" col0="to_int" col1="tanh_libm_stream_bits.cpp:160" col2="20" col3="" col4="" col5="" col6=""/>
+                        <row id="8" col0="from_int" col1="tanh_libm_stream_bits.cpp:154" col2="131" col3="" col4="" col5="" col6="">
+                            <row id="9" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="113" col3="" col4="" col5="" col6="">
+                                <row id="2" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="38" col2_disp="   38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="7" col0="fp_div_bits" col1="tanh_libm_stream_bits.cpp:128" col2="586" col2_disp="  586 (2 calls)" col3="" col4="" col5="" col6="">
+                            <row id="13" col0="unpack" col1="tanh_libm_stream_bits.cpp:15" col2="160" col2_disp="  160 (4 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="9" col0="pack" col1="tanh_libm_stream_bits.cpp:26" col2="226" col2_disp="  226 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="2" col0="jam" col1="tanh_libm_stream_bits.cpp:9" col2="76" col2_disp="   76 (4 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                    </row>
+                </row>
+            </rows>
+            <notes/>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>

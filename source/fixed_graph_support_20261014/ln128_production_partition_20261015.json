@@ -1,0 +1,115 @@
+{
+  "task": "m004-ln128-production-partition-interface-question-20261015",
+  "scope": "STATIC_DESIGN_ONLY; no EDA, DUT execution, model/oracle/gold or RTL modification",
+  "identities": [
+    {
+      "role": "core",
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_lnq_wi_gqdown_row_v1.sv",
+      "bytes": 47741,
+      "sha256": "a73632b8a85fae646b36c0355065b19a5f91b4067440c5f96f14726726197e54"
+    },
+    {
+      "role": "wrapper",
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_qkv_scratch_row_v1.sv",
+      "bytes": 67805,
+      "sha256": "5c88716f2a9c60f065dab6358c7d9b1d336ab1eaba689f04ae37e31b74158e26"
+    },
+    {
+      "role": "sequencer",
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_qkv_s128_request_v1.sv",
+      "bytes": 17874,
+      "sha256": "a4c999e5e7e5ea63c95dd7abf9d70d0eb4362b06b36e080b2670807c9500bca4"
+    },
+    {
+      "role": "lnq",
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_lnq_row_v1.sv",
+      "bytes": 12897,
+      "sha256": "52cd1070e57d896c1ec828dc1b985b6b01b5c99a6e8b395e4b1dce3f00ad2df8"
+    },
+    {
+      "role": "writer",
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_axi512_writer.sv",
+      "bytes": 9383,
+      "sha256": "ee1121c5fd0b6651d6f7ff3d859fb60b57ae871cbebb011ff2994af9e3372218"
+    },
+    {
+      "role": "source_reader",
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/t4_w_reader_port_v1.sv",
+      "bytes": 5631,
+      "sha256": "478aedddfd599a313eaff88a710a1f8996dd299ff76e56d6b040b08bec3f80df"
+    },
+    {
+      "role": "aux_reader",
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/t4_aux_bias_reader_v1.sv",
+      "bytes": 5383,
+      "sha256": "58f3698921fab4181b2fe38082d454d9c789de01e99f5f5f9784f237b21b7307"
+    },
+    {
+      "role": "rev18_report",
+      "path": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev18_q16_owner_ln128_cost_engineering_handoff_20261015.md",
+      "bytes": 6049,
+      "sha256": "a48f1b938bdda51eafe7a16802321b5318415135392044726591c1931528940c"
+    }
+  ],
+  "script_sha256": "594e9e675d85ef54050694d8d22ac9f7bf7ffd4bb1939613118d81f4a699b1e4",
+  "integer_checks": {
+    "single_final_bank_payload_bytes": 20992,
+    "ln_norm_tile_range": [
+      384,
+      511
+    ],
+    "q16_window_words": 4352,
+    "q16_last_row_prep_overlap_bytes": 512,
+    "g_output_addr_range": [
+      0,
+      327
+    ],
+    "g_gate_addr_range": [
+      328,
+      655
+    ],
+    "g_gate_write_address_overlap": false,
+    "norm_row_result_tiles": 128,
+    "norm_row_writer_beats": 64,
+    "ln128_norm_words": 131072,
+    "ln128_norm_okay_b": 8192
+  },
+  "prior_cost_source": "rev18_report (engineering report; no new guard re-audit)",
+  "design": {
+    "route": "one LNQ/bank leaf plus one source/norm IO+staged sequencer service; both are actual parent instances",
+    "bank_ports": "preserve synchronous G 8-lane read plus scalar return write on distinct addresses; never drop non-backpressurable matrix/G/ADD returns",
+    "writer_readers": "move existing shared instances and route locks; no additional reader/writer or whole-row RAM",
+    "regression_groups": 4,
+    "new_execution": "NOT_RUN",
+    "full_parent_same_runtime": "NOT_RUN",
+    "performance_gain": "UNKNOWN"
+  },
+  "measurement_before_record_write": {
+    "monotonic_s": 0.0011171847581863403,
+    "maxrss_kib": 15732,
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nice": 19,
+    "io_priority": "idle",
+    "interactive_reads_cumulative": "UNKNOWN"
+  },
+  "external_measurement": "ln128_partition_static_time_20261015.txt",
+  "closeout": {
+    "measured_scripts_wall_s": 5.86,
+    "maxrss_kib": 36592,
+    "breakdown_s": {"static_identity_integer": 0.05, "console_report": 2.89, "communication_send": 2.92},
+    "all_exit_codes": 0,
+    "policy": "each timeout20s/address-space1GiB/taskset0-3/nice19/ionice-idle",
+    "interactive_reads": "UNKNOWN",
+    "message_id": "m004-ln128-production-partition-interface-answer-20261015",
+    "delivery_status": "delivered",
+    "recipient_turn_id": "01a1401e-0d9e-7f23-aaf7-799858c7f2c0",
+    "receipt": ".research-agent/communications/m004-ln128-production-partition-interface-answer-20261015.json",
+    "navigation_ok": true,
+    "broken_links": []
+  }
+}

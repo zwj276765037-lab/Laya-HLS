@@ -1,0 +1,62 @@
+{
+  "status": "OBSERVED_SCOPED_OUTPUT_SERVICE_BOUND",
+  "scope": "KB1 Down four-row cold sample, frozen 512-bit writer and strictly serial TB AXI B endpoint; read-only interpretation.",
+  "observed": {
+    "useful_bytes": 16384,
+    "physical_W_bytes": 16384,
+    "WSTRB_utilization": 1.0,
+    "AW": 256,
+    "W": 256,
+    "B": 256,
+    "first_AW": 39004,
+    "last_B": 43931,
+    "first_AW_to_last_B_cycles": 4927,
+    "TB_B_delay_decrements": 4608,
+    "writer_tx_valid_cycles": 4928,
+    "writer_AW_W_sent_no_B_cycles": 4352,
+    "writer_packet_not_ready_cycles": 2819,
+    "PS_commit_not_ready_cycles": 4691
+  },
+  "derived": {
+    "minimum_512bit_W_beats_for_16384B": 256,
+    "serial_B_delay_sum": 4608,
+    "measured_output_interval_above_delay_decrements": 319,
+    "ceiling_if_first_AW_unchanged_and_only_non_B_output_gaps_removed_cycles": 319,
+    "fraction_of_current_output_interval_taken_by_B_delay_decrements": 0.9352547188958799
+  },
+  "source_rules": [
+    "TB AWREADY=!aw_seen && cycle%7!=0; WREADY=!w_seen && cycle%11!=0; aw_seen/w_seen clear only on actual B consume.",
+    "TB sets bdelay=17+(physical output_beats%3) and decrements once per negedge; BVALID held until BREADY.",
+    "Writer has one immutable tx; next sealed pack transfers only when tx empty or actual B fires.",
+    "Final PS commit_ready for last group follows final_adapter ready; adapter stored row retires through bias output whose pending output waits writer packet_ready."
+  ],
+  "judgment": "The declared response profile already reaches the minimum 256 physical W beats. The TB serializes all transactions and accounts for 4608 B-delay decrements within the measured 4927-cycle first-AW-to-last-B span. Packet/PS stall counters are overlapping and cannot be converted directly to command savings. A write-buffer change can matter only if it advances first AW or changes another critical overlap; with first AW unchanged, eliminating every non-B output interval could save at most 319 cycles in that interval, and even that is optimistic. A multi-outstanding memory peer is a different response profile requiring its own baseline.",
+  "limitations": [
+    "The 319-cycle quantity is a conditional ceiling for the measured output interval, not total command latency or a realized optimization.",
+    "Static readiness chain identifies possible propagation, but existing counters do not measure simultaneous causes or prove exact critical-path attribution.",
+    "No physical HBM timing or steady-state throughput evidence."
+  ],
+  "evidence": {
+    "measurement": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/measurement_full.json",
+      "sha256": "ddaf1729e8819b02f05b608ac9c9ce7856ec19ac0e2577783ac4b786cd8aaa6e"
+    },
+    "raw": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/raw_full.log",
+      "sha256": "90e1d9ddde5be4f6805f56ff0319f0c1602d81dcf001641efd11cc08d1e183ce"
+    },
+    "TB": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv",
+      "sha256": "3d72a4d8d7890032d1743113654c64be5a9589b5c8f6d5d753a6b67a5d80e438"
+    },
+    "writer": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_axi512_writer_v1.sv",
+      "sha256": "5fad1da7479aeb4227da5744a857503b82b3690b1d10aec5231f96f7dd5bc691"
+    },
+    "resident": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_matrix_resident_v2.sv",
+      "sha256": "b3f53b241b39d1b3a6b3867aaf2a9ddec2d6f54b400ba895920cd6e05f777439"
+    }
+  },
+  "recorded_at": "2026-10-13T06:28:11.240549+00:00"
+}

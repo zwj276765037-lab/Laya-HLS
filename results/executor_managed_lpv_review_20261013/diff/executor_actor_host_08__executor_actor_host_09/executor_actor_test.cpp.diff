@@ -1,0 +1,63 @@
+--- executor_actor_host_08/executor_actor_test.cpp
++++ executor_actor_host_09/executor_actor_test.cpp
+@@ -94,6 +94,51 @@
+     call();assert(state.phase==executor::Phase::IMPORT_CHECKPOINT);call();
+   }
+ };
++void admission_owner_wire(const std::string& fixture) {
++  const auto literal=packet<1024>(bytes(fixture+"/admission_owner.bin"));
++  admission_owner::Record r;assert(admission_owner::decode(literal,r) &&
++    admission_owner::encode(r)==literal && r.physical.known_roles==(1u<<6));
++  unsigned rejected=0;
++  for(unsigned offset:{0u,4u,6u,8u,12u,15u,16u,24u,32u,63u,64u,72u,80u,148u,159u,160u,576u,727u,728u,736u,888u,1023u}) {
++    auto bad=literal;bad[offset]^=1;
++    // Nonzero session/request/id changes are legal wire values, so use zero
++    // for those fields. They are bound by the owner comparison at the hub.
++    if(offset==16 || offset==24 || offset==64 || offset==72)
++      portal::put(bad.data(),offset,0,8);
++    if(offset==12)portal::put(bad.data(),12,0,4);
++    if(offset==80)portal::put(bad.data(),80,0,2);
++    if(offset==727)portal::put(bad.data(),720,0,8);
++    if(offset==736)portal::put(bad.data(),736,UINT64_MAX,8);
++    admission_owner::Record out;out.session=999;
++    assert(!admission_owner::decode(bad,out) && !out.session && !out.accepted_request);
++    ++rejected;
++  }
++  auto state=std::make_unique<executor::State>();Harness h(*state,fixture);h.call();
++  assert(state->phase==executor::Phase::WAIT_CHECKPOINT && state->admitted_owner_valid &&
++    admission_owner::encode(state->admitted_owner)==literal && !state->checkpoint.hold_reserved &&
++    state->checkpoint.sequence_high_water==0 && h.query.empty() && h.commands.empty());
++  const auto before=std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(&state->runtime),
++    reinterpret_cast<const uint8_t*>(&state->runtime)+sizeof(state->runtime));
++  const auto original=state->admitted_owner;
++  for(unsigned which=0;which<7;++which) {
++    auto physical=original.physical;auto session=original.session,instance=original.accepted_request;
++    if(which==0)session=0;
++    if(which==1)instance=0;
++    if(which==2)physical.role[6].epoch=0;
++    if(which==3)physical.role[6].address+=1;
++    if(which==4)--physical.role[6].capacity;
++    if(which==5)physical.role[5]={7,0x1300000000ull,64}; // unknown role cannot carry mapping
++    if(which==6)physical.known_roles|=1u<<13;
++    admission_owner::Record out;out.session=999;
++    assert(!admission_owner::capture(state->runtime,h.ports,session,instance,physical,out) && !out.session);
++  }
++  assert(std::equal(before.begin(),before.end(),reinterpret_cast<const uint8_t*>(&state->runtime)));
++  std::ofstream f(fixture+"/actual_admission_owner.bin",std::ios::binary);
++  const auto actual=admission_owner::encode(state->admitted_owner);
++  f.write(reinterpret_cast<const char*>(actual.data()),actual.size());assert(f);
++  std::cout<<"FULL_CURRENT_ADMISSION_OWNER_HOST_PASS bytes=1024 wire_rejects="<<rejected
++    <<" capture_rejects=7 actual_LYRQ_LYMP=1 before_HOLD=1 runtime_unchanged=1 physical_STATE0_controlled=1 all13BO_NOT_RUN=1\n";
++}
+ void wire(const std::string& fixture) {
+   for(unsigned kind=1;kind<=7;++kind) {
+     const auto p=packet<1024>(bytes(fixture+"/control_"+std::to_string(kind)+".bin"));
+@@ -746,7 +791,7 @@
+ }
+ } // namespace
+ int main(int argc,char** argv) {
+-  assert(argc==2 || argc==3 || argc==4);const std::string fixture=argv[1];wire(fixture);
++  assert(argc==2 || argc==3 || argc==4);const std::string fixture=argv[1];wire(fixture);admission_owner_wire(fixture);
+   auto p=packet<1024>(bytes(fixture+"/v2/checkpoint_request.bin"));checkpoint::Request r;assert(checkpoint::decode(p,r));
+   checkpoint::Response proof;assert(checkpoint::decode(packet<1024>(bytes(fixture+"/v2/checkpoint_response.bin")),r,proof));
+   if(argc>=3 && std::string(argv[2])=="--request-close") {

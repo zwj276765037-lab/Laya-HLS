@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "generated-provenance-monitor-milestone-20261012",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# M003 generated provenance审核修复与首个真实AXI monitor\n\n交付ID：`generated-provenance-monitor-milestone-20261012`  \n范围：M003/SM003/E003/R003，当前生产身份。  \n结论：主控审核F1/F2/F3已闭合；一个固定role6、单descriptor、连续rows16的真实AXI512 store monitor已连接persistent hub并取得限定PASS。production top真实generated master、adapter内部排空因果、普通QUANT source lease、多role/QKV与完整数值链仍待实施。\n\n## 审核项闭合\n\n1. F1：`portal_controller_29`验证合法scope-active错误END保留generated tracker及issued bytes，不推进typed退休；只有`DRAINED=1/SCOPE_ACTIVE=0`的匹配END终态退休一次。\n2. F2：`generated_provenance_ledger_07`与`generated_provenance_portal_10`验证`physical_drained=0`的END不返回终态，scope及首次物理错误保持到后续真实fence。\n3. F3：CPU和RTL均连续通过33次同session递增request；typed槽只在较新合法CLAIM且旧域全部排空时回收，迟到旧request被拒绝，高水位不回退。\n\n## 当前证据\n\n| attempt | 结果 | 主要量 | receipt SHA256 | manifest SHA256 |\n| --- | --- | --- | --- | --- |\n| `portal_controller_29` | PASS | active错误END不退休；23.144976s/260820KiB | `cbb35b67b82e219833e85da05afa3a2e501da73a6ab3a7e111cd694358bf0739` | `54639a160b885121c9497f71348b6d59ab3c5fd9c97d0a3dffe0be8759c5568c` |\n| `generated_provenance_ledger_07` | PASS | 301 checks、fence wait、33 requests、stale reject；22.229241s/260884KiB | `b8df6625fbf24b7a41a9501fefdce06778ccf16aadcd6fb329a32720d375701d` | `757b522a2f71427483b59dc25bea0ee43df25a9bb4c90e726102028d2fc2aa12` |\n| `generated_provenance_portal_10` | PASS | 7107cycles、accepted148/retired151/terminal35；22.966027s/1435972KiB | `987f7ab09274392e51079978c7e79f875674db3e61446b7e84a09dcac687c5ec` | `c197e6da3c25062bba29f844fb5f817b4ccc3488b38636d639f71b3f1c1f7aaa` |\n| `generated_store_monitor_03` | PASS_SCOPED_RUNTIME | 5961cycles、1024真实AW/W/B、65536B唯一覆盖、2本地拒绝 | `e46f6c8f60a82527e012764f09b1f1ed12f0621b9a70719a626af90fd6fe4c45` | `b6ee73cb068216e67c4e262068be4d3e0e0109180f53c5561147751aa6986a29` |\n\n聚合核查191/191 current、191/191 frozen、191/191声明pair及580/580 receipt/manifest引用匹配，0 mismatch：\n\n- `project/E003_production_chain_closure/experiment_results/runs/R003/generated_provenance_monitor_stage_20261012/verification.json`\n- SHA256 `95d5aaf0a708a67f8bbf93b2310458b51af9de7dab18f12f8d9bcc4235735ab1`\n\n`generated_store_monitor_01`编译FAIL和`_02`非法burst drain断言FAIL均保留；`portal_controller_28`、`ledger_06`与`portal_08/_09`旧身份PASS也保留，不用来代签当前闭包。\n\n## 真实monitor的已验证边界\n\n- BEGIN真实候选包在写前核role/geometry；不支持role不得开启物理scope。\n- AW/W可独立到达并支持W-before-AW；合法单拍只有在全部WSTRB字节范围唯一后才转发。\n- 1024个peer AW/W/B各自独立计数，末B及adapter fence都阻止END提前终态。\n- 越界写转发前本地DECERR；非法两拍burst完整吸收两拍W后才返回本地DECERR，失败字节进入实际排空计量。\n- cancel后保持安全排空并允许同session恢复。\n\n## 证据边界与下一步\n\nTB提供的`adapter_pending_zero`延迟只证明门控行为，没有证明generated HLS adapter内部待发store与该信号的真实因果。monitor当前固定role6、一个descriptor和连续rows16；production top真实generated master、多role/QKV、宽度转换及普通QUANT source lease未通过。\n\n工程继续把真实generated store提交/adapter fence接到production top，并将persistent hub的source query/lease原子接入普通QUANT；随后做普通/GATE无复位切换、其余K/row-space/跨batch、多role/QKV，再继续LOAD、其余Q/L、matrix和当前完整CPU/实际CSim。L0/L1保持PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST，M003/M004未完成；无新OOC、P&R或上板。\n",
+  "in_reply_to": "generated-provenance-base-review-20261012",
+  "message_file": "project/E003_production_chain_closure/experiment_results/runs/R003/generated_provenance_monitor_milestone_20261012.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "02469d458be238aedbc88f3a0dfe800144e1e37aca2a4f17744e564422e4badc",
+  "created_at": "2026-10-11T20:59:39.416548+00:00",
+  "status": "delivered",
+  "client_user_message_id": "140b1f09-b64d-49f2-ba2e-028839f393fe",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-11T20:59:39.513073+00:00",
+  "recipient_turn_id": "01a12cc3-9c70-7cd1-ad61-65cb7ac516e9"
+}

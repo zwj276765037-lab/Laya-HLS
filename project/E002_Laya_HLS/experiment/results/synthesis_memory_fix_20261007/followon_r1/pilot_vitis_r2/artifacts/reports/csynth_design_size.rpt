@@ -1,0 +1,308 @@
+================================================================
+== Design Size Report
+================================================================
+
+* Total Instructions per Compilation Phase
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Phase         | Step                       | Instructions | Description                                                                            |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Compile/Link  |                            | 15,495       | After all functions are compiled and linked into a single design                       |
+|               |                            |              |                                                                                        |
+| Unroll/Inline |                            |              | After user unroll and inline pragmas are applied                                       |
+|               | (1) unroll                 | 15,327       | user unroll pragmas are applied                                                        |
+|               | (2) simplification         | 12,739       | simplification of applied user unroll pragmas                                          |
+|               | (3) inline                 | 11,214       | user inline pragmas are applied                                                        |
+|               | (4) simplification         | 10,179       | simplification of applied user inline pragmas                                          |
+|               |                            |              |                                                                                        |
+| Array/Struct  |                            |              | After user array partition and struct aggregate/disaggregate pragmas are applied       |
+|               | (1) array partition        |  9,386       | user array partition pragmas are applied                                               |
+|               | (2) simplification         |  9,378       | simplification of applied user array partition & struct aggregate/disaggregate pragmas |
+|               | (3) aggregate/disaggregate |  9,378       | user struct aggregate/disaggregate pragmas are applied                                 |
+|               | (4) array reshape          |  9,378       | apply array reshape pragmas                                                            |
+|               | (5) access patterns        |  9,581       | array access pattern optmizations                                                      |
+|               |                            |              |                                                                                        |
+| Performance   |                            |              | After transformations are applied to meet performance pragma targets                   |
+|               | (1) loop simplification    |  8,633       | loop and instruction simplification                                                    |
+|               | (2) parallelization        |  8,373       | loops are unrolled or pipelined to meet performance targets                            |
+|               | (3) array partition        | 10,933       | arrays are partitioned to meet performance targets                                     |
+|               | (4) simplification         |  8,895       | simplification of design after performance transformations                             |
+|               |                            |              |                                                                                        |
+| HW Transforms |                            |              | After hardware transfomations                                                          |
+|               | (1) lowering               |  8,886       | initial conversion to HW specific instructions                                         |
+|               | (2) optimizations          |  8,310       | high level synthesis optimizations                                                     |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+
+* Instructions per Function for each Compilation Phase
++--------------------------------+------------------------------------+------------------+-----------------+-----------------+-----------------+-----------------+
+| Function                       | Location                           | Compile/Link     | Unroll/Inline   | Array/Struct    | Performance     | HW Transforms   |
++--------------------------------+------------------------------------+------------------+-----------------+-----------------+-----------------+-----------------+
+| + full_pointer_control_pilot   | full_pointer_control_pilot.cpp:146 | 15,495           | 10,179          | 9,581           | 8,895           | 8,310           |
+|  + run_qk                      | full_pointer_control_pilot.cpp:82  | 14,347           | 8,488           | 7,910           | 7,089           | 6,638           |
+|     ready_record               | full_pointer_control_pilot.cpp:14  |   513 (3 calls)  | 1,605 (3 calls) | 1,605 (3 calls) | 1,953 (3 calls) | 1,581 (3 calls) |
+|     full_cache_kv              | laya_full_cache_storage.h:66       |     2 (2 calls)  |                 |                 |                 |                 |
+|     full_cache_score           | laya_full_cache_storage.h:67       |     3 (3 calls)  |                 |                 |                 |                 |
+|     TaskDone                   | laya_tasks.h:22                    |    17            |                 |                 |                 |                 |
+|   + full_run_task              | full_tasks_attention.cpp:138       | 13,188           | 6,168           | 5,596           | 4,356           | 4,449           |
+|    + context                   | full_task_common.h:20              |   460            |                 |                 |                 |                 |
+|     + check_context            | laya_tasks.cpp:19                  |   414            |                 |                 |                 |                 |
+|        valid_op                | laya_tasks.cpp:6                   |     5            |                 |                 |                 |                 |
+|      + bad                     | laya_tasks.cpp:5                   |   170 (10 calls) |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |    80 (10 calls) |                 |                 |                 |                 |
+|        ok                      | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|       detail                   | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|      operator bool             | laya_types.h:9                     |    52 (13 calls) |                 |                 |                 |                 |
+|    + finish                    | full_task_common.h:26              |   595 (7 calls)  |   273 (7 calls) |  231 (7 calls)  |  210 (7 calls)  |  210 (7 calls)  |
+|       operator bool            | laya_types.h:9                     |    28 (7 calls)  |                 |                 |                 |                 |
+|    + operator!=                | laya_types.h:21                    |    93 (3 calls)  |                 |                 |                 |                 |
+|       operator==               | laya_types.h:20                    |    66 (3 calls)  |                 |                 |                 |                 |
+|    + FullOwnerSpec             | laya_full_runtime.h:80             |    28            |                 |                 |                 |                 |
+|       BufferRef                | laya_types.h:19                    |     7            |                 |                 |                 |                 |
+|    + qkv_specs                 | full_tasks_attention.cpp:30        |    51            |                 |                 |                 |                 |
+|       spec                     | full_task_common.h:46              |    22            |                 |                 |                 |                 |
+|    + qkv_ready                 | full_tasks_attention.cpp:38        | 1,344            |                 |                 |                 |                 |
+|     + full_require_owner       | laya_full_owner.cpp:514            | 1,291            |                 |                 |                 |                 |
+|      + legal_spec              | laya_full_owner.cpp:46             |   680            |                 |                 |                 |                 |
+|       + check_ref              | laya_tasks.cpp:34                  |   208            |                 |                 |                 |                 |
+|          detail                | laya_types.h:11                    |    48 (6 calls)  |                 |                 |                 |                 |
+|          ok                    | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|         operator bool          | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|       + numeric_identity_valid | laya_numeric.cpp:43                |   147            |                 |                 |                 |                 |
+|          nonzero               | laya_numeric.cpp:11                |    84 (4 calls)  |                 |                 |                 |                 |
+|         legal_width            | laya_full_owner.cpp:26             |    27            |                 |                 |                 |                 |
+|        in_scope                | laya_full_owner.cpp:88             |    52            |                 |                 |                 |                 |
+|      + error                   | laya_full_owner.cpp:5              |    64 (4 calls)  |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |    32 (4 calls)  |                 |                 |                 |                 |
+|      + find_index              | laya_full_owner.cpp:115            |    94            |                 |                 |                 |                 |
+|         same_physical          | laya_full_owner.cpp:11             |    52            |                 |                 |                 |                 |
+|      + same_spec               | laya_full_owner.cpp:20             |   102            |                 |                 |                 |                 |
+|         operator==             | laya_types.h:20                    |    22            |                 |                 |                 |                 |
+|      + numeric_identity_equal  | laya_numeric.cpp:51                |   160            |                 |                 |                 |                 |
+|       + model_equal            | laya_numeric.cpp:21                |    32            |                 |                 |                 |                 |
+|          bytes_equal           | laya_numeric.cpp:7                 |    26            |                 |                 |                 |                 |
+|         bytes_equal            | laya_numeric.cpp:7                 |    78 (3 calls)  |                 |                 |                 |                 |
+|        bit_index               | laya_full_owner.cpp:82             |    26            |                 |                 |                 |                 |
+|        bit                     | laya_full_owner.cpp:97             |     9            |                 |                 |                 |                 |
+|        ok                      | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|       operator bool            | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|    + kv_spec                   | full_tasks_attention.cpp:47        |    35            |                 |                 |                 |                 |
+|       spec                     | full_task_common.h:46              |    22            |                 |                 |                 |                 |
+|    + full_require_owner        | laya_full_owner.cpp:514            | 1,291            | 2,132 (4 calls) | 2,014 (4 calls) | 1,568 (4 calls) | 1,716 (4 calls) |
+|     + legal_spec               | laya_full_owner.cpp:46             |   680            |   936 (4 calls) |  880 (4 calls)  |  616 (4 calls)  |  678 (4 calls)  |
+|      + check_ref               | laya_tasks.cpp:34                  |   208            |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |    48 (6 calls)  |                 |                 |                 |                 |
+|         ok                     | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|        operator bool           | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|      + numeric_identity_valid  | laya_numeric.cpp:43                |   147            |                 |                 |                 |                 |
+|         nonzero                | laya_numeric.cpp:11                |    84 (4 calls)  |                 |                 |                 |                 |
+|        legal_width             | laya_full_owner.cpp:26             |    27            |                 |                 |                 |                 |
+|       in_scope                 | laya_full_owner.cpp:88             |    52            |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    64 (4 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    32 (4 calls)  |                 |                 |                 |                 |
+|     + find_index               | laya_full_owner.cpp:115            |    94            |                 |                 |                 |                 |
+|        same_physical           | laya_full_owner.cpp:11             |    52            |                 |                 |                 |                 |
+|     + same_spec                | laya_full_owner.cpp:20             |   102            |                 |                 |                 |                 |
+|        operator==              | laya_types.h:20                    |    22            |                 |                 |                 |                 |
+|     + numeric_identity_equal   | laya_numeric.cpp:51                |   160            |                 |                 |                 |                 |
+|      + model_equal             | laya_numeric.cpp:21                |    32            |                 |                 |                 |                 |
+|         bytes_equal            | laya_numeric.cpp:7                 |    26            |                 |                 |                 |                 |
+|        bytes_equal             | laya_numeric.cpp:7                 |    78 (3 calls)  |                 |                 |                 |                 |
+|       bit_index                | laya_full_owner.cpp:82             |    26            |                 |                 |                 |                 |
+|       bit                      | laya_full_owner.cpp:97             |     9            |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|      score_spec                | full_tasks_attention.cpp:52        |    33            |                 |                 |                 |                 |
+|    + full_claim_owner          | laya_full_owner.cpp:197            | 1,120            |   672           |  646            |  447            |  477            |
+|     + protocol                 | laya_full_owner.cpp:8              |    16            |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|     + legal_spec               | laya_full_owner.cpp:46             |   680            |   234           |  220            |  102            |  118            |
+|      + check_ref               | laya_tasks.cpp:34                  |   208            |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |    48 (6 calls)  |                 |                 |                 |                 |
+|         ok                     | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|        operator bool           | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|      + numeric_identity_valid  | laya_numeric.cpp:43                |   147            |                 |                 |                 |                 |
+|         nonzero                | laya_numeric.cpp:11                |    84 (4 calls)  |                 |                 |                 |                 |
+|        legal_width             | laya_full_owner.cpp:26             |    27            |                 |                 |                 |                 |
+|     + claim_index              | laya_full_owner.cpp:131            |   173            |                 |                 |                 |                 |
+|      + find_index              | laya_full_owner.cpp:115            |    94            |                 |                 |                 |                 |
+|         same_physical          | laya_full_owner.cpp:11             |    52            |                 |                 |                 |                 |
+|        empty_index             | laya_full_owner.cpp:123            |    27            |                 |                 |                 |                 |
+|     + fill_record              | laya_full_owner.cpp:142            |   103            |   269           |  269            |  234            |  240            |
+|        none                    | laya_types.h:22                    |     7            |                 |                 |                 |                 |
+|        clear_bits              | laya_full_owner.cpp:128            |    26 (2 calls)  |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    32 (2 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    16 (2 calls)  |                 |                 |                 |                 |
+|    + full_acquire_owner        | laya_full_owner.cpp:533            | 2,956 (2 calls)  |                 |                 |                 |                 |
+|     + full_require_owner       | laya_full_owner.cpp:514            | 2,582 (2 calls)  |                 |                 |                 |                 |
+|      + legal_spec              | laya_full_owner.cpp:46             | 1,360 (2 calls)  |                 |                 |                 |                 |
+|       + check_ref              | laya_tasks.cpp:34                  |   416 (2 calls)  |                 |                 |                 |                 |
+|          detail                | laya_types.h:11                    |    96 (12 calls) |                 |                 |                 |                 |
+|          ok                    | laya_types.h:10                    |    28 (4 calls)  |                 |                 |                 |                 |
+|         operator bool          | laya_types.h:9                     |     8 (2 calls)  |                 |                 |                 |                 |
+|       + numeric_identity_valid | laya_numeric.cpp:43                |   294 (2 calls)  |                 |                 |                 |                 |
+|          nonzero               | laya_numeric.cpp:11                |   168 (8 calls)  |                 |                 |                 |                 |
+|         legal_width            | laya_full_owner.cpp:26             |    54 (2 calls)  |                 |                 |                 |                 |
+|        in_scope                | laya_full_owner.cpp:88             |   104 (2 calls)  |                 |                 |                 |                 |
+|      + error                   | laya_full_owner.cpp:5              |   128 (8 calls)  |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |    64 (8 calls)  |                 |                 |                 |                 |
+|      + find_index              | laya_full_owner.cpp:115            |   188 (2 calls)  |                 |                 |                 |                 |
+|         same_physical          | laya_full_owner.cpp:11             |   104 (2 calls)  |                 |                 |                 |                 |
+|      + same_spec               | laya_full_owner.cpp:20             |   204 (2 calls)  |                 |                 |                 |                 |
+|         operator==             | laya_types.h:20                    |    44 (2 calls)  |                 |                 |                 |                 |
+|      + numeric_identity_equal  | laya_numeric.cpp:51                |   320 (2 calls)  |                 |                 |                 |                 |
+|       + model_equal            | laya_numeric.cpp:21                |    64 (2 calls)  |                 |                 |                 |                 |
+|          bytes_equal           | laya_numeric.cpp:7                 |    52 (2 calls)  |                 |                 |                 |                 |
+|         bytes_equal            | laya_numeric.cpp:7                 |   156 (6 calls)  |                 |                 |                 |                 |
+|        bit_index               | laya_full_owner.cpp:82             |    52 (2 calls)  |                 |                 |                 |                 |
+|        bit                     | laya_full_owner.cpp:97             |    18 (2 calls)  |                 |                 |                 |                 |
+|        ok                      | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|       operator bool            | laya_types.h:9                     |     8 (2 calls)  |                 |                 |                 |                 |
+|     + find_index               | laya_full_owner.cpp:115            |   188 (2 calls)  |                 |                 |                 |                 |
+|        same_physical           | laya_full_owner.cpp:11             |   104 (2 calls)  |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    64 (4 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    32 (4 calls)  |                 |                 |                 |                 |
+|    + read_qkv                  | full_tasks_attention.cpp:6         |   976            |   461           |  270            |  269            |  244            |
+|       Address                  | laya_memory_map.h:8                |     5            |                 |                 |                 |                 |
+|     + qkv_address              | laya_memory_map.cpp:48             |   602            |                 |                 |                 |                 |
+|      + byte_address            | laya_memory_map.cpp:30             |   528            |                 |                 |                 |                 |
+|         Span                   | laya_memory_map.h:7                |     7            |                 |                 |                 |                 |
+|       + span                   | laya_memory_map.cpp:8              |   430            |                 |                 |                 |                 |
+|        + check_ref             | laya_tasks.cpp:34                  |   208            |                 |                 |                 |                 |
+|           detail               | laya_types.h:11                    |    48 (6 calls)  |                 |                 |                 |                 |
+|           ok                   | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|          operator bool         | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|          ok                    | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|        + bad                   | laya_memory_map.cpp:5              |    16            |                 |                 |                 |                 |
+|           detail               | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|         operator bool          | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|         ok                     | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|       + bad                    | laya_memory_map.cpp:5              |    16            |                 |                 |                 |                 |
+|          detail                | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|      + bad                     | laya_memory_map.cpp:5              |    16            |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|       operator bool            | laya_types.h:9                     |     8 (2 calls)  |                 |                 |                 |                 |
+|     + full_read                | laya_full_memory.cpp:123           |   269            |   151           |  120            |  119            |  122            |
+|      + full_span               | laya_full_memory.cpp:114           |    91            |                 |                 |                 |                 |
+|         capacity               | laya_full_memory.cpp:70            |    43            |                 |                 |                 |                 |
+|         present                | laya_full_memory.cpp:17            |     5            |                 |                 |                 |                 |
+|         ok                     | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|       + bad_bo                 | laya_full_memory.cpp:6             |    16            |                 |                 |                 |                 |
+|          detail                | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|        operator bool           | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|        ok                      | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|      + bad_bo                  | laya_full_memory.cpp:6             |    16            |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|       numeric_bits_f32         | laya_numeric.cpp:323               |    12            |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|       span                     | laya_memory_map.cpp:8              |                  |   161           |    7            |    7            |    7            |
+|      full_cache_kv             | laya_full_cache_storage.h:66       |     1            |                 |                 |                 |                 |
+|      full_cache_score          | laya_full_cache_storage.h:67       |     1            |                 |                 |                 |                 |
+|    + qk_row                    | attention_full_compute.cpp:21      |   546            |   213           |  190            |  178            |  193            |
+|       valid_s                  | attention_full_compute.cpp:10      |    17            |                 |                 |                 |                 |
+|     + shape                    | attention_full_compute.cpp:13      |    32 (2 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    16 (2 calls)  |                 |                 |                 |                 |
+|     + finite32                 | attention_full_compute.cpp:7       |   128 (8 calls)  |                 |                 |                 |                 |
+|        numeric_f32_bits        | laya_numeric.cpp:318               |    96 (8 calls)  |                 |                 |                 |                 |
+|     + numerical                | attention_full_compute.cpp:16      |   128 (8 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    64 (8 calls)  |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|    + full_release_read_owner   | laya_full_owner.cpp:546            |   572 (2 calls)  |   278 (2 calls) |  292 (2 calls)  |  228 (2 calls)  |                 |
+|     + find_index               | laya_full_owner.cpp:115            |   188 (2 calls)  |                 |                 |                 |                 |
+|        same_physical           | laya_full_owner.cpp:11             |   104 (2 calls)  |                 |                 |                 |                 |
+|     + same_spec                | laya_full_owner.cpp:20             |   204 (2 calls)  |                 |                 |                 |                 |
+|        operator==              | laya_types.h:20                    |    44 (2 calls)  |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    64 (4 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    32 (4 calls)  |                 |                 |                 |                 |
+|    + full_cover_owner          | laya_full_owner.cpp:557            | 1,378            |   570           |  536            |  338            |  376            |
+|     + legal_spec               | laya_full_owner.cpp:46             |   680            |   234           |  220            |  102            |  118            |
+|      + check_ref               | laya_tasks.cpp:34                  |   208            |                 |                 |                 |                 |
+|         detail                 | laya_types.h:11                    |    48 (6 calls)  |                 |                 |                 |                 |
+|         ok                     | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|        operator bool           | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|      + numeric_identity_valid  | laya_numeric.cpp:43                |   147            |                 |                 |                 |                 |
+|         nonzero                | laya_numeric.cpp:11                |    84 (4 calls)  |                 |                 |                 |                 |
+|        legal_width             | laya_full_owner.cpp:26             |    27            |                 |                 |                 |                 |
+|       in_scope                 | laya_full_owner.cpp:88             |    52            |                 |                 |                 |                 |
+|     + find_index               | laya_full_owner.cpp:115            |    94            |                 |                 |                 |                 |
+|        same_physical           | laya_full_owner.cpp:11             |    52            |                 |                 |                 |                 |
+|     + same_spec                | laya_full_owner.cpp:20             |   102            |                 |                 |                 |                 |
+|        operator==              | laya_types.h:20                    |    22            |                 |                 |                 |                 |
+|     + numeric_identity_equal   | laya_numeric.cpp:51                |   160            |                 |                 |                 |                 |
+|      + model_equal             | laya_numeric.cpp:21                |    32            |                 |                 |                 |                 |
+|         bytes_equal            | laya_numeric.cpp:7                 |    26            |                 |                 |                 |                 |
+|        bytes_equal             | laya_numeric.cpp:7                 |    78 (3 calls)  |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    64 (4 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    32 (4 calls)  |                 |                 |                 |                 |
+|       bit_index                | laya_full_owner.cpp:82             |    52 (2 calls)  |                 |                 |                 |                 |
+|       bit                      | laya_full_owner.cpp:97             |    18 (2 calls)  |                 |                 |                 |                 |
+|       set_bit                  | laya_full_owner.cpp:100            |     9            |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|    + full_publish_owner        | laya_full_owner.cpp:585            |   683            |   327           |  309            |  211            |  237            |
+|     + find_index               | laya_full_owner.cpp:115            |    94            |                 |                 |                 |                 |
+|        same_physical           | laya_full_owner.cpp:11             |    52            |                 |                 |                 |                 |
+|     + same_spec                | laya_full_owner.cpp:20             |   102            |                 |                 |                 |                 |
+|        operator==              | laya_types.h:20                    |    22            |                 |                 |                 |                 |
+|     + numeric_identity_equal   | laya_numeric.cpp:51                |   160            |                 |                 |                 |                 |
+|      + model_equal             | laya_numeric.cpp:21                |    32            |                 |                 |                 |                 |
+|         bytes_equal            | laya_numeric.cpp:7                 |    26            |                 |                 |                 |                 |
+|        bytes_equal             | laya_numeric.cpp:7                 |    78 (3 calls)  |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    80 (5 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    40 (5 calls)  |                 |                 |                 |                 |
+|     + covered                  | laya_full_owner.cpp:103            |   109            |                 |                 |                 |                 |
+|        bit_index               | laya_full_owner.cpp:82             |    26            |                 |                 |                 |                 |
+|        bit                     | laya_full_owner.cpp:97             |     9            |                 |                 |                 |                 |
+|       bit                      | laya_full_owner.cpp:97             |     9            |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|    + full_invalidate_owner     | laya_full_owner.cpp:623            |   336            |   148           |  154            |  144            |  151            |
+|     + find_index               | laya_full_owner.cpp:115            |    94            |                 |                 |                 |                 |
+|        same_physical           | laya_full_owner.cpp:11             |    52            |                 |                 |                 |                 |
+|     + operator!=               | laya_types.h:21                    |    62 (2 calls)  |                 |                 |                 |                 |
+|        operator==              | laya_types.h:20                    |    44 (2 calls)  |                 |                 |                 |                 |
+|       none                     | laya_types.h:22                    |     7            |                 |                 |                 |                 |
+|       clear_bits               | laya_full_owner.cpp:128            |    26 (2 calls)  |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    48 (3 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    24 (3 calls)  |                 |                 |                 |                 |
+|    + buffer                    | full_task_common.h:11              |    16            |                 |                 |                 |                 |
+|       detail                   | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|    + shape                     | full_task_common.h:8               |    16            |                 |                 |                 |                 |
+|       detail                   | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|      check_context             | laya_tasks.cpp:19                  |                  |   135           |   40            |   36            |   36            |
+|     numeric_f32_bits           | laya_numeric.cpp:318               |    24 (2 calls)  |                 |                 |                 |                 |
+|  + run_lookup                  | full_pointer_control_pilot.cpp:70  |   287            |                 |                 |                 |                 |
+|     FullTensorDescriptor       | laya_full_runtime.h:40             |    44            |                 |                 |                 |                 |
+|   + full_lookup_tensor_indexed | laya_full_memory.cpp:256           |   202 (2 calls)  |                 |                 |                 |                 |
+|    + bad_model                 | laya_full_memory.cpp:9             |    64 (4 calls)  |                 |                 |                 |                 |
+|       detail                   | laya_types.h:11                    |    32 (4 calls)  |                 |                 |                 |                 |
+|      ok                        | laya_types.h:10                    |    14 (2 calls)  |                 |                 |                 |                 |
+|  + run_controller              | full_pointer_control_pilot.cpp:37  |   816            |   746           |  745            |  851            |  713            |
+|   + fresh                      | full_forward_controller.cpp:27     |   102            |                 |                 |                 |                 |
+|      physical                  | full_forward_controller.cpp:18     |    54            |                 |                 |                 |                 |
+|   + invalidate_incomplete      | full_forward_controller.cpp:764    |   422            |                 |                 |                 |                 |
+|      detail                    | laya_types.h:11                    |     8            |                 |                 |                 |                 |
+|    + full_invalidate_owner     | laya_full_owner.cpp:623            |   336            |                 |                 |                 |                 |
+|     + find_index               | laya_full_owner.cpp:115            |    94            |                 |                 |                 |                 |
+|        same_physical           | laya_full_owner.cpp:11             |    52            |                 |                 |                 |                 |
+|     + operator!=               | laya_types.h:21                    |    62 (2 calls)  |                 |                 |                 |                 |
+|        operator==              | laya_types.h:20                    |    44 (2 calls)  |                 |                 |                 |                 |
+|       none                     | laya_types.h:22                    |     7            |                 |                 |                 |                 |
+|       clear_bits               | laya_full_owner.cpp:128            |    26 (2 calls)  |                 |                 |                 |                 |
+|       ok                       | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|     + error                    | laya_full_owner.cpp:5              |    48 (3 calls)  |                 |                 |                 |                 |
+|        detail                  | laya_types.h:11                    |    24 (3 calls)  |                 |                 |                 |                 |
+|      operator bool             | laya_types.h:9                     |     4            |                 |                 |                 |                 |
+|      ok                        | laya_types.h:10                    |     7            |                 |                 |                 |                 |
+|     full_invalidate_owner      | laya_full_owner.cpp:623            |                  |   148           |  154            |  144            |  151            |
+|    full_lookup_tensor_indexed  | laya_full_memory.cpp:256           |                  |   808 (2 calls) |  784 (2 calls)  |  778 (2 calls)  |  790 (2 calls)  |
++--------------------------------+------------------------------------+------------------+-----------------+-----------------+-----------------+-----------------+
+
+* Design Size Message Settings
++---------------------------------------------+--------+------------------------------------------------------------------+
+| Message Setting                             | Value  | Description                                                      |
++---------------------------------------------+--------+------------------------------------------------------------------+
+| config_compile -design_size_maximum_warning | 100000 | Show a warning when total design instructions exceeds this value |
++---------------------------------------------+--------+------------------------------------------------------------------+
+
+

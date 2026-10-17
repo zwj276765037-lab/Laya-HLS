@@ -1,0 +1,1155 @@
+--- /dev/null
++++ b/diagnostic/README.md
+@@ -0,0 +1,45 @@
++# No-DUT record-boundary probe (source only)
++
++This is a separate 1 ns/1 ps, seven-port, synthetic connection probe. It uses the same `att_r_boundary_diagnostic.svh` collection source as the full v4 testbench. It has no generated or production DUT, AXI memory, fixture, oracle, host numerical call, random stimulus, or open-ended wait. The X injection exists only here.
++
++## Exact connection equivalence
++
++| Boundary | Frozen v3 declaration or connection | Probe equivalent |
++| --- | --- | --- |
++| Owner output | `tb/att_axi_monitor.sv:42-47` declares `r_count` as `output logic [31:0]` and `accepted_r_record` as `output logic [118:0]`. `:109-116` resets both to zero; `:223-226` writes a whole record and increments the count with blocking assignments. | `record_boundary_probe.sv:3-29` declares those exact output types, resets both, and writes one deterministic whole record/count pair in a positive-edge owner block. This owner is synthetic; it models no AXI acceptance. |
++| Named owner-to-wrapper connection | `tb/att_axi_port.sv:86` declares the two internal 119-bit wrapper records; `:203-208` and `:224-229` connect monitor records/counts by name. | `record_boundary_probe.sv:39-49` uses the same internal record names and `.accepted_r_record(...)`/`.r_count(...)` connections on two named `dut_mon`/`ram_mon` instances. |
++| Wrapper output | `tb/att_axi_port.sv:56-62` declares the direct `ram_r_count` output and 119-bit `ram_accepted_r_record` output; `:90` continuously assigns the RAM monitor record. | `record_boundary_probe.sv:35-43` uses matching output directions, widths and `assign ram_accepted_r_record = ram_monitor_accepted_r_record;`. RAM count is the direct named owner output. |
++| Top array and seven names | `tb/att_finite_base_h15_r63_top.sv:730,738` declares `logic [31:0] ram_r_count [0:6]` and `logic [118:0] ram_accepted_r_record [0:6]`; `:742-1292` binds named `u_port_descriptor`, `io`, `aux`, `qkv0`, `qkv1`, `att_out`, `observed` to literal indices 0–6. | `record_boundary_probe.sv:56-89` repeats those exact unpacked array directions/ranges and the same named instances/literal element connections. No packed-array substitution is made. |
++| Observation | `tb/att_finite_control.svh:534-542` uses the variable `p` reset predicate at a settled negative edge after a reset positive edge. | The probe uses the same literal-index diagnostic include and captures the original variable-index `$isunknown({ram_accepted_r_record[p],ram_r_count[p]})` plus the unchanged composite predicate; it observes each phase at a negative edge following the positive-edge owner update. |
++
++The real monitor's address/beat/ID/RLAST acceptance checks and the generated DUT are intentionally absent. The probe tests only the record/count connection and expression boundary, not numerical correctness.
++
++## Finite schedule and expected values
++
++Clock starts low and toggles every 3.333 ns, matching the v3 top. Nonblocking stimulus updates at each negative edge apply before the next positive edge. `p` is the literal top port index 0–6; `s=0` is `dut_mon` and `s=1` is `ram_mon`.
++
++| Negative edge | Phase | Expected owner, wrapper and top values before stimulus update |
++| --- | --- | --- |
++| 1 (6.666 ns) | `reset_initial` | All records `119'd0`, all counts `32'd0`; top and wrapper seen-reset-posedge flags are 1. Original variable/literal reset predicates should both be 0. |
++| 2 (13.332 ns) | `distinct_known` | Each owner record is `{valid=1, ordinal=p+1+16s, address=0x23400000+4096p+256s, beat=p+2, len=p+4, size=p%3, ARID=s, RID=s, last=1}`; its count equals its ordinal. The wrapper RAM output and literal/variable top element equal the `s=1` pair. All seven RAM records/counts differ. Unknown detectors should be 0; original nonzero reset predicates are 1. |
++| 3 (19.998 ns) | `reset_again` | All records and counts are zero again; seen-reset-posedge flags are 1. The original reset predicates should be 0. |
++| 4 (26.664 ns) | `injected_x_port4_ram` | Known phase values return, except bit 40 of port4 `ram_mon` record is X and propagates through wrapper and top. Record reduction-X, local packed snapshot `$isunknown`, and literal-index `$isunknown` should report 1; the original variable-index result is printed for diagnosis. This expected X is not itself a failure. |
++| 5 (33.330 ns) | Assertion/finish | After **all** phase data and expression variants have printed, compare the four captured phases. A mismatch yields `$fatal(1)` and nonzero exit; otherwise `ATT_PROBE_PASS` and `$finish`. |
++
++An independent watchdog fatals on negative edge 8 if the schedule does not finish. The collection emits 4 × (7 × (one header + seven raw pairs + one expression line) + one completion + one phase) = 260 lines. At most 28 per-port and four reset-flag failures plus one final fatal are added, so testbench output is bounded by 293 lines. Each raw pair includes hex and binary record/count with port, time, clock and reset. The original variable-index expression and the literal-index, reduction-X, per-field and packed-snapshot variants are printed before assertions.
++
++## Dormant tool recipe
++
++The following commands are **prepared only**. The source-preparation release forbids executing any compiler, elaborator, simulator or probe. A separate independent execution gate is required. Use a fresh empty build directory when that gate exists.
++
++```bash
++XBIN=/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin
++TB=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/tb
++DIAG=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/diagnostic
++cd FRESH_EMPTY_PROBE_BUILD_DIRECTORY
++"$XBIN/xvlog" --sv -work xil_defaultlib -i "$TB" "$DIAG/record_boundary_probe.sv" -log xvlog_probe.log
++"$XBIN/xelab" xil_defaultlib.record_boundary_probe -L floating_point_v7_1_21 -L unisims_ver -L xpm -L secureip --relax -mt off -s record_boundary_probe -log xelab_probe.log
++"$XBIN/xsim" record_boundary_probe -runall -log xsim_probe.log
++```
++
++No syntax acceptance, actual values, simulator defect, or probe PASS is claimed here.
+--- /dev/null
++++ b/diagnostic/record_boundary_probe.sv
+@@ -0,0 +1,304 @@
++`timescale 1ns/1ps
++// No DUT, AXI endpoint, fixture, or numerical oracle is instantiated here.
++module att_probe_owner #(
++    parameter int PORT=0, parameter int SIDE=0
++) (
++    input logic clk, resetn, emit_record, inject_x,
++    output logic [118:0] accepted_r_record,
++    output logic [31:0] r_count
++);
++  function automatic logic [118:0] known_record(input int port, input int side);
++    logic [31:0] ordinal;
++    logic [63:0] address;
++    ordinal=32'(port+1+side*16);
++    address=64'h0000000023400000+64'(port*4096+side*256);
++    return {1'b1,ordinal,address,8'(port+2),8'(port+4),
++            3'(port%3),1'(side),1'(side),1'b1};
++  endfunction
++  // Synthetic owner stimulus uses the original owner's blocking-update style.
++  always @(posedge clk) begin
++    if (!resetn) begin
++      accepted_r_record='0;
++      r_count=0;
++    end else if (emit_record) begin
++      accepted_r_record=known_record(PORT,SIDE);
++      r_count=32'(PORT+1+SIDE*16);
++      if (inject_x && PORT==4 && SIDE==1)
++        accepted_r_record[40]=1'bx;
++    end
++  end
++endmodule
++
++module att_probe_wrapper #(
++    parameter int PORT=0
++) (
++    input logic clk, resetn, emit_record, inject_x,
++    output logic [31:0] ram_r_count,
++    output logic [118:0] ram_accepted_r_record
++);
++  logic [118:0] dut_monitor_accepted_r_record, ram_monitor_accepted_r_record;
++  logic [31:0] dut_r_count;
++  logic port_reset_seen_posedge=1'b0;
++  always @(posedge clk) port_reset_seen_posedge <= !resetn;
++  assign ram_accepted_r_record = ram_monitor_accepted_r_record;
++  att_probe_owner #(.PORT(PORT),.SIDE(0)) dut_mon (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .accepted_r_record(dut_monitor_accepted_r_record),.r_count(dut_r_count));
++  att_probe_owner #(.PORT(PORT),.SIDE(1)) ram_mon (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .accepted_r_record(ram_monitor_accepted_r_record),.r_count(ram_r_count));
++endmodule
++
++module record_boundary_probe;
++  logic clk=0;
++  always #3.333 clk=~clk;
++  logic resetn=0, emit_record=0, inject_x=0;
++  logic [31:0] ram_r_count [0:6];
++  logic [118:0] ram_accepted_r_record [0:6];
++  logic top_reset_seen_posedge=1'b0;
++  integer total_cycles=0;
++  integer failures=0;
++  always @(posedge clk) top_reset_seen_posedge <= !resetn;
++  att_probe_wrapper #(.PORT(0)) u_port_descriptor (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .ram_r_count(ram_r_count[0]),
++    .ram_accepted_r_record(ram_accepted_r_record[0]));
++  att_probe_wrapper #(.PORT(1)) u_port_io (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .ram_r_count(ram_r_count[1]),
++    .ram_accepted_r_record(ram_accepted_r_record[1]));
++  att_probe_wrapper #(.PORT(2)) u_port_aux (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .ram_r_count(ram_r_count[2]),
++    .ram_accepted_r_record(ram_accepted_r_record[2]));
++  att_probe_wrapper #(.PORT(3)) u_port_qkv0 (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .ram_r_count(ram_r_count[3]),
++    .ram_accepted_r_record(ram_accepted_r_record[3]));
++  att_probe_wrapper #(.PORT(4)) u_port_qkv1 (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .ram_r_count(ram_r_count[4]),
++    .ram_accepted_r_record(ram_accepted_r_record[4]));
++  att_probe_wrapper #(.PORT(5)) u_port_att_out (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .ram_r_count(ram_r_count[5]),
++    .ram_accepted_r_record(ram_accepted_r_record[5]));
++  att_probe_wrapper #(.PORT(6)) u_port_observed (
++    .clk(clk),.resetn(resetn),.emit_record(emit_record),.inject_x(inject_x),
++    .ram_r_count(ram_r_count[6]),
++    .ram_accepted_r_record(ram_accepted_r_record[6]));
++
++  `include "att_r_boundary_diagnostic.svh"
++
++  logic [150:0] cap_owner_dut [0:3][0:6], cap_owner_ram [0:3][0:6];
++  logic [150:0] cap_wrapper_dut [0:3][0:6], cap_wrapper_ram [0:3][0:6];
++  logic [150:0] cap_wrapper_out [0:3][0:6];
++  logic [150:0] cap_top_literal [0:3][0:6], cap_top_variable [0:3][0:6];
++  logic cap_variable_unknown [0:3][0:6], cap_literal_unknown [0:3][0:6];
++  logic cap_packed_unknown [0:3][0:6], cap_record_reduction_x [0:3][0:6];
++  logic cap_variable_predicate [0:3][0:6], cap_literal_predicate [0:3][0:6];
++  logic cap_seen_reset_posedge [0:3];
++
++  task automatic capture_one(input int phase, p,
++      input logic [150:0] owner_dut, owner_ram, wrapper_dut, wrapper_ram,
++                           wrapper_out, top_literal, top_variable,
++      input logic variable_unknown, literal_unknown,
++                  variable_predicate, literal_predicate);
++    cap_owner_dut[phase][p]=owner_dut;
++    cap_owner_ram[phase][p]=owner_ram;
++    cap_wrapper_dut[phase][p]=wrapper_dut;
++    cap_wrapper_ram[phase][p]=wrapper_ram;
++    cap_wrapper_out[phase][p]=wrapper_out;
++    cap_top_literal[phase][p]=top_literal;
++    cap_top_variable[phase][p]=top_variable;
++    cap_variable_unknown[phase][p]=variable_unknown;
++    cap_literal_unknown[phase][p]=literal_unknown;
++    cap_packed_unknown[phase][p]=$isunknown(top_literal);
++    cap_record_reduction_x[phase][p]=((^top_literal[150:32]) === 1'bx);
++    cap_variable_predicate[phase][p]=variable_predicate;
++    cap_literal_predicate[phase][p]=literal_predicate;
++  endtask
++  task automatic capture_all(input int phase);
++    cap_seen_reset_posedge[phase]=top_reset_seen_posedge;
++    for (int p=0;p<7;p++) begin
++      case (p)
++        0: capture_one(phase,0,
++             {u_port_descriptor.dut_mon.accepted_r_record,u_port_descriptor.dut_mon.r_count},
++             {u_port_descriptor.ram_mon.accepted_r_record,u_port_descriptor.ram_mon.r_count},
++             {u_port_descriptor.dut_monitor_accepted_r_record,u_port_descriptor.dut_r_count},
++             {u_port_descriptor.ram_monitor_accepted_r_record,u_port_descriptor.ram_r_count},
++             {u_port_descriptor.ram_accepted_r_record,u_port_descriptor.ram_r_count},
++             {ram_accepted_r_record[0],ram_r_count[0]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[0],ram_r_count[0]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[0],ram_r_count[0]}) || ram_accepted_r_record[0] !== 119'd0 || ram_r_count[0] !== 32'd0));
++        1: capture_one(phase,1,
++             {u_port_io.dut_mon.accepted_r_record,u_port_io.dut_mon.r_count},
++             {u_port_io.ram_mon.accepted_r_record,u_port_io.ram_mon.r_count},
++             {u_port_io.dut_monitor_accepted_r_record,u_port_io.dut_r_count},
++             {u_port_io.ram_monitor_accepted_r_record,u_port_io.ram_r_count},
++             {u_port_io.ram_accepted_r_record,u_port_io.ram_r_count},
++             {ram_accepted_r_record[1],ram_r_count[1]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[1],ram_r_count[1]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[1],ram_r_count[1]}) || ram_accepted_r_record[1] !== 119'd0 || ram_r_count[1] !== 32'd0));
++        2: capture_one(phase,2,
++             {u_port_aux.dut_mon.accepted_r_record,u_port_aux.dut_mon.r_count},
++             {u_port_aux.ram_mon.accepted_r_record,u_port_aux.ram_mon.r_count},
++             {u_port_aux.dut_monitor_accepted_r_record,u_port_aux.dut_r_count},
++             {u_port_aux.ram_monitor_accepted_r_record,u_port_aux.ram_r_count},
++             {u_port_aux.ram_accepted_r_record,u_port_aux.ram_r_count},
++             {ram_accepted_r_record[2],ram_r_count[2]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[2],ram_r_count[2]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[2],ram_r_count[2]}) || ram_accepted_r_record[2] !== 119'd0 || ram_r_count[2] !== 32'd0));
++        3: capture_one(phase,3,
++             {u_port_qkv0.dut_mon.accepted_r_record,u_port_qkv0.dut_mon.r_count},
++             {u_port_qkv0.ram_mon.accepted_r_record,u_port_qkv0.ram_mon.r_count},
++             {u_port_qkv0.dut_monitor_accepted_r_record,u_port_qkv0.dut_r_count},
++             {u_port_qkv0.ram_monitor_accepted_r_record,u_port_qkv0.ram_r_count},
++             {u_port_qkv0.ram_accepted_r_record,u_port_qkv0.ram_r_count},
++             {ram_accepted_r_record[3],ram_r_count[3]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[3],ram_r_count[3]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[3],ram_r_count[3]}) || ram_accepted_r_record[3] !== 119'd0 || ram_r_count[3] !== 32'd0));
++        4: capture_one(phase,4,
++             {u_port_qkv1.dut_mon.accepted_r_record,u_port_qkv1.dut_mon.r_count},
++             {u_port_qkv1.ram_mon.accepted_r_record,u_port_qkv1.ram_mon.r_count},
++             {u_port_qkv1.dut_monitor_accepted_r_record,u_port_qkv1.dut_r_count},
++             {u_port_qkv1.ram_monitor_accepted_r_record,u_port_qkv1.ram_r_count},
++             {u_port_qkv1.ram_accepted_r_record,u_port_qkv1.ram_r_count},
++             {ram_accepted_r_record[4],ram_r_count[4]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[4],ram_r_count[4]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[4],ram_r_count[4]}) || ram_accepted_r_record[4] !== 119'd0 || ram_r_count[4] !== 32'd0));
++        5: capture_one(phase,5,
++             {u_port_att_out.dut_mon.accepted_r_record,u_port_att_out.dut_mon.r_count},
++             {u_port_att_out.ram_mon.accepted_r_record,u_port_att_out.ram_mon.r_count},
++             {u_port_att_out.dut_monitor_accepted_r_record,u_port_att_out.dut_r_count},
++             {u_port_att_out.ram_monitor_accepted_r_record,u_port_att_out.ram_r_count},
++             {u_port_att_out.ram_accepted_r_record,u_port_att_out.ram_r_count},
++             {ram_accepted_r_record[5],ram_r_count[5]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[5],ram_r_count[5]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[5],ram_r_count[5]}) || ram_accepted_r_record[5] !== 119'd0 || ram_r_count[5] !== 32'd0));
++        6: capture_one(phase,6,
++             {u_port_observed.dut_mon.accepted_r_record,u_port_observed.dut_mon.r_count},
++             {u_port_observed.ram_mon.accepted_r_record,u_port_observed.ram_mon.r_count},
++             {u_port_observed.dut_monitor_accepted_r_record,u_port_observed.dut_r_count},
++             {u_port_observed.ram_monitor_accepted_r_record,u_port_observed.ram_r_count},
++             {u_port_observed.ram_accepted_r_record,u_port_observed.ram_r_count},
++             {ram_accepted_r_record[6],ram_r_count[6]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[6],ram_r_count[6]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[6],ram_r_count[6]}) || ram_accepted_r_record[6] !== 119'd0 || ram_r_count[6] !== 32'd0));
++      endcase
++    end
++  endtask
++
++  function automatic logic [118:0] expected_record(input int port, side);
++    logic [31:0] ordinal;
++    logic [63:0] address;
++    ordinal=32'(port+1+side*16);
++    address=64'h0000000023400000+64'(port*4096+side*256);
++    return {1'b1,ordinal,address,8'(port+2),8'(port+4),
++            3'(port%3),1'(side),1'(side),1'b1};
++  endfunction
++  task automatic assert_captured();
++    logic [118:0] dut_record, ram_record;
++    logic [150:0] dut_expected, ram_expected;
++    bit bad;
++    // All four diagnostic phases were printed before this first assertion.
++    for (int phase=0;phase<4;phase++) begin
++      if (cap_seen_reset_posedge[phase] !== ((phase==0 || phase==2) ? 1'b1 : 1'b0)) begin
++        $display("ATT_PROBE_FAIL phase=%0d reset_posedge_flag",phase);
++        failures++;
++      end
++      for (int p=0;p<7;p++) begin
++        if (phase==0 || phase==2) begin
++          dut_expected='0;
++          ram_expected='0;
++        end else begin
++          dut_record=expected_record(p,0);
++          ram_record=expected_record(p,1);
++          if (phase==3 && p==4) ram_record[40]=1'bx;
++          dut_expected={dut_record,32'(p+1)};
++          ram_expected={ram_record,32'(p+17)};
++        end
++        bad=(cap_owner_dut[phase][p] !== dut_expected ||
++             cap_owner_ram[phase][p] !== ram_expected ||
++             cap_wrapper_dut[phase][p] !== dut_expected ||
++             cap_wrapper_ram[phase][p] !== ram_expected ||
++             cap_wrapper_out[phase][p] !== ram_expected ||
++             cap_top_literal[phase][p] !== ram_expected ||
++             cap_top_variable[phase][p] !== ram_expected);
++        if (phase==3 && p==4) begin
++          // X is intentional; the alternate detectors must reject it.
++          if (cap_record_reduction_x[phase][p] !== 1'b1 ||
++              cap_packed_unknown[phase][p] !== 1'b1 ||
++              cap_literal_unknown[phase][p] !== 1'b1)
++            bad=1;
++        end else if (cap_record_reduction_x[phase][p] !== 1'b0 ||
++                     cap_packed_unknown[phase][p] !== 1'b0 ||
++                     cap_literal_unknown[phase][p] !== 1'b0 ||
++                     cap_variable_unknown[phase][p] !== 1'b0)
++          bad=1;
++        if (phase==0 || phase==2) begin
++          if (cap_variable_predicate[phase][p] !== 1'b0 ||
++              cap_literal_predicate[phase][p] !== 1'b0) bad=1;
++        end else if (cap_variable_predicate[phase][p] !== 1'b1 ||
++                     cap_literal_predicate[phase][p] !== 1'b1) bad=1;
++        if (bad) begin
++          $display("ATT_PROBE_FAIL phase=%0d port=%0d variable_unknown=%b literal_unknown=%b packed_unknown=%b reduction_x=%b variable_predicate=%b literal_predicate=%b",
++            phase,p,cap_variable_unknown[phase][p],cap_literal_unknown[phase][p],
++            cap_packed_unknown[phase][p],cap_record_reduction_x[phase][p],
++            cap_variable_predicate[phase][p],cap_literal_predicate[phase][p]);
++          failures++;
++        end
++      end
++    end
++    if (failures!=0) $fatal(1,"ATT_PROBE_FAILURES count=%0d",failures);
++    $display("ATT_PROBE_PASS phases=4 ports=7 cycles=%0d",total_cycles);
++  endtask
++
++  always @(negedge clk) begin
++    total_cycles=total_cycles+1;
++    case (total_cycles)
++      1: begin
++        $display("ATT_PROBE_PHASE reset_initial cycle=%0d",total_cycles);
++        att_dump_all_boundaries(); capture_all(0);
++        resetn<=1'b1; emit_record<=1'b1;
++      end
++      2: begin
++        $display("ATT_PROBE_PHASE distinct_known cycle=%0d",total_cycles);
++        att_dump_all_boundaries(); capture_all(1);
++        resetn<=1'b0; emit_record<=1'b0;
++      end
++      3: begin
++        $display("ATT_PROBE_PHASE reset_again cycle=%0d",total_cycles);
++        att_dump_all_boundaries(); capture_all(2);
++        resetn<=1'b1; emit_record<=1'b1; inject_x<=1'b1;
++      end
++      4: begin
++        $display("ATT_PROBE_PHASE injected_x_port4_ram cycle=%0d",total_cycles);
++        att_dump_all_boundaries(); capture_all(3);
++        emit_record<=1'b0; inject_x<=1'b0;
++      end
++      5: begin
++        assert_captured();
++        $finish;
++      end
++    endcase
++  end
++  initial begin
++    repeat (8) @(negedge clk);
++    $fatal(1,"ATT_PROBE_FINITE_WATCHDOG cycles=%0d",total_cycles);
++  end
++endmodule
+--- /dev/null
++++ b/rtl/README.md
+@@ -0,0 +1,3 @@
++# RTL reference boundary
++
++v4 contains no copied or modified production/generated RTL. The frozen Head15 numerical implementation remains the v5 generated RTL under `../../runs/local_csynth_v1/work/hls/syn/verilog/`; the accepted AXI endpoint remains `d2_axi_allocation_diagnostic/bounded_static_v1/rtl/axi_static_memory.sv`. The active v4 source is confined to `tb/`, `diagnostic/`, and `source/`.
+--- /dev/null
++++ b/source/check_source_only_v4.py
+@@ -0,0 +1,115 @@
++#!/usr/bin/env python3
++"""Text/hash audit only. This script never invokes an HDL tool or simulator."""
++from pathlib import Path
++import hashlib
++import json
++import re
++
++ROOT = Path(__file__).resolve().parent.parent
++V3 = ROOT.parent / "rtl_static_finite_monitor_v3"
++BASE = ROOT.parents[2]
++GATE = BASE / "reviewer_attention_v5_head15_monitor_v4_boundary_diagnostic_source_preparation_release.json"
++OUT = ROOT / "source/source_static_audit.json"
++
++
++def digest(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def require(condition: bool, label: str, checks: dict) -> None:
++    checks[label] = bool(condition)
++    if not condition:
++        raise AssertionError(label)
++
++
++def main() -> None:
++    gate = json.loads(GATE.read_text())
++    archive = json.loads((ROOT / "source/v3_preimage_archive.json").read_text())
++    checks = {}
++    for entry in gate["exact_preimage_required"]:
++        path = Path(entry["path"])
++        require(path.stat().st_size == entry["bytes"] and digest(path) == entry["sha256"],
++                "gate_preimage:" + path.name, checks)
++    for entry in archive["files"]:
++        original, archived = Path(entry["original_path"]), Path(entry["archived_path"])
++        require(original.read_bytes() == archived.read_bytes() and
++                original.stat().st_size == entry["bytes"] and
++                digest(archived) == entry["sha256"] and
++                oct(archived.stat().st_mode & 0o777) == entry["mode"],
++                "archive:" + str(archived.relative_to(ROOT)), checks)
++
++    tb = ROOT / "tb"
++    old = V3 / "tb"
++    for name in ("att_axi_monitor.sv", "att_finite_base_h15_r63_top.sv",
++                 "att_finite_changed_h0_r0_top.sv"):
++        require((tb / name).read_bytes() == (old / name).read_bytes(),
++                "byte_identical:" + name, checks)
++    control = (tb / "att_finite_control.svh").read_text()
++    old_control = (old / "att_finite_control.svh").read_text()
++    marker = "    if (!resetn) begin r_hold_reg<=0; b_hold_reg<=0; end"
++    require(control[control.index(marker):] == old_control[old_control.index(marker):],
++            "unchanged_hold_debt_association_numerical_tail", checks)
++    require(control.count('`include "att_r_boundary_diagnostic.svh"') == 1 and
++            control.index("att_dump_all_boundaries();") <
++            control.index("u_port_descriptor.check_reset_record();") <
++            control.index('ATT_R_RECORD_TOP_RESET port=%0d'),
++            "raw_before_wrapper_and_top_reset_fatal", checks)
++    ports = ["descriptor", "io", "aux", "qkv0", "qkv1", "att_out", "observed"]
++    require(all(control.count(f"u_port_{p}.check_reset_record();") == 1 for p in ports),
++            "seven_wrapper_checks_centralized", checks)
++    old_pred = old_control[old_control.index("        for (int p=0;p<7;p++)\n          if ($isunknown({ram_accepted_r_record[p]"):old_control.index("        $display(\"ATT_R_RECORD_TOP_RESET selected_port")]
++    require(old_pred in control, "original_top_reset_predicate", checks)
++    port = (tb / "att_axi_port.sv").read_text()
++    old_port = (old / "att_axi_port.sv").read_text()
++    start = "if ($isunknown({dut_monitor_accepted_r_record,"
++    stop = "port_reset_diag_emitted=1'b1;"
++    require(re.sub(r"\s+", "", old_port[old_port.index(start):old_port.index(stop)+len(stop)]) ==
++            re.sub(r"\s+", "", port[port.index(start):port.index(stop)+len(stop)]),
++            "original_wrapper_reset_predicate_display_flag", checks)
++    first = "      if (!port_first_r_diag_emitted && ram_r_count !== 32'd0) begin"
++    require(old_port[old_port.index(first):old_port.index("\n    end\n  end", old_port.index(first))] ==
++            port[port.index(first):port.index("\n    end\n  end", port.index(first))],
++            "unchanged_wrapper_first_r", checks)
++    diagnostic = (tb / "att_r_boundary_diagnostic.svh").read_text()
++    require(all(re.search(rf"\b{i}: att_dump_one\({i},u_port_{name}\.port_reset_seen_posedge", diagnostic)
++                for i, name in enumerate(ports)), "seven_literal_diagnostic_arms", checks)
++    require(diagnostic.count("{ram_accepted_r_record[p],ram_r_count[p]}") >= 7 and
++            "record_reduction_x" in diagnostic and "packed_isunknown" in diagnostic and
++            "record_hex=%h record_bin=%b count_hex=%h count_bin=%b" in diagnostic,
++            "raw_four_state_and_expression_variants", checks)
++    probe = (ROOT / "diagnostic/record_boundary_probe.sv").read_text()
++    require(all(re.search(rf"att_probe_wrapper #\(\.PORT\({i}\)\) u_port_{name} ", probe)
++                for i, name in enumerate(ports)), "probe_seven_named_connections", checks)
++    require("logic [31:0] ram_r_count [0:6];" in probe and
++            "logic [118:0] ram_accepted_r_record [0:6];" in probe and
++            "assign ram_accepted_r_record = ram_monitor_accepted_r_record;" in probe,
++            "probe_same_connection_types_and_assign", checks)
++    require(all(re.search(rf"\b{i}: begin", probe) for i in range(1, 6)) and
++            "repeat (8) @(negedge clk);" in probe and
++            "assert_captured();" in probe and
++            probe.rindex("        assert_captured();") > probe.index("att_dump_all_boundaries();"),
++            "probe_finite_diagnostics_before_assertions", checks)
++    require("accepted_r_record[40]=1'bx;" in probe and
++            "inject_x && PORT==4 && SIDE==1" in probe and
++            all(x not in probe for x in ("attention_preloaded_slice", "axi_static_memory", "$readmemh", 'import "DPI-C"')),
++            "probe_no_dut_and_labelled_x_only", checks)
++    require(not (ROOT / "runs").exists() and not (ROOT / "build").exists(),
++            "no_v4_runtime_or_build_directory", checks)
++
++    report = {
++        "schema": "head15_v4_source_only_text_hash_audit_v1",
++        "status": "SOURCE_CHECKS_PASS_NO_HDL_TOOL_EXECUTION",
++        "checks": checks,
++        "checks_passed": len(checks),
++        "compiler_invoked": False,
++        "elaborator_invoked": False,
++        "simulator_invoked": False,
++        "numerical_dut_executed": False,
++        "source_only_limit": "Text and hash checks cannot establish SystemVerilog syntax, elaboration, or runtime values.",
++    }
++    OUT.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
++    print(f"HEAD15_V4_SOURCE_AUDIT checks={len(checks)} status=SOURCE_ONLY")
++
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/source/design.md
+@@ -0,0 +1,31 @@
++# Head15 v4 bounded record-boundary diagnostic source design
++
++The v3 actual runtime ended at the first top reset predicate at 6666 ps, before any command. Fourteen owner reset messages print zero records and zero counts; no wrapper or successful top witness ran before termination. Top raw fields and individual predicate results were not printed. Root cause is unresolved. This design authorizes source preparation only and preserves all v3 evidence.
++
++## Fresh source and preserved preimage
++
++Work only in this fresh sibling. Archive exact v3 maintained testbench/runner/generator/binder source files, source packet, design, literal source diff and first-failure evidence identities before copying. Record each original/archive path, bytes, mode and SHA. Do not copy or modify production, generated numerical RTL, DAT, installed libraries, numerical images, prepared pages or any prior build/run. Reference them by frozen identity. v3 source/results.md and all sealed packets remain frozen.
++
++Make a new source/results.md that explicitly says source-only and unmeasured. New top/generator must agree. The established 119-bit record, owner, packing, numerical control and hold/debt/association checks are preserved exactly. No changes to accepted AXI endpoints, clock, reset sequence, command count, expected bytes, watchdog, selected qkv1 port4, or numerical status checks. At this stage do not replace $isunknown, convert arrays, alter output logic/wire types, add resets/deposits or change the observed connection topology to make the failure disappear.
++
++## Full-testbench instrumentation candidate
++
++Before any record reset predicate can issue a fatal at the first settled negative edge, obtain a complete central bounded diagnostic snapshot for all seven ports. Use explicit constant-index emitted statements for every port so diagnostic collection itself cannot hide a variable-index expression issue. The generator may produce these statements from a fixed seven-entry port-name map.
++
++For each port print owner .accepted_r_record and .r_count at both monitor instances, wrapper dut_monitor_accepted_r_record and ram_monitor_accepted_r_record, wrapper output ram_accepted_r_record and ram_r_count, and constant-index top array record/count. Also print the same top element reached through the existing variable p loop. Print records and counts in hexadecimal and binary as raw four-state values; include port index, simulation time, clock/reset values and seen-reset-posedge flag. This limited hierarchical read is diagnostic only, never a numerical authority or a replacement for the explicit record interface; no old internal r_accept scalar may be used. Bind every hierarchical name to the actual frozen named-instance map.
++
++For each top record/count pair print independently: record case-nonzero, count case-nonzero, per-field reduction-X detection ((^field) === 1'bx), per-field $isunknown, original $isunknown on the variable-index concatenation, original expression at a literal constant index, and $isunknown on a local151-bit packed snapshot assigned from the same fields. Print the packed snapshot raw bits too. Evaluate and print diagnostics before the preserved original predicate. Do not merge its logical terms into a replacement authority. Keep X/Z checks strict. At later first-R witnesses, retain existing exact ordinal/address/beat/RID/last checks; diagnostic output remains bounded to reset and first-R per port per reset.
++
++Diagnostics must finish before any sibling record reset diagnostic fatal, independent of active-region block ordering. A practical candidate is a centralized top diagnostic task called immediately before the unchanged top predicate, together with wrapper reset-fatal diagnostics routed through the same top coordinator or deferred only within the diagnostic-check execution until a `diagnostic_snapshot_complete` flag for that exact negative edge is set. Do not delay clock/reset, transaction processing or state update. The owner posedge reset assertion already passed in v3; retain its behavior. If coordination would alter a predicate or cause a scheduling dependency, prefer a single top task that reads all three boundaries and directly invokes all preserved wrapper and top record-reset checks in their original same-negedge observation phase; record this exact assertion-placement-only change. Do not modify numerical/transaction check timing. Provide a source-level explanation and literal diff for independent review; no claim that this instrumentation alone fixes the fault.
++
++## Minimal no-DUT same-connection probe
++
++Prepare a separate probe under diagnostic/ with no production/generated DUT, no AXI memory endpoint, no fixture/oracle and no host numerical calls. Reproduce exactly the record-owner output logic[118:0] and32-bit count, named connection to wrapper internal logic, continuous assignment to wrapper output logic, and connection to a seven-element top unpacked array with the same declaration direction and range as v3. Preserve the direct count path. Use the same1ns/1ps precision, clock half-period and reset-positive-edge then next-negative-edge observation as v3. Emit a source equivalence table referencing exact v3 declarations/connection lines. Mock owner behavior is explicitly synthetic: zero both fields on reset, then write a deterministic known119-bit record with valid=1 and ordinal matching count through one local owner. It has no numerical or AXI acceptance meaning.
++
++Separate this probe into a diagnostic collection phase and an assertion phase so all raw owner/wrapper/top values and all expression variants are printed before any failure. Include the unchanged original variable-index predicate as the baseline under test; print its boolean result without permitting it to truncate diagnostic collection. Preserve a final nonzero exit if any required known-value or correspondence assertion fails. Known-value patterns must include all-zero reset, first valid record with nontrivial address/beat/len/size/IDs/last fields, and a subsequent reset. All seven ports must use distinct nonzero values after reset, preventing accidental cross-port aliasing. Add an explicit bounded X injection at the synthetic owner on one separately labelled phase to verify the alternate unknown detectors reject unknown data; this is test-only stimulus and must never be carried into the Head15 testbench. End after a statically enumerated finite schedule, e.g. no more than32clockcycles, with a finite watchdog. No random stimulus, open-ended polling or variable user input.
++
++Provide dormant compile/elaboration/runtime commands using the same installed2025.2 compiler/simulator/library identities. No command runs under this source release. Source proof must enumerate exact cycle schedule, maximum prints and expected per-phase values. Actual simulator outputs, tool defect conclusions, successful build and even syntax acceptance remain unmeasured until a separate independent execution gate.
++
++## Acceptance boundaries
++
++Reviewer first checks preimages, unchanged control tail, generator consistency, raw-before-fatal coverage, exact connection equivalence and finite probe schedule. Only then may a distinct one-attempt small-memory/short-wall compile-and-probe gate be issued. Root schedules that tool execution in the sole heavy slot. Full Head15 rebuild and runtime remain held until minimal evidence explains which data/expression boundary differs and a separately reviewed correction or justified next diagnostic exists. No retry or automatic quota increase. Any later corrective implementation gets a fresh source packet; do not amend this or earlier sealed evidence.
+--- /dev/null
++++ b/source/implementation_mapping.md
+@@ -0,0 +1,15 @@
++# Head15 v4 source mapping
++
++The authoritative v4 scope is [design.md](design.md) and the [independent source-preparation release](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_monitor_v4_boundary_diagnostic_source_preparation_release.json). The failure being isolated is recorded in [the first-failure review](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_monitor_v3_actual_runtime_first_failure_acceptance.json).
++
++| Boundary | Source mapping and preservation |
++| --- | --- |
++| Sole 119-bit owner | `tb/att_axi_monitor.sv` is byte-identical to v3. The packed record is driven by one `record` block; reset zero and accepted-R assignment retain their original position. |
++| Wrapper connection | `tb/att_axi_port.sv` keeps its two named monitor outputs and `assign ram_accepted_r_record = ram_monitor_accepted_r_record`. Only the wrapper reset predicate/display/flag moves from its negative-edge block into `check_reset_record()`. Its expression and first-R block are unchanged. |
++| Seven named top connections | Both `tb/att_finite_*_top.sv` files are byte-identical to v3 and match a source-only regeneration. Each named `u_port_*` output remains tied to the same literal `[0:6]` top record/count element. |
++| Raw diagnostic | `tb/att_r_boundary_diagnostic.svh` is included by `tb/att_finite_control.svh`. Its seven literal `case` arms read both owner instances, both wrapper records, wrapper output, literal top element, and the existing variable-index top element. It prints four-state hex/binary values and expression variants before checks. Diagnostic reads do not drive the record path. |
++| Assertion coordination | At the original settled negative edge, the top invokes the complete raw snapshot, marks it complete, calls the seven preserved wrapper reset tasks, then evaluates its original variable-index top reset loop. Wrapper sibling reset fatals cannot precede the snapshot. No `#delay`, reset change, or transaction-state update is introduced. The owner positive-edge assertion remains at its original location. |
++| First R and numerical tail | The wrapper first-R branch and all control after the record reset/first-R checks remain source-identical to v3. The selected qkv1 port4, four-command sequence, watchdog and numerical checks are unchanged. |
++| Isolated same-connection probe | `diagnostic/record_boundary_probe.sv` has a synthetic owner at both sides of each wrapper and reproduces the output types, named connection, continuous wrapper assignment, direct count path and seven-element unpacked top array. It includes the same v4 diagnostic source but no DUT, endpoint, fixture, or oracle. See `diagnostic/README.md`. |
++
++This candidate only exposes boundary values and coordinates reset assertion placement. It does not explain the v3 failure until the separately gated probe runs and its actual output is reviewed.
+--- /dev/null
++++ b/source/results.md
+@@ -0,0 +1,15 @@
++# Head15 v4 diagnostic results
++
++Status: **source preparation only; unmeasured**. The v3 runtime stopped at `ATT_R_RECORD_TOP_RESET port=0` at 6666 ps, before any command. Its owner reset messages were zero, while wrapper and top raw values were not printed. This v4 source is a diagnostic candidate, not a correction or numerical acceptance.
++
++| Stage | Evidence and status |
++| --- | --- |
++| Preimages | The v4 release gate's 24 required v3 files matched exact byte count and SHA-256 before copying. `v3_preimage_archive.json` records original/archive paths, modes, lengths, and hashes for 35 preserved files. |
++| Source changes | The two generated top files were regenerated from the copied generator and remained byte-identical to v3. The active 119-bit owner module remained byte-identical. Wrapper reset checks were moved into a top-called task at the same settled negative edge; the top takes a complete seven-port raw snapshot first. The original predicates and all first-R, hold, debt, association, control, and numerical tail checks remain. |
++| Isolated probe | A separate no-DUT, seven-port, four-phase source is prepared in `diagnostic/`. It has a five-negative-edge finite schedule and an eight-negative-edge failure watchdog. No probe compilation or run has occurred. |
++| Source audit | Text, preimage, hash, diff, connection-map, and control-tail checks are recorded in `source_static_audit.json`; they do not establish syntax or simulator behavior. |
++| Compiler/elaboration/simulation | **Not run.** Even the small no-DUT probe requires a separate independent execution gate. |
++| HLS/synthesis/place-and-route/timing/board | **Not run for v4.** Existing frozen numerical RTL is only referenced. |
++| Numerical comparison | **Not run for v4; no acceptance claim.** |
++
++The probe's expected zero, known, reset-again, and injected-X phases are source predictions. They must not be presented as actual simulator observations. The v3 root and its sealed evidence are unchanged.
+--- /dev/null
++++ b/source/source_static_audit.json
+@@ -0,0 +1,87 @@
++{
++  "checks": {
++    "archive:source/preimages_v3/external/reviewer_attention_v5_head15_monitor_v3_actual_runtime_first_failure_acceptance.json": true,
++    "archive:source/preimages_v3/runs/rtl_base_h15_r63_monitor_v3_v1/evidence/actual_execution_packet.json": true,
++    "archive:source/preimages_v3/source/check_source_only.py": true,
++    "archive:source/preimages_v3/source/design.md": true,
++    "archive:source/preimages_v3/source/frozen_rehash.json": true,
++    "archive:source/preimages_v3/source/frozen_rehash_timeline.csv": true,
++    "archive:source/preimages_v3/source/implementation_mapping.md": true,
++    "archive:source/preimages_v3/source/make_source_packet.py": true,
++    "archive:source/preimages_v3/source/rehash_frozen.py": true,
++    "archive:source/preimages_v3/source/results.md": true,
++    "archive:source/preimages_v3/source/source_packet.json": true,
++    "archive:source/preimages_v3/source/source_static_audit.json": true,
++    "archive:source/preimages_v3/source/v2_preimage_archive.json": true,
++    "archive:source/preimages_v3/source/v2_to_v3_tb_runner.diff": true,
++    "archive:source/preimages_v3/tb/README.md": true,
++    "archive:source/preimages_v3/tb/archive_attempt.py": true,
++    "archive:source/preimages_v3/tb/att_axi_lite_master.sv": true,
++    "archive:source/preimages_v3/tb/att_axi_monitor.sv": true,
++    "archive:source/preimages_v3/tb/att_axi_port.sv": true,
++    "archive:source/preimages_v3/tb/att_finite_base_h15_r63_top.sv": true,
++    "archive:source/preimages_v3/tb/att_finite_changed_h0_r0_top.sv": true,
++    "archive:source/preimages_v3/tb/att_finite_control.svh": true,
++    "archive:source/preimages_v3/tb/att_static_axi_stall.sv": true,
++    "archive:source/preimages_v3/tb/audit_source.py": true,
++    "archive:source/preimages_v3/tb/build_static.sh": true,
++    "archive:source/preimages_v3/tb/check_prepared_pages.py": true,
++    "archive:source/preimages_v3/tb/check_runtime_numeric.py": true,
++    "archive:source/preimages_v3/tb/generate_top.py": true,
++    "archive:source/preimages_v3/tb/make_source_packet.py": true,
++    "archive:source/preimages_v3/tb/materialize_cold_pages.py": true,
++    "archive:source/preimages_v3/tb/phase_rss.c": true,
++    "archive:source/preimages_v3/tb/phase_rss.so": true,
++    "archive:source/preimages_v3/tb/run_mode.sh": true,
++    "archive:source/preimages_v3/tb/seal_runtime.py": true,
++    "archive:source/preimages_v3/tb/verify_binding.py": true,
++    "byte_identical:att_axi_monitor.sv": true,
++    "byte_identical:att_finite_base_h15_r63_top.sv": true,
++    "byte_identical:att_finite_changed_h0_r0_top.sv": true,
++    "gate_preimage:README.md": true,
++    "gate_preimage:actual_execution_packet.json": true,
++    "gate_preimage:archive_attempt.py": true,
++    "gate_preimage:att_axi_lite_master.sv": true,
++    "gate_preimage:att_axi_monitor.sv": true,
++    "gate_preimage:att_axi_port.sv": true,
++    "gate_preimage:att_finite_base_h15_r63_top.sv": true,
++    "gate_preimage:att_finite_changed_h0_r0_top.sv": true,
++    "gate_preimage:att_finite_control.svh": true,
++    "gate_preimage:att_static_axi_stall.sv": true,
++    "gate_preimage:audit_source.py": true,
++    "gate_preimage:build_static.sh": true,
++    "gate_preimage:check_prepared_pages.py": true,
++    "gate_preimage:check_runtime_numeric.py": true,
++    "gate_preimage:generate_top.py": true,
++    "gate_preimage:make_source_packet.py": true,
++    "gate_preimage:materialize_cold_pages.py": true,
++    "gate_preimage:phase_rss.c": true,
++    "gate_preimage:phase_rss.so": true,
++    "gate_preimage:reviewer_attention_v5_head15_monitor_v3_actual_runtime_first_failure_acceptance.json": true,
++    "gate_preimage:run_mode.sh": true,
++    "gate_preimage:seal_runtime.py": true,
++    "gate_preimage:source_packet.json": true,
++    "gate_preimage:verify_binding.py": true,
++    "no_v4_runtime_or_build_directory": true,
++    "original_top_reset_predicate": true,
++    "original_wrapper_reset_predicate_display_flag": true,
++    "probe_finite_diagnostics_before_assertions": true,
++    "probe_no_dut_and_labelled_x_only": true,
++    "probe_same_connection_types_and_assign": true,
++    "probe_seven_named_connections": true,
++    "raw_before_wrapper_and_top_reset_fatal": true,
++    "raw_four_state_and_expression_variants": true,
++    "seven_literal_diagnostic_arms": true,
++    "seven_wrapper_checks_centralized": true,
++    "unchanged_hold_debt_association_numerical_tail": true,
++    "unchanged_wrapper_first_r": true
++  },
++  "checks_passed": 75,
++  "compiler_invoked": false,
++  "elaborator_invoked": false,
++  "numerical_dut_executed": false,
++  "schema": "head15_v4_source_only_text_hash_audit_v1",
++  "simulator_invoked": false,
++  "source_only_limit": "Text and hash checks cannot establish SystemVerilog syntax, elaboration, or runtime values.",
++  "status": "SOURCE_CHECKS_PASS_NO_HDL_TOOL_EXECUTION"
++}
+--- /dev/null
++++ b/source/v3_preimage_archive.json
+@@ -0,0 +1,286 @@
++{
++  "schema": "head15_v4_exact_v3_preimages_v1",
++  "files": [
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/README.md",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/README.md",
++      "bytes": 916,
++      "sha256": "af92f9ef0f3ef613034350a16b12c5b5501318d54c489ad611d037cf9f8eb521",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/archive_attempt.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/archive_attempt.py",
++      "bytes": 3183,
++      "sha256": "c5aa58804eb277af865a64a9af3394f17605bfd2dc894c333d98d191decb36ec",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/att_axi_lite_master.sv",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/att_axi_lite_master.sv",
++      "bytes": 4051,
++      "sha256": "3b27cbcc1595a2f8ed0fc6eb1c84ec3065c1df655beaa33f8edae0fc045c7243",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/att_axi_monitor.sv",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/att_axi_monitor.sv",
++      "bytes": 11253,
++      "sha256": "79a7b431173c11439f033cf6fb79692daa49ae8f6b447fe31fb7cce6eb0a9673",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/att_axi_port.sv",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/att_axi_port.sv",
++      "bytes": 12082,
++      "sha256": "19027ba89b4ee1f0645be0da46ce6c5b988252c37c193291170b9e0a0f76f74f",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/att_finite_base_h15_r63_top.sv",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/att_finite_base_h15_r63_top.sv",
++      "bytes": 59725,
++      "sha256": "3d807b69ff75ea7f98750112a7716f814aab078e22ffd2e2b70098ab9e7d458e",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/att_finite_changed_h0_r0_top.sv",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/att_finite_changed_h0_r0_top.sv",
++      "bytes": 59722,
++      "sha256": "a28f2d8bdd4de3845eaab1a352def474efb1c93e92bc0eb56bfa9556d43234a0",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/att_finite_control.svh",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/att_finite_control.svh",
++      "bytes": 44800,
++      "sha256": "84a1f7c92b804f5afb2ffce45f3240ebded001369daf044783c9000bb7d21a14",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/att_static_axi_stall.sv",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/att_static_axi_stall.sv",
++      "bytes": 3456,
++      "sha256": "fd6c8ba7c387fa516a1ddad6e48ff5af8c012cd4b6098bfdc8a1b2bdf904ac1f",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/audit_source.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/audit_source.py",
++      "bytes": 3386,
++      "sha256": "74e44e6df51ede1f83083a99ba27d29473084e4846b98737b05869b49216a164",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/build_static.sh",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/build_static.sh",
++      "bytes": 2070,
++      "sha256": "3cdb18d60287f96bf6bbde151e1fb1b0a417f1a97e242ba9c146ee9548e04f38",
++      "mode": "0o755",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/check_prepared_pages.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/check_prepared_pages.py",
++      "bytes": 6987,
++      "sha256": "691e0ff6331675c11b58c84f5b329f53a443716fa8366d7655997787247df6ab",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/check_runtime_numeric.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/check_runtime_numeric.py",
++      "bytes": 6683,
++      "sha256": "5fe0605feeb4edf1a048a98389cf0094fe553cbae6c7d99b17c6ce1aaaea1ac4",
++      "mode": "0o777",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/generate_top.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/generate_top.py",
++      "bytes": 8508,
++      "sha256": "29fc32b3b40349298186fc51daa3938a45969112f30692a3a2bab15dbb6520fa",
++      "mode": "0o777",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/make_source_packet.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/make_source_packet.py",
++      "bytes": 11507,
++      "sha256": "ee12c8cea4e5ceeaa72571c40ea35629423bf1dd6d324a34f07a3f689d924a86",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/materialize_cold_pages.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/materialize_cold_pages.py",
++      "bytes": 8794,
++      "sha256": "82080e72f46cd2f3facfd1a58e189cae6996e2d8d18e63b4a25f567feb0591b6",
++      "mode": "0o777",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/phase_rss.c",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/phase_rss.c",
++      "bytes": 1322,
++      "sha256": "72dcdedf1e58560f7b71ba43cd3e724423dd87f24aaa42458dc6a94e394831c4",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/phase_rss.so",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/phase_rss.so",
++      "bytes": 16136,
++      "sha256": "77c19e28b3ca04943cb85eb887baecd42e8acd71a9cbd9f38fc9442e98877db6",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/run_mode.sh",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/run_mode.sh",
++      "bytes": 1939,
++      "sha256": "cdf05e0d4899aec0979e71f32e05e2d2411b39bf0c1986219e65f35d237017c9",
++      "mode": "0o755",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/seal_runtime.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/seal_runtime.py",
++      "bytes": 899,
++      "sha256": "fce5ef8652991f3fa008e952a04b6ccf194b34d82b088cfe4b37eb46ecacf1ef",
++      "mode": "0o777",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/tb/verify_binding.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/tb/verify_binding.py",
++      "bytes": 6709,
++      "sha256": "a3f446269c8cb4c7ae6ad18b063096eab6c464d19cdbfdc01ceb318a93be0d09",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/check_source_only.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/check_source_only.py",
++      "bytes": 8741,
++      "sha256": "4f4b9d9a1c488bd1fe5a9a80a1ffc3f90cfe554d99766b9048c0ea0bd6b5ee00",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/design.md",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/design.md",
++      "bytes": 6876,
++      "sha256": "d41e33fa127c854f504f99901ca949bfa68c57f27ced10a5f551229dc3545cc4",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/frozen_rehash.json",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/frozen_rehash.json",
++      "bytes": 1170,
++      "sha256": "bf449812378ef35a3454dc00f0e2d7aa8743f07c816dfa5e48eba684cf0ad702",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/frozen_rehash_timeline.csv",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/frozen_rehash_timeline.csv",
++      "bytes": 847,
++      "sha256": "327ac588064f956ee03695f2b006be8c205b4aa6809c75c2507ddd8c30ddeb4a",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/implementation_mapping.md",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/implementation_mapping.md",
++      "bytes": 1833,
++      "sha256": "e6b2868d45a3874b6721034a3d29fd8bf2f1cc24b5ae791fe85f5bbeadf5b6c4",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/make_source_packet.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/make_source_packet.py",
++      "bytes": 9990,
++      "sha256": "fc69c1251460cfe423dc508961c5e3a5d0ba9260a6cdc2113474620aef3aaa66",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/rehash_frozen.py",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/rehash_frozen.py",
++      "bytes": 6856,
++      "sha256": "4f6fbe8d2ff5b2340ca5f4db97ff14dd077bbeaeebbdfec2df6261cb536c16bc",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/results.md",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/results.md",
++      "bytes": 2074,
++      "sha256": "c9a95b5295d235acf9d7a094752066799f216378fccfccc1e4ffa61022663a2a",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/source_packet.json",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/source_packet.json",
++      "bytes": 228118,
++      "sha256": "a8b2e43381e303c0fd751688b400ea17a62584dd176d0c17018b1dab04c4a1b5",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/source_static_audit.json",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/source_static_audit.json",
++      "bytes": 4767,
++      "sha256": "727c1a72161f5c022ed0f78a83027e9b2f198223c455e235f96931ff57d5ad80",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/v2_preimage_archive.json",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/v2_preimage_archive.json",
++      "bytes": 12199,
++      "sha256": "a7ea40791949f2003204e1dbbcc227019fa29e018a86514e59ed6cebb58fd10b",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/v2_to_v3_tb_runner.diff",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/source/v2_to_v3_tb_runner.diff",
++      "bytes": 26217,
++      "sha256": "947e5eca1fa5628ee26d5511d0288921666ef9bdfa83ae6124482e08f0441b5d",
++      "mode": "0o666",
++      "release_required": false
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_monitor_v3_actual_runtime_first_failure_acceptance.json",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/external/reviewer_attention_v5_head15_monitor_v3_actual_runtime_first_failure_acceptance.json",
++      "bytes": 3561,
++      "sha256": "c83e02abfd25f6c5e7235460c346e4f9b2f8edc5e48c936e13dbcda4cf17a5e9",
++      "mode": "0o666",
++      "release_required": true
++    },
++    {
++      "original_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/runs/rtl_base_h15_r63_monitor_v3_v1/evidence/actual_execution_packet.json",
++      "archived_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/source/preimages_v3/runs/rtl_base_h15_r63_monitor_v3_v1/evidence/actual_execution_packet.json",
++      "bytes": 4961,
++      "sha256": "e7b4782eec8af458fc4a47d18d69a515c63da59d838f2af0442464d09699e905",
++      "mode": "0o666",
++      "release_required": true
++    }
++  ],
++  "release_required_count": 24
++}
+--- a/tb/README.md
++++ b/tb/README.md
+@@ -1,5 +1,5 @@
+-# Head15 monitor-v3 testbench source preparation
++# Head15 monitor v4 testbench source
+ 
+-The owning monitor drives one packed 119-bit accepted-R output after its checked RAM-side handshake. Each port forwards that output, and both top variants connect all seven ports to the same-index record array. Bounded reset and first-R lines identify the first boundary that disagrees. The selected held-R check retains the original adapter, count, address, last-beat and ID requirements. `source/design.md` is the frozen contract; `source/implementation_mapping.md` maps the implementation.
++The v3 run stopped at its first top record reset predicate before any command. This fresh v4 source prints every owner, wrapper and top record/count boundary on all seven ports before the wrapper and top reset predicates can terminate the settled negative-edge check. The original 119-bit record owner, named top wiring, first-R checks, hold/debt/association path and numerical control remain. `att_r_boundary_diagnostic.svh` contains only bounded diagnostic reads and prints.
+ 
+-Only `base_h15_r63` is eligible for later separately released build/runtime commands. This source tree has not run a compiler, simulator, DUT, materializer or oracle. `generate_top.py` was used only to regenerate the two literal top source files. The inherited `make_source_packet.py` and `materialize_cold_pages.py` remain historical helpers and are not future commands.
++The two literal tops were regenerated from `generate_top.py` and match the v3 tops byte for byte. `build_static.sh` and `run_mode.sh` point at this v4 root but are **dormant**. No compiler, elaborator, simulator, DUT, materializer, or numerical oracle has run for v4. A separate small no-DUT probe and its dormant commands are in `diagnostic/README.md`.
+--- a/tb/att_axi_port.sv
++++ b/tb/att_axi_port.sv
+@@ -92,22 +92,26 @@
+   // Both observations occur after the monitor's positive-edge record update.
+   // The reset witness requires a preceding reset positive edge, not time zero.
+   always @(posedge clk) port_reset_seen_posedge <= !resetn;
++  // The top calls this at the same settled negative edge, after its complete
++  // seven-port raw snapshot. Keep the original wrapper predicate unchanged.
++  task automatic check_reset_record();
++    if (port_reset_seen_posedge && !port_reset_diag_emitted) begin
++      if ($isunknown({dut_monitor_accepted_r_record,
++                      ram_monitor_accepted_r_record,ram_accepted_r_record,
++                      dut_r_count,ram_r_count}) ||
++          dut_monitor_accepted_r_record !== 119'd0 ||
++          ram_monitor_accepted_r_record !== 119'd0 ||
++          ram_accepted_r_record !== 119'd0 ||
++          dut_r_count !== 32'd0 || ram_r_count !== 32'd0)
++        $fatal(1,"ATT_R_RECORD_PORT_RESET port=%0d",PORT);
++      $display("ATT_R_RECORD_PORT_RESET port=%0d raw=%h count=%0d",
++               PORT,ram_accepted_r_record,ram_r_count);
++      port_reset_diag_emitted=1'b1;
++    end
++  endtask
+   always @(negedge clk) begin
+     if (!resetn) begin
+       port_first_r_diag_emitted=1'b0;
+-      if (port_reset_seen_posedge && !port_reset_diag_emitted) begin
+-        if ($isunknown({dut_monitor_accepted_r_record,
+-                        ram_monitor_accepted_r_record,ram_accepted_r_record,
+-                        dut_r_count,ram_r_count}) ||
+-            dut_monitor_accepted_r_record !== 119'd0 ||
+-            ram_monitor_accepted_r_record !== 119'd0 ||
+-            ram_accepted_r_record !== 119'd0 ||
+-            dut_r_count !== 32'd0 || ram_r_count !== 32'd0)
+-          $fatal(1,"ATT_R_RECORD_PORT_RESET port=%0d",PORT);
+-        $display("ATT_R_RECORD_PORT_RESET port=%0d raw=%h count=%0d",
+-                 PORT,ram_accepted_r_record,ram_r_count);
+-        port_reset_diag_emitted=1'b1;
+-      end
+     end else begin
+       port_reset_diag_emitted=1'b0;
+       if (!port_first_r_diag_emitted && ram_r_count !== 32'd0) begin
+--- a/tb/att_finite_control.svh
++++ b/tb/att_finite_control.svh
+@@ -66,6 +66,7 @@
+   logic top_reset_diag_emitted=1'b0;
+   logic [6:0] top_first_r_diag_emitted='0;
+   always @(posedge clk) top_reset_seen_posedge <= !resetn;
++  `include "att_r_boundary_diagnostic.svh"
+   localparam int OUT_SAMPLE=4;
+   typedef struct packed {
+     logic [31:0] ordinal;
+@@ -532,6 +533,19 @@
+     if (!resetn) begin
+       top_first_r_diag_emitted='0;
+       if (top_reset_seen_posedge && !top_reset_diag_emitted) begin
++        diagnostic_snapshot_complete=1'b0;
++        att_dump_all_boundaries();
++        diagnostic_snapshot_complete=1'b1;
++        diagnostic_snapshot_cycle=total_cycles;
++        // These are the preserved wrapper reset checks, called only after the
++        // complete snapshot in the same settled negative-edge observation.
++        u_port_descriptor.check_reset_record();
++        u_port_io.check_reset_record();
++        u_port_aux.check_reset_record();
++        u_port_qkv0.check_reset_record();
++        u_port_qkv1.check_reset_record();
++        u_port_att_out.check_reset_record();
++        u_port_observed.check_reset_record();
+         for (int p=0;p<7;p++)
+           if ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) ||
+               ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0)
+--- /dev/null
++++ b/tb/att_r_boundary_diagnostic.svh
+@@ -0,0 +1,119 @@
++  // v4 source-only diagnostic: all seven constant-index boundaries are printed
++  // before the preserved wrapper and top reset predicates are evaluated.
++  logic diagnostic_snapshot_complete=1'b0;
++  integer diagnostic_snapshot_cycle=-1;
++  task automatic att_dump_pair(input int p, input string where,
++                               input logic [150:0] pair);
++    $display("ATT_R_BOUNDARY_RAW port=%0d where=%s time_ps=%0d clk=%b resetn=%b record_hex=%h record_bin=%b count_hex=%h count_bin=%b",
++      p,where,longint'($realtime*1000.0),clk,resetn,
++      pair[150:32],pair[150:32],pair[31:0],pair[31:0]);
++  endtask
++  task automatic att_dump_one(
++      input int p, input logic port_seen,
++      input logic [150:0] owner_dut, owner_ram, wrapper_dut, wrapper_ram,
++                           wrapper_out, top_literal, top_variable,
++      input logic variable_unknown, literal_unknown,
++                  variable_predicate, literal_predicate);
++    logic [150:0] packed_snapshot;
++    packed_snapshot={top_literal[150:32],top_literal[31:0]};
++    $display("ATT_R_BOUNDARY_BEGIN port=%0d time_ps=%0d clk=%b resetn=%b top_seen_reset_posedge=%b port_seen_reset_posedge=%b",
++      p,longint'($realtime*1000.0),clk,resetn,top_reset_seen_posedge,port_seen);
++    att_dump_pair(p,"owner_dut",owner_dut);
++    att_dump_pair(p,"owner_ram",owner_ram);
++    att_dump_pair(p,"wrapper_dut",wrapper_dut);
++    att_dump_pair(p,"wrapper_ram",wrapper_ram);
++    att_dump_pair(p,"wrapper_output",wrapper_out);
++    att_dump_pair(p,"top_literal",top_literal);
++    att_dump_pair(p,"top_variable",top_variable);
++    $display("ATT_R_BOUNDARY_EXPR port=%0d record_case_nonzero=%b count_case_nonzero=%b record_reduction_x=%b count_reduction_x=%b record_isunknown=%b count_isunknown=%b variable_concat_isunknown=%b literal_concat_isunknown=%b packed_isunknown=%b variable_predicate=%b literal_predicate=%b packed_hex=%h packed_bin=%b",
++      p,top_literal[150:32] !== 119'd0,top_literal[31:0] !== 32'd0,
++      ((^top_literal[150:32]) === 1'bx),((^top_literal[31:0]) === 1'bx),
++      $isunknown(top_literal[150:32]),$isunknown(top_literal[31:0]),
++      variable_unknown,literal_unknown,$isunknown(packed_snapshot),
++      variable_predicate,literal_predicate,packed_snapshot,packed_snapshot);
++  endtask
++  task automatic att_dump_all_boundaries();
++    for (int p=0;p<7;p++) begin
++      case (p)
++        0: att_dump_one(0,u_port_descriptor.port_reset_seen_posedge,
++             {u_port_descriptor.dut_mon.accepted_r_record,u_port_descriptor.dut_mon.r_count},
++             {u_port_descriptor.ram_mon.accepted_r_record,u_port_descriptor.ram_mon.r_count},
++             {u_port_descriptor.dut_monitor_accepted_r_record,u_port_descriptor.dut_r_count},
++             {u_port_descriptor.ram_monitor_accepted_r_record,u_port_descriptor.ram_r_count},
++             {u_port_descriptor.ram_accepted_r_record,u_port_descriptor.ram_r_count},
++             {ram_accepted_r_record[0],ram_r_count[0]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[0],ram_r_count[0]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[0],ram_r_count[0]}) || ram_accepted_r_record[0] !== 119'd0 || ram_r_count[0] !== 32'd0));
++        1: att_dump_one(1,u_port_io.port_reset_seen_posedge,
++             {u_port_io.dut_mon.accepted_r_record,u_port_io.dut_mon.r_count},
++             {u_port_io.ram_mon.accepted_r_record,u_port_io.ram_mon.r_count},
++             {u_port_io.dut_monitor_accepted_r_record,u_port_io.dut_r_count},
++             {u_port_io.ram_monitor_accepted_r_record,u_port_io.ram_r_count},
++             {u_port_io.ram_accepted_r_record,u_port_io.ram_r_count},
++             {ram_accepted_r_record[1],ram_r_count[1]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[1],ram_r_count[1]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[1],ram_r_count[1]}) || ram_accepted_r_record[1] !== 119'd0 || ram_r_count[1] !== 32'd0));
++        2: att_dump_one(2,u_port_aux.port_reset_seen_posedge,
++             {u_port_aux.dut_mon.accepted_r_record,u_port_aux.dut_mon.r_count},
++             {u_port_aux.ram_mon.accepted_r_record,u_port_aux.ram_mon.r_count},
++             {u_port_aux.dut_monitor_accepted_r_record,u_port_aux.dut_r_count},
++             {u_port_aux.ram_monitor_accepted_r_record,u_port_aux.ram_r_count},
++             {u_port_aux.ram_accepted_r_record,u_port_aux.ram_r_count},
++             {ram_accepted_r_record[2],ram_r_count[2]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[2],ram_r_count[2]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[2],ram_r_count[2]}) || ram_accepted_r_record[2] !== 119'd0 || ram_r_count[2] !== 32'd0));
++        3: att_dump_one(3,u_port_qkv0.port_reset_seen_posedge,
++             {u_port_qkv0.dut_mon.accepted_r_record,u_port_qkv0.dut_mon.r_count},
++             {u_port_qkv0.ram_mon.accepted_r_record,u_port_qkv0.ram_mon.r_count},
++             {u_port_qkv0.dut_monitor_accepted_r_record,u_port_qkv0.dut_r_count},
++             {u_port_qkv0.ram_monitor_accepted_r_record,u_port_qkv0.ram_r_count},
++             {u_port_qkv0.ram_accepted_r_record,u_port_qkv0.ram_r_count},
++             {ram_accepted_r_record[3],ram_r_count[3]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[3],ram_r_count[3]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[3],ram_r_count[3]}) || ram_accepted_r_record[3] !== 119'd0 || ram_r_count[3] !== 32'd0));
++        4: att_dump_one(4,u_port_qkv1.port_reset_seen_posedge,
++             {u_port_qkv1.dut_mon.accepted_r_record,u_port_qkv1.dut_mon.r_count},
++             {u_port_qkv1.ram_mon.accepted_r_record,u_port_qkv1.ram_mon.r_count},
++             {u_port_qkv1.dut_monitor_accepted_r_record,u_port_qkv1.dut_r_count},
++             {u_port_qkv1.ram_monitor_accepted_r_record,u_port_qkv1.ram_r_count},
++             {u_port_qkv1.ram_accepted_r_record,u_port_qkv1.ram_r_count},
++             {ram_accepted_r_record[4],ram_r_count[4]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[4],ram_r_count[4]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[4],ram_r_count[4]}) || ram_accepted_r_record[4] !== 119'd0 || ram_r_count[4] !== 32'd0));
++        5: att_dump_one(5,u_port_att_out.port_reset_seen_posedge,
++             {u_port_att_out.dut_mon.accepted_r_record,u_port_att_out.dut_mon.r_count},
++             {u_port_att_out.ram_mon.accepted_r_record,u_port_att_out.ram_mon.r_count},
++             {u_port_att_out.dut_monitor_accepted_r_record,u_port_att_out.dut_r_count},
++             {u_port_att_out.ram_monitor_accepted_r_record,u_port_att_out.ram_r_count},
++             {u_port_att_out.ram_accepted_r_record,u_port_att_out.ram_r_count},
++             {ram_accepted_r_record[5],ram_r_count[5]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[5],ram_r_count[5]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[5],ram_r_count[5]}) || ram_accepted_r_record[5] !== 119'd0 || ram_r_count[5] !== 32'd0));
++        6: att_dump_one(6,u_port_observed.port_reset_seen_posedge,
++             {u_port_observed.dut_mon.accepted_r_record,u_port_observed.dut_mon.r_count},
++             {u_port_observed.ram_mon.accepted_r_record,u_port_observed.ram_mon.r_count},
++             {u_port_observed.dut_monitor_accepted_r_record,u_port_observed.dut_r_count},
++             {u_port_observed.ram_monitor_accepted_r_record,u_port_observed.ram_r_count},
++             {u_port_observed.ram_accepted_r_record,u_port_observed.ram_r_count},
++             {ram_accepted_r_record[6],ram_r_count[6]},
++             {ram_accepted_r_record[p],ram_r_count[p]},
++             $isunknown({ram_accepted_r_record[p],ram_r_count[p]}),$isunknown({ram_accepted_r_record[6],ram_r_count[6]}),
++             ($isunknown({ram_accepted_r_record[p],ram_r_count[p]}) || ram_accepted_r_record[p] !== 119'd0 || ram_r_count[p] !== 32'd0),
++             ($isunknown({ram_accepted_r_record[6],ram_r_count[6]}) || ram_accepted_r_record[6] !== 119'd0 || ram_r_count[6] !== 32'd0));
++      endcase
++    end
++    $display("ATT_R_BOUNDARY_ALL_COMPLETE time_ps=%0d cycle=%0d",
++      longint'($realtime*1000.0),total_cycles);
++  endtask
+--- a/tb/build_static.sh
++++ b/tb/build_static.sh
+@@ -2,7 +2,7 @@
+ # SOURCE ONLY. Execute one mode only after its separate compiler release.
+ set -euo pipefail
+ export LC_ALL=C
+-ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3
++ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4
+ V5="$ROOT/.."
+ TB="$ROOT/tb"
+ RTL="$V5/runs/local_csynth_v1/work/hls/syn/verilog"
+--- a/tb/run_mode.sh
++++ b/tb/run_mode.sh
+@@ -2,7 +2,7 @@
+ # SOURCE ONLY. Execute one mode only after its separate runtime release.
+ set -euo pipefail
+ export LC_ALL=C
+-ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3
++ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4
+ TB="$ROOT/tb"
+ XBIN=/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin
+ if [[ $# -ne 4 || "$1" != base_h15_r63 ||

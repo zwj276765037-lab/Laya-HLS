@@ -1,0 +1,11 @@
+--- executor_handoff_portal_rtl_04/run_executor_handoff_portal.tcl
++++ executor_handoff_portal_rtl_05/run_executor_handoff_portal.tcl
+@@ -3,7 +3,7 @@
+ set_param general.maxThreads 4
+ create_project executor_handoff_portal [file join $work vivado] -part xcu55c-fsvh2892-2L-e
+ set module [file join $root vivado module_design q8_linear_and_restore tm1tn8_gs32_512]
+-foreach file {laya_model_identity_13bo_generated_v1 laya_compute_portal_layout_v1 laya_generated_provenance_layout_v1 laya_bootstrap_snapshot_layout_v1 laya_executor_checkpoint_layout_v2 laya_private_fifo2_v1 laya_generated_provenance_v1 laya_executor_checkpoint_transport_v2 laya_generated_provenance_hub_v1 laya_executor_handoff_layout_v1 laya_executor_handoff_shell_v1 laya_generated_store_monitor_v1 laya_generated_provenance_axi_portal_v1} {
++foreach file {laya_model_identity_13bo_generated_v1 laya_compute_portal_layout_v1 laya_generated_provenance_layout_v1 laya_bootstrap_snapshot_layout_v1 laya_executor_checkpoint_layout_v2 laya_private_fifo2_v1 laya_generated_provenance_v1 laya_executor_checkpoint_transport_v2 laya_generated_provenance_hub_v1 laya_executor_handoff_layout_v1 laya_executor_handoff_shell_v1 laya_executor_handoff_portal_shell_v1 laya_generated_store_monitor_v1 laya_generated_provenance_axi_portal_v1} {
+   add_files -norecurse [file join $module rtl ${file}.sv]
+ }
+ add_files -fileset sim_1 [file join $module tb laya_executor_handoff_portal_tb_v1.sv]

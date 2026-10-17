@@ -1,0 +1,20 @@
+# F15修复与source冲突清理有限RTL出口
+
+M003/SM003/E003/R003；回复bootstrap-source-guard-prototype-review-20261012。bootstrap_source_guard_rtl_07为PASS_SCOPED_RTL_F15_SOURCE_GUARD。申请F15按本次冻结原型动态范围验收，生产source保护和C009整体仍不关闭。
+
+producer_ready同时排除已锁存action_safe_consumed及当前真实LAC1末拍消费且完整安全绑定的组合判定；释放分支也排除当前producer握手。终态后producer持续valid不会被接受，旧已接收producer不被清除。TB从安全末拍当拍持续valid，physical_safe暂为0保持12周期后恢复，再保持valid12周期；核无producer准入/AR、无producer_active且guard_active=0。另一匹配proof/action在残余1拍R债、producer completion末1/2拍和安全LAC1消费交错时，旧producer尾拍和R仍正常消费，之后仍等待真实physical_safe才释放。后继普通action重新snapshot。错completion、合法非终态、LOCAL_REJECT+OK、prestart cancel与旧断言保持。
+
+另修共同门户入口的source冲突活性：启用guard时，冲突请求不再永久压低request_ready，而是唯一接受并返回完整绑定E_BUFFER、drained=false、保持旧scope；不消耗physical observation或修改owner/typed。源INVALIDATE、epoch替换、同role alias、新identity均实测拒绝，未知不同role采用有限单base的保守拒绝，不宣称13BO地址alias映射完成。held response12周期内容/旧source/编号/写计数稳定。正常非重叠target BEGIN后真实4096B部分store、末B被保持，source INVALIDATE拒绝消费后仍能提交旧END；真实末B退休后END返回原E_PROTOCOL/detail首错、issued/observed4096及drained，task5恰退休一次，再允许非重叠target INVALIDATE清理。无撤valid、复位或清队列代替拒绝。
+
+两个producer FIFO仍为0..7 probe，LAC1和宽action/producer由TB控制；本项不签F9 LPC1、生成producer/executor或硬件任意错误恢复。新真实F9 shell接线已在工作源码准备，layernorm_guarded_source_01正在原24GiB/1800s/120s进度guard下static生成链接，无当前PASS；同一STATE0 writer仲裁与真实AR两侧/同LPC1 consumer会另按实际结果交付。无新的HLS/OOC/P&R/上板。
+
+原guard_05 FAIL保留：新TB切换旧END包后未等待组合settle即检查ready；_05→06只TB增加1ns settle，DUT不变。_06原限定PASS保留（9277cycles）；_06→07只guard/TB有F15门控和动态交错，字节fixture、codec/gold/hub/runner未变。_04→06实现hub/fixture/TB/runner及两catalog历史登记差异分别可定位，不回写旧attempt。
+
+_07：9466cycles，29.792819s，peak1595672KiB；18条policy，child0/trigger null；原CPU0–3/nice19/idle I/O/MemAvailable>192GiB、8GiB/120s/120s帽符合。23/23 current/frozen/声明pair和99/99 manifest/receipt引用一致，核验时未做catalog更新。
+
+- R003/bootstrap_source_guard_rtl_07/input_manifest.json: `71e726d74118f6a6df4d54790832731e6eb01ad7b77a9631d33e0d6048585c0f`
+- R003/bootstrap_source_guard_rtl_07/receipt.json: `d5235b62f479fb57d7531af640ea809b0e699cb53b797ec63ef754960955c2dd`
+- R003/bootstrap_source_guard_rtl_07_verification_20261012.json: `ef4647865cf3272e8016342739de8ee81033144499ce322fda3dd2b512266b62`
+- R003/bootstrap_source_guard_f15_verification_20261012.json: `d86d90fe2b44e82ab21f076c2495d3352743a1513bbd40cbaaea8e76f2562e1a`
+
+三摘要与A002同步当前有限终态/真实接线static运行中。F15交主控限定审核；F14等旧限定关闭不扩大，C009部分实施、C008/C010待验，L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成。G余2338.224019s、原单重工具/帽保持；5172s组合不重启，无新agent/预算。

@@ -1,0 +1,220 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/attention_preloaded_slice.cpp
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/attention_preloaded_slice.cpp
+@@ -123,18 +123,26 @@
+   }
+ }
+ 
+-void fail(uint32_t* observed, Check c, uint32_t phase,
+-          Controller& controller, bool close_pending) {
+-  if (close_pending) {
+-    const Check cleanup = controller.invalidate_incomplete();
+-    observed[d2_preload::kObsCleanupStatus] = uint32_t(cleanup.code);
+-    observed[d2_preload::kObsCleanupDetail] = cleanup.detail;
+-    report(observed, c, phase, pending.valid ? pending.pair : nullptr);
+-    pending.valid = false;
+-  } else {
+-    report(observed, c, phase, pending.valid ? pending.pair : nullptr);
+-  }
+-}
++// Expand error cleanup in the top rather than passing a Controller reference
++// across an out-of-line helper boundary. Evaluate each argument exactly once.
++#define D2_FAIL_AT_SITE(obs_expr, error_expr, phase_expr, close_expr) \
++  do { \
++    uint32_t* const d2_observed = (obs_expr); \
++    const Check d2_first_error = (error_expr); \
++    const uint32_t d2_phase = (phase_expr); \
++    const bool d2_close_pending = (close_expr); \
++    if (d2_close_pending) { \
++      const Check d2_cleanup = controller.invalidate_incomplete(); \
++      d2_observed[d2_preload::kObsCleanupStatus] = uint32_t(d2_cleanup.code); \
++      d2_observed[d2_preload::kObsCleanupDetail] = d2_cleanup.detail; \
++      report(d2_observed, d2_first_error, d2_phase, \
++             pending.valid ? pending.pair : nullptr); \
++      pending.valid = false; \
++    } else { \
++      report(d2_observed, d2_first_error, d2_phase, \
++             pending.valid ? pending.pair : nullptr); \
++    } \
++  } while (false)
+ 
+ template <class Task>
+ Check run_task(FullRuntime& rt, FullMemory& memory, const Task& task,
+@@ -188,22 +196,20 @@
+ 
+   if (command == kBegin) {
+     if (pending.valid) {
+-      fail(observed, protocol(command, BEGIN_PENDING), 1, controller, false);
++      D2_FAIL_AT_SITE(observed, protocol(command, BEGIN_PENDING), 1, false);
+       return;
+     }
+     Check c = full_parse_request(rt, memory);
+-    if (!c) { fail(observed, c, 1, controller, true); return; }
++    if (!c) { D2_FAIL_AT_SITE(observed, c, 1, true); return; }
+     if (rt.inputs.identity.B != 1 || rt.inputs.identity.S != 64) {
+-      fail(observed, {Status::E_SHAPE, detail(7, 0, 20)}, 1,
+-           controller, true);
++      D2_FAIL_AT_SITE(observed, (Check{Status::E_SHAPE, detail(7, 0, 20)}), 1, true);
+       return;
+     }
+     c = descriptor_shape(descriptor, command);
+     if (c) c = descriptor_identity(descriptor, rt, command);
+-    if (!c) { fail(observed, c, 1, controller, true); return; }
++    if (!c) { D2_FAIL_AT_SITE(observed, c, 1, true); return; }
+     if (ticket_counter == UINT64_MAX) {
+-      fail(observed, protocol(command, TICKET_EXHAUSTED), 1,
+-           controller, true);
++      D2_FAIL_AT_SITE(observed, protocol(command, TICKET_EXHAUSTED), 1, true);
+       return;
+     }
+     FullOwnerSpec pair[2] = {
+@@ -212,7 +218,7 @@
+         {controller.fresh(Buffer::QKV, 1), 0, 4, 0, 255,
+          RowSpace::TOKEN, 0, 64, 64, Content::QKV_FINAL}};
+     c = full_claim_qkv_pair(rt, pair);
+-    if (!c) { fail(observed, c, 2, controller, true); return; }
++    if (!c) { D2_FAIL_AT_SITE(observed, c, 2, true); return; }
+     FullOwnerRecord first, second;
+     Check c0 = full_owner_snapshot(rt, pair[0].ref, 0, first);
+     Check c1 = full_owner_snapshot(rt, pair[1].ref, 0, second);
+@@ -220,14 +226,12 @@
+         second.state != CacheState::FILL || first.valid || second.valid ||
+         rt.final_qkv_ref[0].id != Buffer::NONE ||
+         rt.final_qkv_ref[1].id != Buffer::NONE || count_covered(rt) != 0) {
+-      fail(observed, protocol(command, OWNER_INVARIANT), 2,
+-           controller, true);
++      D2_FAIL_AT_SITE(observed, protocol(command, OWNER_INVARIANT), 2, true);
+       return;
+     }
+     for (unsigned i = 0; i < 64; ++i)
+       if (first.covered_rows[i] || second.covered_rows[i]) {
+-        fail(observed, protocol(command, OWNER_INVARIANT), 2,
+-             controller, true);
++        D2_FAIL_AT_SITE(observed, protocol(command, OWNER_INVARIANT), 2, true);
+         return;
+       }
+     pending.valid = true;
+@@ -241,35 +245,33 @@
+   }
+ 
+   if (command != kRun) {
+-    fail(observed, protocol(command, BAD_DESCRIPTOR), 0,
+-         controller, pending.valid);
++    D2_FAIL_AT_SITE(observed, protocol(command, BAD_DESCRIPTOR), 0, pending.valid);
+     return;
+   }
+   if (!pending.valid) {
+-    fail(observed, protocol(command, NO_PENDING), 3, controller, false);
++    D2_FAIL_AT_SITE(observed, protocol(command, NO_PENDING), 3, false);
+     return;
+   }
+   Check c = descriptor_shape(descriptor, command);
+-  if (!c) { fail(observed, c, 3, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 3, true); return; }
+   if (wide(descriptor, 8) != pending.ticket) {
+-    fail(observed, protocol(command, BAD_TICKET), 3, controller, true);
++    D2_FAIL_AT_SITE(observed, protocol(command, BAD_TICKET), 3, true);
+     return;
+   }
+   if (descriptor[12] != pending.pair[0].ref.epoch ||
+       descriptor[13] != pending.pair[1].ref.epoch) {
+-    fail(observed, protocol(command, BAD_EPOCH), 3, controller, true);
++    D2_FAIL_AT_SITE(observed, protocol(command, BAD_EPOCH), 3, true);
+     return;
+   }
+   for (unsigned i = 0; i < 48; ++i) {
+     if (i == 2 || i == 8 || i == 9 || i == 12 || i == 13) continue;
+     if (descriptor[i] != pending.metadata[i]) {
+-      fail(observed, protocol(command, BAD_METADATA), 3,
+-           controller, true);
++      D2_FAIL_AT_SITE(observed, protocol(command, BAD_METADATA), 3, true);
+       return;
+     }
+   }
+   c = descriptor_identity(descriptor, rt, command);
+-  if (!c) { fail(observed, c, 3, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 3, true); return; }
+ 
+   for (unsigned plane = 0; plane < 3; ++plane)
+     for (unsigned head = 0; head < 16; ++head) {
+@@ -286,9 +288,9 @@
+       }
+       if (!c) break;
+     }
+-  if (!c) { fail(observed, c, 4, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 4, true); return; }
+   c = full_publish_qkv_pair(rt, pending.pair);
+-  if (!c) { fail(observed, c, 5, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 5, true); return; }
+ 
+   const uint8_t head = uint8_t(descriptor[44]);
+   const uint16_t query = uint16_t(descriptor[45]);
+@@ -296,7 +298,7 @@
+                              255, RowSpace::TOKEN, 0, 64, 1024,
+                              Content::F32};
+   c = full_claim_owner(rt, output);
+-  if (!c) { fail(observed, c, 6, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 6, true); return; }
+ 
+   LoadTask kv{};
+   kv.ctx = controller.context(Op::LOAD_KV, 4, 0, 0, RowSpace::BATCH, 0, 1);
+@@ -307,7 +309,7 @@
+   kv.byte_count = 2u * 64u * 64u * 4u;
+   c = run_task(rt, memory, kv, kv.byte_count,
+                OutputUnit::BYTES, observed[6]);
+-  if (!c) { fail(observed, c, 7, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 7, true); return; }
+ 
+   QKTask qk{};
+   qk.ctx = controller.context(Op::QK, 4, 0, 0,
+@@ -318,7 +320,7 @@
+   qk.head = head; qk.mask_mode = 0; qk.S = 64;
+   c = run_task(rt, memory, qk, 64, OutputUnit::F32,
+                observed[kObsQkElements]);
+-  if (!c) { fail(observed, c, 8, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 8, true); return; }
+   for (unsigned key = 0; key < 64; ++key)
+     observed[16 + key] = numeric_f32_bits(full_cache_score(rt)[0][0][key]);
+ 
+@@ -328,7 +330,7 @@
+   probability.ref = controller.fresh(Buffer::SCORE_PROB);
+   probability.content = Content::PROB;
+   c = full_begin_inplace_owner(rt, score, probability);
+-  if (!c) { fail(observed, c, 9, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 9, true); return; }
+   SoftmaxTask softmax{};
+   softmax.ctx = controller.context(Op::SOFTMAX_ATT, 4, 0, 0,
+                                    RowSpace::TOKEN, query, 1);
+@@ -337,7 +339,7 @@
+   softmax.length = 64;
+   c = run_task(rt, memory, softmax, 64, OutputUnit::F32,
+                observed[kObsSoftmaxElements]);
+-  if (!c) { fail(observed, c, 10, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 10, true); return; }
+   for (unsigned key = 0; key < 64; ++key)
+     observed[80 + key] = numeric_f32_bits(full_cache_score(rt)[0][0][key]);
+ 
+@@ -351,15 +353,15 @@
+   av.head = head; av.S = 64;
+   c = run_task(rt, memory, av, 64, OutputUnit::F32,
+                observed[kObsAvElements]);
+-  if (!c) { fail(observed, c, 11, controller, true); return; }
++  if (!c) { D2_FAIL_AT_SITE(observed, c, 11, true); return; }
+   for (unsigned d = 0; d < 64; ++d) {
+     Address address;
+     c = full_f32_address(rt, memory, output.ref, 0, 0,
+                          query, uint16_t(head * 64u + d), address);
+-    if (!c) { fail(observed, c, 12, controller, true); return; }
++    if (!c) { D2_FAIL_AT_SITE(observed, c, 12, true); return; }
+     uint8_t raw[4];
+     c = full_read(memory, address.bo, address.offset, raw, 4);
+-    if (!c) { fail(observed, c, 12, controller, true); return; }
++    if (!c) { D2_FAIL_AT_SITE(observed, c, 12, true); return; }
+     observed[144 + d] = uint32_t(raw[0]) |
+                         uint32_t(raw[1]) << 8 |
+                         uint32_t(raw[2]) << 16 |
+@@ -374,3 +376,5 @@
+   observed[kObsCleanupDetail] = cleanup.detail;
+   pending.valid = false;
+ }
++
++#undef D2_FAIL_AT_SITE

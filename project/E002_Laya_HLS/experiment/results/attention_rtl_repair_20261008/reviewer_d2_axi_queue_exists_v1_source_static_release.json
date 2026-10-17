@@ -1,0 +1,97 @@
+{
+  "schema": "laya_axi_queue_exists_v1_static_release",
+  "created_utc": "2026-10-08T14:13:07.174108+00:00",
+  "reviewer": {
+    "agent": "/root/resource_explain_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "verdict": "SOURCE_ACCEPTED_ONE_BOUNDED_STATIC_BUILD_RELEASED",
+  "identity": "queue_exists_v1",
+  "packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/source/source_preparation_packet.json",
+    "bytes": 69131,
+    "sha256": "37c62b159f8454134c6a79521ced5fd7fd863e70ab7246531ccaeab72915d395"
+  },
+  "audit": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_queue_exists_v1_source_hashcheck.json",
+    "bytes": 34391,
+    "sha256": "9eb3513390d863385d779d0f74b382adc1f9ed8f5eee4e6c246af07cfa156ee3"
+  },
+  "exact_diff": {
+    "bytes": 3563,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/source/queue_exists_v1_vs_v2.diff",
+    "sha256": "a16e402ab4bc7aa49309648e228d48c81c04747c4d7a02fd4018af79f7b4295b"
+  },
+  "review": [
+    "Both exact baseline and variant hashes verified for 40 copied files. Only axi_slave_seq_lib.sv and snapshot label changed.",
+    "Read entire diff: four nested exists guards around absent associative queue reads in original TRANSACTION_FIRST delay loops. Original inner size check, all loop bodies, #0.1 delay, latency modes/values, wdiv_cal and transaction code remain unchanged. Independently removing only added wrappers yields whitespace-normalized exact v2.",
+    "Same 7 ports, 1 ID, 64 KiB/port, seed1, 100000 clocks, fixed constructors and full memory initialization/readback checks. Testbench and monitor unchanged from v2.",
+    "Resolved 7 compile roots plus 28 local includes to exact 35 SV files. uvm_macros.svh remains tool UVM1.2 library supplied via -L uvm.",
+    "queue_exists_v1 derives independently from v2; does not contain wait_trace_v3 instrumentation."
+  ],
+  "release": {
+    "owner": "/root/vivado_project_sol_max",
+    "action": "One fresh xvlog/xelab static build only",
+    "snapshot": "axi_queue_exists",
+    "planned_static": {
+      "argv": [
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/tb/build_static.sh"
+      ],
+      "cwd": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/runs/static_build_v1/work",
+      "guard_argv": [
+        "taskset",
+        "-c",
+        "0-3",
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+        "--out",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/runs/static_build_v1/guard",
+        "--cwd",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/runs/static_build_v1/work",
+        "--rss-gib",
+        "16",
+        "--timeout-seconds",
+        "300",
+        "--",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/queue_exists_v1/tb/build_static.sh"
+      ],
+      "limits": {
+        "cpus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ionice": "idle",
+        "memavailable_floor_gib": 192,
+        "nice": 19,
+        "rss_gib": 16,
+        "sample_seconds": 0.2,
+        "wall_seconds": 300
+      },
+      "release": "released_by_this_gate_only"
+    },
+    "rss_gib": 16,
+    "wall_seconds": 300,
+    "cpus": 4,
+    "nice": 19,
+    "ionice": "idle",
+    "rss_sample_seconds": 0.2,
+    "host_mem_available_floor_gib": 192,
+    "serialization": "Only this Laya workflow/agent tree heavy tools, Attention priority.",
+    "evidence_required": [
+      "actual command and tool identity",
+      "full compile/elaboration log and exit/error scan",
+      "source/tool/guard hashes",
+      "snapshot and all work-product hashes",
+      "guard/policy/memory evidence"
+    ]
+  },
+  "runtime": "NOT_RELEASED. Return static snapshot evidence for independent gate before one planned idle run (4 GiB/90 s).",
+  "limitations": [
+    "A diagnostic intervention for repeated missing-key queue access allocation hypothesis; no root-cause claim until bounded idle runtime evidence.",
+    "No traffic acceptance, no production VIP fix or production source change, no full-DUT RTL evidence.",
+    "Do not run existing traffic snapshot or use queue experiment to waive invalid traffic result."
+  ]
+}

@@ -1,0 +1,120 @@
+--- generated_store_monitor_11/laya_generated_provenance_hub_v1.sv
++++ generated_store_monitor_12/laya_generated_provenance_hub_v1.sv
+@@ -4,7 +4,8 @@
+ // WSTRB coverage or adapter emptiness from C-level completion.
+ module laya_generated_provenance_hub_v1 #(
+   parameter int OWNERS=32,
+-  parameter bit ENABLE_BOOTSTRAP_SNAPSHOT=0
++  parameter bit ENABLE_BOOTSTRAP_SNAPSHOT=0,
++  parameter bit ENABLE_BOOTSTRAP_SOURCE_GUARD=0
+ ) (
+   input  logic clk,rst_n,
+   input  logic request_valid,
+@@ -49,7 +50,10 @@
+   // real monitor/adapter/read-debt fence.  No owner publication is delegated.
+   input logic snapshot_physical_quiescent,snapshot_base_valid,
+   input logic [63:0] snapshot_base_epoch,snapshot_base_address,snapshot_base_capacity,
+-  output logic [63:0] snapshot_sequence_high_water
++  output logic [63:0] snapshot_sequence_high_water,
++  input logic bootstrap_source_guard_active,
++  input logic [6143:0] bootstrap_source_guard_key,
++  output logic bootstrap_source_guard_match
+ );
+   import laya_generated_provenance_layout_v1::*;
+ 
+@@ -96,6 +100,7 @@
+   assign request_ready=!response_valid && !pending_end &&
+                        (!ENABLE_BOOTSTRAP_SNAPSHOT ||
+                         (!snapshot_response_valid)) &&
++                       (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !guard_conflict(request)) &&
+                        (request_action!=BEGIN_EVENT || begin_external_ready) &&
+                        (!needs_physical || physical_observation_valid);
+   assign physical_observation_ready=(pending_end && !response_valid) ||
+@@ -103,7 +108,8 @@
+                                      needs_physical);
+   assign domain_drained=!scope_active && !pending_end && !response_valid &&
+                         !source_lease_active &&
+-                        !cancel_pending && active_owners==0;
++                        !cancel_pending && active_owners==0 &&
++                        (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active);
+ 
+   always_comb begin
+     active_owners=0;published_owners=0;
+@@ -376,9 +382,47 @@
+     return valid;
+   endfunction
+ 
++  // The unique shell owns only the exclusion interval/key. Recheck its key
++  // against these original arrays at every producer admission; no READY table.
++  always_comb begin : guard_match
++    integer slot;
++    slot=find_exact(bootstrap_source_guard_key[64*8+:672],
++                    bootstrap_source_guard_key[576*8+:1024]);
++    bootstrap_source_guard_match=0;
++    if(ENABLE_BOOTSTRAP_SOURCE_GUARD && bootstrap_source_guard_active && slot>=0)
++      bootstrap_source_guard_match=owner_published[slot] && !owner_invalid[slot] &&
++        owner_model_identity[slot]==bootstrap_source_guard_key[160*8+:3328] &&
++        source_owner_complete(slot);
++  end
++  function automatic logic guard_descriptor_conflict(input logic [1023:0] d);
++    logic [1023:0] protected_descriptor;
++    logic [63:0] first,after,protected_first,protected_after;
++    protected_descriptor=bootstrap_source_guard_key[576*8+:1024];
++    first=d[40*8+:64];after=first+d[64*8+:64];
++    protected_first=protected_descriptor[40*8+:64];
++    protected_after=protected_first+protected_descriptor[64*8+:64];
++    return same_physical(d,protected_descriptor) ||
++      d[8*8+:64]==protected_descriptor[0+:64] ||
++      (d[28*8+:8]==protected_descriptor[28*8+:8] &&
++       (after<first || (first<protected_after && protected_first<after)));
++  endfunction
++  function automatic logic guard_conflict(input logic [8191:0] p);
++    guard_conflict=0;
++    if(bootstrap_source_guard_active)begin
++      // A new identity can recycle the owner domain. Keep old binding intact.
++      guard_conflict=p[IDENTITY*8+:672]!=bootstrap_source_guard_key[64*8+:672];
++      if(p[ACTION*8+:16]!=END_EVENT)begin
++        guard_conflict=guard_conflict || guard_descriptor_conflict(p[DESCRIPTOR0*8+:1024]);
++        if(p[DESCRIPTOR_COUNT*8+:8]==2)
++          guard_conflict=guard_conflict || guard_descriptor_conflict(p[DESCRIPTOR1*8+:1024]);
++      end
++    end
++  endfunction
++
+   assign snapshot_request_ready=ENABLE_BOOTSTRAP_SNAPSHOT &&
+     !snapshot_response_valid && !request_valid && !response_valid &&
+-    !pending_end && !scope_active && !source_lease_active && !cancel_pending && !cancel;
++    !pending_end && !scope_active && !source_lease_active && !cancel_pending && !cancel &&
++    (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active);
+ 
+   always_ff @(posedge clk) begin : snapshot_readonly
+     integer slot;
+@@ -437,7 +481,8 @@
+     source_query_ready=!source_lease_active && !scope_active && !pending_end &&
+       (!ENABLE_BOOTSTRAP_SNAPSHOT ||
+        (!snapshot_request_valid && !snapshot_response_valid)) &&
+-      !request_valid && !response_valid && !cancel_pending;
++      !request_valid && !response_valid && !cancel_pending &&
++      (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active);
+     source_query_granted=0;slot=-1;window=-1;descriptor=0;
+     producer=source_query_command[laya_compute_portal_layout_v1::PRODUCER_CONTEXT*8+:96];
+     quant=source_query_command[laya_compute_portal_layout_v1::QUANT_CONTEXT*8+:96];
+@@ -746,12 +791,16 @@
+       if(cancel)cancel_pending<=1;
+       if(cancel_pending && !scope_active && !response_valid)begin
+         for(int i=0;i<OWNERS;i++)begin
+-          if(owner_valid[i] && owner_active[i])begin
++          if(owner_valid[i] && owner_active[i] &&
++             !(ENABLE_BOOTSTRAP_SOURCE_GUARD && bootstrap_source_guard_active &&
++               owner_identity[i]==bootstrap_source_guard_key[64*8+:672] &&
++               owner_descriptor[i]==bootstrap_source_guard_key[576*8+:1024]))begin
+             if(!source_lease_active)owner_active[i]<=0;
+             owner_published[i]<=0;owner_invalid[i]<=1;
+           end
+         end
+-        if(!source_lease_active)cancel_pending<=0;
++        if(!source_lease_active &&
++           (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active))cancel_pending<=0;
+       end
+       if(source_query_valid && source_query_ready && source_query_granted)begin
+         slot0=find_source(

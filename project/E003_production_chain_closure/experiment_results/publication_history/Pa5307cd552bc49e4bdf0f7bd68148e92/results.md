@@ -1,0 +1,15 @@
+# E003：R003当前结果
+
+F6/F7在限定主机范围闭合，四项冻结回归均PASS。聚合核查`controller_transaction_f6_f7_verification_20261012.json`显示222/222 current、222/222 frozen、222/222 pair匹配，64条编译、链接或执行命令exit0；四个launcher均通过CPU0–3、nice19、idle I/O和MemAvailable门。
+
+- `controller_transaction_adapter_10`：49/49匹配，7条命令exit0。两种codec构建均覆盖预置可信completion后的8类坏头清零、`LOCAL_REJECT`非OK约束及合法未排空错误保留。manifest=`fcf206a5d2a09a19b245a05c19803e7a5a092eb39c44375e1f6e7183accffc7c`，receipt=`bcf94858dab63762d2e6fde355e70b017e03260b15f4b447bdc8842ff512a5ca`。
+- `graph_sequencer_host_03`：55/55匹配，保持20源graph闭包、两条transaction FIFO/6信号和外部协议codec排除。manifest=`ac4050ab5590a11fc08dea9b073e214006b2b6a0bb340def825c48f00ecb3e15`，receipt=`4f832597c642753ef8c69a9f3e657d1ee28e549e68b852b8cbbb3a53dbd6800b`。
+- `controller_transaction_lifecycle_01`：59/59匹配，27条命令exit0。实际Controller与adapter组合执行BEGIN成功→producer本地拒绝→非终态END→同身份终态END；核外部producer零请求、issued0、source lease释放一次、destination未发布、typed退休一次及同runtime更高身份恢复。manifest=`72348971d0220d72fbc0471b714fd1e392638576518b04c90d27876c24015e03`，receipt=`e960e25a8029bb7647ca6ba69759a70bc2d8a057f16a22c459d7da7dc52d9e88`。
+- `producer_engine_controller_11`：59/59匹配，保持正常成功、部分失败、source lease和retirement回归。manifest=`0eb95d7ee8c5ec3359f3a62865562b10a92760a00762d244fd7e94c4e6674d65`，receipt=`b236e6626d2fd577793ef150ab351cbc298835733b976aa7b6f779bd985569a9`。
+
+既有`controller_transaction_adapter_hls_01`继续为FAIL/semantic_stall，receipt SHA256=`04a4ff30002a55d98746afa4551a6f43c0fa752fd5f074206f0563993d4969b8`。本批没有新HLS/Vivado结果，不证明修复后RTL、真实depth2并发、production AXI/store helper、末B/adapter fence、完整请求、联合资源、时序或性能。
+
+
+---
+Published: 2026-10-12T05:10:23.258838+00:00
+Publication: P78369405568248c681babf5ee355a95c

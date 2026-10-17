@@ -1,0 +1,160 @@
+{
+  "clock_reset": {
+    "clock": "clk rising edge",
+    "payload_reset": "none; only metadata/state reset",
+    "reset": "rst_n active low; only after quiescent arithmetic/result/trace/writer drain"
+  },
+  "d4_lifecycle": [
+    {
+      "event": "atomic trace reservation at accepted issue",
+      "from": "FREE",
+      "payload_access": "none",
+      "to": "RESERVED"
+    },
+    {
+      "event": "matching ret_valid",
+      "from": "RESERVED",
+      "payload_access": "one dedicated 256-bit write",
+      "to": "RESERVED"
+    },
+    {
+      "event": "ordered physical commit with selected lane success",
+      "from": "RESERVED",
+      "payload_access": "none",
+      "to": "READY"
+    },
+    {
+      "event": "ordered physical commit with selected lane failure",
+      "from": "RESERVED",
+      "payload_access": "none; never read",
+      "to": "CANCELED"
+    },
+    {
+      "event": "following-or-later registered read then accepted writer command",
+      "from": "READY",
+      "payload_access": "one read; expected ACK sequence stored",
+      "to": "SENDING"
+    },
+    {
+      "event": "matching post-write_response GROUP_TRACE ACK",
+      "from": "SENDING",
+      "payload_access": "none",
+      "to": "FREE"
+    },
+    {
+      "event": "ordered drain",
+      "from": "CANCELED",
+      "payload_access": "none",
+      "to": "FREE"
+    }
+  ],
+  "fixed_profile": "DISABLED_UNACCEPTED until actual service streaming probes establish latency, II, ready/CE and concurrency",
+  "interfaces": [
+    {
+      "acceptance": "issue_valid && issue_ready at rising edge; pre-edge result and optional trace credit, tile hazard and arithmetic readiness; same-edge retirement gives no credit",
+      "consumer": "c1_reserved_store and arithmetic service UNBOUND",
+      "name": "issue",
+      "producer": "controller integration UNBOUND",
+      "signals": "issue_valid, arithmetic_issue_ready, issue_ready, arithmetic_issue_valid, seq17/m0_4/g7/tile10/last_g1/shape32/trace_reserved1/trace_lane5, result_slot6/trace_slot2",
+      "status": "shell ports present; arithmetic request/accept and operand capture clocks UNBOUND"
+    },
+    {
+      "acceptance": "NO ret_ready; every valid edge must match pre-edge RESERVED owner; dedicated result and optional trace payload writes occur regardless of commit or writer readiness; unexpected return is terminal protocol_error",
+      "consumer": "c1_reserved_store",
+      "name": "arithmetic_return",
+      "producer": "actual arithmetic service UNBOUND",
+      "signals": "ret_valid, seq17/m0_4/g7/tile10/last_g1/result_slot6/trace_reserved1/trace_slot2/trace_lane5/shape32/bad32/result_payload1299/trace_payload256",
+      "status": "RTL sink present; source-to-port service binding UNBOUND"
+    },
+    {
+      "acceptance": "commit_valid && commit_ready; no Q64 payload write; matching physical commit frees slot and tile hazard; trace status published afterward",
+      "consumer": "physical PS/lane_bad commit and output command integration UNBOUND",
+      "name": "result_commit",
+      "producer": "c1_reserved_store registered read of pre-edge RETURNED oldest Q64 slot",
+      "signals": "commit_valid, commit_ready, commit_slot6, commit_payload1299",
+      "status": "RTL staging present; actual physical commit bridge UNBOUND"
+    },
+    {
+      "acceptance": "send valid/ready moves READY to SENDING and records expected command sequence; slot is not freed until matching GROUP_TRACE ACK after write_response",
+      "consumer": "writer command bridge UNBOUND",
+      "name": "trace_send",
+      "producer": "c1_reserved_store registered read of pre-edge READY oldest D4 slot",
+      "signals": "trace_send_valid, trace_send_ready, trace_send_slot2, trace_send_seq17, trace_send_payload256, trace_command_seq32",
+      "status": "RTL source present; actual 618-bit command packing/bridge UNBOUND"
+    },
+    {
+      "acceptance": "match oldest SENDING slot, GROUP_TRACE kind and expected sequence; mismatches terminal protocol_error",
+      "consumer": "c1_reserved_store",
+      "name": "trace_ack",
+      "producer": "writer response bridge UNBOUND",
+      "signals": "trace_ack_valid, trace_ack_kind3, trace_ack_slot2, trace_ack_seq32",
+      "status": "RTL sink present; actual 37-bit ACK bridge UNBOUND"
+    },
+    {
+      "acceptance": "one unacknowledged logical command per port; ACK after blocking write_response; no writer wait on arithmetic return path",
+      "consumer": "source/c1_writer_service.cpp",
+      "name": "three_axi_writers",
+      "producer": "controller/commit bridge UNBOUND",
+      "signals": "three independent burst_maxi<uint32_t>, three depth-one 618-bit command streams, three depth-one 37-bit ACK streams",
+      "status": "HLS source present, not compiled/synthesized; generated RTL/physical split-B behavior UNBOUND"
+    }
+  ],
+  "missing_real_bindings": [
+    "arithmetic request accept/operand capture/CE-ready/completion-valid/tag path and flat no-ready output",
+    "generated integer/product/tree wrapper with signed product and five-level tree outputs",
+    "generated bank request/return wrapper with six preload kinds and first-use guards",
+    "selected bypass/normal/subnormal/sign/error route mux with aligned valid/tag",
+    "seven exact FP wrapper service timing/CE/II characterization",
+    "physical PS/lane_bad commit and output command capacity",
+    "three-writer RTL command/ACK bridge and nine-master/dual-Lite integration",
+    "actual generated storage/port mapping and split-B causality"
+  ],
+  "payload_port_schedule_per_rising_edge": [
+    {
+      "read": "at most one registered read of pre-edge RETURNED oldest slot when no commit stage occupied",
+      "same_slot_collision": "forbidden by state and assertion; no same-edge return-to-read",
+      "storage": "Q64",
+      "write": "at most one return write at reserved slot when ret_valid"
+    },
+    {
+      "read": "at most one registered read of pre-edge READY oldest trace when no send stage occupied",
+      "same_slot_collision": "forbidden by state and assertion; no same-edge return-to-read",
+      "storage": "D4",
+      "write": "at most one selected trace write at reserved slot when matching ret_valid"
+    },
+    {
+      "read": "PS only for active successful g>0 lanes; g0 and inactive/failed lanes must supply canonical +0 without PS read",
+      "same_slot_collision": "same-tile physical commit/issue hazard contract inherited; actual bank edge/port proof UNMEASURED",
+      "storage": "PS/lane_bad and Wq/Ws/Aq/As",
+      "write": "physical stage-v2 bank ownership not instantiated in v3"
+    }
+  ],
+  "q64_lifecycle": [
+    {
+      "event": "accepted issue with pre-edge credit",
+      "from": "FREE",
+      "payload_access": "none; owner fields written",
+      "to": "RESERVED"
+    },
+    {
+      "event": "matching ret_valid rising edge",
+      "from": "RESERVED",
+      "payload_access": "one dedicated 1299-bit write",
+      "to": "RETURNED"
+    },
+    {
+      "event": "following-or-later rising edge registered oldest-slot read",
+      "from": "RETURNED",
+      "payload_access": "one controller read into commit staging",
+      "to": "RETURNED"
+    },
+    {
+      "event": "commit_valid && commit_ready after physical commit obligation",
+      "from": "RETURNED",
+      "payload_access": "none; payload not cleared",
+      "to": "FREE"
+    }
+  ],
+  "schema": "q8_c1_v3_direct_return_interface_port_lifecycle_v1",
+  "status": "SOURCE_CANDIDATE_UNMEASURED"
+}

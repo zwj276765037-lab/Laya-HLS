@@ -1,0 +1,11 @@
+--- gate_split_03/geglu_gate_quant_split_tb_v2.sv
++++ gate_split_04/geglu_gate_quant_split_tb_v2.sv
+@@ -141,7 +141,7 @@
+     cycles=cycles+1;
+     if(cycles>2000000)$fatal(1,"split bridge cycle cap phase=%0d Gstate=%0d row=%0d Qstate=%0d starts=%0d owner=%0d",
+       dut.phase,dut.vector_row.state,dut.store.writer.row_local,dut.quant_task.phase,quant_starts,gate_owner_state);
+-    if(cycles%100000==0)$display("FULL_CURRENT_GATE_QUANT_SPLIT_PROGRESS cycles=%0d phase=%0d vstate=%0d loaded=%0d issued=%0d returned=%0d next=%0d rows=%0d writes=%0d reads=%0d qrows=%0d",
++    if(cycles%20000==0)$display("FULL_CURRENT_GATE_QUANT_SPLIT_PROGRESS cycles=%0d phase=%0d vstate=%0d loaded=%0d issued=%0d returned=%0d next=%0d rows=%0d writes=%0d reads=%0d qrows=%0d",
+       cycles,dut.phase,dut.vector_row.state,dut.vector_row.loaded,dut.vector_row.issued,
+       dut.vector_row.returned,next_window,$countones(covered_rows),write_beats,read_beats,quant_rows);
+     if(!rst_n)begin

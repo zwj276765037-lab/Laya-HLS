@@ -1,0 +1,91 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/production_patch/after_p1.cpp	2026-10-08 14:29:01.838043597 +0800
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/production_patch/after_p2.cpp	2026-10-08 14:29:35.630565638 +0800
+@@ -161,10 +161,11 @@
+     if (c) c = full_publish_owner(rt, output);
+     return c;
+   }
+-  Check vector(Op op, const FullOwnerSpec& src0,
+-               const FullOwnerSpec* src1, uint8_t stage, uint8_t layer,
+-               BufferRef dst_ref, uint8_t dst_region,
+-               uint16_t length, FullOwnerSpec& output) {
++  Check vector_impl(Op op, const FullOwnerSpec& src0,
++                    bool src1_present, const FullOwnerSpec& src1,
++                    uint8_t stage, uint8_t layer, BufferRef dst_ref,
++                    uint8_t dst_region, uint16_t length,
++                    FullOwnerSpec& output) {
+     phase(stage, op);
+     output = matrix(dst_ref, dst_region, stage, layer,
+                     op == Op::APPLY_CAND_MASK ? RowSpace::BATCH :
+@@ -179,18 +180,33 @@
+                         output.row_space, uint16_t(row),
+                         uint8_t(rows - row < 16 ? rows - row : 16));
+         t.src0 = src0.ref; t.src0_region = src0.region;
+-        t.src1 = src1 ? src1->ref : none();
+-        t.src1_region = src1 ? src1->region : 0;
++        t.src1 = src1_present ? src1.ref : none();
++        t.src1_region = src1_present ? src1.region : 0;
+         t.dst = output.ref; t.dst_region = dst_region;
+         t.length = length;
+         c = bind(src0);
+-        if (c && src1) c = bind(*src1);
++        if (c && src1_present) c = bind(src1);
+         if (c) c = issue(t, uint32_t(t.ctx.rows) * length);
+         if (!c) break;
+       }
+     if (c) c = full_publish_owner(rt, output);
+     return c;
+   }
++  Check vector(Op op, const FullOwnerSpec& src0,
++               const FullOwnerSpec& src1, uint8_t stage, uint8_t layer,
++               BufferRef dst_ref, uint8_t dst_region,
++               uint16_t length, FullOwnerSpec& output) {
++    return vector_impl(op, src0, true, src1, stage, layer,
++                       dst_ref, dst_region, length, output);
++  }
++  Check vector(Op op, const FullOwnerSpec& src0,
++               uint8_t stage, uint8_t layer, BufferRef dst_ref,
++               uint8_t dst_region, uint16_t length,
++               FullOwnerSpec& output) {
++    FullOwnerSpec unused_src1{};
++    return vector_impl(op, src0, false, unused_src1, stage, layer,
++                       dst_ref, dst_region, length, output);
++  }
+   Check linear_impl(Op op, WeightKey key, const FullOwnerSpec& source,
+                     uint8_t stage, uint8_t layer, BufferRef dst_ref,
+                     uint8_t dst_region, FullOwnerSpec& output,
+@@ -371,7 +387,7 @@
+                  const FullOwnerSpec& tmp, FullOwnerSpec& hidden) {
+     phase(stage, Op::ADD_RESIDUAL);
+     FullOwnerSpec next;
+-    Check c = vector(Op::ADD_RESIDUAL, tmp, &hidden, stage, layer,
++    Check c = vector(Op::ADD_RESIDUAL, tmp, hidden, stage, layer,
+                      fresh(Buffer::HIDDEN, uint8_t(1 - hidden.ref.bank)),
+                      0, 1024, next);
+     if (c) c = full_release_owner(rt, tmp);
+@@ -423,7 +439,7 @@
+     }
+     if (!c) return c;
+     FullOwnerSpec next;
+-    c = vector(Op::ADD_TYPE, hidden, &types, 3, 255,
++    c = vector(Op::ADD_TYPE, hidden, types, 3, 255,
+                fresh(Buffer::HIDDEN, uint8_t(1 - hidden.ref.bank)),
+                0, 1024, next);
+     if (c) c = full_release_owner(rt, types);
+@@ -479,7 +495,7 @@
+ 
+   Check candidate_masked(const FullOwnerSpec& raw,
+                          FullOwnerSpec& output) {
+-    Check c = vector(Op::APPLY_CAND_MASK, raw, nullptr, 5, 255,
++    Check c = vector(Op::APPLY_CAND_MASK, raw, 5, 255,
+                      fresh(Buffer::HEAD_WORK, 0,
+                            uint8_t(Region::CAND_MASKED)),
+                      uint8_t(Region::CAND_MASKED), 16, output);
+@@ -616,7 +632,7 @@
+       c = full_release_owner(rt, normalized);
+       if (!c) return c;
+       FullOwnerSpec gated;
+-      c = vector(Op::GEGLU, wide, nullptr, 2, layer,
++      c = vector(Op::GEGLU, wide, 2, layer,
+                  fresh(Buffer::GATE), 0, 2624, gated);
+       if (!c) return c;
+       c = full_release_owner(rt, wide);

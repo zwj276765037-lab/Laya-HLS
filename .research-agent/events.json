@@ -1,0 +1,204 @@
+{
+  "EV_SM001_R001_baseline_import_complete": {
+    "event_id": "EV_SM001_R001_baseline_import_complete",
+    "small_mission": "SM001",
+    "trigger": "milestone",
+    "summary": "原baseline当前阶段收口后完整复制、双侧SHA核对和research-agent原生结构接入完成；原工程保留。",
+    "impact": "只支持工程副本一致性；E002完整加速器尚未验收，新代理未启动。",
+    "action": "新对话从NEW_CHAT_START.md恢复M002/SM002；本事件为信息登记，无用户审批门。",
+    "requires_decision": false,
+    "evidence": [
+      "project/E001_baseline_import/experiment_results/runs/R001/copy_receipt.json"
+    ],
+    "affected": [
+      "SM001"
+    ],
+    "created_at": "2026-10-11T06:18:01.253812+00:00",
+    "reviews": []
+  },
+  "EV_SM003_EXECUTOR_CHECKPOINT_RTL_20261013": {
+    "event_id": "EV_SM003_EXECUTOR_CHECKPOINT_RTL_20261013",
+    "small_mission": "SM003",
+    "trigger": "milestone",
+    "summary": "真实v2 hub/LPV transport下界与16拍consumer、实际捕获C++导入及受影响兼容限定通过",
+    "impact": "M003/M004和完整source/executor整链仍未完成；旧限定PASS不扩大",
+    "action": "主控集中审核该冻结身份；工程按原授权继续executor/consumer连接",
+    "requires_decision": false,
+    "evidence": [
+      "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_current_verification_20261013.json",
+      "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_catalog_final_delta_20261013.json",
+      "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_milestone_20261013.md"
+    ],
+    "affected": [
+      "SM003"
+    ],
+    "created_at": "2026-10-12T16:59:58.742134+00:00",
+    "reviews": []
+  },
+  "EV_SM005_KB1_DOWN_AB_20261013": {
+    "event_id": "EV_SM005_KB1_DOWN_AB_20261013",
+    "small_mission": "SM005",
+    "trigger": "milestone",
+    "summary": "KB0/KB1四行Down同profile全gold PASS；命令到first done减少23.30%，全冷TB减少10.06%，实际写事务512→256。",
+    "impact": "局部normal算术候选可保留；物理资源/时序和继承错误窗口仍未验，不关闭M003/M004。P3薄HLS/RTL候选排序已交，控制工具未恢复。",
+    "action": "主控已限定接纳KB1并下达D-M004-KB1-NEXT-01：一个64tile分块候选先行，32项owner表CT0随后；无需新增用户批准。用户review字段未填写，不阻塞工程。详见results/measurement_first_KB1_review_20261013.md及mission/measurement_next_stage_20261013.md。",
+    "requires_decision": false,
+    "evidence": [
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/KB0_KB1_Down_comparison_20261013.md",
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/KB0_KB1_Down_comparison_20261013.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/KB0_KB1_Down_verification_20261013.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/receipt.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/input_manifest.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/control_architecture_comparison_20261013.md"
+    ],
+    "affected": [
+      "SM005"
+    ],
+    "created_at": "2026-10-13T06:15:43.402337+00:00",
+    "reviews": [],
+    "controller_review": {
+      "at": "2026-10-13T06:36:04.778060+00:00",
+      "reviewer": "A001/controller",
+      "verdict": "accepted_scoped",
+      "path": "results/measurement_first_KB1_review_20261013.md",
+      "next_contract": "mission/measurement_next_stage_20261013.md",
+      "user_approval_recorded": false
+    }
+  },
+  "EV_SM005_ATN1_SCOPED_RESULT_20261013": {
+    "event_id": "EV_SM005_ATN1_SCOPED_RESULT_20261013",
+    "small_mission": "SM005",
+    "trigger": "milestone",
+    "summary": "ATN1 one same-resource Attention scheduling candidate completed normal 128-row numeric/cycle comparison and same-DUT 16-row protocol/CE/reset replay.",
+    "impact": "SM done 287173 to 265084 cycles and full TB 1608896 to 1586807 for one module sample. Physical timing/resources and complete production request remain unverified.",
+    "action": "Controller to review the scoped candidate and choose the next bounded stage; no tool or user approval gate is implied.",
+    "requires_decision": true,
+    "evidence": [
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/ATN1_attention_softmax_comparison_20261013.md",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT021_ATN1_attention_prefetch_01/receipt.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT022_ATN1_prefetch_protocol_01/receipt.json"
+    ],
+    "affected": [
+      "SM005"
+    ],
+    "created_at": "2026-10-13T11:04:10.509685+00:00",
+    "reviews": []
+  },
+  "EV_SM005_LNQ0_AT047_BOUNDED_FAILURE_20261014": {
+    "event_id": "EV_SM005_LNQ0_AT047_BOUNDED_FAILURE_20261014",
+    "small_mission": "SM005",
+    "trigger": "blocker",
+    "summary": "AT047 unique combined full reached LN four-row B, completion and PUBLISH, then frozen TB asserted a scope-limited coverage signal after scope close. Guard child 0/no trigger but raw xsim Fatal; union Q/Wi/G/Down not reached.",
+    "impact": "LNQ0 same-runtime integration remains unverified. AT040, AT035 and AT044 keep only their separate limited conclusions. The connection candidate and two reasoned corrections under this contract are exhausted.",
+    "action": "A001 to choose a newly bounded follow-up if the union connection should resume; no third correction or full in the current LNQ0 stage.",
+    "requires_decision": true,
+    "evidence": [
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/LNQ0_bounded_failure_20261014.md",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT047_LNQ0_chain_06/receipt.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT047_LNQ0_chain_06/guard_full/driver.log"
+    ],
+    "affected": [
+      "SM005"
+    ],
+    "created_at": "2026-10-13T19:49:19.264575+00:00",
+    "reviews": []
+  },
+  "EV_SM005_LNQ1_AT048_ROM_STAGING_STOP_20261014": {
+    "event_id": "EV_SM005_LNQ1_AT048_ROM_STAGING_STOP_20261014",
+    "small_mission": "SM005",
+    "trigger": "blocker",
+    "summary": "AT048 observation-only derivative static PASS; its sole admitted full stopped at semantic_stall before LN source AR after seven frozen LN ROM .dat files were omitted from the xsim runtime directory.",
+    "impact": "The one-full LNQ1 allowance is spent. The repaired publication observation and combined LN→Q→Wi→G→Q→Down chain remain unverified; no DUT deadlock can be inferred. AT047 original semantic FAIL and earlier independent limited passes retain their scope.",
+    "action": "A001 to review the bounded stop and, if choosing a new stage, require prelaunch placement and SHA verification of all seven ROMs before any full. Do not rerun or mutate AT048 under this contract.",
+    "requires_decision": true,
+    "evidence": [
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/LNQ1_bounded_runtime_setup_stop_20261014.md",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT048_LNQ1_observation_01/receipt.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT048_LNQ1_observation_01/missing_dat_audit.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT048_LNQ1_observation_01/guard_full/driver.log"
+    ],
+    "affected": [
+      "SM005"
+    ],
+    "created_at": "2026-10-13T20:09:10.918409+00:00",
+    "reviews": []
+  },
+  "EV_SM005_FFR0_AT053_SCOPED_PASS_20261014": {
+    "event_id": "EV_SM005_FFR0_AT053_SCOPED_PASS_20261014",
+    "small_mission": "SM005",
+    "trigger": "milestone",
+    "summary": "FFR0 AT053 four-row external skip/Down residual RTL passed independent bitwise gold and actual AXI read/write/last-B checks",
+    "impact": "Local FFN residual producer baseline is available; AT049 same-runtime connection, real dual-source producer leases, whole-BO protection and physical timing remain open; M003/M004 remain open",
+    "action": "Controller to audit scoped evidence and choose a concrete next bounded contract; no new long chain has been started",
+    "requires_decision": true,
+    "evidence": [
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/FFR0_four_row_residual_rtl_20261014.md",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT053_FFR0_four_row_02/receipt.json",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT053_FFR0_four_row_02/verification.json"
+    ],
+    "affected": [
+      "SM005"
+    ],
+    "created_at": "2026-10-13T22:02:44.405446+00:00",
+    "reviews": []
+  },
+  "EV_SM006_M005_STAGE_C_FIRST_ANALYSIS_20261014": {
+    "event_id": "EV_SM006_M005_STAGE_C_FIRST_ANALYSIS_20261014",
+    "small_mission": "SM006",
+    "trigger": "milestone",
+    "summary": "M005阶段C独立全图条件预算完成并经主控核对40输入；150MHz/10GBps及显式未测速率下6.919–8.133s，非整模实测",
+    "impact": "LN/Attention/残差主导，当前不支持扩大串行路线投入；A/B正确性、联合资源/route继续原授权与预算，最终可行性开放",
+    "action": "保留条件分析，待同top工程计量和布线频率校准；暂不新增优化实施，不关闭M005/M003/M004",
+    "requires_decision": false,
+    "evidence": [
+      "source/feasibility_20261014/report.md",
+      "source/feasibility_20261014/v4/budget.json",
+      "results/feasibility_mission_20261014/research_delivery_audit.json",
+      "results/reviews/SM006.md"
+    ],
+    "affected": [
+      "SM006"
+    ],
+    "created_at": "2026-10-14T02:02:10.788002+00:00",
+    "reviews": []
+  },
+  "EV_SM006_AT063_DOWN_W_STOP_REVIEW_20261014": {
+    "event_id": "EV_SM006_AT063_DOWN_W_STOP_REVIEW_20261014",
+    "small_mission": "SM006",
+    "trigger": "anomaly",
+    "summary": "AT063原full在Down W发布后semantic_stall停止，2080.298887s；Down cfg/末残差/最终保护未到",
+    "impact": "代表整链稳定性与完整周期仍未闭合，阶段C条件预算保持冻结；不判数值错误或确定DUT死锁",
+    "action": "A002按M005原累计预算连续短测定位及受影响修复，不重启旧AT063、不回填旧额度、不设普通步骤新审批",
+    "requires_decision": false,
+    "evidence": [
+      "project/E005_full_request_performance/experiment_results/runs/R001/reports/FFN4_AT063_bounded_stop_20261014.md",
+      "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT063_FFN4_wi_descriptor_01/guard_full/guard_result.json",
+      "results/feasibility_mission_20261014/at063_stop_response.md",
+      "source/feasibility_20261014/updates/at063/report.md"
+    ],
+    "affected": [
+      "SM006"
+    ],
+    "created_at": "2026-10-14T02:11:53.619299+00:00",
+    "reviews": []
+  },
+  "EV_SM006_R001_AT087_physical_cost_stop": {
+    "event_id": "EV_SM006_R001_AT087_physical_cost_stop",
+    "small_mission": "SM006",
+    "trigger": "blocker",
+    "summary": "M005 R3同一代表top联合综合在AT087达到24GiB owned RSS保护而停止，无有效DCP、联合资源或布线频率；AT073功能链在Down退休票据Fatal，full 3/3已用尽。",
+    "impact": "用户的稳定算对与实际资源/频率两个实测目标均未闭合；AT079/080/082/085局部等价/短测仅限定接纳，A003整模v4仍为条件估计。不能判整个FPGA路线不可能，也不再自动升帽或改架构。",
+    "action": "请A001集中审核工程与A003模型，给出继续、改变架构或暂缓当前组合路线的投入判断；另一路架构如需执行应有新合同。",
+    "requires_decision": true,
+    "evidence": [
+      "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_R3_bounded_physical_stop_20261014.md",
+      "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT087_M005_joint_physical_synth_guard_07/guard_synth/guard_result.json",
+      "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_budget_ledger_after_AT087_20261014.json"
+    ],
+    "affected": [
+      "SM006"
+    ],
+    "created_at": "2026-10-14T05:48:40.568516+00:00",
+    "reviews": []
+  }
+}

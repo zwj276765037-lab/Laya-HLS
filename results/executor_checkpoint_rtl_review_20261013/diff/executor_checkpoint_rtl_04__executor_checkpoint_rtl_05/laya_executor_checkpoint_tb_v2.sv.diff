@@ -1,0 +1,61 @@
+--- executor_checkpoint_rtl_04/laya_executor_checkpoint_tb_v2.sv
++++ executor_checkpoint_rtl_05/laya_executor_checkpoint_tb_v2.sv
+@@ -389,28 +389,44 @@
+       load_packet("trusted_bad",packet);send_packet(packet);receive_packet(received);
+       if(received[RESPONSE_STATUS*8+:16]==0 || last_event_seq!=177 || accepted_events!=18 || terminal_tasks!=7)
+         $fatal(1,"LPV transport highwater fixture did not isolate trusted header耗号");
+-      query[16*8+:64]=mode==0 ? 2 : 1;query[680*8+:64]=mode==0 ? 2 : 1;
++      if(peer_aw!=112 || peer_w!=7168 || peer_b!=112 ||
++         active_owners!=1 || published_owners!=1)$fatal(1,"normal prelude coverage/count mismatch");
++      if(mode==0)begin
++        // Active target is a real CLAIM, not an injected array or a proof bit.
++        load_packet("target_claim",packet);packet[EVENT_SEQ*8+:64]=178;packet[DESCRIPTOR0*8+:32]=8;
++        send_packet(packet);receive_packet(received);check_response(packet,0,1,0);
++        query[16*8+:64]=2;query[680*8+:64]=2;send_checkpoint(query);receive_checkpoint(E_BUFFER,3,0);
++        load_packet("target_invalidate",packet);packet[EVENT_SEQ*8+:64]=179;packet[DESCRIPTOR0*8+:32]=8;
++        send_packet(packet);receive_packet(received);check_response(packet,0,1,0);
++        send_checkpoint(query);receive_checkpoint(E_PROTOCOL,3,0); // stale full key
++        query[16*8+:64]=3;query[680*8+:64]=3;query[48*8+:64]=BO_BASE+64;
++        query[696*8+:64]=BO_BASE+64;send_checkpoint(query);receive_checkpoint(E_PROTOCOL,3,0);
++        query[48*8+:64]=BO_BASE;query[696*8+:64]=BO_BASE;
++        query[16*8+:64]=4;query[680*8+:64]=4;query[776*8+:8]=1;
++        send_checkpoint(query);receive_checkpoint(E_ABI,0,0);query[776*8+:8]=0;
++      end
++      query[16*8+:64]=mode==0 ? 4 : 1;query[680*8+:64]=mode==0 ? 4 : 1;
+       send_checkpoint(query);while(!checkpoint_response_empty_n)tick();
+       if(mode==1)begin snapshot_base_epoch=8;repeat(12)tick();end
+       if(mode==2)begin cancel=1;tick();cancel=0;repeat(12)tick();end
+       receive_checkpoint(mode==3 ? E_PROTOCOL : 0,mode==3 ? 3 : 255,mode==0);
+       if(mode==0)begin
+-        checkpoint_gold[16*8+:64]=2;checkpoint_gold[680*8+:64]=2;
++        checkpoint_gold[16*8+:64]=4;checkpoint_gold[680*8+:64]=4;
+         if(checkpoint_received!==checkpoint_gold)$fatal(1,"v2 full byte oracle mismatch");
+         if(handoffs!=1 || !checkpoint_dispatch_held || provenance_cmd_full_n || !executor_provenance_cmd_full_n)
+           $fatal(1,"unique dispatch handoff mismatch");
+         capture=$fopen({fixture,"/actual_checkpoint.hex"},"w");
+         for(int i=0;i<16;i++)$fdisplay(capture,"%0128h",checkpoint_received[i*512+:512]);$fclose(capture);
+         // An executor-side target CLAIM uses the same real LPV transport.
+-        load_packet("target_claim",packet);packet[EVENT_SEQ*8+:64]=178;
+-        packet[DESCRIPTOR0*8+:32]=8;
++        load_packet("target_claim",packet);packet[EVENT_SEQ*8+:64]=180;
++        packet[DESCRIPTOR0*8+:32]=9;
+         for(int i=0;i<16;i++)begin
+           executor_provenance_cmd_din=packet[i*512+:512];executor_provenance_cmd_write=1;
+           do begin @(posedge clk);end while(!executor_provenance_cmd_full_n);
+           #1;@(negedge clk);executor_provenance_cmd_write=0;
+         end
+         receive_packet(received);check_response(packet,0,1,0);
+-        if(accepted_events!=19 || terminal_tasks!=7 || last_event_seq!=178)
++        if(accepted_events!=21 || terminal_tasks!=7 || last_event_seq!=180)
+           $fatal(1,"successor dispatch did not retain true highwater");
+         cancel=1;tick();cancel=0;repeat(3)tick();
+         if(checkpoint_authority_valid || executor_provenance_cmd_full_n)
+@@ -422,7 +438,7 @@
+       if(checkpoint_response_occupancy!=0 || checkpoint_command_occupancy!=0)
+         $fatal(1,"v2 FIFOs not empty at diagnostic end");
+     end
+-    $display("FULL_CURRENT_EXECUTOR_CHECKPOINT_RTL_PASS modes=4 actual_task_floor=7 lpv_floor=177 target_epoch=7 handoffs=%0d continuous_frontier_reject=1 tail_stalls=2 old_end_progress=1 cancel_base_revoke=2",total_handoffs);
++    $display("FULL_CURRENT_EXECUTOR_CHECKPOINT_RTL_PASS modes=4 actual_task_floor=7 lpv_floor=179 target_epoch=8 wire_active_stale_base_rejects=4 handoffs=%0d continuous_frontier_reject=1 tail_stalls=2 old_end_progress=1 cancel_base_revoke=2",total_handoffs);
+     $finish;
+   end
+ endmodule

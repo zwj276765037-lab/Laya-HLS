@@ -1,0 +1,44 @@
+--- executor_handoff_shell_helper_host_01/run_executor_actor_host.py
++++ executor_handoff_shell_helper_host_02/run_executor_actor_host.py
+@@ -16,6 +16,7 @@
+     ap=argparse.ArgumentParser()
+     ap.add_argument('--attempt',type=Path,required=True)
+     ap.add_argument('--shell-stimuli',action='store_true')
++    ap.add_argument('--shell-rtl-capture',type=Path)
+     args=ap.parse_args()
+     attempt=args.attempt.resolve(); attempt.mkdir(parents=True,exist_ok=False)
+     launcher=host.launcher_state()
+@@ -69,6 +70,16 @@
+         'executor_bootstrap_source_contract_20261012.md','executor_checkpoint_high_water_contract_20261012.md',
+         'executor_checkpoint_import_handshake_contract_20261013.md']:
+         copy(PROJECT/'results'/name,Path('external/contracts')/name)
++    if args.shell_rtl_capture:
++        if not args.shell_stimuli: raise RuntimeError('capture requires helper-only mode')
++        source_capture=args.shell_rtl_capture.resolve()
++        source_attempt=source_capture.parent.parent
++        capture_receipt=json.loads((source_attempt/'receipt.json').read_text())
++        if capture_receipt['status']!='PASS' or capture_receipt['rtl_capture']['sha256']!=host.rec(source_capture)['sha256']:
++            raise RuntimeError('verified real RTL capture required')
++        copy(source_capture,Path('external/actual_handoff_checkpoint.hex'))
++        for name in ['input_manifest.json','receipt.json']:
++            copy(source_attempt/name,Path('external/capture_run')/name)
+     compiler=Path(shutil.which('g++'))
+     build=[str(compiler),*flags,'-I'+str(frozen/'include'),'-I'+str(frozen/'hls'),
+         '-I'+str(frozen/'hls/platform'),'-I'+str(frozen/MODEL),'-isystem',str(vitis),
+@@ -78,6 +89,7 @@
+         '--model-aux',str(frozen/MODEL/'aux.bin'),'--output',str(attempt/'fixture')]
+     commands={'oracle':fixture,'build':build,'run':[str(attempt/'test'),str(attempt/'fixture')]}
+     if args.shell_stimuli: commands['run'].append('--shell-stimuli')
++    if args.shell_rtl_capture: commands['run'].append(str(frozen/'external/actual_handoff_checkpoint.hex'))
+     scope=('Persistent executor actor host preparation; seven full 1024B LHC1 literal frames; '
+         'sequence reserved before HOLD without HELD dependency; actual checkpoint codec/helper '
+         'success/failure drive IMPORT_OK/ABORT; controlled HELD/GRANTED/session/fences. '
+@@ -95,6 +107,8 @@
+           'proof and HELD/fences are controlled; IMPORT_OK matches independent literal. '
+           'No complete program/adapter requests, generated executor, real hub/physical hold '
+           'or hardware lifecycle is signed in this helper-only run.')
++        if args.shell_rtl_capture:
++            scope+=' Actual real hub/monitor/transport LBR2 capture completely decodes/roundtrips and imports task7/LPV179/target8; control outputs are offline, not generated helper in the same hardware runtime.'
+     mp=attempt/'input_manifest.json'
+     mp.write_text(json.dumps({'schema':'laya-executor-actor-host-input-v1','scope':scope,
+         'files':records,'production_sources':[str(p) for p in production],

@@ -1,0 +1,21 @@
+# E004：状态
+
+execution_state: running（M004完整目标）；verdict: unassessed（完整加速器）。主控D-M004-REV14-CLOSEOUT-01已按分版证据有界收束SM004修订14：AT225旧wrapper真实row0冷/row1暖RAW→RoPE正常链限定PASS；当前wrapper `0d3e340e…`的AT230–241受影响控制/传输局部和AT232真实core/IP展开PASS；AT236/237/242原full-Check叶子与生产adapter局部算术、异常次序和恢复PASS。AT242只签四种Check次序、结果保持与无reset后继正常head，不签wrapper错误写回或全请求首错。
+
+修订14最终55笔guard实耗static/IP1001.90892168506979732/1800s、RTL1247.0794125087559535/4800s，未用798.09107831493020268s及3552.9205874912440465s均封存；host完整累计UNKNOWN。本段不再启动重工具，原FAIL/COST_STOP及严格MUL IP已接受未返回reset NOT_RUN保留。当前wrapper真实两行/跨mode FFN同SHA长链、物理BO/邻区哨兵、全128行真实producer、Attention/Encoder/整模、生产Host/HBM及联合资源/Fmax仍未验。下一S128与FINAL→Attention仅静态准备，修订15实现和新EDA尚未授权；M004继续running/unassessed。
+
+---
+Published: 2026-10-15T06:38:11.963161+00:00
+Publication: Pc6d2b200b57440ffa4744d9ef9a781aa
+Execution state: running
+Research verdict: unassessed
+Applicability: SM004修订14按AT225旧wrapper真实正常链、当前wrapper局部控制/传输及原leaf异常Check样本分版有界收束；M004完整加速器未验收。
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev14_guard_ledger_AT215_AT242_20261015.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT225_SM004_rev14_rope_real_rows01_progress_02/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT230_SM004_rev14_rope_sticky_reentry_fullcheck_01/guard_rtl_order/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT232_SM004_rev14_rope_order_sticky_real_core_elab_01/guard_static/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT242_SM004_rev14_rope_check_error_edges_01/source_manifest.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT242_SM004_rev14_rope_check_error_edges_01/guard_static/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT242_SM004_rev14_rope_check_error_edges_01/guard_rtl/guard_result.json

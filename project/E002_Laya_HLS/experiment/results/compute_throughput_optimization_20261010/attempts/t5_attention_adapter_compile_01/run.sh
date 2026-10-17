@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export PYTHONPATH="/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/offline_validation_20261009/tools"
+python3 "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_adapter_compile_01/frozen_production/vivado/module_design/attention_and_fp_engine/tb/attention_guard.py" --out "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_adapter_compile_01/guard" --cwd "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t5_attention_adapter_compile_01/work" --rss-gib 16 --timeout-seconds 1800 -- bash run.sh

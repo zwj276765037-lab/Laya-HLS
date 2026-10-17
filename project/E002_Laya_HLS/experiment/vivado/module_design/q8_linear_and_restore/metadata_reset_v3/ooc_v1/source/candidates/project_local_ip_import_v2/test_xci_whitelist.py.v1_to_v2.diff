@@ -1,0 +1,53 @@
+--- v1/test_xci_whitelist.py
++++ v2/test_xci_whitelist.py
+@@ -4,6 +4,7 @@
+ from __future__ import annotations
+ 
+ import importlib.util
++import copy
+ import tempfile
+ from pathlib import Path
+ 
+@@ -19,21 +20,30 @@
+     "ip_inst": {
+         "gen_directory": "../../old.gen/ip0",
+         "component_reference": "xilinx.com:ip:floating_point:7.1",
+-        "parameters": {"CONFIG.ADD_SUB_VALUE": [{"value": "Add"}]},
++        "parameters": {"CONFIG.ADD_SUB_VALUE": [{"value": "Add"}],
++                       "runtime_parameters": {"OUTPUTDIR": [{"value": "../../old.gen/ip0"}]}},
+         "boundary": {"ports": {"aclk": [{"direction": "in"}]}},
+     },
+     "checksum": "old",
+ }
+-imported = {
+-    **original,
+-    "ip_inst": {**original["ip_inst"], "gen_directory": "../../new.gen/ip0"},
+-    "checksum": "new",
+-}
++imported = copy.deepcopy(original)
++imported["ip_inst"]["gen_directory"] = "../../new.gen/ip0"
++imported["ip_inst"]["parameters"]["runtime_parameters"]["OUTPUTDIR"][0]["value"] = "../../new.gen/ip0"
++imported["checksum"] = "new"
+ allowed = {item["path"] for item in checker.differences(original, imported)}
+ assert allowed == checker.ALLOWED_DIFFS
++assert checker.outputdir_value(imported) == "../../new.gen/ip0"
+ imported["ip_inst"]["parameters"] = {"CONFIG.ADD_SUB_VALUE": [{"value": "Subtract"}]}
+ changed = {item["path"] for item in checker.differences(original, imported)}
+ assert "/ip_inst/parameters/CONFIG.ADD_SUB_VALUE/0/value" in changed - checker.ALLOWED_DIFFS
++malformed = copy.deepcopy(original)
++malformed["ip_inst"]["parameters"]["runtime_parameters"]["OUTPUTDIR"] = [{"value": "x"}, {"value": "y"}]
++try:
++    checker.outputdir_value(malformed)
++except ValueError:
++    pass
++else:
++    raise AssertionError("multi-value OUTPUTDIR was accepted")
+ 
+ with tempfile.TemporaryDirectory(prefix="q8_xci_path_fixture_") as temp:
+     base = Path(temp)
+@@ -48,4 +58,4 @@
+     assert not checker.real_inside(root / "link" / "future.xci", root)
+     assert not checker.real_inside(root, root)
+ 
+-print("Q8_OOC_IMPORT_XCI_WHITELIST_PASS allowed=2 altered_parameter_rejected=1 path_escape_rejected=1")
++print("Q8_OOC_IMPORT_XCI_WHITELIST_PASS allowed=3 altered_parameter_rejected=1 malformed_outputdir_rejected=1 path_escape_rejected=1")

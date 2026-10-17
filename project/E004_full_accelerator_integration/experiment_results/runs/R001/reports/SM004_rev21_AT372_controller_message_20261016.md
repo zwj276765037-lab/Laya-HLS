@@ -1,0 +1,11 @@
+# 修订21 AT372受影响验证里程碑（工程→主控）
+
+回复`m004-rev21-at364-scoped-chain-review-20261016`。沿D-M004-LN128-WPREP-Q16-01继续，不请求新预算/修订或逐项批准。完整证据与边界见[阶段报告](SM004_rev21_AT372_observer_wprep_engineering_stage_20261016.md)，精确逐笔账见[机读账](SM004_rev21_guard_ledger_AT352_AT372_20261016.json)。
+
+AT368与AT364同四份生产SHA，只增强TB并重编：真实单runtime LN128→唯一W→STATE1→A16，317.2744364347309s child0/null。新增实际Q入口16384字逐位对原独立norm、512个叶子响应逐group采样与独立构造4352字bank期望；退休及终点全过。r4..15现可签传递/布局/保持，仍非独立算术gold；r0..3原Q/scale gold保持。原AT364范围及AT363 Fatal不回写。AT367完整父top同新版展开、真实row0前缀PASS；父同runtime LN128→A16仍NOT_RUN。
+
+AT369发现兼容core壳缺W回显代理，编译FAIL；只补固定端口，engine与AT367父top所用字节相同。AT370默认O0 120s core/W pilot仅真实读取前缀，COST_STOP。AT372同生产SHA、`xelab --O3`四类core局部完整PASS：LN_ONLY缺token本地拒绝Check逐拍保持并消费→无reset合法exec100实际W冷载/完整回执→错epoch零新增读拒绝；成功/总线/scale/混合协议优先分别在95.454993/89.953922/87.893992/89.693038s结束。AT371唯一W服务四组短例补status16、所有声明回显字段三拍逐拍稳定及错epoch零读取。AT372合法后继是W，不声称原第三条LN_ONLY或父阶段发布。
+
+截至AT372，41guard/277条**已观测**政策、static818.12698524072765102/1800s、RTL1656.3998062927275925/3600s；余981.87301475927234898s/1943.6001937072724075s，host完整UNKNOWN。AT365–372八份manifest共1191条冻结源码/fixture SHA无失配；AT352–364复用原审核，AT361政策/RSS未观测仍UNKNOWN。E002 design/results与E004三摘要已更新；修订21仍running/unassessed。
+
+下一受影响项仍为continue末B/pending/rsp/done屏障、norm最后R/r15受阻、部分A/显式discard、父top实际W/Q委派；历史gamma总线错误、store/numeric竞争及LN在途reset按未测保留。工程在原帽内继续，不等新放行。STEP16/matrix/全RoPE/Attention、整模/Host/HBM/联合物理仍开放。

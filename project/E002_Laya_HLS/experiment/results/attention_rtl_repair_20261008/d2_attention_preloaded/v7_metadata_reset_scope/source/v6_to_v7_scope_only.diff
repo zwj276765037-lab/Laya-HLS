@@ -1,0 +1,18 @@
+--- v6_metadata_reset/source/attention_preloaded_slice.cpp
++++ v7_metadata_reset_scope/source/attention_preloaded_slice.cpp
+@@ -435,6 +435,7 @@
+                                             uint8_t* qkv0, uint8_t* qkv1,
+                                             uint8_t* att_out,
+                                             uint32_t* observed) {
++  using namespace laya::full;
+ #ifdef __SYNTHESIS__
+ #pragma HLS INTERFACE m_axi port=descriptor offset=slave bundle=descriptor depth=160 num_read_outstanding=1
+ #pragma HLS INTERFACE m_axi port=io offset=slave bundle=io depth=32768 num_read_outstanding=1
+@@ -448,7 +449,6 @@
+ #pragma HLS reset variable=metadata_initialized
+ #endif
+   using namespace laya;
+-  using namespace laya::full;
+   using namespace laya::d2_preload;
+   FullRuntime& rt = runtime;
+   if (!metadata_initialized) {

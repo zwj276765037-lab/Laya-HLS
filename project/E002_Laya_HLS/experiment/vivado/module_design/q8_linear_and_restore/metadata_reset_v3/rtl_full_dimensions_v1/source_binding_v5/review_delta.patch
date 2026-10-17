@@ -1,0 +1,332 @@
+diff --git a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/q8_full_scorer_control.svh b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/q8_full_scorer_control.svh
+index 957e1c2..c203322 100644
+--- a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/q8_full_scorer_control.svh
++++ b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/q8_full_scorer_control.svh
+@@ -203,7 +203,7 @@
+   end
+ 
+   // Testbench controls and backing-memory writes occur only on negedges.
+-  always @(negedge clk) begin : sequence
++  always @(negedge clk) begin : drive_sequence
+     logic [31:0] expected_pointer_word;
+     logic [63:0] delta;
+     if (total_cycles>=MAX_TOTAL_CLOCKS)
+diff --git a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/make_source_packet.py b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/make_source_packet.py
+index 06204bf..acc45fb 100755
+--- a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/make_source_packet.py
++++ b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/make_source_packet.py
+@@ -24,10 +24,17 @@ ENDPOINT = REVIEW / "d2_axi_allocation_diagnostic/bounded_static_v1/rtl/axi_stat
+ ACT_TB = MODULE / "rtl_act_static_v1/tb"
+ G16 = REVIEW / "d2_controller_reachable/source/guard_16g.py"
+ G4 = REVIEW / "d2_axi_allocation_diagnostic/guard_trace_v5/tb/guard_runtime_4g.py"
+-OUT = ISOLATED / "source_binding_v4/source_packet.json"
+-PREIMAGE_MANIFEST = ISOLATED / "source_binding_v4/preimage_manifest.json"
++OUT = ISOLATED / "source_binding_v5/source_packet.json"
++PREIMAGE_MANIFEST = ISOLATED / "source_binding_v5/preimage_manifest.json"
++V4_PREIMAGE_MANIFEST = ISOLATED / "source_binding_v4/preimage_manifest.json"
+ REPAIR_RELEASE = REVIEW / "reviewer_q8_full_scorer_aux_eof_first_failure_source_repair_release.json"
++V5_REPAIR_RELEASE = REVIEW / "reviewer_q8_full_scorer_tb_keyword_snapshot_binding_source_repair_release.json"
++STATIC_BASH_RELEASE = REVIEW / "reviewer_q8_full_scorer_v4_static_launch_failure_bash_release.json"
+ FIRST_FAILURE = ISOLATED / "runs/first_pilot_v1/first_failure_evidence.json"
++STATIC_ENTRY_FAILURE = ISOLATED / "runs/first_pilot_v2/static_first_failure_evidence.json"
++STATIC_TB_FAILURE = ISOLATED / "runs/first_pilot_v2/static_v3_first_compile_failure_evidence.json"
++CPU_EVIDENCE = ISOLATED / "runs/first_pilot_v2/materializer_cpu_evidence.json"
++CPU_REVIEW = REVIEW / "reviewer_q8_full_scorer_v4_cpu_acceptance_static_prepare_release.json"
+ PRIOR_CSIM_D = MODULE.parent / "runs/csim_legal_v1/work/hls/csim/build/obj"
+ HLS_DEPENDENCY_CLOSURE = MODULE / "runs/csynth_local_v1/preprocessed_dependency_closure.json"
+ CPU_INCLUDE_ROOTS = (VITIS / "include", BASE / "include", MODEL, MODULE / "source")
+@@ -100,17 +107,18 @@ def prior_csim_dependencies(path: Path) -> list[Path]:
+ 
+ 
+ def main() -> int:
+-    previous = ISOLATED / "source_binding_v3/source_packet.json"
++    v3 = ISOLATED / "source_binding_v3/source_packet.json"
++    previous = ISOLATED / "source_binding_v4/source_packet.json"
+     prior_packet = json.loads(previous.read_text())
+     prior_files = {item["path"]: item for item in prior_packet["immutable_files"]}
+     preimages = json.loads(PREIMAGE_MANIFEST.read_text())
+-    changed_names = {"materialize_scorer_pilot.py", "test_q8_full_scorer.cpp",
+-                     "make_source_packet.py", "verify_source_binding.py",
+-                     "first_pilot_budget.json", "results.md"}
+-    if (preimages["schema"] != "q8_full_scorer_v4_source_preimages_v1" or
+-        preimages["v3_source_packet_sha256"] != sha(previous) or
++    changed_names = {"q8_full_scorer_control.svh", "make_source_packet.py",
++                     "verify_source_binding.py", "first_pilot_budget.json",
++                     "results.md"}
++    if (preimages["schema"] != "q8_full_scorer_v5_source_preimages_v1" or
++        preimages["v4_source_packet_sha256"] != sha(previous) or
+         {Path(item["preimage"]).name for item in preimages["entries"]} != changed_names):
+-        raise ValueError("complete V3 source preimages required")
++        raise ValueError("complete V4 source preimages required")
+     for item in preimages["entries"]:
+         old = prior_files[item["source"]["path"]]
+         archived = record(Path(item["preimage"]))
+@@ -118,14 +126,20 @@ def main() -> int:
+             (archived["bytes"], archived["mode"], archived["sha256"]) !=
+                 (old["bytes"], old["mode"], old["sha256"]) or
+             item["preimage_sha256"] != old["sha256"]):
+-            raise ValueError(f"V3 preimage mismatch {item['preimage']}")
++            raise ValueError(f"V4 preimage mismatch {item['preimage']}")
+     first_failure = json.loads(FIRST_FAILURE.read_text())
+     repair_review = json.loads(REPAIR_RELEASE.read_text())
+     if (first_failure["schema"] !=
+             "q8_full_scorer_first_pilot_materialization_first_failure_evidence_v1" or
+         repair_review["first_failure_evidence"]["sha256"] != sha(FIRST_FAILURE) or
+-        repair_review["source_packet"]["sha256"] != sha(previous)):
++        repair_review["source_packet"]["sha256"] != sha(v3)):
+         raise ValueError("first-failure repair review lineage")
++    v5_review = json.loads(V5_REPAIR_RELEASE.read_text())
++    cpu_review = json.loads(CPU_REVIEW.read_text())
++    if (v5_review["failure_packet"]["sha256"] != sha(STATIC_TB_FAILURE) or
++        v5_review["source_packet_v4"]["sha256"] != sha(previous) or
++        cpu_review["evidence_packet"]["sha256"] != sha(CPU_EVIDENCE)):
++        raise ValueError("V5 static/CPU repair review lineage")
+     preserved = [dict(relative_path=item["relative_path"], bytes=item["bytes"],
+                       sha256=item["sha256"])
+                  for item in first_failure["partial_files"]
+@@ -216,7 +230,10 @@ def main() -> int:
+         "reviewer_q8_full_dimensions_observer_numeric_boundary_preparation_addendum.json",
+         "reviewer_q8_act_static_v1_full_functional_acceptance.json",
+         "reviewer_q8_full_scorer_static_schedule_precheck.json")]
+-    gates += [REPAIR_RELEASE, FIRST_FAILURE, previous, PREIMAGE_MANIFEST]
++    gates += [REPAIR_RELEASE, V5_REPAIR_RELEASE, STATIC_BASH_RELEASE,
++              FIRST_FAILURE, STATIC_ENTRY_FAILURE, STATIC_TB_FAILURE,
++              CPU_EVIDENCE, CPU_REVIEW, v3, previous, PREIMAGE_MANIFEST,
++              V4_PREIMAGE_MANIFEST]
+     gates += [Path(item["preimage"]) for item in preimages["entries"]]
+     gates += [ISOLATED / "runs/first_pilot_v1" / item["relative_path"]
+               for item in first_failure["partial_files"]]
+@@ -266,17 +283,17 @@ def main() -> int:
+             if (actual["bytes"], actual["sha256"]) != (
+                 frozen["bytes"], frozen["sha256"]):
+                 raise ValueError(f"accepted checkpoint identity {pair['name']}/{side}")
+-    build = ISOLATED / "runs/static_build_v2"
++    build = ISOLATED / "runs/static_build_v4"
+     fixture = ISOLATED / "runs/first_pilot_v2/fixture"
+     cpu = ISOLATED / "runs/first_pilot_v2/cpu"
+     runtime = ISOLATED / "runs/first_pilot_v2/runtime"
+-    audit = ISOLATED / "runs/first_pilot_v2/log_audit.json"
++    audit = ISOLATED / "runs/first_pilot_v2/log_audit_v4.json"
+     verifier = ["python3", str(HERE / "verify_source_binding.py"), str(OUT)]
+     phase = ISOLATED / "runs/first_pilot_v2"
+     fixture_post = phase / "fixture_binding_post.json"
+     cpu_build_post = phase / "cpu_build_binding_post.json"
+-    static_post = phase / "static_binding_post.json"
+-    runtime_prepare_post = phase / "runtime_prepare_binding_post.json"
++    static_post = phase / "static_v4_binding_post.json"
++    runtime_prepare_post = phase / "runtime_prepare_v4_binding_post.json"
+     snapshot = build / "xsim.dir"
+     fixture_bind = ["--fixture", str(fixture),
+                     "--expected-fixture-report", str(fixture_post)]
+@@ -296,20 +313,21 @@ def main() -> int:
+          "post": verifier + fixture_bind + ["--cpu-binary", str(cpu / "test_q8_full_scorer"),
+                                             "--expected-cpu-report", str(cpu_build_post),
+                                             "--out", str(phase / "cpu_run_binding_post.json")]},
+-        {"stage": "static_compile", "pre": verifier + fixture_bind + ["--out", str(phase / "static_binding_pre.json")],
++        {"stage": "static_compile", "pre": verifier + fixture_bind + ["--out", str(phase / "static_v4_binding_pre.json")],
+          "post": verifier + fixture_bind + ["--snapshot", str(snapshot), "--out", str(static_post)]},
+-        {"stage": "prepare_runtime", "pre": verifier + static_bind + ["--out", str(phase / "runtime_prepare_binding_pre.json")],
++        {"stage": "prepare_runtime", "pre": verifier + static_bind + ["--out", str(phase / "runtime_prepare_v4_binding_pre.json")],
+          "post": verifier + static_bind + ["--prepared", str(runtime),
+                                             "--out", str(runtime_prepare_post)]},
+-        {"stage": "rtl_first_three_commands", "pre": verifier + prepared_bind + ["--out", str(phase / "rtl_binding_pre.json")],
++        {"stage": "rtl_first_three_commands", "pre": verifier + prepared_bind + ["--out", str(phase / "rtl_v4_binding_pre.json")],
+          "post": verifier + prepared_bind + ["--require-dat-links",
+-                                              "--archive-runtime-artifacts", str(phase / "snapshot_runtime_artifacts"),
+-                                              "--out", str(phase / "rtl_binding_post.json")]},
++                                              "--archive-runtime-artifacts", str(phase / "snapshot_runtime_artifacts_v4"),
++                                              "--out", str(phase / "rtl_v4_binding_post.json")]},
+     ]
+     packet = {
+-        "schema": "q8_full_scorer_first_pilot_source_packet_v4",
++        "schema": "q8_full_scorer_first_pilot_source_packet_v5",
+         "created_utc": datetime.now(timezone.utc).isoformat(),
+-        "status": "SOURCE_REPAIR_PREPARED_FIRST_ATTEMPT_FAILED_V2_RUN_NOT_EXECUTED",
++        "status": "V4_CPU_ACCEPTED_STATIC_V3_TB_FAILURE_V5_SOURCE_REPAIR_ONLY",
++        "static_build_root": str(build),
+         "counts": {"generated_verilog": 230, "generated_dat": 108,
+                    "fp_sim_vhdl": 7, "physical_pages": 341,
+                    "immutable_files": len(immutable)},
+@@ -320,12 +338,20 @@ def main() -> int:
+         "model_tags": model["tags"],
+         "physical_weight": weight,
+         "model_aux_bo": record(MODEL / model["bo"]["aux"]["file"]),
+-        "source_gate": str(REPAIR_RELEASE),
++        "source_gate": str(V5_REPAIR_RELEASE),
+         "supersedes_source_preview": record(ISOLATED / "source_binding_v1/source_packet.json"),
+         "supersedes_source_packet_v2": record(ISOLATED / "source_binding_v2/source_packet.json"),
+-        "supersedes_source_packet_v3": record(previous),
++        "supersedes_source_packet_v3": record(v3),
++        "supersedes_source_packet_v4": record(previous),
+         "first_failure_evidence": record(FIRST_FAILURE),
++        "static_entry_first_failure": record(STATIC_ENTRY_FAILURE),
++        "static_tb_first_failure": record(STATIC_TB_FAILURE),
++        "accepted_v4_cpu_evidence": record(CPU_EVIDENCE),
++        "accepted_v4_cpu_review": record(CPU_REVIEW),
++        "prior_static_bash_release": record(STATIC_BASH_RELEASE),
+         "source_repair_release": record(REPAIR_RELEASE),
++        "v5_source_repair_release": record(V5_REPAIR_RELEASE),
++        "v4_source_preimage_manifest": record(V4_PREIMAGE_MANIFEST),
+         "source_preimage_manifest": record(PREIMAGE_MANIFEST),
+         "first_attempt_preserved_fixture_products": preserved,
+         "aux_final_page_contract": {
+@@ -347,9 +373,9 @@ def main() -> int:
+             {"stage": "materialize_fixture", "argv": ["python3", str(HERE / "materialize_scorer_pilot.py"), str(fixture)]},
+             {"stage": "build_cpu_leaf", "argv": [str(HERE / "build_cpu_leaf.sh"), str(cpu)]},
+             {"stage": "run_cpu_leaf", "argv": [str(HERE / "run_cpu_leaf.sh"), str(cpu), str(fixture)]},
+-            {"stage": "static_compile", "argv": [str(HERE / "build_static.sh"), str(build)]},
++            {"stage": "static_compile", "argv": ["/usr/bin/bash", str(HERE / "build_static.sh"), str(build)]},
+             {"stage": "prepare_runtime", "argv": ["python3", str(HERE / "prepare_runtime.py"), str(fixture), str(build), str(runtime)]},
+-            {"stage": "rtl_first_three_commands", "argv": [str(HERE / "run_pilot.sh"), str(build), str(runtime)]},
++            {"stage": "rtl_first_three_commands", "argv": ["/usr/bin/bash", str(HERE / "run_pilot.sh"), str(build), str(runtime)]},
+             {"stage": "offline_log_audit", "argv": ["python3", str(HERE / "check_pilot.py"), str(runtime), str(audit)]}],
+         "binding_check_argv": verifier,
+         "planned_binding_commands": bindings,
+@@ -367,17 +393,17 @@ def main() -> int:
+                       "--cwd", str(ISOLATED), "--rss-gib", "4", "--timeout-seconds", "900",
+                       "--", str(HERE / "run_cpu_leaf.sh"), str(cpu), str(fixture)]},
+             {"stage": "static_compile", "cwd": str(build),
+-             "argv": ["python3", str(G16), "--out", str(phase / "static_guard"),
++             "argv": ["python3", str(G16), "--out", str(phase / "static_guard_v4"),
+                       "--cwd", str(build), "--rss-gib", "16", "--timeout-seconds", "900",
+-                      "--", str(HERE / "build_static.sh"), str(build)]},
++                      "--", "/usr/bin/bash", str(HERE / "build_static.sh"), str(build)]},
+             {"stage": "prepare_runtime", "cwd": str(ISOLATED),
+-             "argv": ["python3", str(G4), "--out", str(phase / "runtime_prepare_guard"),
++             "argv": ["python3", str(G4), "--out", str(phase / "runtime_prepare_guard_v4"),
+                       "--cwd", str(ISOLATED), "--rss-gib", "4", "--timeout-seconds", "900",
+                       "--", "python3", str(HERE / "prepare_runtime.py"), str(fixture), str(build), str(runtime)]},
+             {"stage": "rtl_first_three_commands", "cwd": str(runtime),
+-             "argv": ["python3", str(G16), "--out", str(phase / "rtl_guard"),
++             "argv": ["python3", str(G16), "--out", str(phase / "rtl_guard_v4"),
+                       "--cwd", str(runtime), "--rss-gib", "16", "--timeout-seconds", "36000",
+-                      "--", str(HERE / "run_pilot.sh"), str(build), str(runtime)]}],
++                      "--", "/usr/bin/bash", str(HERE / "run_pilot.sh"), str(build), str(runtime)]}],
+         "compile_flags": ["-std=c++17", "-O2", "-ffp-contract=off", "-fno-fast-math",
+                           "-MMD", "-MF", "-MT", "-c", "-lm"],
+         "cpu_translation_units": [
+@@ -385,13 +411,13 @@ def main() -> int:
+              "object": "q8_joint_tm4tn8.o", "dependencies": "q8_joint_tm4tn8.d"},
+             {"source": str(HERE / "test_q8_full_scorer.cpp"),
+              "object": "test_q8_full_scorer.o", "dependencies": "test_q8_full_scorer.d"}],
+-        "xsim_snapshot_lookup": "runtime/xsim.dir is an absolute symlink to static_build_v2/xsim.dir; 108 absolute DAT symlinks are installed by run_pilot.sh",
++        "xsim_snapshot_lookup": f"runtime/xsim.dir is an absolute symlink to {snapshot}; 108 absolute DAT symlinks are installed by run_pilot.sh",
+         "snapshot_runtime_mutable_allowlist": [
+             "q8_full_scorer/xsim_script.tcl",
+             "q8_full_scorer/xsimSettings.ini",
+             "q8_full_scorer/xsimkernel.log",
+             "q8_full_scorer/xsimcrash.log"],
+-        "stage_contract": "Run each stage's exact pre binding command, guarded command, then post binding command even after a tool failure, preserving partial evidence; stop before any next stage on binding, tool, numerical, clock/RSS or wall failure. The materializer creates a fresh fixture; CPU and static build directories must exist fresh; runtime preparation creates a fresh runtime directory. Seal generated fixture, binary, snapshot and raw dumps before subsequent use. No ACT rerun or automatic later-family modes.",
++        "stage_contract": "V4 fixture and CPU stages are independently accepted and not rerun. Once separately released, run each remaining stage's exact pre binding command, guarded command, then post binding command even after a tool failure, preserving partial evidence; stop before any next stage on binding, tool, numerical, clock/RSS or wall failure. Static build directory must exist fresh; runtime preparation creates a fresh runtime directory. Seal snapshot and raw dumps before subsequent use. No ACT rerun or automatic later-family modes. XSim remains held until its own gate.",
+         "resource_policy": "One Laya heavy tool, at most four CPUs, nice19, idle I/O, 0.2s owned RSS samples and MemAvailable strictly >192GiB. See first_pilot_budget.json for finite source estimates and watchdogs.",
+     }
+     OUT.parent.mkdir(parents=True, exist_ok=True)
+diff --git a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/verify_source_binding.py b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/verify_source_binding.py
+index c9a3953..4016bd7 100755
+--- a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/verify_source_binding.py
++++ b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/verify_source_binding.py
+@@ -130,7 +130,8 @@ def verify_fixture(root: Path, packet: dict) -> dict:
+             "sha256": digest(report_path)[1], "product_count": len(entries)}
+ 
+ 
+-def verify_prepared(root: Path, packet: dict, require_dat: bool) -> dict:
++def verify_prepared(root: Path, packet: dict, snapshot: Path,
++                    require_dat: bool) -> dict:
+     metadata_path = root / "runtime_input.json"
+     metadata = json.loads(metadata_path.read_text())
+     if (metadata["schema"] != "q8_full_scorer_first_pilot_runtime_input_v1" or
+@@ -149,10 +150,13 @@ def verify_prepared(root: Path, packet: dict, require_dat: bool) -> dict:
+                       "sha256": entry["sha256"]})
+     if {p.name for p in root.glob("*.memh")} != {f"{x['name']}.memh" for x in files}:
+         raise ValueError("prepared memh set changed")
+-    build = Path(next(x["argv"][1] for x in packet["exact_commands_after_new_sequential_gate"]
+-                      if x["stage"] == "static_compile"))
++    build = Path(packet["static_build_root"])
++    bound_snapshot = build / "xsim.dir"
++    if not bound_snapshot.is_dir() or snapshot.resolve(strict=True) != bound_snapshot.resolve(strict=True):
++        raise ValueError("prepared snapshot argument differs from bound static build")
+     link = root / "xsim.dir"
+-    if (not link.is_symlink() or link.readlink() != build / "xsim.dir" or
++    if (not link.is_symlink() or not link.readlink().is_absolute() or
++        link.readlink() != bound_snapshot or
+         metadata["snapshot"] != str(build)):
+         raise ValueError("prepared snapshot link changed")
+     sources = {Path(x).name: Path(x) for x in packet["generated_dat_paths"]}
+@@ -215,16 +219,30 @@ def main() -> int:
+         parser.error("--expected-snapshot-report requires --snapshot")
+     if args.expected_prepared_report and not args.prepared:
+         parser.error("--expected-prepared-report requires --prepared")
++    if args.prepared and not args.snapshot:
++        parser.error("--prepared requires --snapshot")
+     if args.archive_runtime_artifacts and not args.snapshot:
+         parser.error("--archive-runtime-artifacts requires --snapshot")
+     packet = json.loads(args.packet.read_text())
+-    if packet["schema"] != "q8_full_scorer_first_pilot_source_packet_v4":
++    if packet["schema"] != "q8_full_scorer_first_pilot_source_packet_v5":
+         raise ValueError("source packet schema")
++    build = Path(packet["static_build_root"])
++    static = [x["argv"] for x in packet["exact_commands_after_new_sequential_gate"]
++              if x["stage"] == "static_compile"]
++    if (not build.is_absolute() or len(static) != 1 or
++        static[0] != ["/usr/bin/bash", str(Path(__file__).resolve().parent / "build_static.sh"),
++                      str(build)]):
++        raise ValueError("bound static command differs from explicit build root")
+     if set(packet["snapshot_runtime_mutable_allowlist"]) != RUNTIME_ARTIFACTS:
+         raise ValueError("packet and verifier XSim mutable-path mismatch")
+     for key in ("supersedes_source_preview", "supersedes_source_packet_v2",
+-                "supersedes_source_packet_v3", "first_failure_evidence",
+-                "source_repair_release", "source_preimage_manifest", "model_aux_bo"):
++                "supersedes_source_packet_v3", "supersedes_source_packet_v4",
++                "first_failure_evidence", "static_entry_first_failure",
++                "static_tb_first_failure", "accepted_v4_cpu_evidence",
++                "accepted_v4_cpu_review", "prior_static_bash_release",
++                "source_repair_release", "v5_source_repair_release",
++                "v4_source_preimage_manifest", "source_preimage_manifest",
++                "model_aux_bo"):
+         item = packet[key]
+         path = Path(item["path"])
+         if (digest(path) != (item["bytes"], item["sha256"]) or
+@@ -265,7 +283,8 @@ def main() -> int:
+         fixed = lambda rows: [x for x in rows if x["relative_path"] not in RUNTIME_ARTIFACTS]
+         if fixed(snapshot) != fixed(baseline["snapshot"]):
+             raise ValueError("compiled snapshot changed outside four XSim runtime files")
+-    prepared = verify_prepared(args.prepared, packet, args.require_dat_links) if args.prepared else None
++    prepared = verify_prepared(args.prepared, packet, args.snapshot,
++                               args.require_dat_links) if args.prepared else None
+     if args.expected_prepared_report:
+         baseline = json.loads(args.expected_prepared_report.read_text())
+         prior = baseline["prepared"]
+diff --git a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/results.md b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source/results.md
+index c566dcf..da08c8d 100644
+--- a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/results.md
++++ b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source/results.md
+@@ -1,11 +1,13 @@
+ # Q8 full-dimension RTL fixture results
+ 
+-State on 2026-10-09: the v3 source packet bound 666 immutable files and passed its pre-run source check. Its single released fixture-materialization attempt failed at `materialize_scorer_pilot.py:275` because the final AUX physical page has only 704 original BO bytes; the other 3392 bytes lie beyond the original BO and require the existing `0xA5` sentinel in the static page. The [sealed first-failure evidence](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v1/first_failure_evidence.json) records 4.547 seconds and 864552 KiB peak owned RSS, with no resource guard trigger. The required post-binding attempt failed because `fixture_report.json` did not exist. Five gold products and four static pages from this incomplete attempt remain preserved. CPU build/run and all EDA stages were not attempted. The consumed v3 release is not reused; v4 is source preparation only pending independent review and a new stage gate.
++State on 2026-10-09: the v3 source packet bound 666 immutable files and passed its pre-run source check. Its single released fixture-materialization attempt failed at `materialize_scorer_pilot.py:275` because the final AUX physical page has only 704 original BO bytes; the other 3392 bytes lie beyond the original BO and require the existing `0xA5` sentinel in the static page. The [sealed first-failure evidence](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v1/first_failure_evidence.json) records 4.547 seconds and 864552 KiB peak owned RSS, with no resource guard trigger. The required post-binding attempt failed because `fixture_report.json` did not exist. Five gold products and four static pages from this incomplete attempt remain preserved. The consumed v3 release was not reused.
++
++The V4 source packet bound 696 immutable files. Fixture materialization, the CPU leaf build and its three-command self-check passed; the [CPU evidence](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v2/materializer_cpu_evidence.json) was [independently accepted](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_v4_cpu_acceptance_static_prepare_release.json). The first static attempt [stopped before Vivado](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v2/static_first_failure_evidence.json) because the guard directly executed a mode 0666 shell script. The reviewed Bash launch reached Vivado, but [the fresh static build](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v2/static_v3_first_compile_failure_evidence.json) stopped in testbench `xvlog` at the reserved `sequence` block name; the post-binding authenticated 330 partial snapshot files, not a completed build. Neither `xelab`, runtime preparation nor XSim ran. V5 is a source-only repair awaiting a separate execution gate.
+ 
+ The accepted prior ACT static suite covered 36 commands on the same `metadata_reset_v3` identity. Its legal/fault/identity groups used 38,302/15,951/79,971 testbench clocks and 14.376505/9.473611/21.229002 wall seconds. Those small ACT measurements do not establish full K/N throughput. The immutable generated closure for this module is 230 Verilog, 108 `.dat` and seven FP simulation wrappers; their exact hashes and installed library closure are bound in the source packet.
+ 
+ For the first Scorer RUN, one row × K1024 × N1024 requires 1,048,576 logical integer MACs, 32 activation quant groups, 4096 issued/retired (tile,group) operations, 1024 final F32 values and 4096 output bytes. A trace-on selected column has 32 group records. LOAD must read q0/q1 524,288 bytes each, scales 65,536 bytes and AUX 4,224 bytes. Including descriptor/report, the three commands account for 1,141,440 useful AXI bytes and 22,320 exact data beats. These are source operation/traffic counts, not measurements.
+ 
+-The independent [static schedule precheck](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_static_schedule_precheck.json) traced 135 selected generated FSM states and the dot child. For the finite, successful, unstalled one-row path, it derived a conditional 471-cycle interval between adjacent same-group tile issues and 1,929,216 core vector cycles for 4096 issues; trace-on has 384 additional non-wait state samples. Group transitions, full LOAD and validation, quantization, output/report and actual AXI waits remain outside this core estimate. The proposed seven-million-clock per-command and sixteen-million-clock total limits are fail-stop watchdogs, not predicted or guaranteed runtime. The proposed 36,000-second wall and 16 GiB runtime RSS allowances remain subject to Astra's source-packet review.
++The independent [static schedule precheck](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_static_schedule_precheck.json) traced 135 selected generated FSM states and the dot child. For the finite, successful, unstalled one-row path, it derived a conditional 471-cycle interval between adjacent same-group tile issues and 1,929,216 core vector cycles for 4096 issues; trace-on has 384 additional non-wait state samples. Group transitions, full LOAD and validation, quantization, output/report and actual AXI waits remain outside this core estimate. The proposed seven-million-clock per-command and sixteen-million-clock total limits are fail-stop watchdogs, not predicted or guaranteed runtime. The earlier 36,000-second wall and 16 GiB runtime RSS figures remain proposals; XSim has no released execution gate.
+ 
+-The v3 source added a read-only recursive CPU vendor/project include scan, existing CSim/HLS dependency evidence, separate `-MMD` files for the two future CPU translation units, and a fail-stop binding check for their active dependencies. It also added a flushed progress trace at command start and every 131,072 command clocks. V4 preserves those contracts while correcting only the final AUX page construction and CPU comparison against the exact 1671872-byte BO end; its fixture binding must also match the nine products preserved from the failed attempt. The source budget corrects HLS loop 705 to 128 tile iterations × 66 nominal cycles = 8448 per one-row m0 block; this is not a measured full-run cost. The conditional run order remains source/hash review → separately released fixture and independent CPU leaf → static compile → three-command numerical RTL → seal and review. Tail rows, other families, faults and F32 boundary stimuli remain source-only until their later gates. The previously accepted ACT 36 commands are not repeated.
++The v3 source added a read-only recursive CPU vendor/project include scan, existing CSim/HLS dependency evidence, separate `-MMD` files for the two CPU translation units, and a fail-stop binding check for their active dependencies. It also added a flushed progress trace at command start and every 131,072 command clocks. V4 preserves those contracts while correcting only the final AUX page construction and CPU comparison against the exact 1671872-byte BO end; its fixture binding also matches the nine products preserved from the failed attempt. The source budget corrects HLS loop 705 to 128 tile iterations × 66 nominal cycles = 8448 per one-row m0 block; this is not a measured full-run cost. The remaining order is V5 source/hash review → separately released fresh static compile → runtime preparation after static success → separately released three-command numerical RTL → seal and review. Tail rows, other families, faults and F32 boundary stimuli remain source-only until their later gates. The previously accepted ACT 36 commands are not repeated.
+diff --git a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/first_pilot_budget.json b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source/first_pilot_budget.json
+index c8392f9..9442b44 100644
+--- a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v5/preimages/first_pilot_budget.json
++++ b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source/first_pilot_budget.json
+@@ -56,7 +56,7 @@
+   "guards_proposed": {
+     "per_command_clocks":7000000,
+     "all_three_clocks":16000000,
+-    "source_reason":"4096*1294=5300224 legal issue/retire path ceiling; add <1.7M clocks for concrete full-load scalar checks, quant/trace, output/report and bounded AXI delays before requiring a first-failure investigation. These are fail-stop watchdogs, not proven timing guarantees.",
++    "source_reason":"4096*1294=5300224 is a conditional legal issue/retire path ceiling, not a full-run bound. The scale validation inner loop alone is 53*32768=1736704 clocks, before outer, transport, control, quant/trace, output/report and AXI waits. The unchanged 7000000/16000000 limits are fail-stop watchdog proposals, not WCET or runtime approval.",
+     "materialization_rss_gib":4,
+     "static_compile_rss_gib":16,
+     "runtime_rss_gib":16,

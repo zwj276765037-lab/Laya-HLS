@@ -1,0 +1,209 @@
+{
+  "cpu_pass_lines": [
+    "RNE_ZERO_DIRECTED_PASS count=52",
+    "ADD_BOUNDARY_DIRECTED_PASS count=345 original_zero_cancel_count=52",
+    "FIXTURE_PASS count=3270",
+    "TANH_LIBM_CPU_PASS fixture_plus_200000_finite_tanh_and_600000_basic_ops"
+  ],
+  "directed_add": {
+    "count": 345,
+    "gold": "independent native volatile float FE_TONEAREST",
+    "mem": {
+      "bytes": 9315,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/cpu/add_directed.mem",
+      "sha256": "714478f95404cd61eba31f3ae1c67903600584b717d088f6b1d343c873bd8a4a"
+    },
+    "original_prefix_unchanged": true,
+    "unchanged_original_count": 52
+  },
+  "evidence_manifest": {
+    "bytes": 30841,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/evidence_manifest.json",
+    "sha256": "4b996bd8ccc7411402fed8a0cf3e07275eda6701874935aecafe33cd94f9b512"
+  },
+  "guards": {
+    "guard_cpu_01": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 1.0179913211613894,
+      "finished_at": "2026-10-11T01:28:21.020378+00:00",
+      "minimum_mem_available_kb": 422318104,
+      "peak_owned_rss_kb": 108240,
+      "rss_capture_count": 5,
+      "rss_captured": true,
+      "rss_sample_count": 5,
+      "trigger": null
+    },
+    "guard_hls_01": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 22.07835130020976,
+      "finished_at": "2026-10-11T01:28:59.100087+00:00",
+      "minimum_mem_available_kb": 421253488,
+      "peak_owned_rss_kb": 1128216,
+      "rss_capture_count": 110,
+      "rss_captured": true,
+      "rss_sample_count": 110,
+      "trigger": null
+    },
+    "guard_ooc_01": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 179.39513467624784,
+      "finished_at": "2026-10-11T01:34:48.883250+00:00",
+      "minimum_mem_available_kb": 418773580,
+      "peak_owned_rss_kb": 4343764,
+      "rss_capture_count": 896,
+      "rss_captured": true,
+      "rss_sample_count": 896,
+      "trigger": null
+    },
+    "guard_pilot_01": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 6.567929200828075,
+      "finished_at": "2026-10-11T01:29:50.293839+00:00",
+      "minimum_mem_available_kb": 421961428,
+      "peak_owned_rss_kb": 860000,
+      "rss_capture_count": 33,
+      "rss_captured": true,
+      "rss_sample_count": 33,
+      "trigger": null
+    },
+    "guard_rtl_01": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 31.178417161107063,
+      "finished_at": "2026-10-11T01:31:05.491165+00:00",
+      "minimum_mem_available_kb": 422054008,
+      "peak_owned_rss_kb": 859808,
+      "rss_capture_count": 155,
+      "rss_captured": true,
+      "rss_sample_count": 156,
+      "trigger": null
+    },
+    "guard_static_01": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 14.250745231285691,
+      "finished_at": "2026-10-11T01:29:26.793909+00:00",
+      "minimum_mem_available_kb": 422218324,
+      "peak_owned_rss_kb": 325240,
+      "rss_capture_count": 70,
+      "rss_captured": true,
+      "rss_sample_count": 71,
+      "trigger": null
+    }
+  },
+  "hls": {
+    "add_latency_max": 6,
+    "div_latency_max": 40,
+    "estimated_bram_18k": 0,
+    "estimated_dsp": 2,
+    "estimated_ff": 6513,
+    "estimated_lut": 21909,
+    "estimated_uram": 0,
+    "interval_max": 479,
+    "interval_min": 2,
+    "latency_max": 478,
+    "latency_min": 1,
+    "mul_latency_max": 13
+  },
+  "kind": "tanh",
+  "normal_span_improvement_fraction": 0.3788383974988764,
+  "numeric_rules": "separate binary32 RNE operations, subnormal and signed-zero preserved; no FMA, FTZ, reassociation or approximate inverse",
+  "ooc": {
+    "blackboxes": 0,
+    "bram18": 0,
+    "bram36": 0,
+    "clock_period_ns": 6.667,
+    "configuration": "out_of_context flatten_hierarchy none RuntimeOptimized resource_sharing off",
+    "dcp": {
+      "bytes": 2538048,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/ooc/tanh_libm_wrapper_synth.dcp",
+      "sha256": "bb703675b0714b3d54ff355e51bf73c63cf288aa03873e443f3d10033f2f1a9f"
+    },
+    "dsp": 2,
+    "error_count": 0,
+    "ff": 6510,
+    "helper_instances": [
+      {
+        "dsp": 0,
+        "ff": 491,
+        "instance": "grp_fp_add_bits_fu_485",
+        "lut": 1365,
+        "module": "tanh_libm_leaf_fp_add_bits"
+      },
+      {
+        "dsp": 0,
+        "ff": 1030,
+        "instance": "grp_fp_div_bits_fu_919",
+        "lut": 2280,
+        "module": "tanh_libm_leaf_fp_div_bits"
+      },
+      {
+        "dsp": 2,
+        "ff": 788,
+        "instance": "grp_fp_mul_bits_fu_767",
+        "lut": 1872,
+        "module": "tanh_libm_leaf_fp_mul_bits"
+      }
+    ],
+    "lut": 9073,
+    "part": "xcu55c-fsvh2892-2L-e",
+    "setup_tns_ns": 0.0,
+    "setup_wns_ns": 2.486,
+    "stage": "synthesized only; no place/route, interface timing, achieved Fmax, board or full-net claim",
+    "top": "tanh_libm_wrapper",
+    "uram": 0,
+    "warning_count": 6,
+    "warning_lines": [
+      "WARNING: [Synth 8-6014] Unused sequential element seen_result_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/static/tanh_libm_wrapper.sv:20]",
+      "WARNING: [Synth 8-6014] Unused sequential element seen_status_reg was removed.  [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/static/tanh_libm_wrapper.sv:20]",
+      "WARNING: [Vivado 12-2489] -period contains time 6.666667 which will be rounded to 6.667 to ensure it is an integer multiple of 1 picosecond [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/frozen_source/tanh_libm_clock.xdc:1]",
+      "WARNING: [Vivado 12-2489] -period contains time 6.666667 which will be rounded to 6.667 to ensure it is an integer multiple of 1 picosecond [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/frozen_source/tanh_libm_clock.xdc:1]",
+      "WARNING: [Vivado 12-180] No cells matched 'get_cells -hierarchical -filter {IS_BLACKBOX == 1}'.",
+      "WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port \"clk\" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew"
+    ]
+  },
+  "profiles": [
+    {
+      "count": 3270,
+      "first_accept": 3306,
+      "last_retire": 1252621,
+      "max_accept_gap": 474,
+      "min_accept_gap": 4,
+      "mode": 0,
+      "span_cycles": 1249315
+    },
+    {
+      "count": 3270,
+      "first_accept": 1252623,
+      "last_retire": 2508871,
+      "max_accept_gap": 477,
+      "min_accept_gap": 4,
+      "mode": 1,
+      "span_cycles": 1256248
+    }
+  ],
+  "rtl_pass_lines": [
+    "RNE_ZERO_DIRECTED_RTL_PASS count=52 gold=native_binary32_RNE",
+    "ADD_BOUNDARY_DIRECTED_RTL_PASS count=345 gold=native_binary32_RNE",
+    "TANH_PROFILE_PASS mode=0 count=3270 first_accept=3306 last_retire=1252621 span=1249315 min_accept_gap=4 max_accept_gap=474",
+    "TANH_BRANCH mode=0 branch=0 real_count=2178 latency_sum=883954 min_latency=348 max_latency=466",
+    "TANH_BRANCH mode=0 branch=1 real_count=446 latency_sum=207857 min_latency=466 max_latency=473",
+    "TANH_BRANCH mode=0 branch=2 real_count=0 latency_sum=0 min_latency=2147483647 max_latency=0",
+    "TANH_PROFILE_PASS mode=1 count=3270 first_accept=1252623 last_retire=2508871 span=1256248 min_accept_gap=4 max_accept_gap=477",
+    "TANH_BRANCH mode=1 branch=0 real_count=2178 latency_sum=883954 min_latency=348 max_latency=466",
+    "TANH_BRANCH mode=1 branch=1 real_count=446 latency_sum=207857 min_latency=466 max_latency=473",
+    "TANH_BRANCH mode=1 branch=2 real_count=0 latency_sum=0 min_latency=2147483647 max_latency=0",
+    "TANH_LIBM_RTL_PASS count=3270 profiles=2 reset_inflight=1 reset_pending_return=1 total_cycles=2511522"
+  ],
+  "same_configuration_baseline": {
+    "bytes": 11185,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round1_02/receipt.json",
+    "sha256": "4a44b0ca1f9f5e84b27b9ae2c567acfdba0fe9d28625f7703ba45d6bb8a73cb0"
+  },
+  "schema": "laya-libm-module-actual-synthesis-v2",
+  "scope": "standalone tanhf service",
+  "source_manifest": {
+    "bytes": 4445,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_round2_01/source_manifest.json",
+    "sha256": "958ff8ac5a941d1982fb4f7c5a66fc376d4b878b046432e295ebd20e84832188"
+  },
+  "status": "CPU_RTL_ACTUAL_OOC_COMPLETE_PENDING_POST_SYNTHESIS_ASSESSMENT"
+}

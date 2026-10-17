@@ -1,0 +1,31 @@
+--- executor_actor_host_06/laya_executor_actor.h
++++ executor_actor_host_07/laya_executor_actor.h
+@@ -11,6 +11,7 @@
+   IDLE, WAIT_CHECKPOINT, WAIT_HELD, WRITE_CHECKPOINT, READ_CHECKPOINT,
+   VALIDATE_CHECKPOINT, IMPORT_CHECKPOINT, WAIT_IMPORT_CONFIRMATION,
+   WRITE_COMMAND, RUN_ACTION, WRITE_RESULT, WAIT_RESULT_CONSUMED, WAIT_ABORT, ISOLATED,
++  WAIT_CLOSE, WAIT_NEW_ADMISSION,
+ };
+ 
+ // Local controls from the unique shell. No Host proof field authorizes these
+@@ -25,6 +26,10 @@
+   bool control_request_consumed = false, control_response_valid = false;
+   handoff::Message control_response;
+   bool result_consumed = false;
++  // Internal managed lifecycle; latched at real admission. The consumer
++  // presents the full decoded Host result, not an untagged last-read pulse.
++  bool managed_close = false, host_result_valid = false;
++  program_wire::ResultPacket host_result{};
+   // Full record from the bound program, presented only on the shell's
+   // revoked old-command route. An untagged permission cannot drain an action.
+   bool cancel_drain_valid = false;
+@@ -63,6 +68,9 @@
+   bool request_seen = false, result_consumed_pending = false;
+   bool import_pending = false, program_result_consumed = false;
+   bool control_pending = false, control_sent = false, revoked = false;
++  bool managed_close = false, request_committed = false, closed_consumed = false;
++  handoff::Message closed_record;
++  uint64_t closed_requests = 0;
+   handoff::Message control_request;
+   uint64_t session = 0, accepted_request_high_water = 0, control_rejections = 0;
+   uint64_t admissions = 0, imports = 0, results = 0;

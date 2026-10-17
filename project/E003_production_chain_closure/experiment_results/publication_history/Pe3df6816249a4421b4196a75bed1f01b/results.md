@@ -1,0 +1,95 @@
+# 真实LayerNorm→QUANT/fullA与F9绑定出口：2026-10-12
+
+范围：M003/SM003/E003/R003；A002单owner，唯一实现根E002/experiment。沿用生产分区/provenance/普通P及门户v2合同。当前出口为**PASS_SCOPED_RTL**，不等于完整生产top、完整S64 tensor或M003/M004完成。
+
+## 已执行与身份
+
+`layernorm_quant_source_03`：static 77.547525s/2352352KiB；rows1 pilot 47308cycles/57.410899s；同runtime rows16 producer→持久monitor/hub→实际共享QUANT/fullA为659334cycles/753.504079s，full峰值856844KiB。六个拒绝入口也PASS，前四项约5.96–5.98s，两个真实单行producer completion注入55.037959s/55.523771s。九段guard child0/trigger null、原CPU0–3/nice19/idle I/O/MemAvailable/墙钟/RSS策略全部核过。
+
+核查484/484引用与152/152 current、frozen、pair一致；实际所选生产头与engine生成时头逐字节一致，canonical包内存重生成相等，七份ROM DAT落位SHA一致。
+
+- manifest SHA256：`5766e20da355a23c10c734613a0bf4c5233baa46d480d3a9def32d24b50dd66f`
+- receipt SHA256：`ad6e5d6cf65c733ccfbd3dabf1e7e5403f7ee7abfe89a6fbd2c9667e2be86dd0`
+- verification SHA256：`c775b3739a01b1692b8b3138932e42349ebcbe7cb3a68e59154b07f7e7ef313d`
+
+## 真实数值与租约
+
+实际LayerNorm source AR/R=16/1024、destination AW/W/B=16/1024/16，有效唯一WSTRB65536B。全部16384项独立F32 LN gold逐位一致；这些输入gold的16384个binary32 word均不同。Q直接读取TB实际接受的producer W存储数据，未用gold预置源；Q AR/R=16/1024。同一个持久hub取得完整身份source lease，覆盖实际读流、读债及五周期未消费completion反压，响应退休才释放。fullA取得128个四行group，核全部16384 INT8字节及512 FP16 scale，之后释放A和owner并核最终债务/lease/owner清理。
+
+独立量化gold来自冻结LN oracle输出，Numpy1.26.4按binary32 amax/127、reciprocal、multiply，INT8 roundf ties-away，scale FP16 RNE计算；不使用旧八组重复fixture或DUT输出生成gold。END现在在真实completion八拍完整取得后，将其实际status/unit/elements/detail/bad/issued逐字段写入LPV1 END。此构帧仍由TB模拟caller，未生成production sequencer/adapter。
+
+## F9受影响修复
+
+只读成功BEGIN快照提供完整NumericIdentity/Context、416B L13M、origin、目标Ref/epoch/region、role、D/rows与写geometry交叉比较。整帧producer请求通过后才逐拍交实际engine；completion完整收齐并核原请求完整共同绑定、语法/终态/提交量后才交caller，未消费完成期间保持job/fence。新增BEGIN1024B＋请求1024B＋completion512B共2560B payload槽，其他metadata及联合资源另计，未综合。
+
+四个负例相同origin下分别改task_id、request_id、generation、目标epoch（地址不变），均在source AR/destination AW/W前隔离，未覆盖/发布且原BEGIN保留。两个负例在实际生成单行producer完成边界分别注入旧request_seq、错origin；真实读写/末B已发生，但无任何caller completion，旧请求/物理scope与fence保留、不发布/退休。测试签拒绝与隔离，未证明坏帧后的完整硬件恢复；不会将保留scope称作已排空。BEGIN响应八拍及反压原回归保持。F9整体范围判断交主控，不自行关闭C009。
+
+## 成本与历史
+
+当前同profile pilot速率824.024724cycles/s参与启动前决定。16行参考756928cycles，加262144cycles的Q预算余量，再乘1.5得1856s，低于原3600s；实际full753.504079s。Q余量是512group×512cycles的保守预算参考，不是当前Q实测速率或证明的周期上界。原5Mcycles/8GiB/120s进展及完整工作量/gold保留。
+
+_01 static PASS，pilot在新整帧校验前的旧job_active采样时点断言FAIL，6.082430s；_02修采样后static PASS，pilot120s保护终止。独立10us诊断确认TB索引16而shell只收15拍（capture_beat15、loaded0、grant1）；_03将TB发送索引改为非阻塞更新，末拍不再被同沿撤valid，取得当前PASS。两个原attempt/guard/日志及独立诊断保留，无重标。
+
+旧gate_split runner已有current-rate计算，本轮补为显式有限/正值/120s测速准入，缺效证据COST_STOP/started:false，使用历史估计与当前同profile/reference-cycle估计的较保守值；同时冻结执行guard/helper/runner和成本receipt。`gate_split_cost_guard_01`十个纯决策用例PASS_SCOPED_RUNNER（参考3079s、慢测速4836s拒启等），未重跑旧full，不补改gate_split_06启动依据。此修复未执行下一真实full。
+
+## 保留缺口与下一步
+
+本owner只有16行，identity B1/S64；不等于完整64行tensor。producer命令、completion→END由TB驱动，不签真实sequencer/adapter的depth2整链。一般部分提交/失败、活动cancel/旧返回恢复、完整tensor多窗口/multi-role/QKV、普通/GATE双向切换、LOAD/MATRIX、完整CPU/实际CSim、最终13BO top与完整硬件请求/联合资源/性能仍待。下一步推进流式/逐拍adapter生成与真实caller连接，再扩多窗口/错误路径和完整模型。
+
+L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成；5172s组合不重启，无新OOC/P&R/上板/agent或预算，G余2338.224019s不变。用户本会话新增偏好：持续卡住时允许选用5.6-sol；目前未切换实际模型，也未启动新agent。
+
+## 旧入口兼容性出口
+
+新增只读BEGIN输出后，旧monitor wildcard TB补声明；独立LN TB复用已验证的末拍非阻塞索引和job_active等待。`generated_store_monitor_09`限定RTL PASS；`layernorm_producer_portal_07 --pilot-only`static57.678261s/单行pilot20.385730s均PASS，无重复rows16 full。两项冻结guard/policy及当前/冻结pair核查见`layernorm_portal_compatibility_verification_20261012.json`。未修改`layernorm_quant_source_03`冻结DUT/TB/输入或运行证据。
+
+# 流式adapter真实生成与首个depth2 RTL出口：2026-10-12
+
+M003/SM003/E003/R003，A002单owner，E002/experiment唯一实现根。沿D-M003-CONTROLLER-INTERNAL-SPLIT-01，不改LTX1/LTC1/外部三对FIFO或原Host ABI、数值、typed任务及预算。
+
+实际改动：删除1024B external_request整帧副本及三套外部整帧encode，用三份不可变byte映射直接从已校验LTX1快照构造一个512bit字；PREPARE语义校验与NORMALIZE_RESPONSE分别有限调度，不再让top II1展开全部codec。请求先reset再解析，保留语法/完整绑定、LOCAL_REJECT、真实drained/scope及单inflight。语义decoder和completion encoder仍有整帧扫描，不能称全部codec已即时逐字校验或达到1字/cycle。三份int16映射源码表示6144B控制数据；删除payload不等于净资源节约。
+
+## host与真实生成
+
+`controller_transaction_adapter_12`四测试入口exit0/PASS_SCOPED_HOST，原codec/adapter/sequencer/oracle和错误/取消路径通过；新增56个patterned映射探针逐帧比对全部1024B既有semantic encoder（896字/57344B），不声称这些故意patterned帧语义准入合法。
+
+`controller_transaction_adapter_hls_03`生成工具真实exit0、guard child0/trigger null，370.877336s、peak5987504KiB，得到实际top及248份Verilog/16份DAT。Compile/Link31014、Unroll step1 67274、step4 58159、HW Transforms50701；Loop/function优化18.34s。对应_02为34864/180667/80707/48973及81.96s；不能称所有编译指标或峰值RSS均下降，也不当作请求性能。
+
+原runner receipt保持**FAIL**：扫描整个top文件误把内部有限helper的`.ap_start/.ap_done/.ap_idle/.ap_ready`实例连接当顶层端口。未改原receipt/manifest/生成RTL、未补跑HLS。修正未来runner只核top module header；独立只读`controller_adapter_hls_03_port_verification_20261012.json`为PASS_SCOPED_PORT_AUDIT：24/24 FIFO信号、其中18/18外部信号，ap_clk/ap_rst/cancel，顶层无ap_ctrl_hs。合法内部helper握手保留。
+
+HLS csynth利用率表估算BRAM18K49/DSP29/FF53762/LUT190633/URAM0；不是OOC或联合资源验收，未做P&R/物理时序/上板。HLS clock估计不能当实际Fmax。
+
+## 实际depth2首个RTL范围与成本停止
+
+`controller_transaction_adapter_rtl_01`static109.622604s/4864160KiB，pilot16.579330s/856656KiB、51308cycles，均PASS。实际HLS RTL与8个真实depth2 FIFO连接，发送完整MATRIX诊断command并逐字核16拍外部帧，受控8拍回复有中途gap和持续cancel，逐字核16拍normalized完成；completion FIFO满时先放后继descriptor前2拍，当前反压期间不消费，原完成排完后收齐剩余descriptor并本地cancel拒绝，最后所有FIFO清空。此pilot执行compute及其后继compute LOCAL_REJECT；**未执行LayerNorm算术、物理hub或真正MATRIX计算，也不代签prov/producer runtime错误路径**。这些其余路径目前只属于host范围。
+
+原计划八case组合在full前按当前3094.696799cycles/s及51308cycles×8×3复杂度余量×1.5投影597s/1847088cycles，超过此入口1Mcycle帽，结构化COST_STOP/started:false，无guard_full目录。保留1M帽和旧结果，不以墙钟尚有余量忽略周期准入，不宣称八case整体PASS。该1M为此协议入口固定保护，小于全项目40M上限；没有增加全项目预算。
+
+## 身份及后续
+
+核查三attempt：387/387 frozen及声明pair一致，386/387 current一致；唯一live差异是已披露HLS runner顶层分类修复。6739引用中6738匹配，一处也是该live脚本；生成DUT、fixture及运行产物不漂移。RTL_01的304pair/677引用全匹配；DAT16份由冻结副本落位并逐SHA确认。原HLS_01/_02语义停滞FAIL保持，HLS_03分类FAIL保持，RTL_01 full COST_STOP保持。
+
+下一步继续按预算做受影响协议子集和真实sequencer/adapter/LN连接，将当前TB的producer及completion→END替换为生产职责域；完整tensor多窗口、部分提交/故障/活动取消与错旧返回安全收束、multi-role/QKV/来源切换、LOAD/MATRIX及完整CPU/实际CSim继续待完成。C008/C009/C010整体不关闭；既有F9和其他错误处理限定关闭不扩大。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成，G OOC余2338.224019s不变。无新增OOC/P&R/上板或agent；用户允许持续卡住时采用5.6-sol，目前仍未实际切换。当前本项目没有重工具运行。
+
+## 交付SHA
+
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_12/input_manifest.json` SHA256=`7b43128bfd4e76cb599bb1638cdf43ca717210659a54604130460dce9e4ece31`
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_12/receipt.json` SHA256=`730763ba65e4882360b7cd9c629ab264bf5b373c714f4c16aadfa8c5a0339be7`
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_03/input_manifest.json` SHA256=`b730243127cd828e099d1f8e2196e43f80b121f602063c99cadc2dd67350f2a6`
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_hls_03/receipt.json` SHA256=`661589aded6a147e4f940f4d0532c86295fc37562c3e6bcb98e32da01070472b`
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_rtl_01/input_manifest.json` SHA256=`530d94d615bdd53b3b6704206572303188760e33e545dc37be88ab5e32a7afd5`
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_transaction_adapter_rtl_01/receipt.json` SHA256=`0fb9400ef49251987df38e79d318f0be815f66024802e338688223a7fda7c0a1`
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_adapter_hls_03_port_verification_20261012.json` SHA256=`042dada160a8f11aa97b29994dd18a71eff8d6e426724755b73d7d16b97e37fd`
+- `project/E003_production_chain_closure/experiment_results/runs/R003/controller_streaming_adapter_verification_20261012.json` SHA256=`57de57b2af3ddbeac6a3ea2a2730e304ea992ffdcb18b289c450a3c6f3c05707`
+
+# 流式adapter目录登记补充
+
+主阶段交付之后，按分区合同将唯一`config/production_hls_partitions.json`中adapter state从pending更新为generated_top_verified_rtl_compute_subset，登记实际HLS_03、只读top port audit及RTL_01路径/边界。full_module_registry已有指向此分区文件的原引用，无需重写其来源闭包；不改任何实现源、RTL、fixture或历史attempt。
+
+这是后续metadata登记，不扩大RTL范围，不将八case COST_STOP或完整生产链写成PASS。上一`controller_streaming_adapter_verification_20261012.json`是登记前的真实核验快照，保持原hash/正文不改；登记后HLS_03 live差异为runner分类修复及本分区JSON两项，host_12多本分区JSON一项；其冻结/声明pair保持，RTL_01所有304项current/frozen仍一致。LN等既有闭包中若引用本live分区JSON，也应按后续登记差异处理，冻结物理DUT/输入/运行结果不变。
+
+当前分区JSON SHA256: `0c70942ced4987bc8deb3bc8757ad46cac8e0f99655fd5ce7776b795ff27da1d`。下一阶段仍为协议子集与真实sequencer/adapter/LN连接，无新增帽/OOC/P&R/上板/agent。
+
+
+---
+Published: 2026-10-12T08:15:27.520946+00:00
+Publication: P24ea62ff586b418cb0e8820f2d248f36

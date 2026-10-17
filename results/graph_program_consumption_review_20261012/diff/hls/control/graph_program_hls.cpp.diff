@@ -1,0 +1,34 @@
+--- 01/hls/control/graph_program_hls.cpp
++++ 02/hls/control/graph_program_hls.cpp
+@@ -72,6 +72,7 @@
+   static program_wire::Command command;
+   static action::Request pending_action;
+   static program_wire::Result result;
++  static bool result_consumed_pending = false;
+   static program_wire::CommandPacket command_packet{};
+   static program_wire::ResultPacket result_packet{};
+   static action::RequestPacket action_packet{};
+@@ -80,7 +81,10 @@
+   if (cancel && graph.action_active) program::request_cancel(graph);
+ 
+   if (state == State::WAIT_RESULT_CONSUMED) {
+-    if (result_consumed) state = State::READ_COMMAND;
++    if (result_consumed_pending || result_consumed) {
++      result_consumed_pending = false;
++      state = State::READ_COMMAND;
++    }
+     return;
+   }
+ 
+@@ -192,6 +196,11 @@
+     ++beat;
+     if (beat == program_wire::kResultBeats) {
+       beat = 0;
++      // The real FIFO consumer may retire the final beat in the cycle that
++      // this producer finishes it.  Preserve that request-bound notification
++      // until WAIT_RESULT_CONSUMED observes it; signals on earlier beats are
++      // ignored so an old notification cannot release a later request.
++      result_consumed_pending = result_consumed;
+       state = State::WAIT_RESULT_CONSUMED;
+     }
+   }

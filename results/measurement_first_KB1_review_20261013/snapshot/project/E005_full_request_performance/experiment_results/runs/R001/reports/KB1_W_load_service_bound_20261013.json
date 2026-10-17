@@ -1,0 +1,74 @@
+{
+  "status": "OBSERVED_SCOPED_W_LOAD_BOUND",
+  "recorded_at": "2026-10-13T06:21:06.891239+00:00",
+  "scope": "same frozen four-row Down KB1 cold sample, same single-beat 512-bit AXI q0/q1 ports and TB RVALID periodic profile; read-only interpretation; no new DUT/candidate/tool",
+  "measured": {
+    "W_load_cycles": 27064,
+    "cold_TB_cycles": 43947,
+    "q0_R": 20992,
+    "q1_R": 20992,
+    "scale_R": 2624,
+    "q0_active_R_gap": 5248,
+    "q1_active_R_gap": 5248,
+    "scale_active_R_gap": 656,
+    "q0_R_not_ready": 0,
+    "q1_R_not_ready": 0,
+    "scale_R_not_ready": 0,
+    "q0_active_R_plus_gap": 26240,
+    "q1_active_R_plus_gap": 26240
+  },
+  "source_rules": {
+    "TB_RVALID": "rst_n && q_active[pp] && cycle%5!=pp",
+    "AXI_R_handshake": "one 512-bit beat maximum per port per cycle",
+    "reader": "single-burst ISSUE/RECV; RREADY throughout RECV; strict full-length reads",
+    "model": "same actual q0/q1/scale beat counts and no change to TB response profile"
+  },
+  "derived": {
+    "q0_or_q1_optimistic_minimum_service_span_cycles": 26239,
+    "calculation": "For 20992 accepted R beats and at most 4 RVALID cycles per 5 consecutive cycles, earliest possible span with favorable phase is 26239 cycles. Observed active beats+gaps=26240.",
+    "W_load_remaining_above_optimistic_service_minimum_cycles": 825,
+    "max_possible_load_reduction_percent": 3.048329884717706,
+    "max_possible_cold_TB_reduction_percent_if_every_other_phase_unchanged": 1.8772612465014678
+  },
+  "judgment": "Under this declared same-response cold scope, W reader scheduling by itself has at most about 825 cycles idealized room, before validity/retirement overhead. It is not a promise that 825 cycles are removable. Higher impact would require a different memory service or reuse/overlap boundary and its own same-profile baseline. KB1 command path 16183 cycles remains a measured priority for next same-scope candidate.",
+  "limits": [
+    "Assumes one R beat per 512-bit q port per cycle; preserves all 20992 beats on each q port and fixed TB RVALID every fifth cycle unavailable.",
+    "Does not claim that actual HBM has this periodic profile.",
+    "Does not prove warm W reuse, compute/load overlap, or reader redesign safe.",
+    "Exclusive phase relationship across redesigned DUT is unknown; cold-TB bound assumes other measured phases unchanged."
+  ],
+  "evidence": {
+    "KB0_measurement_full.json": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT001_KB0_resident_Down_measurement/evidence/measurement/measurement_full.json",
+      "sha256": "22bcbd93b733c0a44465c968db41d4bb8ef419425df5fc6b3bf98dad2a9b5bd2"
+    },
+    "KB0_raw_full.log": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT001_KB0_resident_Down_measurement/evidence/measurement/raw_full.log",
+      "sha256": "49ce6aea0d03f1d6bbbac417b626b02835bec540cd5709dc5568dc735fe320fc"
+    },
+    "KB0_input_manifest.json": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT001_KB0_resident_Down_measurement/evidence/measurement/input_manifest.json",
+      "sha256": "5d000c0e594740fcedec4985388b6acb9479fc6cd0424ecf73275283cc7b4ebe"
+    },
+    "KB1_measurement_full.json": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/measurement_full.json",
+      "sha256": "ddaf1729e8819b02f05b608ac9c9ce7856ec19ac0e2577783ac4b786cd8aaa6e"
+    },
+    "KB1_raw_full.log": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/raw_full.log",
+      "sha256": "90e1d9ddde5be4f6805f56ff0319f0c1602d81dcf001641efd11cc08d1e183ce"
+    },
+    "KB1_input_manifest.json": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/input_manifest.json",
+      "sha256": "3737584bb4b450d0b1bbf47301b4eaee26e9e209bbd951e3463ad2a822bf019d"
+    },
+    "KB1_TB": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_matrix_resident_tb_v2.sv",
+      "sha256": "3d72a4d8d7890032d1743113654c64be5a9589b5c8f6d5d753a6b67a5d80e438"
+    },
+    "KB1_reader": {
+      "path": "project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT002_KB1_Down_rowpack/evidence/measurement/frozen/vivado/module_design/hbm_loader_and_cache/rtl/t4_w_reader_port_v1.sv",
+      "sha256": "478aedddfd599a313eaff88a710a1f8996dd299ff76e56d6b040b08bec3f80df"
+    }
+  }
+}

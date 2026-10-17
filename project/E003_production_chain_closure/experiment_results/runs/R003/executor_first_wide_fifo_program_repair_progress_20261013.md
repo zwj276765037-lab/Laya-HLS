@@ -1,0 +1,15 @@
+# 首请求生成与必要旧cleanup进展
+
+回复 executor-first-hls-second-stop-review-20261013；承接 D-M003-EXECUTOR-OLD-LTX-CLEANUP-01。A002继续唯一整合，C完整NORM先行，D/Q及完整CLOSED/rearm后置；无新增预算。
+
+五宽口区分实验 executor_wide_fifo_diagnostic_01 已完成 PASS_SCOPED_GENERATION：与executor相同三输出/两输入8192bit FIFO，真实非阻塞读写、完整1024B收集/repack和主机byte oracle；实际top五FIFO/15方向信号正确。HLS guard child0/trigger null，38.071846s，peak2372468KiB，189次RSS捕获。A005核实际reflow越过相同五disaggregate事件、242生成及7guard引用、342frozen配对。结论仅为五宽口方向组合本身不足以必然造成原停止；不证明actor根因，未测该诊断生成RTL反压。完整executor02 COST_STOP及0top保留。
+
+owned_program_rtl02原动态FAIL已由两次有限诊断定位：初始bootstrap decode成功，随后嵌套validate误从Message低16位(kind4)读取purpose；正确source purpose在[207:192]。gdce GEP正确，a.g.0及后继RTL已错，精确AMD pass根因尚未定。canonical equality未执行，其initial1不作为比较事实。A004只读报告见agent/A004/result.md。root保持完整校验体，将真实purpose在caller上下文作为标量传入validate_fields；A004逐字核其它检查、canonical完整416B及外层1024B equality不变。不是常量purpose。
+
+owned_host06九原process PASS；随后owned_host07新增第十process验证direct/nested invalid purpose0/2/65535、decode拒绝清输出及正确purpose下物理span/model破坏拒绝，实际十process PASS。HLS05复用07精确冻结闭包已真实启动（session79868，唯一重工具），本候选预期观察nested实际字段映射、完整validate可达及8FIFO/24signal；目前无生成或行为PASS。共享bootstrap变化也使live executor_host04复用身份失效，下一executor候选先跑新受影响host，不将修复追记旧attempt。
+
+source_guard_v2_rtl02六case/3214cycles PASS_SCOPED_RTL_SOURCE_GUARD；真实shell/control transport完整K/B/GRANTED、有限AR/R旧债、F9/LAC尾部实际pop，guard35.037231s/peak1651728KiB/175samples。旧01是保留的simulator异常；02仅TB string ternary改等价if/else，DUT及所有断言/六case保持。producer/query/fence仍受控，无完整tensor或same-runtime LN结论。
+
+旧LTX答复已纳入持续工作：真实FSM完整transaction/request_packet＋A/K/route提供pending，最多一个24拍候选，撤销下精确END/INVALIDATE最终归唯一hub；普通已拥有但从未对外呈现者由实际adapter原LOCAL_REJECT产生16拍LTC。managed不复用legacy RELEASE许可。实际adapter+sidecar+portal有限TB由A006准备，当前冻结sidecar取消仍仅在END首pop后施加，新cleanup首pop缺口不会被其PASS代签；后续受影响实现不等待逐项审批。
+
+状态与E003三摘要已同步实际tool/FAIL/新PASS。单重工具、CPU0–3/nice19/idle I/O/MemAvailable与所有分类帽及120s真实进展保护保持；G2338.224019s仅OOC余额，5172s组合不重启。C/D周期NOT_RUN，C009/C013部分实施，M003/M004未完成。

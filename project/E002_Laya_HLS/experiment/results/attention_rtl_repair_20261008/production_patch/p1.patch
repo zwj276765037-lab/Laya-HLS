@@ -1,0 +1,54 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/production_patch/before_full_forward_controller.cpp	2026-10-08 14:28:31.431893771 +0800
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/production_patch/after_p1.cpp	2026-10-08 14:29:01.838043597 +0800
+@@ -191,10 +191,10 @@
+     if (c) c = full_publish_owner(rt, output);
+     return c;
+   }
+-  Check linear(Op op, WeightKey key, const FullOwnerSpec& source,
+-               uint8_t stage, uint8_t layer, BufferRef dst_ref,
+-               uint8_t dst_region, FullOwnerSpec& output,
+-               FullOwnerSpec* qkv_pair = nullptr) {
++  Check linear_impl(Op op, WeightKey key, const FullOwnerSpec& source,
++                    uint8_t stage, uint8_t layer, BufferRef dst_ref,
++                    uint8_t dst_region, FullOwnerSpec& output,
++                    bool pair_present, FullOwnerSpec (&pair_output)[2]) {
+     phase(stage, op);
+     FullWeightDescriptor descriptor;
+     Check c = load_weight(key, stage, layer, descriptor);
+@@ -208,7 +208,7 @@
+     FullOwnerSpec pair[2];
+     const bool scorer_lease = op == Op::LIN_SCORER_FC1;
+     if (qkv) {
+-      if (!qkv_pair) return {Status::E_INTERNAL, detail(7, 0, 4)};
++      if (!pair_present) return {Status::E_INTERNAL, detail(7, 0, 4)};
+       pair[0] = output;
+       pair[1] = output;
+       pair[1].ref = fresh(Buffer::QKV, 1);
+@@ -247,11 +247,25 @@
+     if (c && qkv) c = full_publish_qkv_pair(rt, pair);
+     else if (c && !scorer_lease) c = full_publish_owner(rt, output);
+     if (c && qkv) {
+-      qkv_pair[0] = pair[0];
+-      qkv_pair[1] = pair[1];
++      pair_output[0] = pair[0];
++      pair_output[1] = pair[1];
+     }
+     return c;
+   }
++  Check linear(Op op, WeightKey key, const FullOwnerSpec& source,
++               uint8_t stage, uint8_t layer, BufferRef dst_ref,
++               uint8_t dst_region, FullOwnerSpec& output,
++               FullOwnerSpec (&qkv_pair)[2]) {
++    return linear_impl(op, key, source, stage, layer, dst_ref,
++                       dst_region, output, true, qkv_pair);
++  }
++  Check linear(Op op, WeightKey key, const FullOwnerSpec& source,
++               uint8_t stage, uint8_t layer, BufferRef dst_ref,
++               uint8_t dst_region, FullOwnerSpec& output) {
++    FullOwnerSpec unused_pair[2];
++    return linear_impl(op, key, source, stage, layer, dst_ref,
++                       dst_region, output, false, unused_pair);
++  }
+   Check attention(uint8_t stage, uint8_t layer,
+                   const FullOwnerSpec (&produced)[2],
+                   FullOwnerSpec& output) {

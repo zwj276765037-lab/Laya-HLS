@@ -1,0 +1,137 @@
+--- project/E003_production_chain_closure/experiment_results/runs/R003/generated_store_monitor_09/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv
++++ project/E003_production_chain_closure/experiment_results/runs/R003/generated_store_monitor_10/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv
+@@ -3,7 +3,8 @@
+ // monitoring is an explicit input to this block; this module does not infer
+ // WSTRB coverage or adapter emptiness from C-level completion.
+ module laya_generated_provenance_hub_v1 #(
+-  parameter int OWNERS=32
++  parameter int OWNERS=32,
++  parameter bit ENABLE_BOOTSTRAP_SNAPSHOT=0
+ ) (
+   input  logic clk,rst_n,
+   input  logic request_valid,
+@@ -37,7 +38,18 @@
+   output logic domain_drained,
+   output logic cancel_pending,
+   output logic [5:0] active_owners,published_owners,
+-  output logic [31:0] accepted_events,semantic_rejections,terminal_tasks
++  output logic [31:0] accepted_events,semantic_rejections,terminal_tasks,
++  input logic snapshot_request_valid,
++  output logic snapshot_request_ready,
++  input logic [6143:0] snapshot_request,
++  output logic snapshot_response_valid,
++  input logic snapshot_response_ready,
++  output logic [6143:0] snapshot_response,
++  // The unique outer shell supplies its locked source BO/base lifecycle and
++  // real monitor/adapter/read-debt fence.  No owner publication is delegated.
++  input logic snapshot_physical_quiescent,snapshot_base_valid,
++  input logic [63:0] snapshot_base_epoch,snapshot_base_address,snapshot_base_capacity,
++  output logic [63:0] snapshot_sequence_high_water
+ );
+   import laya_generated_provenance_layout_v1::*;
+ 
+@@ -80,6 +92,8 @@
+   assign needs_physical=request_action==END_EVENT || request_action==PUBLISH ||
+                         request_action==RELEASE || request_action==INVALIDATE;
+   assign request_ready=!response_valid && !pending_end &&
++                       (!ENABLE_BOOTSTRAP_SNAPSHOT ||
++                        (!snapshot_request_valid && !snapshot_response_valid)) &&
+                        (request_action!=BEGIN_EVENT || begin_external_ready) &&
+                        (!needs_physical || physical_observation_valid);
+   assign physical_observation_ready=(pending_end && !response_valid) ||
+@@ -332,12 +346,95 @@
+     end
+   endfunction
+ 
++  // LBS1/LBR1 offsets are frozen in laya_bootstrap_snapshot_layout_v1.sv.
++  // This optional interface reads the very same owner arrays used by LPV1.
++  function automatic logic snapshot_frame_ok(input logic [6143:0] p);
++    logic [1023:0] d;
++    logic [15:0] b,s;
++    logic [63:0] capacity,address_value,extent;
++    logic valid;
++    d=p[576*8+:1024];b=p[80*8+:16];s=p[82*8+:16];
++    capacity=p[56*8+:64];address_value=p[48*8+:64];
++    extent=64'(b-1)*64'd4194304+64'(s)*64'd4096;
++    valid=p[0+:32]==32'h3153424c && p[4*8+:16]==1 && p[6*8+:16]==12 &&
++      p[8*8+:16]==1 && p[10*8+:48]==0 && p[16*8+:64]!=0 &&
++      p[24*8+:128]==0 && p[40*8+:64]!=0 && address_value!=0 &&
++      address_value[5:0]==0 && capacity>=64'd8388608 &&
++      capacity<=64'hffffffffffffffff-address_value &&
++      identity_ok(p[64*8+:672]) && p[148*8+:96]==0 &&
++      laya_model_identity_13bo_generated_v1::l13m_canonical_ok(p[160*8+:3328]) &&
++      laya_model_identity_13bo_generated_v1::l13m_numeric_tags_ok(
++          p[160*8+:3328],p[64*8+:672]) &&
++      descriptor_ok(d) && d[4*8+:32]==32'd1 && d[8*8+:64]==0 &&
++      d[16*8+:32]==32'h00ff0002 && d[20*8+:16]==0 && d[22*8+:16]==s &&
++      d[24*8+:16]==1024 && d[26*8+:24]==24'h060001 && d[29*8+:24]==0 &&
++      d[32*8+:64]==capacity && d[40*8+:64]==0 && d[48*8+:64]==4096 &&
++      d[56*8+:64]==4194304 && d[64*8+:64]==extent &&
++      d[72*8+:448]==0 && p[704*8+:512]==0;
++    return valid;
++  endfunction
++
++  assign snapshot_request_ready=ENABLE_BOOTSTRAP_SNAPSHOT &&
++    !snapshot_response_valid && !request_valid && !response_valid &&
++    !pending_end && !scope_active && !source_lease_active && !cancel_pending && !cancel;
++
++  always_ff @(posedge clk) begin : snapshot_readonly
++    integer slot;
++    logic [6143:0] reply;
++    logic [15:0] status;
++    logic matched;
++    if(!rst_n)begin
++      snapshot_response_valid<=0;snapshot_response<=0;
++      snapshot_sequence_high_water<=0;
++    end else if(ENABLE_BOOTSTRAP_SNAPSHOT)begin
++      if(snapshot_response_valid && snapshot_response_ready)
++        snapshot_response_valid<=0;
++      if(snapshot_request_valid && snapshot_request_ready)begin
++        reply=0;status=E_PROTOCOL;matched=0;
++        reply[0+:32]=32'h3152424c;reply[4*8+:16]=1;reply[6*8+:16]=12;
++        reply[8*8+:16]=1;reply[10*8+:16]=E_ABI;
++        reply[24*8+:32]=32'h0700000e;reply[32*8+:64]=64'hffffffffffffffff;
++        if(snapshot_frame_ok(snapshot_request))begin
++          reply=snapshot_request;
++          reply[0+:32]=32'h3152424c;reply[12*8+:32]=3;
++          reply[24*8+:32]=32'h0700000e;reply[32*8+:64]=64'hffffffffffffffff;
++          if(snapshot_request[16*8+:64]>snapshot_sequence_high_water)begin
++            snapshot_sequence_high_water<=snapshot_request[16*8+:64];
++            slot=find_exact(snapshot_request[64*8+:672],
++                            snapshot_request[576*8+:1024]);
++            status=E_BUFFER;
++            if(slot>=0)begin
++              matched=owner_published[slot] && !owner_invalid[slot] &&
++                owner_model_identity[slot]==snapshot_request[160*8+:3328] &&
++                source_owner_complete(slot);
++              if(matched)begin
++                status=E_PROTOCOL;
++                if(snapshot_physical_quiescent && snapshot_base_valid &&
++                   snapshot_request[40*8+:64]==snapshot_base_epoch &&
++                   snapshot_request[48*8+:64]==snapshot_base_address &&
++                   snapshot_request[56*8+:64]==snapshot_base_capacity)begin
++                  status=0;reply[12*8+:32]=63;reply[24*8+:32]=0;
++                  // Echo the immutable descriptor from the matched hub slot.
++                  reply[576*8+:1024]=owner_descriptor[slot];
++                end
++              end
++            end
++          end
++          reply[10*8+:16]=status;
++        end
++        snapshot_response<=reply;snapshot_response_valid<=1;
++      end
++    end
++  end
++
+   always_comb begin : source_query_logic
+     integer slot,window;
+     logic [1023:0] descriptor;
+     logic [95:0] producer,quant;
+     logic [63:0] expected_span;
+     source_query_ready=!source_lease_active && !scope_active && !pending_end &&
++      (!ENABLE_BOOTSTRAP_SNAPSHOT ||
++       (!snapshot_request_valid && !snapshot_response_valid)) &&
+       !request_valid && !response_valid && !cancel_pending;
+     source_query_granted=0;slot=-1;window=-1;descriptor=0;
+     producer=source_query_command[laya_compute_portal_layout_v1::PRODUCER_CONTEXT*8+:96];

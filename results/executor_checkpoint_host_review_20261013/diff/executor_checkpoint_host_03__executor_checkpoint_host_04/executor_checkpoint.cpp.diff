@@ -1,0 +1,26 @@
+--- executor_checkpoint_host_03/executor_checkpoint.cpp
++++ executor_checkpoint_host_04/executor_checkpoint.cpp
+@@ -179,7 +179,7 @@
+        d.row0, d.rows, d.width, d.content}};
+   if (!program_wire::validate(command)) return protocol();
+   // All possible rejection points are above. This single commit neither
+-  // calls retirement nor creates a target owner/READY record.
++  // calls retirement nor creates target READY content.
+   if (!existing) commit_source(rt, proof.binding, source_slot, source_floor);
+   // CLAIM compares epochs against the local owner history as well as the
+   // dispatch cursor. Cache the complete domain floor with no READY content.
+@@ -194,11 +194,14 @@
+     rt.provenance_event_high_water = proof.lpv_floor;
+   auto& baseline = rt.checkpoint_baseline;
+   baseline.identity = rt.inputs.identity;
++  baseline.source = command.source.owner;
++  baseline.model_identity = proof.binding.source.model_identity;
+   baseline.snapshot_sequence = proof.binding.source.sequence;
+   baseline.handoff_epoch = proof.binding.handoff_epoch;
+   baseline.base_epoch = fence.base.epoch; baseline.base_address = fence.base.address;
+   baseline.base_capacity = fence.base.capacity;
+   baseline.task_base = proof.task_floor; baseline.local_retired_at_import = rt.tasks_retired;
++  baseline.lpv_floor = proof.lpv_floor; baseline.target_epoch_floor = target_floor;
+   baseline.valid = true;
+   state.handoff_high_water = proof.binding.handoff_epoch;
+   state.phase = bootstrap::Phase::SOURCE_CONFIRMED;

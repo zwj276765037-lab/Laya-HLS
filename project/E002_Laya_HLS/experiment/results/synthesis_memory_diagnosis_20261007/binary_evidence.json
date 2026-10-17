@@ -1,0 +1,48 @@
+{
+  "binary": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/lnx64/tools/clang-3.9-csynth/bin/clang",
+  "static_evidence": "Read-only disassembly of the exact installed compiler whose stack was sampled. No binary modification.",
+  "observations": [
+    {
+      "address": "0x14b0da0",
+      "meaning": "GenerateBitConcat entry; SysV arguments include ArrayRef pointer rsi, count rdx and target IntegerType pointer rcx."
+    },
+    {
+      "address": "0x14b0edc",
+      "meaning": "Loop calls ConstantInt::get(Type*, offset, false). rdi is the cast result type, rsi/r12 the cumulative bit offset."
+    },
+    {
+      "address": "0x14b0e37",
+      "meaning": "Zero-value test occurs after the shift offset ConstantInt has been requested."
+    },
+    {
+      "address": "0x13c0b80",
+      "meaning": "ConstantInt::get(Context, APInt) accesses LLVMContext DenseMap<APInt,unique_ptr<ConstantInt>>, copies wide APInt key, and constructs ConstantInt."
+    },
+    {
+      "address": "0x13c0d39",
+      "meaning": "IntegerType bitwidth is read as uint32 at type pointer+8, shifted right by8; >64 bits uses APInt::initSlowCase."
+    }
+  ],
+  "unknowns_before_width_probe": [
+    "Actual target W and source fragment count M in the observed large rewrite.",
+    "Exact global symbol name at the sampled stack.",
+    "How far original unprofiled 360 GiB run had progressed in this path."
+  ],
+  "conditional_storage_model": "For M distinct shift offsets expressed at W-bit width, dense APInt constant interning needs storage proportional to M*W bits, with separate key/value copies visible in the implementation. This is a conditional algorithmic model, not yet a measured production allocation total.",
+  "measured_after_width_probe": {
+    "target_integer_width_bits": 2653009,
+    "arrayref_input_fragment_count": 6480158,
+    "constant_callsite_width_bits": 2653009,
+    "first_sampled_offset": 0,
+    "source": "reflow_width_probe/width_captures.json",
+    "direct_global_symbol_not_captured": true
+  },
+  "zero_control_static_order": {
+    "buildModule_generateGlobals_call": "0x23c0b1e",
+    "buildModule_generateFunctions_call": "0x23c0b36",
+    "generateFunctions_buildFunction_call": "0x23c02e6",
+    "visitSelectInst_unsupported_pointers_call": "0x23fa2eb",
+    "visitSelectInst_unsupported_different_types_call": "0x23fa33f",
+    "meaning": "The matching pointer-selection diagnostics occur in function conversion, after global generation in buildModule. The altered initializer control reached this later failure; HLSGen did not complete."
+  }
+}

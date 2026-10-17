@@ -1,0 +1,92 @@
+--- frozen_v1/tb/vector_mode3_control.svh
++++ candidate_v1/vector_mode3_control.svh
+@@ -26,30 +26,70 @@
+   integer r_special_count=0, b_special_count=0;
+   integer r_hold_cycles=0, b_hold_cycles=0;
+ 
++  // Explicit sampled-net aliases for XSim clocking inputs; no clock/edge change.
++  wire ap_start;
++  assign ap_start = dut.ap_start;
++  wire ap_done;
++  assign ap_done = dut.ap_done;
++  wire ap_ready;
++  assign ap_ready = dut.ap_ready;
++  wire state1;
++  assign state1 = dut.ap_CS_fsm_state1;
++  wire state_awvalid;
++  assign state_awvalid = u_port_state1.e_awvalid;
++  wire state_awready;
++  assign state_awready = u_port_state1.e_awready;
++  wire [63:0] state_awaddr;
++  assign state_awaddr = u_port_state1.e_awaddr;
++  wire [7:0] state_awlen;
++  assign state_awlen = u_port_state1.e_awlen;
++  wire [2:0] state_awsize;
++  assign state_awsize = u_port_state1.e_awsize;
++  wire state_wvalid;
++  assign state_wvalid = u_port_state1.e_wvalid;
++  wire state_wready;
++  assign state_wready = u_port_state1.e_wready;
++  wire [3:0] state_wstrb;
++  assign state_wstrb = u_port_state1.e_wstrb;
++  wire state_wlast;
++  assign state_wlast = u_port_state1.e_wlast;
++  wire [31:0] state_aw_count;
++  assign state_aw_count = ram_aw_count[5];
++  wire [31:0] state_w_count;
++  assign state_w_count = ram_w_count[5];
++  wire final_r_handshake;
++  assign final_r_handshake = r_hold_applied[5];
++  wire final_b_handshake;
++  assign final_b_handshake = b_hold_applied[5];
++  wire [31:0] final_r_wait;
++  assign final_r_wait = r_special_wait_cycles[5];
++  wire [31:0] final_b_wait;
++  assign final_b_wait = b_special_wait_cycles[5];
++
+   // The sample is the value presented to the receiver on this positive edge.
+   // Queue assertions below wait one precision step for the passive monitors
+   // to account for those same physical handshakes.
+   clocking mode3_cb @(posedge clk);
+     default input #1step;
+-    input ap_start = dut.ap_start;
+-    input ap_done = dut.ap_done;
+-    input ap_ready = dut.ap_ready;
+-    input state1 = dut.ap_CS_fsm_state1;
+-    input state_awvalid = u_port_state1.e_awvalid;
+-    input state_awready = u_port_state1.e_awready;
+-    input state_awaddr = u_port_state1.e_awaddr;
+-    input state_awlen = u_port_state1.e_awlen;
+-    input state_awsize = u_port_state1.e_awsize;
+-    input state_wvalid = u_port_state1.e_wvalid;
+-    input state_wready = u_port_state1.e_wready;
+-    input state_wstrb = u_port_state1.e_wstrb;
+-    input state_wlast = u_port_state1.e_wlast;
+-    input state_aw_count = ram_aw_count[5];
+-    input state_w_count = ram_w_count[5];
+-    input final_r_handshake = r_hold_applied[5];
+-    input final_b_handshake = b_hold_applied[5];
+-    input final_r_wait = r_special_wait_cycles[5];
+-    input final_b_wait = b_special_wait_cycles[5];
++    input ap_start;
++    input ap_done;
++    input ap_ready;
++    input state1;
++    input state_awvalid;
++    input state_awready;
++    input state_awaddr;
++    input state_awlen;
++    input state_awsize;
++    input state_wvalid;
++    input state_wready;
++    input state_wstrb;
++    input state_wlast;
++    input state_aw_count;
++    input state_w_count;
++    input final_r_handshake;
++    input final_b_handshake;
++    input final_r_wait;
++    input final_b_wait;
+   endclocking
+ 
+   initial begin

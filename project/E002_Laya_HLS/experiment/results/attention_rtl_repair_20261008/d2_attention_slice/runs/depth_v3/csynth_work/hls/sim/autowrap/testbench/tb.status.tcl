@@ -1,0 +1,1 @@
+set ::AESL_AUTOSIM::gTopFileName /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/./sim/autowrap/testbench/attention_slice.cpp_pre.cpp.tb.cpp

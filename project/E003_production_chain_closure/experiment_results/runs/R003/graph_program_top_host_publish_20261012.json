@@ -1,0 +1,14 @@
+{
+  "source": "# E003：Graph program accepted-request top主机实现\n\nA002单owner，唯一实现根为E002/experiment。沿D-M003-GRAPH-LIFECYCLE-SPLIT-01实现program分区有限HLS top，冻结LGP1/LGR1 256B/4拍双向schema、共享C/SV layout和6源闭包，不改13BO/control、LAX1/LAC1、LTX1/LTC1、typed任务、数值规则或预算。\n\n当前entrypoint只生成B1/S64 NORM_LAYER1_ATTN。program在成功LAC1后提交slot/PC，安全错误形成request失败；坏accepted command在action分配前形成零ordinal、无binding LOCAL_REJECT。LGR1写完后必须等待真实result consumer信号，才读取下一LGP1。\n\n冻结host回归用独立Python oracle逐字核LGP1/LGR1，执行成功action、安全错误、坏command、本request result未消费时阻止后继command，以及消费后ordinal单调恢复。executor/shell真实准入与depth2硬件握手仍待。",
+  "results": "# E003当前结果：Graph program top主机出口\n\n`graph_program_top_host_01`为PASS_SCOPED_HOST。三条冻结命令均exit0：oracle 0.066419s、build 3.723993s、run 0.005823s。launcher为CPU0–3、nice19、idle I/O、MemAvailable 430609528KiB。独立核查32/32 current、frozen、pair及75/75 manifest/receipt SHA引用一致。\n\nrequest901产生ordinal1的LAX1并由成功LAC1提交slot；request902在旧LGR1未消费时保持未读，消费后产生ordinal2，安全E_BUFFER完成返回无slot更新的request失败。坏magic command返回可解码的零ordinal、无binding LOCAL_REJECT；其LGR1未消费时request904保持未读，消费后产生ordinal3。语义坏LGR1 decode会清除预置旧可信输出。\n\nmanifest=`03cf285f7b024350a8224dac6ed51413f78ba31e2424881ea402fa875e7c281b`；receipt=`a3f6ce5f2dc5b42b7eaf617ea691e3e77d42b416a5b6ea3c8802c718c3e324c0`；verification=`4c8148463f8387f469b9ee2b76276add9ab43a0796794ed8f8c553dab5932b97`。F11–F13既有限定关闭保持。",
+  "status": "# E003当前状态\n\nexecution_state: running\nverdict: unassessed\n\nprogram accepted-request top已在冻结host范围通过；当前无本项目重工具。工程继续实现executor accepted-request bootstrap/top和真实program/executor host组合，把program result、LAX1/LAC1 action及F10 LTX1/LTC1三个消费边界分别接到真实FIFO handshake，再按当前身份生成有限分区并连接LayerNorm/hub。\n\n本次TB直接注入已接受LGP1和抽象result_consumed；没有executor/shell准入权威、depth2 RTL action/result FIFO、lifecycle/adapter/LN/hub同runtime链、完整PC图、HLS生成、完整17类graph或13BO请求。host runner只签CPU/nice/I/O/MemAvailable及1800s/24GiB限制。\n\nC009仍为部分实施，C008/C010整体待验证；L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成。不重启5172s组合profile，不增加资源帽、OOC/P&R/上板、agent或预算，G OOC余2338.224019s。",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "program HLS top的LGP1/LGR1 byte schema、单个NORM action、成功/安全错误/坏command和抽象result consumer门控主机范围；不含executor/shell准入、真实depth2 RTL握手、生产链或完整graph",
+  "evidence": [
+    "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_01/input_manifest.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_01/receipt.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_verification_20261012.json",
+    "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_milestone_20261012.md"
+  ]
+}

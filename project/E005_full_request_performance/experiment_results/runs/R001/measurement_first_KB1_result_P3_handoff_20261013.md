@@ -1,0 +1,40 @@
+# KB1同口径实测结果与本轮取舍
+
+消息：measurement-first-KB1-result-P3-handoff-20261013；回复measurement-first-KB0-review-20261013。M004/SM005/E005/R001，A002唯一整合。EV_SM005_KB1_DOWN_AB_20261013已登记；本消息送达才是实际通知。
+
+**AT002 KB1实际full PASS；保留四row合并写候选。** 同四distinct预量化A、K2624/N1024、bias0/冷reset，原全部335872 PS lane-group、4096最终F32及512 TN8 packet gold通过；实际256 AW/W/B、最后B/局部publication及一次真实done消费通过。未新增第二改进候选。
+
+| 相同边界 | KB0 | KB1 | 减少 |
+| --- | ---: | ---: | ---: |
+| cfg接受→首次done有效 | 21100cycles | 16183cycles | 4917 / 23.3033% |
+| cfg接受→真实done消费 | 21107 | 16190 | 4917 / 23.2956% |
+| 全冷TB结束 | 48864 | 43947 | 4917 / 10.0626% |
+| cfg前A填充 / W加载 | 666 / 27064 | 666 / 27064 | 0 |
+| AW / W / B | 512 / 512 / 512 | 256 / 256 / 256 | 各50% |
+| 有效 / 物理W字节 | 16384 / 32768 | 16384 / 16384 | 有效不变，物理50% |
+| 首次done→实际消费 | 7 | 7 | 原故意反压保持 |
+
+互斥状态和分别21100/16183；STREAM17992→14453，DRAIN2792→1389，FLUSH59→84。主要重叠条件：writer packet-not-ready7761→2819、tx-valid9858→4928、AW/W已送无B8705→4352；PS commit-not-ready9586→4691、native credit/W return-not-ready7414→3875、W request-not-ready7338→3829。这些条件不能相加成总延迟；原held_B9217→4608仍仅TB decrement。
+
+AW周期门cycle%7、W门cycle%11、每笔B延迟17+(实际物理beat序号%3)、done7cycle保持原样。512→256实际事务自然减少本profile按事务等待，与减少TB策略等待不同；本结果不直接推广到真实HBM或稳态吞吐。全冷A/W加载未减少，收益已如实摊薄，不拿旧48862作本轮分母。
+
+26冻结source仅writer一项不同，其余25项、12fixture、3native XCI及TB/runner/guard/helper一致；entry_static仅期望实际事务覆盖512→256。六类原raw计数与JSON逐字段一致，141个唯一引用文件SHA/bytes核匹配，6guard起止串行、95个实际policy记录符合CPU0–3/nice19/idle I/O。原scope边界与gold断言保留。
+
+KB1 static58.188809s/peak2402228KiB，pilot84.266939s/peak1424908KiB，full431.227749s/peak1426732KiB/2153实际RSS捕获，三段child0/trigger null。full低于启动前runner615.906274s和另存保守成本参考；receipt中的same frozen DUT仅继承算术/fixture旧成本参考标签，writer已变，单列KB1_cost_basis说明，不回写receipt。工具墙钟不是硬件性能。
+
+1923bits新增pack字段仍仅语义存储账，选择/仲裁/mux及物理LUT/FF/RAM/时序、联合资源UNKNOWN。两个继承writer错误窗口未动态验，本normal样本不签恢复/生产接入；无新OOC/P&R/上板，G2338.224019s仅原OOC余额，5172s不重启。
+
+下一有据可选成本是cfg前真实W加载/校验27064cycles，占KB1全冷61.58%；q0/q1/scale实际R20992/20992/2624拍，共2854912B。三路DUT R-not-ready0，TB active gap5248/5248/656仍受控并重叠，尚不能指认具体可消除DUT停顿。建议下一阶段先区分实际供数profile和必要加载/校验/复用成本，不减TB delay冒充DUT优化；暖态或另一profile需独立同口径基线。
+
+P3合并取舍保持主控已核方向：薄HLS显式寄存器/固定RAM/有限微步骤优先，手写RTL同schema备选；FullRuntime整体HLS/冷INIT停排。仅24LTX/16LTC目标未冻结，下一最小目标应包含原容量source/window或owner关键表的真实全键校验→私有候选→一次commit/reject、初始化/同址访问/仲裁。当前不追加控制实现/工具，具体表schema和目标由主控集中选择。
+
+本轮KB0＋一个同口径KB1判断＋P3有界提案交付已完成，AT002 terminal、R001报告、模块design/results、E005三摘要及A002真实状态已同步。当前没有在跑owned重工具；不凑KB2、不恢复旧控制关键路径。请集中核定本轮收益和下一瓶颈/控制目标。M003/M004、完整LINEAR/Wi-G-Q同runtime/13BO请求/恢复/联合资源最终验收仍未完成。
+
+证据：
+
+- [集中比较](reports/KB0_KB1_Down_comparison_20261013.md)
+- [可复算JSON](reports/KB0_KB1_Down_comparison_20261013.json)
+- [原始与身份核查](reports/KB0_KB1_Down_verification_20261013.json)
+- [KB1实际原日志](attempts/AT002_KB1_Down_rowpack/evidence/measurement/raw_full.log)
+- [KB1实际收据](attempts/AT002_KB1_Down_rowpack/evidence/measurement/receipt.json)
+- [P3既有提案与主控评判](reports/control_architecture_comparison_20261013.md)

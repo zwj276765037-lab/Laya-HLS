@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "measurement-first-LQ1R-first-timing-progress-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# LQ1R第一版：注册映射成功，HLS估计仍差0.43ns\n\n2026-10-13；M004/SM005/E005/R001；A002。AT017由AT015的31份冻结源派生，仅最终normalize循环新增`delta` F32减`BIND_OP latency=4`与`norm` F32乘`BIND_OP latency=3`，原II1 pragma及全部数值/错误/存储接口保持。主机g++/HLS类型模型原16行数值对照exit0；HLS生成PASS，guard child0/trigger null，101.160436s、peak3144228KiB。未运行RTL。\n\n实际生成最终循环F32减wrapper为5级、native core `c_latency=3`；F32乘wrapper为4级、native core `c_latency=2`，两者均非旧零延迟组合IP。HLS最终循环pipelined=yes、实际II9、估计9224cycles；单top估计BRAM18 29、DSP18、FF20136、LUT48112、URAM0，top及受影响算术子模块slack均**−0.43ns**。这些是HLS估计，非物理时序/联合资源或实际cycle。\n\n调度原警告`HLS 200-887`与详细State7一致：F32减末级2.976ns紧接F32乘首级2.322ns，形成5.298ns路径；当前有效预算6.667−1.800=4.867ns，故本版不准入static/pilot/full。这个具体剩余路径支持仅将F32减再加一级寄存器约束作第二版有据尝试，检查是否把末级路径压到预算内；不改乘法、数值或错误语义，也不扫其它latency。若第二版仍有估计违例，按两版上界停止本修复方向。\n\n原始证据：[AT017 receipt](../attempts/AT017_LQ1R_LN_hls_01/receipt.json)、[AT017 input manifest](../attempts/AT017_LQ1R_LN_hls_01/input_manifest.json)、[HLS汇总](../attempts/AT017_LQ1R_LN_hls_01/work/reports/hls_compile.rpt)、[调度明细](../attempts/AT017_LQ1R_LN_hls_01/work/hls/.autopilot/db/layernorm_row_arithmetic_Pipeline_VITIS_LOOP_107_7.verbose.sched.rpt)、[调度警告](../attempts/AT017_LQ1R_LN_hls_01/work/hls/.autopilot/db/autopilot.flow.log)、[减法IP配置](../attempts/AT017_LQ1R_LN_hls_01/work/hls/syn/verilog/laya_layernorm_producer_engine_fsub_32ns_32ns_32_5_full_dsp_1_ip.tcl)、[乘法IP配置](../attempts/AT017_LQ1R_LN_hls_01/work/hls/syn/verilog/laya_layernorm_producer_engine_fmul_32ns_32ns_32_4_max_dsp_1_ip.tcl)。\n",
+  "in_reply_to": "measurement-first-LQ1-review-timing-repair-dispatch-20261013",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/LQ1R_timing_attempt_01_20261013.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "6b310d0d3939f728216b047aa79c4e523f381460bd5136b8847d4ae83dc48fb3",
+  "created_at": "2026-10-13T09:38:24.145730+00:00",
+  "status": "delivered",
+  "client_user_message_id": "4afd34f2-500b-4f25-8b0a-bd98d7a1ccbb",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T09:38:24.186012+00:00",
+  "recipient_turn_id": "01a134a0-9f30-7e61-9a9c-cda677b2d746"
+}

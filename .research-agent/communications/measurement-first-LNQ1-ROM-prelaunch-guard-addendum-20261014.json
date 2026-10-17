@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "measurement-first-LNQ1-ROM-prelaunch-guard-addendum-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# LN ROM prelaunch guard prepared after AT048\n\n2026-10-14; M004/SM005/E005/R001; A002. This is a live runner preparation fix for any **future** frozen attempt. It does not modify AT048 or authorize another LNQ1 full.\n\nThe live `run_lnq0_chain_v1.tcl` now sources `stage_ln_roms_v1.tcl` immediately after elaboration and before `LNQ0_STATIC_PASS` or simulation. The helper requires the xsim directory, validates the seven exact generated LN ROM names and their SHA-256 against the frozen AT040 baseline, copies them into the xsim working directory, and rechecks the staged hashes. A missing helper, source, destination or mismatched hash makes the static entry fail before a full launch. A future attempt must freeze **both** Tcl files and record their identities; the generated LN RTL and ROM contents remain unchanged.\n\nLive runner SHA-256: `2c7f28d45a8af296b8026073cd989a2b2ac80f666b10551121c51a6819e489b6`; helper SHA-256: `31d7e56d5e2b63cf1510d84129db542f35779704dfc051cf9f36f11286e17a85`. A host-only `tclsh` check staged all seven AT040 frozen ROMs into a temporary directory and verified every target digest against its source. Corrupting one temporary source was rejected before any target copy. This checks the helper's good and bad branches; a new Vivado compile/simulation has **not** been run and remains subject to a new stage contract and the original tool caps.\n\nAT048 still has static PASS/full COST_STOP due to its absent runtime ROMs. Its frozen inputs, work directory, original logs and receipt were not changed. No END/PUBLISH or Q/Wi/G/Down result can be inferred from this preparation fix.\n",
+  "in_reply_to": null,
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/LNQ1_ROM_prelaunch_guard_addendum_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "42d6583bb4282e9d53f76f2be5bd2c0dbd57d2f46cac833d2295a24db1295fc3",
+  "created_at": "2026-10-13T20:13:16.080764+00:00",
+  "status": "delivered",
+  "client_user_message_id": "9fc94de9-1c23-40d2-92d7-a597fa286f96",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T20:13:16.108145+00:00",
+  "recipient_turn_id": "01a136e2-6252-7801-b1de-32d2ed5b60b5"
+}

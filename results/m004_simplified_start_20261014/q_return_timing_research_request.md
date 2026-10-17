@@ -1,0 +1,9 @@
+# AT131新路径：定向核一个首错/完成切分
+
+2026-10-15；A001→A003；M004/SM004/E004/R001。修订7已交：同版Q与LN→Q局部通过，AT131 WNS−1.750ns、最差FMUL返回→首错key归并→done_status，39级/8.399ns；原32槽串链已消除。A001核身份、功能与实际改动，你仅核下一条路径，不重做全图或工程回归。
+
+请读AT131第一条timing_paths、冻结Q的mul_pop/best_error/first_error_key/done与int8转换，给一套保持原数值/首错/排空的最小寄存切分建议。重点：16lane转换/坏lane选择与跨来源64bit错误key归并如何切开；新增有效位/错误候选在最后一次MUL返回、错误slot释放、done/physical_debt_zero和共同reset之间如何守恒，不能只把best_error改成旧寄存值而漏末个错误。说明额外周期与是否需要真实数据槽/credit、哪些路径仍未知，不扩lane或改数学规则。
+
+另确认原Tcl在synth_design后才create_clock的实证边界；下一候选会把6.667ns约束在综合优化前读入，届时不能把改流与改RTL后的WNS差异全归RTL。不运行EDA，不建议扫参数或大规模P&R；只在原source架构文档增一小节，轻量原预算≤120s/8GiB，历史未采样保持UNKNOWN。A001负责最终合同与预算，A002唯一实施。先前reset已由AT124/AT130真实FP发出/旧返回隔离限定闭合，不再重复核旧缺口。
+
+主控补充最小性检查：当前done条件明确排除本拍amax_ret_valid/div_resp_valid/mul_any_valid，并要求全部slot FREE。请优先判断done_status只引用已提交first_error_key/numerical_error是否已经语义充分，避免默认新建FMUL数据流水。A002已在原static余量内获一次只读AT131 DCP查询，分别给first_error_key/numerical_error/done_status/q写数据端点最差路径，未改RTL或重综；届时以这张表选择是否仍需真实切分。你的分析只需列清最小方案的成立条件，不扩为多候选实验。

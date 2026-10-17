@@ -1,0 +1,192 @@
+{
+  "date": "2026-10-13",
+  "reviewer": "A006",
+  "implementation_owner": "root/A002",
+  "status": "STATIC_REVIEW_NORMAL_PATH_NO_NEW_ISSUE",
+  "scope": "Normal four-row cold resident Down arithmetic; original AXI response policy, READY backpressure, independent gold, final B and seven-cycle done hold. Static source review only.",
+  "baseline_source": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/resident_regression_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_axi512_writer_v1.sv",
+    "bytes": 13549,
+    "sha256": "676eabc146f835ca3cfdaebb5fe6fbde85f3230b4046f18b8cf5a3403ed20a76"
+  },
+  "candidate_source": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_axi512_writer_rowpack_kb1.sv",
+    "bytes": 14944,
+    "sha256": "5fad1da7479aeb4227da5744a857503b82b3690b1d10aec5231f96f7dd5bc691"
+  },
+  "byte_identical_blocks": [
+    {
+      "name": "shape_config_packet_address",
+      "byte_identical": true,
+      "bytes": 5355,
+      "sha256": "03ce63d5838b401facb3f24312ee035cfc544594c8418f2b12502e330fed5d66",
+      "candidate_start_line": 77,
+      "candidate_end_line": 160
+    },
+    {
+      "name": "configuration_identity_latch",
+      "byte_identical": true,
+      "bytes": 1101,
+      "sha256": "2774d04957314f4bfb36a663fdf00519cf9a63c31acc99b6bff2ecc9e9c0c161",
+      "candidate_start_line": 209,
+      "candidate_end_line": 221
+    },
+    {
+      "name": "AXI_signal_equations",
+      "byte_identical": true,
+      "bytes": 383,
+      "sha256": "4c482ec2037015cf59584c7fa623b2be482827878685d2dc896221a88c809fa8",
+      "candidate_start_line": 185,
+      "candidate_end_line": 189
+    },
+    {
+      "name": "retirement",
+      "byte_identical": true,
+      "bytes": 216,
+      "sha256": "a6a66823b41f342abd323449cfa556f8a47e10e471e2a398195f8b45dccc13e9",
+      "candidate_start_line": 258,
+      "candidate_end_line": 260
+    }
+  ],
+  "verification": {
+    "source_diff": "READ_ONLY_COMPLETE",
+    "bounded_text_region_comparison": "BYTE_IDENTICAL",
+    "compiler": "NOT_RUN",
+    "simulation": "NOT_RUN",
+    "numeric_gold": "NOT_RUN",
+    "actual_256_AW_W_B": "NOT_RUN",
+    "performance": "NOT_RUN",
+    "mapping": "UNKNOWN"
+  },
+  "findings": [
+    {
+      "topic": "four row caches",
+      "lines": [
+        63,
+        74,
+        163,
+        174
+      ],
+      "conclusion": "Only pack valid/address/strobe/data grow to four row-indexed entries. Configuration, owner tag, identity and retirement authority are single unchanged instances."
+    },
+    {
+      "topic": "selection and simultaneous transfer/merge",
+      "lines": [
+        164,
+        179,
+        226,
+        237
+      ],
+      "conclusion": "Select only a sealed cache. Capture its pre-edge value into tx then clear local selected cache. A same-row merge sees the cleared valid bit and starts the next beat; a different-row merge only writes held_row. Other caches stay intact."
+    },
+    {
+      "topic": "held packet ordering",
+      "lines": [
+        123,
+        128,
+        176,
+        182,
+        236,
+        244
+      ],
+      "conclusion": "Original packet tile/row/mask/final/owner checks are byte-identical. Pending lane bits clear by beat_mask; a new packet is accepted only when the old held packet finishes or is empty. NBA replacement cannot change the old held_row used by the merge."
+    },
+    {
+      "topic": "immutable presented AXI transaction",
+      "lines": [
+        161,
+        162,
+        175,
+        185,
+        189,
+        223,
+        228
+      ],
+      "conclusion": "Transfer requires no old tx or actual b_fire. AW/W VALID and payload equations are unchanged and do not withdraw on fault. READY0 or one channel already sent cannot replace the old tx; B consumes or atomically replaces it."
+    },
+    {
+      "topic": "fault and debt handling",
+      "lines": [
+        175,
+        179,
+        246,
+        260
+      ],
+      "conclusion": "Existing bad-held/B-error/bad-packet branch clears every unsent row cache and held packet while preserving an existing tx. Inherited error-entry gaps below remain outside the measured normal scope."
+    },
+    {
+      "topic": "flush and final B",
+      "lines": [
+        164,
+        169,
+        183,
+        184,
+        254,
+        260
+      ],
+      "conclusion": "Flush can seal all valid row caches. Debt zero and flush_done require held packet empty, every cache empty and tx empty after its physical B. Original coverage/retirement checks are byte-identical."
+    },
+    {
+      "topic": "fixed-priority drain",
+      "lines": [
+        164,
+        182
+      ],
+      "conclusion": "A held row waiting for an address-changing cache cannot admit new packets. Other sealed rows are finitely drained, then that row can transfer and merge; no new normal-path deadlock was found."
+    }
+  ],
+  "inherited_unmeasured_error_windows": [
+    {
+      "name": "bad incoming packet and cache transfer in same edge",
+      "lines": [
+        175,
+        181,
+        182,
+        226,
+        249
+      ],
+      "inherited_from_baseline": true,
+      "pre_edge": {
+        "configured": 1,
+        "fault": 0,
+        "flushing": 0,
+        "flush_valid": 0,
+        "tx_valid": 0,
+        "held_valid": 0,
+        "sealed_cache_present": 1,
+        "packet_valid": 1,
+        "packet_ok": 0
+      },
+      "reasoning": "transfer_pack does not gate on a newly invalid packet handshake. The edge can create t=1 from a previously unpresented sealed cache, then fault clears p/h but retains t. New AW/W can appear after this fault edge. This exact policy is inherited; it does not prove that only already-presented old tx survives an error."
+    },
+    {
+      "name": "stray B while tx is empty",
+      "lines": [
+        251,
+        254,
+        258
+      ],
+      "inherited_from_baseline": true,
+      "reasoning": "The unchanged unsolicited B branch sets fault but does not clear held/pack state. With such unsent state present, later transfer/merge are fault-gated and debt zero need not be reachable. General error recovery is unmeasured."
+    }
+  ],
+  "root_scope_decision": "Keep inherited fault policy for this KB1; stop any experimental error. Do not add generic fault recovery experiments. Production integration requires affected error regressions and is not closed by this local KB.",
+  "logical_storage": {
+    "original_pack_bits": 641,
+    "candidate_pack_bits": 2564,
+    "additional_pack_bits": 1923,
+    "calculation": "3*(1 valid + 64 address + 64 strobe + 512 data)",
+    "physical_resource_claim": "UNKNOWN"
+  },
+  "expected_unmeasured_effect": {
+    "useful_bytes": 16384,
+    "physical_beats_before": 512,
+    "physical_beats_candidate": 256,
+    "physical_bytes_candidate": 16384,
+    "final_TN8_packets_unchanged": 512,
+    "note": "Hypothesis/declared coverage only; same TB full must observe it after KB0 completion."
+  },
+  "mutable_files_edited": [],
+  "new_agents": 0,
+  "heavy_tools_started": 0
+}

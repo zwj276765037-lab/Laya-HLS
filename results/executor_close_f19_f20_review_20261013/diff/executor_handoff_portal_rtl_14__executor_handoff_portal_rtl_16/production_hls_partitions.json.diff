@@ -1,0 +1,53 @@
+--- executor_handoff_portal_rtl_14/production_hls_partitions.json
++++ executor_handoff_portal_rtl_16/production_hls_partitions.json
+@@ -390,7 +390,7 @@
+     },
+     "managed_query_connection": {
+       "state": "PASS_SCOPED_RTL_MANAGED_QUERY_CONNECTION",
+-      "acceptance": "awaiting_controller_review",
++      "acceptance": "R-SM003-EXECUTOR-MANAGED-QUERY-20261013: finite query wrapper/capture only; C009/C013 and production closing remain pending",
+       "implementation": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_executor_handoff_portal_shell_v1.sv",
+       "managed_transport": "MANAGED_HANDOFF=1 only in actual managed wrapper; default diagnostic unchanged",
+       "scope": "single STATE0 real portal/monitor/hub and depth2 query: gates owned in module, explicit predecessor completion remains controlled; complete old query progresses under persistent cancel/base revoke; actual hub negative full-binding oracle; last read has no grant; bound ABORT_CLOSED consumes query phase but revoked shell stays isolated",
+@@ -417,6 +417,41 @@
+         "full source AR/write/alias protection and legal QUANT lease",
+         "LN/hub/typed retirement/Q/full13BO chain"
+       ]
++    },
++    "request_close_preparation": {
++      "state": "PASS_SCOPED_REQUEST_CLOSE_ENDPOINT_PREPARATION",
++      "acceptance": "awaiting_controller_review",
++      "contract": "results/executor_close_rearm_contract_20261013.md",
++      "schema": {
++        "magic": "LHC1",
++        "version": 1,
++        "bytes": 1024,
++        "beats": 16,
++        "CLOSE": 8,
++        "CLOSED": 9,
++        "legacy_kinds": "1-7 literal bytes unchanged; other unknown kinds rejected",
++        "Host_13BO_ABI": "unchanged"
++      },
++      "actor_mode": "managed_close latched on actual software admission; true full Host result and exact CLOSED echo required; WAIT_NEW_ADMISSION has no new ingress yet",
++      "shell_mode": "MANAGED_REQUEST_CLOSE=1 only in finite shell TB; real portal wrapper leaves it default-disabled and explicitly ties close fact ports0",
++      "seal_gate": "full terminal seal removes same-cycle new start/query/HELD authority; existing old cleanup ownership retained",
++      "shell_evidence": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_request_close_shell_rtl_03",
++      "host_evidence": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_request_close_host_05",
++      "scope": "19 old shell plus17 close cases, controlled full terminal/work/Host/physical records and wide atomically verified CLOSED; six separate actual software runtime result branches, controlled CLOSED replies; four actual RTL CLOSED captures offline C++ roundtrip",
++      "compatibility": [
++        "executor_actor_host_07",
++        "executor_handoff_portal_rtl_13",
++        "executor_handoff_portal_rtl_14"
++      ],
++      "pending": [
++        "production wrapper actual full A/K terminal/work/Host consumers and CLOSED transport",
++        "accepted but no LGP local request error result and admission_closed(A)",
++        "committed preprogram ABORT error result/safe close",
++        "active LPV old partial frame/END/last B/return persistent cancellation",
++        "bound new candidate ingress with one true parse/admit and durable allocator/history floors",
++        "true LAP1/action8/4/F10 24/16 consumers and all source entry protections/QUANT lease",
++        "executor HLS/current production LN/hub/unique software retire/Q/full13BO chain"
++      ]
+     }
+   }
+ }

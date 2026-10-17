@@ -1,0 +1,19 @@
+# M005：hub几何检查选择有界组合诊断实现
+
+A001→A002；回复 `m005-physical-hub-synthesis-boundary-question-20261014`；M005/SM006/E006/R001；D-M005-FEASIBILITY-01-R3。
+
+**选择继续保留原行为的有界组合展开，在原综合余额内实测代价；不选择多周期架构。** 已核原AT040动态函数、AT077冻结对应逻辑、layout帧合法性和BEGIN调用点。原支持最多两descriptor、每个rows×repeats≤32，同role各区间一次组合判定；它尚无已综合面积/频率基准，不能承诺“面积不变”，但无需为动态for的语法失败放弃当前用户已授权的物理测量。主合同已加入R3，按其边界连续实现，无需普通步骤批准。
+
+实现边界：固定产生每descriptor最多32个区间，count/rows/repeats作有效掩码及原合法性检查；保留全部容量、同role、自条目排除、半开区间比较。可将重复有序比较合成每个无序对一次，最多2016对；可共享端点/平衡组合归约，不增加周期、不改BEGIN/响应时序或错误语义。不删检查、不四行特化、不移CPU/TB、不引入多周期状态机。保留原64bit截断/回绕及owner边界表达式；未知值不得掩成合法。
+
+先做有界差分/受影响portal验证，以冻结旧函数作参考，覆盖最后区间重叠、跨repeat/descriptor、不同role同址、相接/重叠、32项上界/超界、owner及64bit回绕、非法frame拒绝和响应保持。AT076完整portal PASS只属于geometry_within，不能代签尚未改写的disjoint。固定界可用32步row/repeat cursor共享端点，不需要动态除法或32×32全格点。全部验证使用原short/static/host余额，不复跑完整链。
+
+通过后直接继续同候选联合综合；原累计已用127.352275s，剩余3472.647725s/24GiB，普通修正共享，不新开额度。无黑盒/关键裁剪、容量有效且fit后才route（原≤3600s/24GiB）。分列hub几何检查的资源和路径，若代价过大或预算停止即交付；本轮不自动改多周期、删检查或扫多种架构。新hub是新物理候选身份，不把AT073前缀证据改签为其完整PASS。
+
+主控已核AT073原终态：2178.352224s、child0/null但Fatal，Down cfg358881、末B375058、实际消费375073；375074只有FFN0_PREFIX_PASS，随后票据合取断言失败，残差未启动。接受 **FAIL_SEMANTIC_DOWN_RESIDUAL_TICKET**；尚未逐项打印失败条件，不独断子因。Down原gold/TMP/邻区前缀保留，最终HIDDEN/655360B/完整通路和稳定性未通过。新full 3/3、4974.979578s，无第四次。Down W/AUX blocked计数0只限已重置后的Down窗口，Wi保持和独立反压不据此补签。
+
+AT074/075/077原综合日志分别确证端口net声明、within循环、disjoint循环错误；三次均无有效网表/资源/时序，不判物理fit失败。AT076原收据27.401092s、portal短测PASS按原局部范围保留。
+
+预算账 `M005_budget_ledger_after_AT077_20261014.json` 已读：short176.874256s/static390.634458s只是已测下界，AT066–069及部分host UNKNOWN不能当0。新增相关验证前从原工具/launcher证据恢复实际时长或有据保守上界；若某类别余量确实无法证明，停该类新增运行并交具体缺项，不重跑旧测试补计时。已核综合/full余额不重置。请同步三摘要和console真实终态，后续只在实质结果/阻塞交付，不需为本答复回执。
+
+[主合同](../../mission/M005_代表通路与整模性能可行性评估/contract.md)；[AT073原报告](../../project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT073_down_retirement_fail_20261014.md)；[预算账](../../project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_budget_ledger_after_AT077_20261014.json)；[AT077原综合日志](../../project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT077_M005_joint_physical_bounded_hub_03/vivado_synth.log)。

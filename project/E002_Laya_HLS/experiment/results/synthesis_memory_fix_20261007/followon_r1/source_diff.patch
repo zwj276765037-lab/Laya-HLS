@@ -1,0 +1,124 @@
+--- f1a/hls/common/laya_full_memory.cpp
++++ followon_r1/hls/common/laya_full_memory.cpp
+@@ -253,8 +253,8 @@
+   return ok();
+ }
+ 
+-Check full_lookup_tensor(const char* name, FullTensorDescriptor& result,
+-                         uint16_t* index) {
++Check full_lookup_tensor_indexed(const char* name, FullTensorDescriptor& result,
++                                 uint16_t& index) {
+   if (!name) return bad_model();
+   for (unsigned i = 0; i < 153; ++i) {
+     bool same = true;
+@@ -264,11 +264,19 @@
+     }
+     if (same) {
+       result = kFullTensors[i];
+-      if (index) *index = uint16_t(i);
++      index = uint16_t(i);
+       return ok();
+     }
+   }
+   return bad_model();
++}
++
++Check full_lookup_tensor(const char* name, FullTensorDescriptor& result,
++                         uint16_t* index) {
++  uint16_t found_index = 0;
++  Check c = full_lookup_tensor_indexed(name, result, found_index);
++  if (c && index) *index = found_index;
++  return c;
+ }
+ 
+ Check full_f32_address(const FullRuntime& rt, const FullMemory& memory, BufferRef ref, uint8_t region,
+--- f1a/hls/control/full_forward_controller.cpp
++++ followon_r1/hls/control/full_forward_controller.cpp
+@@ -25,10 +25,12 @@
+            (id == Buffer::DEC_FF && r.ref.id == Buffer::WI);
+   }
+   BufferRef fresh(Buffer id, uint8_t bank = 0, uint8_t region = 0) const {
+-    for (const FullOwnerRecord& record : rt.owners.record)
++    for (unsigned i = 0; i < 32; ++i) {
++      const FullOwnerRecord& record = rt.owners.record[i];
+       if (physical(record, id, bank, region))
+         return {id, bank, record.max_claimed_epoch < kMaxEpoch ?
+                           record.max_claimed_epoch + 1 : 0};
++    }
+     return {id, bank, 1};
+   }
+   TaskContext context(Op op, uint8_t stage, uint8_t layer,
+@@ -709,8 +711,8 @@
+     checkpoint("scorer_fc1_baked", scorer_baked);
+     FullTensorDescriptor scorer_bias;
+     uint16_t scorer_bias_id = 65535;
+-    c = full_lookup_tensor("scorer_fc1.bias", scorer_bias,
+-                           &scorer_bias_id);
++    c = full_lookup_tensor_indexed("scorer_fc1.bias", scorer_bias,
++                                   scorer_bias_id);
+     if (!c) return c;
+     FullOwnerSpec scorer_hidden;
+     c = transform(Op::BIAS_GELU_SCORER, scorer_baked, 1024,
+@@ -743,7 +745,7 @@
+     checkpoint("act_dot", act_dot);
+     FullTensorDescriptor act_bias;
+     uint16_t act_bias_id = 65535;
+-    c = full_lookup_tensor("act_fc1.bias", act_bias, &act_bias_id);
++    c = full_lookup_tensor_indexed("act_fc1.bias", act_bias, act_bias_id);
+     if (!c) return c;
+     FullOwnerSpec act_hidden;
+     c = transform(Op::BIAS_GELU_ACT, act_dot, 256,
+@@ -760,7 +762,8 @@
+   }
+ 
+   Check invalidate_incomplete() {
+-    for (FullOwnerRecord& owner : rt.owners.record) {
++    for (unsigned i = 0; i < 32; ++i) {
++      FullOwnerRecord& owner = rt.owners.record[i];
+       if (owner.ref.id == Buffer::NONE) continue;
+       if (owner.state == CacheState::READ || owner.readers)
+         return {Status::E_INTERNAL, detail(7, 0, 14)};
+--- f1a/hls/operators/full_tasks_attention.cpp
++++ followon_r1/hls/operators/full_tasks_attention.cpp
+@@ -176,6 +176,10 @@
+                            rt.inputs.identity.S);
+     if (c) kv_read = true;
+   }
++  uint8_t qk_mask[1024];
++  if (c)
++    for (unsigned key = 0; key < t.S; ++key)
++      qk_mask[key] = rt.inputs.attention_mask[t.ctx.batch][key];
+   for (unsigned r = 0; r < t.ctx.rows && c; ++r) {
+     float q[64];
+     for (unsigned d = 0; d < 64; ++d) {
+@@ -184,7 +188,7 @@
+       if (!c) break;
+     }
+     if (c) c = qk_row(q, full_cache_kv(rt)[0][t.ctx.batch],
+-                      rt.inputs.attention_mask[t.ctx.batch], t.S,
++                      qk_mask, t.S,
+                       uint16_t(t.ctx.row0 + r), mode != 0,
+                       full_cache_score(rt)[t.ctx.batch][r]);
+   }
+--- f1a/hls/operators/full_tasks_vector.cpp
++++ followon_r1/hls/operators/full_tasks_vector.cpp
+@@ -100,7 +100,7 @@
+                      "scorer_fc1.bias" : "act_fc1.bias";
+   FullTensorDescriptor d;
+   uint16_t index = 65535;
+-  Check c = full_lookup_tensor(name, d, &index);
++  Check c = full_lookup_tensor_indexed(name, d, index);
+   if (!c || t.bias_id != index || d.bo != uint8_t(Bo::AUX) ||
+       d.ggml_type_id != 0 || d.span != uint32_t(t.length) * 4)
+     return task::buffer(t.dst.id);
+--- f1a/include/laya_full_runtime.h
++++ followon_r1/include/laya_full_runtime.h
+@@ -172,6 +172,8 @@
+ Check full_lookup_weight(WeightKey, FullWeightDescriptor&);
+ bool full_equal_weight(const FullWeightDescriptor&, const FullWeightDescriptor&);
+ Check full_tensor_descriptor(uint16_t tensor_index, FullTensorDescriptor&);
++Check full_lookup_tensor_indexed(const char* name, FullTensorDescriptor&,
++                                 uint16_t& index);
+ Check full_lookup_tensor(const char* name, FullTensorDescriptor&,
+                          uint16_t* index = nullptr);
+ Check full_span(const FullMemory&, Bo, uint64_t offset, uint64_t bytes);

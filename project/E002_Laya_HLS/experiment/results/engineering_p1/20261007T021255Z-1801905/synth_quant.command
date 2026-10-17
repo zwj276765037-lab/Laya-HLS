@@ -1,0 +1,1 @@
+env LAYA_NUMERIC_HLS_SYNTH_PROJECT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/numeric-hls-20261007T021255Z-1801905/quant_synth /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/vitis-run --mode hls --tcl /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/config/numeric_hls_quant.tcl 

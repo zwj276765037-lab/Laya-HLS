@@ -1,0 +1,55 @@
+--- v1/tb/clock_wait_diag_top.sv
++++ v2/tb/clock_wait_diag_top.sv
+@@ -1,7 +1,41 @@
+ `timescale 1ns/1ps
+ 
+ module clock_wait_diag_top;
+-    import clock_wait_worker_pkg::*;
++    typedef virtual axi_if#(64,4,8,3,1) diag_vif_t;
++
++    class clock_wait_worker;
++        static int unsigned constructor_count = 0;
++        int unsigned id;
++        diag_vif_t vif;
++
++        function new(input int unsigned worker_id, input diag_vif_t worker_vif);
++            id = worker_id;
++            vif = worker_vif;
++            constructor_count++;
++        endfunction
++
++        task run_static(ref longint unsigned ticks[32]);
++            forever begin
++                @(posedge $root.clock_wait_diag_top.clk);
++                ticks[id]++;
++            end
++        endtask
++
++        task run_virtual(ref longint unsigned ticks[32]);
++            forever begin
++                @(posedge vif.clk);
++                ticks[id]++;
++            end
++        endtask
++
++        task run_virtual_delayed(ref longint unsigned ticks[32]);
++            forever begin
++                @(posedge vif.clk);
++                #0.1;
++                ticks[id]++;
++            end
++        endtask
++    endclass
+     import "DPI-C" function void phase_probe_stage(
+         input string label, input longint sim_time_ps,
+         input longint clock_count, input longint value0, input longint value1);
+--- v1/tb/build_static.sh
++++ v2/tb/build_static.sh
+@@ -7,7 +7,6 @@
+ "$vivado_bin/xvlog" --sv \
+   -i "$module_root/rtl/axivip" \
+   "$module_root/rtl/axivip/axi_if.sv" \
+-  "$module_root/tb/clock_wait_worker_pkg.sv" \
+   "$module_root/tb/clock_wait_diag_top.sv" \
+   -log xvlog.log
+ 

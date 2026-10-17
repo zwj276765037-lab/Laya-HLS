@@ -1,0 +1,36 @@
+--- AT023_GQD0_chain_01/gqd0_chain_tb_v1.sv
++++ AT024_GQD0_chain_02/gqd0_chain_tb_v1.sv
+@@ -982,8 +982,8 @@
+         w_seen=1;wd_data=m_axi_wdata[0];wd_strb=m_axi_wstrb[0];
+       end
+       if(aw_seen && w_seen && !stored)begin
+-        if(aw_addr<cfg_region_base[0]+7*4096 || aw_addr>=cfg_region_base[0]+11*4096 || aw_addr[5:0]!=0)$fatal(1,"resident physical output address");
+-        idx=int'((aw_addr-(cfg_region_base[0]+7*4096))/4);
++        if(aw_addr<cfg_region_base[0]+cfg_batch_stride_bytes+7*4096 || aw_addr>=cfg_region_base[0]+cfg_batch_stride_bytes+11*4096 || aw_addr[5:0]!=0)$fatal(1,"resident physical output address");
++        idx=int'((aw_addr-(cfg_region_base[0]+cfg_batch_stride_bytes+7*4096))/4);
+         for(int lane=0;lane<16;lane++)begin
+           if(wd_strb[lane*4+:4]!=0 && wd_strb[lane*4+:4]!=4'hf)$fatal(1,"resident output word strobe");
+           if(wd_strb[lane*4+:4]==4'hf)begin
+@@ -1221,6 +1221,7 @@
+     @(negedge clk);g_cfg_valid=1;tick();
+     if(g_cfg_reject)$fatal(1,"GQD0 legal G command rejected");
+     @(negedge clk);g_cfg_valid=0;
++    $display("GQD_PROGRESS cycle=%0d G_cfg_accepted=1",cycle);
+     for(int row=0;row<4;row++)begin
+       integer held_issued,held_aw;
+       for(int col=0;col<5248;col++)begin
+@@ -1238,6 +1239,14 @@
+       @(negedge clk);g_wi_read_debt_zero=1;
+       @(posedge clk);while(!g_wi_row_done_ready)@(posedge clk);#1;
+       @(negedge clk);g_wi_row_done_valid=0;
++      $display("GQD_PROGRESS cycle=%0d Wi_row=%0d gate_W=%0d gate_B=%0d",cycle,row,g_w_count,g_b_count);
++      if(pilot && row==0)begin
++        while(g_b_count<164)tick();
++        if(g_w_count!=164 || g_aw_count!=164 || g_b_count!=164)
++          $fatal(1,"GQD0 first physical GATE row coverage");
++        $display("GQD0_PILOT_PASS cycle=%0d real_Wi_words=5248 gate_AW=164 gate_W=164 gate_B=164 quant_and_Down=NOT_RUN",cycle);
++        $finish;
++      end
+     end
+     while(!g_done_valid)tick();
+     if(g_done_status!=0 || g_gate_owner_state!=0 || fa_slot_state[0]!=2 ||

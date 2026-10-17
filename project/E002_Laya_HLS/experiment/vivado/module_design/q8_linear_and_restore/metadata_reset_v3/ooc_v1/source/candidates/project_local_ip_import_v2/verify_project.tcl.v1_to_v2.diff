@@ -1,0 +1,11 @@
+--- v1/verify_project.tcl
++++ v2/verify_project.tcl
+@@ -56,7 +56,7 @@
+     if {[get_property GENERATE_SYNTH_CHECKPOINT $obj] != 0} { error "unexpected IP synthesis DCP: $name" }
+ }
+ set checker [file join [file dirname [info script]] verify_imported_xci.py]
+-puts [exec /usr/bin/python3 $checker --check $run_dir [file join $project_dir ip_import_paths.tsv]]
++puts [exec /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3 $checker --check $run_dir [file join $project_dir ip_import_paths.tsv]]
+ update_compile_order -fileset sources_1
+ report_compile_order -fileset sources_1 -used_in synthesis -file [file join $report_dir compile_order.rpt]
+ report_ip_status -file [file join $report_dir ip_status.rpt]

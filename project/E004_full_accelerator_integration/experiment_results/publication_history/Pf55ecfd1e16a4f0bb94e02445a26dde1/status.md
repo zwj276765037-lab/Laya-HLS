@@ -1,0 +1,19 @@
+# E004：状态
+
+execution_state: running（M004完整目标）；verdict: unassessed（完整加速器）。SM004修订11按成本出口收束：AT173整次FAIL，但其真实完整cold/warm至Encoder0 FFN单行末残差及所测FP/G复位、W-tag错误后warm的Fatal前分项获主控限定接纳；AT174 AUX AR定向停顿PASS，AT175 AXI首AR已接收/R0时共同reset隔离及重新cold LOAD PASS。AT176/177探针FAIL，AT178墙钟COST_STOP，坏数值/poison映射与部分R后reset仍未测。累计static1142.969832/1800s、RTL4724.407606/4800s，余RTL75.592394s不足真实末组触发；host完整累计UNKNOWN。当前ADD一次仅1项在途，未取得命令延迟或II。完整Encoder block/整图、联合OOC/P&R、真实Fmax及整模性能仍开放。
+
+
+---
+Published: 2026-10-15T00:25:03.288957+00:00
+Publication: Pc11edb83b7af43f6abf04294491830fa
+Execution state: running
+Research verdict: unassessed
+Applicability: SM004修订11真实Encoder0 FFN单行冷暖末残差数值与所测两次算术在途共同reset、W-tag错误后完整warm为AT173 Fatal前限定分项；AT174 AUX首AR停顿与AT175 W首AR在途共同reset/重新cold LOAD各PASS_SCOPED；AT173整体FAIL，AT176/177探针FAIL，AT178 COST_STOP；坏数值/poison与完整图未验
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT173_SM004_residual_combined_recovery_01/guard_combined/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT174_SM004_aux_ar_stall_targeted_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT175_SM004_axi_inflight_reset_targeted_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT176_SM004_wi_last_scale_bad_targeted_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT177_SM004_wi_last_return_scale_bad_targeted_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT178_SM004_wi_issue_scale_bad_targeted_01/guard_rtl/guard_result.json

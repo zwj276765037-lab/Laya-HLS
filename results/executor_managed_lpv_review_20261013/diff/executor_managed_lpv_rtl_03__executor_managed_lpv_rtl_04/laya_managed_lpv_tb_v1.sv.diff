@@ -1,0 +1,75 @@
+--- executor_managed_lpv_rtl_03/laya_managed_lpv_tb_v1.sv
++++ executor_managed_lpv_rtl_04/laya_managed_lpv_tb_v1.sv
+@@ -260,7 +260,7 @@
+   endtask
+ 
+   task automatic install_case(input integer n);
+-    rst_n=0;cancel=0;provenance_cmd_write=0;provenance_rsp_read=0;
++    rst_n=0;cancel=0;source_query_valid=0;provenance_cmd_write=0;provenance_rsp_read=0;
+     lpv_admission_valid=0;lpv_revoke_valid=0;lpv_pending_valid=0;
+     lpv_candidate_route=0;lpv_response_route=0;lpv_candidate_valid=1;
+     monitored_bo_base=BO_BASE;snapshot_base_epoch=7;adapter_pending_zero=1;
+@@ -269,14 +269,20 @@
+     load_packet("admission",lpv_admission_record);
+     if(!laya_admission_owner_layout_v1::record_ok(lpv_admission_record))
+       $fatal(1,"actual C++ captured A failed executed SV complete codec");
+-    for(int mutant=0;mutant<11;mutant++)begin
+-      logic [8191:0] bad;bad=lpv_admission_record;
++    for(int mutant=0;mutant<22;mutant++)begin
++      logic [8191:0] bad;integer offset;
+       case(mutant)
+-        0:bad[0+:32]=0;1:bad[4*8+:16]=2;2:bad[6*8+:16]=15;
+-        3:bad[8*8+:32]=1;4:bad[12*8+:32]=0;5:bad[16*8+:64]=0;
+-        6:bad[24*8+:64]=0;7:bad[32*8+:8]=1;
+-        8:bad[148*8+:8]=1;9:bad[720*8+:64]=0;10:bad[888*8+:8]=1;
++        0:offset=0;1:offset=4;2:offset=6;3:offset=8;4:offset=12;5:offset=15;
++        6:offset=16;7:offset=24;8:offset=32;9:offset=63;10:offset=64;11:offset=72;
++        12:offset=80;13:offset=148;14:offset=159;15:offset=160;16:offset=576;
++        17:offset=727;18:offset=728;19:offset=736;20:offset=888;21:offset=1023;
+       endcase
++      bad=lpv_admission_record;bad[offset*8+:8]=bad[offset*8+:8]^1;
++      if(offset==16 || offset==24 || offset==64 || offset==72)bad[offset*8+:64]=0;
++      if(offset==12)bad[12*8+:32]=0;
++      if(offset==80)bad[80*8+:16]=0;
++      if(offset==727)bad[720*8+:64]=0;
++      if(offset==736)bad[736*8+:64]='1;
+       if(laya_admission_owner_layout_v1::record_ok(bad))$fatal(1,"bad complete A accepted mutant=%0d",mutant);
+     end
+     lpv_candidate_owner=lpv_admission_record;lpv_response_owner=lpv_admission_record;
+@@ -373,7 +379,35 @@
+     if(!protocol_error || active_owners!=1 || terminal_tasks!=0 || last_event_seq!=6)
+       $fatal(1,"damaged model did not preserve isolation/owner");
+     $display("FULL_CURRENT_MANAGED_LPV_CASE_PASS case=4 bad_complete_model_isolated=1 old_owner_kept=1 no_recovery_claim=1");
+-    $display("FULL_CURRENT_MANAGED_LPV_PASS cases=4 actual_cpp_A=1 whole_A_install_controlled=1 executed_SV_codec=1 A_wire_rejects=11 depth2_16_8=1 unique_hub=1 route_tagged=1 persistent_revoke=1 exact_claim_only_cleanup=1 real_END_B_fence=1 no_reset_within_case=1 rearm_NOT_RUN=1 all13BO_NOT_RUN=1 cycles=%0d",cycles);
++    install_case(5);literal_transact("claim");cancel=1;literal_transact("bad_reserved");
++    if(!protocol_error || active_owners!=1 || terminal_tasks!=0 || last_event_seq!=7)
++      $fatal(1,"bad reserved frame lost old owner/isolation");
++    $display("FULL_CURRENT_MANAGED_LPV_CASE_PASS case=5 bad_reserved_isolated=1 old_owner_kept=1 no_recovery_claim=1");
++
++    install_case(6);
++    // This tests the same-edge ready gate with a complete A-bound candidate;
++    // no legal source owner/lease is claimed by this fixture.
++    source_query_command=0;
++    source_query_command[laya_compute_portal_layout_v1::IDENTITY*8+:672]=lpv_admission_record[64*8+:672];
++    source_query_command[laya_compute_portal_layout_v1::MODEL_IDENTITY*8+:3328]=lpv_admission_record[160*8+:3328];
++    source_query_valid=1;#1;
++    if(!source_query_ready || source_query_granted)$fatal(1,"source gate baseline or phantom lease");
++    cancel=1;#1;if(source_query_ready || source_query_granted)$fatal(1,"same-edge revoke source gate open");
++    tick();cancel=0;repeat(12)begin
++      if(source_query_ready || source_query_granted || source_lease_active)$fatal(1,"source candidate reopened after pulse");tick();
++    end
++    source_query_valid=0;
++    if(!lpv_owner_revoked || cmd_reads!=0 || rsp_reads!=0 || active_owners!=0 || terminal_tasks!=0 ||
++       forwarded_aw!=0 || forwarded_w!=0 || !domain_drained)$fatal(1,"source gate created work or waited on revoke itself");
++    $display("FULL_CURRENT_MANAGED_LPV_CASE_PASS case=6 bound_source_candidate_same_edge_revoke_gate=1 actual_legal_lease_NOT_RUN=1 no_business=1");
++    install_case(7);load_packet("preowned_claim",packet);
++    lpv_pending_valid=1;lpv_pending_owner=lpv_admission_record;lpv_pending_packet=packet;
++    cancel=1;send_packet(packet);lpv_pending_valid=0;literal_result("preowned_claim");
++    if(accepted_requests!=0 || accepted_events!=0 || terminal_tasks!=0 || cmd_reads!=16 || rsp_reads!=8 ||
++       forwarded_aw!=0 || forwarded_w!=0 || last_event_seq!=21 || protocol_error || !lpv_owner_revoked)
++      $fatal(1,"preowned first-ever old LPV frame blocked or created business");
++    $display("FULL_CURRENT_MANAGED_LPV_CASE_PASS case=7 first_ever_LPV_already_owned_pending=1 controlled_full_frame_drained_negative=1 zero_hub_business=1");
++    $display("FULL_CURRENT_MANAGED_LPV_PASS cases=7 actual_cpp_A=1 whole_A_install_controlled=1 executed_SV_codec=1 A_wire_rejects=22 depth2_16_8=1 unique_hub=1 route_tagged=1 persistent_revoke=1 exact_claim_only_cleanup=1 real_END_B_fence=1 no_reset_within_case=1 rearm_NOT_RUN=1 all13BO_NOT_RUN=1 cycles=%0d",cycles);
+     $finish;
+   end
+ endmodule

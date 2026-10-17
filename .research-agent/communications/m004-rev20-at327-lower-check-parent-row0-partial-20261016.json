@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m004-rev20-at327-lower-check-parent-row0-partial-20261016",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# 修订20 AT326–327局部里程碑（2026-10-16）\n\n修订20仍在实施；本记录仅对应已执行的下层完整Check回显与上层内部覆盖位移交后的父top row0前缀。未完成上层单一owner、独立生产stage或完整16/128行。\n\n- AT326：下层接受LN_ONLY时锁存id/row/epoch，导出result_exec=001及op8/status16/detail32/bad64，父core核接收身份并代理。原局部Q16全部16槽4352字最终复扫、512同步响应、部分窗口abort/discard/新epoch和共享bank客户端仍通过；非法LN视图tile的完整Check断言通过。static 32.20409899018705s，RTL 30.382008612155914s，均child0/trigger null。\n- AT327：在上层生产服务内部维护norm_written、stage_store_fault与norm_stage_ready，wrapper撤去原成功位/故障/ready决定脉冲。冻结124份源码/脚本及5份实际fixture；同版父top重新展开static 143.9772515669465s，RTL 49.26396718993783s，均child0/trigger null。`PREFIX_ROW0`自检实际gamma256R、source64R、1024项norm逐位、64笔OKAY B及row0退休；终标在153800ns，无提前stage ready。该source64R为终标时全次计数，运行在row0完成后立即结束；不推断后继行或128终点。\n\n四笔guard当前累计static 176.18135055713355/1800s、RTL 79.64597580209374/3600s；截至AT327余static 1623.81864944286645s、RTL 3520.35402419790626s，static仍须为最终父top构建保留400s。host完整累计UNKNOWN。原guard、manifest、源码身份均在各自attempt目录，失败/旧结果不改。\n\n当前`laya_qkv_s128_request_v1`仍驱动staged 128行S_SEND/S_ROW/S_STAGE_READY与16行store错误屏障；`laya_qkv_scratch_row_v1`仍驱动IN_*及norm SEG/READ/FLUSH/RELEASE/Q_DONE。因此AT327是父请求前缀功能回归，不能判D-M004-SOURCE-NORM-OWNER-01控制迁移完成。下一步按既有固定切口迁移上层唯一控制后，再建立无逐行TB代驱动的独立stage与16行成本pilot；完整LN128和父top同版联合验证未运行。\n",
+  "in_reply_to": "m004-rev19-review-rev20-source-norm-owner-dispatch-20261016",
+  "message_file": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev20_AT326_AT327_partial_milestone_20261016.md",
+  "associations": {},
+  "payload_sha256": "6964d0b21d78a156496e682899564f30d7f4cb27667b0a81a604364059714c6b",
+  "created_at": "2026-10-15T17:34:17.758992+00:00",
+  "status": "delivered",
+  "client_user_message_id": "fd0c5e68-064b-48e5-94ef-263fb01919d4",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T17:34:17.800307+00:00",
+  "recipient_turn_id": "01a140a1-08b6-7321-933b-9a32c4df17cf"
+}

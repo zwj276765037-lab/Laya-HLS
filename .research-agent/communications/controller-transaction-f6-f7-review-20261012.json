@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "controller-transaction-f6-f7-review-20261012",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# Controller F6/F7修复审核与END重试边界\n\n回复：`controller-transaction-f6-f7-milestone-20261012`  \n审核：`R-SM003-CONTROLLER-TRANSACTION-F6-F7-20261012`  \n范围：M003/SM003/E003/R003；现D-M003-CONTROLLER-INTERNAL-SPLIT-01与原预算。\n\n**F6来源lease遗漏、F7坏completion头未复位这两个原缺口，在本次冻结主机范围关闭。** 四项PASS_SCOPED_HOST保留；不代签全部错误响应、分区RTL或物理fence。主控独立核222/222 current、frozen、声明pair及606/606 manifest/receipt SHA引用，64条命令均exit0，原始七条PASS marker及交付八个SHA一致。工程聚合文件SHA也一致，核查保存44份依据/preimage：`results/controller_transaction_f6_f7_review_20261012/verification.json`。\n\n## 接纳范围\n\n- `controller_transaction_adapter_10`：10.523953s；两种codec在头检查前复位输出，八类坏头用可信成功/LOCAL_REJECT对象交替预置检查，另拒绝LOCAL_REJECT+OK；合法未排空错误保留。不是每个坏头与两种预置状态的完整笛卡尔积，现有测试足以支持入口复位修复。\n- `controller_transaction_lifecycle_01`：18.490838s/236844KiB；有界入口实际调用Controller的claim/bind/issue与生产adapter。BEGIN后cancel、本地producer零外发、issued0、来源readers归零、destination INVALID且未发布、同身份两次END先非终态后终态，以及一次typed退休均有断言。同一runtime经合法release/recycle后以request602/generation32/epoch2恢复，事件与producer高水位继续递增。响应由host服务构造，内存为metadata占位，未执行算术payload/物理hub或真实depth2背压。\n- `graph_sequencer_host_03`：12.966920s；20源闭包与外部codec/exchange排除保持；不把top链接称为全图执行。\n- `producer_engine_controller_11`：19.220239s/247844KiB；原正常与部分失败、lease/退休路径回归保持。\n\n## F8 / P2：END重试遇坏返回仍可能沿用上一轮response\n\n这是新增重试循环的独立静态缺口，不撤销F6/F7的限定关闭。本轮未动态复现。\n\n冻结`graph_sequencer_host_03/frozen/hls/control/full_forward_controller.cpp:578–591`在循环外建立`end_response`，每轮不取得`completion_flags`；`:429–433`的`provenance_response_bound`只比较status/detail/bad三项。冻结`hls/platform/controller_transaction_dispatch.cpp:86–91`在normalized completion不可用时返回`E_PROTOCOL/detail(7,0,14)/UINT64_MAX`，却不改调用者的response。\n\n具体可达序列：已有本地拒绝的END先返回合法非终态`E_PROTOCOL/detail(7,0,14)/UINT64_MAX`（本次lifecycle正使用这组错误）；第二轮收到坏头或错绑定completion。normalized对象虽已清零，dispatch仍保留上一轮`end_response`，返回同样的Check。Controller的三个数比较仍通过，沿用旧`!drained/scope_active`继续发送第三个END，而非如交付声明在坏返回后退出。\n\n当前证据不表明该序列提前清tracker或错误退休；明确影响是无法可靠区分本轮合法fence等待与本轮transport拒绝，可能吞掉坏返回并持续重试。请在每次END事务读取并核验本轮的FRAME_COMPLETE/BINDING_OK等有效性（远端END不能用LOCAL_REJECT替代物理终态），保留完整请求绑定，不能只比较Check数值。可同时使dispatch拒绝时复位输出，但复位本身不能替代有效性检查。\n\n请补实际Controller有界分支：上述合法非终态→坏头、合法非终态→错绑定；核拒绝后立即返回、无第三次END、旧scope/tracker仍在、typed不退休、不二次release。来源lease已按真实零提交释放时应保持归零，不要求重新取得。原合法同身份非终态→终态路径与恢复继续通过；保持64条既有命令的原终态记录，不覆盖。\n\n## HLS阻塞与连续工作\n\n`controller_transaction_adapter_hls_01`原FAIL/semantic_stall接纳：871.170830s、peak5699208KiB，120.069637s无可观察进度后停止；无候选RTL/端口证据。32/32冻结/pair一致，31/32 current；唯一差异为此次修复后的live codec，不能把旧FAIL解释为修复后生成尝试。302项引用中301一致，这一live差异已明确；并非资源帽耗尽或永久编译死锁证明。\n\nC009继续部分实施，F8待修验证；C008/C010整体集成未闭合，C012此前基础修复限定关闭保持。常规修复与真正降低编译成本的实现调整仍按原授权连续推进，先补F8受影响有界回归；独立master/store提交与adapter fence工作继续。停止旧HLS profile无区分重试，不加帽，不重启5172s组合full。\n\n三摘要P78369405568248c681babf5ee355a95c及A002同步已核。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成；无新OOC/P&R/上板，G余2338.224019s不变。主控本轮没有运行工程编译、仿真或综合。\n",
+  "in_reply_to": "controller-transaction-f6-f7-milestone-20261012",
+  "message_file": "results/controller_transaction_f6_f7_reply_20261012.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "900ede451adffbe3686f4f35e6b47062e8e77d73fd4843fcb304dcdf8840e78e",
+  "created_at": "2026-10-12T05:15:34.891317+00:00",
+  "status": "delivered",
+  "client_user_message_id": "1c6d1108-70d2-48be-b0f4-42e31fa2caf1",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T05:15:34.920518+00:00",
+  "recipient_turn_id": "01a12b3d-4005-7680-a1d4-fc9ca9ceb536"
+}

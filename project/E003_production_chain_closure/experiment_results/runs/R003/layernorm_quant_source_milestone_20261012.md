@@ -1,0 +1,43 @@
+# 真实LayerNorm→QUANT/fullA与F9绑定出口：2026-10-12
+
+范围：M003/SM003/E003/R003；A002单owner，唯一实现根E002/experiment。沿用生产分区/provenance/普通P及门户v2合同。当前出口为**PASS_SCOPED_RTL**，不等于完整生产top、完整S64 tensor或M003/M004完成。
+
+## 已执行与身份
+
+`layernorm_quant_source_03`：static 77.547525s/2352352KiB；rows1 pilot 47308cycles/57.410899s；同runtime rows16 producer→持久monitor/hub→实际共享QUANT/fullA为659334cycles/753.504079s，full峰值856844KiB。六个拒绝入口也PASS，前四项约5.96–5.98s，两个真实单行producer completion注入55.037959s/55.523771s。九段guard child0/trigger null、原CPU0–3/nice19/idle I/O/MemAvailable/墙钟/RSS策略全部核过。
+
+核查484/484引用与152/152 current、frozen、pair一致；实际所选生产头与engine生成时头逐字节一致，canonical包内存重生成相等，七份ROM DAT落位SHA一致。
+
+- manifest SHA256：`5766e20da355a23c10c734613a0bf4c5233baa46d480d3a9def32d24b50dd66f`
+- receipt SHA256：`ad6e5d6cf65c733ccfbd3dabf1e7e5403f7ee7abfe89a6fbd2c9667e2be86dd0`
+- verification SHA256：`c775b3739a01b1692b8b3138932e42349ebcbe7cb3a68e59154b07f7e7ef313d`
+
+## 真实数值与租约
+
+实际LayerNorm source AR/R=16/1024、destination AW/W/B=16/1024/16，有效唯一WSTRB65536B。全部16384项独立F32 LN gold逐位一致；这些输入gold的16384个binary32 word均不同。Q直接读取TB实际接受的producer W存储数据，未用gold预置源；Q AR/R=16/1024。同一个持久hub取得完整身份source lease，覆盖实际读流、读债及五周期未消费completion反压，响应退休才释放。fullA取得128个四行group，核全部16384 INT8字节及512 FP16 scale，之后释放A和owner并核最终债务/lease/owner清理。
+
+独立量化gold来自冻结LN oracle输出，Numpy1.26.4按binary32 amax/127、reciprocal、multiply，INT8 roundf ties-away，scale FP16 RNE计算；不使用旧八组重复fixture或DUT输出生成gold。END现在在真实completion八拍完整取得后，将其实际status/unit/elements/detail/bad/issued逐字段写入LPV1 END。此构帧仍由TB模拟caller，未生成production sequencer/adapter。
+
+## F9受影响修复
+
+只读成功BEGIN快照提供完整NumericIdentity/Context、416B L13M、origin、目标Ref/epoch/region、role、D/rows与写geometry交叉比较。整帧producer请求通过后才逐拍交实际engine；completion完整收齐并核原请求完整共同绑定、语法/终态/提交量后才交caller，未消费完成期间保持job/fence。新增BEGIN1024B＋请求1024B＋completion512B共2560B payload槽，其他metadata及联合资源另计，未综合。
+
+四个负例相同origin下分别改task_id、request_id、generation、目标epoch（地址不变），均在source AR/destination AW/W前隔离，未覆盖/发布且原BEGIN保留。两个负例在实际生成单行producer完成边界分别注入旧request_seq、错origin；真实读写/末B已发生，但无任何caller completion，旧请求/物理scope与fence保留、不发布/退休。测试签拒绝与隔离，未证明坏帧后的完整硬件恢复；不会将保留scope称作已排空。BEGIN响应八拍及反压原回归保持。F9整体范围判断交主控，不自行关闭C009。
+
+## 成本与历史
+
+当前同profile pilot速率824.024724cycles/s参与启动前决定。16行参考756928cycles，加262144cycles的Q预算余量，再乘1.5得1856s，低于原3600s；实际full753.504079s。Q余量是512group×512cycles的保守预算参考，不是当前Q实测速率或证明的周期上界。原5Mcycles/8GiB/120s进展及完整工作量/gold保留。
+
+_01 static PASS，pilot在新整帧校验前的旧job_active采样时点断言FAIL，6.082430s；_02修采样后static PASS，pilot120s保护终止。独立10us诊断确认TB索引16而shell只收15拍（capture_beat15、loaded0、grant1）；_03将TB发送索引改为非阻塞更新，末拍不再被同沿撤valid，取得当前PASS。两个原attempt/guard/日志及独立诊断保留，无重标。
+
+旧gate_split runner已有current-rate计算，本轮补为显式有限/正值/120s测速准入，缺效证据COST_STOP/started:false，使用历史估计与当前同profile/reference-cycle估计的较保守值；同时冻结执行guard/helper/runner和成本receipt。`gate_split_cost_guard_01`十个纯决策用例PASS_SCOPED_RUNNER（参考3079s、慢测速4836s拒启等），未重跑旧full，不补改gate_split_06启动依据。此修复未执行下一真实full。
+
+## 保留缺口与下一步
+
+本owner只有16行，identity B1/S64；不等于完整64行tensor。producer命令、completion→END由TB驱动，不签真实sequencer/adapter的depth2整链。一般部分提交/失败、活动cancel/旧返回恢复、完整tensor多窗口/multi-role/QKV、普通/GATE双向切换、LOAD/MATRIX、完整CPU/实际CSim、最终13BO top与完整硬件请求/联合资源/性能仍待。下一步推进流式/逐拍adapter生成与真实caller连接，再扩多窗口/错误路径和完整模型。
+
+L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成；5172s组合不重启，无新OOC/P&R/上板/agent或预算，G余2338.224019s不变。用户本会话新增偏好：持续卡住时允许选用5.6-sol；目前未切换实际模型，也未启动新agent。
+
+## 旧入口兼容性出口
+
+新增只读BEGIN输出后，旧monitor wildcard TB补声明；独立LN TB复用已验证的末拍非阻塞索引和job_active等待。`generated_store_monitor_09`限定RTL PASS；`layernorm_producer_portal_07 --pilot-only`static57.678261s/单行pilot20.385730s均PASS，无重复rows16 full。两项冻结guard/policy及当前/冻结pair核查见`layernorm_portal_compatibility_verification_20261012.json`。未修改`layernorm_quant_source_03`冻结DUT/TB/输入或运行证据。

@@ -1,0 +1,1012 @@
+op,port,direction,bytes,kind,scope
+embedding_LN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+embedding_LN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc00/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc00/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc00/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc00/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc00/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc00/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc00/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc00/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc00/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc00/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc00/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc00/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc00/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc00/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc00/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc00/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc00/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc00/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc00/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc00/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc00/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc00/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc00/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc00/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc00/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc00/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc00/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc00/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc00/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc00/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc00/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc01/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc01/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc01/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc01/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc01/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc01/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc01/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc01/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc01/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc01/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc01/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc01/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc01/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc01/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc01/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc01/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc01/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc01/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc01/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc01/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc01/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc01/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc01/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc01/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc01/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc01/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc01/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc01/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc01/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc01/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc01/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc01/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc01/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc02/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc02/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc02/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc02/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc02/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc02/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc02/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc02/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc02/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc02/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc02/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc02/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc02/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc02/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc02/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc02/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc02/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc02/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc02/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc02/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc02/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc02/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc02/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc02/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc02/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc02/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc02/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc02/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc02/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc02/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc02/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc02/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc02/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc03/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc03/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc03/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc03/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc03/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc03/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc03/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc03/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc03/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc03/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc03/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc03/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc03/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc03/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc03/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc03/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc03/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc03/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc03/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc03/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc03/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc03/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc03/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc03/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc03/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc03/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc03/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc03/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc03/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc03/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc03/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc03/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc03/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc04/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc04/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc04/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc04/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc04/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc04/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc04/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc04/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc04/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc04/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc04/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc04/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc04/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc04/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc04/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc04/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc04/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc04/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc04/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc04/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc04/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc04/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc04/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc04/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc04/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc04/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc04/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc04/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc04/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc04/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc04/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc04/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc04/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc05/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc05/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc05/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc05/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc05/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc05/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc05/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc05/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc05/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc05/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc05/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc05/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc05/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc05/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc05/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc05/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc05/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc05/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc05/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc05/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc05/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc05/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc05/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc05/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc05/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc05/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc05/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc05/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc05/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc05/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc05/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc05/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc05/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc06/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc06/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc06/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc06/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc06/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc06/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc06/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc06/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc06/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc06/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc06/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc06/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc06/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc06/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc06/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc06/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc06/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc06/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc06/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc06/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc06/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc06/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc06/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc06/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc06/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc06/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc06/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc06/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc06/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc06/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc06/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc06/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc06/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc07/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc07/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc07/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc07/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc07/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc07/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc07/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc07/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc07/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc07/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc07/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc07/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc07/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc07/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc07/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc07/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc07/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc07/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc07/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc07/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc07/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc07/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc07/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc07/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc07/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc07/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc07/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc07/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc07/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc07/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc07/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc07/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc07/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc08/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc08/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc08/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc08/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc08/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc08/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc08/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc08/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc08/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc08/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc08/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc08/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc08/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc08/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc08/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc08/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc08/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc08/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc08/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc08/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc08/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc08/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc08/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc08/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc08/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc08/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc08/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc08/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc08/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc08/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc08/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc08/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc08/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc09/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc09/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc09/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc09/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc09/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc09/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc09/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc09/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc09/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc09/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc09/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc09/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc09/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc09/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc09/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc09/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc09/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc09/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc09/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc09/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc09/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc09/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc09/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc09/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc09/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc09/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc09/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc09/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc09/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc09/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc09/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc09/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc09/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc10/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc10/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc10/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc10/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc10/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc10/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc10/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc10/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc10/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc10/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc10/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc10/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc10/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc10/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc10/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc10/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc10/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc10/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc10/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc10/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc10/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc10/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc10/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc10/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc10/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc10/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc10/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc10/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc10/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc10/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc10/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc10/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc10/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc11/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc11/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc11/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc11/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc11/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc11/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc11/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc11/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc11/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc11/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc11/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc11/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc11/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc11/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc11/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc11/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc11/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc11/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc11/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc11/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc11/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc11/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc11/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc11/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc11/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc11/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc11/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc11/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc11/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc11/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc11/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc11/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc11/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc12/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc12/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc12/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc12/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc12/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc12/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc12/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc12/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc12/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc12/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc12/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc12/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc12/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc12/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc12/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc12/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc12/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc12/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc12/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc12/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc12/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc12/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc12/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc12/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc12/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc12/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc12/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc12/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc12/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc12/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc12/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc12/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc12/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc13/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc13/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc13/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc13/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc13/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc13/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc13/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc13/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc13/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc13/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc13/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc13/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc13/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc13/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc13/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc13/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc13/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc13/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc13/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc13/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc13/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc13/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc13/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc13/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc13/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc13/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc13/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc13/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc13/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc13/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc13/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc13/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc13/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc14/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc14/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc14/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc14/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc14/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc14/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc14/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc14/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc14/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc14/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc14/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc14/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc14/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc14/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc14/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc14/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc14/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc14/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc14/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc14/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc14/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc14/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc14/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc14/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc14/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc14/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc14/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc14/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc14/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc14/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc14/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc14/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc14/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc15/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc15/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc15/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc15/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc15/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc15/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc15/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc15/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc15/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc15/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc15/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc15/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc15/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc15/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc15/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc15/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc15/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc15/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc15/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc15/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc15/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc15/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc15/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc15/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc15/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc15/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc15/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc15/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc15/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc15/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc15/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc15/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc15/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc16/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc16/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc16/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc16/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc16/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc16/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc16/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc16/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc16/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc16/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc16/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc16/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc16/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc16/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc16/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc16/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc16/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc16/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc16/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc16/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc16/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc16/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc16/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc16/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc16/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc16/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc16/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc16/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc16/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc16/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc16/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc16/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc16/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc17/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc17/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc17/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc17/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc17/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc17/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc17/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc17/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc17/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc17/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc17/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc17/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc17/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc17/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc17/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc17/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc17/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc17/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc17/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc17/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc17/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc17/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc17/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc17/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc17/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc17/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc17/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc17/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc17/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc17/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc17/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc17/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc17/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc18/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc18/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc18/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc18/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc18/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc18/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc18/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc18/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc18/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc18/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc18/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc18/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc18/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc18/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc18/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc18/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc18/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc18/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc18/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc18/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc18/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc18/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc18/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc18/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc18/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc18/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc18/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc18/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc18/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc18/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc18/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc18/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc18/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc19/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc19/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc19/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc19/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc19/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc19/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc19/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc19/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc19/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc19/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc19/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc19/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc19/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc19/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc19/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc19/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc19/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc19/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc19/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc19/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc19/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc19/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc19/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc19/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc19/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc19/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc19/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc19/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc19/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc19/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc19/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc19/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc19/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc20/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc20/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc20/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc20/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc20/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc20/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc20/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc20/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc20/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc20/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc20/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc20/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc20/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc20/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc20/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc20/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc20/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc20/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc20/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc20/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc20/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc20/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc20/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc20/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc20/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc20/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc20/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc20/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc20/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc20/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc20/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc20/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc20/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc21/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc21/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc21/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc21/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc21/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc21/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc21/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc21/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc21/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc21/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc21/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc21/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc21/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc21/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc21/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc21/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc21/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc21/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc21/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc21/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc21/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc21/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc21/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc21/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc21/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc21/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc21/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc21/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc21/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc21/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc21/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc21/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc21/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc22/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc22/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc22/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc22/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc22/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc22/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc22/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc22/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc22/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc22/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc22/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc22/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc22/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc22/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc22/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc22/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc22/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc22/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc22/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc22/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc22/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc22/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc22/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc22/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc22/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc22/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc22/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc22/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc22/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc22/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc22/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc22/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc22/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc23/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc23/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc23/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc23/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc23/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc23/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc23/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc23/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc23/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc23/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc23/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc23/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc23/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc23/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc23/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc23/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc23/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc23/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc23/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc23/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc23/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc23/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc23/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc23/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc23/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc23/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc23/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc23/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc23/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc23/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc23/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc23/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc23/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc24/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc24/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc24/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc24/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc24/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc24/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc24/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc24/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc24/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc24/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc24/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc24/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc24/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc24/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc24/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc24/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc24/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc24/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc24/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc24/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc24/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc24/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc24/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc24/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc24/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc24/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc24/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc24/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc24/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc24/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc24/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc24/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc24/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc25/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc25/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc25/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc25/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc25/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc25/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc25/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc25/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc25/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc25/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc25/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc25/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc25/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc25/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc25/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc25/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc25/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc25/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc25/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc25/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc25/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc25/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc25/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc25/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc25/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc25/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc25/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc25/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc25/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc25/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc25/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc25/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc25/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc26/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc26/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc26/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc26/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc26/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc26/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc26/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc26/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc26/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc26/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc26/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc26/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc26/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc26/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc26/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc26/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc26/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc26/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc26/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc26/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc26/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc26/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc26/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc26/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc26/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc26/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc26/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc26/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc26/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc26/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc26/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc26/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc26/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc27/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc27/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc27/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc27/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc27/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc27/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc27/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc27/ATT/RoPE,QKV,read_write,2097152,"RoPE Q,K in-place read+write",logical boundary bytes; 64B packing assumed unless stated
+enc27/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+enc27/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+enc27/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc27/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc27/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc27/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc27/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc27/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc27/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+enc27/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+enc27/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+enc27/Wi/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc27/Wi,QKV_FF_STATE,write,2686976,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc27/Wi,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc27/Wi,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc27/Wi,ONCHIP_PS,read_write,171966464,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc27/G,FF,read,2686976,Wi spill reread,logical boundary bytes; 64B packing assumed unless stated
+enc27/G,FF,write,1343488,GATE spill,logical boundary bytes; 64B packing assumed unless stated
+enc27/Down/Q,STATE_FF_ATT,read,1343488,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+enc27/Down,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+enc27/Down,ONCHIP_A,read,356864,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+enc27/Down,ONCHIP_A,write,356864,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+enc27/Down,ONCHIP_PS,read_write,85983232,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+enc27/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+enc27/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+final_LN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+final_LN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+type_embedding_add,EMBEDDING,read,3264,3 type embedding rows Q8_0,logical boundary bytes; 64B packing assumed unless stated
+type_embedding_add,STATE,read_write,1048576,type add hidden,logical boundary bytes; 64B packing assumed unless stated
+dec0/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+dec0/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+dec0/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec0/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec0/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec0/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec0/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec0/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+dec0/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+dec0/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec0/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec0/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec0/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec0/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec0/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+dec0/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+dec0/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+dec0/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+dec0/FC1/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec0/FC1,QKV_FF_STATE,write,2097152,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec0/FC1,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec0/FC1,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec0/FC1,ONCHIP_PS,read_write,134217728,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec0/RELU,FF,read_write,4194304,decision ReLU,logical boundary bytes; 64B packing assumed unless stated
+dec0/FC2/Q,STATE_FF_ATT,read,2097152,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec0/FC2,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec0/FC2,ONCHIP_A,read,557056,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec0/FC2,ONCHIP_A,write,557056,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec0/FC2,ONCHIP_PS,read_write,134217728,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec0/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+dec0/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+dec1/LN_ATTN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+dec1/LN_ATTN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+dec1/QKV/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec1/QKV,QKV_FF_STATE,write,1572864,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec1/QKV,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec1/QKV,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec1/QKV,ONCHIP_PS,read_write,100663296,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec1/ATT,QKV,read,1572864,"Q,K,V one resident load per head",logical boundary bytes; 64B packing assumed unless stated
+dec1/ATT,ATT_OUT,write,524288,Attention output,logical boundary bytes; 64B packing assumed unless stated
+dec1/WO/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec1/WO,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec1/WO,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec1/WO,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec1/WO,ONCHIP_PS,read_write,33554432,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec1/RES_ATTN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+dec1/RES_ATTN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+dec1/LN_FFN,STATE,read,524288,LN source,logical boundary bytes; 64B packing assumed unless stated
+dec1/LN_FFN,STATE,write,524288,LN result,logical boundary bytes; 64B packing assumed unless stated
+dec1/FC1/Q,STATE_FF_ATT,read,524288,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec1/FC1,QKV_FF_STATE,write,2097152,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec1/FC1,ONCHIP_A,read,139264,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec1/FC1,ONCHIP_A,write,139264,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec1/FC1,ONCHIP_PS,read_write,134217728,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec1/RELU,FF,read_write,4194304,decision ReLU,logical boundary bytes; 64B packing assumed unless stated
+dec1/FC2/Q,STATE_FF_ATT,read,2097152,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+dec1/FC2,QKV_FF_STATE,write,524288,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+dec1/FC2,ONCHIP_A,read,557056,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+dec1/FC2,ONCHIP_A,write,557056,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+dec1/FC2,ONCHIP_PS,read_write,134217728,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+dec1/RES_FFN,STATE,read,1048576,skip and TMP,logical boundary bytes; 64B packing assumed unless stated
+dec1/RES_FFN,STATE,write,524288,next hidden,logical boundary bytes; 64B packing assumed unless stated
+gather,STATE,read_write,131072,gather 16 physical candidates including masked,logical boundary bytes; 64B packing assumed unless stated
+marker_LN,STATE,read,65536,LN source,logical boundary bytes; 64B packing assumed unless stated
+marker_LN,STATE,write,65536,LN result,logical boundary bytes; 64B packing assumed unless stated
+scorer_FC1/Q,STATE_FF_ATT,read,65536,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+scorer_FC1,QKV_FF_STATE,write,65536,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+scorer_FC1,ONCHIP_A,read,17408,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+scorer_FC1,ONCHIP_A,write,17408,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+scorer_FC1,ONCHIP_PS,read_write,4194304,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+scorer_bias_GELU,STATE,read_write,131072,scorer bias/GELU,logical boundary bytes; 64B packing assumed unless stated
+scorer_FC2,STATE,read,65536,scorer input,logical boundary bytes; 64B packing assumed unless stated
+scorer_FC2,STATE,write,64,scorer result,logical boundary bytes; 64B packing assumed unless stated
+candidate_mask_softmax_stats,STATE,read_write,384,candidate masked/prob/stat stages,logical boundary bytes; 64B packing assumed unless stated
+act_concat,STATE,read_write,8224,CLS+stats input and ACT write,logical boundary bytes; 64B packing assumed unless stated
+act_FC1,STATE,read_write,5136,ACT FC1 activation IO,logical boundary bytes; 64B packing assumed unless stated
+act_bias_GELU,STATE,read_write,2048,ACT GELU,logical boundary bytes; 64B packing assumed unless stated
+act_FC2/Q,STATE_FF_ATT,read,1024,quant F32 source,logical boundary bytes; 64B packing assumed unless stated
+act_FC2,QKV_FF_STATE,write,64,matrix F32 output,logical boundary bytes; 64B packing assumed unless stated
+act_FC2,ONCHIP_A,read,272,"q+FP16scale once per view/group, broadcast TN tiles","on-chip service bytes, NOT HBM"
+act_FC2,ONCHIP_A,write,272,quant q+FP16scale fill,"on-chip service bytes, NOT HBM"
+act_FC2,ONCHIP_PS,read_write,128,FP32 RMW per dot-group,logical internal RMW volume; not external traffic; first group may avoid read
+all,AUX,read,1671872,"non-Q8 matrices,bias,LN gamma and RoPE tables at most manifest AUX package","conditional once per request aggregate; may duplicate negligible per-stage metadata, not measured"

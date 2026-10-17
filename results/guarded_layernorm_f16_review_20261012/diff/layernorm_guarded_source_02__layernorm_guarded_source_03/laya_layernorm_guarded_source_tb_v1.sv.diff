@@ -1,0 +1,55 @@
+--- layernorm_guarded_source_02/laya_layernorm_guarded_source_tb_v1.sv
++++ layernorm_guarded_source_03/laya_layernorm_guarded_source_tb_v1.sv
+@@ -113,8 +113,20 @@
+        response[RESPONSE_FLAGS*8+:8]!=flags)$fatal(1,"LPV mismatch phase=%0d kind=%0d status=%0d flags=%0d",phase,response[ACTION*8+:16],response[RESPONSE_STATUS*8+:16],response[RESPONSE_FLAGS*8+:8]);
+     tick();
+   endtask
++  task automatic capture_response(input string name);
++    integer fd;
++    fd=$fopen({fixture,"/actual_",name,"_request.hex"},"w");
++    if(!fd)$fatal(1,"cannot capture actual LPV request");
++    for(int i=0;i<16;i++)$fdisplay(fd,"%0128h",packet[i*512+:512]);
++    $fclose(fd);
++    fd=$fopen({fixture,"/actual_",name,"_response.hex"},"w");
++    if(!fd)$fatal(1,"cannot capture actual LPV response");
++    for(int i=0;i<8;i++)$fdisplay(fd,"%0128h",response[i*512+:512]);
++    $fclose(fd);
++  endtask
+   task automatic transaction(input string name,input logic [15:0] kind,status,input logic [7:0] flags);
+     load(name,packet);send(packet);receive(kind,status,flags);
++    capture_response(name);
+   endtask
+   task automatic write_checkpoint_row(input int row);
+     bootstrap_axi_awaddr=BO_BASE+64'(row)*4096;bootstrap_axi_awvalid=1;
+@@ -241,6 +253,9 @@
+     transaction("target_begin",BEGIN_EVENT,0,3);producer_loaded=1;
+     while(source_ar==0)tick();
+     transaction("source_conflict_live",INVALIDATE,E_BUFFER,0);
++    transaction("wrong_end_active",END_EVENT,E_PROTOCOL,2);
++    if(!source_guard_active || !source_guard_producer_active || terminal_tasks!=4 || semantic_rejections!=3)
++      $fatal(1,"wrong END changed old active task or source protection");
+     while(completion_index<6)pop_producer();
+     while(producer_completion_occupancy!=2)tick();
+     repeat(12)begin
+@@ -268,6 +283,7 @@
+     packet[REPORTED_BAD*8+:64]=actual_completion[40*8+:64];
+     packet[ISSUED0*8+:64]=actual_completion[48*8+:64];
+     send(packet);receive(END_EVENT,E_PROTOCOL,1);
++    capture_response("target_end_actual");
+     if(terminal_tasks!=5 || response[RESPONSE_OBSERVED0*8+:64]!=4096 || !source_guard_active)
+       $fatal(1,"short owner END did not reject/retire honestly");
+     transaction("target_invalidate",INVALIDATE,0,1);
+@@ -297,10 +313,10 @@
+     phase=9;transaction("source_invalidate",INVALIDATE,0,1);
+     if(peer_aw!=65 || peer_w!=4160 || peer_b!=65 || checkpoint_w!=4096 || norm_w!=64 ||
+        active_owners || published_owners || !ledger_domain_drained || !adapter_pending_zero ||
+-       producer_completion_occupancy || action_completion_occupancy || accepted_events!=17 ||
+-       retired_responses!=17 || terminal_tasks!=5 || semantic_rejections!=3 || snapshot_sequence_high_water!=1)
++       producer_completion_occupancy || action_completion_occupancy || accepted_events!=18 ||
++       retired_responses!=18 || terminal_tasks!=5 || semantic_rejections!=3 || snapshot_sequence_high_water!=1)
+       $fatal(1,"guarded LN final state events=%0d responses=%0d rejected=%0d typed=%0d",accepted_events,retired_responses,semantic_rejections,terminal_tasks);
+-    $display("FULL_CURRENT_LAYERNORM_GUARDED_SOURCE_PASS cycles=%0d prelude_AW=64 prelude_W=4096 prelude_B=64 source_AR=1 source_R=64 LN_AW=1 LN_W=64 LN_B=1 gold_elements=1024 LPC1_verified_consumer_tail2_tail1=1 completion_to_END=1 short_window_rejected=1 typed5_once=1 LAC1_controlled_consumer_tail2_tail1=1 source_mutation_rejected=2 all_writer_single_monitor=1 no_executor_program=1",cycles);
++    $display("FULL_CURRENT_LAYERNORM_GUARDED_SOURCE_PASS cycles=%0d prelude_AW=64 prelude_W=4096 prelude_B=64 source_AR=1 source_R=64 LN_AW=1 LN_W=64 LN_B=1 gold_elements=1024 LPC1_verified_consumer_tail2_tail1=1 completion_to_END=1 short_window_rejected=1 typed5_once=1 LAC1_controlled_consumer_tail2_tail1=1 source_mutation_rejected=2 wrong_END_scope_retained=1 actual_LPV_capture=18 all_writer_single_monitor=1 no_executor_program=1",cycles);
+     $finish;
+   end
+ endmodule

@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-at168-row-pipeline-vs-fp-reset-scope-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "question",
+  "text": "# 修订10集中审核：AT168复位触发的算术层级\n\nexecution_state: running\nstage: M004_revision10_reset_scope_review\n\nA001→A002；回复m004-gqdown-reset-at168-at169-stage-handoff-20261015。\n\n主控已核AT167–169的原日志、TB差异和守卫epoch修正；G issued2/returned0的核心入口触发明确，510拍隔离与原成本停止将按所测范围接纳。发现AT168的fp_launches实际由front.row_issue_valid[0] && row_ready[0]累加，这是tm4tn8_row_pipeline_v1入口/预留握手，后面还有六级integer_tree，直到tree_ret_valid再进fp_restore，valid_a才驱动真实convert/multiply IP。因此FP=2不能单凭该计数认定物理FP已接收2项。\n\n请只核现有原证据是否另有实际fp_restore.valid_a/真实IP发射且尚未返回的采样。若没有，文档将AT168收窄为Wi矩阵行流水在途共同reset隔离，不称浮点IP已发未返；这不是DUT复位故障结论。无需重跑旧长例或挪用余量；下一段在实际浮点握手点补观测并与完整cold恢复合并。既有G触发和正常AT166范围不变。\n\n修订10按成本出口收束，原140.706825s余额不转移。主控正准备同SM004下一段真实末残差与必要恢复覆盖；A003已获静态最小接点问题。请回复此窄问题的现有证据即可，不开新EDA或普通审核门。\n",
+  "in_reply_to": "m004-gqdown-reset-at168-at169-stage-handoff-20261015",
+  "message_file": "agent/A001/result.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "ae216ce2d92b0eae5d8b3c772be02e1140ba72b51dc82739f90e030a9126a510",
+  "created_at": "2026-10-14T22:20:18.554343+00:00",
+  "status": "delivered",
+  "client_user_message_id": "83417237-fdc4-413d-a4e5-a6e69e086b9f",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T22:20:18.602247+00:00",
+  "recipient_turn_id": "01a13c80-8720-7f80-8db0-38259fae46b2"
+}

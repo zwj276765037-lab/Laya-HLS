@@ -1,0 +1,31 @@
+# E004：状态
+
+execution_state: running（M004完整目标）；verdict: unassessed（完整加速器）。主控D-M004-REV14-CLOSEOUT-01已按分版证据有界收束SM004修订14：AT225旧wrapper真实row0冷/row1暖RAW→RoPE正常链限定PASS；当前wrapper `0d3e340e…`的AT230–241受影响控制/传输局部和AT232真实core/IP展开PASS；AT236/237/242原full-Check叶子与生产adapter局部算术、异常次序和恢复PASS。AT242只签四种Check次序、结果保持与无reset后继正常head，不签wrapper错误写回或全请求首错。
+
+修订14最终55笔guard实耗static/IP1001.90892168506979732/1800s、RTL1247.0794125087559535/4800s，未用798.09107831493020268s及3552.9205874912440465s均封存；host完整累计UNKNOWN。本段不再启动重工具，原FAIL/COST_STOP及严格MUL IP已接受未返回reset NOT_RUN保留。当前wrapper真实两行/跨mode FFN同SHA长链、物理BO/邻区哨兵、全128行真实producer、Attention/Encoder/整模、生产Host/HBM及联合资源/Fmax仍未验。S128真实源与固定请求修订15已开始实施并获得所测前缀证据，FINAL→Attention仍未实施；M004继续running/unassessed。
+
+修订15工程阶段running，AT250旧wrapper两行真实前缀获主控限定接纳；当前wrapper `d4856aee…` AT264一行真实全链及逻辑哨兵、AT256/259/261/260局部控制、AT252模拟128行调度、AT262/263真实core局部入口已获主控D-M004-REV15-AT264-01分版接纳。累计42笔guard，static1769.133914342150093/1800s、RTL2768.097435323521494/4800s，host完整UNKNOWN；本轮已停止重工具。修订15未因两行前缀而完成128行生产或请求发布，完整目标继续running/unassessed。
+
+AT265按AT264决定补完末行错误peer，static/RTL本次各20s小帽内child0/null；仅局部调度出口PASS，已由D-M004-REV15-CLOSEOUT-01限定接纳。AT243–265合计44笔guard，static1773.706414608284832/1800s、RTL2773.568239858373999/4800s，余static26.293585391715168s、RTL2026.431760141626001s已封存；旧两行真实前缀、当前一行全链和未验完整请求的边界不变。
+
+修订15已按D-M004-REV15-CLOSEOUT-01有界收束，不启动同修订重工具；M004/SM004完整目标仍running/unassessed。逐行与旧全请求head优先异常首错次序差异维持UNRESOLVED，修订16尚无实施合同。
+
+
+---
+Published: 2026-10-15T09:35:24.229014+00:00
+Publication: Pc997dcdb6d60419eb097200f56933f6b
+Execution state: running
+Research verdict: unassessed
+Applicability: 修订15旧wrapper真实两行前缀、当前wrapper真实一行与局部协议/调度；M004完整加速器未验收。
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev15_guard_ledger_AT243_AT265_20261015.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT250_SM004_rev15_s128_real_prefix_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT252_SM004_rev15_s128_latched_fields_peer_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT256_SM004_rev15_input_abort_aux_identity_01/guard_raw_only_aux_identity/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT259_SM004_rev15_early_fault_observed_peer_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT261_SM004_rev15_source_page_row127_01/guard_page_row127/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT262_SM004_rev15_legacy_external_ln_boundary_01/guard_legacy_ln/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT263_SM004_rev15_prepared_token_boundary_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT264_SM004_rev15_source_logical_sentinel_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT265_SM004_rev15_s128_last_row_error_peer_01/guard_rtl/guard_result.json

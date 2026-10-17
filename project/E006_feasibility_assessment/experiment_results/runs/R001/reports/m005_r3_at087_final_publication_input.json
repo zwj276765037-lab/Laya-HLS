@@ -1,0 +1,16 @@
+{
+  "source": "# E006 实验依据摘要\n\nM005/SM006以同一可综合代表top评估B1/S128四行FFN通路与目标xcu55c-fsvh2892-2L-e、Vivado 2025.2的联合资源/时序。原GGUF、request3/generation1、独立LN/Down/末残差gold及655360B局部保护不改；外部DDR/fixture/sequencer留TB。R2允许功能未闭合候选的诊断性物理测量，仍要求无黑盒/关键裁剪、真实资源和有效约束。AT073功能top SHA b47f57f087cc65d6be3cb87cd43421a0d7dad6c8245c63188effd00713338f79；物理端口显式wire声明归一化后与功能top逐字相同。R3选择同周期有界组合几何检查；受影响后继又将store monitor最多32项扫描、矩阵half→F32规格化最多10步改为固定循环，算术/存储容量和外部接口未改。新物理候选身份见AT087清单；这些局部等价验证不替代完整链回归。\n",
+  "results": "# E006 关键结果摘要\n\nAT073最后正常full在cycle375074完成LN/Q/Wi/G/Down前缀、Down 256 AW/W/B及TMP 64KiB总检查窗口（16KiB有效写入/gold、48KiB未写哨兵），随后Down→残差票据断言Fatal；残差、HIDDEN和655360B终扫未达。cfg358881→首次done375066端点差16185cycle；至实际消费375073端点差16192cycle，两端采样计入16193cycle。3/3 full累计4974.979578s，独立合法反压完整样本未做。阶段C v4原用16192，无数值重估。\n\nR3受影响有限验证：AT079冻结旧/新几何函数140个已知输入一致、无效count/未知role不成功；AT080真实portal原回归与重叠BEGIN拒绝PASS；AT082 store monitor短测3097cycle PASS；AT085旧/新half解码全部65536输入逐bit一致。AT081/083仍遇下一处展开错误；AT086被综合静默误作120s语义停滞停止。AT087同版RTL/IP/ROM/XDC修正综合守卫后，277.203887s达到24GiB owned RSS上限（峰25,205,756KiB）、child−9，无有效DCP、联合资源/时序报告。综合累计685.210200s/3600s；route 0s，因无有效网表未准入。短测上界283.855331s/600s、static上界1335.673109s/5400s；host历史执行时间UNKNOWN。详见M005_R3_bounded_physical_stop_20261014.md和M005_budget_ledger_after_AT087_20261014.json。\n\n当前组合候选未在给定24GiB综合内存帽内取得可评估网表；不能据此判U55C或其它架构整体不可行，也没有真实LUT/FF/DSP/BRAM/URAM/Fmax、完整链时延、对照加速比或板端性能。A003的150MHz/10GBps下6.919–8.133s仍是条件模型，不是本项目完成服务实测。\n",
+  "status": "# E006 实验状态摘要\n\n- execution_state: completed；verdict: inconclusive。工程R3物理诊断分支已按内存停止边界交付，不升24GiB帽或再启动同候选综合；没有可用于route的DCP。主控M005最终投入判断尚待集中审核。\n- 阶段A正常完整链和独立合法反压两样本均未达到；3/3新full用尽，AT073冻结失败不重跑。AT079/080/082/085局部PASS不代签AT087完整行为。\n- 阶段B无有效网表、物理资源与可实现频率均UNKNOWN；route NOT_RUN。阶段C保持条件预算，外部sequencer/shell/Attention与生产控制/全模型义务仍开放。下一步由A001核AT087原停止与A003现有条件分析，判断继续、换架构或暂缓投入。\n",
+  "execution_state": "completed",
+  "verdict": "inconclusive",
+  "applicability": "R3同一代表top诊断综合：24GiB内存帽停止，无有效网表；完整功能/稳定性未闭合",
+  "evidence": [
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT073_down_retirement_fail_20261014.md",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_R3_bounded_physical_stop_20261014.md",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_budget_ledger_after_AT087_20261014.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT087_M005_joint_physical_synth_guard_07/guard_synth/guard_result.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT087_M005_joint_physical_synth_guard_07/guard_synth/guard_trigger.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT087_M005_joint_physical_synth_guard_07/preflight_synth.json"
+  ]
+}

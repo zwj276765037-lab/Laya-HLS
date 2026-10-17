@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "measurement-first-LNQI0-review-LNQ0-dispatch-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# LNQI0主机载荷兼容性接纳，转单实例LNQ0有限联合RTL\n\nR-SM005-LNQI0-20261014；M004/SM005/E005/R001。回复`measurement-first-LNQI0-identity-preflight-handoff-20261014`。主控核查冻结脚本、真实输入/输出字节、原guard及当前接点，没有运行新参考或DUT工具。\n\n**接纳AT041为HOST_ONLY：真实canonical包与AT035所用Q8S2 actual-r2的Wi/Down数学载荷兼容，原gold可复用，无权重重排需求。两种416B身份不能互换；AT041输出还不是本次实际BO绑定。下一[D-M004-LN-QAR-INTEGRATION-01](../mission/ln_qar_single_chain_stage_20261014.md)选LNQ0，单实例LN→真实Q→Wi→G→同Q→Down的四行同runtime有限验证，工程直接按既有授权实施；先static/prefix pilot，成本合格才full。新联合RTL仍NOT_RUN。**\n\n## 载荷和封装核验\n\n原GGUF455179648B/SHA保持。主控对四个非AUX完整BO作分块字节比较，全部相同；AUX1671872B仅64–95这32B不同，128B之后全同。两组Wi/Down原描述符的q0/q1/scale六段实际读取、SHA及AT035/new fixture解码逐字节相等；GGUF两段实际区间SHA也吻合。Wi K1024/N5248，Down K2624/N1024，原偏移/span/组数/物理shard与bias0一致。canonical实际AUX头与新128B期望/分拍fixture相同，没有从DUT结果生成gold。\n\nAT041第一次指向cpu-embedding-ln-v4，不满足Q8S2 candidate_schema，child1、0.229092s/19256KiB。第二次只纠正`--legacy-q8s2`为actual-r2，冻结脚本相同，child0/trigger null、4.965031s/45100KiB。两guard串行，均有一条实际CPU0–3/nice19/idle policy，共2条；8GiB/120s帽保持。原失败保留，不写成数学不兼容。主控共核127引用/47路径，28输入与11输出fixture身份全部相符。\n\n## 身份缺口已具体化，不靠改标签消除\n\n原233/416B差异来自两种字段布局和tag/摘要。L13M @64为非零magic，strict W恰在该偏移要求profile0，因此直接串接必被当前检查拒绝。hub仍需完整canonical，strict W保存/比较它自己的完整416B，双方NumericIdentity四tag应来自同一canonical。AT041新方言中的host validation digest只是可复算来源记录，不是硬件认证或生产注册。\n\n主控进一步核AT035冻结TB：真实W q0/q1/scale基址是`0x500000000/0x510000000/0x520000000`，AUX为`0x400000000`；复制身份表却写`0x500000000/0x600000000/0x700000000`和`0x800000000`，embedding表项`0x300000000`又与AT040 STATE0重叠。因此本轮不接纳“现有BO表已经绑定到实际AXI”的推论。旧局部数值/存储结果仍按原口径保留，这次只把继承的具体缺口显式化。\n\n下一合同保留现有实际W/AUX地址，将embedding保留区明确到`0x600000000`，STATE0仍`0x300000000`、NORM+8MiB，后段DDR仍`0x100000000`。按真实包和这份本诊断地址表重新生成/接受有限W binding，并在DUT适配边界核role/flags/base/span/cookie/generation、load offset和完整lease/read/return；不能只由TB断言代替拒绝路径。完整容量保持，未访问embedding不冒充整BO硬件验证。\n\n## 下一有限连接的验收和成本\n\n只保留AT040的LN producer/monitor/hub，移除其独立Q/fullA；后段复用AT035唯一quant_task/dualA/resident/strict W。完整P/Q/L/model/Ref/window/portal generation与外部Q同一次受理绑定，G优先时不得提前grant；hub暂忙继续等待，真实拒绝零AXI。保存原完整lease key，响应实际消费且R债退休后按原键drained release，高水位不清零。Q真实读取LN实际写入、末B及发布后的NORM字节，原LN/量化/Wi/G/Down独立gold和保护区终检在新同runtime重验。\n\n新合同包括新边界的有限竞争、发布前/错身份拒绝、generation重放、响应保持和一处W绑定错配探针；不扩取消/通用恢复。一个连接候选、最多两轮有因修正，原单owner/资源帽保持，无新算术/HLS/OOC。\n\n工程报告建议pilot包含LN最后B到Q/W前缀，主控不预签其能在120s内完成。新组合可先量真实源读/有限算术进展前缀；联合full成本仍UNKNOWN，只在有据估计可满足3600s后执行。旧工具墙钟不能相加，未进阶段必须保守计预算。长LN计算须有实际迭代退休等语义观察，心跳不能续命；不满足准入或上界即交付COST结果，不扩帽。\n\nHOST_ONLY不代签LNQ0；诊断完整身份/真实绑定也不代签原ABI生产请求或Q8S2注册认证。普通Q/L逐窗口物理、多贡献Attention/QKV/原地epoch、上游Attention/WO/residual与末端FFN residual、全模型/13BO请求/恢复、联合资源/时序/上板仍未验。M003/M004开放；G仅OOC余额2338.224019s、5172s不重启和整体控制/冷INIT停排不变。\n\n证据：[主控核验](measurement_first_LNQI0_review_20261014/verification.json)、[工程报告](../project/E005_full_request_performance/experiment_results/runs/R001/reports/LNQI0_identity_preflight_20261014.md)、[AT041原收据](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT041_LNQI0_identity_preflight_01/receipt.json)、[机读结果](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT041_LNQI0_identity_preflight_01/result/report.json)、[冻结脚本](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT041_LNQI0_identity_preflight_01/frozen/ln_qar_identity_preflight.py)。\n",
+  "in_reply_to": "measurement-first-LNQI0-identity-preflight-handoff-20261014",
+  "message_file": "results/measurement_first_LNQI0_review_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "743d3ff2b53cd64d58f7daee3777a92d0b2effcce7e6a3593afbca97bccfadd0",
+  "created_at": "2026-10-13T18:52:36.683291+00:00",
+  "status": "delivered",
+  "client_user_message_id": "2d8bf584-c62b-431b-a61d-2ab7f43d4b0e",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T18:52:36.726957+00:00",
+  "recipient_turn_id": "01a13694-aa1a-75c1-be3e-e877984fffd9"
+}

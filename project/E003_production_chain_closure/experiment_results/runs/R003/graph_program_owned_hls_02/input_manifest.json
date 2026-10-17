@@ -1,0 +1,47 @@
+{
+  "defines": [
+    "-DLAYA_PARTITIONED_PRODUCTION_CALLER",
+    "-DLAYA_CONTROLLER_TRANSACTION_SEQUENCER",
+    "-DLAYA_TRANSACTION_SEQUENCER_CODEC",
+    "-DAP_INT_MAX_W=8192"
+  ],
+  "files": [],
+  "host_cases": [
+    "success",
+    "bad-owner-kind",
+    "bad-owner-reserved",
+    "cancel-before-command",
+    "cancel-command-prefix",
+    "cancel-allocated",
+    "wrong-command-identity",
+    "wrong-command-source",
+    "stale-completion"
+  ],
+  "host_cases_separate_processes": true,
+  "launcher": {
+    "bytes": 199,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_owned_hls_02/launcher.json",
+    "sha256": "9d8c66dbc49a060f9e27630a3c4f6202249cabd3cd887daf902e186683cd4338"
+  },
+  "profile": {
+    "cpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "host_rss_gib": 8,
+    "host_seconds": 120,
+    "io_class": "idle",
+    "minimum_mem_available_gib": 192,
+    "nice": 19,
+    "one_heavy_tool_at_a_time": true,
+    "semantic_stall_seconds": 120,
+    "static_rss_gib": 24,
+    "static_seconds": 1800
+  },
+  "schema": "laya-graph-program-owned-input-v1",
+  "scope": "FIRST-only owned graph program candidate. Complete literal GRANTED is installed and echoed unchanged; complete LGP1 must match that owner before the sole program allocator chooses an action. Literal LAP1 proves the actual pending action; a trusted complete bound LAC1 is echoed in four receipt beats before LGR1. Nine independent host processes exercise owner kind/reserved rejection, persistent cancel before command read or after two command beats, cancel after allocation, foreign command identity/source, stale completion, successful slot commit and no second owner/command. Tail2/tail1 waits are 12 software calls with unbounded software streams, not hardware cycles or depth2 evidence. Input GRANTED/LGP/LAP and LAC terminals are controlled independent fixtures; result_consumed is a host notification, not an actual executor consumer. Fourteen-source HLS has eight FIFOs (3x8192 and 5x512), three scalar controls and no AXI. No whole production wrapper, actual RTL backpressure, real LN/Q service/numerics/cycles, CLOSE/rearm, complete graph, joint resources, physical timing or board PASS.",
+  "software_streams_bounded": false,
+  "top": "laya_graph_program_owned_sequencer"
+}

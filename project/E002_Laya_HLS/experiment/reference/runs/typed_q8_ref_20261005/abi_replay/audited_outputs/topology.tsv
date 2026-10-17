@@ -1,0 +1,1813 @@
+node	name	op	dtype	src0_name	src0_type	src1_name	src1_type	src2_name	src2_type	data_eq_src0	data_eq_src1	data_eq_src2
+0	input_ids (reshaped)	RESHAPE	i32	input_ids	i32					1	0	0
+1	node_1	GET_ROWS	f32	tok_emb.weight	q8_0	input_ids (reshaped)	i32			0	0	0
+2	embedding	RESHAPE	f32	node_1	f32					1	0	0
+3	node_3	NORM	f32	embedding	f32					0	0	0
+4	layer_norm	MUL	f32	node_3	f32	emb_norm_w	f32			0	0	0
+5	const_sub_arg1 (reshaped)	RESHAPE	f32	const_sub_arg1	f32					1	0	0
+6	sub	SUB	f32	attention_mask	f32	const_sub_arg1 (reshaped)	f32			0	0	0
+7	const_mul_arg1 (reshaped)	RESHAPE	f32	const_mul_arg1	f32					1	0	0
+8	mul	MUL	f32	sub	f32	const_mul_arg1 (reshaped)	f32			0	0	0
+9	unsqueeze	RESHAPE	f32	mul	f32					1	0	0
+10	unsqueeze_1	RESHAPE	f32	unsqueeze	f32					1	0	0
+11	unsqueeze_2	RESHAPE	f32	attention_mask	f32					1	0	0
+12	unsqueeze_3	RESHAPE	f32	unsqueeze_2	f32					1	0	0
+13	unsqueeze_4	RESHAPE	f32	attention_mask	f32					1	0	0
+14	unsqueeze_5	RESHAPE	f32	unsqueeze_4	f32					1	0	0
+15	const_mul_1_arg1 (reshaped)	RESHAPE	f32	const_mul_1_arg1	f32					1	0	0
+16	mul_1	MUL	f32	unsqueeze_5	f32	const_mul_1_arg1 (reshaped)	f32			0	0	0
+17	node_17	REPEAT	f32	unsqueeze_3	f32					0	0	0
+18	node_18	REPEAT	f32	mul_1	f32					0	0	0
+19	mul_2	MUL	f32	node_17	f32	node_18	f32			0	0	0
+20	add	ADD	f32	mul_2	f32	unsqueeze_1	f32			0	0	0
+21	slice_1	VIEW	f32	slide_bias	f32					1	0	0
+22	slice_2	VIEW	f32	slice_1	f32					1	0	0
+23	slice_2 (cont)	CONT	f32	slice_2	f32					0	0	0
+24	node_24	REPEAT	f32	slice_2 (cont)	f32					0	0	0
+25	node_25	REPEAT	f32	unsqueeze_1	f32					0	0	0
+26	add_1	ADD	f32	node_24	f32	node_25	f32			0	0	0
+27	slice_3	VIEW	f32	cos_full	f32					1	0	0
+28	slice_4	VIEW	f32	sin_full	f32					1	0	0
+29	linear	MUL_MAT	f32	qkv.0.weight	q8_0	layer_norm	f32			0	0	0
+30	getitem	VIEW	f32	linear	f32					1	0	0
+31	getitem_1	VIEW	f32	linear	f32					0	0	0
+32	getitem_2	VIEW	f32	linear	f32					0	0	0
+33	view	VIEW	f32	getitem	f32					1	0	0
+34	view (permuted)	PERMUTE	f32	view	f32					1	0	0
+35	transpose	CONT	f32	view (permuted)	f32					0	0	0
+36	view_1	VIEW	f32	getitem_1	f32					1	0	0
+37	view_1 (permuted)	PERMUTE	f32	view_1	f32					1	0	0
+38	transpose_1	CONT	f32	view_1 (permuted)	f32					0	0	0
+39	view_2	VIEW	f32	getitem_2	f32					1	0	0
+40	transpose_2	PERMUTE	f32	view_2	f32					1	0	0
+41	unsqueeze_6	RESHAPE	f32	slice_3	f32					1	0	0
+42	unsqueeze_7	RESHAPE	f32	slice_4	f32					1	0	0
+43	mul_3	MUL	f32	transpose	f32	unsqueeze_6	f32			0	0	0
+44	slice_5	VIEW	f32	transpose	f32					1	0	0
+45	slice_6	VIEW	f32	transpose	f32					0	0	0
+46	slice_6 (cont)	CONT	f32	slice_6	f32					0	0	0
+47	neg	UNARY	f32	slice_6 (cont)	f32					0	0	0
+48	slice_5 (cont)	CONT	f32	slice_5	f32					0	0	0
+49	node_49	CONCAT	f32	neg	f32	slice_5 (cont)	f32			0	0	0
+50	cat	CONT	f32	node_49	f32					0	0	0
+51	mul_4	MUL	f32	cat	f32	unsqueeze_7	f32			0	0	0
+52	add_2	ADD	f32	mul_3	f32	mul_4	f32			0	0	0
+53	mul_5	MUL	f32	transpose_1	f32	unsqueeze_6	f32			0	0	0
+54	slice_7	VIEW	f32	transpose_1	f32					1	0	0
+55	slice_8	VIEW	f32	transpose_1	f32					0	0	0
+56	slice_8 (cont)	CONT	f32	slice_8	f32					0	0	0
+57	neg_1	UNARY	f32	slice_8 (cont)	f32					0	0	0
+58	slice_7 (cont)	CONT	f32	slice_7	f32					0	0	0
+59	node_59	CONCAT	f32	neg_1	f32	slice_7 (cont)	f32			0	0	0
+60	cat_1	CONT	f32	node_59	f32					0	0	0
+61	mul_6	MUL	f32	cat_1	f32	unsqueeze_7	f32			0	0	0
+62	add_3	ADD	f32	mul_5	f32	mul_6	f32			0	0	0
+63	add_3 (copy)	CPY	f16	add_3	f32	add_3 (copy)	f16			0	1	0
+64	transpose_2 (cont)	CONT	f32	transpose_2	f32					0	0	0
+65	transpose_2 (cont) (copy)	CPY	f16	transpose_2 (cont)	f32	transpose_2 (cont) (copy)	f16			0	1	0
+66	add (view)	CLAMP	f32	add	f32					1	0	0
+67	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+68	transpose_3	FLASH_ATTN_EXT	f32	add_2	f32	add_3 (copy)	f16	transpose_2 (cont) (copy)	f16	0	0	0
+69	reshape	RESHAPE	f32	transpose_3	f32					1	0	0
+70	linear_1	MUL_MAT	f32	wo.0.weight	q8_0	reshape	f32			0	0	0
+71	add_4	ADD	f32	layer_norm	f32	linear_1	f32			0	0	0
+72	layer_norm_1	NORM	f32	add_4	f32					0	0	0
+73	linear_2	MUL_MAT	f32	mlp_wi.0.weight	q8_0	layer_norm_1	f32			0	0	0
+74	getitem_3	VIEW	f32	linear_2	f32					1	0	0
+75	getitem_4	VIEW	f32	linear_2	f32					0	0	0
+76	getitem_3 (cont)	CONT	f32	getitem_3	f32					0	0	0
+77	gelu	UNARY	f32	getitem_3 (cont)	f32					0	0	0
+78	mul_7	MUL	f32	gelu	f32	getitem_4	f32			0	0	0
+79	linear_3	MUL_MAT	f32	mlp_wo.0.weight	q8_0	mul_7	f32			0	0	0
+80	add_5	ADD	f32	add_4	f32	linear_3	f32			0	0	0
+81	layer_norm_2	NORM	f32	add_5	f32					0	0	0
+82	slice_9	VIEW	f32	cos_slide	f32					1	0	0
+83	slice_10	VIEW	f32	sin_slide	f32					1	0	0
+84	linear_4	MUL_MAT	f32	qkv.1.weight	q8_0	layer_norm_2	f32			0	0	0
+85	getitem_5	VIEW	f32	linear_4	f32					1	0	0
+86	getitem_6	VIEW	f32	linear_4	f32					0	0	0
+87	getitem_7	VIEW	f32	linear_4	f32					0	0	0
+88	view_3	VIEW	f32	getitem_5	f32					1	0	0
+89	view_3 (permuted)	PERMUTE	f32	view_3	f32					1	0	0
+90	transpose_4	CONT	f32	view_3 (permuted)	f32					0	0	0
+91	view_4	VIEW	f32	getitem_6	f32					1	0	0
+92	view_4 (permuted)	PERMUTE	f32	view_4	f32					1	0	0
+93	transpose_5	CONT	f32	view_4 (permuted)	f32					0	0	0
+94	view_5	VIEW	f32	getitem_7	f32					1	0	0
+95	transpose_6	PERMUTE	f32	view_5	f32					1	0	0
+96	unsqueeze_8	RESHAPE	f32	slice_9	f32					1	0	0
+97	unsqueeze_9	RESHAPE	f32	slice_10	f32					1	0	0
+98	mul_8	MUL	f32	transpose_4	f32	unsqueeze_8	f32			0	0	0
+99	slice_11	VIEW	f32	transpose_4	f32					1	0	0
+100	slice_12	VIEW	f32	transpose_4	f32					0	0	0
+101	slice_12 (cont)	CONT	f32	slice_12	f32					0	0	0
+102	neg_2	UNARY	f32	slice_12 (cont)	f32					0	0	0
+103	slice_11 (cont)	CONT	f32	slice_11	f32					0	0	0
+104	node_104	CONCAT	f32	neg_2	f32	slice_11 (cont)	f32			0	0	0
+105	cat_2	CONT	f32	node_104	f32					0	0	0
+106	mul_9	MUL	f32	cat_2	f32	unsqueeze_9	f32			0	0	0
+107	add_6	ADD	f32	mul_8	f32	mul_9	f32			0	0	0
+108	mul_10	MUL	f32	transpose_5	f32	unsqueeze_8	f32			0	0	0
+109	slice_13	VIEW	f32	transpose_5	f32					1	0	0
+110	slice_14	VIEW	f32	transpose_5	f32					0	0	0
+111	slice_14 (cont)	CONT	f32	slice_14	f32					0	0	0
+112	neg_3	UNARY	f32	slice_14 (cont)	f32					0	0	0
+113	slice_13 (cont)	CONT	f32	slice_13	f32					0	0	0
+114	node_114	CONCAT	f32	neg_3	f32	slice_13 (cont)	f32			0	0	0
+115	cat_3	CONT	f32	node_114	f32					0	0	0
+116	mul_11	MUL	f32	cat_3	f32	unsqueeze_9	f32			0	0	0
+117	add_7	ADD	f32	mul_10	f32	mul_11	f32			0	0	0
+118	add_7 (copy)	CPY	f16	add_7	f32	add_7 (copy)	f16			0	1	0
+119	transpose_6 (cont)	CONT	f32	transpose_6	f32					0	0	0
+120	transpose_6 (cont) (copy)	CPY	f16	transpose_6 (cont)	f32	transpose_6 (cont) (copy)	f16			0	1	0
+121	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+122	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+123	transpose_7	FLASH_ATTN_EXT	f32	add_6	f32	add_7 (copy)	f16	transpose_6 (cont) (copy)	f16	0	0	0
+124	reshape_1	RESHAPE	f32	transpose_7	f32					1	0	0
+125	linear_5	MUL_MAT	f32	wo.1.weight	q8_0	reshape_1	f32			0	0	0
+126	add_8	ADD	f32	add_5	f32	linear_5	f32			0	0	0
+127	layer_norm_3	NORM	f32	add_8	f32					0	0	0
+128	linear_6	MUL_MAT	f32	mlp_wi.1.weight	q8_0	layer_norm_3	f32			0	0	0
+129	getitem_8	VIEW	f32	linear_6	f32					1	0	0
+130	getitem_9	VIEW	f32	linear_6	f32					0	0	0
+131	getitem_8 (cont)	CONT	f32	getitem_8	f32					0	0	0
+132	gelu_1	UNARY	f32	getitem_8 (cont)	f32					0	0	0
+133	mul_12	MUL	f32	gelu_1	f32	getitem_9	f32			0	0	0
+134	linear_7	MUL_MAT	f32	mlp_wo.1.weight	q8_0	mul_12	f32			0	0	0
+135	add_9	ADD	f32	add_8	f32	linear_7	f32			0	0	0
+136	layer_norm_4	NORM	f32	add_9	f32					0	0	0
+137	slice_15	VIEW	f32	cos_slide	f32					1	0	0
+138	slice_16	VIEW	f32	sin_slide	f32					1	0	0
+139	linear_8	MUL_MAT	f32	qkv.2.weight	q8_0	layer_norm_4	f32			0	0	0
+140	getitem_10	VIEW	f32	linear_8	f32					1	0	0
+141	getitem_11	VIEW	f32	linear_8	f32					0	0	0
+142	getitem_12	VIEW	f32	linear_8	f32					0	0	0
+143	view_6	VIEW	f32	getitem_10	f32					1	0	0
+144	view_6 (permuted)	PERMUTE	f32	view_6	f32					1	0	0
+145	transpose_8	CONT	f32	view_6 (permuted)	f32					0	0	0
+146	view_7	VIEW	f32	getitem_11	f32					1	0	0
+147	view_7 (permuted)	PERMUTE	f32	view_7	f32					1	0	0
+148	transpose_9	CONT	f32	view_7 (permuted)	f32					0	0	0
+149	view_8	VIEW	f32	getitem_12	f32					1	0	0
+150	transpose_10	PERMUTE	f32	view_8	f32					1	0	0
+151	unsqueeze_10	RESHAPE	f32	slice_15	f32					1	0	0
+152	unsqueeze_11	RESHAPE	f32	slice_16	f32					1	0	0
+153	mul_13	MUL	f32	transpose_8	f32	unsqueeze_10	f32			0	0	0
+154	slice_17	VIEW	f32	transpose_8	f32					1	0	0
+155	slice_18	VIEW	f32	transpose_8	f32					0	0	0
+156	slice_18 (cont)	CONT	f32	slice_18	f32					0	0	0
+157	neg_4	UNARY	f32	slice_18 (cont)	f32					0	0	0
+158	slice_17 (cont)	CONT	f32	slice_17	f32					0	0	0
+159	node_159	CONCAT	f32	neg_4	f32	slice_17 (cont)	f32			0	0	0
+160	cat_4	CONT	f32	node_159	f32					0	0	0
+161	mul_14	MUL	f32	cat_4	f32	unsqueeze_11	f32			0	0	0
+162	add_10	ADD	f32	mul_13	f32	mul_14	f32			0	0	0
+163	mul_15	MUL	f32	transpose_9	f32	unsqueeze_10	f32			0	0	0
+164	slice_19	VIEW	f32	transpose_9	f32					1	0	0
+165	slice_20	VIEW	f32	transpose_9	f32					0	0	0
+166	slice_20 (cont)	CONT	f32	slice_20	f32					0	0	0
+167	neg_5	UNARY	f32	slice_20 (cont)	f32					0	0	0
+168	slice_19 (cont)	CONT	f32	slice_19	f32					0	0	0
+169	node_169	CONCAT	f32	neg_5	f32	slice_19 (cont)	f32			0	0	0
+170	cat_5	CONT	f32	node_169	f32					0	0	0
+171	mul_16	MUL	f32	cat_5	f32	unsqueeze_11	f32			0	0	0
+172	add_11	ADD	f32	mul_15	f32	mul_16	f32			0	0	0
+173	add_11 (copy)	CPY	f16	add_11	f32	add_11 (copy)	f16			0	1	0
+174	transpose_10 (cont)	CONT	f32	transpose_10	f32					0	0	0
+175	transpose_10 (cont) (copy)	CPY	f16	transpose_10 (cont)	f32	transpose_10 (cont) (copy)	f16			0	1	0
+176	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+177	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+178	transpose_11	FLASH_ATTN_EXT	f32	add_10	f32	add_11 (copy)	f16	transpose_10 (cont) (copy)	f16	0	0	0
+179	reshape_2	RESHAPE	f32	transpose_11	f32					1	0	0
+180	linear_9	MUL_MAT	f32	wo.2.weight	q8_0	reshape_2	f32			0	0	0
+181	add_12	ADD	f32	add_9	f32	linear_9	f32			0	0	0
+182	layer_norm_5	NORM	f32	add_12	f32					0	0	0
+183	linear_10	MUL_MAT	f32	mlp_wi.2.weight	q8_0	layer_norm_5	f32			0	0	0
+184	getitem_13	VIEW	f32	linear_10	f32					1	0	0
+185	getitem_14	VIEW	f32	linear_10	f32					0	0	0
+186	getitem_13 (cont)	CONT	f32	getitem_13	f32					0	0	0
+187	gelu_2	UNARY	f32	getitem_13 (cont)	f32					0	0	0
+188	mul_17	MUL	f32	gelu_2	f32	getitem_14	f32			0	0	0
+189	linear_11	MUL_MAT	f32	mlp_wo.2.weight	q8_0	mul_17	f32			0	0	0
+190	add_13	ADD	f32	add_12	f32	linear_11	f32			0	0	0
+191	layer_norm_6	NORM	f32	add_13	f32					0	0	0
+192	slice_21	VIEW	f32	cos_full	f32					1	0	0
+193	slice_22	VIEW	f32	sin_full	f32					1	0	0
+194	linear_12	MUL_MAT	f32	qkv.3.weight	q8_0	layer_norm_6	f32			0	0	0
+195	getitem_15	VIEW	f32	linear_12	f32					1	0	0
+196	getitem_16	VIEW	f32	linear_12	f32					0	0	0
+197	getitem_17	VIEW	f32	linear_12	f32					0	0	0
+198	view_9	VIEW	f32	getitem_15	f32					1	0	0
+199	view_9 (permuted)	PERMUTE	f32	view_9	f32					1	0	0
+200	transpose_12	CONT	f32	view_9 (permuted)	f32					0	0	0
+201	view_10	VIEW	f32	getitem_16	f32					1	0	0
+202	view_10 (permuted)	PERMUTE	f32	view_10	f32					1	0	0
+203	transpose_13	CONT	f32	view_10 (permuted)	f32					0	0	0
+204	view_11	VIEW	f32	getitem_17	f32					1	0	0
+205	transpose_14	PERMUTE	f32	view_11	f32					1	0	0
+206	unsqueeze_12	RESHAPE	f32	slice_21	f32					1	0	0
+207	unsqueeze_13	RESHAPE	f32	slice_22	f32					1	0	0
+208	mul_18	MUL	f32	transpose_12	f32	unsqueeze_12	f32			0	0	0
+209	slice_23	VIEW	f32	transpose_12	f32					1	0	0
+210	slice_24	VIEW	f32	transpose_12	f32					0	0	0
+211	slice_24 (cont)	CONT	f32	slice_24	f32					0	0	0
+212	neg_6	UNARY	f32	slice_24 (cont)	f32					0	0	0
+213	slice_23 (cont)	CONT	f32	slice_23	f32					0	0	0
+214	node_214	CONCAT	f32	neg_6	f32	slice_23 (cont)	f32			0	0	0
+215	cat_6	CONT	f32	node_214	f32					0	0	0
+216	mul_19	MUL	f32	cat_6	f32	unsqueeze_13	f32			0	0	0
+217	add_14	ADD	f32	mul_18	f32	mul_19	f32			0	0	0
+218	mul_20	MUL	f32	transpose_13	f32	unsqueeze_12	f32			0	0	0
+219	slice_25	VIEW	f32	transpose_13	f32					1	0	0
+220	slice_26	VIEW	f32	transpose_13	f32					0	0	0
+221	slice_26 (cont)	CONT	f32	slice_26	f32					0	0	0
+222	neg_7	UNARY	f32	slice_26 (cont)	f32					0	0	0
+223	slice_25 (cont)	CONT	f32	slice_25	f32					0	0	0
+224	node_224	CONCAT	f32	neg_7	f32	slice_25 (cont)	f32			0	0	0
+225	cat_7	CONT	f32	node_224	f32					0	0	0
+226	mul_21	MUL	f32	cat_7	f32	unsqueeze_13	f32			0	0	0
+227	add_15	ADD	f32	mul_20	f32	mul_21	f32			0	0	0
+228	add_15 (copy)	CPY	f16	add_15	f32	add_15 (copy)	f16			0	1	0
+229	transpose_14 (cont)	CONT	f32	transpose_14	f32					0	0	0
+230	transpose_14 (cont) (copy)	CPY	f16	transpose_14 (cont)	f32	transpose_14 (cont) (copy)	f16			0	1	0
+231	add (view)	CLAMP	f32	add	f32					1	0	0
+232	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+233	transpose_15	FLASH_ATTN_EXT	f32	add_14	f32	add_15 (copy)	f16	transpose_14 (cont) (copy)	f16	0	0	0
+234	reshape_3	RESHAPE	f32	transpose_15	f32					1	0	0
+235	linear_13	MUL_MAT	f32	wo.3.weight	q8_0	reshape_3	f32			0	0	0
+236	add_16	ADD	f32	add_13	f32	linear_13	f32			0	0	0
+237	layer_norm_7	NORM	f32	add_16	f32					0	0	0
+238	linear_14	MUL_MAT	f32	mlp_wi.3.weight	q8_0	layer_norm_7	f32			0	0	0
+239	getitem_18	VIEW	f32	linear_14	f32					1	0	0
+240	getitem_19	VIEW	f32	linear_14	f32					0	0	0
+241	getitem_18 (cont)	CONT	f32	getitem_18	f32					0	0	0
+242	gelu_3	UNARY	f32	getitem_18 (cont)	f32					0	0	0
+243	mul_22	MUL	f32	gelu_3	f32	getitem_19	f32			0	0	0
+244	linear_15	MUL_MAT	f32	mlp_wo.3.weight	q8_0	mul_22	f32			0	0	0
+245	add_17	ADD	f32	add_16	f32	linear_15	f32			0	0	0
+246	layer_norm_8	NORM	f32	add_17	f32					0	0	0
+247	slice_27	VIEW	f32	cos_slide	f32					1	0	0
+248	slice_28	VIEW	f32	sin_slide	f32					1	0	0
+249	linear_16	MUL_MAT	f32	qkv.4.weight	q8_0	layer_norm_8	f32			0	0	0
+250	getitem_20	VIEW	f32	linear_16	f32					1	0	0
+251	getitem_21	VIEW	f32	linear_16	f32					0	0	0
+252	getitem_22	VIEW	f32	linear_16	f32					0	0	0
+253	view_12	VIEW	f32	getitem_20	f32					1	0	0
+254	view_12 (permuted)	PERMUTE	f32	view_12	f32					1	0	0
+255	transpose_16	CONT	f32	view_12 (permuted)	f32					0	0	0
+256	view_13	VIEW	f32	getitem_21	f32					1	0	0
+257	view_13 (permuted)	PERMUTE	f32	view_13	f32					1	0	0
+258	transpose_17	CONT	f32	view_13 (permuted)	f32					0	0	0
+259	view_14	VIEW	f32	getitem_22	f32					1	0	0
+260	transpose_18	PERMUTE	f32	view_14	f32					1	0	0
+261	unsqueeze_14	RESHAPE	f32	slice_27	f32					1	0	0
+262	unsqueeze_15	RESHAPE	f32	slice_28	f32					1	0	0
+263	mul_23	MUL	f32	transpose_16	f32	unsqueeze_14	f32			0	0	0
+264	slice_29	VIEW	f32	transpose_16	f32					1	0	0
+265	slice_30	VIEW	f32	transpose_16	f32					0	0	0
+266	slice_30 (cont)	CONT	f32	slice_30	f32					0	0	0
+267	neg_8	UNARY	f32	slice_30 (cont)	f32					0	0	0
+268	slice_29 (cont)	CONT	f32	slice_29	f32					0	0	0
+269	node_269	CONCAT	f32	neg_8	f32	slice_29 (cont)	f32			0	0	0
+270	cat_8	CONT	f32	node_269	f32					0	0	0
+271	mul_24	MUL	f32	cat_8	f32	unsqueeze_15	f32			0	0	0
+272	add_18	ADD	f32	mul_23	f32	mul_24	f32			0	0	0
+273	mul_25	MUL	f32	transpose_17	f32	unsqueeze_14	f32			0	0	0
+274	slice_31	VIEW	f32	transpose_17	f32					1	0	0
+275	slice_32	VIEW	f32	transpose_17	f32					0	0	0
+276	slice_32 (cont)	CONT	f32	slice_32	f32					0	0	0
+277	neg_9	UNARY	f32	slice_32 (cont)	f32					0	0	0
+278	slice_31 (cont)	CONT	f32	slice_31	f32					0	0	0
+279	node_279	CONCAT	f32	neg_9	f32	slice_31 (cont)	f32			0	0	0
+280	cat_9	CONT	f32	node_279	f32					0	0	0
+281	mul_26	MUL	f32	cat_9	f32	unsqueeze_15	f32			0	0	0
+282	add_19	ADD	f32	mul_25	f32	mul_26	f32			0	0	0
+283	add_19 (copy)	CPY	f16	add_19	f32	add_19 (copy)	f16			0	1	0
+284	transpose_18 (cont)	CONT	f32	transpose_18	f32					0	0	0
+285	transpose_18 (cont) (copy)	CPY	f16	transpose_18 (cont)	f32	transpose_18 (cont) (copy)	f16			0	1	0
+286	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+287	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+288	transpose_19	FLASH_ATTN_EXT	f32	add_18	f32	add_19 (copy)	f16	transpose_18 (cont) (copy)	f16	0	0	0
+289	reshape_4	RESHAPE	f32	transpose_19	f32					1	0	0
+290	linear_17	MUL_MAT	f32	wo.4.weight	q8_0	reshape_4	f32			0	0	0
+291	add_20	ADD	f32	add_17	f32	linear_17	f32			0	0	0
+292	layer_norm_9	NORM	f32	add_20	f32					0	0	0
+293	linear_18	MUL_MAT	f32	mlp_wi.4.weight	q8_0	layer_norm_9	f32			0	0	0
+294	getitem_23	VIEW	f32	linear_18	f32					1	0	0
+295	getitem_24	VIEW	f32	linear_18	f32					0	0	0
+296	getitem_23 (cont)	CONT	f32	getitem_23	f32					0	0	0
+297	gelu_4	UNARY	f32	getitem_23 (cont)	f32					0	0	0
+298	mul_27	MUL	f32	gelu_4	f32	getitem_24	f32			0	0	0
+299	linear_19	MUL_MAT	f32	mlp_wo.4.weight	q8_0	mul_27	f32			0	0	0
+300	add_21	ADD	f32	add_20	f32	linear_19	f32			0	0	0
+301	layer_norm_10	NORM	f32	add_21	f32					0	0	0
+302	slice_33	VIEW	f32	cos_slide	f32					1	0	0
+303	slice_34	VIEW	f32	sin_slide	f32					1	0	0
+304	linear_20	MUL_MAT	f32	qkv.5.weight	q8_0	layer_norm_10	f32			0	0	0
+305	getitem_25	VIEW	f32	linear_20	f32					1	0	0
+306	getitem_26	VIEW	f32	linear_20	f32					0	0	0
+307	getitem_27	VIEW	f32	linear_20	f32					0	0	0
+308	view_15	VIEW	f32	getitem_25	f32					1	0	0
+309	view_15 (permuted)	PERMUTE	f32	view_15	f32					1	0	0
+310	transpose_20	CONT	f32	view_15 (permuted)	f32					0	0	0
+311	view_16	VIEW	f32	getitem_26	f32					1	0	0
+312	view_16 (permuted)	PERMUTE	f32	view_16	f32					1	0	0
+313	transpose_21	CONT	f32	view_16 (permuted)	f32					0	0	0
+314	view_17	VIEW	f32	getitem_27	f32					1	0	0
+315	transpose_22	PERMUTE	f32	view_17	f32					1	0	0
+316	unsqueeze_16	RESHAPE	f32	slice_33	f32					1	0	0
+317	unsqueeze_17	RESHAPE	f32	slice_34	f32					1	0	0
+318	mul_28	MUL	f32	transpose_20	f32	unsqueeze_16	f32			0	0	0
+319	slice_35	VIEW	f32	transpose_20	f32					1	0	0
+320	slice_36	VIEW	f32	transpose_20	f32					0	0	0
+321	slice_36 (cont)	CONT	f32	slice_36	f32					0	0	0
+322	neg_10	UNARY	f32	slice_36 (cont)	f32					0	0	0
+323	slice_35 (cont)	CONT	f32	slice_35	f32					0	0	0
+324	node_324	CONCAT	f32	neg_10	f32	slice_35 (cont)	f32			0	0	0
+325	cat_10	CONT	f32	node_324	f32					0	0	0
+326	mul_29	MUL	f32	cat_10	f32	unsqueeze_17	f32			0	0	0
+327	add_22	ADD	f32	mul_28	f32	mul_29	f32			0	0	0
+328	mul_30	MUL	f32	transpose_21	f32	unsqueeze_16	f32			0	0	0
+329	slice_37	VIEW	f32	transpose_21	f32					1	0	0
+330	slice_38	VIEW	f32	transpose_21	f32					0	0	0
+331	slice_38 (cont)	CONT	f32	slice_38	f32					0	0	0
+332	neg_11	UNARY	f32	slice_38 (cont)	f32					0	0	0
+333	slice_37 (cont)	CONT	f32	slice_37	f32					0	0	0
+334	node_334	CONCAT	f32	neg_11	f32	slice_37 (cont)	f32			0	0	0
+335	cat_11	CONT	f32	node_334	f32					0	0	0
+336	mul_31	MUL	f32	cat_11	f32	unsqueeze_17	f32			0	0	0
+337	add_23	ADD	f32	mul_30	f32	mul_31	f32			0	0	0
+338	add_23 (copy)	CPY	f16	add_23	f32	add_23 (copy)	f16			0	1	0
+339	transpose_22 (cont)	CONT	f32	transpose_22	f32					0	0	0
+340	transpose_22 (cont) (copy)	CPY	f16	transpose_22 (cont)	f32	transpose_22 (cont) (copy)	f16			0	1	0
+341	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+342	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+343	transpose_23	FLASH_ATTN_EXT	f32	add_22	f32	add_23 (copy)	f16	transpose_22 (cont) (copy)	f16	0	0	0
+344	reshape_5	RESHAPE	f32	transpose_23	f32					1	0	0
+345	linear_21	MUL_MAT	f32	wo.5.weight	q8_0	reshape_5	f32			0	0	0
+346	add_24	ADD	f32	add_21	f32	linear_21	f32			0	0	0
+347	layer_norm_11	NORM	f32	add_24	f32					0	0	0
+348	linear_22	MUL_MAT	f32	mlp_wi.5.weight	q8_0	layer_norm_11	f32			0	0	0
+349	getitem_28	VIEW	f32	linear_22	f32					1	0	0
+350	getitem_29	VIEW	f32	linear_22	f32					0	0	0
+351	getitem_28 (cont)	CONT	f32	getitem_28	f32					0	0	0
+352	gelu_5	UNARY	f32	getitem_28 (cont)	f32					0	0	0
+353	mul_32	MUL	f32	gelu_5	f32	getitem_29	f32			0	0	0
+354	linear_23	MUL_MAT	f32	mlp_wo.5.weight	q8_0	mul_32	f32			0	0	0
+355	add_25	ADD	f32	add_24	f32	linear_23	f32			0	0	0
+356	layer_norm_12	NORM	f32	add_25	f32					0	0	0
+357	slice_39	VIEW	f32	cos_full	f32					1	0	0
+358	slice_40	VIEW	f32	sin_full	f32					1	0	0
+359	linear_24	MUL_MAT	f32	qkv.6.weight	q8_0	layer_norm_12	f32			0	0	0
+360	getitem_30	VIEW	f32	linear_24	f32					1	0	0
+361	getitem_31	VIEW	f32	linear_24	f32					0	0	0
+362	getitem_32	VIEW	f32	linear_24	f32					0	0	0
+363	view_18	VIEW	f32	getitem_30	f32					1	0	0
+364	view_18 (permuted)	PERMUTE	f32	view_18	f32					1	0	0
+365	transpose_24	CONT	f32	view_18 (permuted)	f32					0	0	0
+366	view_19	VIEW	f32	getitem_31	f32					1	0	0
+367	view_19 (permuted)	PERMUTE	f32	view_19	f32					1	0	0
+368	transpose_25	CONT	f32	view_19 (permuted)	f32					0	0	0
+369	view_20	VIEW	f32	getitem_32	f32					1	0	0
+370	transpose_26	PERMUTE	f32	view_20	f32					1	0	0
+371	unsqueeze_18	RESHAPE	f32	slice_39	f32					1	0	0
+372	unsqueeze_19	RESHAPE	f32	slice_40	f32					1	0	0
+373	mul_33	MUL	f32	transpose_24	f32	unsqueeze_18	f32			0	0	0
+374	slice_41	VIEW	f32	transpose_24	f32					1	0	0
+375	slice_42	VIEW	f32	transpose_24	f32					0	0	0
+376	slice_42 (cont)	CONT	f32	slice_42	f32					0	0	0
+377	neg_12	UNARY	f32	slice_42 (cont)	f32					0	0	0
+378	slice_41 (cont)	CONT	f32	slice_41	f32					0	0	0
+379	node_379	CONCAT	f32	neg_12	f32	slice_41 (cont)	f32			0	0	0
+380	cat_12	CONT	f32	node_379	f32					0	0	0
+381	mul_34	MUL	f32	cat_12	f32	unsqueeze_19	f32			0	0	0
+382	add_26	ADD	f32	mul_33	f32	mul_34	f32			0	0	0
+383	mul_35	MUL	f32	transpose_25	f32	unsqueeze_18	f32			0	0	0
+384	slice_43	VIEW	f32	transpose_25	f32					1	0	0
+385	slice_44	VIEW	f32	transpose_25	f32					0	0	0
+386	slice_44 (cont)	CONT	f32	slice_44	f32					0	0	0
+387	neg_13	UNARY	f32	slice_44 (cont)	f32					0	0	0
+388	slice_43 (cont)	CONT	f32	slice_43	f32					0	0	0
+389	node_389	CONCAT	f32	neg_13	f32	slice_43 (cont)	f32			0	0	0
+390	cat_13	CONT	f32	node_389	f32					0	0	0
+391	mul_36	MUL	f32	cat_13	f32	unsqueeze_19	f32			0	0	0
+392	add_27	ADD	f32	mul_35	f32	mul_36	f32			0	0	0
+393	add_27 (copy)	CPY	f16	add_27	f32	add_27 (copy)	f16			0	1	0
+394	transpose_26 (cont)	CONT	f32	transpose_26	f32					0	0	0
+395	transpose_26 (cont) (copy)	CPY	f16	transpose_26 (cont)	f32	transpose_26 (cont) (copy)	f16			0	1	0
+396	add (view)	CLAMP	f32	add	f32					1	0	0
+397	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+398	transpose_27	FLASH_ATTN_EXT	f32	add_26	f32	add_27 (copy)	f16	transpose_26 (cont) (copy)	f16	0	0	0
+399	reshape_6	RESHAPE	f32	transpose_27	f32					1	0	0
+400	linear_25	MUL_MAT	f32	wo.6.weight	q8_0	reshape_6	f32			0	0	0
+401	add_28	ADD	f32	add_25	f32	linear_25	f32			0	0	0
+402	layer_norm_13	NORM	f32	add_28	f32					0	0	0
+403	linear_26	MUL_MAT	f32	mlp_wi.6.weight	q8_0	layer_norm_13	f32			0	0	0
+404	getitem_33	VIEW	f32	linear_26	f32					1	0	0
+405	getitem_34	VIEW	f32	linear_26	f32					0	0	0
+406	getitem_33 (cont)	CONT	f32	getitem_33	f32					0	0	0
+407	gelu_6	UNARY	f32	getitem_33 (cont)	f32					0	0	0
+408	mul_37	MUL	f32	gelu_6	f32	getitem_34	f32			0	0	0
+409	linear_27	MUL_MAT	f32	mlp_wo.6.weight	q8_0	mul_37	f32			0	0	0
+410	add_29	ADD	f32	add_28	f32	linear_27	f32			0	0	0
+411	layer_norm_14	NORM	f32	add_29	f32					0	0	0
+412	slice_45	VIEW	f32	cos_slide	f32					1	0	0
+413	slice_46	VIEW	f32	sin_slide	f32					1	0	0
+414	linear_28	MUL_MAT	f32	qkv.7.weight	q8_0	layer_norm_14	f32			0	0	0
+415	getitem_35	VIEW	f32	linear_28	f32					1	0	0
+416	getitem_36	VIEW	f32	linear_28	f32					0	0	0
+417	getitem_37	VIEW	f32	linear_28	f32					0	0	0
+418	view_21	VIEW	f32	getitem_35	f32					1	0	0
+419	view_21 (permuted)	PERMUTE	f32	view_21	f32					1	0	0
+420	transpose_28	CONT	f32	view_21 (permuted)	f32					0	0	0
+421	view_22	VIEW	f32	getitem_36	f32					1	0	0
+422	view_22 (permuted)	PERMUTE	f32	view_22	f32					1	0	0
+423	transpose_29	CONT	f32	view_22 (permuted)	f32					0	0	0
+424	view_23	VIEW	f32	getitem_37	f32					1	0	0
+425	transpose_30	PERMUTE	f32	view_23	f32					1	0	0
+426	unsqueeze_20	RESHAPE	f32	slice_45	f32					1	0	0
+427	unsqueeze_21	RESHAPE	f32	slice_46	f32					1	0	0
+428	mul_38	MUL	f32	transpose_28	f32	unsqueeze_20	f32			0	0	0
+429	slice_47	VIEW	f32	transpose_28	f32					1	0	0
+430	slice_48	VIEW	f32	transpose_28	f32					0	0	0
+431	slice_48 (cont)	CONT	f32	slice_48	f32					0	0	0
+432	neg_14	UNARY	f32	slice_48 (cont)	f32					0	0	0
+433	slice_47 (cont)	CONT	f32	slice_47	f32					0	0	0
+434	node_434	CONCAT	f32	neg_14	f32	slice_47 (cont)	f32			0	0	0
+435	cat_14	CONT	f32	node_434	f32					0	0	0
+436	mul_39	MUL	f32	cat_14	f32	unsqueeze_21	f32			0	0	0
+437	add_30	ADD	f32	mul_38	f32	mul_39	f32			0	0	0
+438	mul_40	MUL	f32	transpose_29	f32	unsqueeze_20	f32			0	0	0
+439	slice_49	VIEW	f32	transpose_29	f32					1	0	0
+440	slice_50	VIEW	f32	transpose_29	f32					0	0	0
+441	slice_50 (cont)	CONT	f32	slice_50	f32					0	0	0
+442	neg_15	UNARY	f32	slice_50 (cont)	f32					0	0	0
+443	slice_49 (cont)	CONT	f32	slice_49	f32					0	0	0
+444	node_444	CONCAT	f32	neg_15	f32	slice_49 (cont)	f32			0	0	0
+445	cat_15	CONT	f32	node_444	f32					0	0	0
+446	mul_41	MUL	f32	cat_15	f32	unsqueeze_21	f32			0	0	0
+447	add_31	ADD	f32	mul_40	f32	mul_41	f32			0	0	0
+448	add_31 (copy)	CPY	f16	add_31	f32	add_31 (copy)	f16			0	1	0
+449	transpose_30 (cont)	CONT	f32	transpose_30	f32					0	0	0
+450	transpose_30 (cont) (copy)	CPY	f16	transpose_30 (cont)	f32	transpose_30 (cont) (copy)	f16			0	1	0
+451	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+452	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+453	transpose_31	FLASH_ATTN_EXT	f32	add_30	f32	add_31 (copy)	f16	transpose_30 (cont) (copy)	f16	0	0	0
+454	reshape_7	RESHAPE	f32	transpose_31	f32					1	0	0
+455	linear_29	MUL_MAT	f32	wo.7.weight	q8_0	reshape_7	f32			0	0	0
+456	add_32	ADD	f32	add_29	f32	linear_29	f32			0	0	0
+457	layer_norm_15	NORM	f32	add_32	f32					0	0	0
+458	linear_30	MUL_MAT	f32	mlp_wi.7.weight	q8_0	layer_norm_15	f32			0	0	0
+459	getitem_38	VIEW	f32	linear_30	f32					1	0	0
+460	getitem_39	VIEW	f32	linear_30	f32					0	0	0
+461	getitem_38 (cont)	CONT	f32	getitem_38	f32					0	0	0
+462	gelu_7	UNARY	f32	getitem_38 (cont)	f32					0	0	0
+463	mul_42	MUL	f32	gelu_7	f32	getitem_39	f32			0	0	0
+464	linear_31	MUL_MAT	f32	mlp_wo.7.weight	q8_0	mul_42	f32			0	0	0
+465	add_33	ADD	f32	add_32	f32	linear_31	f32			0	0	0
+466	layer_norm_16	NORM	f32	add_33	f32					0	0	0
+467	slice_51	VIEW	f32	cos_slide	f32					1	0	0
+468	slice_52	VIEW	f32	sin_slide	f32					1	0	0
+469	linear_32	MUL_MAT	f32	qkv.8.weight	q8_0	layer_norm_16	f32			0	0	0
+470	getitem_40	VIEW	f32	linear_32	f32					1	0	0
+471	getitem_41	VIEW	f32	linear_32	f32					0	0	0
+472	getitem_42	VIEW	f32	linear_32	f32					0	0	0
+473	view_24	VIEW	f32	getitem_40	f32					1	0	0
+474	view_24 (permuted)	PERMUTE	f32	view_24	f32					1	0	0
+475	transpose_32	CONT	f32	view_24 (permuted)	f32					0	0	0
+476	view_25	VIEW	f32	getitem_41	f32					1	0	0
+477	view_25 (permuted)	PERMUTE	f32	view_25	f32					1	0	0
+478	transpose_33	CONT	f32	view_25 (permuted)	f32					0	0	0
+479	view_26	VIEW	f32	getitem_42	f32					1	0	0
+480	transpose_34	PERMUTE	f32	view_26	f32					1	0	0
+481	unsqueeze_22	RESHAPE	f32	slice_51	f32					1	0	0
+482	unsqueeze_23	RESHAPE	f32	slice_52	f32					1	0	0
+483	mul_43	MUL	f32	transpose_32	f32	unsqueeze_22	f32			0	0	0
+484	slice_53	VIEW	f32	transpose_32	f32					1	0	0
+485	slice_54	VIEW	f32	transpose_32	f32					0	0	0
+486	slice_54 (cont)	CONT	f32	slice_54	f32					0	0	0
+487	neg_16	UNARY	f32	slice_54 (cont)	f32					0	0	0
+488	slice_53 (cont)	CONT	f32	slice_53	f32					0	0	0
+489	node_489	CONCAT	f32	neg_16	f32	slice_53 (cont)	f32			0	0	0
+490	cat_16	CONT	f32	node_489	f32					0	0	0
+491	mul_44	MUL	f32	cat_16	f32	unsqueeze_23	f32			0	0	0
+492	add_34	ADD	f32	mul_43	f32	mul_44	f32			0	0	0
+493	mul_45	MUL	f32	transpose_33	f32	unsqueeze_22	f32			0	0	0
+494	slice_55	VIEW	f32	transpose_33	f32					1	0	0
+495	slice_56	VIEW	f32	transpose_33	f32					0	0	0
+496	slice_56 (cont)	CONT	f32	slice_56	f32					0	0	0
+497	neg_17	UNARY	f32	slice_56 (cont)	f32					0	0	0
+498	slice_55 (cont)	CONT	f32	slice_55	f32					0	0	0
+499	node_499	CONCAT	f32	neg_17	f32	slice_55 (cont)	f32			0	0	0
+500	cat_17	CONT	f32	node_499	f32					0	0	0
+501	mul_46	MUL	f32	cat_17	f32	unsqueeze_23	f32			0	0	0
+502	add_35	ADD	f32	mul_45	f32	mul_46	f32			0	0	0
+503	add_35 (copy)	CPY	f16	add_35	f32	add_35 (copy)	f16			0	1	0
+504	transpose_34 (cont)	CONT	f32	transpose_34	f32					0	0	0
+505	transpose_34 (cont) (copy)	CPY	f16	transpose_34 (cont)	f32	transpose_34 (cont) (copy)	f16			0	1	0
+506	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+507	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+508	transpose_35	FLASH_ATTN_EXT	f32	add_34	f32	add_35 (copy)	f16	transpose_34 (cont) (copy)	f16	0	0	0
+509	reshape_8	RESHAPE	f32	transpose_35	f32					1	0	0
+510	linear_33	MUL_MAT	f32	wo.8.weight	q8_0	reshape_8	f32			0	0	0
+511	add_36	ADD	f32	add_33	f32	linear_33	f32			0	0	0
+512	layer_norm_17	NORM	f32	add_36	f32					0	0	0
+513	linear_34	MUL_MAT	f32	mlp_wi.8.weight	q8_0	layer_norm_17	f32			0	0	0
+514	getitem_43	VIEW	f32	linear_34	f32					1	0	0
+515	getitem_44	VIEW	f32	linear_34	f32					0	0	0
+516	getitem_43 (cont)	CONT	f32	getitem_43	f32					0	0	0
+517	gelu_8	UNARY	f32	getitem_43 (cont)	f32					0	0	0
+518	mul_47	MUL	f32	gelu_8	f32	getitem_44	f32			0	0	0
+519	linear_35	MUL_MAT	f32	mlp_wo.8.weight	q8_0	mul_47	f32			0	0	0
+520	add_37	ADD	f32	add_36	f32	linear_35	f32			0	0	0
+521	layer_norm_18	NORM	f32	add_37	f32					0	0	0
+522	slice_57	VIEW	f32	cos_full	f32					1	0	0
+523	slice_58	VIEW	f32	sin_full	f32					1	0	0
+524	linear_36	MUL_MAT	f32	qkv.9.weight	q8_0	layer_norm_18	f32			0	0	0
+525	getitem_45	VIEW	f32	linear_36	f32					1	0	0
+526	getitem_46	VIEW	f32	linear_36	f32					0	0	0
+527	getitem_47	VIEW	f32	linear_36	f32					0	0	0
+528	view_27	VIEW	f32	getitem_45	f32					1	0	0
+529	view_27 (permuted)	PERMUTE	f32	view_27	f32					1	0	0
+530	transpose_36	CONT	f32	view_27 (permuted)	f32					0	0	0
+531	view_28	VIEW	f32	getitem_46	f32					1	0	0
+532	view_28 (permuted)	PERMUTE	f32	view_28	f32					1	0	0
+533	transpose_37	CONT	f32	view_28 (permuted)	f32					0	0	0
+534	view_29	VIEW	f32	getitem_47	f32					1	0	0
+535	transpose_38	PERMUTE	f32	view_29	f32					1	0	0
+536	unsqueeze_24	RESHAPE	f32	slice_57	f32					1	0	0
+537	unsqueeze_25	RESHAPE	f32	slice_58	f32					1	0	0
+538	mul_48	MUL	f32	transpose_36	f32	unsqueeze_24	f32			0	0	0
+539	slice_59	VIEW	f32	transpose_36	f32					1	0	0
+540	slice_60	VIEW	f32	transpose_36	f32					0	0	0
+541	slice_60 (cont)	CONT	f32	slice_60	f32					0	0	0
+542	neg_18	UNARY	f32	slice_60 (cont)	f32					0	0	0
+543	slice_59 (cont)	CONT	f32	slice_59	f32					0	0	0
+544	node_544	CONCAT	f32	neg_18	f32	slice_59 (cont)	f32			0	0	0
+545	cat_18	CONT	f32	node_544	f32					0	0	0
+546	mul_49	MUL	f32	cat_18	f32	unsqueeze_25	f32			0	0	0
+547	add_38	ADD	f32	mul_48	f32	mul_49	f32			0	0	0
+548	mul_50	MUL	f32	transpose_37	f32	unsqueeze_24	f32			0	0	0
+549	slice_61	VIEW	f32	transpose_37	f32					1	0	0
+550	slice_62	VIEW	f32	transpose_37	f32					0	0	0
+551	slice_62 (cont)	CONT	f32	slice_62	f32					0	0	0
+552	neg_19	UNARY	f32	slice_62 (cont)	f32					0	0	0
+553	slice_61 (cont)	CONT	f32	slice_61	f32					0	0	0
+554	node_554	CONCAT	f32	neg_19	f32	slice_61 (cont)	f32			0	0	0
+555	cat_19	CONT	f32	node_554	f32					0	0	0
+556	mul_51	MUL	f32	cat_19	f32	unsqueeze_25	f32			0	0	0
+557	add_39	ADD	f32	mul_50	f32	mul_51	f32			0	0	0
+558	add_39 (copy)	CPY	f16	add_39	f32	add_39 (copy)	f16			0	1	0
+559	transpose_38 (cont)	CONT	f32	transpose_38	f32					0	0	0
+560	transpose_38 (cont) (copy)	CPY	f16	transpose_38 (cont)	f32	transpose_38 (cont) (copy)	f16			0	1	0
+561	add (view)	CLAMP	f32	add	f32					1	0	0
+562	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+563	transpose_39	FLASH_ATTN_EXT	f32	add_38	f32	add_39 (copy)	f16	transpose_38 (cont) (copy)	f16	0	0	0
+564	reshape_9	RESHAPE	f32	transpose_39	f32					1	0	0
+565	linear_37	MUL_MAT	f32	wo.9.weight	q8_0	reshape_9	f32			0	0	0
+566	add_40	ADD	f32	add_37	f32	linear_37	f32			0	0	0
+567	layer_norm_19	NORM	f32	add_40	f32					0	0	0
+568	linear_38	MUL_MAT	f32	mlp_wi.9.weight	q8_0	layer_norm_19	f32			0	0	0
+569	getitem_48	VIEW	f32	linear_38	f32					1	0	0
+570	getitem_49	VIEW	f32	linear_38	f32					0	0	0
+571	getitem_48 (cont)	CONT	f32	getitem_48	f32					0	0	0
+572	gelu_9	UNARY	f32	getitem_48 (cont)	f32					0	0	0
+573	mul_52	MUL	f32	gelu_9	f32	getitem_49	f32			0	0	0
+574	linear_39	MUL_MAT	f32	mlp_wo.9.weight	q8_0	mul_52	f32			0	0	0
+575	add_41	ADD	f32	add_40	f32	linear_39	f32			0	0	0
+576	layer_norm_20	NORM	f32	add_41	f32					0	0	0
+577	slice_63	VIEW	f32	cos_slide	f32					1	0	0
+578	slice_64	VIEW	f32	sin_slide	f32					1	0	0
+579	linear_40	MUL_MAT	f32	qkv.10.weight	q8_0	layer_norm_20	f32			0	0	0
+580	getitem_50	VIEW	f32	linear_40	f32					1	0	0
+581	getitem_51	VIEW	f32	linear_40	f32					0	0	0
+582	getitem_52	VIEW	f32	linear_40	f32					0	0	0
+583	view_30	VIEW	f32	getitem_50	f32					1	0	0
+584	view_30 (permuted)	PERMUTE	f32	view_30	f32					1	0	0
+585	transpose_40	CONT	f32	view_30 (permuted)	f32					0	0	0
+586	view_31	VIEW	f32	getitem_51	f32					1	0	0
+587	view_31 (permuted)	PERMUTE	f32	view_31	f32					1	0	0
+588	transpose_41	CONT	f32	view_31 (permuted)	f32					0	0	0
+589	view_32	VIEW	f32	getitem_52	f32					1	0	0
+590	transpose_42	PERMUTE	f32	view_32	f32					1	0	0
+591	unsqueeze_26	RESHAPE	f32	slice_63	f32					1	0	0
+592	unsqueeze_27	RESHAPE	f32	slice_64	f32					1	0	0
+593	mul_53	MUL	f32	transpose_40	f32	unsqueeze_26	f32			0	0	0
+594	slice_65	VIEW	f32	transpose_40	f32					1	0	0
+595	slice_66	VIEW	f32	transpose_40	f32					0	0	0
+596	slice_66 (cont)	CONT	f32	slice_66	f32					0	0	0
+597	neg_20	UNARY	f32	slice_66 (cont)	f32					0	0	0
+598	slice_65 (cont)	CONT	f32	slice_65	f32					0	0	0
+599	node_599	CONCAT	f32	neg_20	f32	slice_65 (cont)	f32			0	0	0
+600	cat_20	CONT	f32	node_599	f32					0	0	0
+601	mul_54	MUL	f32	cat_20	f32	unsqueeze_27	f32			0	0	0
+602	add_42	ADD	f32	mul_53	f32	mul_54	f32			0	0	0
+603	mul_55	MUL	f32	transpose_41	f32	unsqueeze_26	f32			0	0	0
+604	slice_67	VIEW	f32	transpose_41	f32					1	0	0
+605	slice_68	VIEW	f32	transpose_41	f32					0	0	0
+606	slice_68 (cont)	CONT	f32	slice_68	f32					0	0	0
+607	neg_21	UNARY	f32	slice_68 (cont)	f32					0	0	0
+608	slice_67 (cont)	CONT	f32	slice_67	f32					0	0	0
+609	node_609	CONCAT	f32	neg_21	f32	slice_67 (cont)	f32			0	0	0
+610	cat_21	CONT	f32	node_609	f32					0	0	0
+611	mul_56	MUL	f32	cat_21	f32	unsqueeze_27	f32			0	0	0
+612	add_43	ADD	f32	mul_55	f32	mul_56	f32			0	0	0
+613	add_43 (copy)	CPY	f16	add_43	f32	add_43 (copy)	f16			0	1	0
+614	transpose_42 (cont)	CONT	f32	transpose_42	f32					0	0	0
+615	transpose_42 (cont) (copy)	CPY	f16	transpose_42 (cont)	f32	transpose_42 (cont) (copy)	f16			0	1	0
+616	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+617	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+618	transpose_43	FLASH_ATTN_EXT	f32	add_42	f32	add_43 (copy)	f16	transpose_42 (cont) (copy)	f16	0	0	0
+619	reshape_10	RESHAPE	f32	transpose_43	f32					1	0	0
+620	linear_41	MUL_MAT	f32	wo.10.weight	q8_0	reshape_10	f32			0	0	0
+621	add_44	ADD	f32	add_41	f32	linear_41	f32			0	0	0
+622	layer_norm_21	NORM	f32	add_44	f32					0	0	0
+623	linear_42	MUL_MAT	f32	mlp_wi.10.weight	q8_0	layer_norm_21	f32			0	0	0
+624	getitem_53	VIEW	f32	linear_42	f32					1	0	0
+625	getitem_54	VIEW	f32	linear_42	f32					0	0	0
+626	getitem_53 (cont)	CONT	f32	getitem_53	f32					0	0	0
+627	gelu_10	UNARY	f32	getitem_53 (cont)	f32					0	0	0
+628	mul_57	MUL	f32	gelu_10	f32	getitem_54	f32			0	0	0
+629	linear_43	MUL_MAT	f32	mlp_wo.10.weight	q8_0	mul_57	f32			0	0	0
+630	add_45	ADD	f32	add_44	f32	linear_43	f32			0	0	0
+631	layer_norm_22	NORM	f32	add_45	f32					0	0	0
+632	slice_69	VIEW	f32	cos_slide	f32					1	0	0
+633	slice_70	VIEW	f32	sin_slide	f32					1	0	0
+634	linear_44	MUL_MAT	f32	qkv.11.weight	q8_0	layer_norm_22	f32			0	0	0
+635	getitem_55	VIEW	f32	linear_44	f32					1	0	0
+636	getitem_56	VIEW	f32	linear_44	f32					0	0	0
+637	getitem_57	VIEW	f32	linear_44	f32					0	0	0
+638	view_33	VIEW	f32	getitem_55	f32					1	0	0
+639	view_33 (permuted)	PERMUTE	f32	view_33	f32					1	0	0
+640	transpose_44	CONT	f32	view_33 (permuted)	f32					0	0	0
+641	view_34	VIEW	f32	getitem_56	f32					1	0	0
+642	view_34 (permuted)	PERMUTE	f32	view_34	f32					1	0	0
+643	transpose_45	CONT	f32	view_34 (permuted)	f32					0	0	0
+644	view_35	VIEW	f32	getitem_57	f32					1	0	0
+645	transpose_46	PERMUTE	f32	view_35	f32					1	0	0
+646	unsqueeze_28	RESHAPE	f32	slice_69	f32					1	0	0
+647	unsqueeze_29	RESHAPE	f32	slice_70	f32					1	0	0
+648	mul_58	MUL	f32	transpose_44	f32	unsqueeze_28	f32			0	0	0
+649	slice_71	VIEW	f32	transpose_44	f32					1	0	0
+650	slice_72	VIEW	f32	transpose_44	f32					0	0	0
+651	slice_72 (cont)	CONT	f32	slice_72	f32					0	0	0
+652	neg_22	UNARY	f32	slice_72 (cont)	f32					0	0	0
+653	slice_71 (cont)	CONT	f32	slice_71	f32					0	0	0
+654	node_654	CONCAT	f32	neg_22	f32	slice_71 (cont)	f32			0	0	0
+655	cat_22	CONT	f32	node_654	f32					0	0	0
+656	mul_59	MUL	f32	cat_22	f32	unsqueeze_29	f32			0	0	0
+657	add_46	ADD	f32	mul_58	f32	mul_59	f32			0	0	0
+658	mul_60	MUL	f32	transpose_45	f32	unsqueeze_28	f32			0	0	0
+659	slice_73	VIEW	f32	transpose_45	f32					1	0	0
+660	slice_74	VIEW	f32	transpose_45	f32					0	0	0
+661	slice_74 (cont)	CONT	f32	slice_74	f32					0	0	0
+662	neg_23	UNARY	f32	slice_74 (cont)	f32					0	0	0
+663	slice_73 (cont)	CONT	f32	slice_73	f32					0	0	0
+664	node_664	CONCAT	f32	neg_23	f32	slice_73 (cont)	f32			0	0	0
+665	cat_23	CONT	f32	node_664	f32					0	0	0
+666	mul_61	MUL	f32	cat_23	f32	unsqueeze_29	f32			0	0	0
+667	add_47	ADD	f32	mul_60	f32	mul_61	f32			0	0	0
+668	add_47 (copy)	CPY	f16	add_47	f32	add_47 (copy)	f16			0	1	0
+669	transpose_46 (cont)	CONT	f32	transpose_46	f32					0	0	0
+670	transpose_46 (cont) (copy)	CPY	f16	transpose_46 (cont)	f32	transpose_46 (cont) (copy)	f16			0	1	0
+671	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+672	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+673	transpose_47	FLASH_ATTN_EXT	f32	add_46	f32	add_47 (copy)	f16	transpose_46 (cont) (copy)	f16	0	0	0
+674	reshape_11	RESHAPE	f32	transpose_47	f32					1	0	0
+675	linear_45	MUL_MAT	f32	wo.11.weight	q8_0	reshape_11	f32			0	0	0
+676	add_48	ADD	f32	add_45	f32	linear_45	f32			0	0	0
+677	layer_norm_23	NORM	f32	add_48	f32					0	0	0
+678	linear_46	MUL_MAT	f32	mlp_wi.11.weight	q8_0	layer_norm_23	f32			0	0	0
+679	getitem_58	VIEW	f32	linear_46	f32					1	0	0
+680	getitem_59	VIEW	f32	linear_46	f32					0	0	0
+681	getitem_58 (cont)	CONT	f32	getitem_58	f32					0	0	0
+682	gelu_11	UNARY	f32	getitem_58 (cont)	f32					0	0	0
+683	mul_62	MUL	f32	gelu_11	f32	getitem_59	f32			0	0	0
+684	linear_47	MUL_MAT	f32	mlp_wo.11.weight	q8_0	mul_62	f32			0	0	0
+685	add_49	ADD	f32	add_48	f32	linear_47	f32			0	0	0
+686	layer_norm_24	NORM	f32	add_49	f32					0	0	0
+687	slice_75	VIEW	f32	cos_full	f32					1	0	0
+688	slice_76	VIEW	f32	sin_full	f32					1	0	0
+689	linear_48	MUL_MAT	f32	qkv.12.weight	q8_0	layer_norm_24	f32			0	0	0
+690	getitem_60	VIEW	f32	linear_48	f32					1	0	0
+691	getitem_61	VIEW	f32	linear_48	f32					0	0	0
+692	getitem_62	VIEW	f32	linear_48	f32					0	0	0
+693	view_36	VIEW	f32	getitem_60	f32					1	0	0
+694	view_36 (permuted)	PERMUTE	f32	view_36	f32					1	0	0
+695	transpose_48	CONT	f32	view_36 (permuted)	f32					0	0	0
+696	view_37	VIEW	f32	getitem_61	f32					1	0	0
+697	view_37 (permuted)	PERMUTE	f32	view_37	f32					1	0	0
+698	transpose_49	CONT	f32	view_37 (permuted)	f32					0	0	0
+699	view_38	VIEW	f32	getitem_62	f32					1	0	0
+700	transpose_50	PERMUTE	f32	view_38	f32					1	0	0
+701	unsqueeze_30	RESHAPE	f32	slice_75	f32					1	0	0
+702	unsqueeze_31	RESHAPE	f32	slice_76	f32					1	0	0
+703	mul_63	MUL	f32	transpose_48	f32	unsqueeze_30	f32			0	0	0
+704	slice_77	VIEW	f32	transpose_48	f32					1	0	0
+705	slice_78	VIEW	f32	transpose_48	f32					0	0	0
+706	slice_78 (cont)	CONT	f32	slice_78	f32					0	0	0
+707	neg_24	UNARY	f32	slice_78 (cont)	f32					0	0	0
+708	slice_77 (cont)	CONT	f32	slice_77	f32					0	0	0
+709	node_709	CONCAT	f32	neg_24	f32	slice_77 (cont)	f32			0	0	0
+710	cat_24	CONT	f32	node_709	f32					0	0	0
+711	mul_64	MUL	f32	cat_24	f32	unsqueeze_31	f32			0	0	0
+712	add_50	ADD	f32	mul_63	f32	mul_64	f32			0	0	0
+713	mul_65	MUL	f32	transpose_49	f32	unsqueeze_30	f32			0	0	0
+714	slice_79	VIEW	f32	transpose_49	f32					1	0	0
+715	slice_80	VIEW	f32	transpose_49	f32					0	0	0
+716	slice_80 (cont)	CONT	f32	slice_80	f32					0	0	0
+717	neg_25	UNARY	f32	slice_80 (cont)	f32					0	0	0
+718	slice_79 (cont)	CONT	f32	slice_79	f32					0	0	0
+719	node_719	CONCAT	f32	neg_25	f32	slice_79 (cont)	f32			0	0	0
+720	cat_25	CONT	f32	node_719	f32					0	0	0
+721	mul_66	MUL	f32	cat_25	f32	unsqueeze_31	f32			0	0	0
+722	add_51	ADD	f32	mul_65	f32	mul_66	f32			0	0	0
+723	add_51 (copy)	CPY	f16	add_51	f32	add_51 (copy)	f16			0	1	0
+724	transpose_50 (cont)	CONT	f32	transpose_50	f32					0	0	0
+725	transpose_50 (cont) (copy)	CPY	f16	transpose_50 (cont)	f32	transpose_50 (cont) (copy)	f16			0	1	0
+726	add (view)	CLAMP	f32	add	f32					1	0	0
+727	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+728	transpose_51	FLASH_ATTN_EXT	f32	add_50	f32	add_51 (copy)	f16	transpose_50 (cont) (copy)	f16	0	0	0
+729	reshape_12	RESHAPE	f32	transpose_51	f32					1	0	0
+730	linear_49	MUL_MAT	f32	wo.12.weight	q8_0	reshape_12	f32			0	0	0
+731	add_52	ADD	f32	add_49	f32	linear_49	f32			0	0	0
+732	layer_norm_25	NORM	f32	add_52	f32					0	0	0
+733	linear_50	MUL_MAT	f32	mlp_wi.12.weight	q8_0	layer_norm_25	f32			0	0	0
+734	getitem_63	VIEW	f32	linear_50	f32					1	0	0
+735	getitem_64	VIEW	f32	linear_50	f32					0	0	0
+736	getitem_63 (cont)	CONT	f32	getitem_63	f32					0	0	0
+737	gelu_12	UNARY	f32	getitem_63 (cont)	f32					0	0	0
+738	mul_67	MUL	f32	gelu_12	f32	getitem_64	f32			0	0	0
+739	linear_51	MUL_MAT	f32	mlp_wo.12.weight	q8_0	mul_67	f32			0	0	0
+740	add_53	ADD	f32	add_52	f32	linear_51	f32			0	0	0
+741	layer_norm_26	NORM	f32	add_53	f32					0	0	0
+742	slice_81	VIEW	f32	cos_slide	f32					1	0	0
+743	slice_82	VIEW	f32	sin_slide	f32					1	0	0
+744	linear_52	MUL_MAT	f32	qkv.13.weight	q8_0	layer_norm_26	f32			0	0	0
+745	getitem_65	VIEW	f32	linear_52	f32					1	0	0
+746	getitem_66	VIEW	f32	linear_52	f32					0	0	0
+747	getitem_67	VIEW	f32	linear_52	f32					0	0	0
+748	view_39	VIEW	f32	getitem_65	f32					1	0	0
+749	view_39 (permuted)	PERMUTE	f32	view_39	f32					1	0	0
+750	transpose_52	CONT	f32	view_39 (permuted)	f32					0	0	0
+751	view_40	VIEW	f32	getitem_66	f32					1	0	0
+752	view_40 (permuted)	PERMUTE	f32	view_40	f32					1	0	0
+753	transpose_53	CONT	f32	view_40 (permuted)	f32					0	0	0
+754	view_41	VIEW	f32	getitem_67	f32					1	0	0
+755	transpose_54	PERMUTE	f32	view_41	f32					1	0	0
+756	unsqueeze_32	RESHAPE	f32	slice_81	f32					1	0	0
+757	unsqueeze_33	RESHAPE	f32	slice_82	f32					1	0	0
+758	mul_68	MUL	f32	transpose_52	f32	unsqueeze_32	f32			0	0	0
+759	slice_83	VIEW	f32	transpose_52	f32					1	0	0
+760	slice_84	VIEW	f32	transpose_52	f32					0	0	0
+761	slice_84 (cont)	CONT	f32	slice_84	f32					0	0	0
+762	neg_26	UNARY	f32	slice_84 (cont)	f32					0	0	0
+763	slice_83 (cont)	CONT	f32	slice_83	f32					0	0	0
+764	node_764	CONCAT	f32	neg_26	f32	slice_83 (cont)	f32			0	0	0
+765	cat_26	CONT	f32	node_764	f32					0	0	0
+766	mul_69	MUL	f32	cat_26	f32	unsqueeze_33	f32			0	0	0
+767	add_54	ADD	f32	mul_68	f32	mul_69	f32			0	0	0
+768	mul_70	MUL	f32	transpose_53	f32	unsqueeze_32	f32			0	0	0
+769	slice_85	VIEW	f32	transpose_53	f32					1	0	0
+770	slice_86	VIEW	f32	transpose_53	f32					0	0	0
+771	slice_86 (cont)	CONT	f32	slice_86	f32					0	0	0
+772	neg_27	UNARY	f32	slice_86 (cont)	f32					0	0	0
+773	slice_85 (cont)	CONT	f32	slice_85	f32					0	0	0
+774	node_774	CONCAT	f32	neg_27	f32	slice_85 (cont)	f32			0	0	0
+775	cat_27	CONT	f32	node_774	f32					0	0	0
+776	mul_71	MUL	f32	cat_27	f32	unsqueeze_33	f32			0	0	0
+777	add_55	ADD	f32	mul_70	f32	mul_71	f32			0	0	0
+778	add_55 (copy)	CPY	f16	add_55	f32	add_55 (copy)	f16			0	1	0
+779	transpose_54 (cont)	CONT	f32	transpose_54	f32					0	0	0
+780	transpose_54 (cont) (copy)	CPY	f16	transpose_54 (cont)	f32	transpose_54 (cont) (copy)	f16			0	1	0
+781	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+782	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+783	transpose_55	FLASH_ATTN_EXT	f32	add_54	f32	add_55 (copy)	f16	transpose_54 (cont) (copy)	f16	0	0	0
+784	reshape_13	RESHAPE	f32	transpose_55	f32					1	0	0
+785	linear_53	MUL_MAT	f32	wo.13.weight	q8_0	reshape_13	f32			0	0	0
+786	add_56	ADD	f32	add_53	f32	linear_53	f32			0	0	0
+787	layer_norm_27	NORM	f32	add_56	f32					0	0	0
+788	linear_54	MUL_MAT	f32	mlp_wi.13.weight	q8_0	layer_norm_27	f32			0	0	0
+789	getitem_68	VIEW	f32	linear_54	f32					1	0	0
+790	getitem_69	VIEW	f32	linear_54	f32					0	0	0
+791	getitem_68 (cont)	CONT	f32	getitem_68	f32					0	0	0
+792	gelu_13	UNARY	f32	getitem_68 (cont)	f32					0	0	0
+793	mul_72	MUL	f32	gelu_13	f32	getitem_69	f32			0	0	0
+794	linear_55	MUL_MAT	f32	mlp_wo.13.weight	q8_0	mul_72	f32			0	0	0
+795	add_57	ADD	f32	add_56	f32	linear_55	f32			0	0	0
+796	layer_norm_28	NORM	f32	add_57	f32					0	0	0
+797	slice_87	VIEW	f32	cos_slide	f32					1	0	0
+798	slice_88	VIEW	f32	sin_slide	f32					1	0	0
+799	linear_56	MUL_MAT	f32	qkv.14.weight	q8_0	layer_norm_28	f32			0	0	0
+800	getitem_70	VIEW	f32	linear_56	f32					1	0	0
+801	getitem_71	VIEW	f32	linear_56	f32					0	0	0
+802	getitem_72	VIEW	f32	linear_56	f32					0	0	0
+803	view_42	VIEW	f32	getitem_70	f32					1	0	0
+804	view_42 (permuted)	PERMUTE	f32	view_42	f32					1	0	0
+805	transpose_56	CONT	f32	view_42 (permuted)	f32					0	0	0
+806	view_43	VIEW	f32	getitem_71	f32					1	0	0
+807	view_43 (permuted)	PERMUTE	f32	view_43	f32					1	0	0
+808	transpose_57	CONT	f32	view_43 (permuted)	f32					0	0	0
+809	view_44	VIEW	f32	getitem_72	f32					1	0	0
+810	transpose_58	PERMUTE	f32	view_44	f32					1	0	0
+811	unsqueeze_34	RESHAPE	f32	slice_87	f32					1	0	0
+812	unsqueeze_35	RESHAPE	f32	slice_88	f32					1	0	0
+813	mul_73	MUL	f32	transpose_56	f32	unsqueeze_34	f32			0	0	0
+814	slice_89	VIEW	f32	transpose_56	f32					1	0	0
+815	slice_90	VIEW	f32	transpose_56	f32					0	0	0
+816	slice_90 (cont)	CONT	f32	slice_90	f32					0	0	0
+817	neg_28	UNARY	f32	slice_90 (cont)	f32					0	0	0
+818	slice_89 (cont)	CONT	f32	slice_89	f32					0	0	0
+819	node_819	CONCAT	f32	neg_28	f32	slice_89 (cont)	f32			0	0	0
+820	cat_28	CONT	f32	node_819	f32					0	0	0
+821	mul_74	MUL	f32	cat_28	f32	unsqueeze_35	f32			0	0	0
+822	add_58	ADD	f32	mul_73	f32	mul_74	f32			0	0	0
+823	mul_75	MUL	f32	transpose_57	f32	unsqueeze_34	f32			0	0	0
+824	slice_91	VIEW	f32	transpose_57	f32					1	0	0
+825	slice_92	VIEW	f32	transpose_57	f32					0	0	0
+826	slice_92 (cont)	CONT	f32	slice_92	f32					0	0	0
+827	neg_29	UNARY	f32	slice_92 (cont)	f32					0	0	0
+828	slice_91 (cont)	CONT	f32	slice_91	f32					0	0	0
+829	node_829	CONCAT	f32	neg_29	f32	slice_91 (cont)	f32			0	0	0
+830	cat_29	CONT	f32	node_829	f32					0	0	0
+831	mul_76	MUL	f32	cat_29	f32	unsqueeze_35	f32			0	0	0
+832	add_59	ADD	f32	mul_75	f32	mul_76	f32			0	0	0
+833	add_59 (copy)	CPY	f16	add_59	f32	add_59 (copy)	f16			0	1	0
+834	transpose_58 (cont)	CONT	f32	transpose_58	f32					0	0	0
+835	transpose_58 (cont) (copy)	CPY	f16	transpose_58 (cont)	f32	transpose_58 (cont) (copy)	f16			0	1	0
+836	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+837	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+838	transpose_59	FLASH_ATTN_EXT	f32	add_58	f32	add_59 (copy)	f16	transpose_58 (cont) (copy)	f16	0	0	0
+839	reshape_14	RESHAPE	f32	transpose_59	f32					1	0	0
+840	linear_57	MUL_MAT	f32	wo.14.weight	q8_0	reshape_14	f32			0	0	0
+841	add_60	ADD	f32	add_57	f32	linear_57	f32			0	0	0
+842	layer_norm_29	NORM	f32	add_60	f32					0	0	0
+843	linear_58	MUL_MAT	f32	mlp_wi.14.weight	q8_0	layer_norm_29	f32			0	0	0
+844	getitem_73	VIEW	f32	linear_58	f32					1	0	0
+845	getitem_74	VIEW	f32	linear_58	f32					0	0	0
+846	getitem_73 (cont)	CONT	f32	getitem_73	f32					0	0	0
+847	gelu_14	UNARY	f32	getitem_73 (cont)	f32					0	0	0
+848	mul_77	MUL	f32	gelu_14	f32	getitem_74	f32			0	0	0
+849	linear_59	MUL_MAT	f32	mlp_wo.14.weight	q8_0	mul_77	f32			0	0	0
+850	add_61	ADD	f32	add_60	f32	linear_59	f32			0	0	0
+851	layer_norm_30	NORM	f32	add_61	f32					0	0	0
+852	slice_93	VIEW	f32	cos_full	f32					1	0	0
+853	slice_94	VIEW	f32	sin_full	f32					1	0	0
+854	linear_60	MUL_MAT	f32	qkv.15.weight	q8_0	layer_norm_30	f32			0	0	0
+855	getitem_75	VIEW	f32	linear_60	f32					1	0	0
+856	getitem_76	VIEW	f32	linear_60	f32					0	0	0
+857	getitem_77	VIEW	f32	linear_60	f32					0	0	0
+858	view_45	VIEW	f32	getitem_75	f32					1	0	0
+859	view_45 (permuted)	PERMUTE	f32	view_45	f32					1	0	0
+860	transpose_60	CONT	f32	view_45 (permuted)	f32					0	0	0
+861	view_46	VIEW	f32	getitem_76	f32					1	0	0
+862	view_46 (permuted)	PERMUTE	f32	view_46	f32					1	0	0
+863	transpose_61	CONT	f32	view_46 (permuted)	f32					0	0	0
+864	view_47	VIEW	f32	getitem_77	f32					1	0	0
+865	transpose_62	PERMUTE	f32	view_47	f32					1	0	0
+866	unsqueeze_36	RESHAPE	f32	slice_93	f32					1	0	0
+867	unsqueeze_37	RESHAPE	f32	slice_94	f32					1	0	0
+868	mul_78	MUL	f32	transpose_60	f32	unsqueeze_36	f32			0	0	0
+869	slice_95	VIEW	f32	transpose_60	f32					1	0	0
+870	slice_96	VIEW	f32	transpose_60	f32					0	0	0
+871	slice_96 (cont)	CONT	f32	slice_96	f32					0	0	0
+872	neg_30	UNARY	f32	slice_96 (cont)	f32					0	0	0
+873	slice_95 (cont)	CONT	f32	slice_95	f32					0	0	0
+874	node_874	CONCAT	f32	neg_30	f32	slice_95 (cont)	f32			0	0	0
+875	cat_30	CONT	f32	node_874	f32					0	0	0
+876	mul_79	MUL	f32	cat_30	f32	unsqueeze_37	f32			0	0	0
+877	add_62	ADD	f32	mul_78	f32	mul_79	f32			0	0	0
+878	mul_80	MUL	f32	transpose_61	f32	unsqueeze_36	f32			0	0	0
+879	slice_97	VIEW	f32	transpose_61	f32					1	0	0
+880	slice_98	VIEW	f32	transpose_61	f32					0	0	0
+881	slice_98 (cont)	CONT	f32	slice_98	f32					0	0	0
+882	neg_31	UNARY	f32	slice_98 (cont)	f32					0	0	0
+883	slice_97 (cont)	CONT	f32	slice_97	f32					0	0	0
+884	node_884	CONCAT	f32	neg_31	f32	slice_97 (cont)	f32			0	0	0
+885	cat_31	CONT	f32	node_884	f32					0	0	0
+886	mul_81	MUL	f32	cat_31	f32	unsqueeze_37	f32			0	0	0
+887	add_63	ADD	f32	mul_80	f32	mul_81	f32			0	0	0
+888	add_63 (copy)	CPY	f16	add_63	f32	add_63 (copy)	f16			0	1	0
+889	transpose_62 (cont)	CONT	f32	transpose_62	f32					0	0	0
+890	transpose_62 (cont) (copy)	CPY	f16	transpose_62 (cont)	f32	transpose_62 (cont) (copy)	f16			0	1	0
+891	add (view)	CLAMP	f32	add	f32					1	0	0
+892	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+893	transpose_63	FLASH_ATTN_EXT	f32	add_62	f32	add_63 (copy)	f16	transpose_62 (cont) (copy)	f16	0	0	0
+894	reshape_15	RESHAPE	f32	transpose_63	f32					1	0	0
+895	linear_61	MUL_MAT	f32	wo.15.weight	q8_0	reshape_15	f32			0	0	0
+896	add_64	ADD	f32	add_61	f32	linear_61	f32			0	0	0
+897	layer_norm_31	NORM	f32	add_64	f32					0	0	0
+898	linear_62	MUL_MAT	f32	mlp_wi.15.weight	q8_0	layer_norm_31	f32			0	0	0
+899	getitem_78	VIEW	f32	linear_62	f32					1	0	0
+900	getitem_79	VIEW	f32	linear_62	f32					0	0	0
+901	getitem_78 (cont)	CONT	f32	getitem_78	f32					0	0	0
+902	gelu_15	UNARY	f32	getitem_78 (cont)	f32					0	0	0
+903	mul_82	MUL	f32	gelu_15	f32	getitem_79	f32			0	0	0
+904	linear_63	MUL_MAT	f32	mlp_wo.15.weight	q8_0	mul_82	f32			0	0	0
+905	add_65	ADD	f32	add_64	f32	linear_63	f32			0	0	0
+906	layer_norm_32	NORM	f32	add_65	f32					0	0	0
+907	slice_99	VIEW	f32	cos_slide	f32					1	0	0
+908	slice_100	VIEW	f32	sin_slide	f32					1	0	0
+909	linear_64	MUL_MAT	f32	qkv.16.weight	q8_0	layer_norm_32	f32			0	0	0
+910	getitem_80	VIEW	f32	linear_64	f32					1	0	0
+911	getitem_81	VIEW	f32	linear_64	f32					0	0	0
+912	getitem_82	VIEW	f32	linear_64	f32					0	0	0
+913	view_48	VIEW	f32	getitem_80	f32					1	0	0
+914	view_48 (permuted)	PERMUTE	f32	view_48	f32					1	0	0
+915	transpose_64	CONT	f32	view_48 (permuted)	f32					0	0	0
+916	view_49	VIEW	f32	getitem_81	f32					1	0	0
+917	view_49 (permuted)	PERMUTE	f32	view_49	f32					1	0	0
+918	transpose_65	CONT	f32	view_49 (permuted)	f32					0	0	0
+919	view_50	VIEW	f32	getitem_82	f32					1	0	0
+920	transpose_66	PERMUTE	f32	view_50	f32					1	0	0
+921	unsqueeze_38	RESHAPE	f32	slice_99	f32					1	0	0
+922	unsqueeze_39	RESHAPE	f32	slice_100	f32					1	0	0
+923	mul_83	MUL	f32	transpose_64	f32	unsqueeze_38	f32			0	0	0
+924	slice_101	VIEW	f32	transpose_64	f32					1	0	0
+925	slice_102	VIEW	f32	transpose_64	f32					0	0	0
+926	slice_102 (cont)	CONT	f32	slice_102	f32					0	0	0
+927	neg_32	UNARY	f32	slice_102 (cont)	f32					0	0	0
+928	slice_101 (cont)	CONT	f32	slice_101	f32					0	0	0
+929	node_929	CONCAT	f32	neg_32	f32	slice_101 (cont)	f32			0	0	0
+930	cat_32	CONT	f32	node_929	f32					0	0	0
+931	mul_84	MUL	f32	cat_32	f32	unsqueeze_39	f32			0	0	0
+932	add_66	ADD	f32	mul_83	f32	mul_84	f32			0	0	0
+933	mul_85	MUL	f32	transpose_65	f32	unsqueeze_38	f32			0	0	0
+934	slice_103	VIEW	f32	transpose_65	f32					1	0	0
+935	slice_104	VIEW	f32	transpose_65	f32					0	0	0
+936	slice_104 (cont)	CONT	f32	slice_104	f32					0	0	0
+937	neg_33	UNARY	f32	slice_104 (cont)	f32					0	0	0
+938	slice_103 (cont)	CONT	f32	slice_103	f32					0	0	0
+939	node_939	CONCAT	f32	neg_33	f32	slice_103 (cont)	f32			0	0	0
+940	cat_33	CONT	f32	node_939	f32					0	0	0
+941	mul_86	MUL	f32	cat_33	f32	unsqueeze_39	f32			0	0	0
+942	add_67	ADD	f32	mul_85	f32	mul_86	f32			0	0	0
+943	add_67 (copy)	CPY	f16	add_67	f32	add_67 (copy)	f16			0	1	0
+944	transpose_66 (cont)	CONT	f32	transpose_66	f32					0	0	0
+945	transpose_66 (cont) (copy)	CPY	f16	transpose_66 (cont)	f32	transpose_66 (cont) (copy)	f16			0	1	0
+946	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+947	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+948	transpose_67	FLASH_ATTN_EXT	f32	add_66	f32	add_67 (copy)	f16	transpose_66 (cont) (copy)	f16	0	0	0
+949	reshape_16	RESHAPE	f32	transpose_67	f32					1	0	0
+950	linear_65	MUL_MAT	f32	wo.16.weight	q8_0	reshape_16	f32			0	0	0
+951	add_68	ADD	f32	add_65	f32	linear_65	f32			0	0	0
+952	layer_norm_33	NORM	f32	add_68	f32					0	0	0
+953	linear_66	MUL_MAT	f32	mlp_wi.16.weight	q8_0	layer_norm_33	f32			0	0	0
+954	getitem_83	VIEW	f32	linear_66	f32					1	0	0
+955	getitem_84	VIEW	f32	linear_66	f32					0	0	0
+956	getitem_83 (cont)	CONT	f32	getitem_83	f32					0	0	0
+957	gelu_16	UNARY	f32	getitem_83 (cont)	f32					0	0	0
+958	mul_87	MUL	f32	gelu_16	f32	getitem_84	f32			0	0	0
+959	linear_67	MUL_MAT	f32	mlp_wo.16.weight	q8_0	mul_87	f32			0	0	0
+960	add_69	ADD	f32	add_68	f32	linear_67	f32			0	0	0
+961	layer_norm_34	NORM	f32	add_69	f32					0	0	0
+962	slice_105	VIEW	f32	cos_slide	f32					1	0	0
+963	slice_106	VIEW	f32	sin_slide	f32					1	0	0
+964	linear_68	MUL_MAT	f32	qkv.17.weight	q8_0	layer_norm_34	f32			0	0	0
+965	getitem_85	VIEW	f32	linear_68	f32					1	0	0
+966	getitem_86	VIEW	f32	linear_68	f32					0	0	0
+967	getitem_87	VIEW	f32	linear_68	f32					0	0	0
+968	view_51	VIEW	f32	getitem_85	f32					1	0	0
+969	view_51 (permuted)	PERMUTE	f32	view_51	f32					1	0	0
+970	transpose_68	CONT	f32	view_51 (permuted)	f32					0	0	0
+971	view_52	VIEW	f32	getitem_86	f32					1	0	0
+972	view_52 (permuted)	PERMUTE	f32	view_52	f32					1	0	0
+973	transpose_69	CONT	f32	view_52 (permuted)	f32					0	0	0
+974	view_53	VIEW	f32	getitem_87	f32					1	0	0
+975	transpose_70	PERMUTE	f32	view_53	f32					1	0	0
+976	unsqueeze_40	RESHAPE	f32	slice_105	f32					1	0	0
+977	unsqueeze_41	RESHAPE	f32	slice_106	f32					1	0	0
+978	mul_88	MUL	f32	transpose_68	f32	unsqueeze_40	f32			0	0	0
+979	slice_107	VIEW	f32	transpose_68	f32					1	0	0
+980	slice_108	VIEW	f32	transpose_68	f32					0	0	0
+981	slice_108 (cont)	CONT	f32	slice_108	f32					0	0	0
+982	neg_34	UNARY	f32	slice_108 (cont)	f32					0	0	0
+983	slice_107 (cont)	CONT	f32	slice_107	f32					0	0	0
+984	node_984	CONCAT	f32	neg_34	f32	slice_107 (cont)	f32			0	0	0
+985	cat_34	CONT	f32	node_984	f32					0	0	0
+986	mul_89	MUL	f32	cat_34	f32	unsqueeze_41	f32			0	0	0
+987	add_70	ADD	f32	mul_88	f32	mul_89	f32			0	0	0
+988	mul_90	MUL	f32	transpose_69	f32	unsqueeze_40	f32			0	0	0
+989	slice_109	VIEW	f32	transpose_69	f32					1	0	0
+990	slice_110	VIEW	f32	transpose_69	f32					0	0	0
+991	slice_110 (cont)	CONT	f32	slice_110	f32					0	0	0
+992	neg_35	UNARY	f32	slice_110 (cont)	f32					0	0	0
+993	slice_109 (cont)	CONT	f32	slice_109	f32					0	0	0
+994	node_994	CONCAT	f32	neg_35	f32	slice_109 (cont)	f32			0	0	0
+995	cat_35	CONT	f32	node_994	f32					0	0	0
+996	mul_91	MUL	f32	cat_35	f32	unsqueeze_41	f32			0	0	0
+997	add_71	ADD	f32	mul_90	f32	mul_91	f32			0	0	0
+998	add_71 (copy)	CPY	f16	add_71	f32	add_71 (copy)	f16			0	1	0
+999	transpose_70 (cont)	CONT	f32	transpose_70	f32					0	0	0
+1000	transpose_70 (cont) (copy)	CPY	f16	transpose_70 (cont)	f32	transpose_70 (cont) (copy)	f16			0	1	0
+1001	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+1002	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+1003	transpose_71	FLASH_ATTN_EXT	f32	add_70	f32	add_71 (copy)	f16	transpose_70 (cont) (copy)	f16	0	0	0
+1004	reshape_17	RESHAPE	f32	transpose_71	f32					1	0	0
+1005	linear_69	MUL_MAT	f32	wo.17.weight	q8_0	reshape_17	f32			0	0	0
+1006	add_72	ADD	f32	add_69	f32	linear_69	f32			0	0	0
+1007	layer_norm_35	NORM	f32	add_72	f32					0	0	0
+1008	linear_70	MUL_MAT	f32	mlp_wi.17.weight	q8_0	layer_norm_35	f32			0	0	0
+1009	getitem_88	VIEW	f32	linear_70	f32					1	0	0
+1010	getitem_89	VIEW	f32	linear_70	f32					0	0	0
+1011	getitem_88 (cont)	CONT	f32	getitem_88	f32					0	0	0
+1012	gelu_17	UNARY	f32	getitem_88 (cont)	f32					0	0	0
+1013	mul_92	MUL	f32	gelu_17	f32	getitem_89	f32			0	0	0
+1014	linear_71	MUL_MAT	f32	mlp_wo.17.weight	q8_0	mul_92	f32			0	0	0
+1015	add_73	ADD	f32	add_72	f32	linear_71	f32			0	0	0
+1016	layer_norm_36	NORM	f32	add_73	f32					0	0	0
+1017	slice_111	VIEW	f32	cos_full	f32					1	0	0
+1018	slice_112	VIEW	f32	sin_full	f32					1	0	0
+1019	linear_72	MUL_MAT	f32	qkv.18.weight	q8_0	layer_norm_36	f32			0	0	0
+1020	getitem_90	VIEW	f32	linear_72	f32					1	0	0
+1021	getitem_91	VIEW	f32	linear_72	f32					0	0	0
+1022	getitem_92	VIEW	f32	linear_72	f32					0	0	0
+1023	view_54	VIEW	f32	getitem_90	f32					1	0	0
+1024	view_54 (permuted)	PERMUTE	f32	view_54	f32					1	0	0
+1025	transpose_72	CONT	f32	view_54 (permuted)	f32					0	0	0
+1026	view_55	VIEW	f32	getitem_91	f32					1	0	0
+1027	view_55 (permuted)	PERMUTE	f32	view_55	f32					1	0	0
+1028	transpose_73	CONT	f32	view_55 (permuted)	f32					0	0	0
+1029	view_56	VIEW	f32	getitem_92	f32					1	0	0
+1030	transpose_74	PERMUTE	f32	view_56	f32					1	0	0
+1031	unsqueeze_42	RESHAPE	f32	slice_111	f32					1	0	0
+1032	unsqueeze_43	RESHAPE	f32	slice_112	f32					1	0	0
+1033	mul_93	MUL	f32	transpose_72	f32	unsqueeze_42	f32			0	0	0
+1034	slice_113	VIEW	f32	transpose_72	f32					1	0	0
+1035	slice_114	VIEW	f32	transpose_72	f32					0	0	0
+1036	slice_114 (cont)	CONT	f32	slice_114	f32					0	0	0
+1037	neg_36	UNARY	f32	slice_114 (cont)	f32					0	0	0
+1038	slice_113 (cont)	CONT	f32	slice_113	f32					0	0	0
+1039	node_1039	CONCAT	f32	neg_36	f32	slice_113 (cont)	f32			0	0	0
+1040	cat_36	CONT	f32	node_1039	f32					0	0	0
+1041	mul_94	MUL	f32	cat_36	f32	unsqueeze_43	f32			0	0	0
+1042	add_74	ADD	f32	mul_93	f32	mul_94	f32			0	0	0
+1043	mul_95	MUL	f32	transpose_73	f32	unsqueeze_42	f32			0	0	0
+1044	slice_115	VIEW	f32	transpose_73	f32					1	0	0
+1045	slice_116	VIEW	f32	transpose_73	f32					0	0	0
+1046	slice_116 (cont)	CONT	f32	slice_116	f32					0	0	0
+1047	neg_37	UNARY	f32	slice_116 (cont)	f32					0	0	0
+1048	slice_115 (cont)	CONT	f32	slice_115	f32					0	0	0
+1049	node_1049	CONCAT	f32	neg_37	f32	slice_115 (cont)	f32			0	0	0
+1050	cat_37	CONT	f32	node_1049	f32					0	0	0
+1051	mul_96	MUL	f32	cat_37	f32	unsqueeze_43	f32			0	0	0
+1052	add_75	ADD	f32	mul_95	f32	mul_96	f32			0	0	0
+1053	add_75 (copy)	CPY	f16	add_75	f32	add_75 (copy)	f16			0	1	0
+1054	transpose_74 (cont)	CONT	f32	transpose_74	f32					0	0	0
+1055	transpose_74 (cont) (copy)	CPY	f16	transpose_74 (cont)	f32	transpose_74 (cont) (copy)	f16			0	1	0
+1056	add (view)	CLAMP	f32	add	f32					1	0	0
+1057	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+1058	transpose_75	FLASH_ATTN_EXT	f32	add_74	f32	add_75 (copy)	f16	transpose_74 (cont) (copy)	f16	0	0	0
+1059	reshape_18	RESHAPE	f32	transpose_75	f32					1	0	0
+1060	linear_73	MUL_MAT	f32	wo.18.weight	q8_0	reshape_18	f32			0	0	0
+1061	add_76	ADD	f32	add_73	f32	linear_73	f32			0	0	0
+1062	layer_norm_37	NORM	f32	add_76	f32					0	0	0
+1063	linear_74	MUL_MAT	f32	mlp_wi.18.weight	q8_0	layer_norm_37	f32			0	0	0
+1064	getitem_93	VIEW	f32	linear_74	f32					1	0	0
+1065	getitem_94	VIEW	f32	linear_74	f32					0	0	0
+1066	getitem_93 (cont)	CONT	f32	getitem_93	f32					0	0	0
+1067	gelu_18	UNARY	f32	getitem_93 (cont)	f32					0	0	0
+1068	mul_97	MUL	f32	gelu_18	f32	getitem_94	f32			0	0	0
+1069	linear_75	MUL_MAT	f32	mlp_wo.18.weight	q8_0	mul_97	f32			0	0	0
+1070	add_77	ADD	f32	add_76	f32	linear_75	f32			0	0	0
+1071	layer_norm_38	NORM	f32	add_77	f32					0	0	0
+1072	slice_117	VIEW	f32	cos_slide	f32					1	0	0
+1073	slice_118	VIEW	f32	sin_slide	f32					1	0	0
+1074	linear_76	MUL_MAT	f32	qkv.19.weight	q8_0	layer_norm_38	f32			0	0	0
+1075	getitem_95	VIEW	f32	linear_76	f32					1	0	0
+1076	getitem_96	VIEW	f32	linear_76	f32					0	0	0
+1077	getitem_97	VIEW	f32	linear_76	f32					0	0	0
+1078	view_57	VIEW	f32	getitem_95	f32					1	0	0
+1079	view_57 (permuted)	PERMUTE	f32	view_57	f32					1	0	0
+1080	transpose_76	CONT	f32	view_57 (permuted)	f32					0	0	0
+1081	view_58	VIEW	f32	getitem_96	f32					1	0	0
+1082	view_58 (permuted)	PERMUTE	f32	view_58	f32					1	0	0
+1083	transpose_77	CONT	f32	view_58 (permuted)	f32					0	0	0
+1084	view_59	VIEW	f32	getitem_97	f32					1	0	0
+1085	transpose_78	PERMUTE	f32	view_59	f32					1	0	0
+1086	unsqueeze_44	RESHAPE	f32	slice_117	f32					1	0	0
+1087	unsqueeze_45	RESHAPE	f32	slice_118	f32					1	0	0
+1088	mul_98	MUL	f32	transpose_76	f32	unsqueeze_44	f32			0	0	0
+1089	slice_119	VIEW	f32	transpose_76	f32					1	0	0
+1090	slice_120	VIEW	f32	transpose_76	f32					0	0	0
+1091	slice_120 (cont)	CONT	f32	slice_120	f32					0	0	0
+1092	neg_38	UNARY	f32	slice_120 (cont)	f32					0	0	0
+1093	slice_119 (cont)	CONT	f32	slice_119	f32					0	0	0
+1094	node_1094	CONCAT	f32	neg_38	f32	slice_119 (cont)	f32			0	0	0
+1095	cat_38	CONT	f32	node_1094	f32					0	0	0
+1096	mul_99	MUL	f32	cat_38	f32	unsqueeze_45	f32			0	0	0
+1097	add_78	ADD	f32	mul_98	f32	mul_99	f32			0	0	0
+1098	mul_100	MUL	f32	transpose_77	f32	unsqueeze_44	f32			0	0	0
+1099	slice_121	VIEW	f32	transpose_77	f32					1	0	0
+1100	slice_122	VIEW	f32	transpose_77	f32					0	0	0
+1101	slice_122 (cont)	CONT	f32	slice_122	f32					0	0	0
+1102	neg_39	UNARY	f32	slice_122 (cont)	f32					0	0	0
+1103	slice_121 (cont)	CONT	f32	slice_121	f32					0	0	0
+1104	node_1104	CONCAT	f32	neg_39	f32	slice_121 (cont)	f32			0	0	0
+1105	cat_39	CONT	f32	node_1104	f32					0	0	0
+1106	mul_101	MUL	f32	cat_39	f32	unsqueeze_45	f32			0	0	0
+1107	add_79	ADD	f32	mul_100	f32	mul_101	f32			0	0	0
+1108	add_79 (copy)	CPY	f16	add_79	f32	add_79 (copy)	f16			0	1	0
+1109	transpose_78 (cont)	CONT	f32	transpose_78	f32					0	0	0
+1110	transpose_78 (cont) (copy)	CPY	f16	transpose_78 (cont)	f32	transpose_78 (cont) (copy)	f16			0	1	0
+1111	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+1112	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+1113	transpose_79	FLASH_ATTN_EXT	f32	add_78	f32	add_79 (copy)	f16	transpose_78 (cont) (copy)	f16	0	0	0
+1114	reshape_19	RESHAPE	f32	transpose_79	f32					1	0	0
+1115	linear_77	MUL_MAT	f32	wo.19.weight	q8_0	reshape_19	f32			0	0	0
+1116	add_80	ADD	f32	add_77	f32	linear_77	f32			0	0	0
+1117	layer_norm_39	NORM	f32	add_80	f32					0	0	0
+1118	linear_78	MUL_MAT	f32	mlp_wi.19.weight	q8_0	layer_norm_39	f32			0	0	0
+1119	getitem_98	VIEW	f32	linear_78	f32					1	0	0
+1120	getitem_99	VIEW	f32	linear_78	f32					0	0	0
+1121	getitem_98 (cont)	CONT	f32	getitem_98	f32					0	0	0
+1122	gelu_19	UNARY	f32	getitem_98 (cont)	f32					0	0	0
+1123	mul_102	MUL	f32	gelu_19	f32	getitem_99	f32			0	0	0
+1124	linear_79	MUL_MAT	f32	mlp_wo.19.weight	q8_0	mul_102	f32			0	0	0
+1125	add_81	ADD	f32	add_80	f32	linear_79	f32			0	0	0
+1126	layer_norm_40	NORM	f32	add_81	f32					0	0	0
+1127	slice_123	VIEW	f32	cos_slide	f32					1	0	0
+1128	slice_124	VIEW	f32	sin_slide	f32					1	0	0
+1129	linear_80	MUL_MAT	f32	qkv.20.weight	q8_0	layer_norm_40	f32			0	0	0
+1130	getitem_100	VIEW	f32	linear_80	f32					1	0	0
+1131	getitem_101	VIEW	f32	linear_80	f32					0	0	0
+1132	getitem_102	VIEW	f32	linear_80	f32					0	0	0
+1133	view_60	VIEW	f32	getitem_100	f32					1	0	0
+1134	view_60 (permuted)	PERMUTE	f32	view_60	f32					1	0	0
+1135	transpose_80	CONT	f32	view_60 (permuted)	f32					0	0	0
+1136	view_61	VIEW	f32	getitem_101	f32					1	0	0
+1137	view_61 (permuted)	PERMUTE	f32	view_61	f32					1	0	0
+1138	transpose_81	CONT	f32	view_61 (permuted)	f32					0	0	0
+1139	view_62	VIEW	f32	getitem_102	f32					1	0	0
+1140	transpose_82	PERMUTE	f32	view_62	f32					1	0	0
+1141	unsqueeze_46	RESHAPE	f32	slice_123	f32					1	0	0
+1142	unsqueeze_47	RESHAPE	f32	slice_124	f32					1	0	0
+1143	mul_103	MUL	f32	transpose_80	f32	unsqueeze_46	f32			0	0	0
+1144	slice_125	VIEW	f32	transpose_80	f32					1	0	0
+1145	slice_126	VIEW	f32	transpose_80	f32					0	0	0
+1146	slice_126 (cont)	CONT	f32	slice_126	f32					0	0	0
+1147	neg_40	UNARY	f32	slice_126 (cont)	f32					0	0	0
+1148	slice_125 (cont)	CONT	f32	slice_125	f32					0	0	0
+1149	node_1149	CONCAT	f32	neg_40	f32	slice_125 (cont)	f32			0	0	0
+1150	cat_40	CONT	f32	node_1149	f32					0	0	0
+1151	mul_104	MUL	f32	cat_40	f32	unsqueeze_47	f32			0	0	0
+1152	add_82	ADD	f32	mul_103	f32	mul_104	f32			0	0	0
+1153	mul_105	MUL	f32	transpose_81	f32	unsqueeze_46	f32			0	0	0
+1154	slice_127	VIEW	f32	transpose_81	f32					1	0	0
+1155	slice_128	VIEW	f32	transpose_81	f32					0	0	0
+1156	slice_128 (cont)	CONT	f32	slice_128	f32					0	0	0
+1157	neg_41	UNARY	f32	slice_128 (cont)	f32					0	0	0
+1158	slice_127 (cont)	CONT	f32	slice_127	f32					0	0	0
+1159	node_1159	CONCAT	f32	neg_41	f32	slice_127 (cont)	f32			0	0	0
+1160	cat_41	CONT	f32	node_1159	f32					0	0	0
+1161	mul_106	MUL	f32	cat_41	f32	unsqueeze_47	f32			0	0	0
+1162	add_83	ADD	f32	mul_105	f32	mul_106	f32			0	0	0
+1163	add_83 (copy)	CPY	f16	add_83	f32	add_83 (copy)	f16			0	1	0
+1164	transpose_82 (cont)	CONT	f32	transpose_82	f32					0	0	0
+1165	transpose_82 (cont) (copy)	CPY	f16	transpose_82 (cont)	f32	transpose_82 (cont) (copy)	f16			0	1	0
+1166	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+1167	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+1168	transpose_83	FLASH_ATTN_EXT	f32	add_82	f32	add_83 (copy)	f16	transpose_82 (cont) (copy)	f16	0	0	0
+1169	reshape_20	RESHAPE	f32	transpose_83	f32					1	0	0
+1170	linear_81	MUL_MAT	f32	wo.20.weight	q8_0	reshape_20	f32			0	0	0
+1171	add_84	ADD	f32	add_81	f32	linear_81	f32			0	0	0
+1172	layer_norm_41	NORM	f32	add_84	f32					0	0	0
+1173	linear_82	MUL_MAT	f32	mlp_wi.20.weight	q8_0	layer_norm_41	f32			0	0	0
+1174	getitem_103	VIEW	f32	linear_82	f32					1	0	0
+1175	getitem_104	VIEW	f32	linear_82	f32					0	0	0
+1176	getitem_103 (cont)	CONT	f32	getitem_103	f32					0	0	0
+1177	gelu_20	UNARY	f32	getitem_103 (cont)	f32					0	0	0
+1178	mul_107	MUL	f32	gelu_20	f32	getitem_104	f32			0	0	0
+1179	linear_83	MUL_MAT	f32	mlp_wo.20.weight	q8_0	mul_107	f32			0	0	0
+1180	add_85	ADD	f32	add_84	f32	linear_83	f32			0	0	0
+1181	layer_norm_42	NORM	f32	add_85	f32					0	0	0
+1182	slice_129	VIEW	f32	cos_full	f32					1	0	0
+1183	slice_130	VIEW	f32	sin_full	f32					1	0	0
+1184	linear_84	MUL_MAT	f32	qkv.21.weight	q8_0	layer_norm_42	f32			0	0	0
+1185	getitem_105	VIEW	f32	linear_84	f32					1	0	0
+1186	getitem_106	VIEW	f32	linear_84	f32					0	0	0
+1187	getitem_107	VIEW	f32	linear_84	f32					0	0	0
+1188	view_63	VIEW	f32	getitem_105	f32					1	0	0
+1189	view_63 (permuted)	PERMUTE	f32	view_63	f32					1	0	0
+1190	transpose_84	CONT	f32	view_63 (permuted)	f32					0	0	0
+1191	view_64	VIEW	f32	getitem_106	f32					1	0	0
+1192	view_64 (permuted)	PERMUTE	f32	view_64	f32					1	0	0
+1193	transpose_85	CONT	f32	view_64 (permuted)	f32					0	0	0
+1194	view_65	VIEW	f32	getitem_107	f32					1	0	0
+1195	transpose_86	PERMUTE	f32	view_65	f32					1	0	0
+1196	unsqueeze_48	RESHAPE	f32	slice_129	f32					1	0	0
+1197	unsqueeze_49	RESHAPE	f32	slice_130	f32					1	0	0
+1198	mul_108	MUL	f32	transpose_84	f32	unsqueeze_48	f32			0	0	0
+1199	slice_131	VIEW	f32	transpose_84	f32					1	0	0
+1200	slice_132	VIEW	f32	transpose_84	f32					0	0	0
+1201	slice_132 (cont)	CONT	f32	slice_132	f32					0	0	0
+1202	neg_42	UNARY	f32	slice_132 (cont)	f32					0	0	0
+1203	slice_131 (cont)	CONT	f32	slice_131	f32					0	0	0
+1204	node_1204	CONCAT	f32	neg_42	f32	slice_131 (cont)	f32			0	0	0
+1205	cat_42	CONT	f32	node_1204	f32					0	0	0
+1206	mul_109	MUL	f32	cat_42	f32	unsqueeze_49	f32			0	0	0
+1207	add_86	ADD	f32	mul_108	f32	mul_109	f32			0	0	0
+1208	mul_110	MUL	f32	transpose_85	f32	unsqueeze_48	f32			0	0	0
+1209	slice_133	VIEW	f32	transpose_85	f32					1	0	0
+1210	slice_134	VIEW	f32	transpose_85	f32					0	0	0
+1211	slice_134 (cont)	CONT	f32	slice_134	f32					0	0	0
+1212	neg_43	UNARY	f32	slice_134 (cont)	f32					0	0	0
+1213	slice_133 (cont)	CONT	f32	slice_133	f32					0	0	0
+1214	node_1214	CONCAT	f32	neg_43	f32	slice_133 (cont)	f32			0	0	0
+1215	cat_43	CONT	f32	node_1214	f32					0	0	0
+1216	mul_111	MUL	f32	cat_43	f32	unsqueeze_49	f32			0	0	0
+1217	add_87	ADD	f32	mul_110	f32	mul_111	f32			0	0	0
+1218	add_87 (copy)	CPY	f16	add_87	f32	add_87 (copy)	f16			0	1	0
+1219	transpose_86 (cont)	CONT	f32	transpose_86	f32					0	0	0
+1220	transpose_86 (cont) (copy)	CPY	f16	transpose_86 (cont)	f32	transpose_86 (cont) (copy)	f16			0	1	0
+1221	add (view)	CLAMP	f32	add	f32					1	0	0
+1222	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+1223	transpose_87	FLASH_ATTN_EXT	f32	add_86	f32	add_87 (copy)	f16	transpose_86 (cont) (copy)	f16	0	0	0
+1224	reshape_21	RESHAPE	f32	transpose_87	f32					1	0	0
+1225	linear_85	MUL_MAT	f32	wo.21.weight	q8_0	reshape_21	f32			0	0	0
+1226	add_88	ADD	f32	add_85	f32	linear_85	f32			0	0	0
+1227	layer_norm_43	NORM	f32	add_88	f32					0	0	0
+1228	linear_86	MUL_MAT	f32	mlp_wi.21.weight	q8_0	layer_norm_43	f32			0	0	0
+1229	getitem_108	VIEW	f32	linear_86	f32					1	0	0
+1230	getitem_109	VIEW	f32	linear_86	f32					0	0	0
+1231	getitem_108 (cont)	CONT	f32	getitem_108	f32					0	0	0
+1232	gelu_21	UNARY	f32	getitem_108 (cont)	f32					0	0	0
+1233	mul_112	MUL	f32	gelu_21	f32	getitem_109	f32			0	0	0
+1234	linear_87	MUL_MAT	f32	mlp_wo.21.weight	q8_0	mul_112	f32			0	0	0
+1235	add_89	ADD	f32	add_88	f32	linear_87	f32			0	0	0
+1236	layer_norm_44	NORM	f32	add_89	f32					0	0	0
+1237	slice_135	VIEW	f32	cos_slide	f32					1	0	0
+1238	slice_136	VIEW	f32	sin_slide	f32					1	0	0
+1239	linear_88	MUL_MAT	f32	qkv.22.weight	q8_0	layer_norm_44	f32			0	0	0
+1240	getitem_110	VIEW	f32	linear_88	f32					1	0	0
+1241	getitem_111	VIEW	f32	linear_88	f32					0	0	0
+1242	getitem_112	VIEW	f32	linear_88	f32					0	0	0
+1243	view_66	VIEW	f32	getitem_110	f32					1	0	0
+1244	view_66 (permuted)	PERMUTE	f32	view_66	f32					1	0	0
+1245	transpose_88	CONT	f32	view_66 (permuted)	f32					0	0	0
+1246	view_67	VIEW	f32	getitem_111	f32					1	0	0
+1247	view_67 (permuted)	PERMUTE	f32	view_67	f32					1	0	0
+1248	transpose_89	CONT	f32	view_67 (permuted)	f32					0	0	0
+1249	view_68	VIEW	f32	getitem_112	f32					1	0	0
+1250	transpose_90	PERMUTE	f32	view_68	f32					1	0	0
+1251	unsqueeze_50	RESHAPE	f32	slice_135	f32					1	0	0
+1252	unsqueeze_51	RESHAPE	f32	slice_136	f32					1	0	0
+1253	mul_113	MUL	f32	transpose_88	f32	unsqueeze_50	f32			0	0	0
+1254	slice_137	VIEW	f32	transpose_88	f32					1	0	0
+1255	slice_138	VIEW	f32	transpose_88	f32					0	0	0
+1256	slice_138 (cont)	CONT	f32	slice_138	f32					0	0	0
+1257	neg_44	UNARY	f32	slice_138 (cont)	f32					0	0	0
+1258	slice_137 (cont)	CONT	f32	slice_137	f32					0	0	0
+1259	node_1259	CONCAT	f32	neg_44	f32	slice_137 (cont)	f32			0	0	0
+1260	cat_44	CONT	f32	node_1259	f32					0	0	0
+1261	mul_114	MUL	f32	cat_44	f32	unsqueeze_51	f32			0	0	0
+1262	add_90	ADD	f32	mul_113	f32	mul_114	f32			0	0	0
+1263	mul_115	MUL	f32	transpose_89	f32	unsqueeze_50	f32			0	0	0
+1264	slice_139	VIEW	f32	transpose_89	f32					1	0	0
+1265	slice_140	VIEW	f32	transpose_89	f32					0	0	0
+1266	slice_140 (cont)	CONT	f32	slice_140	f32					0	0	0
+1267	neg_45	UNARY	f32	slice_140 (cont)	f32					0	0	0
+1268	slice_139 (cont)	CONT	f32	slice_139	f32					0	0	0
+1269	node_1269	CONCAT	f32	neg_45	f32	slice_139 (cont)	f32			0	0	0
+1270	cat_45	CONT	f32	node_1269	f32					0	0	0
+1271	mul_116	MUL	f32	cat_45	f32	unsqueeze_51	f32			0	0	0
+1272	add_91	ADD	f32	mul_115	f32	mul_116	f32			0	0	0
+1273	add_91 (copy)	CPY	f16	add_91	f32	add_91 (copy)	f16			0	1	0
+1274	transpose_90 (cont)	CONT	f32	transpose_90	f32					0	0	0
+1275	transpose_90 (cont) (copy)	CPY	f16	transpose_90 (cont)	f32	transpose_90 (cont) (copy)	f16			0	1	0
+1276	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+1277	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+1278	transpose_91	FLASH_ATTN_EXT	f32	add_90	f32	add_91 (copy)	f16	transpose_90 (cont) (copy)	f16	0	0	0
+1279	reshape_22	RESHAPE	f32	transpose_91	f32					1	0	0
+1280	linear_89	MUL_MAT	f32	wo.22.weight	q8_0	reshape_22	f32			0	0	0
+1281	add_92	ADD	f32	add_89	f32	linear_89	f32			0	0	0
+1282	layer_norm_45	NORM	f32	add_92	f32					0	0	0
+1283	linear_90	MUL_MAT	f32	mlp_wi.22.weight	q8_0	layer_norm_45	f32			0	0	0
+1284	getitem_113	VIEW	f32	linear_90	f32					1	0	0
+1285	getitem_114	VIEW	f32	linear_90	f32					0	0	0
+1286	getitem_113 (cont)	CONT	f32	getitem_113	f32					0	0	0
+1287	gelu_22	UNARY	f32	getitem_113 (cont)	f32					0	0	0
+1288	mul_117	MUL	f32	gelu_22	f32	getitem_114	f32			0	0	0
+1289	linear_91	MUL_MAT	f32	mlp_wo.22.weight	q8_0	mul_117	f32			0	0	0
+1290	add_93	ADD	f32	add_92	f32	linear_91	f32			0	0	0
+1291	layer_norm_46	NORM	f32	add_93	f32					0	0	0
+1292	slice_141	VIEW	f32	cos_slide	f32					1	0	0
+1293	slice_142	VIEW	f32	sin_slide	f32					1	0	0
+1294	linear_92	MUL_MAT	f32	qkv.23.weight	q8_0	layer_norm_46	f32			0	0	0
+1295	getitem_115	VIEW	f32	linear_92	f32					1	0	0
+1296	getitem_116	VIEW	f32	linear_92	f32					0	0	0
+1297	getitem_117	VIEW	f32	linear_92	f32					0	0	0
+1298	view_69	VIEW	f32	getitem_115	f32					1	0	0
+1299	view_69 (permuted)	PERMUTE	f32	view_69	f32					1	0	0
+1300	transpose_92	CONT	f32	view_69 (permuted)	f32					0	0	0
+1301	view_70	VIEW	f32	getitem_116	f32					1	0	0
+1302	view_70 (permuted)	PERMUTE	f32	view_70	f32					1	0	0
+1303	transpose_93	CONT	f32	view_70 (permuted)	f32					0	0	0
+1304	view_71	VIEW	f32	getitem_117	f32					1	0	0
+1305	transpose_94	PERMUTE	f32	view_71	f32					1	0	0
+1306	unsqueeze_52	RESHAPE	f32	slice_141	f32					1	0	0
+1307	unsqueeze_53	RESHAPE	f32	slice_142	f32					1	0	0
+1308	mul_118	MUL	f32	transpose_92	f32	unsqueeze_52	f32			0	0	0
+1309	slice_143	VIEW	f32	transpose_92	f32					1	0	0
+1310	slice_144	VIEW	f32	transpose_92	f32					0	0	0
+1311	slice_144 (cont)	CONT	f32	slice_144	f32					0	0	0
+1312	neg_46	UNARY	f32	slice_144 (cont)	f32					0	0	0
+1313	slice_143 (cont)	CONT	f32	slice_143	f32					0	0	0
+1314	node_1314	CONCAT	f32	neg_46	f32	slice_143 (cont)	f32			0	0	0
+1315	cat_46	CONT	f32	node_1314	f32					0	0	0
+1316	mul_119	MUL	f32	cat_46	f32	unsqueeze_53	f32			0	0	0
+1317	add_94	ADD	f32	mul_118	f32	mul_119	f32			0	0	0
+1318	mul_120	MUL	f32	transpose_93	f32	unsqueeze_52	f32			0	0	0
+1319	slice_145	VIEW	f32	transpose_93	f32					1	0	0
+1320	slice_146	VIEW	f32	transpose_93	f32					0	0	0
+1321	slice_146 (cont)	CONT	f32	slice_146	f32					0	0	0
+1322	neg_47	UNARY	f32	slice_146 (cont)	f32					0	0	0
+1323	slice_145 (cont)	CONT	f32	slice_145	f32					0	0	0
+1324	node_1324	CONCAT	f32	neg_47	f32	slice_145 (cont)	f32			0	0	0
+1325	cat_47	CONT	f32	node_1324	f32					0	0	0
+1326	mul_121	MUL	f32	cat_47	f32	unsqueeze_53	f32			0	0	0
+1327	add_95	ADD	f32	mul_120	f32	mul_121	f32			0	0	0
+1328	add_95 (copy)	CPY	f16	add_95	f32	add_95 (copy)	f16			0	1	0
+1329	transpose_94 (cont)	CONT	f32	transpose_94	f32					0	0	0
+1330	transpose_94 (cont) (copy)	CPY	f16	transpose_94 (cont)	f32	transpose_94 (cont) (copy)	f16			0	1	0
+1331	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+1332	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+1333	transpose_95	FLASH_ATTN_EXT	f32	add_94	f32	add_95 (copy)	f16	transpose_94 (cont) (copy)	f16	0	0	0
+1334	reshape_23	RESHAPE	f32	transpose_95	f32					1	0	0
+1335	linear_93	MUL_MAT	f32	wo.23.weight	q8_0	reshape_23	f32			0	0	0
+1336	add_96	ADD	f32	add_93	f32	linear_93	f32			0	0	0
+1337	layer_norm_47	NORM	f32	add_96	f32					0	0	0
+1338	linear_94	MUL_MAT	f32	mlp_wi.23.weight	q8_0	layer_norm_47	f32			0	0	0
+1339	getitem_118	VIEW	f32	linear_94	f32					1	0	0
+1340	getitem_119	VIEW	f32	linear_94	f32					0	0	0
+1341	getitem_118 (cont)	CONT	f32	getitem_118	f32					0	0	0
+1342	gelu_23	UNARY	f32	getitem_118 (cont)	f32					0	0	0
+1343	mul_122	MUL	f32	gelu_23	f32	getitem_119	f32			0	0	0
+1344	linear_95	MUL_MAT	f32	mlp_wo.23.weight	q8_0	mul_122	f32			0	0	0
+1345	add_97	ADD	f32	add_96	f32	linear_95	f32			0	0	0
+1346	layer_norm_48	NORM	f32	add_97	f32					0	0	0
+1347	slice_147	VIEW	f32	cos_full	f32					1	0	0
+1348	slice_148	VIEW	f32	sin_full	f32					1	0	0
+1349	linear_96	MUL_MAT	f32	qkv.24.weight	q8_0	layer_norm_48	f32			0	0	0
+1350	getitem_120	VIEW	f32	linear_96	f32					1	0	0
+1351	getitem_121	VIEW	f32	linear_96	f32					0	0	0
+1352	getitem_122	VIEW	f32	linear_96	f32					0	0	0
+1353	view_72	VIEW	f32	getitem_120	f32					1	0	0
+1354	view_72 (permuted)	PERMUTE	f32	view_72	f32					1	0	0
+1355	transpose_96	CONT	f32	view_72 (permuted)	f32					0	0	0
+1356	view_73	VIEW	f32	getitem_121	f32					1	0	0
+1357	view_73 (permuted)	PERMUTE	f32	view_73	f32					1	0	0
+1358	transpose_97	CONT	f32	view_73 (permuted)	f32					0	0	0
+1359	view_74	VIEW	f32	getitem_122	f32					1	0	0
+1360	transpose_98	PERMUTE	f32	view_74	f32					1	0	0
+1361	unsqueeze_54	RESHAPE	f32	slice_147	f32					1	0	0
+1362	unsqueeze_55	RESHAPE	f32	slice_148	f32					1	0	0
+1363	mul_123	MUL	f32	transpose_96	f32	unsqueeze_54	f32			0	0	0
+1364	slice_149	VIEW	f32	transpose_96	f32					1	0	0
+1365	slice_150	VIEW	f32	transpose_96	f32					0	0	0
+1366	slice_150 (cont)	CONT	f32	slice_150	f32					0	0	0
+1367	neg_48	UNARY	f32	slice_150 (cont)	f32					0	0	0
+1368	slice_149 (cont)	CONT	f32	slice_149	f32					0	0	0
+1369	node_1369	CONCAT	f32	neg_48	f32	slice_149 (cont)	f32			0	0	0
+1370	cat_48	CONT	f32	node_1369	f32					0	0	0
+1371	mul_124	MUL	f32	cat_48	f32	unsqueeze_55	f32			0	0	0
+1372	add_98	ADD	f32	mul_123	f32	mul_124	f32			0	0	0
+1373	mul_125	MUL	f32	transpose_97	f32	unsqueeze_54	f32			0	0	0
+1374	slice_151	VIEW	f32	transpose_97	f32					1	0	0
+1375	slice_152	VIEW	f32	transpose_97	f32					0	0	0
+1376	slice_152 (cont)	CONT	f32	slice_152	f32					0	0	0
+1377	neg_49	UNARY	f32	slice_152 (cont)	f32					0	0	0
+1378	slice_151 (cont)	CONT	f32	slice_151	f32					0	0	0
+1379	node_1379	CONCAT	f32	neg_49	f32	slice_151 (cont)	f32			0	0	0
+1380	cat_49	CONT	f32	node_1379	f32					0	0	0
+1381	mul_126	MUL	f32	cat_49	f32	unsqueeze_55	f32			0	0	0
+1382	add_99	ADD	f32	mul_125	f32	mul_126	f32			0	0	0
+1383	add_99 (copy)	CPY	f16	add_99	f32	add_99 (copy)	f16			0	1	0
+1384	transpose_98 (cont)	CONT	f32	transpose_98	f32					0	0	0
+1385	transpose_98 (cont) (copy)	CPY	f16	transpose_98 (cont)	f32	transpose_98 (cont) (copy)	f16			0	1	0
+1386	add (view)	CLAMP	f32	add	f32					1	0	0
+1387	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+1388	transpose_99	FLASH_ATTN_EXT	f32	add_98	f32	add_99 (copy)	f16	transpose_98 (cont) (copy)	f16	0	0	0
+1389	reshape_24	RESHAPE	f32	transpose_99	f32					1	0	0
+1390	linear_97	MUL_MAT	f32	wo.24.weight	q8_0	reshape_24	f32			0	0	0
+1391	add_100	ADD	f32	add_97	f32	linear_97	f32			0	0	0
+1392	layer_norm_49	NORM	f32	add_100	f32					0	0	0
+1393	linear_98	MUL_MAT	f32	mlp_wi.24.weight	q8_0	layer_norm_49	f32			0	0	0
+1394	getitem_123	VIEW	f32	linear_98	f32					1	0	0
+1395	getitem_124	VIEW	f32	linear_98	f32					0	0	0
+1396	getitem_123 (cont)	CONT	f32	getitem_123	f32					0	0	0
+1397	gelu_24	UNARY	f32	getitem_123 (cont)	f32					0	0	0
+1398	mul_127	MUL	f32	gelu_24	f32	getitem_124	f32			0	0	0
+1399	linear_99	MUL_MAT	f32	mlp_wo.24.weight	q8_0	mul_127	f32			0	0	0
+1400	add_101	ADD	f32	add_100	f32	linear_99	f32			0	0	0
+1401	layer_norm_50	NORM	f32	add_101	f32					0	0	0
+1402	slice_153	VIEW	f32	cos_slide	f32					1	0	0
+1403	slice_154	VIEW	f32	sin_slide	f32					1	0	0
+1404	linear_100	MUL_MAT	f32	qkv.25.weight	q8_0	layer_norm_50	f32			0	0	0
+1405	getitem_125	VIEW	f32	linear_100	f32					1	0	0
+1406	getitem_126	VIEW	f32	linear_100	f32					0	0	0
+1407	getitem_127	VIEW	f32	linear_100	f32					0	0	0
+1408	view_75	VIEW	f32	getitem_125	f32					1	0	0
+1409	view_75 (permuted)	PERMUTE	f32	view_75	f32					1	0	0
+1410	transpose_100	CONT	f32	view_75 (permuted)	f32					0	0	0
+1411	view_76	VIEW	f32	getitem_126	f32					1	0	0
+1412	view_76 (permuted)	PERMUTE	f32	view_76	f32					1	0	0
+1413	transpose_101	CONT	f32	view_76 (permuted)	f32					0	0	0
+1414	view_77	VIEW	f32	getitem_127	f32					1	0	0
+1415	transpose_102	PERMUTE	f32	view_77	f32					1	0	0
+1416	unsqueeze_56	RESHAPE	f32	slice_153	f32					1	0	0
+1417	unsqueeze_57	RESHAPE	f32	slice_154	f32					1	0	0
+1418	mul_128	MUL	f32	transpose_100	f32	unsqueeze_56	f32			0	0	0
+1419	slice_155	VIEW	f32	transpose_100	f32					1	0	0
+1420	slice_156	VIEW	f32	transpose_100	f32					0	0	0
+1421	slice_156 (cont)	CONT	f32	slice_156	f32					0	0	0
+1422	neg_50	UNARY	f32	slice_156 (cont)	f32					0	0	0
+1423	slice_155 (cont)	CONT	f32	slice_155	f32					0	0	0
+1424	node_1424	CONCAT	f32	neg_50	f32	slice_155 (cont)	f32			0	0	0
+1425	cat_50	CONT	f32	node_1424	f32					0	0	0
+1426	mul_129	MUL	f32	cat_50	f32	unsqueeze_57	f32			0	0	0
+1427	add_102	ADD	f32	mul_128	f32	mul_129	f32			0	0	0
+1428	mul_130	MUL	f32	transpose_101	f32	unsqueeze_56	f32			0	0	0
+1429	slice_157	VIEW	f32	transpose_101	f32					1	0	0
+1430	slice_158	VIEW	f32	transpose_101	f32					0	0	0
+1431	slice_158 (cont)	CONT	f32	slice_158	f32					0	0	0
+1432	neg_51	UNARY	f32	slice_158 (cont)	f32					0	0	0
+1433	slice_157 (cont)	CONT	f32	slice_157	f32					0	0	0
+1434	node_1434	CONCAT	f32	neg_51	f32	slice_157 (cont)	f32			0	0	0
+1435	cat_51	CONT	f32	node_1434	f32					0	0	0
+1436	mul_131	MUL	f32	cat_51	f32	unsqueeze_57	f32			0	0	0
+1437	add_103	ADD	f32	mul_130	f32	mul_131	f32			0	0	0
+1438	add_103 (copy)	CPY	f16	add_103	f32	add_103 (copy)	f16			0	1	0
+1439	transpose_102 (cont)	CONT	f32	transpose_102	f32					0	0	0
+1440	transpose_102 (cont) (copy)	CPY	f16	transpose_102 (cont)	f32	transpose_102 (cont) (copy)	f16			0	1	0
+1441	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+1442	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+1443	transpose_103	FLASH_ATTN_EXT	f32	add_102	f32	add_103 (copy)	f16	transpose_102 (cont) (copy)	f16	0	0	0
+1444	reshape_25	RESHAPE	f32	transpose_103	f32					1	0	0
+1445	linear_101	MUL_MAT	f32	wo.25.weight	q8_0	reshape_25	f32			0	0	0
+1446	add_104	ADD	f32	add_101	f32	linear_101	f32			0	0	0
+1447	layer_norm_51	NORM	f32	add_104	f32					0	0	0
+1448	linear_102	MUL_MAT	f32	mlp_wi.25.weight	q8_0	layer_norm_51	f32			0	0	0
+1449	getitem_128	VIEW	f32	linear_102	f32					1	0	0
+1450	getitem_129	VIEW	f32	linear_102	f32					0	0	0
+1451	getitem_128 (cont)	CONT	f32	getitem_128	f32					0	0	0
+1452	gelu_25	UNARY	f32	getitem_128 (cont)	f32					0	0	0
+1453	mul_132	MUL	f32	gelu_25	f32	getitem_129	f32			0	0	0
+1454	linear_103	MUL_MAT	f32	mlp_wo.25.weight	q8_0	mul_132	f32			0	0	0
+1455	add_105	ADD	f32	add_104	f32	linear_103	f32			0	0	0
+1456	layer_norm_52	NORM	f32	add_105	f32					0	0	0
+1457	slice_159	VIEW	f32	cos_slide	f32					1	0	0
+1458	slice_160	VIEW	f32	sin_slide	f32					1	0	0
+1459	linear_104	MUL_MAT	f32	qkv.26.weight	q8_0	layer_norm_52	f32			0	0	0
+1460	getitem_130	VIEW	f32	linear_104	f32					1	0	0
+1461	getitem_131	VIEW	f32	linear_104	f32					0	0	0
+1462	getitem_132	VIEW	f32	linear_104	f32					0	0	0
+1463	view_78	VIEW	f32	getitem_130	f32					1	0	0
+1464	view_78 (permuted)	PERMUTE	f32	view_78	f32					1	0	0
+1465	transpose_104	CONT	f32	view_78 (permuted)	f32					0	0	0
+1466	view_79	VIEW	f32	getitem_131	f32					1	0	0
+1467	view_79 (permuted)	PERMUTE	f32	view_79	f32					1	0	0
+1468	transpose_105	CONT	f32	view_79 (permuted)	f32					0	0	0
+1469	view_80	VIEW	f32	getitem_132	f32					1	0	0
+1470	transpose_106	PERMUTE	f32	view_80	f32					1	0	0
+1471	unsqueeze_58	RESHAPE	f32	slice_159	f32					1	0	0
+1472	unsqueeze_59	RESHAPE	f32	slice_160	f32					1	0	0
+1473	mul_133	MUL	f32	transpose_104	f32	unsqueeze_58	f32			0	0	0
+1474	slice_161	VIEW	f32	transpose_104	f32					1	0	0
+1475	slice_162	VIEW	f32	transpose_104	f32					0	0	0
+1476	slice_162 (cont)	CONT	f32	slice_162	f32					0	0	0
+1477	neg_52	UNARY	f32	slice_162 (cont)	f32					0	0	0
+1478	slice_161 (cont)	CONT	f32	slice_161	f32					0	0	0
+1479	node_1479	CONCAT	f32	neg_52	f32	slice_161 (cont)	f32			0	0	0
+1480	cat_52	CONT	f32	node_1479	f32					0	0	0
+1481	mul_134	MUL	f32	cat_52	f32	unsqueeze_59	f32			0	0	0
+1482	add_106	ADD	f32	mul_133	f32	mul_134	f32			0	0	0
+1483	mul_135	MUL	f32	transpose_105	f32	unsqueeze_58	f32			0	0	0
+1484	slice_163	VIEW	f32	transpose_105	f32					1	0	0
+1485	slice_164	VIEW	f32	transpose_105	f32					0	0	0
+1486	slice_164 (cont)	CONT	f32	slice_164	f32					0	0	0
+1487	neg_53	UNARY	f32	slice_164 (cont)	f32					0	0	0
+1488	slice_163 (cont)	CONT	f32	slice_163	f32					0	0	0
+1489	node_1489	CONCAT	f32	neg_53	f32	slice_163 (cont)	f32			0	0	0
+1490	cat_53	CONT	f32	node_1489	f32					0	0	0
+1491	mul_136	MUL	f32	cat_53	f32	unsqueeze_59	f32			0	0	0
+1492	add_107	ADD	f32	mul_135	f32	mul_136	f32			0	0	0
+1493	add_107 (copy)	CPY	f16	add_107	f32	add_107 (copy)	f16			0	1	0
+1494	transpose_106 (cont)	CONT	f32	transpose_106	f32					0	0	0
+1495	transpose_106 (cont) (copy)	CPY	f16	transpose_106 (cont)	f32	transpose_106 (cont) (copy)	f16			0	1	0
+1496	add_1 (view)	CLAMP	f32	add_1	f32					1	0	0
+1497	add_1 (view) (copy)	CPY	f16	add_1 (view)	f32	add_1 (view) (copy)	f16			0	1	0
+1498	transpose_107	FLASH_ATTN_EXT	f32	add_106	f32	add_107 (copy)	f16	transpose_106 (cont) (copy)	f16	0	0	0
+1499	reshape_26	RESHAPE	f32	transpose_107	f32					1	0	0
+1500	linear_105	MUL_MAT	f32	wo.26.weight	q8_0	reshape_26	f32			0	0	0
+1501	add_108	ADD	f32	add_105	f32	linear_105	f32			0	0	0
+1502	layer_norm_53	NORM	f32	add_108	f32					0	0	0
+1503	linear_106	MUL_MAT	f32	mlp_wi.26.weight	q8_0	layer_norm_53	f32			0	0	0
+1504	getitem_133	VIEW	f32	linear_106	f32					1	0	0
+1505	getitem_134	VIEW	f32	linear_106	f32					0	0	0
+1506	getitem_133 (cont)	CONT	f32	getitem_133	f32					0	0	0
+1507	gelu_26	UNARY	f32	getitem_133 (cont)	f32					0	0	0
+1508	mul_137	MUL	f32	gelu_26	f32	getitem_134	f32			0	0	0
+1509	linear_107	MUL_MAT	f32	mlp_wo.26.weight	q8_0	mul_137	f32			0	0	0
+1510	add_109	ADD	f32	add_108	f32	linear_107	f32			0	0	0
+1511	layer_norm_54	NORM	f32	add_109	f32					0	0	0
+1512	slice_165	VIEW	f32	cos_full	f32					1	0	0
+1513	slice_166	VIEW	f32	sin_full	f32					1	0	0
+1514	linear_108	MUL_MAT	f32	qkv.27.weight	q8_0	layer_norm_54	f32			0	0	0
+1515	getitem_135	VIEW	f32	linear_108	f32					1	0	0
+1516	getitem_136	VIEW	f32	linear_108	f32					0	0	0
+1517	getitem_137	VIEW	f32	linear_108	f32					0	0	0
+1518	view_81	VIEW	f32	getitem_135	f32					1	0	0
+1519	view_81 (permuted)	PERMUTE	f32	view_81	f32					1	0	0
+1520	transpose_108	CONT	f32	view_81 (permuted)	f32					0	0	0
+1521	view_82	VIEW	f32	getitem_136	f32					1	0	0
+1522	view_82 (permuted)	PERMUTE	f32	view_82	f32					1	0	0
+1523	transpose_109	CONT	f32	view_82 (permuted)	f32					0	0	0
+1524	view_83	VIEW	f32	getitem_137	f32					1	0	0
+1525	transpose_110	PERMUTE	f32	view_83	f32					1	0	0
+1526	unsqueeze_60	RESHAPE	f32	slice_165	f32					1	0	0
+1527	unsqueeze_61	RESHAPE	f32	slice_166	f32					1	0	0
+1528	mul_138	MUL	f32	transpose_108	f32	unsqueeze_60	f32			0	0	0
+1529	slice_167	VIEW	f32	transpose_108	f32					1	0	0
+1530	slice_168	VIEW	f32	transpose_108	f32					0	0	0
+1531	slice_168 (cont)	CONT	f32	slice_168	f32					0	0	0
+1532	neg_54	UNARY	f32	slice_168 (cont)	f32					0	0	0
+1533	slice_167 (cont)	CONT	f32	slice_167	f32					0	0	0
+1534	node_1534	CONCAT	f32	neg_54	f32	slice_167 (cont)	f32			0	0	0
+1535	cat_54	CONT	f32	node_1534	f32					0	0	0
+1536	mul_139	MUL	f32	cat_54	f32	unsqueeze_61	f32			0	0	0
+1537	add_110	ADD	f32	mul_138	f32	mul_139	f32			0	0	0
+1538	mul_140	MUL	f32	transpose_109	f32	unsqueeze_60	f32			0	0	0
+1539	slice_169	VIEW	f32	transpose_109	f32					1	0	0
+1540	slice_170	VIEW	f32	transpose_109	f32					0	0	0
+1541	slice_170 (cont)	CONT	f32	slice_170	f32					0	0	0
+1542	neg_55	UNARY	f32	slice_170 (cont)	f32					0	0	0
+1543	slice_169 (cont)	CONT	f32	slice_169	f32					0	0	0
+1544	node_1544	CONCAT	f32	neg_55	f32	slice_169 (cont)	f32			0	0	0
+1545	cat_55	CONT	f32	node_1544	f32					0	0	0
+1546	mul_141	MUL	f32	cat_55	f32	unsqueeze_61	f32			0	0	0
+1547	add_111	ADD	f32	mul_140	f32	mul_141	f32			0	0	0
+1548	add_111 (copy)	CPY	f16	add_111	f32	add_111 (copy)	f16			0	1	0
+1549	transpose_110 (cont)	CONT	f32	transpose_110	f32					0	0	0
+1550	transpose_110 (cont) (copy)	CPY	f16	transpose_110 (cont)	f32	transpose_110 (cont) (copy)	f16			0	1	0
+1551	add (view)	CLAMP	f32	add	f32					1	0	0
+1552	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+1553	transpose_111	FLASH_ATTN_EXT	f32	add_110	f32	add_111 (copy)	f16	transpose_110 (cont) (copy)	f16	0	0	0
+1554	reshape_27	RESHAPE	f32	transpose_111	f32					1	0	0
+1555	linear_109	MUL_MAT	f32	wo.27.weight	q8_0	reshape_27	f32			0	0	0
+1556	add_112	ADD	f32	add_109	f32	linear_109	f32			0	0	0
+1557	layer_norm_55	NORM	f32	add_112	f32					0	0	0
+1558	linear_110	MUL_MAT	f32	mlp_wi.27.weight	q8_0	layer_norm_55	f32			0	0	0
+1559	getitem_138	VIEW	f32	linear_110	f32					1	0	0
+1560	getitem_139	VIEW	f32	linear_110	f32					0	0	0
+1561	getitem_138 (cont)	CONT	f32	getitem_138	f32					0	0	0
+1562	gelu_27	UNARY	f32	getitem_138 (cont)	f32					0	0	0
+1563	mul_142	MUL	f32	gelu_27	f32	getitem_139	f32			0	0	0
+1564	linear_111	MUL_MAT	f32	mlp_wo.27.weight	q8_0	mul_142	f32			0	0	0
+1565	add_113	ADD	f32	add_112	f32	linear_111	f32			0	0	0
+1566	node_1566	NORM	f32	add_113	f32					0	0	0
+1567	layer_norm_56	MUL	f32	node_1566	f32	final_norm_w	f32			0	0	0
+1568	qtype (reshaped)	RESHAPE	i32	qtype	i32					1	0	0
+1569	node_1569	GET_ROWS	f32	type_emb.weight	q8_0	qtype (reshaped)	i32			0	0	0
+1570	embedding_1	RESHAPE	f32	node_1569	f32					1	0	0
+1571	unsqueeze_62	RESHAPE	f32	embedding_1	f32					1	0	0
+1572	add_114	ADD	f32	layer_norm_56	f32	unsqueeze_62	f32			0	0	0
+1573	layer_norm_57	NORM	f32	add_114	f32					0	0	0
+1574	node_1574	MUL_MAT	f32	head_qkv.0.weight	q8_0	layer_norm_57	f32			0	0	0
+1575	linear_112	ADD	f32	node_1574	f32	head_qkv.0.bias	f32			0	0	0
+1576	getitem_140	VIEW	f32	linear_112	f32					1	0	0
+1577	getitem_141	VIEW	f32	linear_112	f32					0	0	0
+1578	getitem_142	VIEW	f32	linear_112	f32					0	0	0
+1579	view_84	VIEW	f32	getitem_140	f32					1	0	0
+1580	transpose_112	PERMUTE	f32	view_84	f32					1	0	0
+1581	view_85	VIEW	f32	getitem_141	f32					1	0	0
+1582	transpose_113	PERMUTE	f32	view_85	f32					1	0	0
+1583	view_86	VIEW	f32	getitem_142	f32					1	0	0
+1584	transpose_114	PERMUTE	f32	view_86	f32					1	0	0
+1585	transpose_112 (cont)	CONT	f32	transpose_112	f32					0	0	0
+1586	transpose_113 (cont)	CONT	f32	transpose_113	f32					0	0	0
+1587	transpose_113 (cont) (copy)	CPY	f16	transpose_113 (cont)	f32	transpose_113 (cont) (copy)	f16			0	1	0
+1588	transpose_114 (cont)	CONT	f32	transpose_114	f32					0	0	0
+1589	transpose_114 (cont) (copy)	CPY	f16	transpose_114 (cont)	f32	transpose_114 (cont) (copy)	f16			0	1	0
+1590	add (view)	CLAMP	f32	add	f32					1	0	0
+1591	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+1592	transpose_115	FLASH_ATTN_EXT	f32	transpose_112 (cont)	f32	transpose_113 (cont) (copy)	f16	transpose_114 (cont) (copy)	f16	0	0	0
+1593	reshape_28	RESHAPE	f32	transpose_115	f32					1	0	0
+1594	node_1594	MUL_MAT	f32	head_wo.0.weight	q8_0	reshape_28	f32			0	0	0
+1595	linear_113	ADD	f32	node_1594	f32	head_wo.0.bias	f32			0	0	0
+1596	add_115	ADD	f32	add_114	f32	linear_113	f32			0	0	0
+1597	layer_norm_58	NORM	f32	add_115	f32					0	0	0
+1598	node_1598	MUL_MAT	f32	head_fc1.0.weight	q8_0	layer_norm_58	f32			0	0	0
+1599	linear_114	ADD	f32	node_1598	f32	head_fc1.0.bias	f32			0	0	0
+1600	relu	UNARY	f32	linear_114	f32					0	0	0
+1601	node_1601	MUL_MAT	f32	head_fc2.0.weight	q8_0	relu	f32			0	0	0
+1602	linear_115	ADD	f32	node_1601	f32	head_fc2.0.bias	f32			0	0	0
+1603	add_116	ADD	f32	add_115	f32	linear_115	f32			0	0	0
+1604	layer_norm_59	NORM	f32	add_116	f32					0	0	0
+1605	node_1605	MUL_MAT	f32	head_qkv.1.weight	q8_0	layer_norm_59	f32			0	0	0
+1606	linear_116	ADD	f32	node_1605	f32	head_qkv.1.bias	f32			0	0	0
+1607	getitem_143	VIEW	f32	linear_116	f32					1	0	0
+1608	getitem_144	VIEW	f32	linear_116	f32					0	0	0
+1609	getitem_145	VIEW	f32	linear_116	f32					0	0	0
+1610	view_87	VIEW	f32	getitem_143	f32					1	0	0
+1611	transpose_116	PERMUTE	f32	view_87	f32					1	0	0
+1612	view_88	VIEW	f32	getitem_144	f32					1	0	0
+1613	transpose_117	PERMUTE	f32	view_88	f32					1	0	0
+1614	view_89	VIEW	f32	getitem_145	f32					1	0	0
+1615	transpose_118	PERMUTE	f32	view_89	f32					1	0	0
+1616	transpose_116 (cont)	CONT	f32	transpose_116	f32					0	0	0
+1617	transpose_117 (cont)	CONT	f32	transpose_117	f32					0	0	0
+1618	transpose_117 (cont) (copy)	CPY	f16	transpose_117 (cont)	f32	transpose_117 (cont) (copy)	f16			0	1	0
+1619	transpose_118 (cont)	CONT	f32	transpose_118	f32					0	0	0
+1620	transpose_118 (cont) (copy)	CPY	f16	transpose_118 (cont)	f32	transpose_118 (cont) (copy)	f16			0	1	0
+1621	add (view)	CLAMP	f32	add	f32					1	0	0
+1622	add (view) (copy)	CPY	f16	add (view)	f32	add (view) (copy)	f16			0	1	0
+1623	transpose_119	FLASH_ATTN_EXT	f32	transpose_116 (cont)	f32	transpose_117 (cont) (copy)	f16	transpose_118 (cont) (copy)	f16	0	0	0
+1624	reshape_29	RESHAPE	f32	transpose_119	f32					1	0	0
+1625	node_1625	MUL_MAT	f32	head_wo.1.weight	q8_0	reshape_29	f32			0	0	0
+1626	linear_117	ADD	f32	node_1625	f32	head_wo.1.bias	f32			0	0	0
+1627	add_117	ADD	f32	add_116	f32	linear_117	f32			0	0	0
+1628	layer_norm_60	NORM	f32	add_117	f32					0	0	0
+1629	node_1629	MUL_MAT	f32	head_fc1.1.weight	q8_0	layer_norm_60	f32			0	0	0
+1630	linear_118	ADD	f32	node_1629	f32	head_fc1.1.bias	f32			0	0	0
+1631	relu_1	UNARY	f32	linear_118	f32					0	0	0
+1632	node_1632	MUL_MAT	f32	head_fc2.1.weight	q8_0	relu_1	f32			0	0	0
+1633	linear_119	ADD	f32	node_1632	f32	head_fc2.1.bias	f32			0	0	0
+1634	add_118	ADD	f32	add_117	f32	linear_119	f32			0	0	0
+1635	reshape_30	RESHAPE	f32	add_118	f32					1	0	0
+1636	reshape_31	RESHAPE	i32	marker_pos	i32					1	0	0
+1637	reshape_31 (reshaped)	RESHAPE	i32	reshape_31	i32					1	0	0
+1638	node_1638	GET_ROWS	f32	reshape_30	f32	reshape_31 (reshaped)	i32			0	0	0
+1639	embedding_2	RESHAPE	f32	node_1638	f32					1	0	0
+1640	view_90	RESHAPE	f32	embedding_2	f32					1	0	0
+1641	layer_norm_61	NORM	f32	view_90	f32					0	0	0
+1642	node_1642	MUL_MAT	f32	scorer_fc1.weight	q8_0	layer_norm_61	f32			0	0	0
+1643	linear_120	ADD	f32	node_1642	f32	linear_120_baked_bias	f32			0	0	0
+1644	gelu_28	MAP_CUSTOM2	f32	linear_120	f32	scorer_fc1.bias	f32			0	0	0
+1645	node_1645	MUL_MAT	f32	scorer_fc2.weight	f32	gelu_28	f32			0	0	0
+1646	linear_121	ADD	f32	node_1645	f32	scorer_fc2.bias	f32			0	0	0
+1647	squeeze	RESHAPE	f32	linear_121	f32					1	0	0
+1648	const_rsub_arg0 (reshaped)	RESHAPE	f32	const_rsub_arg0	f32					1	0	0
+1649	node_1649	REPEAT	f32	const_rsub_arg0 (reshaped)	f32					0	0	0
+1650	rsub	SUB	f32	node_1649	f32	marker_mask	f32			0	0	0
+1651	const_mul_144_arg1 (reshaped)	RESHAPE	f32	const_mul_144_arg1	f32					1	0	0
+1652	mul_144	MUL	f32	rsub	f32	const_mul_144_arg1 (reshaped)	f32			0	0	0
+1653	add_119	ADD	f32	squeeze	f32	mul_144	f32			0	0	0
+1654	softmax	SOFT_MAX	f32	add_119	f32					0	0	0
+1655	node_1655	SUM_ROWS	f32	marker_mask	f32					0	0	0
+1656	sum_1	RESHAPE	f32	node_1655	f32					1	0	0
+1657	clamp	CLAMP	f32	sum_1	f32					1	0	0
+1658	clamp_min	CLAMP	f32	softmax	f32					1	0	0
+1659	log	LOG	f32	clamp_min	f32					0	0	0
+1660	mul_145	MUL	f32	softmax	f32	log	f32			0	0	0
+1661	node_1661	SUM_ROWS	f32	mul_145	f32					0	0	0
+1662	sum_2	RESHAPE	f32	node_1661	f32					1	0	0
+1663	neg_56	UNARY	f32	sum_2	f32					0	0	0
+1664	log_1	LOG	f32	clamp	f32					0	0	0
+1665	div	DIV	f32	neg_56	f32	log_1	f32			0	0	0
+1666	slice_171	VIEW	f32	softmax	f32					1	0	0
+1667	slice_172	VIEW	f32	softmax	f32					0	0	0
+1668	sub_1	SUB	f32	slice_171	f32	slice_172	f32			0	0	0
+1669	relu_2	UNARY	f32	sub_1	f32					0	0	0
+1670	add_120	ADD	f32	relu_2	f32	slice_172	f32			0	0	0
+1671	slice_173	VIEW	f32	softmax	f32					0	0	0
+1672	sub_2	SUB	f32	add_120	f32	slice_173	f32			0	0	0
+1673	relu_3	UNARY	f32	sub_2	f32					0	0	0
+1674	add_121	ADD	f32	relu_3	f32	slice_173	f32			0	0	0
+1675	slice_174	VIEW	f32	softmax	f32					0	0	0
+1676	sub_3	SUB	f32	add_121	f32	slice_174	f32			0	0	0
+1677	relu_4	UNARY	f32	sub_3	f32					0	0	0
+1678	add_122	ADD	f32	relu_4	f32	slice_174	f32			0	0	0
+1679	slice_175	VIEW	f32	softmax	f32					0	0	0
+1680	sub_4	SUB	f32	add_122	f32	slice_175	f32			0	0	0
+1681	relu_5	UNARY	f32	sub_4	f32					0	0	0
+1682	add_123	ADD	f32	relu_5	f32	slice_175	f32			0	0	0
+1683	slice_176	VIEW	f32	softmax	f32					0	0	0
+1684	sub_5	SUB	f32	add_123	f32	slice_176	f32			0	0	0
+1685	relu_6	UNARY	f32	sub_5	f32					0	0	0
+1686	add_124	ADD	f32	relu_6	f32	slice_176	f32			0	0	0
+1687	slice_177	VIEW	f32	softmax	f32					0	0	0
+1688	sub_6	SUB	f32	add_124	f32	slice_177	f32			0	0	0
+1689	relu_7	UNARY	f32	sub_6	f32					0	0	0
+1690	add_125	ADD	f32	relu_7	f32	slice_177	f32			0	0	0
+1691	slice_178	VIEW	f32	softmax	f32					0	0	0
+1692	sub_7	SUB	f32	add_125	f32	slice_178	f32			0	0	0
+1693	relu_8	UNARY	f32	sub_7	f32					0	0	0
+1694	add_126	ADD	f32	relu_8	f32	slice_178	f32			0	0	0
+1695	slice_179	VIEW	f32	softmax	f32					0	0	0
+1696	sub_8	SUB	f32	add_126	f32	slice_179	f32			0	0	0
+1697	relu_9	UNARY	f32	sub_8	f32					0	0	0
+1698	add_127	ADD	f32	relu_9	f32	slice_179	f32			0	0	0
+1699	slice_180	VIEW	f32	softmax	f32					0	0	0
+1700	sub_9	SUB	f32	add_127	f32	slice_180	f32			0	0	0
+1701	relu_10	UNARY	f32	sub_9	f32					0	0	0
+1702	add_128	ADD	f32	relu_10	f32	slice_180	f32			0	0	0
+1703	slice_181	VIEW	f32	softmax	f32					0	0	0
+1704	sub_10	SUB	f32	add_128	f32	slice_181	f32			0	0	0
+1705	relu_11	UNARY	f32	sub_10	f32					0	0	0
+1706	add_129	ADD	f32	relu_11	f32	slice_181	f32			0	0	0
+1707	slice_182	VIEW	f32	softmax	f32					0	0	0
+1708	sub_11	SUB	f32	add_129	f32	slice_182	f32			0	0	0
+1709	relu_12	UNARY	f32	sub_11	f32					0	0	0
+1710	add_130	ADD	f32	relu_12	f32	slice_182	f32			0	0	0
+1711	slice_183	VIEW	f32	softmax	f32					0	0	0
+1712	sub_12	SUB	f32	add_130	f32	slice_183	f32			0	0	0
+1713	relu_13	UNARY	f32	sub_12	f32					0	0	0
+1714	add_131	ADD	f32	relu_13	f32	slice_183	f32			0	0	0
+1715	slice_184	VIEW	f32	softmax	f32					0	0	0
+1716	sub_13	SUB	f32	add_131	f32	slice_184	f32			0	0	0
+1717	relu_14	UNARY	f32	sub_13	f32					0	0	0
+1718	add_132	ADD	f32	relu_14	f32	slice_184	f32			0	0	0
+1719	slice_185	VIEW	f32	softmax	f32					0	0	0
+1720	sub_14	SUB	f32	add_132	f32	slice_185	f32			0	0	0
+1721	relu_15	UNARY	f32	sub_14	f32					0	0	0
+1722	add_133	ADD	f32	relu_15	f32	slice_185	f32			0	0	0
+1723	slice_186	VIEW	f32	softmax	f32					0	0	0
+1724	sub_15	SUB	f32	add_133	f32	slice_186	f32			0	0	0
+1725	relu_16	UNARY	f32	sub_15	f32					0	0	0
+1726	add_134	ADD	f32	relu_16	f32	slice_186	f32			0	0	0
+1727	node_1727	REPEAT	f32	add_134	f32					0	0	0
+1728	sub_16	SUB	f32	node_1727	f32	softmax	f32			0	0	0
+1729	node_1729	REPEAT	f32	add_134	f32					0	0	0
+1730	sub_17	SUB	f32	node_1729	f32	softmax	f32			0	0	0
+1731	const_add_135_arg1 (reshaped)	RESHAPE	f32	const_add_135_arg1	f32					1	0	0
+1732	add_135	ADD	f32	sub_17	f32	const_add_135_arg1 (reshaped)	f32			0	0	0
+1733	div_1	DIV	f32	sub_16	f32	add_135	f32			0	0	0
+1734	mul_146	MUL	f32	softmax	f32	div_1	f32			0	0	0
+1735	slice_187	VIEW	f32	mul_146	f32					1	0	0
+1736	slice_188	VIEW	f32	mul_146	f32					0	0	0
+1737	sub_18	SUB	f32	slice_187	f32	slice_188	f32			0	0	0
+1738	relu_17	UNARY	f32	sub_18	f32					0	0	0
+1739	add_136	ADD	f32	relu_17	f32	slice_188	f32			0	0	0
+1740	slice_189	VIEW	f32	mul_146	f32					0	0	0
+1741	sub_19	SUB	f32	add_136	f32	slice_189	f32			0	0	0
+1742	relu_18	UNARY	f32	sub_19	f32					0	0	0
+1743	add_137	ADD	f32	relu_18	f32	slice_189	f32			0	0	0
+1744	slice_190	VIEW	f32	mul_146	f32					0	0	0
+1745	sub_20	SUB	f32	add_137	f32	slice_190	f32			0	0	0
+1746	relu_19	UNARY	f32	sub_20	f32					0	0	0
+1747	add_138	ADD	f32	relu_19	f32	slice_190	f32			0	0	0
+1748	slice_191	VIEW	f32	mul_146	f32					0	0	0
+1749	sub_21	SUB	f32	add_138	f32	slice_191	f32			0	0	0
+1750	relu_20	UNARY	f32	sub_21	f32					0	0	0
+1751	add_139	ADD	f32	relu_20	f32	slice_191	f32			0	0	0
+1752	slice_192	VIEW	f32	mul_146	f32					0	0	0
+1753	sub_22	SUB	f32	add_139	f32	slice_192	f32			0	0	0
+1754	relu_21	UNARY	f32	sub_22	f32					0	0	0
+1755	add_140	ADD	f32	relu_21	f32	slice_192	f32			0	0	0
+1756	slice_193	VIEW	f32	mul_146	f32					0	0	0
+1757	sub_23	SUB	f32	add_140	f32	slice_193	f32			0	0	0
+1758	relu_22	UNARY	f32	sub_23	f32					0	0	0
+1759	add_141	ADD	f32	relu_22	f32	slice_193	f32			0	0	0
+1760	slice_194	VIEW	f32	mul_146	f32					0	0	0
+1761	sub_24	SUB	f32	add_141	f32	slice_194	f32			0	0	0
+1762	relu_23	UNARY	f32	sub_24	f32					0	0	0
+1763	add_142	ADD	f32	relu_23	f32	slice_194	f32			0	0	0
+1764	slice_195	VIEW	f32	mul_146	f32					0	0	0
+1765	sub_25	SUB	f32	add_142	f32	slice_195	f32			0	0	0
+1766	relu_24	UNARY	f32	sub_25	f32					0	0	0
+1767	add_143	ADD	f32	relu_24	f32	slice_195	f32			0	0	0
+1768	slice_196	VIEW	f32	mul_146	f32					0	0	0
+1769	sub_26	SUB	f32	add_143	f32	slice_196	f32			0	0	0
+1770	relu_25	UNARY	f32	sub_26	f32					0	0	0
+1771	add_144	ADD	f32	relu_25	f32	slice_196	f32			0	0	0
+1772	slice_197	VIEW	f32	mul_146	f32					0	0	0
+1773	sub_27	SUB	f32	add_144	f32	slice_197	f32			0	0	0
+1774	relu_26	UNARY	f32	sub_27	f32					0	0	0
+1775	add_145	ADD	f32	relu_26	f32	slice_197	f32			0	0	0
+1776	slice_198	VIEW	f32	mul_146	f32					0	0	0
+1777	sub_28	SUB	f32	add_145	f32	slice_198	f32			0	0	0
+1778	relu_27	UNARY	f32	sub_28	f32					0	0	0
+1779	add_146	ADD	f32	relu_27	f32	slice_198	f32			0	0	0
+1780	slice_199	VIEW	f32	mul_146	f32					0	0	0
+1781	sub_29	SUB	f32	add_146	f32	slice_199	f32			0	0	0
+1782	relu_28	UNARY	f32	sub_29	f32					0	0	0
+1783	add_147	ADD	f32	relu_28	f32	slice_199	f32			0	0	0
+1784	slice_200	VIEW	f32	mul_146	f32					0	0	0
+1785	sub_30	SUB	f32	add_147	f32	slice_200	f32			0	0	0
+1786	relu_29	UNARY	f32	sub_30	f32					0	0	0
+1787	add_148	ADD	f32	relu_29	f32	slice_200	f32			0	0	0
+1788	slice_201	VIEW	f32	mul_146	f32					0	0	0
+1789	sub_31	SUB	f32	add_148	f32	slice_201	f32			0	0	0
+1790	relu_30	UNARY	f32	sub_31	f32					0	0	0
+1791	add_149	ADD	f32	relu_30	f32	slice_201	f32			0	0	0
+1792	slice_202	VIEW	f32	mul_146	f32					0	0	0
+1793	sub_32	SUB	f32	add_149	f32	slice_202	f32			0	0	0
+1794	relu_31	UNARY	f32	sub_32	f32					0	0	0
+1795	add_150	ADD	f32	relu_31	f32	slice_202	f32			0	0	0
+1796	sub_33	SUB	f32	add_134	f32	add_150	f32			0	0	0
+1797	const_div_2_arg1 (reshaped)	RESHAPE	f32	const_div_2_arg1	f32					1	0	0
+1798	div_2	DIV	f32	clamp	f32	const_div_2_arg1 (reshaped)	f32			0	0	0
+1799	node_1799	CONCAT	f32	add_134	f32	sub_33	f32			0	0	0
+1800	node_1800	CONCAT	f32	node_1799	f32	div	f32			0	0	0
+1801	node_1801	CONCAT	f32	node_1800	f32	div_2	f32			0	0	0
+1802	cat_56	CONT	f32	node_1801	f32					0	0	0
+1803	select	VIEW	f32	add_118	f32					1	0	0
+1804	node_1804	CONCAT	f32	select	f32	cat_56	f32			0	0	0
+1805	cat_57	CONT	f32	node_1804	f32					0	0	0
+1806	linear_122	MUL_MAT	f32	act_fc1.weight	f16	cat_57	f32			0	0	0
+1807	gelu_29	MAP_CUSTOM2	f32	linear_122	f32	act_fc1.bias	f32			0	0	0
+1808	node_1808	MUL_MAT	f32	act_fc2.weight	q8_0	gelu_29	f32			0	0	0
+1809	linear_123	ADD	f32	node_1808	f32	act_fc2.bias	f32			0	0	0
+1810	output_anchor	RESHAPE	f32	add_119	f32					1	0	0
+1811	output_anchor	RESHAPE	f32	linear_123	f32					1	0	0

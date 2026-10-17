@@ -1,0 +1,26 @@
+# 生产HLS拆分决定与本轮阶段审核
+
+答复`production-source-switch-hls-blocker-20261012`。
+
+**允许拆分，采用Controller caller/shell与既有service独立生成、最终唯一RTL top连接；不再要求单一HLS编译闭包包含完整算术图。** 权威补充为`results/production_hls_partition_contract_20261012.md`，决定ID **D-M003-PRODUCTION-HLS-PARTITION-01**。原13BO/control ABI、四条512bit/depth2私有FIFO及12信号、wire v2/LPV1/LPA1、typed任务、数值和预算保持。工程按本合同连续实现，无新逐次审批。
+
+关键边界：
+
+1. caller保留完整模型任务图、身份/预约/高水位、BEGIN/END及唯一typed退休。非门户engine承接实际算术和BO读写；按家族复用，不按layer/task复制硬件。LOAD/Q/MATRIX/G仍走现四service及唯一持久缓存实例。production caller切断算术fallback编译闭包，不能只加pragma或用空黑盒过生成。
+2. 允许仅层级内部的有界参数/启动/完成接口；沿原typed任务字段冻结共享映射，完整身份/Refs/geometry及model绑定无损。最多一个活动非门户任务、一个请求槽/完成槽，维持原互斥调度；这不是第五compute service或Host接口。BEGIN应答后才启动engine。
+3. store提交量来自实际engine helper，逻辑完成不能冒充物理drained。同一请求的真实master/adapter、WSTRB、R/B、转换器及拒绝事务全部排空后才END终态，caller按既有完整绑定/drained/无scope退休一次。取消保持旧engine与返回的收束能力。
+4. 单个分区只需所用master，最终shell必须核全部13BO及当前八可写bundle的完整路由和原控制offset。不同master复用原逻辑owner前必须排空；不另建物理READY权威或缓存副本。
+
+先做可生成caller加一个实际普通producer，并接真实master→monitor/hub→source lease→Q/fullA；随后补家族与完整模型。registry和模块design/results登记实际分区及生成/连接身份。真实源数值、失败部分提交、END-before-AW/末B/adapter待发、取消/旧返回/恢复是首个生产出口。最终还须当前完整CPU/实际CSim、完整硬件请求、联合资源和性能证据；独立模块生成不等于L1或M004完成。
+
+审核 **R-SM003-PRODUCTION-SOURCE-SWITCH-HLS-20261012** 已写`results/reviews/SM003.md`：
+
+- F5在单全宽标准窗口范围关闭。源码精确核required rows；测试四个独立稀疏rows1场景均END拒绝/PUBLISH拒绝/失效清理，随后四个完整rows16及真实Q回归通过。不要把四个独立失败owner测试描述成同一owner依次成功接收四个稀疏贡献；修复使首个短贡献即失败。尾行公式已核，未新增合法tail运行声明。
+- `generated_store_monitor_07`接纳END先于首AW的字节守恒门控与原受控fence/取消恢复。取消最后在接收终态前撤销，TB仍驱动写流和adapter_pending_zero；**未闭合production generated adapter真实因果**。
+- 两项GATE→普通Q无复位切换接纳各自row-space2/K256及B2 batch1/row48 TOKEN/K1024范围；仍是TB query grant，非同runtime持久hub全身份验收，也没有普通→GATE反向切换结论。八组gold重复边界保留。
+- 八项PASS独立核268组current/frozen/pair一致；913项manifest/receipt引用中909匹配，4项为已披露live guard漂移。原guard SHA在HLS_04的冻结副本仍匹配，历史产物未改，不追认旧live路径为当前一致，也不补跑。Controller_31复用原PASS，_32不代签当前。
+- 七次HLS核779/779 frozen/pair、769/779 current；_05的115/115 current一致，66项所选receipt依据全匹配。_05/_06/_07皆相同13,223,459 Compile/Link instructions、无候选RTL，按原120s可观察进度保护停止。保留guard FAIL/未生成，称当前profile在原约束下不可用；不推断编译器永久死锁或硬件不可实现。_04旧日志guard误触发仍单列。
+
+HLS artifact高水位分类测试只签分类器；产物增长并非硬件进展/完成证明。后续冻结实际执行guard/helper副本，不直接依赖可变live脚本。各分区按原static/pilot/RTL帽串行运行，停止无区分重试；无新增OOC/P&R/上板或G预算。下一次full使用当前pilot成本判定的旧要求保持，5172s组合profile不重启。
+
+C008/C010仍待完整验证，F5子项关闭；C009拆分方向已明确，生产实现待完成；C012既往基础错误处理限定关闭保持。L0/L1 PARTIAL、L2–L5 NOT_RUN，M003/M004未完成。总目标仍完整Laya加速器且尽量高性能，无固定门槛。

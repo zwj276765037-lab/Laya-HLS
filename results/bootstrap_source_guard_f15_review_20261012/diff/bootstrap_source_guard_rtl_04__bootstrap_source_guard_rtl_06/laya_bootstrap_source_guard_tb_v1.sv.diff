@@ -1,0 +1,107 @@
+--- bootstrap_source_guard_rtl_04/laya_bootstrap_source_guard_tb_v1.sv
++++ bootstrap_source_guard_rtl_06/laya_bootstrap_source_guard_tb_v1.sv
+@@ -213,6 +213,34 @@
+     s_axi_awlen=0;s_axi_wlast=1;
+   endtask
+ 
++  // Keep VALID until the real request handshake. The source and old scope
++  // must survive the rejection, including backpressure on its response.
++  task automatic reject_source_mutation(input logic [8191:0] value,
++                                        input bit expected_scope);
++    integer events_before,terminal_before,aw_before;
++    logic [4095:0] held;
++    events_before=accepted_events;terminal_before=terminal_tasks;aw_before=forwarded_aw;
++    request=value;request_valid=1;
++    do begin @(posedge clk);end while(!request_ready);
++    #1;@(negedge clk);request_valid=0;
++    while(!response_valid)tick();
++    held=response;
++    if(response[RESPONSE_STATUS*8+:16]!=E_BUFFER ||
++       response[RESPONSE_FLAGS*8+:8]!=(expected_scope ? 2 : 0) ||
++       response[RESPONSE_IDENTITY*8+:672]!=value[IDENTITY*8+:672] ||
++       response[RESPONSE_TARGET0*8+:64]!=value[DESCRIPTOR0*8+:64])
++      $fatal(1,"conflict rejection lost binding or claimed drain");
++    repeat(12)begin
++      if(request_ready || !response_valid || response!==held || !guard_active ||
++         !guard_match || scope_active!=expected_scope ||
++         accepted_events!=events_before+1 || terminal_tasks!=terminal_before ||
++         forwarded_aw!=aw_before)
++        $fatal(1,"source conflict changed old state under response backpressure");
++      tick();
++    end
++    response_ready=1;tick();response_ready=0;tick();
++  endtask
++
+   logic guard_active,proof_valid,guard_match,base_change_ready,guard_error;
+   logic [6143:0] guard_key;
+   logic action_valid=0,action_ready,producer_valid=0,producer_ready;
+@@ -400,26 +428,43 @@
+     while(!response_valid)tick();
+     if(response[RESPONSE_STATUS*8+:16]!=0)$fatal(1,"guard blocked legitimate destination CLAIM");
+     response_ready=1;tick();response_ready=0;tick();
+-    load_packet("invalidate",request);request_valid=1;#1;
++    load_packet("invalidate",packet);reject_source_mutation(packet,0);
++    packet[ACTION*8+:16]=CLAIM;packet[608*8+:32]=2;
++    reject_source_mutation(packet,0);
++    // Same-role overlap and a different role cannot acquire a write scope.
++    load_packet("claim",packet);packet[612*8+:8]=3;
++    reject_source_mutation(packet,0);
++    packet[636*8+:8]=7;reject_source_mutation(packet,0);
++    load_packet("claim",packet);packet[64*8+:64]=1102;
++    reject_source_mutation(packet,0);
++    // A held conflict cannot monopolize the portal ahead of old task cleanup.
++    send_event("guard_begin");
++    drive_burst(BO_BASE+262144,64,0,0,1);
++    load_packet("invalidate",packet);reject_source_mutation(packet,1);
++    if(!scope_active || retired_b!=64 || monitor_drained || !guard_match)
++      $fatal(1,"conflict destroyed partial task/final B binding");
++    load_packet("guard_end_partial",packet);request=packet;request_valid=1;#1;
+     repeat(12)begin
+-      if(request_ready || !guard_active || !guard_match || accepted_events!=11)
+-        $fatal(1,"source INVALIDATE passed exclusion ready=%0d guard=%0d match=%0d events=%0d active=%0d published=%0d",request_ready,guard_active,guard_match,accepted_events,active_owners,published_owners);
++      if(request_ready || !scope_active || !guard_active || !guard_match)
++        $fatal(1,"partial END bypassed final B/source protection");
+       tick();
+     end
+-    request_valid=0;
+-    request=packet;request[ACTION*8+:16]=1;request[608*8+:32]=2;request_valid=1;#1;
++    s_axi_bready=1;tick();s_axi_bready=0;
++    do begin @(posedge clk);end while(!request_ready);
++    #1;@(negedge clk);request_valid=0;
++    while(!response_valid)tick();
++    if(response[RESPONSE_STATUS*8+:16]!=E_PROTOCOL ||
++       response[RESPONSE_DETAIL*8+:32]!=32'h0700000e ||
++       response[RESPONSE_FLAGS*8+:8]!=1 ||
++       response[RESPONSE_OBSERVED0*8+:64]!=4096 ||
++       scope_active || terminal_tasks!=5 || retired_b!=65 || !guard_match)
++      $fatal(1,"old partial END did not preserve first error/retire once");
+     repeat(12)begin
+-      if(request_ready || !guard_match)$fatal(1,"source epoch replacement passed exclusion");
++      if(!response_valid || !guard_active || !guard_match || terminal_tasks!=5)
++        $fatal(1,"held old END response lost source/typed binding");
+       tick();
+     end
+-    request_valid=0;
+-    // A different buffer at the same physical source bytes is also excluded.
+-    request=packet;request[ACTION*8+:16]=1;request[612*8+:8]=3;request_valid=1;#1;
+-    repeat(12)begin
+-      if(request_ready || !guard_match)$fatal(1,"overlapping alias CLAIM passed exclusion");
+-      tick();
+-    end
+-    request_valid=0;
++    response_ready=1;tick();response_ready=0;tick();
+     load_packet("guard_action",packet);action_key=packet[0+:4096];action_valid=1;#1;
+     if(!action_ready)$fatal(1,"bound action rejected");
+     tick();action_valid=0;
+@@ -488,9 +533,9 @@
+       $fatal(1,"cancel safe consumption did not finish hub cleanup");
+     normal_query(E_BUFFER,3);
+     if(guard_active || producer_occupancy || action_occupancy || source_peer_ar!=1 || source_peer_r!=64 ||
+-       accepted_events!=12 || terminal_tasks!=4 || snapshot_sequence_high_water!=next_snapshot-1)
++       accepted_events!=20 || terminal_tasks!=5 || snapshot_sequence_high_water!=next_snapshot-1)
+       $fatal(1,"source guard final highwater/debt/owner/FIFO mismatch");
+-    $display("FULL_CURRENT_BOOTSTRAP_SOURCE_GUARD_RTL_PASS cycles=%0d source_AR=1 source_R=64 read_debt=0 source_mutation_alias_epoch_blocked=1 live_base_recheck=1 producer_identity_epoch_rejected=1 action_key_nonterminal_retained=1 depth2_tail2_tail1=1 safe_error_consumed_release=1 prestart_cancel_retained=1 readonly_snapshot=1 controlled_keys_completion=1 no_generated_producer_executor=1",cycles);
++    $display("FULL_CURRENT_BOOTSTRAP_SOURCE_GUARD_RTL_PASS cycles=%0d source_AR=1 source_R=64 read_debt=0 source_mutation_alias_epoch_rejected=1 different_role_rejected=1 conflict_response_held=1 old_partial_END_after_conflict=1 typed5_once=1 live_base_recheck=1 producer_identity_epoch_rejected=1 action_key_nonterminal_retained=1 depth2_tail2_tail1=1 safe_error_consumed_release=1 prestart_cancel_retained=1 readonly_snapshot=1 controlled_keys_completion=1 no_generated_producer_executor=1",cycles);
+     $finish;
+   end
+ endmodule

@@ -1,0 +1,461 @@
+
+
+================================================================
+== Vitis HLS Report for 'accept_completion'
+================================================================
+* Date:           Tue Oct 13 11:26:47 2026
+
+* Version:        2025.2 (Build 6295257 on Nov 14 2025)
+* Project:        work
+* Solution:       hls (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  6.67 ns|  4.129 ns|     1.80 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+----------+----------+-----+-----+---------+
+    |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
+    |   min   |   max   |    min   |    max   | min | max |   Type  |
+    +---------+---------+----------+----------+-----+-----+---------+
+    |        1|      288|  6.667 ns|  1.920 us|    1|  288|       no|
+    +---------+---------+----------+----------+-----+-----+---------+
+
+    + Detail: 
+        * Instance: 
+        +-------------------------+--------------+---------+---------+-----------+----------+-----+-----+---------+
+        |                         |              |  Latency (cycles) |  Latency (absolute)  |  Interval | Pipeline|
+        |         Instance        |    Module    |   min   |   max   |    min    |    max   | min | max |   Type  |
+        +-------------------------+--------------+---------+---------+-----------+----------+-----+-----+---------+
+        |grp_validate_1_1_fu_927  |validate_1_1  |        2|      138|  13.334 ns|  0.920 us|    2|  138|       no|
+        |grp_same_key_fu_967      |same_key      |        1|      137|   6.667 ns|  0.913 us|    1|  137|       no|
+        +-------------------------+--------------+---------+---------+-----------+----------+-----+-----+---------+
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|      768|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     1|      120|     1925|    -|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|      881|    -|
+|Register             |        -|     -|      264|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     1|      384|     3574|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +---------------------------+----------------------+---------+----+----+------+-----+
+    |          Instance         |        Module        | BRAM_18K| DSP| FF |  LUT | URAM|
+    +---------------------------+----------------------+---------+----+----+------+-----+
+    |mul_13ns_16ns_29_1_1_U754  |mul_13ns_16ns_29_1_1  |        0|   1|   0|     5|    0|
+    |grp_same_key_fu_967        |same_key              |        0|   0|  57|   638|    0|
+    |grp_validate_1_1_fu_927    |validate_1_1          |        0|   0|  63|  1282|    0|
+    +---------------------------+----------------------+---------+----+----+------+-----+
+    |Total                      |                      |        0|   1| 120|  1925|    0|
+    +---------------------------+----------------------+---------+----+----+------+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +---------------------------------+----------+----+---+----+------------+------------+
+    |          Variable Name          | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +---------------------------------+----------+----+---+----+------------+------------+
+    |add_ln105_1_fu_1311_p2           |         +|   0|  0|  39|          32|           2|
+    |add_ln105_fu_1279_p2             |         +|   0|  0|  24|          17|           4|
+    |add_ln108_fu_1332_p2             |         +|   0|  0|  32|          32|          32|
+    |add_ln112_fu_1347_p2             |         +|   0|  0|  71|          64|           1|
+    |add_ln117_fu_1362_p2             |         +|   0|  0|  15|           8|           1|
+    |sub_ln108_fu_1327_p2             |         -|   0|  0|  32|           1|          32|
+    |and_ln105_fu_1321_p2             |       and|   0|  0|   2|           1|           1|
+    |and_ln76_fu_1034_p2              |       and|   0|  0|   2|           1|           1|
+    |ap_block_state4_on_subcall_done  |       and|   0|  0|   2|           1|           1|
+    |icmp_ln100_fu_1235_p2            |      icmp|   0|  0|  23|          16|          16|
+    |icmp_ln101_fu_1240_p2            |      icmp|   0|  0|  23|          16|          11|
+    |icmp_ln102_fu_1245_p2            |      icmp|   0|  0|  15|           8|           1|
+    |icmp_ln103_fu_1305_p2            |      icmp|   0|  0|  36|          29|          29|
+    |icmp_ln105_fu_1316_p2            |      icmp|   0|  0|  39|          32|          32|
+    |icmp_ln108_fu_1337_p2            |      icmp|   0|  0|  39|          32|          32|
+    |icmp_ln112_fu_1353_p2            |      icmp|   0|  0|  71|          64|          64|
+    |icmp_ln77_fu_1029_p2             |      icmp|   0|  0|   9|           2|           2|
+    |icmp_ln80_fu_1056_p2             |      icmp|   0|  0|  12|           4|           4|
+    |icmp_ln86_fu_1099_p2             |      icmp|   0|  0|  13|           6|           6|
+    |icmp_ln88_fu_1113_p2             |      icmp|   0|  0|  15|           8|           8|
+    |icmp_ln89_fu_1122_p2             |      icmp|   0|  0|  71|          64|          64|
+    |icmp_ln91_26_fu_1156_p2          |      icmp|   0|  0|  15|           8|           1|
+    |icmp_ln91_fu_1147_p2             |      icmp|   0|  0|  15|           8|           8|
+    |icmp_ln94_fu_1170_p2             |      icmp|   0|  0|  15|           8|           8|
+    |icmp_ln95_fu_1195_p2             |      icmp|   0|  0|  15|           8|           8|
+    |icmp_ln96_fu_1200_p2             |      icmp|   0|  0|  15|           8|           2|
+    |icmp_ln97_fu_1215_p2             |      icmp|   0|  0|  15|           8|           8|
+    |icmp_ln99_fu_1220_p2             |      icmp|   0|  0|  23|          16|           1|
+    |icmp_ln9_9_fu_1071_p2            |      icmp|   0|  0|  23|          16|           1|
+    |icmp_ln9_fu_1062_p2              |      icmp|   0|  0|  23|          16|           1|
+    |or_ln100_1_fu_1256_p2            |        or|   0|  0|   2|           1|           1|
+    |or_ln100_fu_1250_p2              |        or|   0|  0|   2|           1|           1|
+    |or_ln86_1_fu_1133_p2             |        or|   0|  0|   2|           1|           1|
+    |or_ln86_fu_1127_p2               |        or|   0|  0|   2|           1|           1|
+    |or_ln91_1_fu_1175_p2             |        or|   0|  0|   2|           1|           1|
+    |or_ln91_2_fu_1181_p2             |        or|   0|  0|   2|           1|           1|
+    |or_ln91_fu_1152_p2               |        or|   0|  0|   8|           8|           8|
+    |or_ln95_fu_1205_p2               |        or|   0|  0|   2|           1|           1|
+    |or_ln98_fu_1225_p2               |        or|   0|  0|   2|           1|           1|
+    +---------------------------------+----------+----+---+----+------------+------------+
+    |Total                            |          |   0|  0| 768|         550|         398|
+    +---------------------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +-------------------------------------------------------------+----+-----------+-----+-----------+
+    |                             Name                            | LUT| Input Size| Bits| Total Bits|
+    +-------------------------------------------------------------+----+-----------+-----+-----------+
+    |agg_result_01_2_reg_857                                      |   9|          2|   16|         32|
+    |agg_result_12_2_reg_880                                      |  14|          3|   32|         96|
+    |agg_result_23_2_reg_904                                      |   9|          2|   64|        128|
+    |ap_NS_fsm                                                    |  65|         15|    1|         15|
+    |ap_return_0                                                  |   9|          2|   16|         32|
+    |ap_return_1                                                  |   9|          2|   32|         64|
+    |ap_return_2                                                  |   9|          2|   64|        128|
+    |completion_identity_build_tag_address0                       |  14|          3|    4|         12|
+    |completion_identity_build_tag_ce0                            |  14|          3|    1|          3|
+    |completion_identity_layout_tag_address0                      |  14|          3|    4|         12|
+    |completion_identity_layout_tag_ce0                           |  14|          3|    1|          3|
+    |completion_identity_model_tag_address0                       |  14|          3|    4|         12|
+    |completion_identity_model_tag_ce0                            |  14|          3|    1|          3|
+    |completion_identity_numeric_tag_address0                     |  14|          3|    4|         12|
+    |completion_identity_numeric_tag_ce0                          |  14|          3|    1|          3|
+    |s_program_graph_action_active_o                              |   9|          2|    1|          2|
+    |s_program_graph_first_error_code_o                           |   9|          2|   16|         32|
+    |s_program_graph_pc_o                                         |   9|          2|    8|         16|
+    |s_program_graph_pending_identity_B_o                         |   9|          2|   16|         32|
+    |s_program_graph_pending_identity_S_o                         |   9|          2|   16|         32|
+    |s_program_graph_pending_identity_build_tag_address0          |   9|          2|    4|          8|
+    |s_program_graph_pending_identity_build_tag_address0_local    |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_build_tag_address1_local    |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_build_tag_ce0               |   9|          2|    1|          2|
+    |s_program_graph_pending_identity_generation_o                |   9|          2|   64|        128|
+    |s_program_graph_pending_identity_layout_tag_address0         |   9|          2|    4|          8|
+    |s_program_graph_pending_identity_layout_tag_address0_local   |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_layout_tag_address1_local   |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_layout_tag_ce0              |   9|          2|    1|          2|
+    |s_program_graph_pending_identity_model_tag_address0          |   9|          2|    4|          8|
+    |s_program_graph_pending_identity_model_tag_address0_local    |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_model_tag_address1_local    |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_model_tag_ce0               |   9|          2|    1|          2|
+    |s_program_graph_pending_identity_numeric_tag_address0        |   9|          2|    4|          8|
+    |s_program_graph_pending_identity_numeric_tag_address0_local  |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_numeric_tag_address1_local  |  49|          9|    4|         36|
+    |s_program_graph_pending_identity_numeric_tag_ce0             |   9|          2|    1|          2|
+    |s_program_graph_pending_identity_request_id_o                |   9|          2|   64|        128|
+    |s_program_graph_pending_kind_o                               |   9|          2|    2|          4|
+    |s_program_graph_pending_layer_o                              |   9|          2|    2|          4|
+    |s_program_graph_pending_op_o                                 |   9|          2|    8|         16|
+    |s_program_graph_pending_ordinal_o                            |   9|          2|   64|        128|
+    |s_program_graph_pending_pc_o                                 |   9|          2|    8|         16|
+    |s_program_graph_pending_source_owner_row_space_o             |   9|          2|    8|         16|
+    |s_program_graph_pending_stage_o                              |   9|          2|    2|          4|
+    |s_program_graph_pending_target_buffer_o                      |   9|          2|    2|          4|
+    |s_program_graph_pending_target_slot_o                        |   9|          2|    1|          2|
+    |s_program_graph_pending_target_slot_version_o                |   9|          2|   64|        128|
+    |s_program_graph_slot_valid_address0_local                    |  14|          3|    5|         15|
+    |s_program_graph_slot_version_address0_local                  |  14|          3|    5|         15|
+    +-------------------------------------------------------------+----+-----------+-----+-----------+
+    |Total                                                        | 881|        180|  653|       1605|
+    +-------------------------------------------------------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +--------------------------------------------+----+----+-----+-----------+
+    |                    Name                    | FF | LUT| Bits| Const Bits|
+    +--------------------------------------------+----+----+-----+-----------+
+    |agg_result_01_2_reg_857                     |  16|   0|   16|          0|
+    |agg_result_12_2_reg_880                     |  32|   0|   32|          0|
+    |agg_result_23_2_reg_904                     |  64|   0|   64|          0|
+    |ap_CS_fsm                                   |  14|   0|   14|          0|
+    |ap_return_0_preg                            |  16|   0|   16|          0|
+    |ap_return_1_preg                            |  32|   0|   32|          0|
+    |ap_return_2_preg                            |  64|   0|   64|          0|
+    |grp_same_key_fu_967_ap_start_reg            |   1|   0|    1|          0|
+    |grp_validate_1_1_fu_927_ap_start_reg        |   1|   0|    1|          0|
+    |icmp_ln77_reg_1759                          |   1|   0|    1|          0|
+    |icmp_ln9_reg_1770                           |   1|   0|    1|          0|
+    |s_program_graph_slot_valid_addr_reg_1815    |   5|   0|    5|          0|
+    |s_program_graph_slot_valid_load_reg_1820    |   1|   0|    1|          0|
+    |s_program_graph_slot_version_addr_reg_1824  |   5|   0|    5|          0|
+    |trunc_ln72_reg_1744                         |   2|   0|    2|          0|
+    |valid_code_reg_1755                         |   1|   0|    1|          0|
+    |zext_ln111_reg_1798                         |   8|   0|   64|         56|
+    +--------------------------------------------+----+----+-----+-----------+
+    |Total                                       | 264|   0|  320|         56|
+    +--------------------------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++---------------------------------------------------------+-----+-----+------------+------------------------------------------------+--------------+
+|                        RTL Ports                        | Dir | Bits|  Protocol  |                  Source Object                 |    C Type    |
++---------------------------------------------------------+-----+-----+------------+------------------------------------------------+--------------+
+|ap_clk                                                   |   in|    1|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_rst                                                   |   in|    1|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_start                                                 |   in|    1|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_done                                                  |  out|    1|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_idle                                                  |  out|    1|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_ready                                                 |  out|    1|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_return_0                                              |  out|   16|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_return_1                                              |  out|   32|  ap_ctrl_hs|                               accept_completion|  return value|
+|ap_return_2                                              |  out|   64|  ap_ctrl_hs|                               accept_completion|  return value|
+|completion_kind_val2                                     |   in|    8|     ap_none|                            completion_kind_val2|        scalar|
+|completion_pc_val3                                       |   in|    8|     ap_none|                              completion_pc_val3|        scalar|
+|completion_op_val4                                       |   in|    8|     ap_none|                              completion_op_val4|        scalar|
+|completion_stage_val5                                    |   in|    8|     ap_none|                           completion_stage_val5|        scalar|
+|completion_layer_val6                                    |   in|    8|     ap_none|                           completion_layer_val6|        scalar|
+|completion_flags_val                                     |   in|   32|     ap_none|                            completion_flags_val|        scalar|
+|completion_ordinal_val9                                  |   in|   64|     ap_none|                         completion_ordinal_val9|        scalar|
+|completion_identity_request_id_val11                     |   in|   64|     ap_none|            completion_identity_request_id_val11|        scalar|
+|completion_identity_generation_val13                     |   in|   64|     ap_none|            completion_identity_generation_val13|        scalar|
+|completion_identity_B_val15                              |   in|   16|     ap_none|                     completion_identity_B_val15|        scalar|
+|completion_identity_S_val17                              |   in|   16|     ap_none|                     completion_identity_S_val17|        scalar|
+|completion_identity_model_tag_address0                   |  out|    4|   ap_memory|                   completion_identity_model_tag|         array|
+|completion_identity_model_tag_ce0                        |  out|    1|   ap_memory|                   completion_identity_model_tag|         array|
+|completion_identity_model_tag_q0                         |   in|    8|   ap_memory|                   completion_identity_model_tag|         array|
+|completion_identity_numeric_tag_address0                 |  out|    4|   ap_memory|                 completion_identity_numeric_tag|         array|
+|completion_identity_numeric_tag_ce0                      |  out|    1|   ap_memory|                 completion_identity_numeric_tag|         array|
+|completion_identity_numeric_tag_q0                       |   in|    8|   ap_memory|                 completion_identity_numeric_tag|         array|
+|completion_identity_layout_tag_address0                  |  out|    4|   ap_memory|                  completion_identity_layout_tag|         array|
+|completion_identity_layout_tag_ce0                       |  out|    1|   ap_memory|                  completion_identity_layout_tag|         array|
+|completion_identity_layout_tag_q0                        |   in|    8|   ap_memory|                  completion_identity_layout_tag|         array|
+|completion_identity_build_tag_address0                   |  out|    4|   ap_memory|                   completion_identity_build_tag|         array|
+|completion_identity_build_tag_ce0                        |  out|    1|   ap_memory|                   completion_identity_build_tag|         array|
+|completion_identity_build_tag_q0                         |   in|    8|   ap_memory|                   completion_identity_build_tag|         array|
+|completion_result_code_val                               |   in|   16|     ap_none|                      completion_result_code_val|        scalar|
+|completion_result_detail_val                             |   in|   32|     ap_none|                    completion_result_detail_val|        scalar|
+|completion_result_bad_element_val                        |   in|   64|     ap_none|               completion_result_bad_element_val|        scalar|
+|completion_first_task_id_val                             |   in|   32|     ap_none|                    completion_first_task_id_val|        scalar|
+|completion_last_task_id_val                              |   in|   32|     ap_none|                     completion_last_task_id_val|        scalar|
+|completion_retired_tasks_val                             |   in|   16|     ap_none|                    completion_retired_tasks_val|        scalar|
+|completion_slot_delta_slot_val                           |   in|    8|     ap_none|                  completion_slot_delta_slot_val|        scalar|
+|completion_slot_delta_version_val                        |   in|   64|     ap_none|               completion_slot_delta_version_val|        scalar|
+|completion_slot_delta_owner_ref_id_val                   |   in|    8|     ap_none|          completion_slot_delta_owner_ref_id_val|        scalar|
+|completion_slot_delta_owner_ref_bank_val                 |   in|    8|     ap_none|        completion_slot_delta_owner_ref_bank_val|        scalar|
+|completion_slot_delta_owner_ref_epoch_val                |   in|   32|     ap_none|       completion_slot_delta_owner_ref_epoch_val|        scalar|
+|completion_slot_delta_owner_region_val                   |   in|    8|     ap_none|          completion_slot_delta_owner_region_val|        scalar|
+|completion_slot_delta_owner_stage_val                    |   in|    8|     ap_none|           completion_slot_delta_owner_stage_val|        scalar|
+|completion_slot_delta_owner_layer_val                    |   in|    8|     ap_none|           completion_slot_delta_owner_layer_val|        scalar|
+|completion_slot_delta_owner_batch_val                    |   in|    8|     ap_none|           completion_slot_delta_owner_batch_val|        scalar|
+|completion_slot_delta_owner_row_space_val                |   in|    8|     ap_none|       completion_slot_delta_owner_row_space_val|        scalar|
+|completion_slot_delta_owner_row0_val                     |   in|   16|     ap_none|            completion_slot_delta_owner_row0_val|        scalar|
+|completion_slot_delta_owner_rows_val                     |   in|   16|     ap_none|            completion_slot_delta_owner_rows_val|        scalar|
+|completion_slot_delta_owner_width_val                    |   in|   16|     ap_none|           completion_slot_delta_owner_width_val|        scalar|
+|completion_slot_delta_owner_content_val                  |   in|    8|     ap_none|         completion_slot_delta_owner_content_val|        scalar|
+|s_program_graph_request_active                           |   in|    1|     ap_none|                  s_program_graph_request_active|       pointer|
+|s_program_graph_action_active_i                          |   in|    1|     ap_ovld|                   s_program_graph_action_active|       pointer|
+|s_program_graph_action_active_o                          |  out|    1|     ap_ovld|                   s_program_graph_action_active|       pointer|
+|s_program_graph_action_active_o_ap_vld                   |  out|    1|     ap_ovld|                   s_program_graph_action_active|       pointer|
+|s_program_graph_pending_kind_i                           |   in|    2|     ap_ovld|                    s_program_graph_pending_kind|       pointer|
+|s_program_graph_pending_kind_o                           |  out|    2|     ap_ovld|                    s_program_graph_pending_kind|       pointer|
+|s_program_graph_pending_kind_o_ap_vld                    |  out|    1|     ap_ovld|                    s_program_graph_pending_kind|       pointer|
+|s_program_graph_pending_pc_i                             |   in|    8|     ap_ovld|                      s_program_graph_pending_pc|       pointer|
+|s_program_graph_pending_pc_o                             |  out|    8|     ap_ovld|                      s_program_graph_pending_pc|       pointer|
+|s_program_graph_pending_pc_o_ap_vld                      |  out|    1|     ap_ovld|                      s_program_graph_pending_pc|       pointer|
+|s_program_graph_pending_op_i                             |   in|    8|     ap_ovld|                      s_program_graph_pending_op|       pointer|
+|s_program_graph_pending_op_o                             |  out|    8|     ap_ovld|                      s_program_graph_pending_op|       pointer|
+|s_program_graph_pending_op_o_ap_vld                      |  out|    1|     ap_ovld|                      s_program_graph_pending_op|       pointer|
+|s_program_graph_pending_stage_i                          |   in|    2|     ap_ovld|                   s_program_graph_pending_stage|       pointer|
+|s_program_graph_pending_stage_o                          |  out|    2|     ap_ovld|                   s_program_graph_pending_stage|       pointer|
+|s_program_graph_pending_stage_o_ap_vld                   |  out|    1|     ap_ovld|                   s_program_graph_pending_stage|       pointer|
+|s_program_graph_pending_layer_i                          |   in|    2|     ap_ovld|                   s_program_graph_pending_layer|       pointer|
+|s_program_graph_pending_layer_o                          |  out|    2|     ap_ovld|                   s_program_graph_pending_layer|       pointer|
+|s_program_graph_pending_layer_o_ap_vld                   |  out|    1|     ap_ovld|                   s_program_graph_pending_layer|       pointer|
+|s_program_graph_pending_ordinal_i                        |   in|   64|     ap_ovld|                 s_program_graph_pending_ordinal|       pointer|
+|s_program_graph_pending_ordinal_o                        |  out|   64|     ap_ovld|                 s_program_graph_pending_ordinal|       pointer|
+|s_program_graph_pending_ordinal_o_ap_vld                 |  out|    1|     ap_ovld|                 s_program_graph_pending_ordinal|       pointer|
+|s_program_graph_pending_identity_request_id_i            |   in|   64|     ap_ovld|     s_program_graph_pending_identity_request_id|       pointer|
+|s_program_graph_pending_identity_request_id_o            |  out|   64|     ap_ovld|     s_program_graph_pending_identity_request_id|       pointer|
+|s_program_graph_pending_identity_request_id_o_ap_vld     |  out|    1|     ap_ovld|     s_program_graph_pending_identity_request_id|       pointer|
+|s_program_graph_pending_identity_generation_i            |   in|   64|     ap_ovld|     s_program_graph_pending_identity_generation|       pointer|
+|s_program_graph_pending_identity_generation_o            |  out|   64|     ap_ovld|     s_program_graph_pending_identity_generation|       pointer|
+|s_program_graph_pending_identity_generation_o_ap_vld     |  out|    1|     ap_ovld|     s_program_graph_pending_identity_generation|       pointer|
+|s_program_graph_pending_identity_B_i                     |   in|   16|     ap_ovld|              s_program_graph_pending_identity_B|       pointer|
+|s_program_graph_pending_identity_B_o                     |  out|   16|     ap_ovld|              s_program_graph_pending_identity_B|       pointer|
+|s_program_graph_pending_identity_B_o_ap_vld              |  out|    1|     ap_ovld|              s_program_graph_pending_identity_B|       pointer|
+|s_program_graph_pending_identity_S_i                     |   in|   16|     ap_ovld|              s_program_graph_pending_identity_S|       pointer|
+|s_program_graph_pending_identity_S_o                     |  out|   16|     ap_ovld|              s_program_graph_pending_identity_S|       pointer|
+|s_program_graph_pending_identity_S_o_ap_vld              |  out|    1|     ap_ovld|              s_program_graph_pending_identity_S|       pointer|
+|s_program_graph_pending_identity_model_tag_address0      |  out|    4|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_ce0           |  out|    1|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_we0           |  out|    1|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_d0            |  out|    8|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_q0            |   in|    8|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_address1      |  out|    4|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_ce1           |  out|    1|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_we1           |  out|    1|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_model_tag_d1            |  out|    8|   ap_memory|      s_program_graph_pending_identity_model_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_address0    |  out|    4|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_ce0         |  out|    1|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_we0         |  out|    1|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_d0          |  out|    8|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_q0          |   in|    8|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_address1    |  out|    4|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_ce1         |  out|    1|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_we1         |  out|    1|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_numeric_tag_d1          |  out|    8|   ap_memory|    s_program_graph_pending_identity_numeric_tag|         array|
+|s_program_graph_pending_identity_layout_tag_address0     |  out|    4|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_ce0          |  out|    1|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_we0          |  out|    1|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_d0           |  out|    8|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_q0           |   in|    8|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_address1     |  out|    4|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_ce1          |  out|    1|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_we1          |  out|    1|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_layout_tag_d1           |  out|    8|   ap_memory|     s_program_graph_pending_identity_layout_tag|         array|
+|s_program_graph_pending_identity_build_tag_address0      |  out|    4|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_ce0           |  out|    1|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_we0           |  out|    1|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_d0            |  out|    8|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_q0            |   in|    8|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_address1      |  out|    4|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_ce1           |  out|    1|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_we1           |  out|    1|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_identity_build_tag_d1            |  out|    8|   ap_memory|      s_program_graph_pending_identity_build_tag|         array|
+|s_program_graph_pending_target_slot_i                    |   in|    1|     ap_ovld|             s_program_graph_pending_target_slot|       pointer|
+|s_program_graph_pending_target_slot_o                    |  out|    1|     ap_ovld|             s_program_graph_pending_target_slot|       pointer|
+|s_program_graph_pending_target_slot_o_ap_vld             |  out|    1|     ap_ovld|             s_program_graph_pending_target_slot|       pointer|
+|s_program_graph_pending_target_slot_version_i            |   in|   64|     ap_ovld|     s_program_graph_pending_target_slot_version|       pointer|
+|s_program_graph_pending_target_slot_version_o            |  out|   64|     ap_ovld|     s_program_graph_pending_target_slot_version|       pointer|
+|s_program_graph_pending_target_slot_version_o_ap_vld     |  out|    1|     ap_ovld|     s_program_graph_pending_target_slot_version|       pointer|
+|s_program_graph_pending_target_buffer_i                  |   in|    2|     ap_ovld|           s_program_graph_pending_target_buffer|       pointer|
+|s_program_graph_pending_target_buffer_o                  |  out|    2|     ap_ovld|           s_program_graph_pending_target_buffer|       pointer|
+|s_program_graph_pending_target_buffer_o_ap_vld           |  out|    1|     ap_ovld|           s_program_graph_pending_target_buffer|       pointer|
+|s_program_graph_pending_source_owner_row_space_i         |   in|    8|     ap_ovld|  s_program_graph_pending_source_owner_row_space|       pointer|
+|s_program_graph_pending_source_owner_row_space_o         |  out|    8|     ap_ovld|  s_program_graph_pending_source_owner_row_space|       pointer|
+|s_program_graph_pending_source_owner_row_space_o_ap_vld  |  out|    1|     ap_ovld|  s_program_graph_pending_source_owner_row_space|       pointer|
+|s_program_graph_slot_valid_address0                      |  out|    5|   ap_memory|                      s_program_graph_slot_valid|         array|
+|s_program_graph_slot_valid_ce0                           |  out|    1|   ap_memory|                      s_program_graph_slot_valid|         array|
+|s_program_graph_slot_valid_we0                           |  out|    1|   ap_memory|                      s_program_graph_slot_valid|         array|
+|s_program_graph_slot_valid_d0                            |  out|    1|   ap_memory|                      s_program_graph_slot_valid|         array|
+|s_program_graph_slot_valid_q0                            |   in|    1|   ap_memory|                      s_program_graph_slot_valid|         array|
+|s_program_graph_slot_version_address0                    |  out|    5|   ap_memory|                    s_program_graph_slot_version|         array|
+|s_program_graph_slot_version_ce0                         |  out|    1|   ap_memory|                    s_program_graph_slot_version|         array|
+|s_program_graph_slot_version_we0                         |  out|    1|   ap_memory|                    s_program_graph_slot_version|         array|
+|s_program_graph_slot_version_d0                          |  out|   64|   ap_memory|                    s_program_graph_slot_version|         array|
+|s_program_graph_slot_version_q0                          |   in|   64|   ap_memory|                    s_program_graph_slot_version|         array|
+|s_program_graph_slot_owner_ref_id_address0               |  out|    5|   ap_memory|               s_program_graph_slot_owner_ref_id|         array|
+|s_program_graph_slot_owner_ref_id_ce0                    |  out|    1|   ap_memory|               s_program_graph_slot_owner_ref_id|         array|
+|s_program_graph_slot_owner_ref_id_we0                    |  out|    1|   ap_memory|               s_program_graph_slot_owner_ref_id|         array|
+|s_program_graph_slot_owner_ref_id_d0                     |  out|    8|   ap_memory|               s_program_graph_slot_owner_ref_id|         array|
+|s_program_graph_slot_owner_ref_bank_address0             |  out|    5|   ap_memory|             s_program_graph_slot_owner_ref_bank|         array|
+|s_program_graph_slot_owner_ref_bank_ce0                  |  out|    1|   ap_memory|             s_program_graph_slot_owner_ref_bank|         array|
+|s_program_graph_slot_owner_ref_bank_we0                  |  out|    1|   ap_memory|             s_program_graph_slot_owner_ref_bank|         array|
+|s_program_graph_slot_owner_ref_bank_d0                   |  out|    8|   ap_memory|             s_program_graph_slot_owner_ref_bank|         array|
+|s_program_graph_slot_owner_ref_epoch_address0            |  out|    5|   ap_memory|            s_program_graph_slot_owner_ref_epoch|         array|
+|s_program_graph_slot_owner_ref_epoch_ce0                 |  out|    1|   ap_memory|            s_program_graph_slot_owner_ref_epoch|         array|
+|s_program_graph_slot_owner_ref_epoch_we0                 |  out|    1|   ap_memory|            s_program_graph_slot_owner_ref_epoch|         array|
+|s_program_graph_slot_owner_ref_epoch_d0                  |  out|   32|   ap_memory|            s_program_graph_slot_owner_ref_epoch|         array|
+|s_program_graph_slot_owner_region_address0               |  out|    5|   ap_memory|               s_program_graph_slot_owner_region|         array|
+|s_program_graph_slot_owner_region_ce0                    |  out|    1|   ap_memory|               s_program_graph_slot_owner_region|         array|
+|s_program_graph_slot_owner_region_we0                    |  out|    1|   ap_memory|               s_program_graph_slot_owner_region|         array|
+|s_program_graph_slot_owner_region_d0                     |  out|    8|   ap_memory|               s_program_graph_slot_owner_region|         array|
+|s_program_graph_slot_owner_stage_address0                |  out|    5|   ap_memory|                s_program_graph_slot_owner_stage|         array|
+|s_program_graph_slot_owner_stage_ce0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_stage|         array|
+|s_program_graph_slot_owner_stage_we0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_stage|         array|
+|s_program_graph_slot_owner_stage_d0                      |  out|    8|   ap_memory|                s_program_graph_slot_owner_stage|         array|
+|s_program_graph_slot_owner_layer_address0                |  out|    5|   ap_memory|                s_program_graph_slot_owner_layer|         array|
+|s_program_graph_slot_owner_layer_ce0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_layer|         array|
+|s_program_graph_slot_owner_layer_we0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_layer|         array|
+|s_program_graph_slot_owner_layer_d0                      |  out|    8|   ap_memory|                s_program_graph_slot_owner_layer|         array|
+|s_program_graph_slot_owner_batch_address0                |  out|    5|   ap_memory|                s_program_graph_slot_owner_batch|         array|
+|s_program_graph_slot_owner_batch_ce0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_batch|         array|
+|s_program_graph_slot_owner_batch_we0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_batch|         array|
+|s_program_graph_slot_owner_batch_d0                      |  out|    8|   ap_memory|                s_program_graph_slot_owner_batch|         array|
+|s_program_graph_slot_owner_row_space_address0            |  out|    5|   ap_memory|            s_program_graph_slot_owner_row_space|         array|
+|s_program_graph_slot_owner_row_space_ce0                 |  out|    1|   ap_memory|            s_program_graph_slot_owner_row_space|         array|
+|s_program_graph_slot_owner_row_space_we0                 |  out|    1|   ap_memory|            s_program_graph_slot_owner_row_space|         array|
+|s_program_graph_slot_owner_row_space_d0                  |  out|    8|   ap_memory|            s_program_graph_slot_owner_row_space|         array|
+|s_program_graph_slot_owner_row0_address0                 |  out|    5|   ap_memory|                 s_program_graph_slot_owner_row0|         array|
+|s_program_graph_slot_owner_row0_ce0                      |  out|    1|   ap_memory|                 s_program_graph_slot_owner_row0|         array|
+|s_program_graph_slot_owner_row0_we0                      |  out|    1|   ap_memory|                 s_program_graph_slot_owner_row0|         array|
+|s_program_graph_slot_owner_row0_d0                       |  out|   16|   ap_memory|                 s_program_graph_slot_owner_row0|         array|
+|s_program_graph_slot_owner_rows_address0                 |  out|    5|   ap_memory|                 s_program_graph_slot_owner_rows|         array|
+|s_program_graph_slot_owner_rows_ce0                      |  out|    1|   ap_memory|                 s_program_graph_slot_owner_rows|         array|
+|s_program_graph_slot_owner_rows_we0                      |  out|    1|   ap_memory|                 s_program_graph_slot_owner_rows|         array|
+|s_program_graph_slot_owner_rows_d0                       |  out|   16|   ap_memory|                 s_program_graph_slot_owner_rows|         array|
+|s_program_graph_slot_owner_width_address0                |  out|    5|   ap_memory|                s_program_graph_slot_owner_width|         array|
+|s_program_graph_slot_owner_width_ce0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_width|         array|
+|s_program_graph_slot_owner_width_we0                     |  out|    1|   ap_memory|                s_program_graph_slot_owner_width|         array|
+|s_program_graph_slot_owner_width_d0                      |  out|   16|   ap_memory|                s_program_graph_slot_owner_width|         array|
+|s_program_graph_slot_owner_content_address0              |  out|    5|   ap_memory|              s_program_graph_slot_owner_content|         array|
+|s_program_graph_slot_owner_content_ce0                   |  out|    1|   ap_memory|              s_program_graph_slot_owner_content|         array|
+|s_program_graph_slot_owner_content_we0                   |  out|    1|   ap_memory|              s_program_graph_slot_owner_content|         array|
+|s_program_graph_slot_owner_content_d0                    |  out|    8|   ap_memory|              s_program_graph_slot_owner_content|         array|
+|s_program_graph_pc_i                                     |   in|    8|     ap_ovld|                              s_program_graph_pc|       pointer|
+|s_program_graph_pc_o                                     |  out|    8|     ap_ovld|                              s_program_graph_pc|       pointer|
+|s_program_graph_pc_o_ap_vld                              |  out|    1|     ap_ovld|                              s_program_graph_pc|       pointer|
+|s_program_graph_first_error_code_i                       |   in|   16|     ap_ovld|                s_program_graph_first_error_code|       pointer|
+|s_program_graph_first_error_code_o                       |  out|   16|     ap_ovld|                s_program_graph_first_error_code|       pointer|
+|s_program_graph_first_error_code_o_ap_vld                |  out|    1|     ap_ovld|                s_program_graph_first_error_code|       pointer|
+|s_program_graph_pending_source_slot                      |  out|    8|      ap_vld|             s_program_graph_pending_source_slot|       pointer|
+|s_program_graph_pending_source_slot_ap_vld               |  out|    1|      ap_vld|             s_program_graph_pending_source_slot|       pointer|
+|s_program_graph_pending_source_version                   |  out|   64|      ap_vld|          s_program_graph_pending_source_version|       pointer|
+|s_program_graph_pending_source_version_ap_vld            |  out|    1|      ap_vld|          s_program_graph_pending_source_version|       pointer|
+|s_program_graph_pending_source_owner_ref_id              |  out|    8|      ap_vld|     s_program_graph_pending_source_owner_ref_id|       pointer|
+|s_program_graph_pending_source_owner_ref_id_ap_vld       |  out|    1|      ap_vld|     s_program_graph_pending_source_owner_ref_id|       pointer|
+|s_program_graph_pending_source_owner_ref_bank            |  out|    8|      ap_vld|   s_program_graph_pending_source_owner_ref_bank|       pointer|
+|s_program_graph_pending_source_owner_ref_bank_ap_vld     |  out|    1|      ap_vld|   s_program_graph_pending_source_owner_ref_bank|       pointer|
+|s_program_graph_pending_source_owner_ref_epoch           |  out|   32|      ap_vld|  s_program_graph_pending_source_owner_ref_epoch|       pointer|
+|s_program_graph_pending_source_owner_ref_epoch_ap_vld    |  out|    1|      ap_vld|  s_program_graph_pending_source_owner_ref_epoch|       pointer|
+|s_program_graph_pending_source_owner_region              |  out|    8|      ap_vld|     s_program_graph_pending_source_owner_region|       pointer|
+|s_program_graph_pending_source_owner_region_ap_vld       |  out|    1|      ap_vld|     s_program_graph_pending_source_owner_region|       pointer|
+|s_program_graph_pending_source_owner_stage               |  out|    8|      ap_vld|      s_program_graph_pending_source_owner_stage|       pointer|
+|s_program_graph_pending_source_owner_stage_ap_vld        |  out|    1|      ap_vld|      s_program_graph_pending_source_owner_stage|       pointer|
+|s_program_graph_pending_source_owner_layer               |  out|    8|      ap_vld|      s_program_graph_pending_source_owner_layer|       pointer|
+|s_program_graph_pending_source_owner_layer_ap_vld        |  out|    1|      ap_vld|      s_program_graph_pending_source_owner_layer|       pointer|
+|s_program_graph_pending_source_owner_batch               |  out|    8|      ap_vld|      s_program_graph_pending_source_owner_batch|       pointer|
+|s_program_graph_pending_source_owner_batch_ap_vld        |  out|    1|      ap_vld|      s_program_graph_pending_source_owner_batch|       pointer|
+|s_program_graph_pending_source_owner_row0                |  out|   16|      ap_vld|       s_program_graph_pending_source_owner_row0|       pointer|
+|s_program_graph_pending_source_owner_row0_ap_vld         |  out|    1|      ap_vld|       s_program_graph_pending_source_owner_row0|       pointer|
+|s_program_graph_pending_source_owner_rows                |  out|   16|      ap_vld|       s_program_graph_pending_source_owner_rows|       pointer|
+|s_program_graph_pending_source_owner_rows_ap_vld         |  out|    1|      ap_vld|       s_program_graph_pending_source_owner_rows|       pointer|
+|s_program_graph_pending_source_owner_width               |  out|   16|      ap_vld|      s_program_graph_pending_source_owner_width|       pointer|
+|s_program_graph_pending_source_owner_width_ap_vld        |  out|    1|      ap_vld|      s_program_graph_pending_source_owner_width|       pointer|
+|s_program_graph_pending_source_owner_content             |  out|    8|      ap_vld|    s_program_graph_pending_source_owner_content|       pointer|
+|s_program_graph_pending_source_owner_content_ap_vld      |  out|    1|      ap_vld|    s_program_graph_pending_source_owner_content|       pointer|
++---------------------------------------------------------+-----+-----+------------+------------------------------------------------+--------------+
+

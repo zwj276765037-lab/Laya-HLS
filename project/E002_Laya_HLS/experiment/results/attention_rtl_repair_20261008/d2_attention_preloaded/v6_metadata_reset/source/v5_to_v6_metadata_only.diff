@@ -1,0 +1,258 @@
+--- v5/source/attention_preloaded_slice.cpp
++++ v6_metadata_reset/source/attention_preloaded_slice.cpp
+@@ -63,6 +63,224 @@
+ static FullRuntime runtime;
+ static ImportPending pending;
+ static uint64_t ticket_counter = 0;
++// This is the only persistent object placed on the hardware reset network.
++// The first accepted command reconstructs metadata before observing any state.
++static bool metadata_initialized = false;
++
++void reset_identity(NumericIdentity& id) {
++  id.request_id = 0;
++  id.generation = 0;
++  id.B = 0;
++  id.S = 0;
++  for (unsigned i = 0; i < 16; ++i) {
++    id.model_tag[i] = 0;
++    id.numeric_tag[i] = 0;
++    id.layout_tag[i] = 0;
++    id.build_tag[i] = 0;
++  }
++}
++
++void reset_ref(BufferRef& ref) {
++  ref.id = Buffer::NONE;
++  ref.bank = 0;
++  ref.epoch = 0;
++}
++
++void reset_spec(FullOwnerSpec& spec) {
++  reset_ref(spec.ref);
++  spec.region = 0;
++  spec.stage = 0;
++  spec.layer = 255;
++  spec.batch = 255;
++  spec.row_space = RowSpace::TOKEN;
++  spec.row0 = 0;
++  spec.rows = 0;
++  spec.width = 0;
++  spec.content = Content::UNDEFINED;
++}
++
++void reset_record(FullOwnerRecord& record) {
++  reset_identity(record.identity);
++  reset_ref(record.ref);
++  reset_ref(record.lease_old_ref);
++  record.max_claimed_epoch = 0;
++  record.region = 0;
++  record.stage = 0;
++  record.layer = 255;
++  record.batch = 0;
++  record.row_space = RowSpace::TOKEN;
++  record.row0 = 0;
++  record.rows = 0;
++  record.width = 0;
++  record.content = Content::UNDEFINED;
++  record.state = CacheState::INVALID;
++  record.readers = 0;
++  for (unsigned i = 0; i < 64; ++i) {
++    record.covered_rows[i] = 0;
++    record.old_consumed_rows[i] = 0;
++  }
++  record.valid = false;
++}
++
++void reset_f32_meta(F32TileMeta& meta) {
++  reset_identity(meta.identity);
++  reset_ref(meta.ref);
++  meta.region = 0;
++  meta.row_space = RowSpace::TOKEN;
++  meta.batch = 0;
++  meta.row0 = 0;
++  meta.rows = 0;
++  meta.K = 0;
++  meta.state = CacheState::INVALID;
++  meta.content = Content::UNDEFINED;
++  meta.readers = 0;
++  for (unsigned row = 0; row < 16; ++row)
++    for (unsigned word = 0; word < 4; ++word)
++      meta.covered_groups[row][word] = 0;
++  meta.valid = false;
++}
++
++void reset_a8_meta(A8TileMeta& meta) {
++  reset_identity(meta.identity);
++  reset_ref(meta.ref);
++  reset_f32_meta(meta.source);
++  meta.producer_task_id = 0;
++  meta.stage = 0;
++  meta.layer = 255;
++  meta.row_space = RowSpace::TOKEN;
++  meta.batch = 0;
++  meta.row0 = 0;
++  meta.rows = 0;
++  meta.K = 0;
++  for (unsigned row = 0; row < 16; ++row)
++    for (unsigned word = 0; word < 4; ++word)
++      meta.covered_groups[row][word] = 0;
++  meta.state = CacheState::INVALID;
++  meta.content = Content::UNDEFINED;
++  meta.readers = 0;
++  meta.valid = false;
++}
++
++void reset_weight(FullWeightDescriptor& weight) {
++  for (unsigned i = 0; i < 48; ++i) weight.name[i] = 0;
++  weight.key.family = 0;
++  weight.key.layer = 255;
++  weight.K = 0;
++  weight.N = 0;
++  weight.dtype = 0;
++  weight.bias_kind = 0;
++  for (unsigned i = 0; i < 2; ++i) {
++    weight.q_base[i] = 0;
++    weight.q_span[i] = 0;
++  }
++  weight.scale_base = 0;
++  weight.scale_span = 0;
++  weight.aux_base = 0;
++  weight.aux_span = 0;
++  weight.bias_base = 0;
++  weight.bias_span = 0;
++  for (unsigned i = 0; i < 32; ++i) {
++    weight.source_sha256[i] = 0;
++    weight.bias_sha256[i] = 0;
++  }
++}
++
++void reset_metadata(FullRuntime& rt, ImportPending& import,
++                    uint64_t& next_ticket) {
++  reset_identity(rt.inputs.identity);
++  for (unsigned batch = 0; batch < 2; ++batch) {
++    for (unsigned token = 0; token < 1024; ++token) {
++      rt.inputs.token_ids[batch][token] = 0;
++      rt.inputs.attention_mask[batch][token] = 0;
++    }
++    for (unsigned marker = 0; marker < 16; ++marker) {
++      rt.inputs.marker_positions[batch][marker] = 0;
++      rt.inputs.marker_mask[batch][marker] = 0;
++    }
++    rt.inputs.qtype[batch] = 0;
++  }
++
++  for (unsigned i = 0; i < 32; ++i) reset_record(rt.owners.record[i]);
++  for (unsigned bank = 0; bank < 2; ++bank) {
++    for (unsigned plane = 0; plane < 3; ++plane)
++      for (unsigned head = 0; head < 16; ++head)
++        for (unsigned batch = 0; batch < 2; ++batch)
++          for (unsigned word = 0; word < 32; ++word)
++            rt.owners.qkv_plane_head_rows[bank][plane][head][batch][word] = 0;
++    for (unsigned plane = 0; plane < 2; ++plane)
++      for (unsigned head = 0; head < 16; ++head)
++        for (unsigned batch = 0; batch < 2; ++batch)
++          for (unsigned word = 0; word < 32; ++word)
++            rt.owners.qkv_rope_rows[bank][plane][head][batch][word] = 0;
++    rt.owners.scorer_old_consumed[bank] = 0;
++    rt.owners.scorer_new_written[bank] = 0;
++  }
++  for (unsigned head = 0; head < 16; ++head)
++    for (unsigned batch = 0; batch < 2; ++batch)
++      for (unsigned word = 0; word < 32; ++word)
++        rt.owners.att_head_rows[head][batch][word] = 0;
++  for (unsigned i = 0; i < 3; ++i) rt.owners.type_valid[i] = false;
++
++  // FullCache's numerical arrays have no stores on this path.
++  reset_f32_meta(rt.cache.activation_source_ledger);
++  reset_a8_meta(rt.cache.activation_meta);
++  reset_weight(rt.current_weight);
++  reset_ref(rt.current_weight_ref);
++  for (unsigned i = 0; i < 2; ++i) {
++    reset_ref(rt.loaded_gamma_ref[i]);
++    reset_ref(rt.final_qkv_ref[i]);
++    reset_ref(rt.score_qkv_ref[i]);
++  }
++  reset_ref(rt.loaded_kv_ref);
++  reset_ref(rt.loaded_rope_ref);
++  reset_ref(rt.score_ref);
++  reset_ref(rt.score_kv_ref);
++  rt.score_head = 255;
++  rt.score_stage = 0;
++  rt.score_layer = 255;
++  rt.score_batch = 255;
++  rt.score_rows = 0;
++  rt.score_row0 = 0;
++  rt.score_valid = false;
++  reset_spec(rt.expected_quant_source);
++  for (unsigned i = 0; i < 4; ++i) reset_spec(rt.expected_task_source[i]);
++  rt.expected_task_source_count = 0;
++  rt.loaded_rope_mode = 255;
++  rt.loaded_kv_head = 255;
++  rt.last_task_id = 0;
++  rt.tasks_retired = 0;
++  for (unsigned i = 0; i < 256; ++i) rt.op_calls[i] = 0;
++  rt.owner_claims = 0;
++  rt.owner_leases = 0;
++  rt.encoder_layers_completed = 0;
++  rt.decision_layers_completed = 0;
++  rt.session_generation = 0;
++  rt.last_accepted_request_id = 0;
++  rt.diagnostic_request_id = 0;
++  rt.diagnostic_generation = 0;
++  rt.diagnostic_B = 0;
++  rt.diagnostic_S = 0;
++  rt.diagnostic_identity_valid = false;
++  rt.diagnostic_shape_valid = false;
++  rt.last_execution_error.code = Status::OK;
++  rt.last_execution_error.detail = 0;
++  rt.last_execution_error.bad_element = UINT64_MAX;
++  rt.last_cleanup_error.code = Status::OK;
++  rt.last_cleanup_error.detail = 0;
++  rt.last_cleanup_error.bad_element = UINT64_MAX;
++  rt.last_commit_error.code = Status::OK;
++  rt.last_commit_error.detail = 0;
++  rt.last_commit_error.bad_element = UINT64_MAX;
++  rt.request_valid = false;
++  rt.model_header_valid = false;
++  rt.expected_quant_source_valid = false;
++
++  import.valid = false;
++  import.ticket = 0;
++  for (unsigned i = 0; i < 48; ++i) import.metadata[i] = 0;
++  for (unsigned i = 0; i < 2; ++i) reset_spec(import.pair[i]);
++  next_ticket = 0;
++}
+ 
+ uint64_t wide(const uint32_t* p, unsigned first) {
+   return uint64_t(p[first]) | uint64_t(p[first + 1]) << 32;
+@@ -204,6 +422,13 @@
+ }  // namespace
+ }  // namespace laya::full
+ 
++#if !defined(__SYNTHESIS__) && defined(D2_PRELOADED_RESET_TEST_HOOK)
++// CPU stimulus only. Hardware reset must clear metadata_initialized via pin.
++extern "C" void attention_preloaded_test_only_clear_metadata_initialized() {
++  laya::full::metadata_initialized = false;
++}
++#endif
++
+ extern "C" void attention_preloaded_slice(uint32_t command,
+                                             const uint32_t* descriptor,
+                                             uint8_t* io, const uint8_t* aux,
+@@ -220,11 +445,16 @@
+ #pragma HLS INTERFACE m_axi port=observed offset=slave bundle=observed depth=256 num_write_outstanding=1
+ #pragma HLS INTERFACE s_axilite port=command bundle=control
+ #pragma HLS INTERFACE s_axilite port=return bundle=control
++#pragma HLS reset variable=metadata_initialized
+ #endif
+   using namespace laya;
+   using namespace laya::full;
+   using namespace laya::d2_preload;
+   FullRuntime& rt = runtime;
++  if (!metadata_initialized) {
++    reset_metadata(rt, pending, ticket_counter);
++    metadata_initialized = true;
++  }
+   FullMemory memory{
+       nullptr, 0,          // embedding
+       io, 32768,           // io

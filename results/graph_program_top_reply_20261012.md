@@ -1,0 +1,27 @@
+# Graph program top主机审核
+
+回复：`graph-program-top-host-milestone-20261012`  
+审核：`R-SM003-GRAPH-PROGRAM-TOP-HOST-20261012`  
+范围：M003/SM003/E003/R003，D-M003-GRAPH-LIFECYCLE-SPLIT-01。
+
+**接纳graph_program_top_host_01的PASS_SCOPED_HOST。本轮没有新增阻塞修复项；工程继续executor/shell唯一准入、真实消费握手与有限分区生成。** 当前可调用C++ top及pragma定义成立，尚无该top的生成RTL/端口证据。
+
+主控核32组current/frozen/声明pair全匹配（31份文件加一份合同），75/75 manifest/receipt引用和五个交付SHA一致。六源闭包不含executor/adapter实现；graph_program_sequencer与graph_action_protocol逐字保持host_03修复身份。三命令exit0，oracle/build/run为0.066419/3.723993/0.005823s，唯一PASS marker与TB相符。launcher CPU0–3/nice19/idle I/O及MemAvailable430609528KiB>201326592KiB已核；每命令24GiB RLIMIT_AS/1800s timeout仍只作为host限制，不扩为HLS/RTL guard证据。详见[核查记录](graph_program_top_review_20261012/verification.json)，主控未启动编译、仿真或HLS。
+
+## 接纳范围
+
+LGP1/LGR1各256B/4拍、小端version1，独立Python oracle逐字匹配512B。patterned LGP1的source.slot=3且version与epoch不同，它只检编码映射，不是合法准入样本。实际运行另用当前B1/S64合法command。
+
+request901产生ordinal1，受控成功LAC1提交slot/PC并形成LGR1；request902在其结果未消费的24次host调用期间保持command未读，抽象result_consumed后才产生ordinal2，安全E_BUFFER完成返回失败且无slot更新。坏magic request903返回零ordinal、无binding的LOCAL_REJECT结果，仍保持相同消费门；request904随后恢复到ordinal3 action发出。**TB在904 action发出后结束，未执行它的完成、结果消费或最终清空，不记录为三个完整请求。** LGR1语义坏slot拒绝后的输出复位也有证据。
+
+WAIT_RESULT_CONSUMED只按输入result_consumed恢复READ_COMMAND，结果最后一拍写入或FIFO有空位不能单独放行。这个主机门控接纳，但TB直接提供accepted command、受控LAC1及消费布尔，软件stream不是depth2 RTL。非终态/坏旧LAC1及cancel虽有保留状态的代码分支，本次没有动态运行，不扩为恢复PASS。
+
+## 真实接线要求
+
+`graph_program_hls.cpp:82–84`只在WAIT_RESULT_CONSUMED状态采样通知。production shell须从当前LGR1 FIFO真实consumer四次握手形成不会丢失的完成通知，在HLS忙于输出/尚未进入WAIT时保留，直到明确被本请求消费；不能直接假定单周期脉冲总能被C++状态机采到。保持/清除及请求对应关系在内部连接中冻结，防止旧通知释放下一请求。验证末拍消费紧邻结果入队/进入WAIT、延迟消费、末1/2拍停读和后继排队。这属于待实现的真实接口义务，不作为本次抽象host测试已通过的内容。
+
+LGP1的SOURCE_READY_PROOF只承载已由executor/shell核定的不可变配置；实际request/model/base/source owner的唯一准入与物理证明仍在executor/shell/hub，不能把此位作为Host或TB替代生产证明的入口。对无binding的零ordinal本地拒绝，结果consumer须结合当前唯一pending command及真实传输状态处理；不凭该结果清除未知物理债务或退休typed任务。
+
+继续真实bootstrap与program/executor主机组合，旧active action内部续cleanup，再将LGR1请求结果、LAC1 action完成和F10 LTC1事务完成三个消费边界分别接到真实FIFO。当前entrypoint只签有限NORM_LAYER1_ATTN；完整模型PC、其余family与完整请求保留。按原预算生成有结构差异的有限分区后，接实际LN master→monitor/唯一hub、真实completion→END/唯一退休，再接source lease→Q/fullA独立gold及其余模型路径。
+
+C009仍awaiting_implementation，C008/C010整体awaiting_verification；F11–F13及既有F6–F10/LN→Q限定关闭不扩大。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成。G余2338.224019s、原帽与单重工具保持；5172s组合不重启，无新增OOC/P&R/上板、agent、预算或逐项审批。

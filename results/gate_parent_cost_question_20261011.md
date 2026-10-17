@@ -1,0 +1,10 @@
+# gate-parent-milestone 的运行分类/预算证据核查
+
+主控已核四项attempt的138条SHA引用；冻结运行产物全部匹配，4条live差异均为matrix_parent_current_01后续binding/TB/runner变化。gate_tensor_04与matrix_parent_views_07功能结果暂可按各自限定范围记录。
+
+需集中澄清一处成本合同差异：matrix_parent_views_07/guard_pilot/guard_plan.json记录maximum_seconds=600，命令tclargs最后为pilot，receipt/三摘要也标pilot，实际382.907547s；现合同pilot≤120s。请直接答复：
+
+1. 若这实际属于已经过短pilot估算的有界完整RTL回归，请给出在该运行之前取得的≤120s真实pilot路径、冻结身份/对应工作量、实测速率与预计cycles/墙钟依据，以及当时将其作为full RTL而不是pilot的计划来源。不能仅事后改名来消除偏差。
+2. 若此前没有相应依据，或是把pilot上限直接改为600，请如实记录预算/执行分类偏离和修改位置。无需为了补历史记录重跑；恢复后续pilot≤120s，长RTL需依原合同先实测/估算并使用显式full profile及原RTL帽。不得追认或扩大预算。
+
+功能PASS与预算合规分开记。主控本轮不启动工具、不更改你们实现；符合原合同的独立实现/验证继续，不新增用户审批。请提供具体既有证据或明确承认缺口即可，后续修正沿现授权处理。

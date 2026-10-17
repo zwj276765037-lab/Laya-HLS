@@ -1,0 +1,104 @@
+--- executor_handoff_shell_rtl_02/laya_executor_handoff_shell_tb_v1.sv
++++ executor_handoff_shell_rtl_04/laya_executor_handoff_shell_tb_v1.sv
+@@ -20,12 +20,18 @@
+   logic [8191:0] held_gold,grant_gold,abort_closed_gold;
+   logic [511:0] words[0:15];string fixture;
+   int cycles=0,cases=0;
++  logic stalled_response=0;
++  logic [8191:0] stalled_bytes;
+   laya_executor_handoff_shell_v1 dut(.*);
+   always @(posedge clk)begin
+     cycles<=cycles+1;
+     if(cycles>6000)$fatal(1,"cycle cap");
+     if(authority_valid && (revoked || cancel || !executor_owns_dispatch || !local_committed))
+       $fatal(1,"authority without owner/commit/live binding");
++    if(rst_n && stalled_response && (!response_valid || response!==stalled_bytes))
++      $fatal(1,"presented response changed before consumption");
++    stalled_response<=rst_n && response_valid && !response_ready;
++    stalled_bytes<=response;
+   end
+   task automatic tick();@(posedge clk);#1;endtask
+   task automatic idle(input int n);repeat(n)tick();endtask
+@@ -131,6 +137,73 @@
+     // live while the owner must complete its existing physical work.
+     physical_safe=0;old_channels_drained=0;idle(12);
+     if(!authority_valid || revoked || !executor_owns_dispatch)$fatal(1,"normal debt revoked");
++    cases++;
++
++    // F18: commit0 ABORT is accepted exactly when autonomous HELD would
++    // acquire the lock. Control wins; no HELD is presented or overwritten.
++    reset_case();hold_start();
++    @(negedge clk);old_channels_drained=1;physical_safe=1;
++    control=abort_frame;control_valid=1;#1;
++    if(!control_ready)$fatal(1,"same-edge DRAIN abort not selected");
++    tick();
++    if(phase!=8 || response_valid || locks_owned || revoked || authority_valid)
++      $fatal(1,"DRAIN abort competed with HELD");
++    // Keep the request asserted while its result is backpressured. It must
++    // not allocate a second key, publish HELD, or close twice.
++    tick();
++    if(phase!=9 || !response_valid || response!==abort_closed_gold)
++      $fatal(1,"F18 bound abort response missing");
++    repeat(12)begin tick();if(response!==abort_closed_gold || control_ready || locks_owned ||
++        grants!=0 || closed_aborts!=0 || sequence_high_water!=1 || handoff_high_water!=1)
++      $fatal(1,"F18 abort response or highwater changed under stall");end
++    @(negedge clk);response_ready=1;tick();
++    @(negedge clk);response_ready=0;control_valid=0;
++    if(phase!=0 || response_valid || closed_aborts!=1 || locks_owned)
++      $fatal(1,"F18 DRAIN abort close not unique");
++    cases++;
++
++    // HELD_READY without an accepted query: ABORT wins and closes once.
++    reset_case();hold_start();acquire_held();
++    @(negedge clk);control=abort_frame;control_valid=1;query_request=query_frame;#1;
++    if(!query_permit || !control_ready)$fatal(1,"F18 HELD arbitration readiness");
++    query_accepted=0;tick();
++    @(negedge clk);query_accepted=0;
++    if(phase!=8 || import_pending)$fatal(1,"F18 query accepted alongside abort");
++    tick();
++    repeat(12)begin tick();if(!response_valid || response!==abort_closed_gold || query_permit)
++      $fatal(1,"F18 held abort response unstable");end
++    @(negedge clk);response_ready=1;tick();
++    @(negedge clk);response_ready=0;control_valid=0;
++    if(phase!=0 || closed_aborts!=1 || grants!=0 || locks_owned)
++      $fatal(1,"F18 held abort close wrong");
++    cases++;
++
++    // Actual query acceptance has priority over control acceptance. ABORT
++    // stays valid throughout the old return; it is not dropped or accepted
++    // as a harmless reject while QUERY still owns the response.
++    reset_case();hold_start();acquire_held();
++    @(negedge clk);control=abort_frame;control_valid=1;
++    query_request=query_frame;query_accepted=1;#1;
++    if(control_ready || !query_permit)$fatal(1,"F18 accepted query priority missing");
++    tick();@(negedge clk);query_accepted=0;
++    if(phase!=4 || control_ready)$fatal(1,"F18 query lost to pending abort");
++    for(int i=0;i<14;i++)begin
++      query_pop(i);if(control_ready || response_valid || authority_valid)
++        $fatal(1,"F18 pending abort accepted before return drained");
++    end
++    repeat(12)begin tick();if(control_ready || !locks_owned)$fatal(1,"F18 return tail2 ownership");end
++    query_pop(14);
++    repeat(12)begin tick();if(control_ready || !locks_owned)$fatal(1,"F18 return tail1 ownership");end
++    query_pop(15);
++    if(!import_pending || response_valid || authority_valid)$fatal(1,"F18 last read authorized");
++    tick();if(phase!=8)$fatal(1,"F18 persistent abort not accepted after response");
++    tick();
++    repeat(12)begin tick();if(!response_valid || response!==abort_closed_gold || control_ready ||
++        authority_valid || grants!=0 || !locks_owned)$fatal(1,"F18 query abort close changed");end
++    @(negedge clk);response_ready=1;tick();
++    @(negedge clk);response_ready=0;control_valid=0;
++    if(phase!=0 || closed_aborts!=1 || sequence_high_water!=1 || handoff_high_water!=1)
++      $fatal(1,"F18 query abort close/highwater wrong");
+     cases++;
+ 
+     // Actual C++ helper reservation-hole rejection drives this bound ABORT.
+@@ -187,7 +260,7 @@
+       end
+       cases++;
+     end
+-    $display("FULL_CURRENT_EXECUTOR_HANDOFF_SHELL_RTL_PASS cases=%0d cycles=%0d actual_helper_import_abort=1 held_query_import_grant=1 final_read_no_authority=1 tail2_tail1_stalls=1 unique_grant=1 no_reset_precommit_retry=1 cancel_base_same_edge=1 active_session_request_revoke=1 cleanup_owner_retained=1 controlled_safety_inputs=1 hardware_rearm_NOT_RUN=1",cases,cycles);
++    $display("FULL_CURRENT_EXECUTOR_HANDOFF_SHELL_RTL_PASS cases=%0d cycles=%0d F18_drain_abort_same_edge=1 F18_held_query_abort_priority=1 F18_accepted_query_persistent_abort=1 response_stall_stable=1 actual_helper_import_abort=1 held_query_import_grant=1 final_read_no_authority=1 tail2_tail1_stalls=1 unique_grant=1 no_reset_precommit_retry=1 cancel_base_same_edge=1 active_session_request_revoke=1 cleanup_owner_retained=1 controlled_safety_inputs=1 hardware_rearm_NOT_RUN=1",cases,cycles);
+     $finish;
+   end
+ endmodule

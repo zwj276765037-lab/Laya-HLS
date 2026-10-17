@@ -1,0 +1,690 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_owner.cpp	2026-10-07 13:07:50.987028337 +0800
++++ hls/common/laya_full_owner.cpp	2026-10-07 17:33:32.553988285 +0800
+@@ -111,35 +111,33 @@
+   }
+   return true;
+ }
+-FullOwnerRecord* find(FullRuntime& rt, BufferRef ref, uint8_t region) {
+-  for (FullOwnerRecord& r : rt.owners.record)
++constexpr unsigned kNoOwnerIndex = 32;
++unsigned find_index(const FullRuntime& rt, BufferRef ref, uint8_t region) {
++  for (unsigned i = 0; i < kNoOwnerIndex; ++i) {
++    const FullOwnerRecord& r = rt.owners.record[i];
+     if (r.ref.id != Buffer::NONE && same_physical(r.ref, r.region, ref, region))
+-      return &r;
+-  return nullptr;
+-}
+-const FullOwnerRecord* find(const FullRuntime& rt, BufferRef ref,
+-                            uint8_t region) {
+-  for (const FullOwnerRecord& r : rt.owners.record)
+-    if (r.ref.id != Buffer::NONE && same_physical(r.ref, r.region, ref, region))
+-      return &r;
+-  return nullptr;
++      return i;
++  }
++  return kNoOwnerIndex;
+ }
+-FullOwnerRecord* empty_slot(FullRuntime& rt) {
+-  for (FullOwnerRecord& r : rt.owners.record)
+-    if (r.ref.id == Buffer::NONE) return &r;
+-  return nullptr;
++unsigned empty_index(const FullRuntime& rt, unsigned excluded = kNoOwnerIndex) {
++  for (unsigned i = 0; i < kNoOwnerIndex; ++i)
++    if (i != excluded && rt.owners.record[i].ref.id == Buffer::NONE) return i;
++  return kNoOwnerIndex;
+ }
+ void clear_bits(uint32_t bits[64]) {
+   for (unsigned i = 0; i < 64; ++i) bits[i] = 0;
+ }
+-FullOwnerRecord* claim_slot(FullRuntime& rt, const FullOwnerSpec& s) {
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r) r = empty_slot(rt);
+-  if (!r || r->valid || r->readers ||
+-      (r->state != CacheState::FREE && r->state != CacheState::INVALID) ||
+-      r->max_claimed_epoch >= kMaxEpoch ||
+-      s.ref.epoch != r->max_claimed_epoch + 1) return nullptr;
+-  return r;
++unsigned claim_index(const FullRuntime& rt, const FullOwnerSpec& s) {
++  unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) index = empty_index(rt);
++  if (index == kNoOwnerIndex) return kNoOwnerIndex;
++  const FullOwnerRecord& r = rt.owners.record[index];
++  if (r.valid || r.readers ||
++      (r.state != CacheState::FREE && r.state != CacheState::INVALID) ||
++      r.max_claimed_epoch >= kMaxEpoch ||
++      s.ref.epoch != r.max_claimed_epoch + 1) return kNoOwnerIndex;
++  return index;
+ }
+ void fill_record(FullOwnerRecord& r, const FullOwnerSpec& s,
+                  const NumericIdentity& identity) {
+@@ -200,9 +198,9 @@
+   if (!rt.request_valid || !rt.model_header_valid) return protocol();
+   if (!legal_spec(rt, s) || s.ref.id == Buffer::QKV)
+     return error(s.ref.id, 5);
+-  FullOwnerRecord* r = claim_slot(rt, s);
+-  if (!r) return error(s.ref.id);
+-  fill_record(*r, s, rt.inputs.identity);
++  const unsigned index = claim_index(rt, s);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  fill_record(rt.owners.record[index], s, rt.inputs.identity);
+   ++rt.owner_claims;
+   if (s.ref.id == Buffer::TYPE_ROWS)
+     for (bool& v : rt.owners.type_valid) v = false;
+@@ -216,9 +214,11 @@
+ Check full_check_fill_owner(const FullRuntime& rt, const FullOwnerSpec& s) {
+   if (!rt.request_valid || !rt.model_header_valid || !legal_spec(rt, s))
+     return error(s.ref.id);
+-  const FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) || r->state != CacheState::FILL ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity))
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  const FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) || r.state != CacheState::FILL ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity))
+     return error(s.ref.id);
+   return ok();
+ }
+@@ -228,9 +228,11 @@
+                                  uint16_t row0, uint16_t rows) {
+   Check c = full_check_fill_owner(rt, s);
+   if (!c || !in_scope(rt, s, batch, row0, rows)) return error(s.ref.id);
+-  const FullOwnerRecord* r = find(rt, s.ref, s.region);
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  const FullOwnerRecord& r = rt.owners.record[index];
+   for (uint16_t row = row0; row < uint32_t(row0) + rows; ++row)
+-    if (bit(r->covered_rows, bit_index(s, batch, row)))
++    if (bit(r.covered_rows, bit_index(s, batch, row)))
+       return error(s.ref.id);
+   return ok();
+ }
+@@ -257,19 +259,15 @@
+ Check full_claim_qkv_pair(FullRuntime& rt, const FullOwnerSpec (&s)[2]) {
+   if (!rt.request_valid || !rt.model_header_valid ||
+       !qkv_pair_specs(rt, s)) return error(Buffer::QKV, 5);
+-  FullOwnerRecord* a = claim_slot(rt, s[0]);
+-  FullOwnerRecord* b = claim_slot(rt, s[1]);
+-  if (a && b == a && a->ref.id == Buffer::NONE) {
+-    b = nullptr;
+-    for (FullOwnerRecord& candidate : rt.owners.record)
+-      if (&candidate != a && candidate.ref.id == Buffer::NONE) {
+-        b = &candidate;
+-        break;
+-      }
+-  }
+-  if (!a || !b || a == b) return error(Buffer::QKV);
+-  fill_record(*a, s[0], rt.inputs.identity);
+-  fill_record(*b, s[1], rt.inputs.identity);
++  const unsigned first = claim_index(rt, s[0]);
++  unsigned second = claim_index(rt, s[1]);
++  if (first != kNoOwnerIndex && second == first &&
++      rt.owners.record[first].ref.id == Buffer::NONE)
++    second = empty_index(rt, first);
++  if (first == kNoOwnerIndex || second == kNoOwnerIndex || first == second)
++    return error(Buffer::QKV);
++  fill_record(rt.owners.record[first], s[0], rt.inputs.identity);
++  fill_record(rt.owners.record[second], s[1], rt.inputs.identity);
+   rt.owner_claims += 2;
+   for (auto& shard : rt.owners.qkv_plane_head_rows)
+     for (auto& plane : shard)
+@@ -292,9 +290,11 @@
+       head >= 16 || batch >= rt.inputs.identity.B || !rows ||
+       uint32_t(row0) + rows > rt.inputs.identity.S) return error(Buffer::QKV, 5);
+   for (unsigned shard = 0; shard < 2; ++shard) {
+-    const FullOwnerRecord* r = find(rt, s[shard].ref, 0);
+-    if (!r || !same_spec(*r, s[shard]) || r->state != CacheState::FILL ||
+-        !numeric_identity_equal(r->identity, rt.inputs.identity))
++    const unsigned index = find_index(rt, s[shard].ref, 0);
++    if (index == kNoOwnerIndex) return error(Buffer::QKV);
++    const FullOwnerRecord& r = rt.owners.record[index];
++    if (!same_spec(r, s[shard]) || r.state != CacheState::FILL ||
++        !numeric_identity_equal(r.identity, rt.inputs.identity))
+       return error(Buffer::QKV);
+   }
+   uint32_t (&bits)[32] = rt.owners.qkv_plane_head_rows[head % 2][plane][head][batch];
+@@ -309,14 +309,16 @@
+ Check full_publish_qkv_pair(FullRuntime& rt, const FullOwnerSpec (&s)[2]) {
+   if (!rt.request_valid || !rt.model_header_valid ||
+       !qkv_pair_specs(rt, s)) return error(Buffer::QKV);
+-  FullOwnerRecord* first = find(rt, s[0].ref, 0);
+-  FullOwnerRecord* second = find(rt, s[1].ref, 0);
+-  if (!first || !second || !same_spec(*first, s[0]) ||
+-      !same_spec(*second, s[1]) ||
+-      first->state != CacheState::FILL ||
+-      second->state != CacheState::FILL ||
+-      !numeric_identity_equal(first->identity, rt.inputs.identity) ||
+-      !numeric_identity_equal(second->identity, rt.inputs.identity))
++  const unsigned first_index = find_index(rt, s[0].ref, 0);
++  const unsigned second_index = find_index(rt, s[1].ref, 0);
++  if (first_index == kNoOwnerIndex || second_index == kNoOwnerIndex)
++    return error(Buffer::QKV);
++  FullOwnerRecord& first = rt.owners.record[first_index];
++  FullOwnerRecord& second = rt.owners.record[second_index];
++  if (!same_spec(first, s[0]) || !same_spec(second, s[1]) ||
++      first.state != CacheState::FILL || second.state != CacheState::FILL ||
++      !numeric_identity_equal(first.identity, rt.inputs.identity) ||
++      !numeric_identity_equal(second.identity, rt.inputs.identity))
+     return error(Buffer::QKV);
+   for (unsigned plane = 0; plane < 3; ++plane)
+     for (unsigned head = 0; head < 16; ++head)
+@@ -325,13 +327,13 @@
+                       rt.inputs.identity.S)) return error(Buffer::QKV);
+   for (unsigned batch = 0; batch < rt.inputs.identity.B; ++batch)
+     for (unsigned row = 0; row < rt.inputs.identity.S; ++row) {
+-      set_bit(first->covered_rows, batch * 1024 + row);
+-      set_bit(second->covered_rows, batch * 1024 + row);
++      set_bit(first.covered_rows, batch * 1024 + row);
++      set_bit(second.covered_rows, batch * 1024 + row);
+     }
+-  first->state = CacheState::READY;
+-  first->valid = true;
+-  second->state = CacheState::READY;
+-  second->valid = true;
++  first.state = CacheState::READY;
++  first.valid = true;
++  second.state = CacheState::READY;
++  second.valid = true;
+   if (s[0].content == Content::QKV_FINAL) {
+     rt.final_qkv_ref[0] = s[0].ref;
+     rt.final_qkv_ref[1] = s[1].ref;
+@@ -344,37 +346,39 @@
+                                const FullOwnerSpec (&next_s)[2]) {
+   if (!rt.request_valid || !rt.model_header_valid ||
+       !qkv_rope_specs(rt, old_s, next_s)) return error(Buffer::QKV, 5);
+-  FullOwnerRecord* first = find(rt, old_s[0].ref, 0);
+-  FullOwnerRecord* second = find(rt, old_s[1].ref, 0);
+-  if (!first || !second || !same_spec(*first, old_s[0]) ||
+-      !same_spec(*second, old_s[1]) ||
+-      !first->valid || !second->valid ||
+-      first->state != CacheState::READY ||
+-      second->state != CacheState::READY ||
+-      first->readers || second->readers ||
+-      first->max_claimed_epoch >= kMaxEpoch ||
+-      second->max_claimed_epoch >= kMaxEpoch ||
+-      !numeric_identity_equal(first->identity, rt.inputs.identity) ||
+-      !numeric_identity_equal(second->identity, rt.inputs.identity) ||
+-      !covered(rt, old_s[0], first->covered_rows) ||
+-      !covered(rt, old_s[1], second->covered_rows))
++  const unsigned first_index = find_index(rt, old_s[0].ref, 0);
++  const unsigned second_index = find_index(rt, old_s[1].ref, 0);
++  if (first_index == kNoOwnerIndex || second_index == kNoOwnerIndex)
+     return error(Buffer::QKV);
+-  first->lease_old_ref = old_s[0].ref;
+-  first->ref = next_s[0].ref;
+-  first->max_claimed_epoch = next_s[0].ref.epoch;
+-  first->content = Content::QKV_FINAL;
+-  first->state = CacheState::EXCLUSIVE_RW;
+-  first->valid = false;
+-  clear_bits(first->covered_rows);
+-  clear_bits(first->old_consumed_rows);
+-  second->lease_old_ref = old_s[1].ref;
+-  second->ref = next_s[1].ref;
+-  second->max_claimed_epoch = next_s[1].ref.epoch;
+-  second->content = Content::QKV_FINAL;
+-  second->state = CacheState::EXCLUSIVE_RW;
+-  second->valid = false;
+-  clear_bits(second->covered_rows);
+-  clear_bits(second->old_consumed_rows);
++  FullOwnerRecord& first = rt.owners.record[first_index];
++  FullOwnerRecord& second = rt.owners.record[second_index];
++  if (!same_spec(first, old_s[0]) || !same_spec(second, old_s[1]) ||
++      !first.valid || !second.valid ||
++      first.state != CacheState::READY || second.state != CacheState::READY ||
++      first.readers || second.readers ||
++      first.max_claimed_epoch >= kMaxEpoch ||
++      second.max_claimed_epoch >= kMaxEpoch ||
++      !numeric_identity_equal(first.identity, rt.inputs.identity) ||
++      !numeric_identity_equal(second.identity, rt.inputs.identity) ||
++      !covered(rt, old_s[0], first.covered_rows) ||
++      !covered(rt, old_s[1], second.covered_rows))
++    return error(Buffer::QKV);
++  first.lease_old_ref = old_s[0].ref;
++  first.ref = next_s[0].ref;
++  first.max_claimed_epoch = next_s[0].ref.epoch;
++  first.content = Content::QKV_FINAL;
++  first.state = CacheState::EXCLUSIVE_RW;
++  first.valid = false;
++  clear_bits(first.covered_rows);
++  clear_bits(first.old_consumed_rows);
++  second.lease_old_ref = old_s[1].ref;
++  second.ref = next_s[1].ref;
++  second.max_claimed_epoch = next_s[1].ref.epoch;
++  second.content = Content::QKV_FINAL;
++  second.state = CacheState::EXCLUSIVE_RW;
++  second.valid = false;
++  clear_bits(second.covered_rows);
++  clear_bits(second.old_consumed_rows);
+   rt.owner_leases += 2;
+   for (auto& shard : rt.owners.qkv_rope_rows)
+     for (auto& plane : shard)
+@@ -393,12 +397,14 @@
+       uint32_t(row0) + rows > rt.inputs.identity.S)
+     return error(Buffer::QKV, 5);
+   for (unsigned shard = 0; shard < 2; ++shard) {
+-    const FullOwnerRecord* r = find(rt, next_s[shard].ref, 0);
+-    if (!r || !same_spec(*r, next_s[shard]) ||
+-        r->state != CacheState::EXCLUSIVE_RW ||
+-        r->lease_old_ref.id != Buffer::QKV ||
+-        r->content != Content::QKV_FINAL ||
+-        !numeric_identity_equal(r->identity, rt.inputs.identity))
++    const unsigned index = find_index(rt, next_s[shard].ref, 0);
++    if (index == kNoOwnerIndex) return error(Buffer::QKV);
++    const FullOwnerRecord& r = rt.owners.record[index];
++    if (!same_spec(r, next_s[shard]) ||
++        r.state != CacheState::EXCLUSIVE_RW ||
++        r.lease_old_ref.id != Buffer::QKV ||
++        r.content != Content::QKV_FINAL ||
++        !numeric_identity_equal(r.identity, rt.inputs.identity))
+       return error(Buffer::QKV);
+   }
+   if (next_s[0].ref.bank != 0 || next_s[1].ref.bank != 1 ||
+@@ -427,16 +433,19 @@
+       next_s[0].content != Content::QKV_FINAL ||
+       next_s[1].content != Content::QKV_FINAL)
+     return error(Buffer::QKV, 5);
+-  FullOwnerRecord* first = find(rt, next_s[0].ref, 0);
+-  FullOwnerRecord* second = find(rt, next_s[1].ref, 0);
+-  if (!first || !second || !same_spec(*first, next_s[0]) ||
+-      !same_spec(*second, next_s[1]) ||
+-      first->state != CacheState::EXCLUSIVE_RW ||
+-      second->state != CacheState::EXCLUSIVE_RW ||
+-      first->lease_old_ref.id != Buffer::QKV ||
+-      second->lease_old_ref.id != Buffer::QKV ||
+-      !numeric_identity_equal(first->identity, rt.inputs.identity) ||
+-      !numeric_identity_equal(second->identity, rt.inputs.identity))
++  const unsigned first_index = find_index(rt, next_s[0].ref, 0);
++  const unsigned second_index = find_index(rt, next_s[1].ref, 0);
++  if (first_index == kNoOwnerIndex || second_index == kNoOwnerIndex)
++    return error(Buffer::QKV);
++  FullOwnerRecord& first = rt.owners.record[first_index];
++  FullOwnerRecord& second = rt.owners.record[second_index];
++  if (!same_spec(first, next_s[0]) || !same_spec(second, next_s[1]) ||
++      first.state != CacheState::EXCLUSIVE_RW ||
++      second.state != CacheState::EXCLUSIVE_RW ||
++      first.lease_old_ref.id != Buffer::QKV ||
++      second.lease_old_ref.id != Buffer::QKV ||
++      !numeric_identity_equal(first.identity, rt.inputs.identity) ||
++      !numeric_identity_equal(second.identity, rt.inputs.identity))
+     return error(Buffer::QKV);
+   for (unsigned plane = 0; plane < 2; ++plane)
+     for (unsigned head = 0; head < 16; ++head)
+@@ -445,15 +454,15 @@
+                       rt.inputs.identity.S)) return error(Buffer::QKV);
+   for (unsigned batch = 0; batch < rt.inputs.identity.B; ++batch)
+     for (unsigned row = 0; row < rt.inputs.identity.S; ++row) {
+-      set_bit(first->covered_rows, batch * 1024 + row);
+-      set_bit(second->covered_rows, batch * 1024 + row);
++      set_bit(first.covered_rows, batch * 1024 + row);
++      set_bit(second.covered_rows, batch * 1024 + row);
+     }
+-  first->state = CacheState::READY;
+-  first->valid = true;
+-  first->lease_old_ref = none();
+-  second->state = CacheState::READY;
+-  second->valid = true;
+-  second->lease_old_ref = none();
++  first.state = CacheState::READY;
++  first.valid = true;
++  first.lease_old_ref = none();
++  second.state = CacheState::READY;
++  second.valid = true;
++  second.lease_old_ref = none();
+   rt.final_qkv_ref[0] = next_s[0].ref;
+   rt.final_qkv_ref[1] = next_s[1].ref;
+   return ok();
+@@ -466,9 +475,11 @@
+       batch >= rt.inputs.identity.B || !rows ||
+       uint32_t(row0) + rows > rt.inputs.identity.S ||
+       s.ref.id != Buffer::ATT_OUT) return error(Buffer::ATT_OUT, 5);
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) || r->state != CacheState::FILL ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity))
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(Buffer::ATT_OUT);
++  const FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) || r.state != CacheState::FILL ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity))
+     return error(Buffer::ATT_OUT);
+   uint32_t (&bits)[32] = rt.owners.att_head_rows[head][batch];
+   for (uint16_t row = row0; row < uint32_t(row0) + rows; ++row)
+@@ -482,9 +493,11 @@
+ Check full_publish_att(FullRuntime& rt, const FullOwnerSpec& s) {
+   if (!rt.request_valid || !rt.model_header_valid ||
+       s.ref.id != Buffer::ATT_OUT) return error(Buffer::ATT_OUT);
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) || r->state != CacheState::FILL ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity))
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(Buffer::ATT_OUT);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) || r.state != CacheState::FILL ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity))
+     return error(Buffer::ATT_OUT);
+   for (unsigned head = 0; head < 16; ++head)
+     for (unsigned batch = 0; batch < rt.inputs.identity.B; ++batch)
+@@ -492,9 +505,9 @@
+         return error(Buffer::ATT_OUT);
+   for (unsigned batch = 0; batch < rt.inputs.identity.B; ++batch)
+     for (unsigned row = 0; row < rt.inputs.identity.S; ++row)
+-      set_bit(r->covered_rows, batch * 1024 + row);
+-  r->state = CacheState::READY;
+-  r->valid = true;
++      set_bit(r.covered_rows, batch * 1024 + row);
++  r.state = CacheState::READY;
++  r.valid = true;
+   return ok();
+ }
+ 
+@@ -503,13 +516,15 @@
+   if (!rt.request_valid || !rt.model_header_valid ||
+       !legal_spec(rt, s) || !in_scope(rt, s, batch, row0, rows))
+     return error(s.ref.id);
+-  const FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity) ||
+-      !r->valid || (r->state != CacheState::READY &&
+-                    r->state != CacheState::READ)) return error(s.ref.id);
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  const FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity) ||
++      !r.valid || (r.state != CacheState::READY &&
++                   r.state != CacheState::READ)) return error(s.ref.id);
+   for (uint16_t row = row0; row < uint32_t(row0) + rows; ++row)
+-    if (!bit(r->covered_rows, bit_index(s, batch, row)) ||
++    if (!bit(r.covered_rows, bit_index(s, batch, row)) ||
+         (s.ref.id == Buffer::TYPE_ROWS && !rt.owners.type_valid[row]))
+       return error(s.ref.id);
+   return ok();
+@@ -519,19 +534,23 @@
+                          uint8_t batch, uint16_t row0, uint16_t rows) {
+   Check c = full_require_owner(rt, s, batch, row0, rows);
+   if (!c) return c;
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || r->readers == UINT8_MAX) return error(s.ref.id);
+-  ++r->readers;
+-  r->state = CacheState::READ;
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (r.readers == UINT8_MAX) return error(s.ref.id);
++  ++r.readers;
++  r.state = CacheState::READ;
+   return ok();
+ }
+ 
+ Check full_release_read_owner(FullRuntime& rt, const FullOwnerSpec& s) {
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) || r->state != CacheState::READ ||
+-      !r->readers || !r->valid) return error(s.ref.id);
+-  --r->readers;
+-  if (!r->readers) r->state = CacheState::READY;
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) || r.state != CacheState::READ ||
++      !r.readers || !r.valid) return error(s.ref.id);
++  --r.readers;
++  if (!r.readers) r.state = CacheState::READY;
+   return ok();
+ }
+ 
+@@ -541,23 +560,25 @@
+       !legal_spec(rt, s) || !in_scope(rt, s, batch, row0, rows) ||
+       s.ref.id == Buffer::QKV || s.ref.id == Buffer::ATT_OUT)
+     return error(s.ref.id, 5);
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
+   const bool type_extend = s.ref.id == Buffer::TYPE_ROWS &&
+-                           r && r->state == CacheState::READY &&
+-                           r->valid && r->readers == 0;
+-  if (!r || !same_spec(*r, s) ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity) ||
+-      (r->state != CacheState::FILL && r->state != CacheState::EXCLUSIVE_RW &&
++                           r.state == CacheState::READY &&
++                           r.valid && r.readers == 0;
++  if (!same_spec(r, s) ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity) ||
++      (r.state != CacheState::FILL && r.state != CacheState::EXCLUSIVE_RW &&
+        !type_extend))
+     return error(s.ref.id);
+   for (uint16_t row = row0; row < uint32_t(row0) + rows; ++row) {
+     const unsigned idx = bit_index(s, batch, row);
+-    if (bit(r->covered_rows, idx) ||
+-        (r->state == CacheState::EXCLUSIVE_RW &&
+-         !bit(r->old_consumed_rows, idx))) return error(s.ref.id);
++    if (bit(r.covered_rows, idx) ||
++        (r.state == CacheState::EXCLUSIVE_RW &&
++         !bit(r.old_consumed_rows, idx))) return error(s.ref.id);
+   }
+   for (uint16_t row = row0; row < uint32_t(row0) + rows; ++row)
+-    set_bit(r->covered_rows, bit_index(s, batch, row));
++    set_bit(r.covered_rows, bit_index(s, batch, row));
+   return ok();
+ }
+ 
+@@ -565,47 +586,53 @@
+   if (!rt.request_valid || !rt.model_header_valid ||
+       s.ref.id == Buffer::QKV || s.ref.id == Buffer::ATT_OUT)
+     return error(s.ref.id);
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) ||
+-      (r->state != CacheState::FILL &&
+-       !(s.ref.id == Buffer::TYPE_ROWS && r->state == CacheState::READY &&
+-         r->readers == 0)) ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity))
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) ||
++      (r.state != CacheState::FILL &&
++       !(s.ref.id == Buffer::TYPE_ROWS && r.state == CacheState::READY &&
++         r.readers == 0)) ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity))
+     return error(s.ref.id);
+   if (s.ref.id == Buffer::TYPE_ROWS) {
+-    if ((r->covered_rows[0] & 7u) == 0) return error(s.ref.id);
++    if ((r.covered_rows[0] & 7u) == 0) return error(s.ref.id);
+     for (unsigned t = 0; t < 3; ++t)
+-      rt.owners.type_valid[t] = bit(r->covered_rows, t);
+-  } else if (!covered(rt, s, r->covered_rows)) return error(s.ref.id);
+-  r->state = CacheState::READY;
+-  r->valid = true;
++      rt.owners.type_valid[t] = bit(r.covered_rows, t);
++  } else if (!covered(rt, s, r.covered_rows)) return error(s.ref.id);
++  r.state = CacheState::READY;
++  r.valid = true;
+   return ok();
+ }
+ 
+ Check full_release_owner(FullRuntime& rt, const FullOwnerSpec& s) {
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) || !r->valid ||
+-      r->state != CacheState::READY || r->readers)
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) || !r.valid ||
++      r.state != CacheState::READY || r.readers)
+     return error(s.ref.id);
+-  r->state = CacheState::FREE;
+-  r->valid = false;
++  r.state = CacheState::FREE;
++  r.valid = false;
+   if (s.ref.id == Buffer::TYPE_ROWS)
+     for (bool& v : rt.owners.type_valid) v = false;
+-  clear_bits(r->covered_rows);
++  clear_bits(r.covered_rows);
+   return ok();
+ }
+ 
+ Check full_invalidate_owner(FullRuntime& rt, BufferRef ref, uint8_t region) {
+-  FullOwnerRecord* r = find(rt, ref, region);
+-  if (!r || (r->ref != ref && r->lease_old_ref != ref)) return error(ref.id);
+-  if (r->state == CacheState::READ || r->readers) return error(ref.id);
+-  r->state = CacheState::INVALID;
+-  r->valid = false;
+-  r->lease_old_ref = none();
+-  if (r->ref.id == Buffer::TYPE_ROWS)
++  const unsigned index = find_index(rt, ref, region);
++  if (index == kNoOwnerIndex) return error(ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (r.ref != ref && r.lease_old_ref != ref) return error(ref.id);
++  if (r.state == CacheState::READ || r.readers) return error(ref.id);
++  r.state = CacheState::INVALID;
++  r.valid = false;
++  r.lease_old_ref = none();
++  if (r.ref.id == Buffer::TYPE_ROWS)
+     for (bool& v : rt.owners.type_valid) v = false;
+-  clear_bits(r->covered_rows);
+-  clear_bits(r->old_consumed_rows);
++  clear_bits(r.covered_rows);
++  clear_bits(r.old_consumed_rows);
+   return ok();
+ }
+ 
+@@ -629,22 +656,24 @@
+       old_s.rows != next_s.rows || old_s.width != next_s.width ||
+       old_s.stage != next_s.stage || old_s.layer != next_s.layer)
+     return error(next_s.ref.id, 5);
+-  FullOwnerRecord* r = find(rt, old_s.ref, old_s.region);
+-  if (!r || !same_spec(*r, old_s) || !r->valid ||
+-      r->state != CacheState::READY || r->readers ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity) ||
+-      !covered(rt, old_s, r->covered_rows) ||
+-      r->max_claimed_epoch >= kMaxEpoch ||
+-      next_s.ref.epoch != r->max_claimed_epoch + 1)
++  const unsigned index = find_index(rt, old_s.ref, old_s.region);
++  if (index == kNoOwnerIndex) return error(next_s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, old_s) || !r.valid ||
++      r.state != CacheState::READY || r.readers ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity) ||
++      !covered(rt, old_s, r.covered_rows) ||
++      r.max_claimed_epoch >= kMaxEpoch ||
++      next_s.ref.epoch != r.max_claimed_epoch + 1)
+     return error(next_s.ref.id);
+-  r->lease_old_ref = old_s.ref;
+-  r->ref = next_s.ref;
+-  r->max_claimed_epoch = next_s.ref.epoch;
+-  r->stage = next_s.stage; r->layer = next_s.layer;
+-  r->content = next_s.content; r->state = CacheState::EXCLUSIVE_RW;
+-  r->valid = false;
+-  clear_bits(r->covered_rows);
+-  clear_bits(r->old_consumed_rows);
++  r.lease_old_ref = old_s.ref;
++  r.ref = next_s.ref;
++  r.max_claimed_epoch = next_s.ref.epoch;
++  r.stage = next_s.stage; r.layer = next_s.layer;
++  r.content = next_s.content; r.state = CacheState::EXCLUSIVE_RW;
++  r.valid = false;
++  clear_bits(r.covered_rows);
++  clear_bits(r.old_consumed_rows);
+   ++rt.owner_leases;
+   return ok();
+ }
+@@ -653,40 +682,46 @@
+                                 uint8_t batch, uint16_t row0, uint16_t rows) {
+   if (!rt.request_valid || !rt.model_header_valid ||
+       !in_scope(rt, s, batch, row0, rows)) return error(s.ref.id, 5);
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) || r->state != CacheState::EXCLUSIVE_RW ||
+-      r->lease_old_ref.id == Buffer::NONE ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity))
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) || r.state != CacheState::EXCLUSIVE_RW ||
++      r.lease_old_ref.id == Buffer::NONE ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity))
+     return error(s.ref.id);
+   for (uint16_t row = row0; row < uint32_t(row0) + rows; ++row) {
+     const unsigned idx = bit_index(s, batch, row);
+-    if (bit(r->old_consumed_rows, idx) || bit(r->covered_rows, idx))
++    if (bit(r.old_consumed_rows, idx) || bit(r.covered_rows, idx))
+       return error(s.ref.id);
+   }
+   for (uint16_t row = row0; row < uint32_t(row0) + rows; ++row)
+-    set_bit(r->old_consumed_rows, bit_index(s, batch, row));
++    set_bit(r.old_consumed_rows, bit_index(s, batch, row));
+   return ok();
+ }
+ 
+ Check full_commit_inplace_owner(FullRuntime& rt, const FullOwnerSpec& s) {
+   if (!rt.request_valid || !rt.model_header_valid) return error(s.ref.id);
+-  FullOwnerRecord* r = find(rt, s.ref, s.region);
+-  if (!r || !same_spec(*r, s) || r->state != CacheState::EXCLUSIVE_RW ||
+-      !numeric_identity_equal(r->identity, rt.inputs.identity) ||
+-      !covered(rt, s, r->old_consumed_rows) ||
+-      !covered(rt, s, r->covered_rows)) return error(s.ref.id);
+-  r->state = CacheState::READY;
+-  r->valid = true;
+-  r->lease_old_ref = none();
++  const unsigned index = find_index(rt, s.ref, s.region);
++  if (index == kNoOwnerIndex) return error(s.ref.id);
++  FullOwnerRecord& r = rt.owners.record[index];
++  if (!same_spec(r, s) || r.state != CacheState::EXCLUSIVE_RW ||
++      !numeric_identity_equal(r.identity, rt.inputs.identity) ||
++      !covered(rt, s, r.old_consumed_rows) ||
++      !covered(rt, s, r.covered_rows)) return error(s.ref.id);
++  r.state = CacheState::READY;
++  r.valid = true;
++  r.lease_old_ref = none();
+   return ok();
+ }
+ 
+ Check full_owner_snapshot(const FullRuntime& rt, BufferRef ref,
+                           uint8_t region, FullOwnerRecord& output) {
+   if (!check_ref(ref, region)) return error(ref.id);
+-  const FullOwnerRecord* r = find(rt, ref, region);
+-  if (!r || r->ref != ref) return error(ref.id);
+-  output = *r;
++  const unsigned index = find_index(rt, ref, region);
++  if (index == kNoOwnerIndex) return error(ref.id);
++  const FullOwnerRecord& r = rt.owners.record[index];
++  if (r.ref != ref) return error(ref.id);
++  output = r;
+   return ok();
+ }
+ 
+@@ -713,22 +748,24 @@
+     if (r.state == CacheState::FILL || r.state == CacheState::READ ||
+         r.state == CacheState::EXCLUSIVE_RW || r.state == CacheState::DRAIN ||
+         r.readers) return protocol();
+-  FullOwnerRecord* a8 = find(rt, BufferRef{Buffer::A8, 0, 1}, 0);
++  unsigned a8_index = find_index(rt, BufferRef{Buffer::A8, 0, 1}, 0);
+   const BufferRef numeric_ref = rt.cache.activation_meta.ref;
+   if (numeric_ref.id == Buffer::A8 && numeric_ref.bank == 0 &&
+-      numeric_ref.epoch && !a8) {
+-    a8 = empty_slot(rt);
+-    if (!a8) return protocol();
+-    a8->ref = numeric_ref;
+-    a8->max_claimed_epoch = numeric_ref.epoch;
+-    a8->state = CacheState::INVALID;
+-  }
+-  if (a8) {
+-    uint32_t high = a8->max_claimed_epoch;
++      numeric_ref.epoch && a8_index == kNoOwnerIndex) {
++    a8_index = empty_index(rt);
++    if (a8_index == kNoOwnerIndex) return protocol();
++    FullOwnerRecord& a8 = rt.owners.record[a8_index];
++    a8.ref = numeric_ref;
++    a8.max_claimed_epoch = numeric_ref.epoch;
++    a8.state = CacheState::INVALID;
++  }
++  if (a8_index != kNoOwnerIndex) {
++    FullOwnerRecord& a8 = rt.owners.record[a8_index];
++    uint32_t high = a8.max_claimed_epoch;
+     if (numeric_ref.id == Buffer::A8 && numeric_ref.bank == 0 &&
+         numeric_ref.epoch > high) high = numeric_ref.epoch;
+-    a8->ref.epoch = high;
+-    a8->max_claimed_epoch = high;
++    a8.ref.epoch = high;
++    a8.max_claimed_epoch = high;
+     rt.cache.activation_meta.ref = {Buffer::A8, 0, high};
+   }
+   for (FullOwnerRecord& r : rt.owners.record) {

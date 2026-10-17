@@ -1,0 +1,15 @@
+# 普通 Q/L 来源链静态接点盘点（2026-10-14）
+
+范围：M003/SM003/E003/R003；仅核当前 E002 实现、冻结合同及两份原收据，没有运行参考、仿真、生成或综合。主控 [D-M005-FINAL-ASSESSMENT-01](../../../.research-agent/communications/m005-final-assessment-m003-paused-controller-decision-20261014.json) 决定 M003 普通 Q/L 保持 paused；本文是其允许的一次静态收尾，不恢复生产控制，也不判任何新 PASS。
+
+| 接点 | 当前源码事实 | 尚未由这些事实证明的范围 |
+| --- | --- | --- |
+| caller typed 发射 | `hls/control/full_forward_controller.cpp:325-353` 的 partitioned direct 路径只有 LayerNorm overload；其他 family 在保护性分支返回 E_PROTOCOL。LN 路径 `:470-515` 先构建并应答 BEGIN，再发 producer；`:575-627` 用原 BEGIN 构建 END，等待绑定且 drained 的回复后才向 typed 退休提交。`hls/platform/full_kernel_wrapper.cpp:62-93` 声明两条 provenance FIFO。 | 普通 Attention/向量/残差/父 Linear 等 producer 的 generated BEGIN/END 接入、完整多窗口 typed 退休及 production top 实际闭包。 |
+| 物理窗口 P 与 tensor 发布 | `laya_generated_provenance_hub_v1.sv:83-84` 有每 owner 128 位窗口关闭和逐窗口 96 位 Context；`:410-452` 对当前支持的连续全宽窗口核完整行及 geometry；`:891-923` 在成功 END 后保存原 Context；`:948-977` 的 PUBLISH 单独要求完整窗口覆盖。 | 当前 `source_owner_supported` (`:392-396`) 限定 role6、TOKEN/F32、单 descriptor 形态；Attention 多 head、QKV pair、原地旧/新 epoch、其它普通 role/row_space 未由这套窗口逻辑覆盖。 |
+| 普通 Q 原子来源租约 | `laya_gate_quant_portal_binding_v1.sv:166-177` 把非 GATE Q 的准入绑定到 hub query grant；`:200-210,271-286` 在 Q 完成与物理读债清零时才放行完成及全键 release。hub `:706-759` 要求同一 owner/identity/model、已发布、窗口原 P、Q 范围和单调 generation；`:762-797` 比较租约键并要求 `source_release_drained`。 | `laya_gate_quant_portal_decode_v1.sv:110-136` 的普通 Q source 白名单比上述 role6 窗口 hub 广；解码接受不能当作对应 owner 的 P/query 可获准。A 冻结凭据到每个父 L view、唯一父退休及完整请求未由这两份局部收据证明。 |
+| 实际 Q AXI 读债 | `laya_layernorm_quant_source_shell_v1.sv:155-176` 按真实 ARLEN+1 与 R 握手记 beat、检查 RLAST/RRESP，并在 `:281-323` 将量化读口接到共享 binding；该 shell 的 `quant_external_drained` 作为租约释放门。 | 这是 LN source shell 的物理读口，不能代签生产 13BO 多源路由。`quant_protocol_error` 为 sticky 输出，静态可见的 `quant_external_drained` 表达式本身不包含该错误位；错误后是否禁止成功退休须由完整链上层及受影响动态反例核定。 |
+| 父 L 与 A provenance | `laya_matrix_portal_binding_v1.sv:265-289` 在 view 准入时同查 A/W/owner ledger，锁存完整 NumericIdentity、L Context 与 source/A/W/PS/dst Ref；`:341-379` 将同一父 Context/Refs 交 owner ledger 和持有到真实读债清零的 A lease，`:315-320` 区分实际 view 回复与 caller 的 typed 父退休。 | 现有接口可定位父 L 接点，但尚无普通多窗口来源 P→Q→A→各 view 的同一生产身份、独立末 B/债务和唯一父 TaskDone 端到端证明。 |
+
+证据边界：[layernorm_quant_source_03/receipt.json](../experiment_results/runs/R003/layernorm_quant_source_03/receipt.json) 是 LN_ATTN/stage2/layer1、NORM/bank0/epoch9 的单个真实 rows16 来源→Q；[generated_source_lease_05/receipt.json](../experiment_results/runs/R003/generated_source_lease_05/receipt.json) 是 HIDDEN/id1/bank0/epoch100 的四窗口受控物理观察与直接 query sideband，没有真实 QUANT AXI 读或生产 dispatcher。二者 identity 和物理层级不同，不合并为普通四窗口物理 PASS。
+
+待恢复合同仍以 [逐窗口 P 决定](../../../results/ordinary_linear_provenance_contract_20261012.md)、[generated 通道合同](../../../results/generated_provenance_channel_contract_20261012.md)及 [M003](../../../mission/M003_当前身份生产链接入与回归.md)为准。先让真实 producer 的逐窗口完整覆盖及末 B/END 成为 P，待整 tensor 独立发布后原子 Q 查询；Q 的实际读债与错误排空后按全键 release，再核 A provenance 到 L 各 view 和唯一父退休。需要 Attention、QKV、原地 epoch、重复/旧 ticket、晚错、取消/恢复等受影响反例；本文不分配运行额度或新增实现权限。

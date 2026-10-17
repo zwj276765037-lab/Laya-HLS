@@ -1,0 +1,13 @@
+--- bootstrap_source_guard_rtl_02/laya_bootstrap_source_guard_tb_v1.sv
++++ bootstrap_source_guard_rtl_03/laya_bootstrap_source_guard_tb_v1.sv
+@@ -432,8 +432,8 @@
+     producer_valid=0;snapshot_base_epoch=7;
+     producer_valid=1;#1;if(!producer_ready)$fatal(1,"bound producer source gate rejected");
+     tick();producer_valid=0;
+-    raw_araddr=BO_BASE+262144;raw_arvalid=1;
+-    repeat(12)begin if(ar_allowed || source_peer_ar!=0)$fatal(1,"out-of-range source AR forwarded");tick();end
++    raw_araddr=BO_BASE+262144;raw_arvalid=1;#1;
++    repeat(12)begin if(ar_allowed || source_peer_ar!=0)$fatal(1,"out-of-range source AR forwarded allow=%0d addr=%h peer=%0d",ar_allowed,raw_araddr,source_peer_ar);tick();end
+     raw_arvalid=0;raw_araddr=BO_BASE;raw_arlen=63;raw_arvalid=1;#1;
+     if(!ar_allowed)$fatal(1,"valid protected source AR blocked");
+     tick();raw_arvalid=0;

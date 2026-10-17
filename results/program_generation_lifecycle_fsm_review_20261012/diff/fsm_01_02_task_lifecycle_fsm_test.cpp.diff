@@ -1,0 +1,37 @@
+--- 01/tests/task_lifecycle_fsm_test.cpp
++++ 02/tests/task_lifecycle_fsm_test.cpp
+@@ -51,14 +51,14 @@
+       if (test_case == Case::OWNER_WAIT &&
+           request.action == provenance::Action::PUBLISH) {
+         response.status = Status::E_BUFFER;
+-        response.error_detail = detail(4, uint8_t(Buffer::NORM), 9);
++        response.error_detail = laya::detail(4, uint8_t(Buffer::NORM), 9);
+         response.owner_published = false;
+       }
+       if (request.action == provenance::Action::INVALIDATE) {
+         ++invalidates;
+         if (test_case == Case::OWNER_WAIT && invalidates == 1) {
+           response.status = Status::E_PROTOCOL;
+-          response.error_detail = detail(7, 0, 14);
++          response.error_detail = laya::detail(7, 0, 14);
+           response.drained = false;
+         }
+       }
+@@ -67,7 +67,7 @@
+             test_case == Case::WRONG_END) cancel = true;
+         if (test_case == Case::BAD_BEGIN) {
+           response.status = Status::E_PROTOCOL;
+-          response.error_detail = detail(7, 0, 14);
++          response.error_detail = laya::detail(7, 0, 14);
+           response.drained = false;
+         }
+       }
+@@ -78,7 +78,7 @@
+           assert(request.issued_store_bytes[0] == 0 && producers == 0);
+           if (ends == 1) {
+             response.status = Status::E_PROTOCOL;
+-            response.error_detail = detail(7, 0, 14);
++            response.error_detail = laya::detail(7, 0, 14);
+             response.drained = false;
+             response.scope_active = true;
+           }

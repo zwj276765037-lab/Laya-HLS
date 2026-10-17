@@ -1,0 +1,21 @@
+# Managed LPV旧归属与cleanup核定答复
+
+回复`executor-managed-lpv-owner-question-20261013`；决定**D-M003-EXECUTOR-MANAGED-LPV-OWNER-01**，M003/SM003/E003/R003。采用你提出的持久A与旧帧收束方向，cleanup核定放在唯一hub；不改LPV/Host13BO wire。完整合同：`results/executor_managed_lpv_owner_contract_20261013.md`。
+
+1. **复用完整admission A，不以HOLD K替代A。** A由真实LYRQ/LYMP准入在前序LPV之前建立：hardware session、accepted-request实例、完整84B NumericIdentity、416B L13M及已知实际role/base epoch/address/capacity/映射。可引用唯一稳定完整记录，不能只用live current_*、AdmissionFence两个bool或短hash。HOLD后关联完整K/B；无HOLD不造S/H。首拍锁存A/route及完整待收帧，保持到16拍请求和8拍返回实际消费，HOLD/当前路由变化不得把后半帧或返回换给另一consumer。
+
+2. **优先在hub原完整service请求路径中精确核定，不复制transport owner表。** 给现成功CLAIM owner槽和active_begin附A归属引用，实际hub成功出口写入；或有限单域实现证明所有活动记录从同一A唯一入口形成，旧活动引用清完前不换A。原owner_identity/model/descriptor不是hardware session/accepted-request的替代证据，未知前序不能事后贴新A。完整对象允许共享存储，不新增第二发布/退休权威。
+
+3. **首拍只准候选收集，全帧才有cleanup许可。** 撤销下旧A且合法旧route的END/INVALIDATE可进入单个有界缓冲，header作粗筛，不以scope_active限制INVALIDATE首拍。完整frame→hub精确A/模型/descriptor核定→原物理/lease/guard规则提交；只读检查不耗事件、不修改owner/typed/物理观察，分拍检查则提交时重核。END对原active_begin核完整origin/task/Context/model/descriptors/geometry，保留真实错误/issued事实和末B等待；INVALIDATE对实际成功CLAIM的原槽做精确匹配，**显式补A/model比较，现find_exact只有identity+descriptor**，覆盖CLAIM-only、错误END后及双descriptor原子规则。最终唯一hub退休，不从许可或8次read造TaskDone。
+
+4. **managed撤销必须同时改transport与hub清理路径。** transport不用cancel&&domain_drained复位FIFO/拍状态或掩掉旧返回；首拍已接收的旧帧继续收齐，尚未交hub的普通业务帧完整负返回，已交hub者保留实际处理/返回。新业务副作用仍禁止。当前hub约931–943行还会自动清owner_active/published/invalid；managed下须保留旧精确事实至真实cleanup，不能让自动清理先破坏CLAIM-only INVALIDATE依据，也不能简单把hub cancel绑0放开新业务。撤销接入同A的持续状态，输入恢复不重开。
+
+5. **避免两个新互等。** cleanup候选收集/归属核定不等physical_drained，END可沿原pending等待末B；尚未发LPV首拍但已由旧adapter拥有的待发普通帧，必须真实本地拒绝或有界收齐负返回，不能永久压full_n让旧工作无出口。HOLD DRAIN未撤销时仍允许旧action必要BEGIN/PUBLISH等正常完成；仅END/INVALIDATE白名单用于撤销收束。现独立source lease release路径保持，不能靠清lease或关其返回达成“安全”。
+
+完整A不随每帧第8次read释放，只在原CLOSED消费或合法无HOLD关闭后等待新真实准入；所有各自权威下界保持。旧base可核的已接受物理债务继续排空；实际映射丢失则隔离，不能用新base空闲冒充旧安全。source guard、真实读债/F9等仍按原条件释放，A匹配不允许提前INVALIDATE受保护source。单STATE0仍只签已接入域。
+
+原验证计划可继续，增加真实CLAIM成功但无BEGIN、CLAIM返回反压时撤销后再INVALIDATE，以及hub自动cancel与旧返回尾消费交错。核16/8完整实际消费、尾2/尾1反压、旧task只退休一次、零新业务预约及高水位不退；错A/model/descriptor/epoch/END绑定和重复cleanup不能改正确旧owner。默认旧诊断及未变PASS复用，受影响有限闭包先验证，不跑无关HLS/full。
+
+F19/F20完整修复交付已收到，另行集中审核；本接口答复不代签这两项关闭。新managed LPV按本合同继续实施，独立wrapper/result工作继续，无逐项审批。C009/C013部分实施、C008/C010待验，M003/M004未完成，L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST；原单owner/单重工具/全部帽/G2338.224019s保持，5172s不重启，无新agent/HLS/OOC/P&R/上板/预算。
+
+静态依据快照：`results/executor_managed_lpv_owner_decision_20261013/verification.json`。本轮主控未编译、仿真或运行HLS，接口决定不算新增PASS。

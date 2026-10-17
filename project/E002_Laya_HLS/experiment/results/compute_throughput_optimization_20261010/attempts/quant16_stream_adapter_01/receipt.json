@@ -1,0 +1,1069 @@
+{
+  "schema": "laya-quant16-integrated-exact-adapter-rtl-receipt-v1",
+  "created_utc": "2026-10-10T16:50:53.598550+00:00",
+  "overall_status": "PASS_SCOPED",
+  "scope": "one external real Wi row, one external real Down row; original short edges; 27 affected independent R0 cases, six mixed groups, three additional in-flight reset/recovery checks",
+  "tool": "Vivado/XSim 2025.2; one original syn03 F32 fdiv IP and sixteen original syn03 F32 fmul IP instances",
+  "implementation": "six registered restoring U/127 stages with five bits/stage; bounded 32-entry semantic ring retaining actual FP and helper returns; subnormal RECIP normalization/restoration; exact FMUL operand scaling plus q-zero dummy awaiting real valid",
+  "identity": {
+    "input_manifest": {
+      "path": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/input_manifest.json",
+      "sha256": "88c12d344bac5a20bc543779df6429b39af1e9679ea23e8e161f753779db9014"
+    },
+    "simulate_log": {
+      "path": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim/simulate.log",
+      "sha256": "ebe8f253e8799a49648dd9687c8319ccf5c2ba3caddaba4cbbe89674255e8e8c"
+    },
+    "guard_result": {
+      "path": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/guard/guard_result.json",
+      "sha256": "54baa977d66fbb90586a438643b66f64748a994b67f2a288fc2bb6b4bda3469d"
+    },
+    "adapter_fixture_manifest": {
+      "path": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/fixture/manifest.json",
+      "sha256": "5c54fa09d55e2f958149d816076b4e7c4ea05e18205df44b11cb9430fa95a269"
+    },
+    "real03_preimage_manifest": {
+      "path": "results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/preimage_real03/manifest.json",
+      "sha256": "60d2a22bc2de6f60f4ad170d1b4a1b3bc0654e37b8ef82505a3c696a5bfe667b"
+    }
+  },
+  "input_integrity": {
+    "recorded_files": 257,
+    "postrun_stale_files": []
+  },
+  "resources": {
+    "caps": {
+      "owned_rss_gib": 8,
+      "seconds": 3600,
+      "simulation_clocks": 40000000
+    },
+    "guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 42.9811531919986,
+      "finished_at": "2026-10-10T16:49:27.815360+00:00",
+      "minimum_mem_available_kb": 390882276,
+      "peak_owned_rss_kb": 1903516,
+      "rss_capture_count": 213,
+      "rss_captured": true,
+      "rss_sample_count": 213,
+      "trigger": null
+    },
+    "fp_dividers": 1,
+    "fmul_lanes": 16,
+    "group_slots": 32,
+    "f32_banks": 16,
+    "divider_reservation_entries": 32,
+    "fmul_half_reservation_entries": 64,
+    "helper_pipeline_stages": 6,
+    "physical_fit_timing": "NOT_RUN"
+  },
+  "real_rows": [
+    {
+      "case": "LN_FFN to Wi",
+      "groups": 32,
+      "q_bytes_checked": 1024,
+      "cycles_from_start_to_done": 141,
+      "scale_semantic_issues_returns": [
+        32,
+        32
+      ],
+      "recip_semantic_issues_returns": [
+        32,
+        32
+      ],
+      "amax_read_beats": 64,
+      "replay_read_beats": 64,
+      "fmul_halves_issues_returns": [
+        64,
+        64
+      ],
+      "accepted_covered_groups": [
+        32,
+        32
+      ],
+      "service_observation": {
+        "task": "101",
+        "cycles": "141",
+        "scale_issue_first_last": "12/109",
+        "scale_return_first_last": "19/116",
+        "recip_issue_first_last": "20/117",
+        "recip_return_first_last": "27/124",
+        "scale_gap_min_max": "1/4",
+        "slots_peak": "24",
+        "div_pending_peak": "7",
+        "stalls_input_div_output": "0/3/14",
+        "fp": "64/64",
+        "dummy": "0",
+        "helper": "0/0",
+        "semantic": "64"
+      },
+      "result": "PASS_SCOPED"
+    },
+    {
+      "case": "GEGLU to Down",
+      "groups": 82,
+      "q_bytes_checked": 2624,
+      "cycles_from_start_to_done": 341,
+      "scale_semantic_issues_returns": [
+        82,
+        82
+      ],
+      "recip_semantic_issues_returns": [
+        82,
+        82
+      ],
+      "amax_read_beats": 164,
+      "replay_read_beats": 164,
+      "fmul_halves_issues_returns": [
+        164,
+        164
+      ],
+      "accepted_covered_groups": [
+        82,
+        82
+      ],
+      "service_observation": {
+        "task": "202",
+        "cycles": "341",
+        "scale_issue_first_last": "12/309",
+        "scale_return_first_last": "19/316",
+        "recip_issue_first_last": "20/317",
+        "recip_return_first_last": "27/324",
+        "scale_gap_min_max": "1/4",
+        "slots_peak": "32",
+        "div_pending_peak": "7",
+        "stalls_input_div_output": "68/3/34",
+        "fp": "164/164",
+        "dummy": "0",
+        "helper": "0/0",
+        "semantic": "164"
+      },
+      "result": "PASS_SCOPED"
+    }
+  ],
+  "original_tiny_boundary": {
+    "input_amax_bits": "006ce3ee",
+    "d_full_bits": "0000db7f",
+    "reciprocal_bits": "7f800000",
+    "scale_semantic_issues_returns": [
+      1,
+      1
+    ],
+    "recip_semantic_issues_returns": [
+      1,
+      1
+    ],
+    "fp_actual_issues_returns": [
+      2,
+      2
+    ],
+    "fp_dummy_issues": 1,
+    "helper_issues_returns": [
+      1,
+      1
+    ],
+    "target_status": "INVALID_NUMERIC",
+    "output_halves": 0,
+    "result": "PASS"
+  },
+  "affected_cases": {
+    "count": 27,
+    "ready_cases": 17,
+    "numeric_rejection_cases": 10,
+    "independent_reference": {
+      "path": "vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/tb/original_r0_reference.py",
+      "sha256": "1f4754a97dafa17470532de788e56bb71f089598659ef464eafeddff5a999496",
+      "selected_case_recheck_count": 27
+    },
+    "cases": [
+      {
+        "id": "all_plus_zero",
+        "source_group_index": 0,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "signed_zero_mix",
+        "source_group_index": 2,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_min_subnormal",
+        "source_group_index": 3,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_63",
+        "source_group_index": 4,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_64",
+        "source_group_index": 5,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_min_normal",
+        "source_group_index": 6,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_02fdffff",
+        "source_group_index": 7,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_02fe0000",
+        "source_group_index": 8,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_02fe0001",
+        "source_group_index": 9,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_02fe0002",
+        "source_group_index": 10,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_02fe0003",
+        "source_group_index": 11,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_02fe0004",
+        "source_group_index": 12,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_02fe0005",
+        "source_group_index": 13,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_03fdffff",
+        "source_group_index": 15,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_03fe0000",
+        "source_group_index": 16,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "amax_03fe0001",
+        "source_group_index": 17,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "half_integer_trio_signed",
+        "source_group_index": 18,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "signed_normal_subnormal_mix",
+        "source_group_index": 19,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "normal_roundf_ties",
+        "source_group_index": 20,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "half_round_zero_boundary",
+        "source_group_index": 21,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "half_round_first_valid",
+        "source_group_index": 22,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "half_min_subnormal_saved",
+        "source_group_index": 23,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "half_last_finite_scale_exact",
+        "source_group_index": 24,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "half_overflow_midpoint_minus1",
+        "source_group_index": 25,
+        "expected_status": 0,
+        "result": "PASS"
+      },
+      {
+        "id": "half_overflow_midpoint",
+        "source_group_index": 26,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "half_overflow_midpoint_plus1",
+        "source_group_index": 27,
+        "expected_status": 6,
+        "result": "PASS"
+      },
+      {
+        "id": "half_scale_far_overflow",
+        "source_group_index": 28,
+        "expected_status": 6,
+        "result": "PASS"
+      }
+    ]
+  },
+  "mixed": {
+    "groups": 6,
+    "q_bytes_checked": 192,
+    "cycles_from_start_to_done": 48,
+    "normal_tiny_zero": true,
+    "normal_group_signed_minsub_and_signed_zero": true,
+    "finite_output_backpressure": true,
+    "service_observation": {
+      "task": "101",
+      "cycles": "48",
+      "scale_issue_first_last": "12/19",
+      "scale_return_first_last": "19/26",
+      "recip_issue_first_last": "20/27",
+      "recip_return_first_last": "27/34",
+      "scale_gap_min_max": "1/2",
+      "slots_peak": "6",
+      "div_pending_peak": "5",
+      "stalls_input_div_output": "0/3/3",
+      "fp": "11/11",
+      "dummy": "4",
+      "helper": "4/4",
+      "semantic": "11"
+    },
+    "result": "PASS"
+  },
+  "reset": {
+    "original_divider_and_fmul_checks": 2,
+    "additional_checks": [
+      "tiny helper actually in flight",
+      "normalized subnormal RECIP actually in flight",
+      "FMUL with q-zero bypass metadata actually in flight"
+    ],
+    "additional_valid_recoveries": 3,
+    "isolation_clocks": 12,
+    "old_returns_cancelled": true,
+    "result": "PASS"
+  },
+  "verification": [
+    "each real-row q byte, half scale, d_full and reciprocal against original frozen independent fixture; SCALE source amax and complete tag/ordinal checks",
+    "active FP routes in selected valid R0 cases and mixed groups: each true FMUL product bit checked against original exact-rational reference; bypass routes await actual dummy FMUL valid and all q/status checked",
+    "independent divider issue-token scoreboard verifies semantic retirement order across normal/tiny/RECIP routes",
+    "each successful group: two AMAX reads, two REPLAY reads, two sixteen-lane FMUL half returns and two actual 128-bit output commits; READY/done only after bank/amax/divider/FP/helper/FMUL/token debts zero",
+    "original zero and roundf edges, malformed second-half mask, half overflow, nonfinite first error, cross-group first-error ranking and independent slot poison retained"
+  ],
+  "service_limit": "reported SCALE issue gaps are actual 1..4 clocks for each real row; full command 141/341 clocks includes quarantine, fill, backpressure and tail and is not an end-to-end sustained 4 clocks/group proof",
+  "uncovered": [
+    "complete NumericIdentity/BufferRef integration",
+    "physical dual A capacity and lease/epoch lifecycle",
+    "actual LN or GEGLU producer to quant to TM4/Q8 chain",
+    "synthesis/P&R/150MHz timing/platform/board"
+  ],
+  "historical_failure": "real02/real03 original FTZ numerical failures and matching source preimage retained; no gold or tolerance changed",
+  "all_service_observations": [
+    {
+      "task": "101",
+      "cycles": "141",
+      "scale_issue_first_last": "12/109",
+      "scale_return_first_last": "19/116",
+      "recip_issue_first_last": "20/117",
+      "recip_return_first_last": "27/124",
+      "scale_gap_min_max": "1/4",
+      "slots_peak": "24",
+      "div_pending_peak": "7",
+      "stalls_input_div_output": "0/3/14",
+      "fp": "64/64",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "64"
+    },
+    {
+      "task": "202",
+      "cycles": "341",
+      "scale_issue_first_last": "12/309",
+      "scale_return_first_last": "19/316",
+      "recip_issue_first_last": "20/317",
+      "recip_return_first_last": "27/324",
+      "scale_gap_min_max": "1/4",
+      "slots_peak": "32",
+      "div_pending_peak": "7",
+      "stalls_input_div_output": "68/3/34",
+      "fp": "164/164",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "164"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/13",
+      "scale_return_first_last": "19/20",
+      "recip_issue_first_last": "21/21",
+      "recip_return_first_last": "28/28",
+      "scale_gap_min_max": "1/1",
+      "slots_peak": "2",
+      "div_pending_peak": "2",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "3/3",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "3"
+    },
+    {
+      "task": "303",
+      "cycles": "4",
+      "scale_issue_first_last": "-1/-1",
+      "scale_return_first_last": "-1/-1",
+      "recip_issue_first_last": "-1/-1",
+      "recip_return_first_last": "-1/-1",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "0",
+      "stalls_input_div_output": "0/0/0",
+      "fp": "0/0",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "0"
+    },
+    {
+      "task": "402",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "403",
+      "cycles": "11",
+      "scale_issue_first_last": "-1/-1",
+      "scale_return_first_last": "-1/-1",
+      "recip_issue_first_last": "-1/-1",
+      "recip_return_first_last": "-1/-1",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "0",
+      "stalls_input_div_output": "0/0/0",
+      "fp": "0/0",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "0"
+    },
+    {
+      "task": "404",
+      "cycles": "31",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "2",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "405",
+      "cycles": "13",
+      "scale_issue_first_last": "-1/-1",
+      "scale_return_first_last": "-1/-1",
+      "recip_issue_first_last": "-1/-1",
+      "recip_return_first_last": "-1/-1",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "2",
+      "div_pending_peak": "0",
+      "stalls_input_div_output": "0/0/0",
+      "fp": "0/0",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "0"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/13",
+      "scale_return_first_last": "19/20",
+      "recip_issue_first_last": "21/21",
+      "recip_return_first_last": "28/28",
+      "scale_gap_min_max": "1/1",
+      "slots_peak": "2",
+      "div_pending_peak": "2",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "3/3",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "3"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/13",
+      "scale_return_first_last": "19/20",
+      "recip_issue_first_last": "21/21",
+      "recip_return_first_last": "28/28",
+      "scale_gap_min_max": "1/1",
+      "slots_peak": "2",
+      "div_pending_peak": "2",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "3/3",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "3"
+    },
+    {
+      "task": "401",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "27",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "-1/-1",
+      "recip_return_first_last": "-1/-1",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "1/1",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "1"
+    },
+    {
+      "task": "101",
+      "cycles": "27",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "-1/-1",
+      "recip_return_first_last": "-1/-1",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "1/1",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "1"
+    },
+    {
+      "task": "101",
+      "cycles": "27",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "-1/-1",
+      "recip_return_first_last": "-1/-1",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "1/1",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "1"
+    },
+    {
+      "task": "101",
+      "cycles": "27",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "-1/-1",
+      "recip_return_first_last": "-1/-1",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "1/1",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "1"
+    },
+    {
+      "task": "504",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "505",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "506",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "507",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "508",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "509",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "510",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "524",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "525",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "526",
+      "cycles": "30",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/0",
+      "fp": "2/2",
+      "dummy": "0",
+      "helper": "0/0",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "48",
+      "scale_issue_first_last": "12/19",
+      "scale_return_first_last": "19/26",
+      "recip_issue_first_last": "20/27",
+      "recip_return_first_last": "27/34",
+      "scale_gap_min_max": "1/2",
+      "slots_peak": "6",
+      "div_pending_peak": "5",
+      "stalls_input_div_output": "0/3/3",
+      "fp": "11/11",
+      "dummy": "4",
+      "helper": "4/4",
+      "semantic": "11"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    },
+    {
+      "task": "101",
+      "cycles": "36",
+      "scale_issue_first_last": "12/12",
+      "scale_return_first_last": "19/19",
+      "recip_issue_first_last": "20/20",
+      "recip_return_first_last": "27/27",
+      "scale_gap_min_max": "0/0",
+      "slots_peak": "1",
+      "div_pending_peak": "1",
+      "stalls_input_div_output": "0/3/1",
+      "fp": "2/2",
+      "dummy": "1",
+      "helper": "1/1",
+      "semantic": "2"
+    }
+  ]
+}

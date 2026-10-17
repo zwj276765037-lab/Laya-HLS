@@ -1,0 +1,50 @@
+--- frozen/production_hls_partitions.json
++++ live/production_hls_partitions.json
+@@ -52,7 +52,7 @@
+     {
+       "name": "graph_program_sequencer",
+       "top": "laya_graph_program_sequencer",
+-      "state": "finite_top_generation_prepared_shell_unverified",
++      "state": "generated_finite_norm_top_verified_rtl_result_consumer",
+       "responsibility": "full model PC, next action, logical slot handles and monotonic action ordinal",
+       "owner_or_typed_authority": false,
+       "sources": "config/graph_program_sources.cmake",
+@@ -72,15 +72,20 @@
+         "consumption_gate": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_control_consumption_gate_v1.sv",
+         "notification": "LGR1 actual consumer four-beat handshake latched; cleared by next accepted-command first real read",
+         "validation": "host_top_02 abstract input only; shell depth2 RTL pending"
++      },
++      "evidence": {
++        "generation": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_hls_01",
++        "rtl": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_rtl_01",
++        "scope": "finite NORM_LAYER1_ATTN; actual generated program and shell, four depth2 FIFOs, four controlled commands in one runtime; executor admission and full PC pending"
+       }
+     },
+     {
+       "name": "task_lifecycle_executor",
+       "top": "laya_task_lifecycle_executor",
+-      "state": "host_layernorm_action_validated_hls_top_pending",
++      "state": "explicit_fsm_host_validated_bootstrap_and_hls_top_pending",
+       "responsibility": "identity/task/ref reservations, owner/lease state, BEGIN/producer/END, fence and unique typed retirement",
+       "next_action_authority": false,
+-      "sources": "config/task_lifecycle_executor_sources.cmake",
++      "sources": "config/task_lifecycle_fsm_sources.cmake",
+       "supported_scope": "NORM via real LayerNorm producer over all BxS rows16 windows; remaining 16 action kinds reject before side effect",
+       "internal_fifos": [
+         "action_request",
+@@ -88,7 +93,14 @@
+         "transaction_request",
+         "transaction_completion"
+       ],
+-      "external_protocol_fifos": []
++      "external_protocol_fifos": [],
++      "synchronous_host_reference_sources": "config/task_lifecycle_executor_sources.cmake",
++      "implementation": {
++        "machine_header": "include/laya_task_lifecycle_fsm.h",
++        "machine": "hls/control/task_lifecycle_fsm.cpp",
++        "phases": "shared finite steps, persisted B/row cursor, serialized LTX1/LTC1 I/O, immutable same-action cleanup retries",
++        "validation": "task_lifecycle_fsm_host_02 controlled host; request/model/source preseeded; no HLS/RTL/bootstrap or physical recovery claim"
++      }
+     },
+     {
+       "name": "legacy_graph_sequencer",

@@ -1,0 +1,1 @@
+/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/vitis-run --mode hls --config /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/config/numeric_hls_quant.cfg --work_dir /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/numeric-hls-20261007T020512Z-1792411/quant 

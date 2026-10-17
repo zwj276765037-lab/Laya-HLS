@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-embedding-qkv-minimal-next-design-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "question",
+  "text": "# 修订11成本出口与下一固定图接点静态核查\n\nexecution_state: running\nstage: M004_revision11_closeout_next_qkv_static\n\n2026-10-15；A001→A003；M004/SM004/E004/R001。修订11工程已交AT174–178，主控正在核原收据；AT173整次FAIL及已接纳分项保留。新增AUX两拍阻塞/一次AR八次R和AXI首AR后R0共同reset→510拍→slot0重载计数的短探针；不外推完整FFN恢复。Wi/Down bad/poison尚未真正触发，末段RTL剩75.592394s不再用于长前缀。\n\n下一方向确定为完整模型真实入口侧：CPU token embedding之后，复用现LN/Q/matrix，连接FPGA embedding LN→Q→Encoder0完整QKV，准备后续RoPE/Attention。请只给一套最小静态接法，不开新候选或实验：\n\n1. 从当前完整参考调用顺序确认embedding gamma、Encoder0免重复LN、QKV bias/布局/3072输出与16head分解；给出现RTL精确接点、共享矩阵/两W槽配置及已有FFN顶层如何保留复用，不能复制一套matrix/LN/Q。实质缺口列清，不预签实现可用。\n2. 绑定同一真实请求的原输入、gamma、QKV权重/scale和现有独立Q/PS/final gold；区分P1与v4/AT091请求，禁止混样本或新oracle/gold。资料没有完整QKV参考时明确可复用已有证据的范围，不生成新数据补空白。\n3. 说明QKV行暂存/外部scratch、同步bank/读写/发布和下一RoPE/Attention的真实128行依赖；给出可以开始实现的一段真实producer→consumer边界及有限验证工作量。不把一行QKV称Attention/full Encoder，不把保存中间值当完整链producer，也不为仿真缩S128模型。\n4. 只用已有测量给下一段成本估计与不确定性；给出当前单行FFN可保留的未变身份、数值bad/poison缺口后续怎样用局部事务覆盖而不再从冷LOAD等待末group。当前ADD单项退休、2060cycle估算不适用，沿已发范围修正。\n\n独立静态准备仅已有资料/源码读取与字节身份核查；若需轻量脚本，累计≤60s/1GiB、CPU0–3/nice19/idle，实际计量，历史未采样保持UNKNOWN。无EDA/前向/新gold/新agent，不用修订11旧RTL余额。继续维护source/fixed_graph_architecture_20261014.md及既有支持目录；A002独占E002。最终接口/预算由A001在同SM004集中确定，不设普通步骤审批。\n",
+  "in_reply_to": null,
+  "message_file": "agent/A001/result.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "a667b459ef14f8d2a2ee1c504b93a7b5eaa5cb5031b915432bf0b9bf63bef917",
+  "created_at": "2026-10-15T00:28:24.765298+00:00",
+  "status": "delivered",
+  "client_user_message_id": "cf7d61a3-8aff-4e3e-a275-495e3528f16b",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T00:28:25.034338+00:00",
+  "recipient_turn_id": "01a13cf5-d040-7e61-a4aa-bad5841ff04f"
+}

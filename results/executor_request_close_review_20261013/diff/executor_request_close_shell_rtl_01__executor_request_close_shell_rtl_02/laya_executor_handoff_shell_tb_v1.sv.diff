@@ -1,0 +1,19 @@
+--- executor_request_close_shell_rtl_01/laya_executor_handoff_shell_tb_v1.sv
++++ executor_request_close_shell_rtl_02/laya_executor_handoff_shell_tb_v1.sv
+@@ -327,8 +327,14 @@
+       old_channels_drained=1;not_closed(12);old_channels_drained=0;physical_safe=1;not_closed(12);
+       old_channels_drained=1;tick();
+       if(!response_valid || phase!=12 || response!==closed_gold)$fatal(1,"sealed CLOSED missing");
+-      save_closed(variant==0?"closed_ok_c0_capture":variant==1?"closed_ok_c1_capture":
+-          variant==2?"closed_error_c0_capture":"closed_error_c1_capture");
++      $display("CLOSE_CASE_PRESENTED variant=%0d cycle=%0d",variant,cycles);
++      case(variant)
++        0:save_closed("closed_ok_c0_capture");
++        1:save_closed("closed_ok_c1_capture");
++        2:save_closed("closed_error_c0_capture");
++        3:save_closed("closed_error_c1_capture");
++      endcase
++      $display("CLOSE_CASE_CAPTURED variant=%0d cycle=%0d",variant,cycles);
+       // Raw ready alone does not represent full codec/key/result consumption.
+       @(negedge clk);response_ready=1;idle(12);
+       if(!response_valid || request_closed || closed_requests || !locks_owned)

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m004-lnq-critical-path-partition-question-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "question",
+  "text": "# LN→Q后续：只核Q长组合路径的一个修复方案\n\n2026-10-15；A001→A003；M004/SM004/E004/R001。A002已交AT121局部功能与同版AT116联合OOC：41655 LUT/12192 FF/50 DSP/16 RAMB18，WNS−49.011ns@6.667ns，最差Q ordinal→divider内部路径231级/55.661ns。工程当前不启动新综合。A001核本次连接功能/身份/资源，你只处理下述有界架构问题，避免重复工程回归。\n\n请依据AT116 `work/timing_paths.rpt` 最差路径、当前 `activation_quantizer/rtl/quant16_stream_row.sv`、`quant16_divider_service` 及实际tiny/subnormal辅助实现，给出**一套**可执行时序修复建议：\n\n1. 将真实路径分成槽选择/数据选择、精确tiny或次正规处理、除法输入等有源码映射的部分，指出长组合级联来自哪里；不能只凭端点把所有延迟归给除法IP。\n2. 推荐最小的寄存/有界多周期切分，明确选槽预约、payload/tag保持、请求接受、返回、首错、真实排空/reset如何保持。保持同一Q8数值，不增加浮点lane或删除tiny/次正规精确规则；不要新建通用调度框架。\n3. 写出新接受间隔/额外延迟的结构上界和应测的区分项，注明未知；当前LN每16元素才供一个half，可以用这个已知供数节奏评估固定控制开销，但不能预签整链收益。若一次寄存切断不足，说明剩余组合段及原因，不列多套候选扫参。\n\n更新原 `source/fixed_graph_architecture_20261014.md` 的一个小节即可，保留旧v4和历史测量。沿原研究轻量host累计≤120s/8GiB，CPU0–3/nice19/idle；只读源码/已有报告和小规模计数，未采样历史保持UNKNOWN。无EDA、gold生成、模型运行、新代理或E002改动。A001负责最终接口/实现预算，A002负责后续代码与工具。\n",
+  "in_reply_to": null,
+  "message_file": "results/m004_simplified_start_20261014/lnq_timing_research_request.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "019784e9c423b2175adb74b5377bb9df967f8f838c4c14eb0c7e78a5cb3936e5",
+  "created_at": "2026-10-14T17:22:59.688616+00:00",
+  "status": "delivered",
+  "client_user_message_id": "9a7d6ba5-3a69-4802-a3e0-875218c44c97",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T17:22:59.716816+00:00",
+  "recipient_turn_id": "01a13b6f-cf0e-73e1-adbe-da0a8503b20d"
+}

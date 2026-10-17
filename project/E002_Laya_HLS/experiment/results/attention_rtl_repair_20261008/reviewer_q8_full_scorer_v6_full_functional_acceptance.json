@@ -1,0 +1,1012 @@
+{
+  "schema": "reviewer_q8_full_scorer_v6_functional_acceptance_v1",
+  "created_utc": "2026-10-08T23:48:09.674266+00:00",
+  "reviewer": "GPT-6 Astra / xhigh",
+  "status": "ACCEPTED_FULL_K1024_N1024_ONE_ROW_THREE_COMMAND_NUMERICAL_RTL_PROTOCOL_AND_OBSERVATION",
+  "scope": {
+    "production_build_tag": "fe067c8aa0627ad770096f9721394645",
+    "manifest": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/manifest.json",
+      "bytes": 147765,
+      "sha256": "128768a4a42ffa9d5f5dfd2bb9808e0f7a12a7509638f4d5650cb9fd9fb56caa"
+    },
+    "model_sha256": "6eb6ef58bc4f99bd9db40381604108af782ffc314aa00da6641f429991ca1f18",
+    "weight": {
+      "K": 1024,
+      "N": 1024,
+      "aux_base": 0,
+      "aux_span": 0,
+      "bias_base": 1667776,
+      "bias_name": "linear_120_baked_bias",
+      "bias_sha256": "2615612d43775396feade02dbe2cec6d6a11b9c8710605b1924234058922b6cc",
+      "bias_span": 4096,
+      "dtype": 8,
+      "family": 9,
+      "layer": 255,
+      "name": "scorer_fc1.weight",
+      "q_base": [
+        184156160,
+        184156160
+      ],
+      "q_span": [
+        524288,
+        524288
+      ],
+      "scale_base": 23019520,
+      "scale_span": 65536,
+      "source_sha256": "2fd2136718981ac6b3adaf1170a45150281d0c2b64020de254648f3e9d665ab3"
+    },
+    "shape": {
+      "B": 2,
+      "G": 32,
+      "K": 1024,
+      "N": 1024,
+      "S": 128,
+      "T": 128,
+      "batch": 1,
+      "row": 15,
+      "rows": 1
+    },
+    "selection": "R0 B2/S128 batch1 row15 marker_norm -> scorer_fc1_baked including linear_120_baked_bias",
+    "commands": [
+      {
+        "name": "load_w",
+        "task_id": 1,
+        "quant_task_id": 0,
+        "ps_epoch": 0,
+        "trace": false
+      },
+      {
+        "name": "run_trace_on",
+        "task_id": 3,
+        "quant_task_id": 2,
+        "ps_epoch": 1,
+        "trace": true
+      },
+      {
+        "name": "run_trace_off",
+        "task_id": 5,
+        "quant_task_id": 4,
+        "ps_epoch": 2,
+        "trace": false
+      }
+    ],
+    "no_reset_between_commands": true
+  },
+  "evidence": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v2/runtime_v5_final_evidence.json",
+      "bytes": 28348,
+      "sha256": "b9c8ffe3720afe97510111ec073b4e5956868bd99593e4c1ae431c16a8cb1c1d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v6/source_packet.json",
+      "bytes": 327450,
+      "sha256": "872b13e1efa71cff1aee87873b918d4e595d8046caf6ec4da9cc9917a3a91611"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_v6_finite_runtime_release.json",
+      "bytes": 20612,
+      "sha256": "c10b29f150956744738f59bee8e7f70ea79b2c20d18da4b3b465761a815e0a89"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_v6_independent_bytes_identity.json",
+      "bytes": 3442,
+      "sha256": "8b7e693a94d082cc4636996c75aa93cf7b0785c1e73d8a17b65abb8fcb3efda8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_v6_independent_protocol_metrics.json",
+      "bytes": 12982,
+      "sha256": "f96073e7bedec4467cb91b4c5e597c4ffe6729aecd4972cabf9d49348e9e7877"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_v4_cpu_acceptance_static_prepare_release.json",
+      "bytes": 73505,
+      "sha256": "7eb7100c5feb03f4525a3744c2f977d08795c034f6d764295d620df80ba94919"
+    }
+  ],
+  "independent_acceptance": {
+    "bytes_identity": "Rehashed712 source files totalling3190439879B,42 run evidence files,350 snapshot records and13 runtime inputs. Original346 compiled records unchanged; only4 whitelisted mutable additions, all archived.",
+    "numerical": "Independently decoded all9 raw images and compared602112B with frozen gold. Separately checked both1024-F32 rows and trace-on1024A8,32half scales,column7 all32 trace records. Three1024B reports match frozen ABI headers. Oracle provenance and arithmetic are inherited from acceptedV4; not rerun.",
+    "side_effects": "Compiled CASE_CHECK asserts descriptor4096,Q0/Q1 each524288,scales65536,activation65536,aux12288 unchanged after each command. Complete65536B out0,4096B out1 and131072B observed match expected including sentinels. Read-only regions are evidenced by in-simulation assertions; writable regions also independently raw-dumped.",
+    "done_debt": "Real dut.ap_done sampled at first posedge;1ps delay settles same-edge monitor bookkeeping before all9 DUT/physical pending flags,AW=B,AR=RLAST and5-channel adapter accepted=delivered checks. observer_dump requires first-done check occurred. No later CSR interval substitutes for it.",
+    "weight_reuse": "Both RUN commands have zero Q/scale/aux transactions enforced by command delta assertions; raw max-ar-debt/stall observations agree. Same runtime retains W without reset.",
+    "backpressure": "Actual endpoint RVALID&&!RREADY and observed-port DUT WVALID&&!WREADY stalls exercised. Explicit terminal hold controls were0; no claim of last-response hold or FIFO saturation.",
+    "timing": "Actual idle state1&&ap_start acceptance and first ap_done sampled at posedges; total_cycles is stable from negedge. TB command counts include10 extra clocks; XSim wall time is host cost.",
+    "issue_retire": "4096 coordinates eachRUN checked in order g0..31,tile0..127 at state312 acceptance; state1623&&!ap_block_state1623 retirement checked count/order. First/last8 retained.",
+    "ps_limit": "Representative ps_U bank4225 reads4096 writes4096 dependent uses perRUN. This is not all32-lane dynamic coverage. Lane0 FP launch counts are scheduled state observations, not general FP or pipeline throughput proof.",
+    "sub_done_limit": "Per-command prev_done=0 counts initially-high idle done as raw edge. Preserve raw sub_done fields; do not call them completed-subcall counts. Qualified issue/retire and first-done debt checks unaffected."
+  },
+  "measurements": {
+    "status": "PASS",
+    "ap_times": [
+      {
+        "cmd": 0,
+        "lite_aw": 298,
+        "lite_w": 299,
+        "ap_accept": 300,
+        "ap_done": 1496342,
+        "ap_cycles": 1496042,
+        "pre_issue_unknown": 0,
+        "issue_span": 0,
+        "post_issue_unknown": 0
+      },
+      {
+        "cmd": 1,
+        "lite_aw": 1496352,
+        "lite_w": 1496353,
+        "ap_accept": 1496354,
+        "ap_done": 3311526,
+        "ap_cycles": 1815172,
+        "pre_issue_unknown": 14677,
+        "issue_span": 1766588,
+        "post_issue_unknown": 33907
+      },
+      {
+        "cmd": 2,
+        "lite_aw": 3311536,
+        "lite_w": 3311537,
+        "ap_accept": 3311538,
+        "ap_done": 5122898,
+        "ap_cycles": 1811360,
+        "pre_issue_unknown": 12321,
+        "issue_span": 1765132,
+        "post_issue_unknown": 33907
+      }
+    ],
+    "issues": [
+      {
+        "cmd": 0,
+        "count": 0,
+        "retired": 0,
+        "first": 0,
+        "last": 0,
+        "first_retire": 0,
+        "last_retire": 0,
+        "max_gap": 0,
+        "hist": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "cmd": 1,
+        "count": 4096,
+        "retired": 4096,
+        "first": 1511031,
+        "last": 3277618,
+        "first_retire": 1511507,
+        "last_retire": 3278048,
+        "max_gap": 478,
+        "hist": [
+          0,
+          0,
+          0,
+          4095,
+          0
+        ]
+      },
+      {
+        "cmd": 2,
+        "count": 4096,
+        "retired": 4096,
+        "first": 3323859,
+        "last": 5088990,
+        "first_retire": 3324289,
+        "last_retire": 5089420,
+        "max_gap": 437,
+        "hist": [
+          0,
+          0,
+          0,
+          4095,
+          0
+        ]
+      }
+    ],
+    "tb_command_cycles": [
+      {
+        "cmd": 0,
+        "cycles": 1496052
+      },
+      {
+        "cmd": 1,
+        "cycles": 1815182
+      },
+      {
+        "cmd": 2,
+        "cycles": 1811370
+      }
+    ],
+    "ps": [
+      {
+        "cmd": 0,
+        "ps_reads": 0,
+        "ps_writes": 0,
+        "dependent_uses": 0,
+        "min_gap": 0,
+        "max_gap": 0,
+        "lane0_fmul_launch": 0,
+        "lane0_fadd_launch": 0
+      },
+      {
+        "cmd": 1,
+        "ps_reads": 4225,
+        "ps_writes": 4096,
+        "dependent_uses": 4096,
+        "min_gap": 32128,
+        "max_gap": 55214,
+        "lane0_fmul_launch": 4096,
+        "lane0_fadd_launch": 4096
+      },
+      {
+        "cmd": 2,
+        "ps_reads": 4225,
+        "ps_writes": 4096,
+        "dependent_uses": 4096,
+        "min_gap": 32128,
+        "max_gap": 55167,
+        "lane0_fmul_launch": 4096,
+        "lane0_fadd_launch": 4096
+      }
+    ],
+    "phases": [
+      {
+        "cmd": 0,
+        "phase": 0,
+        "count": 1025,
+        "first": 79695,
+        "last": 1490767
+      },
+      {
+        "cmd": 0,
+        "phase": 1,
+        "count": 1025,
+        "first": 1490768,
+        "last": 1494864
+      },
+      {
+        "cmd": 0,
+        "phase": 2,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 0,
+        "phase": 3,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 0,
+        "phase": 4,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 0,
+        "phase": 5,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 0,
+        "phase": 6,
+        "count": 1,
+        "first": 1494869,
+        "last": 1494869
+      },
+      {
+        "cmd": 1,
+        "phase": 0,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 1,
+        "phase": 1,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 1,
+        "phase": 2,
+        "count": 2,
+        "first": 1500218,
+        "last": 1501322
+      },
+      {
+        "cmd": 1,
+        "phase": 3,
+        "count": 1,
+        "first": 1501323,
+        "last": 1501323
+      },
+      {
+        "cmd": 1,
+        "phase": 4,
+        "count": 61,
+        "first": 1502514,
+        "last": 1502574
+      },
+      {
+        "cmd": 1,
+        "phase": 5,
+        "count": 129,
+        "first": 3278051,
+        "last": 3310051
+      },
+      {
+        "cmd": 1,
+        "phase": 6,
+        "count": 1,
+        "first": 3310053,
+        "last": 3310053
+      },
+      {
+        "cmd": 2,
+        "phase": 0,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 2,
+        "phase": 1,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 2,
+        "phase": 2,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 2,
+        "phase": 3,
+        "count": 0,
+        "first": 0,
+        "last": 0
+      },
+      {
+        "cmd": 2,
+        "phase": 4,
+        "count": 1,
+        "first": 3315402,
+        "last": 3315402
+      },
+      {
+        "cmd": 2,
+        "phase": 5,
+        "count": 129,
+        "first": 5089423,
+        "last": 5121423
+      },
+      {
+        "cmd": 2,
+        "phase": 6,
+        "count": 1,
+        "first": 5121425,
+        "last": 5121425
+      }
+    ],
+    "axi": [
+      {
+        "cmd": 0,
+        "port": 0,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          176
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 0,
+        "port": 1,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          10752
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 0,
+        "port": 2,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          12288
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 0,
+        "port": 3,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          1472
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 0,
+        "port": 4,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          1452
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 0,
+        "port": 5,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 0,
+        "port": 6,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 0,
+        "port": 7,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 0,
+        "port": 8,
+        "dut_stall": [
+          0,
+          576,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 1,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 1,
+        "port": 0,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          176
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 1,
+        "port": 1,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 1,
+        "port": 2,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 1,
+        "port": 3,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 1,
+        "port": 4,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 1,
+        "port": 5,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          84
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 1,
+        "port": 6,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 1,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 1,
+        "port": 7,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 1,
+        "port": 8,
+        "dut_stall": [
+          0,
+          1700,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 1,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 2,
+        "port": 0,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          176
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 2,
+        "port": 1,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 2,
+        "port": 2,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 2,
+        "port": 3,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 2,
+        "port": 4,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 2,
+        "port": 5,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          84
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 1
+      },
+      {
+        "cmd": 2,
+        "port": 6,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 1,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 2,
+        "port": 7,
+        "dut_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 0,
+        "max_ar_debt": 0
+      },
+      {
+        "cmd": 2,
+        "port": 8,
+        "dut_stall": [
+          0,
+          576,
+          0,
+          0,
+          0
+        ],
+        "ram_stall": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "max_aw_debt": 1,
+        "max_ar_debt": 0
+      }
+    ],
+    "abi": [
+      {
+        "name": "load_w",
+        "task_id": 1,
+        "quant_task_id": 0,
+        "ps_epoch": 0,
+        "trace": false
+      },
+      {
+        "name": "run_trace_on",
+        "task_id": 3,
+        "quant_task_id": 2,
+        "ps_epoch": 1,
+        "trace": true
+      },
+      {
+        "name": "run_trace_off",
+        "task_id": 5,
+        "quant_task_id": 4,
+        "ps_epoch": 2,
+        "trace": false
+      }
+    ],
+    "conditional_150MHz_ms": [
+      9.973613333333333,
+      12.101146666666667,
+      12.075733333333334
+    ],
+    "trace_delta_cycles": 3812,
+    "guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 1051.9835925102234,
+      "finished_at": "2026-10-08T23:32:04.785760+00:00",
+      "minimum_mem_available_kb": 448802344,
+      "peak_owned_rss_kb": 859052,
+      "rss_capture_count": 5256,
+      "rss_captured": true,
+      "rss_sample_count": 5256,
+      "trigger": null
+    },
+    "independent_csv_rows": 5256,
+    "independent_peak_rss_kib": 859052,
+    "independent_minimum_mem_available_kib": 448802344,
+    "policy_checks": 5,
+    "progress_observations": 36,
+    "first_progress_elapsed_seconds": 9.95,
+    "first131072_observed_seconds": 39.96,
+    "maximum_observation_interval_seconds": 30.08000000000004
+  },
+  "interpretation": {
+    "frequency": "150MHz remains requested/unverified. Conditional LOAD9.973613333ms,trace-on12.101146667ms,trace-off12.075733333ms for this one-row kernel only. No full-model latency,steady-stateII,Fmax,board or50ms claim.",
+    "phases": "State counts are occupancy samples and first/last boundaries; not nonoverlapping complete subcall latencies.",
+    "reset_recovery": "This pilot adds cold LOAD plus two retained-W RUNs with new task/epochs. Prior ACT36 reset/recovery remains separately accepted; no new warm-reset/failure-recovery proof.",
+    "resource_guard": "Independent5256-row CSV and36 progress observations confirm4GiB/6000s limits,minimumMemAvailable>192GiB,first progress9.95s,first131072 observed39.96s,max observation interval30.08s. Five process policy checks CPU0..3,nice19,idleIO match. No trigger."
+  },
+  "not_established": [
+    "Full B1/B2 request RTL",
+    "Other full-K/N families or multi-row/tail windows",
+    "Same-source OOC resources and Ws mapping",
+    "Physical timing/150MHz",
+    "Board/XRT/U55C50ms",
+    "General FP boundaries or C1 implementation"
+  ],
+  "next": "Single finite runtime gate consumed successfully. Preserve evidence; continue independently gated FP/OOC/source work. No unchanged rerun.",
+  "reviewer_execution": "Read source/raw evidence, streamed hashes, decoded hex, compared frozen bytes, parsed logs/guard and wrote review artifacts. No EDA,CPU arithmetic oracle,DUT or fixture mutation."
+}

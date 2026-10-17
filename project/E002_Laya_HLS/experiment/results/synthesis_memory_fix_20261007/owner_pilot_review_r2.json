@@ -1,0 +1,4947 @@
+{
+  "reviewed_at_utc": "2026-10-07T09:51:00.343792+00:00",
+  "reviewer": {
+    "role": "laya_p1_design",
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "verdict": "ACCEPT_OWNER_R2_SMALL_TOP_HLS; FINAL_FULL_RUNTIME_INITIALIZER_AND_NEW_IDENTITY_FUNCTIONAL_GATES_REMAIN_OPEN",
+  "source_review": {
+    "r1_review": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/source_review_stage_b.json",
+    "r2_addendum": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/owner_range_loop_addendum_r2.json",
+    "r2_sha256": "8ce4d28470798d122cf958acb5433f4f5786e565be1afe996c9fe64a5d1d6973",
+    "only_approved_two_record_loops_changed": true,
+    "verification": "Reviewer reversed exactly the two fixed-index loop substitutions; complete file hash restored reviewed r1 SHA256 4bf7382da428d9e4cea6d8ff812ac03ea60af43111ee02b69890c08bba262abe.",
+    "semantic_findings": []
+  },
+  "r1_failure_attribution": {
+    "phase": "HLSGen/reflow completed; later a.g.2.prechk.bc synthesizability failed",
+    "diagnostic": "SYNCHK 200-42 line747 pointer comparison is not supported",
+    "actual_lto_line": 478,
+    "actual_precheck_line": 87,
+    "explanation": "The original range-for end condition became an i64* comparison between an indexed disaggregated owner.identity.request_id global and the address of the next qkv_plane_head_rows global. This is a remaining iterator-pointer artifact, not the prior nullable record-helper result.",
+    "source_fix": "Both 32-record loops in full_recycle_request now use ascending integer indices with local references and unchanged body/order."
+  },
+  "r2_functional_evidence": {
+    "synthesis_host": "26 checks PASS through actual production helpers",
+    "vitis_csim": "26 checks PASS through actual production helpers",
+    "independent_expected_scope": "As enumerated in source_review_stage_b.json. These are software checks; no RTL behavioral co-simulation."
+  },
+  "r2_hls_evidence": {
+    "tool": "Vitis HLS2025.2",
+    "part": "xcu55c-fsvh2892-2L-e",
+    "clock_target_ns": 6.667,
+    "guard_exit_code": 0,
+    "guard_trigger": null,
+    "guard_tree_rss_peak_kib": 2545196,
+    "report": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth_r2/hls/syn/report/full_owner_index_pilot_csynth.rpt",
+    "rtl": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth_r2/hls/syn/verilog/full_owner_index_pilot.v",
+    "rtl_generated": true,
+    "ip_export_logged": true,
+    "report_hierarchical_functions": [
+      "full_claim_owner",
+      "full_claim_qkv_pair",
+      "full_invalidate_owner",
+      "full_recycle_request"
+    ],
+    "no_pointer_icmp_in_precheck": true,
+    "resource_and_timing_scope": "HLS report estimates apply to pilot only (2 BRAM18K,1379 FF,6676 LUT,0 URAM; estimated period4.249ns). No physical timing, complete design resource fit, placement/routing, or board acceptance."
+  },
+  "control_initializer_gate": {
+    "status": "OPEN_FOR_FINAL_ACTUAL_FULL_TOP_INPUT",
+    "established": "The owner pilot exercised nonzero control initialization and passed HLSGen/reflow under low sampled memory. Post-reflow retains multiple actual owner ref/epoch/state/identity/coverage globals and selected numeric metadata/gates/counters.",
+    "not_established": "The complete reduced FullRuntime 78704-byte mixed initializer at GenerateGlobals entry was not captured. Reflow intermediate fe.performance-final/fe.simplify bitcode is not saved; post-GDCE retains more fields than later live dataflow. Post-HLSGen globals demonstrably omit portions of inputs/cache/Check/control state.",
+    "type_bits_note": "The IR sums below count element type bits and per-global rounded bytes; they exclude allocation alignment/padding and do not measure transient GenerateBitConcat widths or actual RAM resources.",
+    "completion_route": "Use the final full candidate exact-input guarded reflow/complete synthesis evidence, preserving input identity, global/function conversion outcome and measured RSS. Do not expand owner pilots or run a second full csynth solely for this gate."
+  },
+  "guard_followup": {
+    "current_source_review": "ACCEPT",
+    "dormant_380gib_legacy_main_removed": true,
+    "orphan_cleanup_assigns_trigger_before_cleanup": true,
+    "uncaptured_rss_now_null_and_flagged": true,
+    "observed_short_host_run": "rss_captured=false, peak_owned_rss_kb=null in owner r2 synthesis-host run",
+    "limits": "No forced orphan fault-injection result reviewed; the corrected branch is verified by source. Measured HLS run exercises the ordinary ownership/policy path only. Old pilot hashes remain attached to the earlier guard version."
+  },
+  "input_manifest_checks": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_r2_hashes.sha256": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/common/laya_full_owner.cpp",
+        "sha256": "8ce4d28470798d122cf958acb5433f4f5786e565be1afe996c9fe64a5d1d6973",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot.cpp",
+        "sha256": "ca0d635db0a214a35572d8be262b7686ef7fed7c6ff7979d5f20643ffd409b0c",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot_tb.cpp",
+        "sha256": "4689bc6a2480dc229fe61bfa44fa5b3dc6c6fed42e62c977c6a2f2b19bf4f48a",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_diff_r2.patch",
+        "sha256": "a6a00fb7e84a6a7b0fdea6dd8a55d9b90e3e16ca01cc471fa599975de2e0d07d",
+        "matches": true
+      }
+    ],
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/input_hashes_r2.sha256": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/owner.cfg",
+        "sha256": "eb990f810d2b6f4f5fec1f645cc1215af374fcd95cd8cad28e5af71ce1e3f6b5",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot.cpp",
+        "sha256": "ca0d635db0a214a35572d8be262b7686ef7fed7c6ff7979d5f20643ffd409b0c",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot_tb.cpp",
+        "sha256": "4689bc6a2480dc229fe61bfa44fa5b3dc6c6fed42e62c977c6a2f2b19bf4f48a",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/common/laya_full_owner.cpp",
+        "sha256": "8ce4d28470798d122cf958acb5433f4f5786e565be1afe996c9fe64a5d1d6973",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/common/laya_numeric.cpp",
+        "sha256": "1476c12d124fc3fd53bf295381b884fb529dea6480fcb0fba916d3cb2b0e3a6d",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/common/laya_tasks.cpp",
+        "sha256": "4b4f647afbfa91dc90ed0de4d729472458c00dd1e8e2ade7910262fdc3ad044f",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_full_runtime.h",
+        "sha256": "1e1afd9ae3bb31f341a96ed08c3fa918995256831c4e5c564d419536c2aa71b8",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_numeric_tasks.h",
+        "sha256": "a5f0b77d30c0a5ae62eac52da48d047cb66e458fc86057a5fbc1931e2da150e2",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_types.h",
+        "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/run_guarded_hls.py",
+        "sha256": "6f9eea7076c154489c054ede97fdfffd5e9dd04d423778896d38dd8739c8f9d7",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/hls_guard_helpers.py",
+        "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98",
+        "matches": true
+      }
+    ],
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r2_ir_extract_hashes.sha256": [
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth_r2/hls/.autopilot/db/a.g.lto.bc",
+        "sha256": "b9e8efb03d15c63af3b661d68e8683154281791f5c637295eacb05badce64669",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth_r2/hls/.autopilot/db/a.g.2.prechk.bc",
+        "sha256": "2e8a34f77c2beea33035266f4975f71dadfaea9f1180ba8109c44fefcac6fa30",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth_r2/hls/.autopilot/db/a.g.ld.5.gdce.bc",
+        "sha256": "5db3a9e0be0001eb5d4d9a142548d8366639372b5c582768cff383756fb54439",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r2_post_reflow_lto.ll",
+        "sha256": "7776e899f042a5b9f8c15d1afc9b2147fa90fd1aa4b6a8580ff83fcb71cceca9",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r2_precheck.ll",
+        "sha256": "35f770122c4bc18b99bc88ce7f241f2f06c2213054a8d89b57838d245dd81014",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r2_linked_post_gdce.ll",
+        "sha256": "95a47ab82f23ab0cc66d77b8b573d31b78ebb4bd7b1d6fb274daec7fd3996944",
+        "matches": true
+      },
+      {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r2_ir_extract.commands",
+        "sha256": "4f88364525d25bdefa5b39405f7aaa38186c601ec5c1ba509199ddfa22cc585c",
+        "matches": true
+      }
+    ]
+  },
+  "runs": {
+    "owner_index_pilot_synthhost_run_r2": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 0.17196421697735786,
+      "finished_at": "2026-10-07T09:44:46.672588+00:00",
+      "minimum_mem_available_kb": 439646760,
+      "peak_owned_rss_kb": null,
+      "rss_capture_count": 0,
+      "rss_captured": false,
+      "rss_sample_count": 1,
+      "trigger": null,
+      "policy_count": 0,
+      "all_sampled_policies_match": null,
+      "maximum_sample_gap_seconds": null,
+      "pass_lines": [
+        "OWNER_INDEX_PILOT_PASS checks=26"
+      ]
+    },
+    "owner_index_pilot_vitis/csim_guard_r2": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 11.242536382749677,
+      "finished_at": "2026-10-07T09:47:00.360497+00:00",
+      "minimum_mem_available_kb": 438830408,
+      "peak_owned_rss_kb": 1234116,
+      "rss_capture_count": 56,
+      "rss_captured": true,
+      "rss_sample_count": 56,
+      "trigger": null,
+      "policy_count": 17,
+      "all_sampled_policies_match": true,
+      "maximum_sample_gap_seconds": 0.222065,
+      "pass_lines": [
+        "OWNER_INDEX_PILOT_PASS checks=26"
+      ]
+    },
+    "owner_index_pilot_vitis/csynth_guard_r2": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 43.30335254780948,
+      "finished_at": "2026-10-07T09:47:56.012872+00:00",
+      "minimum_mem_available_kb": 437812172,
+      "peak_owned_rss_kb": 2545196,
+      "rss_capture_count": 216,
+      "rss_captured": true,
+      "rss_sample_count": 216,
+      "trigger": null,
+      "policy_count": 42,
+      "all_sampled_policies_match": true,
+      "maximum_sample_gap_seconds": 0.222274,
+      "pass_lines": []
+    }
+  },
+  "ir_summaries": {
+    "failed_post_reflow_lto.ll": {
+      "runtime_global_count": 126,
+      "runtime_type_bits_sum": 536121,
+      "runtime_type_bytes_rounded_per_global_sum": 67021,
+      "pointer_icmp_lines": [
+        {
+          "line": 478,
+          "text": "%cmp = icmp ne i64* %.gep1.0.0, bitcast ([2 x [3 x [16 x [2 x [32 x i32]]]]]* @\"(anonymous namespace)::runtime.1.1\" to i64*)"
+        }
+      ],
+      "globals": [
+        {
+          "line": 6,
+          "name": "@\"(anonymous namespace)::runtime.0.0.0\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 5
+        },
+        {
+          "line": 7,
+          "name": "@\"(anonymous namespace)::runtime.0.0.1\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 7
+        },
+        {
+          "line": 8,
+          "name": "@\"(anonymous namespace)::runtime.0.0.2\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 5
+        },
+        {
+          "line": 9,
+          "name": "@\"(anonymous namespace)::runtime.0.0.3\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 6
+        },
+        {
+          "line": 10,
+          "name": "@\"(anonymous namespace)::runtime.0.0.4\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 11,
+          "name": "@\"(anonymous namespace)::runtime.0.0.5\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 12,
+          "name": "@\"(anonymous namespace)::runtime.0.0.6\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 13,
+          "name": "@\"(anonymous namespace)::runtime.0.0.7\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 14,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.0\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer",
+          "references": 4
+        },
+        {
+          "line": 15,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.1\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 16,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.2\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 17,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.3\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 18,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.4\"",
+          "type": "[32 x [16 x i8]]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 19,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.5\"",
+          "type": "[32 x [16 x i8]]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 20,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.6\"",
+          "type": "[32 x [16 x i8]]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 21,
+          "name": "@\"(anonymous namespace)::runtime.1.0.0.7\"",
+          "type": "[32 x [16 x i8]]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 22,
+          "name": "@\"(anonymous namespace)::runtime.1.0.1.0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 17
+        },
+        {
+          "line": 23,
+          "name": "@\"(anonymous namespace)::runtime.1.0.1.1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 11
+        },
+        {
+          "line": 24,
+          "name": "@\"(anonymous namespace)::runtime.1.0.1.2\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer",
+          "references": 11
+        },
+        {
+          "line": 25,
+          "name": "@\"(anonymous namespace)::runtime.1.0.2.0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 26,
+          "name": "@\"(anonymous namespace)::runtime.1.0.2.1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 27,
+          "name": "@\"(anonymous namespace)::runtime.1.0.2.2\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 28,
+          "name": "@\"(anonymous namespace)::runtime.1.0.3\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 29,
+          "name": "@\"(anonymous namespace)::runtime.1.0.4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 30,
+          "name": "@\"(anonymous namespace)::runtime.1.0.5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 31,
+          "name": "@\"(anonymous namespace)::runtime.1.0.6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\"",
+          "references": 3
+        },
+        {
+          "line": 32,
+          "name": "@\"(anonymous namespace)::runtime.1.0.7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 33,
+          "name": "@\"(anonymous namespace)::runtime.1.0.8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 34,
+          "name": "@\"(anonymous namespace)::runtime.1.0.9\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 35,
+          "name": "@\"(anonymous namespace)::runtime.1.0.10\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 36,
+          "name": "@\"(anonymous namespace)::runtime.1.0.11\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 37,
+          "name": "@\"(anonymous namespace)::runtime.1.0.12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 38,
+          "name": "@\"(anonymous namespace)::runtime.1.0.13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\"",
+          "references": 8
+        },
+        {
+          "line": 39,
+          "name": "@\"(anonymous namespace)::runtime.1.0.14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 40,
+          "name": "@\"(anonymous namespace)::runtime.1.0.15\"",
+          "type": "[32 x [64 x i32]]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 41,
+          "name": "@\"(anonymous namespace)::runtime.1.0.16\"",
+          "type": "[32 x [64 x i32]]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer",
+          "references": 5
+        },
+        {
+          "line": 42,
+          "name": "@\"(anonymous namespace)::runtime.1.0.17\"",
+          "type": "[32 x i1]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 43,
+          "name": "@\"(anonymous namespace)::runtime.1.1\"",
+          "type": "[2 x [3 x [16 x [2 x [32 x i32]]]]]",
+          "type_bits": 196608,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 44,
+          "name": "@\"(anonymous namespace)::runtime.1.2\"",
+          "type": "[2 x [2 x [16 x [2 x [32 x i32]]]]]",
+          "type_bits": 131072,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 45,
+          "name": "@\"(anonymous namespace)::runtime.1.3\"",
+          "type": "[16 x [2 x [32 x i32]]]",
+          "type_bits": 32768,
+          "initializer": "zeroinitializer",
+          "references": 1
+        },
+        {
+          "line": 46,
+          "name": "@\"(anonymous namespace)::runtime.1.4\"",
+          "type": "[2 x i16]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer",
+          "references": 1
+        },
+        {
+          "line": 47,
+          "name": "@\"(anonymous namespace)::runtime.1.5\"",
+          "type": "[2 x i16]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer",
+          "references": 1
+        },
+        {
+          "line": 48,
+          "name": "@\"(anonymous namespace)::runtime.1.6\"",
+          "type": "[3 x i1]",
+          "type_bits": 3,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 49,
+          "name": "@\"(anonymous namespace)::runtime.2.0.8\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "6",
+          "references": 1
+        },
+        {
+          "line": 50,
+          "name": "@\"(anonymous namespace)::runtime.2.0.10\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 51,
+          "name": "@\"(anonymous namespace)::runtime.2.0.11\"",
+          "type": "[16 x [4 x i32]]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer",
+          "references": 1
+        },
+        {
+          "line": 52,
+          "name": "@\"(anonymous namespace)::runtime.2.0.12\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 1
+        },
+        {
+          "line": 53,
+          "name": "@\"(anonymous namespace)::runtime.2.1.1.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 6
+        },
+        {
+          "line": 54,
+          "name": "@\"(anonymous namespace)::runtime.2.1.1.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 6
+        },
+        {
+          "line": 55,
+          "name": "@\"(anonymous namespace)::runtime.2.1.1.2\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 7
+        },
+        {
+          "line": 56,
+          "name": "@\"(anonymous namespace)::runtime.2.1.11\"",
+          "type": "[16 x [4 x i32]]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer",
+          "references": 1
+        },
+        {
+          "line": 57,
+          "name": "@\"(anonymous namespace)::runtime.2.1.12\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "6",
+          "references": 1
+        },
+        {
+          "line": 58,
+          "name": "@\"(anonymous namespace)::runtime.2.1.14\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 59,
+          "name": "@\"(anonymous namespace)::runtime.2.1.15\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 1
+        },
+        {
+          "line": 60,
+          "name": "@\"(anonymous namespace)::runtime.3.0\"",
+          "type": "[48 x i8]",
+          "type_bits": 384,
+          "initializer": "zeroinitializer",
+          "references": 48
+        },
+        {
+          "line": 61,
+          "name": "@\"(anonymous namespace)::runtime.3.1.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 62,
+          "name": "@\"(anonymous namespace)::runtime.3.1.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1",
+          "references": 1
+        },
+        {
+          "line": 63,
+          "name": "@\"(anonymous namespace)::runtime.3.2\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 64,
+          "name": "@\"(anonymous namespace)::runtime.3.3\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 65,
+          "name": "@\"(anonymous namespace)::runtime.3.4\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 66,
+          "name": "@\"(anonymous namespace)::runtime.3.5\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 67,
+          "name": "@\"(anonymous namespace)::runtime.3.6\"",
+          "type": "[2 x i32]",
+          "type_bits": 64,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 68,
+          "name": "@\"(anonymous namespace)::runtime.3.7\"",
+          "type": "[2 x i32]",
+          "type_bits": 64,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 69,
+          "name": "@\"(anonymous namespace)::runtime.3.8\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 70,
+          "name": "@\"(anonymous namespace)::runtime.3.9\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 71,
+          "name": "@\"(anonymous namespace)::runtime.3.10\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 72,
+          "name": "@\"(anonymous namespace)::runtime.3.11\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 73,
+          "name": "@\"(anonymous namespace)::runtime.3.12\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 74,
+          "name": "@\"(anonymous namespace)::runtime.3.13\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 75,
+          "name": "@\"(anonymous namespace)::runtime.3.14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 32
+        },
+        {
+          "line": 76,
+          "name": "@\"(anonymous namespace)::runtime.3.15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 32
+        },
+        {
+          "line": 77,
+          "name": "@\"(anonymous namespace)::runtime.4.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 78,
+          "name": "@\"(anonymous namespace)::runtime.4.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 79,
+          "name": "@\"(anonymous namespace)::runtime.4.2\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 80,
+          "name": "@\"(anonymous namespace)::runtime.5.0\"",
+          "type": "[2 x i8]",
+          "type_bits": 16,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 81,
+          "name": "@\"(anonymous namespace)::runtime.5.1\"",
+          "type": "[2 x i8]",
+          "type_bits": 16,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 82,
+          "name": "@\"(anonymous namespace)::runtime.5.2\"",
+          "type": "[2 x i32]",
+          "type_bits": 64,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 83,
+          "name": "@\"(anonymous namespace)::runtime.6.0\"",
+          "type": "[2 x i8]",
+          "type_bits": 16,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 84,
+          "name": "@\"(anonymous namespace)::runtime.6.1\"",
+          "type": "[2 x i8]",
+          "type_bits": 16,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 85,
+          "name": "@\"(anonymous namespace)::runtime.6.2\"",
+          "type": "[2 x i32]",
+          "type_bits": 64,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 86,
+          "name": "@\"(anonymous namespace)::runtime.7.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 87,
+          "name": "@\"(anonymous namespace)::runtime.7.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 88,
+          "name": "@\"(anonymous namespace)::runtime.7.2\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 89,
+          "name": "@\"(anonymous namespace)::runtime.8.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 90,
+          "name": "@\"(anonymous namespace)::runtime.8.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 91,
+          "name": "@\"(anonymous namespace)::runtime.8.2\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 92,
+          "name": "@\"(anonymous namespace)::runtime.9.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 93,
+          "name": "@\"(anonymous namespace)::runtime.9.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 94,
+          "name": "@\"(anonymous namespace)::runtime.9.2\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 95,
+          "name": "@\"(anonymous namespace)::runtime.10.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 96,
+          "name": "@\"(anonymous namespace)::runtime.10.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 97,
+          "name": "@\"(anonymous namespace)::runtime.10.2\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 98,
+          "name": "@\"(anonymous namespace)::runtime.11.0\"",
+          "type": "[2 x i8]",
+          "type_bits": 16,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 99,
+          "name": "@\"(anonymous namespace)::runtime.11.1\"",
+          "type": "[2 x i8]",
+          "type_bits": 16,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 100,
+          "name": "@\"(anonymous namespace)::runtime.11.2\"",
+          "type": "[2 x i32]",
+          "type_bits": 64,
+          "initializer": "zeroinitializer",
+          "references": 2
+        },
+        {
+          "line": 101,
+          "name": "@\"(anonymous namespace)::runtime.12\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1",
+          "references": 1
+        },
+        {
+          "line": 102,
+          "name": "@\"(anonymous namespace)::runtime.15\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1",
+          "references": 1
+        },
+        {
+          "line": 103,
+          "name": "@\"(anonymous namespace)::runtime.16\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 104,
+          "name": "@\"(anonymous namespace)::runtime.18\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 1
+        },
+        {
+          "line": 105,
+          "name": "@\"(anonymous namespace)::runtime.19.0.0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 106,
+          "name": "@\"(anonymous namespace)::runtime.19.0.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 107,
+          "name": "@\"(anonymous namespace)::runtime.19.0.2\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 108,
+          "name": "@\"(anonymous namespace)::runtime.19.1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 109,
+          "name": "@\"(anonymous namespace)::runtime.19.2\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 110,
+          "name": "@\"(anonymous namespace)::runtime.19.3\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1",
+          "references": 1
+        },
+        {
+          "line": 111,
+          "name": "@\"(anonymous namespace)::runtime.19.4\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1",
+          "references": 1
+        },
+        {
+          "line": 112,
+          "name": "@\"(anonymous namespace)::runtime.19.5\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 113,
+          "name": "@\"(anonymous namespace)::runtime.19.6\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 114,
+          "name": "@\"(anonymous namespace)::runtime.19.7\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 115,
+          "name": "@\"(anonymous namespace)::runtime.19.8\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 116,
+          "name": "@\"(anonymous namespace)::runtime.19.9\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 117,
+          "name": "@\"(anonymous namespace)::runtime.21\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 118,
+          "name": "@\"(anonymous namespace)::runtime.22\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1",
+          "references": 1
+        },
+        {
+          "line": 119,
+          "name": "@\"(anonymous namespace)::runtime.23\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1",
+          "references": 1
+        },
+        {
+          "line": 120,
+          "name": "@\"(anonymous namespace)::runtime.24\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 121,
+          "name": "@\"(anonymous namespace)::runtime.25\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 122,
+          "name": "@\"(anonymous namespace)::runtime.26\"",
+          "type": "[256 x i32]",
+          "type_bits": 8192,
+          "initializer": "zeroinitializer",
+          "references": 1
+        },
+        {
+          "line": 123,
+          "name": "@\"(anonymous namespace)::runtime.27\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 7
+        },
+        {
+          "line": 124,
+          "name": "@\"(anonymous namespace)::runtime.28\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 125,
+          "name": "@\"(anonymous namespace)::runtime.29\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 126,
+          "name": "@\"(anonymous namespace)::runtime.30\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 1
+        },
+        {
+          "line": 127,
+          "name": "@\"(anonymous namespace)::runtime.31\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 3
+        },
+        {
+          "line": 128,
+          "name": "@\"(anonymous namespace)::runtime.32\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 3
+        },
+        {
+          "line": 129,
+          "name": "@\"(anonymous namespace)::runtime.42\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 5
+        },
+        {
+          "line": 130,
+          "name": "@\"(anonymous namespace)::runtime.43\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 5
+        },
+        {
+          "line": 131,
+          "name": "@\"(anonymous namespace)::runtime.44\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 1
+        }
+      ]
+    },
+    "failed_precheck.ll": {
+      "runtime_global_count": 45,
+      "runtime_type_bits_sum": 357770,
+      "runtime_type_bytes_rounded_per_global_sum": 44723,
+      "pointer_icmp_lines": [
+        {
+          "line": 87,
+          "text": "%icmp.ln747 = icmp eq i64* %\"(anonymous namespace)::runtime.owners.record.identity.request_id.addr\", bitcast ([2 x [3 x [16 x [2 x [32 x i32]]]]]* @\"(anonymous namespace)::runtime.owners.qkv_plane_head_rows\" to i64*)"
+        }
+      ],
+      "globals": [
+        {
+          "line": 6,
+          "name": "@\"(anonymous namespace)::runtime.session_generation\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 3
+        },
+        {
+          "line": 7,
+          "name": "@\"(anonymous namespace)::runtime.request_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 5
+        },
+        {
+          "line": 8,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.width\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 9,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.valid\"",
+          "type": "[32 x i1]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 10,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.state\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\"",
+          "references": 9
+        },
+        {
+          "line": 11,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.stage\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 12,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.rows\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 13,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.row_space\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 14,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.row0\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 15,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.region\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 16,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.id\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 17
+        },
+        {
+          "line": 17,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer",
+          "references": 11
+        },
+        {
+          "line": 18,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.bank\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 11
+        },
+        {
+          "line": 19,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.readers\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 8
+        },
+        {
+          "line": 20,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.old_consumed_rows\"",
+          "type": "[2048 x i32]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer",
+          "references": 5
+        },
+        {
+          "line": 21,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.max_claimed_epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 22,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.id\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 23,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 24,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.bank\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 6
+        },
+        {
+          "line": 25,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.layer\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\"",
+          "references": 3
+        },
+        {
+          "line": 26,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.request_id\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer",
+          "references": 4
+        },
+        {
+          "line": 27,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag\"",
+          "type": "[512 x i8]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 28,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag\"",
+          "type": "[512 x i8]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 29,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag\"",
+          "type": "[512 x i8]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 30,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.generation\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 31,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag\"",
+          "type": "[512 x i8]",
+          "type_bits": 4096,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 32,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.S\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 33,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.B\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 34,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.covered_rows\"",
+          "type": "[2048 x i32]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 35,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.content\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 36,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.batch\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer",
+          "references": 3
+        },
+        {
+          "line": 37,
+          "name": "@\"(anonymous namespace)::runtime.owners.qkv_plane_head_rows\"",
+          "type": "[2 x [3 x [16 x [2 x [32 x i32]]]]]",
+          "type_bits": 196608,
+          "initializer": "zeroinitializer",
+          "references": 1
+        },
+        {
+          "line": 38,
+          "name": "@\"(anonymous namespace)::runtime.owner_claims\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 7
+        },
+        {
+          "line": 39,
+          "name": "@\"(anonymous namespace)::runtime.model_header_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false",
+          "references": 5
+        },
+        {
+          "line": 40,
+          "name": "@\"(anonymous namespace)::runtime.last_accepted_request_id\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 3
+        },
+        {
+          "line": 41,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.request_id\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 5
+        },
+        {
+          "line": 42,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.numeric_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 43,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.model_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 44,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.layout_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 45,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.generation\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0",
+          "references": 7
+        },
+        {
+          "line": 46,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.build_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer",
+          "references": 35
+        },
+        {
+          "line": 47,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.S\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 6
+        },
+        {
+          "line": 48,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.B\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0",
+          "references": 5
+        },
+        {
+          "line": 49,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0",
+          "references": 6
+        },
+        {
+          "line": 50,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0",
+          "references": 7
+        }
+      ]
+    },
+    "r2_post_reflow_lto.ll": {
+      "runtime_global_count": 306,
+      "runtime_type_bits_sum": 536121,
+      "runtime_type_bytes_rounded_per_global_sum": 67021,
+      "pointer_icmp_lines": [],
+      "globals": [
+        {
+          "line": 6,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.request_id\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 5
+        },
+        {
+          "line": 7,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.generation\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 7
+        },
+        {
+          "line": 8,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.B\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 5
+        },
+        {
+          "line": 9,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.S\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 6
+        },
+        {
+          "line": 10,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.model_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 11,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.numeric_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 12,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.layout_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 13,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.build_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 14,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.request_id\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 15,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.generation\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 16,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.B\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 17,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.S\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 18,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 19,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 20,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 21,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 22,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 23,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 24,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 25,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 26,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 27,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 28,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 29,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 30,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 31,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 32,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 33,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.model_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 34,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 35,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 36,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 37,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 38,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 39,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 40,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 41,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 42,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 43,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 44,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 45,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 46,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 47,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 48,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 49,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.numeric_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 50,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 51,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 52,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 53,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 54,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 55,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 56,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 57,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 58,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 59,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 60,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 61,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 62,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 63,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 64,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 65,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.layout_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 66,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 67,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 68,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 69,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 70,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 71,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 72,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 73,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 74,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 75,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 76,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 77,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 78,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 79,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 80,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 81,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.build_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 82,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.id\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 17
+        },
+        {
+          "line": 83,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.bank\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 11
+        },
+        {
+          "line": 84,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer, align 512",
+          "references": 11
+        },
+        {
+          "line": 85,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.id\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 86,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.bank\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 87,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 88,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.max_claimed_epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 89,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.region\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 7
+        },
+        {
+          "line": 90,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.stage\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 91,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.layer\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\", align 512",
+          "references": 3
+        },
+        {
+          "line": 92,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.batch\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 93,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.row_space\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 94,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.row0\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 95,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.rows\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 96,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.width\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 97,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.content\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 98,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.state\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\", align 512",
+          "references": 8
+        },
+        {
+          "line": 99,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.readers\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 7
+        },
+        {
+          "line": 100,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.covered_rows\"",
+          "type": "[32 x [64 x i32]]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer, align 512",
+          "references": 7
+        },
+        {
+          "line": 101,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.old_consumed_rows\"",
+          "type": "[32 x [64 x i32]]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer, align 512",
+          "references": 5
+        },
+        {
+          "line": 102,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.valid\"",
+          "type": "[32 x i1]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 103,
+          "name": "@\"(anonymous namespace)::runtime.owners.qkv_plane_head_rows\"",
+          "type": "[2 x [3 x [16 x [2 x [32 x i32]]]]]",
+          "type_bits": 196608,
+          "initializer": "zeroinitializer, align 512",
+          "references": 2
+        },
+        {
+          "line": 104,
+          "name": "@\"(anonymous namespace)::runtime.owners.qkv_rope_rows\"",
+          "type": "[2 x [2 x [16 x [2 x [32 x i32]]]]]",
+          "type_bits": 131072,
+          "initializer": "zeroinitializer, align 512",
+          "references": 2
+        },
+        {
+          "line": 105,
+          "name": "@\"(anonymous namespace)::runtime.owners.att_head_rows\"",
+          "type": "[16 x [2 x [32 x i32]]]",
+          "type_bits": 32768,
+          "initializer": "zeroinitializer, align 512",
+          "references": 1
+        },
+        {
+          "line": 106,
+          "name": "@\"(anonymous namespace)::runtime.owners.scorer_old_consumed\"",
+          "type": "[2 x i16]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer, align 512",
+          "references": 1
+        },
+        {
+          "line": 107,
+          "name": "@\"(anonymous namespace)::runtime.owners.scorer_new_written\"",
+          "type": "[2 x i16]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer, align 512",
+          "references": 1
+        },
+        {
+          "line": 108,
+          "name": "@\"(anonymous namespace)::runtime.owners.type_valid\"",
+          "type": "[3 x i1]",
+          "type_bits": 3,
+          "initializer": "zeroinitializer, align 512",
+          "references": 2
+        },
+        {
+          "line": 109,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_source_ledger.state\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "6, align 512",
+          "references": 1
+        },
+        {
+          "line": 110,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_source_ledger.readers\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 111,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_source_ledger.covered_groups\"",
+          "type": "[16 x [4 x i32]]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer, align 512",
+          "references": 1
+        },
+        {
+          "line": 112,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_source_ledger.valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 1
+        },
+        {
+          "line": 113,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 6
+        },
+        {
+          "line": 114,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.ref.bank\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 6
+        },
+        {
+          "line": 115,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 7
+        },
+        {
+          "line": 116,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.covered_groups\"",
+          "type": "[16 x [4 x i32]]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer, align 512",
+          "references": 1
+        },
+        {
+          "line": 117,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.state\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "6, align 512",
+          "references": 1
+        },
+        {
+          "line": 118,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.readers\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 119,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 1
+        },
+        {
+          "line": 120,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 121,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 122,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_2\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 123,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_3\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 124,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_4\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 125,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_5\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 126,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_6\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 127,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_7\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 128,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_8\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 129,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_9\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 130,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_10\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 131,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_11\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 132,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_12\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 133,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_13\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 134,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_14\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 135,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_15\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 136,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_16\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 137,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_17\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 138,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_18\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 139,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_19\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 140,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_20\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 141,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_21\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 142,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_22\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 143,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_23\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 144,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_24\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 145,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_25\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 146,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_26\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 147,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_27\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 148,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_28\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 149,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_29\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 150,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_30\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 151,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_31\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 152,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_32\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 153,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_33\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 154,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_34\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 155,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_35\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 156,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_36\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 157,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_37\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 158,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_38\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 159,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_39\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 160,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_40\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 161,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_41\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 162,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_42\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 163,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_43\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 164,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_44\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 165,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_45\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 166,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_46\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 167,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.name_47\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 168,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.key.family\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 169,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.key.layer\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1, align 512",
+          "references": 1
+        },
+        {
+          "line": 170,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.K\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 171,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.N\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 172,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.dtype\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 173,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_kind\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 174,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.q_base_0\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 175,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.q_base_1\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 176,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.q_span_0\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 177,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.q_span_1\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 178,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.scale_base\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 179,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.scale_span\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 180,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.aux_base\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 181,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.aux_span\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 182,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_base\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 183,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_span\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 184,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 185,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 186,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_2\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 187,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_3\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 188,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_4\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 189,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_5\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 190,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_6\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 191,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_7\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 192,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_8\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 193,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_9\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 194,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_10\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 195,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_11\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 196,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_12\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 197,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_13\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 198,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_14\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 199,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_15\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 200,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_16\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 201,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_17\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 202,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_18\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 203,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_19\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 204,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_20\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 205,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_21\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 206,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_22\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 207,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_23\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 208,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_24\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 209,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_25\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 210,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_26\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 211,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_27\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 212,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_28\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 213,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_29\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 214,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_30\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 215,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.source_sha256_31\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 216,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 217,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 218,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_2\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 219,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_3\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 220,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_4\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 221,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_5\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 222,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_6\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 223,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_7\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 224,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_8\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 225,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_9\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 226,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_10\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 227,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_11\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 228,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_12\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 229,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_13\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 230,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_14\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 231,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_15\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 232,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_16\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 233,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_17\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 234,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_18\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 235,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_19\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 236,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_20\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 237,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_21\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 238,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_22\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 239,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_23\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 240,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_24\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 241,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_25\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 242,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_26\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 243,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_27\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 244,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_28\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 245,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_29\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 246,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_30\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 247,
+          "name": "@\"(anonymous namespace)::runtime.current_weight.bias_sha256_31\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 248,
+          "name": "@\"(anonymous namespace)::runtime.current_weight_ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 249,
+          "name": "@\"(anonymous namespace)::runtime.current_weight_ref.bank\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 250,
+          "name": "@\"(anonymous namespace)::runtime.current_weight_ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 251,
+          "name": "@\"(anonymous namespace)::runtime.loaded_gamma_ref.id_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 252,
+          "name": "@\"(anonymous namespace)::runtime.loaded_gamma_ref.id_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 253,
+          "name": "@\"(anonymous namespace)::runtime.loaded_gamma_ref.bank_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 254,
+          "name": "@\"(anonymous namespace)::runtime.loaded_gamma_ref.bank_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 255,
+          "name": "@\"(anonymous namespace)::runtime.loaded_gamma_ref.epoch_0\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 256,
+          "name": "@\"(anonymous namespace)::runtime.loaded_gamma_ref.epoch_1\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 257,
+          "name": "@\"(anonymous namespace)::runtime.final_qkv_ref.id_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 258,
+          "name": "@\"(anonymous namespace)::runtime.final_qkv_ref.id_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 259,
+          "name": "@\"(anonymous namespace)::runtime.final_qkv_ref.bank_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 260,
+          "name": "@\"(anonymous namespace)::runtime.final_qkv_ref.bank_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 261,
+          "name": "@\"(anonymous namespace)::runtime.final_qkv_ref.epoch_0\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 262,
+          "name": "@\"(anonymous namespace)::runtime.final_qkv_ref.epoch_1\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 263,
+          "name": "@\"(anonymous namespace)::runtime.loaded_kv_ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 264,
+          "name": "@\"(anonymous namespace)::runtime.loaded_kv_ref.bank\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 265,
+          "name": "@\"(anonymous namespace)::runtime.loaded_kv_ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 266,
+          "name": "@\"(anonymous namespace)::runtime.loaded_rope_ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 267,
+          "name": "@\"(anonymous namespace)::runtime.loaded_rope_ref.bank\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 268,
+          "name": "@\"(anonymous namespace)::runtime.loaded_rope_ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 269,
+          "name": "@\"(anonymous namespace)::runtime.score_ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 270,
+          "name": "@\"(anonymous namespace)::runtime.score_ref.bank\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 271,
+          "name": "@\"(anonymous namespace)::runtime.score_ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 272,
+          "name": "@\"(anonymous namespace)::runtime.score_kv_ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 273,
+          "name": "@\"(anonymous namespace)::runtime.score_kv_ref.bank\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 274,
+          "name": "@\"(anonymous namespace)::runtime.score_kv_ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 275,
+          "name": "@\"(anonymous namespace)::runtime.score_qkv_ref.id_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 276,
+          "name": "@\"(anonymous namespace)::runtime.score_qkv_ref.id_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 277,
+          "name": "@\"(anonymous namespace)::runtime.score_qkv_ref.bank_0\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 278,
+          "name": "@\"(anonymous namespace)::runtime.score_qkv_ref.bank_1\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 279,
+          "name": "@\"(anonymous namespace)::runtime.score_qkv_ref.epoch_0\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 280,
+          "name": "@\"(anonymous namespace)::runtime.score_qkv_ref.epoch_1\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 281,
+          "name": "@\"(anonymous namespace)::runtime.score_head\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1, align 512",
+          "references": 1
+        },
+        {
+          "line": 282,
+          "name": "@\"(anonymous namespace)::runtime.score_batch\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1, align 512",
+          "references": 1
+        },
+        {
+          "line": 283,
+          "name": "@\"(anonymous namespace)::runtime.score_rows\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 284,
+          "name": "@\"(anonymous namespace)::runtime.score_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 1
+        },
+        {
+          "line": 285,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 286,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.ref.bank\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 287,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 288,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.region\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 289,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.stage\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 290,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.layer\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1, align 512",
+          "references": 1
+        },
+        {
+          "line": 291,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.batch\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1, align 512",
+          "references": 1
+        },
+        {
+          "line": 292,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.row_space\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 293,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.row0\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 294,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.rows\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 295,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.width\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 296,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source.content\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 297,
+          "name": "@\"(anonymous namespace)::runtime.expected_task_source_count\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 298,
+          "name": "@\"(anonymous namespace)::runtime.loaded_rope_mode\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1, align 512",
+          "references": 1
+        },
+        {
+          "line": 299,
+          "name": "@\"(anonymous namespace)::runtime.loaded_kv_head\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "-1, align 512",
+          "references": 1
+        },
+        {
+          "line": 300,
+          "name": "@\"(anonymous namespace)::runtime.last_task_id\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 301,
+          "name": "@\"(anonymous namespace)::runtime.tasks_retired\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 302,
+          "name": "@\"(anonymous namespace)::runtime.op_calls\"",
+          "type": "[256 x i32]",
+          "type_bits": 8192,
+          "initializer": "zeroinitializer, align 512",
+          "references": 1
+        },
+        {
+          "line": 303,
+          "name": "@\"(anonymous namespace)::runtime.owner_claims\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 7
+        },
+        {
+          "line": 304,
+          "name": "@\"(anonymous namespace)::runtime.owner_leases\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 305,
+          "name": "@\"(anonymous namespace)::runtime.encoder_layers_completed\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 306,
+          "name": "@\"(anonymous namespace)::runtime.decision_layers_completed\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 1
+        },
+        {
+          "line": 307,
+          "name": "@\"(anonymous namespace)::runtime.session_generation\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 3
+        },
+        {
+          "line": 308,
+          "name": "@\"(anonymous namespace)::runtime.last_accepted_request_id\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 3
+        },
+        {
+          "line": 309,
+          "name": "@\"(anonymous namespace)::runtime.request_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 5
+        },
+        {
+          "line": 310,
+          "name": "@\"(anonymous namespace)::runtime.model_header_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 5
+        },
+        {
+          "line": 311,
+          "name": "@\"(anonymous namespace)::runtime.expected_quant_source_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 1
+        }
+      ]
+    },
+    "r2_precheck.ll": {
+      "runtime_global_count": 104,
+      "runtime_type_bits_sum": 161162,
+      "runtime_type_bytes_rounded_per_global_sum": 20147,
+      "pointer_icmp_lines": [],
+      "globals": [
+        {
+          "line": 6,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 7,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 8,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 9,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 10,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 11,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 12,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 13,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 14,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 15,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 16,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 17,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 18,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 19,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 20,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 21,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.numeric_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 22,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 23,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 24,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 25,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 26,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 27,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 28,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 29,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 30,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 31,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 32,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 33,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 34,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 35,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 36,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 37,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.model_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 38,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 39,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 40,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 41,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 42,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 43,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 44,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 45,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 46,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 47,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 48,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 49,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 50,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 51,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 52,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 53,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.layout_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 54,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_9\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 55,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_8\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 56,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_7\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 57,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_6\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 58,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_5\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 59,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_4\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 60,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_3\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 61,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_2\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 62,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_15\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 63,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_14\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 64,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_13\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 65,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_12\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 66,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_11\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 67,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_10\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 68,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_1\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 69,
+          "name": "@\"(anonymous namespace)runtime.owners.record.identity.build_tag_0\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 4
+        },
+        {
+          "line": 70,
+          "name": "@\"(anonymous namespace)::runtime.session_generation\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 3
+        },
+        {
+          "line": 71,
+          "name": "@\"(anonymous namespace)::runtime.request_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 5
+        },
+        {
+          "line": 72,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.width\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 73,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.valid\"",
+          "type": "[32 x i1]",
+          "type_bits": 32,
+          "initializer": "zeroinitializer, align 512",
+          "references": 7
+        },
+        {
+          "line": 74,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.state\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\\06\", align 512",
+          "references": 9
+        },
+        {
+          "line": 75,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.stage\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 76,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.rows\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 77,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.row_space\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 78,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.row0\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 79,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.region\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 7
+        },
+        {
+          "line": 80,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.id\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 17
+        },
+        {
+          "line": 81,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer, align 512",
+          "references": 11
+        },
+        {
+          "line": 82,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.ref.bank\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 11
+        },
+        {
+          "line": 83,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.readers\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 8
+        },
+        {
+          "line": 84,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.old_consumed_rows\"",
+          "type": "[2048 x i32]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer",
+          "references": 5
+        },
+        {
+          "line": 85,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.max_claimed_epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer, align 512",
+          "references": 7
+        },
+        {
+          "line": 86,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.id\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 87,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.epoch\"",
+          "type": "[32 x i32]",
+          "type_bits": 1024,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 88,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.lease_old_ref.bank\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 6
+        },
+        {
+          "line": 89,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.layer\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "c\"\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\\FF\", align 512",
+          "references": 3
+        },
+        {
+          "line": 90,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.request_id\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 91,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.generation\"",
+          "type": "[32 x i64]",
+          "type_bits": 2048,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 92,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.S\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 93,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.identity.B\"",
+          "type": "[32 x i16]",
+          "type_bits": 512,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 94,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.covered_rows\"",
+          "type": "[2048 x i32]",
+          "type_bits": 65536,
+          "initializer": "zeroinitializer",
+          "references": 7
+        },
+        {
+          "line": 95,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.content\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 96,
+          "name": "@\"(anonymous namespace)::runtime.owners.record.batch\"",
+          "type": "[32 x i8]",
+          "type_bits": 256,
+          "initializer": "zeroinitializer, align 512",
+          "references": 3
+        },
+        {
+          "line": 97,
+          "name": "@\"(anonymous namespace)::runtime.owner_claims\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 7
+        },
+        {
+          "line": 98,
+          "name": "@\"(anonymous namespace)::runtime.model_header_valid\"",
+          "type": "i1",
+          "type_bits": 1,
+          "initializer": "false, align 512",
+          "references": 5
+        },
+        {
+          "line": 99,
+          "name": "@\"(anonymous namespace)::runtime.last_accepted_request_id\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 3
+        },
+        {
+          "line": 100,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.request_id\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 5
+        },
+        {
+          "line": 101,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.numeric_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 102,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.model_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 103,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.layout_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 104,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.generation\"",
+          "type": "i64",
+          "type_bits": 64,
+          "initializer": "0, align 512",
+          "references": 7
+        },
+        {
+          "line": 105,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.build_tag\"",
+          "type": "[16 x i8]",
+          "type_bits": 128,
+          "initializer": "zeroinitializer, align 512",
+          "references": 35
+        },
+        {
+          "line": 106,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.S\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 6
+        },
+        {
+          "line": 107,
+          "name": "@\"(anonymous namespace)::runtime.inputs.identity.B\"",
+          "type": "i16",
+          "type_bits": 16,
+          "initializer": "0, align 512",
+          "references": 5
+        },
+        {
+          "line": 108,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.ref.id\"",
+          "type": "i8",
+          "type_bits": 8,
+          "initializer": "0, align 512",
+          "references": 6
+        },
+        {
+          "line": 109,
+          "name": "@\"(anonymous namespace)::runtime.cache.activation_meta.ref.epoch\"",
+          "type": "i32",
+          "type_bits": 32,
+          "initializer": "0, align 512",
+          "references": 7
+        }
+      ]
+    }
+  },
+  "permitted_next_steps": [
+    "Freeze exact production sources and build/guard scripts, preserving 25-source/15-module closure",
+    "Export a new model/build tag from the same frozen GGUF, verify unchanged model payloads",
+    "Run original complete strict CPU regression, actual13port synthesis shadow with persistent recovery, and real13port Vitis CSim",
+    "After those gates and source-identity review, proceed with the one final bounded full csynth under the original contract"
+  ],
+  "artifact_hashes": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/common/laya_full_owner.cpp": "8ce4d28470798d122cf958acb5433f4f5786e565be1afe996c9fe64a5d1d6973",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot.cpp": "ca0d635db0a214a35572d8be262b7686ef7fed7c6ff7979d5f20643ffd409b0c",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_owner_index_pilot_tb.cpp": "4689bc6a2480dc229fe61bfa44fa5b3dc6c6fed42e62c977c6a2f2b19bf4f48a",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/run_guarded_hls.py": "6f9eea7076c154489c054ede97fdfffd5e9dd04d423778896d38dd8739c8f9d7",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/hls_guard_helpers.py": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth_r2/hls/syn/report/full_owner_index_pilot_csynth.rpt": "90d2a2883dce9cac229dd0dd9b5c326616c5b3a4ad3c03528495feaebea5dfb4",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/owner-index-pilot-vitis/csynth_r2/hls/syn/verilog/full_owner_index_pilot.v": "a0edf9ae1c5321431d1cb5a28a4fe1edab01ccd02820952fe0831d28586561a4",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/csynth_guard_r2/driver.log": "286502d80356aa12931704be683d52811a385e85198a7b2fcf5722d2f94221f9",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r1_control_ir_summary.json": "b38f35e8e9b36009472a244ea0af15ea69bebf00c8cc2fbcba30d24c62b46383",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/failed_post_reflow_lto.ll": "468f86599c925b0f9ec52b7007242ab982d8bb2c5a920b98725c51c6d6f9ce65",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/failed_precheck.ll": "f24c56da567688d29f87adb992f90fdf0cd3d8213b3712982e48ee752731c908",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r2_post_reflow_lto.ll": "7776e899f042a5b9f8c15d1afc9b2147fa90fd1aa4b6a8580ff83fcb71cceca9",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/owner_index_pilot_vitis/r2_precheck.ll": "35f770122c4bc18b99bc88ce7f241f2f06c2213054a8d89b57838d245dd81014"
+  }
+}

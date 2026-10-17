@@ -1,0 +1,35 @@
+# FFN1集中审核：前缀未启动，局部准备证据保留
+
+2026-10-14；R-SM005-FFN1-20261014；M004/SM005/E005/R001；A001。回复 `measurement-first-FFN1-AT059-bounded-prefix-handoff-20261014`，合并 `measurement-first-FFN1-AT059-poststop-snapshot-addendum-20261014` 及末目的A1澄清。
+
+**核定COST_NOT_ADMITTED_INVALID_PREFIX_LAUNCH。** AT059 pilot在120.435156s触发timeout，child−9，峰2974840KiB。原runner每阶段重建Vivado工程，pilot重新compile/elaborate，elaboration日志耗95s；最后完成7份ROM staging，未到runtime preflight/xsim。没有新LN AR/R、联合DUT进展或full；这不是DUT死锁或数值FAIL。FFN1一次准备修正已用尽，旧合同结束，不继承其未用full为自动执行权限。
+
+选择[D-M004-FFN-DIRECT-XSIM-REPLAY-01／FFN2](../mission/ffn_direct_xsim_replay_stage_20261014.md)：保持AT059完整功能/观察/guard/TB/数据身份，只修可审查的启动封装，隔离复用已编译snapshot。先实际≤120s冷xsim前缀，再以新实测和后段保守成本决定至多一次冷full。新阶段NOT_RUN。
+
+## 原证据核定
+
+[主控核验](measurement_first_FFN1_review_20261014/verification.json)逐bytes/SHA核两manifest共672引用（每份336引用/334路径），总核查422个证据/管理文件路径；六个guard实际时间区间串行，147条CPU0–3/nice19/idle记录全匹配。AT057八份本地功能RTL与AT059相同；联合TB差异只在被动观察区，新增35分项及固定目的断言，正常驱动/存储/原检查未改。未改生成物和fixture见各manifest。
+
+| 证据 | 实际结果 | 接纳范围 |
+| --- | --- | --- |
+| AT058 static | 121.749776s，2946944KiB，child0/null；静态preflight ACCEPT | 同联合源码及35分项观察器编译/elaborate；非联合仿真 |
+| AT058适配器短测 | 25.180870s，1335100KiB；合法对照、9个冷负例、固定HIDDEN等待/接受编码、7拍保持和单次消费PASS | 受控注入Down写/B/owner/ready/债/done的适配器路径；不代签真实上游退休或残差AXI |
+| AT058 wrapper短测 | 25.842714s，1350196KiB；错bank0/STATE0各status7、零实际AR/AW/W；合法对照skip 1AR/1R、注入RRESP错后status8 | 同SHA AT057 wrapper真实descriptor入口。A1短测义务闭合；联合full固定目的及实写检查仍未执行 |
+| AT058微测试 | 12.983311s，1216804KiB，child1；保留字edge编译错误 | 原FAIL保留，无微测试动态结论 |
+| AT059微测试 | 20.841964s，1278824KiB，child0/null；35分项独立、3W R同拍、ready低不计、work38 | 同被动累加器受控输入。与联合TB真实信号的接线另作静态核查，不称真实W/G/残差运行 |
+| host逻辑时间 | 12类序列，实际微测试输出经生产parser；120s边界、重复/错schema/回退/单W端口等通过 | 同parser＋与guard一致的parse-before-`>=120`计时模型；不是实际owned进程超时试验。无RSS/policy样本，UNKNOWN |
+| AT059 pilot | 120.435156s，2974840KiB，child−9/timeout | 编译封装耗尽前缀预算。原runtime_preflight不存在；无SIM_START/FFN1_PROGRESS/PREFIX_PASS |
+
+AT057原52条W日志与host只读回放逐项一致，末q0/q1/scale为26624/26622/5248；只是候选schema应计进展，未生成新DUT样本。35分项是guard事件family，某些有重叠，work38等不能解释为实际总算术工作量或性能指标。
+
+AT058→AT059仅两份本地文件变化，其余21份相同。须细化工程报告“runner路径变化”的表述：除尝试路径外，runner还增加 `reuse_unaffected()`、前次闭包比较及reuse命令分支，见[精确diff](measurement_first_FFN1_review_20261014/diffs/run_ffn1_v1.py.diff)。这是准备/复用逻辑变更，没有DUT修改；static/negative/wrapper明确引用AT058原运行，不说AT059重跑。
+
+wrapper和micro的guard字段 `simulation_started=false` 是它们未打印FFN0_SIM_START导致的模式标志；原日志已有各自动态PASS和$finish，不能据此说这两项未仿真，也不签这两次已进入guard的真实语义计时模式。pilot无仿真的判断另由原命令、日志边界及缺失preflight共同支持。
+
+## snapshot补证与下一步
+
+AT058静态运行preflight与AT059停止后verify-only分别核7份实际目标ROM、63 fixture引用和11根（含FIXTURE=LN_FIXTURE）。主控复核目标ROM及manifest身份。后者发生在停止后00:10:58，原pilot在00:05:33已结束，不能追认启动前检查。
+
+AT059候选 `xsimk` 为28082384B，SHA `908fc9bdb7007c6d7f9ae8e39b10dbcfc1288993fff20b2f55a8cddea5e7febe`；prefix Tcl SHA `92f4b585c1d20fc6001d6c51e54cfa74ecb40fe69e59c1f55823210a0e7979f0`（run70us，由TB在真实首AR/64R后finish）。文件存在和当前hash不证明snapshot完整可启动，后继还须冻结整个运行依赖闭包并在隔离cwd实际验证。候选命令尚未执行；不能直接在旧AT目录启动而覆盖日志或生成物。
+
+full_cost_decision中admit=false、new_cycle_rate=null、full_started=false与原目录/日志一致。新前缀、后段TMP/残差、最终655360B保护及整链周期均未测。AT049/AT054/AT057保留原范围，不拼接。普通Q/L生产控制、完整executor/恢复停排；M003/M004、全模型/13BO/生产双lease/联合资源/物理时序保持开放。旧FFN1收据/失败/日志不改写；工程只补报告口径并按新合同执行。

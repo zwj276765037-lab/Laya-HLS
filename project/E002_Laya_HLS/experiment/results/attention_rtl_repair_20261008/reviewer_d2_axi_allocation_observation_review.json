@@ -1,0 +1,102 @@
+{
+  "schema": "allocation_observation_review_v1",
+  "at_utc": "2026-10-08T11:49:27.391617+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "decision": "ACCEPT_COMPLETE_IDLE_CLOCK_ASSOCIATED_GROWTH_TRAFFIC_INVALID_CONTRAST_INCOMPLETE",
+  "raw_independent_audit": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_axi_allocation_raw_observations.json",
+    "sha256": "8e74ae7619ce7aea011a4bbc24689ed8e555a85eaa9c0157b6a2f712b8df01ad"
+  },
+  "implementation_evidence": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/runs/idle_once/validation.json",
+      "sha256": "8bcef53aa0ed80fbe68fb9678183347d19ad3e5b45d8a28f8d84a1e6bdc29229"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/runs/traffic_once/failure_analysis.json",
+      "sha256": "1247a0b24b4bb3ff71358dbd740c1cfab44b4d3f09437e915258b14e9384f629"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/runtime_results.md",
+      "sha256": "d0c54c05146ea6706c05a935dced5ca8bd3ec659880c8f81880a6cda78c7eb8d"
+    }
+  ],
+  "idle": {
+    "accepted": true,
+    "cycles": 100000,
+    "guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 7.973141394555569,
+      "finished_at": "2026-10-08T11:41:06.187644+00:00",
+      "minimum_mem_available_kb": 439473984,
+      "peak_owned_rss_kb": 2373412,
+      "rss_capture_count": 39,
+      "rss_captured": true,
+      "rss_sample_count": 40,
+      "trigger": null
+    },
+    "record_counts": {
+      "D2_PHASE_STAGE": 18,
+      "DIAG_SAMPLE": 17,
+      "D2_PHASE_AXI": 119,
+      "D2_PHASE_QUEUE": 119,
+      "D2_PHASE_QUEUE_ID": 238
+    },
+    "complete_samples": 17,
+    "all_seven_axi_zero": true,
+    "all_queue_samples_zero": true,
+    "final_14_id_rows_complete": true,
+    "actual_full_memory_comparison_bytes": 458752,
+    "constructor_requests_at_all_postreset_samples": 28,
+    "own_rss_reset_kib": 146652,
+    "own_rss_10000_kib": 308772,
+    "own_rss_final_after_memory_check_kib": 1765660,
+    "own_rss_reset_to_final_delta_kib": 1619008,
+    "own_rss_10000_to_100000_observed_kib_per_cycle": 16.1876,
+    "interpretation": "Growth occurs with clock execution while no AXI transaction is accepted and no new axi_transfer constructor is called after reset. This isolates a clock/event execution candidate within the seven-slave harness. It does not identify the specific mechanism or prove a leak."
+  },
+  "traffic": {
+    "accepted": false,
+    "classification": "invalid_incomplete_at_first_B_observer_assertion",
+    "guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 5.932945309206843,
+      "finished_at": "2026-10-08T11:42:42.448534+00:00",
+      "minimum_mem_available_kb": 440477216,
+      "peak_owned_rss_kb": 938640,
+      "rss_capture_count": 28,
+      "rss_captured": true,
+      "rss_sample_count": 29,
+      "trigger": null
+    },
+    "fatal": "DIAG_INVALID write response item=0 resp=xx id=x",
+    "fatal_sim_ps": 66726541,
+    "completed_pairs": 0,
+    "last_complete_sample_cycle": 10000,
+    "last_sample_own_rss_kib": 308740,
+    "last_sample_constructor_requests": 28,
+    "actual_counts_at_fatal": "Not sampled; do not substitute the preceding clock10000 zero counts for failure-time counts.",
+    "unreached": [
+      "first readback",
+      "1024-pair completion",
+      "90000 drain",
+      "100000 endpoint",
+      "final memory check"
+    ],
+    "exit_zero_is_not_pass": true,
+    "counter_payload_inconsistency": "The count wait advanced but separate last_bresp/last_bid registers retained X; this does not establish X on the real bus.",
+    "source_candidate": "Original B driver uses blocking updates around posedge/#0 at zero default B latency; counter input-port sampling and separate top direct-interface payload sampling can run in different delta-cycle order. A coherent stable sample must replace the split observer in a separately bound correction."
+  },
+  "paired_comparison": "Only the shared pre-traffic interval is comparable: reset RSS differs by36KiB and clock10000 RSS by32KiB, constructs28/zero traffic in both. No transaction-dependent or post-drain growth conclusion exists.",
+  "scope_limits": [
+    "Original full DUT and two original AXI-Lite MASTER environments are absent from this seven-SLAVE contrast.",
+    "The original repeated control poll loop begins only after kernel_done; the prior full phase window never reached that event, so that loop cannot explain its pre-done growth.",
+    "The measured16.1876KiB/cycle is an observed interval slope, not a strict bound or a general full-DUT cost model.",
+    "No Attention numerical RTL, synthesis/timing/board, D3 or performance claim follows."
+  ],
+  "runtime_authorization": "Both released invocations consumed exactly once. No remaining retry or extension is authorized by the original gate; any correction requires a distinct source/snapshot identity and explicit review.",
+  "next_direction": "Prefer minimal fixed-object comparisons of module/class/static/virtual-interface repeated clock waits and delayed loops. Preserve original VIP timing; avoid further ungrounded transaction-object accumulation hypotheses. Preloaded-QKV implementation/strict CPU remains independently authorized and prioritized."
+}

@@ -1,0 +1,11 @@
+--- executor_checkpoint_rtl_03/laya_executor_checkpoint_tb_v2.sv
++++ executor_checkpoint_rtl_04/laya_executor_checkpoint_tb_v2.sv
+@@ -335,7 +335,7 @@
+        checkpoint_authority_valid!==expect_handoff)$fatal(1,"v2 final consumer transfer mismatch");
+   endtask
+   task automatic event_ok(input string name);
+-    transact(name,0,name.substr(0,4)=="begin" || name.substr(0,11)=="target_begin" ? 3 : 1,
++    transact(name,0,name=="publish" ? 5 : name.substr(0,4)=="begin" || name.substr(0,11)=="target_begin" ? 3 : 1,
+       name.substr(0,2)=="end" || name.substr(0,9)=="target_end" ? 65536 : 0);
+   endtask
+   task automatic reset_session;

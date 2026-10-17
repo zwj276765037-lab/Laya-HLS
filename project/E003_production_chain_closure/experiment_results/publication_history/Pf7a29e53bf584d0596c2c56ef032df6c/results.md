@@ -1,0 +1,13 @@
+# E003：R003当前结果
+
+`controller_transaction_adapter_04`为当前冻结host限定PASS。C++ codec、独立Python byte oracle和单inflight adapter均通过；内部request/completion分别为1536/1024B，adapter覆盖六条外部FIFO的18根信号语义。测试包含三类协议往返、reserved/key mutation、响应半包期间cancel、cancel前新普通事务本地拒绝且不发送外部beat、cancel cleanup END、合法stale producer completion，以及compute/provenance/producer三类语法错误完整响应的实际raw key保留。语法错误帧返回FRAME_COMPLETE、清BINDING_OK与REMOTE_TERMINAL，sequencer可保留旧tracker并隔离实际响应者。
+
+该attempt的input manifest SHA256为`27ea56881ef1a825c1f57c38dabfc56a30d88e63c75fcddc2590abe62a5a79f6`，receipt SHA256为`c45d9c68599368124edd5c551a46dc8635ad5ab38e19b1044b4eff7c52dfee58`。五个冻结步骤均exit0；launcher记录CPU0–3、nice19、idle I/O及内存门通过。`controller_transaction_adapter_01..03`保留各自历史身份，`_03`在补齐另外两类malformed分支后由`_04`替代为当前入口。
+
+新adapter HLS runner已通过Python语法与有界dry-freeze核查：32项闭包、无重复记录，生成model header与manifest各冻结一次。它尚未启动Vitis HLS，故24根FIFO信号、18根外部协议信号、ap_ctrl_none以及无ap_start/ap_done仍为NOT_RUN。扩展至最多64拍INCR burst的store monitor源码/TB也尚未产生`generated_store_monitor_08`，功能结论继续沿用旧`generated_store_monitor_07`的单拍限定范围。
+
+现有F5、普通source原子lease、两种GATE→普通Q无复位切换、旧store monitor/fence和LayerNorm engine局部PASS均只按原冻结身份有效。单体production Controller HLS在13,223,459条Compile/Link instructions后120s停滞的历史保留；拆分实现不追认旧失败为新RTL PASS。组合G/Q→父matrix full继续NOT_RUN_COST。
+
+---
+Published: 2026-10-12T04:03:09.711311+00:00
+Publication: P077d57d8799946569fe5131bb4b3897a

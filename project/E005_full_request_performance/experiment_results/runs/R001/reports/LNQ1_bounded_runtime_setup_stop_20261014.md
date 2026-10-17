@@ -1,0 +1,23 @@
+# LNQ1: one observation replay stopped before the LN source read
+
+M004/SM005/E005/R001; D-M004-LN-QAR-OBSERVATION-01; 2026-10-14. A002 engineering handoff. **AT048 static PASS; its one admitted full COST_STOP at semantic stall with an invalid runtime ROM staging.** The new END/PUBLISH observation did not run. The AT047 frozen failure and its reached LN prefix remain the only dynamic evidence at that boundary; there is no new union-chain PASS or DUT deadlock result.
+
+## Frozen observation and static result
+
+AT048 derives from AT047 with two changed `new_frozen` files, both simulation observation sources: `laya_lnq0_source_stage_v1.sv` and `lnq0_chain_tb_v1.sv`. The first captures the original live coverage/scope/status, bytes, physical counters and complete END packet at the already valid pre-END-response sample, then saves END/PUBLISH responses. The second checks that historical witness after publication together with stable owner/drained/last-B state and complete identity; it no longer requires the expired live coverage signal. Original gold, completion fields, guards, stimulus, clock/reset, command order, AXI response profile and all DUT files remain. No extra clock wait or input assignment was added.
+
+The [AT048 manifest](../attempts/AT048_LNQ1_observation_01/source_manifest.json) has 286 entries/285 unique paths, all rechecked byte count/SHA-256 with zero mismatch. [Source-stage diff](../attempts/AT048_LNQ1_observation_01/source_stage.diff) and [chain-TB diff](../attempts/AT048_LNQ1_observation_01/chain_tb.diff) identify the entire change. Static Vivado compile/elaborate completed with `LNQ0_STATIC_PASS`, child0/trigger null, 108.767826s and peak2950116KiB. Existing duplicate-declaration/port-width warnings remained; there was no compilation error in the new observation.
+
+The [pre-run admission](../attempts/AT048_LNQ1_observation_01/full_cost_decision.json) reused AT047's 120-second true LN pilot because the code diff added only passive state/checks beyond that pilot. It recorded 3464.199672s conservative forecast and a 3364.189497s measured-LN-prefix cross-check, both under the original 3600s hard cap. These were estimates conditional on an identical runtime input deployment; the following missing ROM deployment broke that condition.
+
+## Actual full stop and exact preparation gap
+
+The new xsim workspace did **not** contain the seven generated LN `.dat` ROMs. The [original full log](../attempts/AT048_LNQ1_observation_01/guard_full/driver.log) prints seven missing-file warnings before any meaningful LN source read. It reached base configuration cycle23, BEGIN response cycle132, producer request completion cycle148 and generated row cursor cycle149, then no further real semantic marker. The guard stopped it at 126.977810s with child−9, trigger `semantic_stall`, peak1033296KiB; no Fatal, source AR, END/PUBLISH witness, external Q, Wi, G, second Q, Down, readback or chain PASS occurred.
+
+The [ROM staging audit](../attempts/AT048_LNQ1_observation_01/missing_dat_audit.json) checks each of the seven immutable source ROMs against the AT048 manifest. All seven source files match their frozen SHA and were byte-identical to the files staged in AT047's xsim directory. None was present in AT048's new xsim directory, and the AT048 log warns for every one. The simulation setup was therefore not equivalent to the admitted AT047 prefix, despite identical DUT and external fixture SHA. This was an avoidable A002 launch preparation omission. The stopped run cannot diagnose the repaired publication check or downstream DUT behavior.
+
+The original [AT048 receipt](../attempts/AT048_LNQ1_observation_01/receipt.json) preserves both guards, logs, hashes and policy results. Static/full had 31/4 actual CPU0–3/nice19/idle policy samples, all compliant, with no overlapping heavy tool. The 7 ROM files were **not** staged into this stopped attempt after the fact. LNQ1 allowed only one new full; that attempt is spent, and no second full or DUT/testbench revision was started under this contract.
+
+## Remaining boundary
+
+AT047 still proves its four-row LN prefix up to PUBLISH and still fails its post-publication TB assertion. AT048 proves the revised observation compiles, not that it executes correctly. AT040, AT035 and AT044 retain their original separate limited results; none can be stitched into same-runtime LN→Q→Wi→G→Q→Down. New observation witness values, source lease/drained release, W binding in the combined path, all Q/Wi/G/Down gold, final store protection and full cold-chain cycles remain NOT_RUN/UNKNOWN. A001 must choose any further bounded validation stage and require a prelaunch ROM staging/hash check. M003/M004, full request, recovery, joint physical resources and timing remain open.

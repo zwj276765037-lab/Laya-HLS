@@ -1,0 +1,96 @@
+{
+  "schema": "laya_host_session_offline_v1_narrow_design_release",
+  "created_utc": "2026-10-08T14:10:31.745920+00:00",
+  "reviewer": {
+    "agent": "/root/resource_explain_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "identity": "host_session_offline_v1",
+  "verdict": "PORTABLE_PROTOCOL_CORE_SOURCE_AND_BOUNDED_CPU_PREPARATION_RELEASED",
+  "authorization": "Parent confirmed user no-board/offline-first instruction; no additional user permission required within mission stage 5 offline preparation.",
+  "canonical_documents": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/kernel_wrapper/source/design.md",
+      "bytes": 31181,
+      "sha256": "01ba6f28400574ba814f61c3f49a662efb02af39f0c5891115cee12d105a19d3"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/kernel_wrapper/source/results.md",
+      "bytes": 20343,
+      "sha256": "cd3d98ae995cf533dac0db7287b54e2d3585eb925719a0f18007b12b84b9296b"
+    }
+  ],
+  "independent_review": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/stage5_host_persistence_offline_review.json",
+    "bytes": 19158,
+    "sha256": "7afd4f1ac2adeb37e625be5d1ed689ef0b5a01af1ae6dc11ed30ab11fe155c20"
+  },
+  "exact_preimages": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/kernel_wrapper/source/history/design_host_session_initial_20261008.md",
+      "bytes": 29168,
+      "sha256": "e59e2e4e276ab8f8418ad535d1ead055a04ccca6d941a727fc86b74e9f4c0b90"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/kernel_wrapper/source/history/results_host_session_initial_20261008.md",
+      "bytes": 19553,
+      "sha256": "e077f241ab6ca612616028591eb750d97d792d853b200f3b0a8c529c8eb0a65f"
+    }
+  ],
+  "incorporated_findings": {
+    "S5-01": "Orthogonal logical state and device quiescence/ownership fact. Before potentially submitting start, conservatively consume submitted identity and transfer ownership. Throw/unknown start/wait/abort and close/destructor do not release, rewrite or reuse BOs until independently confirmed terminal; terminal does not unpoison first version.",
+    "S5-02": "Require result bytes exactly 384 before shared decoder; 0/383/385 rejected. Strict request frame length retained.",
+    "S5-03": "Compare supplied uint64 identities directly; no implicit increment/wrap. Exhaustion of max ID/generation is explicit and Host reconstruction is not assumed to reset kernel state."
+  },
+  "implementation_scope": {
+    "owner": "/root/vivado_project_sol_max",
+    "paths": [
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/kernel_wrapper/source/host_session_policy.h",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/kernel_wrapper/source/host_session_policy.cpp",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/kernel_wrapper/tb/host_session_policy_tb.cpp"
+    ],
+    "allowed": "Portable Host admission/lifecycle/result-validation policy plus dedicated deterministic event backend and real shared laya_io codec. First CPU build/execute may be prepared/run within bounds after actual API/source/TB/fixture inputs are frozen; independent review is required for acceptance.",
+    "frozen_contract": "13 BO allocations, five model uploads totaling 448923648 B once per successful Session; seven workspace 192937984 B and IO32768 B clear/H2D each request; result D2H384 B; single InFlight; exact original indices/sizes, planned group_id mapping.",
+    "init_boundary": "If manifest/SHA/AUX validation remains outside portable core, explicit tested attestation/precondition and honest coverage statement are required. Select current fe067 generated package explicitly; no old default directory substitution.",
+    "fixtures": "Frozen actual request/result vectors with profile/tag/hash plus independently specified byte-order vectors; do not derive all expected bytes with codec under test.",
+    "priorities": "Attention, AXI diagnostics and Q8 implementation take precedence."
+  },
+  "required_cpu_matrix": [
+    "Two serial valid requests including B2 then B1; one initialization; exact event counts and byte extents; flags/reserved/unused lanes/finite checks.",
+    "Preflight tag/shape/offset/size/identity failures have no request mutation/sync/start and do not consume submitted identity.",
+    "Same-generation strict IDs, nondecreasing generation, maximum identities and exhaustion without wrapping; in-flight concurrent admission rejected.",
+    "Completed valid nonOK frame delivered as error, identity consumed, next new identity can run; no success marker.",
+    "Malformed/stale/wrong identity/shape/length/nonfinite result poisons after completed readback; diagnostic bytes never accepted delivery.",
+    "start-after-submit throw, wait throw, abort throw/nonterminal/unknown, close/destructor while uncertain; no forbidden release/reuse/new launch; explicit terminal only permits eventual cleanup.",
+    "Timeout then abort COMPLETED or ABORT still timeout and Poisoned; no retry/reload.",
+    "Initialization-attestation failure never Ready/start; result sync/read exceptions poison."
+  ],
+  "guards": {
+    "build_rss_gib": 4,
+    "execute_rss_gib": 4,
+    "wall_seconds_each": 120,
+    "cpus": 4,
+    "nice": 19,
+    "ionice": "idle",
+    "rss_sample_seconds": 0.2,
+    "host_mem_available_floor_gib": 192,
+    "heavy_serialization": "This Laya workflow/agent tree only; unrelated server tasks are outside scope.",
+    "evidence": "Fresh logs, command/tool version, actual input hashes, guard and all process policies, full event/test results; preserve failed attempts."
+  },
+  "not_released": [
+    "production Host or HLS changes",
+    "XRT Session/CLI adapter or shared Host implementation extraction",
+    "CMake stubs or fake XRT dependencies",
+    "driver installation/tool modification/device command",
+    "platform link/xclbin/on-board work",
+    "workspace-clear elimination",
+    "numeric-kernel simulation or Host performance claims"
+  ],
+  "future_platform_requirements": [
+    "One deployment record jointly binds xclbin SHA, four package tags, kernel/argument metadata, platform/shell and Host build.",
+    "Pinned real XRT compile/link, abort/wait/destructor ownership semantics and actual device quiescence/reset/retention evidence.",
+    "Separate cold initialization, resident preencoded request, Host-observed start/wait and later full-service timing; no fake-backend wall-time performance claim."
+  ],
+  "status": "Design/source preparation only; implementation, CPU acceptance and mission stage 5 completion remain pending."
+}

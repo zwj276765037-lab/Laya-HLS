@@ -1,0 +1,12 @@
+--- executor_actor_host_03/executor_actor_test.cpp
++++ actor_04/executor_actor_test.cpp
+@@ -345,7 +345,8 @@
+     // Consume the old safe completion before testing a queued successor.
+     auto next=a;++next.ordinal;enqueue(h.actions,action::encode(next));
+     h.action_consumed=true;h.call();assert(state->port.phase==lifecycle::PortPhase::READ_ACTION);
+-    const auto old_task=state->runtime.last_task_id,old_event=state->runtime.provenance_event_high_water;
++    const auto old_task=state->runtime.last_task_id;
++    const auto old_event=state->runtime.provenance_event_high_water;
+     for(unsigned i=0;i<24;++i)h.call();
+     assert(state->revoked && h.actions.size()==8 && state->port.beat==0 &&
+         state->port.machine.action_high_water==a.ordinal && state->runtime.last_task_id==old_task &&

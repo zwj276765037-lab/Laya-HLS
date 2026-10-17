@@ -1,0 +1,788 @@
+--- v3/verilog/attention_slice.autotb.v
++++ phase_probe/rtl/verilog/attention_slice.autotb.v
+@@ -1113,4 +1113,172 @@
+     .finish(all_finish));
+ 
+ `include "fifo_para.vh"
++
++// D2 §7.9 passive phase probe: original DUT, UVM drivers and watchdog above
++// are untouched. The seven monitors bind the actual generated m_axi wires.
++import "DPI-C" function void phase_probe_stage(input string label,
++    input longint sim_ps, input longint clock_count,
++    input longint value0, input longint value1);
++longint unsigned phase_clock_count = 0;
++longint unsigned phase_reset_clock_count = 0;
++always @(posedge AESL_clock) begin
++    phase_clock_count++;
++    if (AESL_reset === 1'b1) phase_reset_clock_count++;
++end
++
++d2_phase_axi_monitor #(.PORT("fixture")) phase_axi_fixture (
++    .clk(AESL_clock), .rst_n(AESL_reset),
++    .awvalid(fixture_AWVALID), .awready(fixture_AWREADY),
++    .wvalid(fixture_WVALID), .wready(fixture_WREADY),
++    .wstrb(fixture_WSTRB), .wlast(fixture_WLAST),
++    .bvalid(fixture_BVALID), .bready(fixture_BREADY),
++    .arvalid(fixture_ARVALID), .arready(fixture_ARREADY),
++    .arid(fixture_ARID), .arlen(fixture_ARLEN), .arsize(fixture_ARSIZE),
++    .rvalid(fixture_RVALID), .rready(fixture_RREADY),
++    .rid(fixture_RID), .rlast(fixture_RLAST));
++
++d2_phase_axi_monitor #(.PORT("io")) phase_axi_io (
++    .clk(AESL_clock), .rst_n(AESL_reset),
++    .awvalid(io_AWVALID), .awready(io_AWREADY),
++    .wvalid(io_WVALID), .wready(io_WREADY),
++    .wstrb(io_WSTRB), .wlast(io_WLAST),
++    .bvalid(io_BVALID), .bready(io_BREADY),
++    .arvalid(io_ARVALID), .arready(io_ARREADY),
++    .arid(io_ARID), .arlen(io_ARLEN), .arsize(io_ARSIZE),
++    .rvalid(io_RVALID), .rready(io_RREADY),
++    .rid(io_RID), .rlast(io_RLAST));
++
++d2_phase_axi_monitor #(.PORT("aux")) phase_axi_aux (
++    .clk(AESL_clock), .rst_n(AESL_reset),
++    .awvalid(aux_AWVALID), .awready(aux_AWREADY),
++    .wvalid(aux_WVALID), .wready(aux_WREADY),
++    .wstrb(aux_WSTRB), .wlast(aux_WLAST),
++    .bvalid(aux_BVALID), .bready(aux_BREADY),
++    .arvalid(aux_ARVALID), .arready(aux_ARREADY),
++    .arid(aux_ARID), .arlen(aux_ARLEN), .arsize(aux_ARSIZE),
++    .rvalid(aux_RVALID), .rready(aux_RREADY),
++    .rid(aux_RID), .rlast(aux_RLAST));
++
++d2_phase_axi_monitor #(.PORT("qkv0")) phase_axi_qkv0 (
++    .clk(AESL_clock), .rst_n(AESL_reset),
++    .awvalid(qkv0_AWVALID), .awready(qkv0_AWREADY),
++    .wvalid(qkv0_WVALID), .wready(qkv0_WREADY),
++    .wstrb(qkv0_WSTRB), .wlast(qkv0_WLAST),
++    .bvalid(qkv0_BVALID), .bready(qkv0_BREADY),
++    .arvalid(qkv0_ARVALID), .arready(qkv0_ARREADY),
++    .arid(qkv0_ARID), .arlen(qkv0_ARLEN), .arsize(qkv0_ARSIZE),
++    .rvalid(qkv0_RVALID), .rready(qkv0_RREADY),
++    .rid(qkv0_RID), .rlast(qkv0_RLAST));
++
++d2_phase_axi_monitor #(.PORT("qkv1")) phase_axi_qkv1 (
++    .clk(AESL_clock), .rst_n(AESL_reset),
++    .awvalid(qkv1_AWVALID), .awready(qkv1_AWREADY),
++    .wvalid(qkv1_WVALID), .wready(qkv1_WREADY),
++    .wstrb(qkv1_WSTRB), .wlast(qkv1_WLAST),
++    .bvalid(qkv1_BVALID), .bready(qkv1_BREADY),
++    .arvalid(qkv1_ARVALID), .arready(qkv1_ARREADY),
++    .arid(qkv1_ARID), .arlen(qkv1_ARLEN), .arsize(qkv1_ARSIZE),
++    .rvalid(qkv1_RVALID), .rready(qkv1_RREADY),
++    .rid(qkv1_RID), .rlast(qkv1_RLAST));
++
++d2_phase_axi_monitor #(.PORT("att_out")) phase_axi_att_out (
++    .clk(AESL_clock), .rst_n(AESL_reset),
++    .awvalid(att_out_AWVALID), .awready(att_out_AWREADY),
++    .wvalid(att_out_WVALID), .wready(att_out_WREADY),
++    .wstrb(att_out_WSTRB), .wlast(att_out_WLAST),
++    .bvalid(att_out_BVALID), .bready(att_out_BREADY),
++    .arvalid(att_out_ARVALID), .arready(att_out_ARREADY),
++    .arid(att_out_ARID), .arlen(att_out_ARLEN), .arsize(att_out_ARSIZE),
++    .rvalid(att_out_RVALID), .rready(att_out_RREADY),
++    .rid(att_out_RID), .rlast(att_out_RLAST));
++
++d2_phase_axi_monitor #(.PORT("observed")) phase_axi_observed (
++    .clk(AESL_clock), .rst_n(AESL_reset),
++    .awvalid(observed_AWVALID), .awready(observed_AWREADY),
++    .wvalid(observed_WVALID), .wready(observed_WREADY),
++    .wstrb(observed_WSTRB), .wlast(observed_WLAST),
++    .bvalid(observed_BVALID), .bready(observed_BREADY),
++    .arvalid(observed_ARVALID), .arready(observed_ARREADY),
++    .arid(observed_ARID), .arlen(observed_ARLEN), .arsize(observed_ARSIZE),
++    .rvalid(observed_RVALID), .rready(observed_RREADY),
++    .rid(observed_RID), .rlast(observed_RLAST));
++
++task automatic phase_probe_emit(input string label);
++    uvm_pkg::uvm_root root;
++    uvm_pkg::uvm_component component;
++    axi_pkg::axi_state state;
++    string port_names [0:6];
++    // Every sample is one picosecond after the reported posedge. All seven
++    // handshake monitors completed their blocking updates on that posedge.
++    port_names[0] = "fixture";
++    port_names[1] = "io";
++    port_names[2] = "aux";
++    port_names[3] = "qkv0";
++    port_names[4] = "qkv1";
++    port_names[5] = "att_out";
++    port_names[6] = "observed";
++    phase_probe_stage(label, longint'($realtime * 1000.0),
++                      longint'(phase_clock_count),
++                      longint'(phase_reset_clock_count), longint'(finish_cnt));
++    phase_axi_fixture.report(phase_clock_count);
++    phase_axi_io.report(phase_clock_count);
++    phase_axi_aux.report(phase_clock_count);
++    phase_axi_qkv0.report(phase_clock_count);
++    phase_axi_qkv1.report(phase_clock_count);
++    phase_axi_att_out.report(phase_clock_count);
++    phase_axi_observed.report(phase_clock_count);
++    root = uvm_pkg::uvm_root::get();
++    for (int p = 0; p < 7; p++) begin
++        component = root.find({"uvm_test_top.top_env.axi_master_",
++                               port_names[p], ".state"});
++        if (!$cast(state, component))
++            $fatal(1, "D2_PHASE_PROBE_INVALID missing actual axi_state for %s",
++                   port_names[p]);
++        state.phase_probe_summary(port_names[p], phase_clock_count);
++    end
++endtask
++
++initial phase_probe_stage("time_zero", 0, 0, 0, 0);
++initial begin : phase_reset_trace
++    wait (AESL_reset === 1'b1);
++    #0.001;
++    phase_probe_emit("reset_release");
++end
++always @(posedge AESL_start) begin
++    #0.001;
++    if (AESL_start === 1'b1) phase_probe_emit("ap_start_edge");
++end
++always @(posedge AESL_done) begin
++    #0.001;
++    if (AESL_done === 1'b1) phase_probe_emit("ap_done_edge");
++end
++always @(finish_cnt) begin
++    #0.001;
++    if (AESL_reset === 1'b1)
++        phase_probe_stage("finish_cnt_change", longint'($realtime * 1000.0),
++                          longint'(phase_clock_count), longint'(finish_cnt), 0);
++end
++initial begin : phase_sparse_samples
++    wait (AESL_reset === 1'b1);
++    forever begin
++        @(posedge AESL_clock);
++        #0.001;
++        if (phase_reset_clock_count <= 1024) begin
++            if (phase_reset_clock_count != 0 &&
++                (phase_reset_clock_count & (phase_reset_clock_count - 1)) == 0)
++                phase_probe_emit("power_of_two_clock");
++        end else if ((phase_reset_clock_count % 10000) == 0)
++            phase_probe_emit("ten_thousand_clock");
++    end
++end
++initial begin : phase_one_window
++    wait (AESL_reset === 1'b1);
++    repeat (1000000) @(posedge AESL_clock);
++    #0.001;
++    phase_probe_emit("window_end");
++    $display("D2_PHASE_PROBE_WINDOW_END sampled_posedge=%0d reset_clocks=%0d sim_ps=%0d",
++             phase_clock_count, phase_reset_clock_count,
++             longint'($realtime * 1000.0));
++    $finish;
++end
+ endmodule
+--- v3/verilog/attention_slice.prj
++++ phase_probe/rtl/verilog/attention_slice.prj
+@@ -37,7 +37,6 @@
+ sv xil_defaultlib "attention_slice_full_recycle_request.v"
+ sv xil_defaultlib "attention_slice_full_check_model_header_laya_full_kFullModelTag_ROM_AUTO_1R.v"
+ sv xil_defaultlib "attention_slice_full_run_task_Outline_4.v"
+-sv xil_defaultlib "attention_slice.autotb.v"
+ sv xil_defaultlib "attention_slice_softmax_row.v"
+ sv xil_defaultlib "attention_slice_laya_full_anonymous_namespace_runtime_owners_record_region_RAM_AUTO_1R1W.v"
+ sv xil_defaultlib "attention_slice_mul_16ns_16ns_26_1_1.v"
+@@ -187,3 +186,5 @@
+ sv xil_defaultlib "./svtb/misc_interface.sv"    
+ sv xil_defaultlib "./svtb/sv_module_top.sv"   
+ 
++sv xil_defaultlib "attention_slice.autotb.v"
++sv xil_defaultlib "../../tb/phase_axi_monitor.sv"
+--- v3/verilog/axivip/axi_state.sv
++++ phase_probe/rtl/verilog/axivip/axi_state.sv
+@@ -87,6 +87,33 @@
+         item_rtr_port = new("item_rtr_port", this);
+         bqnum_for_slaseq = 0;
+         rq_from_model_num = 0;
++    endfunction
++
++    // Inspect queue metadata only. This never pops, clones, or visits payload.
++    virtual function void phase_probe_summary(string port,
++                                               longint unsigned sampled_posedge);
++        int aw_keys, w_keys, b_rsp_keys, b_lat_keys;
++        int ar_keys, r_keys, r_model_keys;
++        longint unsigned aw_len, w_len, b_rsp_len, b_lat_len;
++        longint unsigned ar_len, r_len, r_model_len;
++        aw_keys=0; w_keys=0; b_rsp_keys=0; b_lat_keys=0;
++        ar_keys=0; r_keys=0; r_model_keys=0;
++        aw_len=0; w_len=0; b_rsp_len=0; b_lat_len=0;
++        ar_len=0; r_len=0; r_model_len=0;
++        foreach (awq[id]) begin aw_keys++; aw_len += awq[id].size(); end
++        foreach (wq[id]) begin w_keys++; w_len += wq[id].size(); end
++        foreach (bq_rsp[id]) begin b_rsp_keys++; b_rsp_len += bq_rsp[id].size(); end
++        foreach (bq_for_rsp_lat[id]) begin b_lat_keys++; b_lat_len += bq_for_rsp_lat[id].size(); end
++        foreach (arq[id]) begin ar_keys++; ar_len += arq[id].size(); end
++        foreach (rq[id]) begin r_keys++; r_len += rq[id].size(); end
++        foreach (rq_from_model[id]) begin r_model_keys++; r_model_len += rq_from_model[id].size(); end
++        $display("D2_PHASE_QUEUE port=%s instance=%s sampled_posedge=%0d sim_ps=%0d awq_keys=%0d awq_len=%0d wq_keys=%0d wq_len=%0d bq_rsp_keys=%0d bq_rsp_len=%0d bq_for_rsp_lat_keys=%0d bq_for_rsp_lat_len=%0d arq_keys=%0d arq_len=%0d rq_keys=%0d rq_len=%0d rq_from_model_keys=%0d rq_from_model_len=%0d bqnum_for_slaseq=%0d rq_from_model_num=%0d",
++                 port, this.get_full_name(), sampled_posedge,
++                 longint'($realtime * 1000.0),
++                 aw_keys, aw_len, w_keys, w_len, b_rsp_keys, b_rsp_len,
++                 b_lat_keys, b_lat_len, ar_keys, ar_len, r_keys, r_len,
++                 r_model_keys, r_model_len, bqnum_for_slaseq,
++                 rq_from_model_num);
+     endfunction
+ 
+     virtual function void build_phase(uvm_phase phase);
+--- v3/verilog/attention_slice_subsystem/attention_slice_reference_model.sv
++++ phase_probe/rtl/verilog/attention_slice_subsystem/attention_slice_reference_model.sv
+@@ -8,6 +8,9 @@
+ 
+ `ifndef ATTENTION_SLICE_REFERENCE_MODEL_SV
+ `define ATTENTION_SLICE_REFERENCE_MODEL_SV
++import "DPI-C" function void phase_probe_stage(input string label,
++    input longint sim_ps, input longint clock_count,
++    input longint value0, input longint value1);
+ typedef class attention_slice_reference_model;
+ class memaccess_axi_state_cbs extends axi_pkg::axi_state_cbs;
+     attention_slice_reference_model refm;
+@@ -142,69 +145,165 @@
+         trans_num_idx= 0;
+     endfunction
+ 
++    // Report only fixed scalar accounting from the actual generated TV loader.
++    // The loader's queues and the memory pages retain their original behavior.
++    function void phase_probe_memory(string port, string tv_path,
++                                     string offset_path,
++                                     longint unsigned fread_bytes,
++                                     longint unsigned payload_bytes,
++                                     longint unsigned elements,
++                                     longint unsigned transactions,
++                                     longint unsigned header_reads,
++                                     longint unsigned trailer_reads,
++                                     longint unsigned offset_fread_bytes,
++                                     longint unsigned offset_elements,
++                                     longint unsigned offset_transactions,
++                                     longint unsigned copy_elements,
++                                     longint unsigned pages_created,
++                                     int whole_page_size, int actual_offset);
++        $display("D2_PHASE_INIT port=%s tv=%s offset_tv=%s fread_bytes=%0d payload_bytes=%0d elements=%0d transactions=%0d header_reads=%0d trailer_reads=%0d offset_fread_bytes=%0d offset_elements=%0d offset_transactions=%0d copied_u8_elements=%0d pages_created=%0d whole_page_size=%0d actual_offset=%0d sim_ps=%0d",
++                 port, tv_path, offset_path, fread_bytes, payload_bytes,
++                 elements, transactions, header_reads, trailer_reads,
++                 offset_fread_bytes, offset_elements, offset_transactions,
++                 copy_elements, pages_created, whole_page_size, actual_offset,
++                 longint'($realtime * 1000.0));
++        phase_probe_stage({"memory_after_", port}, longint'($realtime * 1000.0),
++                          -1, longint'(fread_bytes + offset_fread_bytes),
++                          longint'(copy_elements));
++    endfunction
++
+     virtual task run_phase(uvm_phase phase);
+         string fpath[$];
+ misc_if.dut2tb_ap_done = 0;
++        phase_probe_stage("memory_before_fixture", longint'($realtime * 1000.0), -1, 0, 0);
+         fpath.push_back(`TV_IN_fixture);
+         mem_blk_pages_fixture = mem_model_pages_with_diffofst#(8,8)::type_id::create("mem_blk_pages_fixture");
+         mem_blk_pages_fixture.whole_page_size=786448;
+         mem_blk_pages_fixture.maxi_bundlevar_fpath["fixture_r"]=`TV_IN_OFFSET_fixture_r;
+         mem_blk_pages_fixture.set_binary(1);
+         mem_blk_pages_fixture.tvinload_pagechk_atinit(fpath, 786432*((8+7)/8), 0, 0);
+-        fpath.delete();
+-
++        phase_probe_memory("fixture", `TV_IN_fixture, `TV_IN_OFFSET_fixture_r,
++            mem_blk_pages_fixture.phase_fread_bytes, mem_blk_pages_fixture.phase_payload_bytes,
++            mem_blk_pages_fixture.phase_elements, mem_blk_pages_fixture.phase_transactions,
++            mem_blk_pages_fixture.phase_header_reads, mem_blk_pages_fixture.phase_trailer_reads,
++            mem_blk_pages_fixture.phase_offset_fread_bytes, mem_blk_pages_fixture.phase_offset_elements,
++            mem_blk_pages_fixture.phase_offset_transactions, mem_blk_pages_fixture.phase_copy_elements,
++            mem_blk_pages_fixture.phase_pages_created, mem_blk_pages_fixture.whole_page_size,
++            mem_blk_pages_fixture.maxi_bundlevar_offset["fixture_r"]);
++        fpath.delete();
++
++        phase_probe_stage("memory_before_io", longint'($realtime * 1000.0), -1, 0, 0);
+         fpath.push_back(`TV_IN_io);
+         mem_blk_pages_io = mem_model_pages_with_diffofst#(8,8)::type_id::create("mem_blk_pages_io");
+         mem_blk_pages_io.whole_page_size=32784;
+         mem_blk_pages_io.maxi_bundlevar_fpath["io_r"]=`TV_IN_OFFSET_io_r;
+         mem_blk_pages_io.set_binary(1);
+         mem_blk_pages_io.tvinload_pagechk_atinit(fpath, 32768*((8+7)/8), 0, 0);
++        phase_probe_memory("io", `TV_IN_io, `TV_IN_OFFSET_io_r,
++            mem_blk_pages_io.phase_fread_bytes, mem_blk_pages_io.phase_payload_bytes,
++            mem_blk_pages_io.phase_elements, mem_blk_pages_io.phase_transactions,
++            mem_blk_pages_io.phase_header_reads, mem_blk_pages_io.phase_trailer_reads,
++            mem_blk_pages_io.phase_offset_fread_bytes, mem_blk_pages_io.phase_offset_elements,
++            mem_blk_pages_io.phase_offset_transactions, mem_blk_pages_io.phase_copy_elements,
++            mem_blk_pages_io.phase_pages_created, mem_blk_pages_io.whole_page_size,
++            mem_blk_pages_io.maxi_bundlevar_offset["io_r"]);
+         mem_blk_pages_io.tvoutdump_atinit(`TV_OUT_io);
+-        fpath.delete();
+-
++        phase_probe_stage("output_dump_io_ready", longint'($realtime * 1000.0), -1, 0, 0);
++        fpath.delete();
++
++        phase_probe_stage("memory_before_aux", longint'($realtime * 1000.0), -1, 0, 0);
+         fpath.push_back(`TV_IN_aux);
+         mem_blk_pages_aux = mem_model_pages_with_diffofst#(8,8)::type_id::create("mem_blk_pages_aux");
+         mem_blk_pages_aux.whole_page_size=144;
+         mem_blk_pages_aux.maxi_bundlevar_fpath["aux_r"]=`TV_IN_OFFSET_aux_r;
+         mem_blk_pages_aux.set_binary(1);
+         mem_blk_pages_aux.tvinload_pagechk_atinit(fpath, 128*((8+7)/8), 0, 0);
+-        fpath.delete();
+-
++        phase_probe_memory("aux", `TV_IN_aux, `TV_IN_OFFSET_aux_r,
++            mem_blk_pages_aux.phase_fread_bytes, mem_blk_pages_aux.phase_payload_bytes,
++            mem_blk_pages_aux.phase_elements, mem_blk_pages_aux.phase_transactions,
++            mem_blk_pages_aux.phase_header_reads, mem_blk_pages_aux.phase_trailer_reads,
++            mem_blk_pages_aux.phase_offset_fread_bytes, mem_blk_pages_aux.phase_offset_elements,
++            mem_blk_pages_aux.phase_offset_transactions, mem_blk_pages_aux.phase_copy_elements,
++            mem_blk_pages_aux.phase_pages_created, mem_blk_pages_aux.whole_page_size,
++            mem_blk_pages_aux.maxi_bundlevar_offset["aux_r"]);
++        fpath.delete();
++
++        phase_probe_stage("memory_before_qkv0", longint'($realtime * 1000.0), -1, 0, 0);
+         fpath.push_back(`TV_IN_qkv0);
+         mem_blk_pages_qkv0 = mem_model_pages_with_diffofst#(8,8)::type_id::create("mem_blk_pages_qkv0");
+         mem_blk_pages_qkv0.whole_page_size=10240080;
+         mem_blk_pages_qkv0.maxi_bundlevar_fpath["qkv0_r"]=`TV_IN_OFFSET_qkv0_r;
+         mem_blk_pages_qkv0.set_binary(1);
+         mem_blk_pages_qkv0.tvinload_pagechk_atinit(fpath, 10240064*((8+7)/8), 0, 0);
++        phase_probe_memory("qkv0", `TV_IN_qkv0, `TV_IN_OFFSET_qkv0_r,
++            mem_blk_pages_qkv0.phase_fread_bytes, mem_blk_pages_qkv0.phase_payload_bytes,
++            mem_blk_pages_qkv0.phase_elements, mem_blk_pages_qkv0.phase_transactions,
++            mem_blk_pages_qkv0.phase_header_reads, mem_blk_pages_qkv0.phase_trailer_reads,
++            mem_blk_pages_qkv0.phase_offset_fread_bytes, mem_blk_pages_qkv0.phase_offset_elements,
++            mem_blk_pages_qkv0.phase_offset_transactions, mem_blk_pages_qkv0.phase_copy_elements,
++            mem_blk_pages_qkv0.phase_pages_created, mem_blk_pages_qkv0.whole_page_size,
++            mem_blk_pages_qkv0.maxi_bundlevar_offset["qkv0_r"]);
+         mem_blk_pages_qkv0.tvoutdump_atinit(`TV_OUT_qkv0);
+-        fpath.delete();
+-
++        phase_probe_stage("output_dump_qkv0_ready", longint'($realtime * 1000.0), -1, 0, 0);
++        fpath.delete();
++
++        phase_probe_stage("memory_before_qkv1", longint'($realtime * 1000.0), -1, 0, 0);
+         fpath.push_back(`TV_IN_qkv1);
+         mem_blk_pages_qkv1 = mem_model_pages_with_diffofst#(8,8)::type_id::create("mem_blk_pages_qkv1");
+         mem_blk_pages_qkv1.whole_page_size=10240080;
+         mem_blk_pages_qkv1.maxi_bundlevar_fpath["qkv1_r"]=`TV_IN_OFFSET_qkv1_r;
+         mem_blk_pages_qkv1.set_binary(1);
+         mem_blk_pages_qkv1.tvinload_pagechk_atinit(fpath, 10240064*((8+7)/8), 0, 0);
++        phase_probe_memory("qkv1", `TV_IN_qkv1, `TV_IN_OFFSET_qkv1_r,
++            mem_blk_pages_qkv1.phase_fread_bytes, mem_blk_pages_qkv1.phase_payload_bytes,
++            mem_blk_pages_qkv1.phase_elements, mem_blk_pages_qkv1.phase_transactions,
++            mem_blk_pages_qkv1.phase_header_reads, mem_blk_pages_qkv1.phase_trailer_reads,
++            mem_blk_pages_qkv1.phase_offset_fread_bytes, mem_blk_pages_qkv1.phase_offset_elements,
++            mem_blk_pages_qkv1.phase_offset_transactions, mem_blk_pages_qkv1.phase_copy_elements,
++            mem_blk_pages_qkv1.phase_pages_created, mem_blk_pages_qkv1.whole_page_size,
++            mem_blk_pages_qkv1.maxi_bundlevar_offset["qkv1_r"]);
+         mem_blk_pages_qkv1.tvoutdump_atinit(`TV_OUT_qkv1);
+-        fpath.delete();
+-
++        phase_probe_stage("output_dump_qkv1_ready", longint'($realtime * 1000.0), -1, 0, 0);
++        fpath.delete();
++
++        phase_probe_stage("memory_before_att_out", longint'($realtime * 1000.0), -1, 0, 0);
+         fpath.push_back(`TV_IN_att_out);
+         mem_blk_pages_att_out = mem_model_pages_with_diffofst#(8,8)::type_id::create("mem_blk_pages_att_out");
+         mem_blk_pages_att_out.whole_page_size=4116;
+         mem_blk_pages_att_out.maxi_bundlevar_fpath["att_out_r"]=`TV_IN_OFFSET_att_out_r;
+         mem_blk_pages_att_out.set_binary(1);
+         mem_blk_pages_att_out.tvinload_pagechk_atinit(fpath, 4100*((8+7)/8), 0, 0);
++        phase_probe_memory("att_out", `TV_IN_att_out, `TV_IN_OFFSET_att_out_r,
++            mem_blk_pages_att_out.phase_fread_bytes, mem_blk_pages_att_out.phase_payload_bytes,
++            mem_blk_pages_att_out.phase_elements, mem_blk_pages_att_out.phase_transactions,
++            mem_blk_pages_att_out.phase_header_reads, mem_blk_pages_att_out.phase_trailer_reads,
++            mem_blk_pages_att_out.phase_offset_fread_bytes, mem_blk_pages_att_out.phase_offset_elements,
++            mem_blk_pages_att_out.phase_offset_transactions, mem_blk_pages_att_out.phase_copy_elements,
++            mem_blk_pages_att_out.phase_pages_created, mem_blk_pages_att_out.whole_page_size,
++            mem_blk_pages_att_out.maxi_bundlevar_offset["att_out_r"]);
+         mem_blk_pages_att_out.tvoutdump_atinit(`TV_OUT_att_out);
+-        fpath.delete();
+-
++        phase_probe_stage("output_dump_att_out_ready", longint'($realtime * 1000.0), -1, 0, 0);
++        fpath.delete();
++
++        phase_probe_stage("memory_before_observed", longint'($realtime * 1000.0), -1, 0, 0);
+         fpath.push_back(`TV_IN_observed);
+         mem_blk_pages_observed = mem_model_pages_with_diffofst#(32,8)::type_id::create("mem_blk_pages_observed");
+         mem_blk_pages_observed.whole_page_size=1088;
+         mem_blk_pages_observed.maxi_bundlevar_fpath["observed_r"]=`TV_IN_OFFSET_observed_r;
+         mem_blk_pages_observed.set_binary(1);
+         mem_blk_pages_observed.tvinload_pagechk_atinit(fpath, 256*((32+7)/8), 0, 0);
++        phase_probe_memory("observed", `TV_IN_observed, `TV_IN_OFFSET_observed_r,
++            mem_blk_pages_observed.phase_fread_bytes, mem_blk_pages_observed.phase_payload_bytes,
++            mem_blk_pages_observed.phase_elements, mem_blk_pages_observed.phase_transactions,
++            mem_blk_pages_observed.phase_header_reads, mem_blk_pages_observed.phase_trailer_reads,
++            mem_blk_pages_observed.phase_offset_fread_bytes, mem_blk_pages_observed.phase_offset_elements,
++            mem_blk_pages_observed.phase_offset_transactions, mem_blk_pages_observed.phase_copy_elements,
++            mem_blk_pages_observed.phase_pages_created, mem_blk_pages_observed.whole_page_size,
++            mem_blk_pages_observed.maxi_bundlevar_offset["observed_r"]);
+         mem_blk_pages_observed.tvoutdump_atinit(`TV_OUT_observed);
+-        fpath.delete();
++        phase_probe_stage("output_dump_observed_ready", longint'($realtime * 1000.0), -1, 0, 0);
++        fpath.delete();
++        phase_probe_stage("memory_ready", longint'($realtime * 1000.0), -1, 21304580, 7);
+ 
+         fork
+             forever begin
+--- v3/verilog/file_agent/file_read_agent.sv
++++ phase_probe/rtl/verilog/file_agent/file_read_agent.sv
+@@ -35,6 +35,13 @@
+         int is_binary;
+         
+         DATA_QUEUE_TYPE TV_Queue[$];
++        // Passive, fixed-size TV read accounting for the phase probe.
++        longint unsigned phase_fread_bytes;
++        longint unsigned phase_payload_bytes;
++        longint unsigned phase_elements;
++        longint unsigned phase_transactions;
++        longint unsigned phase_header_reads;
++        longint unsigned phase_trailer_reads;
+ 
+         string TV_FILE_COMPARE = "";
+         integer fp_compare;
+@@ -557,7 +564,15 @@
+         reg [63:0]  trans_depth;
+ 
+         TV_Queue.delete();
++        phase_fread_bytes = 0;
++        phase_payload_bytes = 0;
++        phase_elements = 0;
++        phase_transactions = 0;
++        phase_header_reads = 0;
++        phase_trailer_reads = 0;
+         ret = $fread(trans_depth, fp);
++        if (ret > 0) phase_fread_bytes += ret;
++        phase_header_reads++;
+         while(trans_depth != 64'h5a5aa5a50f0ff0f0) begin
+             while(trans_depth != 0) begin
+                 ret = $fread(data, fp);
+@@ -565,15 +580,24 @@
+                     `uvm_fatal(this.get_full_name(), "ERROR: Simulation reading TVIN failed.");
+                 if(ret == 0)
+                     `uvm_fatal(this.get_full_name(), "ERROR: Simulation reading TVIN got no input data.");
++                if (ret > 0) begin
++                    phase_fread_bytes += ret;
++                    phase_payload_bytes += ret;
++                    phase_elements++;
++                end
+                 TV.push_back(data);                
+                 trans_depth = trans_depth - 1;
+                 `uvm_info(this.get_full_name(), $sformatf("read data: %0d", data), UVM_DEBUG)
+             end
+             TV_Queue.push_back(TV);
++            phase_transactions++;
+             ret = $fread(trans_depth, fp);
++            if (ret > 0) phase_fread_bytes += ret;
++            phase_header_reads++;
+             `uvm_info(this.get_full_name(), $sformatf("transaction size: %0d", TV.size()), UVM_DEBUG)
+             TV.delete();
+         end
++        phase_trailer_reads++;
+ 
+         `uvm_info(this.get_full_name(), $sformatf("TV_Queue size: %0d", TV_Queue.size()), UVM_DEBUG)
+         `uvm_info(this.get_full_name(), "read file done", UVM_LOW)
+--- v3/verilog/file_agent/mem_model.sv
++++ phase_probe/rtl/verilog/file_agent/mem_model.sv
+@@ -102,6 +102,15 @@
+     int wr_page_idx;
+     file_write_agent#(ceiling_bytes) FileWr;
+     int is_binary;
++    // Passive TV loading counters; no payload or transaction references kept.
++    longint unsigned phase_fread_bytes;
++    longint unsigned phase_payload_bytes;
++    longint unsigned phase_elements;
++    longint unsigned phase_transactions;
++    longint unsigned phase_header_reads;
++    longint unsigned phase_trailer_reads;
++    longint unsigned phase_copy_elements;
++    longint unsigned phase_pages_created;
+ 
+     `uvm_object_param_utils_begin(mem_model_pages#(DATA_WIDTH,ELE_WIDTH))
+         `uvm_field_int(rd_page_idx, UVM_DEFAULT)
+@@ -159,18 +168,28 @@
+         //if(depth%elenum) `uvm_warning(this.get_full_name(), 
+         //                   $sformatf("depth setting is unreasonable: depth: 'd%0d, elenum:'d%0d", depth,elenum))
+         bitw.push_back(ceiling_bytes);
++        phase_copy_elements = 0;
++        phase_pages_created = 0;
+         fr.set_binary(is_binary); 
+         fr.config_file(fpath, bitw);
+         fr.read_TVIN_file();
++        phase_fread_bytes = fr.phase_fread_bytes;
++        phase_payload_bytes = fr.phase_payload_bytes;
++        phase_elements = fr.phase_elements;
++        phase_transactions = fr.phase_transactions;
++        phase_header_reads = fr.phase_header_reads;
++        phase_trailer_reads = fr.phase_trailer_reads;
+         for(int i=0; i<fr.TV_Queue.size; i++) begin
+             mem_model#(ELE_WIDTH) blk = mem_model#(ELE_WIDTH)::type_id::create($sformatf("mem_blk page %0d",i));
+             //blk.init(fr.TV_Queue[i].size);
+             blk.init(depth, offset);
+             pages.push_back(blk);
++            phase_pages_created++;
+             if(ispagechk) continue;
+             for(int j=0; j<fr.TV_Queue[i].size; j++)
+                 for(int k=0; k<elenum; k++) 
+                     void'(blk.write_one_elem( (fr.TV_Queue[i][j]>>(k*ELE_WIDTH)) & (2**ELE_WIDTH-1), j*elenum+k+offset ));
++            phase_copy_elements += longint'(fr.TV_Queue[i].size) * elenum;
+         end
+     endfunction
+ 
+@@ -267,6 +286,9 @@
+ class mem_model_pages_with_diffofst#(int DATA_WIDTH=32, int ELE_WIDTH = 8) extends mem_model_pages#(DATA_WIDTH, ELE_WIDTH);
+     int recycle_page_ofst[$];
+     int whole_page_size;
++    longint unsigned phase_offset_fread_bytes;
++    longint unsigned phase_offset_elements;
++    longint unsigned phase_offset_transactions;
+     int page_ofst[$];
+     string maxi_bundlevar_fpath[string];
+     int maxi_bundlevar_offset[string];
+@@ -300,6 +322,9 @@
+         integer bitw[$];
+         string  fpath_varoffset[$];
+         super.tvinload_pagechk_atinit(fpath, depth, ispagechk, 0);
++        phase_offset_fread_bytes = 0;
++        phase_offset_elements = 0;
++        phase_offset_transactions = 0;
+         page_ofst[rd_page_idx]=0;
+         bitw.push_back(64);
+         if(maxi_bundlevar_fpath.first(varname))
+@@ -309,6 +334,9 @@
+                 fpath_varoffset.push_back(maxi_bundlevar_fpath[varname]);
+                 frtmp.config_file(fpath_varoffset, bitw);
+                 frtmp.read_TVIN_file();
++                phase_offset_fread_bytes += frtmp.phase_fread_bytes;
++                phase_offset_elements += frtmp.phase_elements;
++                phase_offset_transactions += frtmp.phase_transactions;
+                 maxi_bundlevar_offset[varname] = frtmp.TV_Queue[0][0];
+                 min_offset = (min_offset>frtmp.TV_Queue[0][0]) ? frtmp.TV_Queue[0][0] : min_offset;
+             end while(maxi_bundlevar_fpath.next(varname));
+--- /dev/null
++++ phase_probe/tb/phase_axi_monitor.sv
+@@ -0,0 +1,108 @@
++`timescale 1ns/1ps
++
++// Passive monitor for one actual 32-bit data / 1-bit-ID m_axi interface.
++// Seven instances are bound in the copied generated autotb. No payload is kept.
++module d2_phase_axi_monitor #(
++    parameter string PORT = "unnamed"
++) (
++    input logic clk, input logic rst_n,
++    input logic awvalid, input logic awready,
++    input logic wvalid, input logic wready, input logic [3:0] wstrb,
++    input logic wlast, input logic bvalid, input logic bready,
++    input logic arvalid, input logic arready,
++    input logic [0:0] arid, input logic [7:0] arlen,
++    input logic [2:0] arsize,
++    input logic rvalid, input logic rready,
++    input logic [0:0] rid, input logic rlast
++);
++    localparam int IDS = 2;
++    localparam int RING = 16;
++    // 2 IDs x 16 entries x (3-bit ARSIZE + 9-bit remaining beats) = 48 B.
++    // Six 32-bit head/tail/count scalars add 24 B per instance, 504 B total
++    // across seven ports. All counters below are also fixed-size scalars.
++    logic [2:0] size_ring [0:IDS-1][0:RING-1];
++    logic [8:0] remaining_ring [0:IDS-1][0:RING-1];
++    integer head [0:IDS-1];
++    integer tail [0:IDS-1];
++    integer used [0:IDS-1];
++    longint unsigned aw_count = 0, ar_count = 0;
++    longint unsigned w_beats = 0, r_beats = 0, b_count = 0;
++    longint unsigned wlast_count = 0, rlast_count = 0;
++    longint unsigned w_strobe_bytes = 0, r_transfer_bytes = 0;
++
++    initial begin
++        for (int id = 0; id < IDS; id++) begin
++            head[id] = 0;
++            tail[id] = 0;
++            used[id] = 0;
++        end
++    end
++
++    task automatic consume_read(input int id);
++        if (used[id] == 0)
++            $fatal(1, "D2_PHASE_PROBE_INVALID unmatched R port=%s id=%0d", PORT, id);
++        if ((remaining_ring[id][head[id]] == 9'd1) != (rlast === 1'b1))
++            $fatal(1, "D2_PHASE_PROBE_INVALID RLAST mismatch port=%s id=%0d remaining=%0d last=%b",
++                   PORT, id, remaining_ring[id][head[id]], rlast);
++        r_transfer_bytes += (64'd1 << size_ring[id][head[id]]);
++        r_beats++;
++        if (rlast === 1'b1) begin
++            rlast_count++;
++            head[id] = (head[id] + 1) % RING;
++            used[id]--;
++        end else begin
++            remaining_ring[id][head[id]]--;
++        end
++    endtask
++
++    // Retire an existing R first, so a full ring can accept a same-clock AR.
++    // If the ring was empty, insert the AR first so a same-clock R can match.
++    // The top-level samples one picosecond after these blocking updates.
++    always @(posedge clk) begin : record_handshakes
++        int id;
++        int strobe_bytes;
++        bit read_handshake;
++        bit read_on_empty;
++        if (rst_n === 1'b1) begin
++            read_handshake = rvalid === 1'b1 && rready === 1'b1;
++            if (read_handshake && $isunknown({rid, rlast}))
++                $fatal(1, "D2_PHASE_PROBE_INVALID unknown RID/RLAST port=%s", PORT);
++            read_on_empty = read_handshake && used[int'(rid)] == 0;
++            if (read_handshake && !read_on_empty) consume_read(int'(rid));
++            if (awvalid === 1'b1 && awready === 1'b1) aw_count++;
++            if (arvalid === 1'b1 && arready === 1'b1) begin
++                if ($isunknown({arid, arlen, arsize}) || arsize > 3'd2)
++                    $fatal(1, "D2_PHASE_PROBE_INVALID AR metadata port=%s id=%b len=%b size=%b",
++                           PORT, arid, arlen, arsize);
++                id = int'(arid);
++                if (used[id] >= RING)
++                    $fatal(1, "D2_PHASE_PROBE_INVALID read-ring overflow port=%s id=%0d", PORT, id);
++                size_ring[id][tail[id]] = arsize;
++                remaining_ring[id][tail[id]] = {1'b0, arlen} + 9'd1;
++                tail[id] = (tail[id] + 1) % RING;
++                used[id]++;
++                ar_count++;
++            end
++            if (wvalid === 1'b1 && wready === 1'b1) begin
++                if ($isunknown({wstrb, wlast}))
++                    $fatal(1, "D2_PHASE_PROBE_INVALID WSTRB/WLAST port=%s", PORT);
++                strobe_bytes = 0;
++                for (int bit_idx = 0; bit_idx < 4; bit_idx++)
++                    if (wstrb[bit_idx] === 1'b1) strobe_bytes++;
++                w_strobe_bytes += strobe_bytes;
++                w_beats++;
++                if (wlast === 1'b1) wlast_count++;
++            end
++            if (read_on_empty) consume_read(int'(rid));
++            if (bvalid === 1'b1 && bready === 1'b1) b_count++;
++        end
++    end
++
++    task automatic report(input longint unsigned sampled_posedge);
++        $display("D2_PHASE_AXI port=%s sampled_posedge=%0d sim_ps=%0d aw=%0d ar=%0d w_beats=%0d r_beats=%0d b=%0d wlast=%0d rlast=%0d w_strobe_bytes=%0d r_transfer_bytes=%0d aw_minus_b=%0d ar_minus_rlast=%0d read_ring_id0=%0d read_ring_id1=%0d",
++                 PORT, sampled_posedge, longint'($realtime * 1000.0),
++                 aw_count, ar_count, w_beats, r_beats, b_count,
++                 wlast_count, rlast_count, w_strobe_bytes, r_transfer_bytes,
++                 aw_count - b_count, ar_count - rlast_count, used[0], used[1]);
++    endtask
++endmodule
+--- /dev/null
++++ phase_probe/tb/phase_rss.c
+@@ -0,0 +1,25 @@
++#include <stdio.h>
++#include <string.h>
++#include <sys/time.h>
++#include <unistd.h>
++
++/* Read-only stage observation in the actual XSim kernel process. */
++void phase_probe_stage(const char *label, long long sim_time_ps,
++                       long long clock_count, long long value0, long long value1) {
++    long rss_kb = -1, hwm_kb = -1;
++    char line[256];
++    FILE *status = fopen("/proc/self/status", "r");
++    if (status != NULL) {
++        while (fgets(line, sizeof line, status) != NULL) {
++            if (strncmp(line, "VmRSS:", 6) == 0) sscanf(line + 6, "%ld", &rss_kb);
++            if (strncmp(line, "VmHWM:", 6) == 0) sscanf(line + 6, "%ld", &hwm_kb);
++        }
++        fclose(status);
++    }
++    struct timeval now;
++    gettimeofday(&now, NULL);
++    fprintf(stdout, "D2_PHASE_STAGE wall_ms=%lld pid=%ld sim_ps=%lld clock=%lld label=%s value0=%lld value1=%lld rss_kb=%ld hwm_kb=%ld\n",
++            (long long)now.tv_sec * 1000 + now.tv_usec / 1000, (long)getpid(),
++            sim_time_ps, clock_count, label, value0, value1, rss_kb, hwm_kb);
++    fflush(stdout);
++}
+--- /dev/null
++++ phase_probe/tb/postcheck_if_complete.py
+@@ -0,0 +1,67 @@
++#!/usr/bin/env python3
++"""Run the unchanged generated C postcheck only after an original RTL finish."""
++
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++
++
++MODULE = Path(__file__).resolve().parents[1]
++ROOT = MODULE.parents[2]
++WRAP = MODULE / "rtl/wrapc_pc"
++TV_OUT = MODULE / "rtl/tv/rtldatafile"
++PACKAGE = ROOT / "build/model-attention-rtl-repair-20261008"
++FIXTURE = ROOT / "results/attention_rtl_repair_20261008/d2_attention_slice/tb/fixture_b1_s64_decision"
++ORIGINAL = ROOT / "results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/wrapc_pc/cosim.pc.exe"
++
++
++def sha(path):
++    digest = hashlib.sha256()
++    with path.open("rb") as stream:
++        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--xsim-log", type=Path, required=True)
++    parser.add_argument("--guard-result", type=Path, required=True)
++    parser.add_argument("--out", type=Path, required=True)
++    args = parser.parse_args()
++    result = json.loads(args.guard_result.read_text())
++    log = args.xsim_log.read_text(errors="replace")
++    if result["child_exit_code"] != 0 or result["trigger"] is not None:
++        raise RuntimeError("XSim did not finish without a guard trigger")
++    if "D2_PHASE_PROBE_WINDOW_END" in log:
++        raise RuntimeError("diagnostic window ended before original transaction")
++    if "label=ap_done_edge" not in log or "label=finish_cnt_change value0=1" not in log:
++        raise RuntimeError("original ap_done/finish_count completion not observed")
++    paths = [TV_OUT / f"rtl.attention_slice.autotvout_{port}.dat"
++             for port in ("io", "qkv0", "qkv1", "att_out", "observed")]
++    if any(not path.is_file() or path.stat().st_size == 0 for path in paths):
++        raise RuntimeError("generated output TV is incomplete")
++    if sha(WRAP / "cosim.pc.exe") != sha(ORIGINAL):
++        raise RuntimeError("generated C postcheck executable changed")
++    command = [str(WRAP / "cosim.pc.exe"), str(PACKAGE), str(FIXTURE)]
++    plan = {"argv": command, "cwd": str(WRAP),
++            "original_postcheck_sha256": sha(ORIGINAL),
++            "copied_postcheck_sha256": sha(WRAP / "cosim.pc.exe"),
++            "xsim_log_sha256": sha(args.xsim_log),
++            "xsim_guard_sha256": sha(args.guard_result),
++            "new_output_tv": {str(path): sha(path) for path in paths}}
++    args.out.mkdir(parents=True, exist_ok=True)
++    (args.out / "postcheck_plan.json").write_text(json.dumps(plan, indent=2) + "\n")
++    with (args.out / "postcheck.log").open("wb") as stream:
++        completed = subprocess.run(command, cwd=WRAP, stdout=stream,
++                                   stderr=subprocess.STDOUT, check=False)
++    (args.out / "postcheck_result.json").write_text(
++        json.dumps({"exit_code": completed.returncode, "plan": plan},
++                   indent=2) + "\n")
++    return completed.returncode
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+--- /dev/null
++++ phase_probe/tb/run_xelab_static.sh
+@@ -0,0 +1,14 @@
++#!/usr/bin/env bash
++set -euo pipefail
++exec /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xelab \
++  xil_defaultlib.apatb_attention_slice_top xil_defaultlib.glbl \
++  -Oenable_linking_all_libraries -prj attention_slice.prj \
++  -L smartconnect_v1_0 -L axi_protocol_checker_v1_1_12 \
++  -L axi_protocol_checker_v1_1_13 -L axis_protocol_checker_v1_1_11 \
++  -L axis_protocol_checker_v1_1_12 -L xil_defaultlib -L unisims_ver \
++  -L xpm -L floating_point_v7_1_21 -L floating_point_v7_0_26 \
++  --lib ieee_proposed=./ieee_proposed -L uvm -relax \
++  -i ./svr -i ./svtb -i ./file_agent -i ./attention_slice_subsystem \
++  --sv_lib phase_rss \
++  --sv_root /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/tb \
++  -s attention_slice
+--- /dev/null
++++ phase_probe/tb/run_xsim_window.sh
+@@ -0,0 +1,7 @@
++#!/usr/bin/env bash
++set -euo pipefail
++exec /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xsim \
++  -testplusarg UVM_VERBOSITY=UVM_NONE \
++  -testplusarg UVM_TESTNAME=attention_slice_test_lib \
++  -testplusarg UVM_TIMEOUT=20000000000000 \
++  --noieeewarnings attention_slice -tclbatch attention_slice.tcl

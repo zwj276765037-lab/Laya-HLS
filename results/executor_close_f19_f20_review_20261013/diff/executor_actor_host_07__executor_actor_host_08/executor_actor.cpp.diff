@@ -1,0 +1,52 @@
+--- executor_actor_host_07/executor_actor.cpp
++++ executor_actor_host_08/executor_actor.cpp
+@@ -95,6 +95,14 @@
+     expected.slot_delta = c.slot_delta;
+   }
+   return program_wire::encode(expected) == s.result_packet;
++}
++
++void observe_host_result(State& s, const Inputs& in) {
++  if (!in.host_result_valid) return;
++  program_wire::Result decoded;
++  if (program_wire::decode(in.host_result, decoded) &&
++      in.host_result == s.result_packet) s.managed_result_consumed = true;
++  else ++s.control_rejections;
+ }
+ 
+ bool begin_cancel_consumer(State& s, const Inputs& in) {
+@@ -213,6 +221,7 @@
+       s.checkpoint.hold_reserved = false;
+       s.beat = s.result_beat = 0; s.import_pending = false;
+       s.program_result_consumed = false; s.result_consumed_pending = false;
++      s.managed_result_consumed = false;
+       s.session = in.session; s.accepted_request_high_water = in.accepted_request;
+       s.admitted_base = in.fence.base;
+       s.revoked = false; s.control_pending = s.control_sent = false;
+@@ -364,22 +373,18 @@
+       if (results.write_nb(word(s.result_packet, s.beat)) &&
+           ++s.beat == program_wire::kResultBeats) {
+         s.beat = 0; ++s.results;
+-        s.result_consumed_pending = in.result_consumed;
++        if (s.managed_close) observe_host_result(s, in);
++        else s.result_consumed_pending = in.result_consumed;
+         s.phase = Phase::WAIT_RESULT_CONSUMED;
+       }
+       return;
+     case Phase::WAIT_RESULT_CONSUMED:
+       if (s.managed_close) {
+-        if (in.host_result_valid) {
+-          program_wire::Result decoded;
+-          if (program_wire::decode(in.host_result, decoded) &&
+-              in.host_result == s.result_packet) s.result_consumed_pending = true;
+-          else ++s.control_rejections;
+-        }
++        observe_host_result(s, in);
+         // A CLOSE intent does not assert physical drain. Only known local
+         // program/port work and complete software queues are checked here;
+         // the unique shell must independently retain the old physical owner.
+-        if (s.result_consumed_pending && !s.runtime.lifecycle_action.active &&
++        if (s.managed_result_consumed && !s.runtime.lifecycle_action.active &&
+             !s.runtime.generated_store.active && !s.runtime.generated_store.source_lease_active &&
+             s.program_result_consumed && commands.empty() && program_results.empty() &&
+             actions.empty() && completions.empty() && results.empty() && query.empty() && response.empty() &&

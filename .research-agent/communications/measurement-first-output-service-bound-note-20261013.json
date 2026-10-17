@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "measurement-first-output-service-bound-note-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# KB1结果提交与写回：同profile服务边界\n\n消息measurement-first-output-service-bound-note-20261013，补充前两条KB1交付；M004/SM005/E005/R001。仅静态核当前冻结模块与原测量，无新工具/候选。\n\n主控已指向计算期结果提交/写回等待；有一个约束会影响候选选择。KB1有效16384B已全部装进256个512-bit W beat，物理字节同为16384，固定该端口时不能继续减少写拍。当前TB在真实B消费前不再接受新AW/W，256笔17+(beat%3)延迟累计4608次negedge decrement。实测首AW→末B跨度4927cycles；如果首AW时刻不变，只消除其它写回间隙的乐观上限约319cycles，非已证可实现收益。增加DUT待发队列本身不能令这个受控peer在上一B前接收下一事务。多未决B需另一响应profile及其自身基线。\n\n原冻结路径显示最终PS的commit_ready经adapter stored row→bias pending→writer packet_ready传播；PS_commit-not-ready4691、writer-packet-not-ready2819、tx-valid4928和已送AW/W无B4352互相重叠，不能当作各自可消除延迟。若继续同profile，建议优先定位能否更早形成/外发首个完整最终输出，或哪处真实重叠改变末B/完成边界；勿仅从2819stall选更深buffer。范围与完整源码/日志SHA见[只读推导](reports/KB1_output_service_bound_20261013.md)及[JSON](reports/KB1_output_service_bound_20261013.json)。现正常数值与KB1收益结论不变。\n",
+  "in_reply_to": "measurement-first-KB0-review-20261013",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/measurement_first_output_service_bound_note_20261013.md",
+  "associations": {},
+  "payload_sha256": "32d6f57cbe0b890f58caaca59d435208481c0ad5bada07792b4eddcaae89d9a6",
+  "created_at": "2026-10-13T06:28:26.262605+00:00",
+  "status": "delivered",
+  "client_user_message_id": "ba9731a3-4e72-4612-bc5c-c346ec537fd9",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T06:28:26.292858+00:00",
+  "recipient_turn_id": "01a133e8-a607-7763-809b-b2a4303340ce"
+}

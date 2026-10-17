@@ -1,0 +1,55 @@
+--- v1/source/linear_controller_slice.cpp
++++ v2/source/linear_controller_slice.cpp
+@@ -104,7 +104,7 @@
+     return;
+   }
+   Controller controller{rt, memory};
+-  const FullOwnerSpec source{{Buffer::NORM, 0, 1}, 0, 4, 0, 255,
++  const FullOwnerSpec source{controller.fresh(Buffer::NORM, 0), 0, 4, 0, 255,
+                              RowSpace::TOKEN, 0, 64, 1024, Content::F32};
+   c = full_claim_owner(rt, source);
+   if (!c) { report(observed, rt, c, 2, output, pair); return; }
+--- v1/source/vector_controller_slice.cpp
++++ v2/source/vector_controller_slice.cpp
+@@ -101,17 +101,17 @@
+   Controller controller{rt, memory};
+   FullOwnerSpec src0, src1;
+   if (mode == 3) {
+-    src0 = {{Buffer::HEAD_WORK, 0, 1}, uint8_t(Region::CAND_RAW),
++    src0 = {controller.fresh(Buffer::HEAD_WORK, 0, uint8_t(Region::CAND_RAW)), uint8_t(Region::CAND_RAW),
+             5, 255, 255, RowSpace::MARKER, 0, 16, 1, Content::F32};
+   } else if (mode == 1) {
+-    src0 = {{Buffer::HIDDEN, 0, 1}, 0, 3, 255, 255,
++    src0 = {controller.fresh(Buffer::HIDDEN, 0), 0, 3, 255, 255,
+             RowSpace::TOKEN, 0, 64, 1024, Content::F32};
+-    src1 = {{Buffer::TYPE_ROWS, 0, 1}, 0, 3, 255, 0,
++    src1 = {controller.fresh(Buffer::TYPE_ROWS, 0), 0, 3, 255, 0,
+             RowSpace::BATCH, 0, 3, 1024, Content::F32};
+   } else {
+-    src0 = {{Buffer::TMP, 0, 1}, 0, 4, 0, 255,
++    src0 = {controller.fresh(Buffer::TMP, 0), 0, 4, 0, 255,
+             RowSpace::TOKEN, 0, 64, 1024, Content::F32};
+-    src1 = {{Buffer::HIDDEN, uint8_t(mode == 4), 1}, 0, 4, 0, 255,
++    src1 = {controller.fresh(Buffer::HIDDEN, uint8_t(mode == 4)), 0, 4, 0, 255,
+             RowSpace::TOKEN, 0, 64, 1024, Content::F32};
+   }
+   c = produce_f32(rt, memory, src0, src0_input);
+--- v1/tb/test_linear_controller_slice.cpp
++++ v2/tb/test_linear_controller_slice.cpp
+@@ -188,9 +188,13 @@
+   run_case(fixture, request, model, "norm.f32.bin", nullptr,
+            304, true, true);
+   run_case(fixture, request, model, "norm.f32.bin", nullptr,
+-           305, true, false, true);
++           305, false, true);
++  run_case(fixture, request, model, "norm.f32.bin", nullptr,
++           306, true, false, true);
++  run_case(fixture, request, model, "norm.f32.bin", nullptr,
++           307, false, false, true);
+   run_case(fixture, request, model, "norm.f32.bin",
+-           "qkv_gold.f32.bin", 306, true);
+-  std::printf("D2_I_LINEAR_PASS qkv_values=%u success=3 no_pair=1 bad_scale=1 bad_header=1\n",
++           "qkv_gold.f32.bin", 308, true);
++  std::printf("D2_I_LINEAR_PASS qkv_values=%u success=3 no_pair=1 bad_scale=2 bad_header=2\n",
+               3u * 64u * 3072u);
+ }

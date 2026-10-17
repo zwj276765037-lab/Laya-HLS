@@ -1,0 +1,23 @@
+--- layernorm_guarded_source_02/layernorm_guarded_source_fixture.py
++++ layernorm_guarded_source_03/layernorm_guarded_source_fixture.py
+@@ -37,12 +37,17 @@
+     struct.pack_into('<QIHHQQQBBB',begin,864,8388608,4096,1,1,0,0,4096,0,255,0)
+     save('target_begin',begin)
+     end=bytearray(begin)
+-    struct.pack_into('<H',end,6,3);struct.pack_into('<Q',end,8,15)
++    struct.pack_into('<H',end,6,3);struct.pack_into('<Q',end,8,16)
+     # Status/unit/elements/detail/bad/issued are filled from actual LPC1 by TB.
+     save('target_end_template',end)
+-    invalid=bytearray(claim);struct.pack_into('<H',invalid,6,6);struct.pack_into('<Q',invalid,8,16)
++    wrong_end=bytearray(end)
++    struct.pack_into('<Q',wrong_end,8,15)
++    struct.pack_into('<I',wrong_end,16,999)
++    struct.pack_into('<I',wrong_end,148,999)
++    save('wrong_end_active',wrong_end)
++    invalid=bytearray(claim);struct.pack_into('<H',invalid,6,6);struct.pack_into('<Q',invalid,8,17)
+     save('target_invalidate',invalid)
+-    for name,sequence in [('source_conflict_before',11),('source_conflict_live',14),('source_invalidate',17)]:
++    for name,sequence in [('source_conflict_before',11),('source_conflict_live',14),('source_invalidate',18)]:
+         b=bytearray((a.out/'invalidate.bin').read_bytes());struct.pack_into('<Q',b,8,sequence);save(name,b)
+     r=bytearray(1024)
+     struct.pack_into('<IHHHHH',r,0,0x3145504c,1,16,1,0,8)

@@ -1,0 +1,1 @@
+set ::AESL_AUTOSIM::gTopFileName /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/./sim/autowrap/testbench/optional_pointer_pilot.cpp_pre.cpp.tb.cpp

@@ -1,0 +1,430 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sat Oct 10 20:46:16 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/run_tm4tn8_pilot_v1.tcl
+# if {[llength $argv] != 1} {
+#     error "usage: run_tm4tn8_pilot_v1.tcl FRESH_WORK"
+# }
+# set work [lindex $argv 0]
+# set work [file normalize $work]
+# if {![file isdirectory $work] || [file exists [file join $work vivado]]} {
+#     error "fresh existing work directory required"
+# }
+# set module [file normalize [file join [file dirname [info script]] ..]]
+# create_project tm4tn8_pilot_v1 [file join $work vivado] \
+#     -part xcu55c-fsvh2892-2L-e
+# set_param general.maxThreads 4
+# add_files -norecurse -fileset sources_1 [list \
+#     [file join $module rtl tm1tn8_integer_tree_lut.sv] \
+#     [file join $module rtl tm1tn8_signed_pack_pair.sv] \
+#     [file join $module rtl tm1tn8_integer_tree_packed.sv] \
+#     [file join $module rtl tm4tn8_tag_v1.sv] \
+#     [file join $module rtl tm4tn8_reserved_store_v1.sv] \
+#     [file join $module rtl tm4tn8_fp_restore_v1.sv] \
+#     [file join $module rtl tm4tn8_row_pipeline_v1.sv] \
+#     [file join $module rtl tm4tn8_microbench_v1.sv]]
+# add_files -norecurse -fileset sim_1 \
+#     [file join $module tb tm4tn8_microbench_pilot_tb.sv]
+# source [file join $module tb create_fp_ip.tcl]
+## if {[get_property PART [current_project]] ne "xcu55c-fsvh2892-2L-e"} {
+##     error "TM1TN8 FP part mismatch"
+## }
+## foreach kind {sitofp fmul fadd} {
+##     set name tm1tn8_${kind}_ip
+##     if {[llength [get_ips -quiet $name]]} { error "FP IP already exists: $name" }
+##     create_ip -name floating_point -version 7.1 -vendor xilinx.com \
+##         -library ip -module_name $name
+##     set common [list CONFIG.c_rate 1 CONFIG.flow_control NonBlocking \
+##         CONFIG.c_optimization Speed_Optimized \
+##         CONFIG.c_result_exponent_width 8 CONFIG.c_result_fraction_width 24 \
+##         CONFIG.result_precision_type Single \
+##         CONFIG.has_a_tlast false CONFIG.has_a_tuser false \
+##         CONFIG.has_b_tlast false CONFIG.has_b_tuser false \
+##         CONFIG.has_result_tready false CONFIG.has_aresetn true \
+##         CONFIG.maximum_latency true]
+##     if {$kind eq "sitofp"} {
+##         set specific [list CONFIG.operation_type Fixed_to_Float \
+##             CONFIG.a_precision_type Custom \
+##             CONFIG.c_a_exponent_width 32 CONFIG.c_a_fraction_width 0 \
+##             CONFIG.c_mult_usage No_Usage \
+##             CONFIG.has_aclken false]
+##     } elseif {$kind eq "fmul"} {
+##         set specific [list CONFIG.operation_type Multiply \
+##             CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Max_Usage \
+##             CONFIG.has_aclken false]
+##     } else {
+##         set specific [list CONFIG.operation_type Add_Subtract \
+##             CONFIG.add_sub_value Add CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Full_Usage \
+##             CONFIG.has_aclken true]
+##     }
+##     set_property -dict [concat $common $specific] [get_ips $name]
+##     set expected_latency [expr {$kind eq "fadd" ? 11 : 6}]
+##     set actual_latency [get_property CONFIG.C_LATENCY [get_ips $name]]
+##     if {$actual_latency != $expected_latency} {
+##         error "FP IP latency changed: $name actual=$actual_latency expected=$expected_latency"
+##     }
+##     set xci [get_files -quiet ${name}.xci]
+##     if {[llength $xci] != 1} { error "FP XCI missing: $name" }
+##     set_property generate_synth_checkpoint false $xci
+##     generate_target {synthesis simulation} $xci
+##     puts "TM1TN8_FP_IP_READY $name [get_property IP_FILE [get_ips $name]]"
+## }
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/ip'.
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_sitofp_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_sitofp_ip'...
+TM1TN8_FP_IP_READY tm1tn8_sitofp_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.srcs/sources_1/ip/tm1tn8_sitofp_ip/tm1tn8_sitofp_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fmul_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fmul_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fmul_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.srcs/sources_1/ip/tm1tn8_fmul_ip/tm1tn8_fmul_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fadd_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fadd_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fadd_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.srcs/sources_1/ip/tm1tn8_fadd_ip/tm1tn8_fadd_ip.xci
+# set_property top tm4tn8_microbench_v1 [get_filesets sources_1]
+# set_property top tm4tn8_microbench_pilot_tb [get_filesets sim_1]
+# set_property target_simulator XSim [current_project]
+# set_property xsim.simulate.runtime {all} [get_filesets sim_1]
+# update_compile_order -fileset sim_1
+update_compile_order: Time (s): cpu = 00:00:15 ; elapsed = 00:00:07 . Memory (MB): peak = 1728.035 ; gain = 8.176 ; free physical = 52198 ; free virtual = 414587
+# puts "TM4TN8_PILOT_V1_BEGIN candidate=lut"
+TM4TN8_PILOT_V1_BEGIN candidate=lut
+# launch_simulation -simset sim_1 -mode behavioral
+Command: launch_simulation  -simset sim_1 -mode behavioral
+INFO: [Vivado 12-25911] Executing simulation for 'XSim' simulator
+INFO: [Project 1-5737] Running on host user (64) - Ubuntu 24.04.4 LTS
+INFO: [Vivado 12-28535] Process started - Sat Oct 10 20:46:30 2026
+
+INFO: [Vivado 12-12493] Simulation top is 'tm4tn8_microbench_pilot_tb'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-13660] Precompiled IP simulation library mode is enabled (default). The design IP libraries will be referenced from the compiled library path. Please note that if the precompiled version of the library is not found from the path or the IP is in locked state, then the library source files for these IPs will be compiled locally as part of the compile order.
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/xsim/xsim.ini' copied to run dir:'/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'tm4tn8_microbench_pilot_tb' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj tm4tn8_microbench_pilot_tb_vlog.prj
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_integer_tree_lut.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_integer_tree_lut
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_integer_tree_packed.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_integer_tree_packed
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm1tn8_signed_pack_pair.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm1tn8_signed_pack_pair
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_fp_restore_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_fp_restore_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_microbench_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_microbench_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_reserved_store_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_reserved_store_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_row_pipeline_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_row_pipeline_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_tag_v1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_tag_v1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_microbench_pilot_tb.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tm4tn8_microbench_pilot_tb
+INFO: [VRFC 10-2263] Analyzing Verilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.sim/sim_1/behav/xsim/glbl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module glbl
+xvhdl --incr --relax -prj tm4tn8_microbench_pilot_tb_vhdl.prj
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.gen/sources_1/ip/tm1tn8_fadd_ip/sim/tm1tn8_fadd_ip.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'tm1tn8_fadd_ip'
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.gen/sources_1/ip/tm1tn8_fmul_ip/sim/tm1tn8_fmul_ip.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'tm1tn8_fmul_ip'
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.gen/sources_1/ip/tm1tn8_sitofp_ip/sim/tm1tn8_sitofp_ip.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'tm1tn8_sitofp_ip'
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '3' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 4 -L xil_defaultlib -L xbip_utils_v3_0_15 -L axi_utils_v2_0_11 -L xbip_pipe_v3_0_11 -L xbip_dsp48_wrapper_v3_0_7 -L mult_gen_v12_0_24 -L floating_point_v7_1_21 -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot tm4tn8_microbench_pilot_tb_behav xil_defaultlib.tm4tn8_microbench_pilot_tb xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2025.2
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 4 -L xil_defaultlib -L xbip_utils_v3_0_15 -L axi_utils_v2_0_11 -L xbip_pipe_v3_0_11 -L xbip_dsp48_wrapper_v3_0_7 -L mult_gen_v12_0_24 -L floating_point_v7_1_21 -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot tm4tn8_microbench_pilot_tb_behav xil_defaultlib.tm4tn8_microbench_pilot_tb xil_defaultlib.glbl -log elaborate.log 
+Using 4 slave threads.
+WARNING: [XSIM 43-3431] One or more environment variables have been detected which affect the operation of the C compiler. These are typically not set in standard installations and are not tested by AMD, however they may be appropriate for your system, so the flow will attempt to continue.  If errors occur, try running xelab with the "-mt off -v 1" switches to see more information from the C compiler. The following environment variables have been detected:
+    LIBRARY_PATH
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package std.textio
+Compiling package ieee.std_logic_1164
+Compiling package ieee.numeric_std
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_viv_comp
+Compiling package xbip_utils_v3_0_15.xbip_utils_v3_0_15_pkg
+Compiling package axi_utils_v2_0_11.axi_utils_v2_0_11_pkg
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_consts
+Compiling package ieee.math_real
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_exp_table...
+Compiling package mult_gen_v12_0_24.mult_gen_v12_0_24_pkg
+Compiling package ieee.std_logic_arith
+Compiling package ieee.std_logic_signed
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_pkg
+Compiling package floating_point_v7_1_21.flt_utils
+Compiling package floating_point_v7_1_21.vt2mutils
+Compiling package floating_point_v7_1_21.vt2mcomps
+Compiling package unisim.vcomponents
+Compiling package xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv_comp
+Compiling package ieee.vital_timing
+Compiling package ieee.vital_primitives
+Compiling package unisim.vpkg
+Compiling module xil_defaultlib.tm4tn8_tag_v1
+Compiling module xil_defaultlib.tm4tn8_reserved_store_v1
+Compiling module xil_defaultlib.tm1tn8_integer_tree_lut(TAG_W=19...
+Compiling architecture muxcy_v of entity unisim.MUXCY [muxcy_default]
+Compiling architecture xorcy_v of entity unisim.XORCY [xorcy_default]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=31,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=32)\]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=4)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.norm_zero_det [\norm_zero_det(data_width=7,norm...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=4,fast_input=true)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.mux4 [\mux4(c_xdevicefamily="virtexupl...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2,length=2)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(fast_input=true)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.mux4 [\mux4(c_xdevicefamily="virtexupl...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2)\]
+Compiling architecture fdre_v of entity unisim.FDRE [fdre_default]
+Compiling architecture fde_v of entity unisim.FDE [fde_default]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8,length=0,fast_inp...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [delay_default]
+Compiling architecture rtl of entity floating_point_v7_1_21.lead_zero_encode [\lead_zero_encode(c_xdevicefamil...]
+Compiling architecture rtl of entity floating_point_v7_1_21.shift_msb_first [\shift_msb_first(a_width=32,resu...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=11,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=12)\]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=11)\]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=14,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=25,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=3,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2,length=0,fast_inp...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_round_bit [\flt_round_bit(c_xdevicefamily="...]
+Compiling architecture rtl of entity floating_point_v7_1_21.renorm_and_round_logic [\renorm_and_round_logic(c_xdevic...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=5)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=2)\]
+Compiling architecture synth of entity floating_point_v7_1_21.fix_to_flt_conv_exp [\fix_to_flt_conv_exp(c_xdevicefa...]
+Compiling architecture synth of entity floating_point_v7_1_21.flt_dec_op [\flt_dec_op(c_xdevicefamily="vir...]
+Compiling architecture struct of entity floating_point_v7_1_21.fix_to_flt_conv [\fix_to_flt_conv(c_xdevicefamily...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=32,length=0)\]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21_viv [\floating_point_v7_1_21_viv(c_xd...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21 [\floating_point_v7_1_21(c_xdevic...]
+Compiling architecture tm1tn8_sitofp_ip_arch of entity xil_defaultlib.tm1tn8_sitofp_ip [tm1tn8_sitofp_ip_default]
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(adreg=0,alumodereg=0,ca...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=7,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=4,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=16,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=24,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=17,length=0)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(a_width=24,b_wi...]
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(adreg=0,alumodereg=0,a_...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=48,length=0)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(a_width=24,b_wi...]
+Compiling architecture struct of entity floating_point_v7_1_21.fix_mult_dsp48e1_sgl [\fix_mult_dsp48e1_sgl(registers=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.fix_mult [\fix_mult(c_xdevicefamily="virte...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=7)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8,fast_input=true)\]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity floating_point_v7_1_21.compare_eq_im [\compare_eq_im(c_xdevicefamily="...]
+Compiling architecture rtl of entity floating_point_v7_1_21.special_detect [\special_detect(c_xdevicefamily=...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=3)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2,length=3,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=3,fast_input=true)...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=4,fast_input=true)...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=4,length=3,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8,length=2)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=3,length=0,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=0,fast_input=true)...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=14)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_mult_exp [\flt_mult_exp(c_xdevicefamily="v...]
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(acascreg=0,adreg=0,alum...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=30,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=18,length=0)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(a_width=30,b_wi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=25)\]
+Compiling architecture struct of entity floating_point_v7_1_21.flt_round_dsp_opt_full [\flt_round_dsp_opt_full(c_xdevic...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_mult_round [\flt_mult_round(c_xdevicefamily=...]
+Compiling architecture synth of entity floating_point_v7_1_21.flt_dec_op_lat [\flt_dec_op_lat(c_xdevicefamily=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_mult [\flt_mult(c_xdevicefamily="virte...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21_viv [\floating_point_v7_1_21_viv(c_xd...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21 [\floating_point_v7_1_21(c_xdevic...]
+Compiling architecture tm1tn8_fmul_ip_arch of entity xil_defaultlib.tm1tn8_fmul_ip [tm1tn8_fmul_ip_default]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity floating_point_v7_1_21.compare_eq_im [\compare_eq_im(c_xdevicefamily="...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=24,length=2,fast_in...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=16)\]
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(mask="11111111000000000...]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(c_part="xcu55c-...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=13,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=27,length=0)\]
+Compiling architecture synth of entity floating_point_v7_1_21.align_add_dsp48e1_sgl [\align_add_dsp48e1_sgl(c_xdevice...]
+Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="00000000000000001111...]
+Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="00000000000000000000...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=27)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=5)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.lead_zero_encode_shift [\lead_zero_encode_shift(ab_fw=24...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=3)\]
+Compiling architecture lut6_v of entity unisim.LUT6 [\LUT6(init="11111110010101001011...]
+Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="00010001010111110000...]
+Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="11101110101000001111...]
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(acascreg=2,adreg=0,areg...]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(a_width=24,c_wi...]
+Compiling architecture rtl of entity floating_point_v7_1_21.norm_and_round_dsp48e1_sgl [\norm_and_round_dsp48e1_sgl(c_mu...]
+Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="10011001100110011001...]
+Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="11111111000000001111...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=9,length=0)\]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=9)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=9,length=5)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=10)\]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity floating_point_v7_1_21.compare_gt [\compare_gt(c_xdevicefamily="vir...]
+Compiling architecture synth of entity floating_point_v7_1_21.compare [\compare(c_xdevicefamily="virtex...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2,length=8,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=9,fast_input=true)...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=8,fast_input=true)...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_add_exp_sp [\flt_add_exp_sp(c_xdevicefamily=...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=23)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_add_dsp [\flt_add_dsp(c_xdevicefamily="vi...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_add [\flt_add(c_xdevicefamily="virtex...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21_viv [\floating_point_v7_1_21_viv(c_xd...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21 [\floating_point_v7_1_21(c_xdevic...]
+Compiling architecture tm1tn8_fadd_ip_arch of entity xil_defaultlib.tm1tn8_fadd_ip [tm1tn8_fadd_ip_default]
+Compiling module xil_defaultlib.tm4tn8_fp_restore_v1_default
+Compiling module xil_defaultlib.tm4tn8_row_pipeline_v1_default
+Compiling module xil_defaultlib.tm4tn8_microbench_v1_default
+Compiling module xil_defaultlib.tm4tn8_microbench_pilot_tb
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot tm4tn8_microbench_pilot_tb_behav
+execute_script: Time (s): cpu = 00:00:57 ; elapsed = 00:00:32 . Memory (MB): peak = 1728.035 ; gain = 0.000 ; free physical = 51808 ; free virtual = 415012
+INFO: [USF-XSim-69] 'elaborate' step finished in '32' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t2_tm4_pilot_02/work/vivado/tm4tn8_pilot_v1.sim/sim_1/behav/xsim'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "tm4tn8_microbench_pilot_tb_behav -key {Behavioral:sim_1:Functional:tm4tn8_microbench_pilot_tb} -tclbatch {tm4tn8_microbench_pilot_tb.tcl} -log {simulate.log}"
+INFO: [USF-XSim-8] Loading simulator feature
+Time resolution is 1 ps
+source tm4tn8_microbench_pilot_tb.tcl
+## set curr_wave [current_wave_config]
+## if { [string length $curr_wave] == 0 } {
+##   if { [llength [get_objects]] > 0} {
+##     add_wave /
+##     set_property needs_save false [current_wave_config]
+##   } else {
+##      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+##   }
+## }
+WARNING: [Wavedata 42-489] Can't add object "/tm4tn8_microbench_pilot_tb/expected_ps" to the wave window because it has 262144 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+## run all
+TM4TN8_MICROBENCH_PILOT_PASS qkv_four_row_stripes=256 act_four_row_groups=8 rejects=5 commits=1076
+$finish called at time : 8 us : File "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/tm4tn8_microbench_pilot_tb.sv" Line 278
+run: Time (s): cpu = 00:00:00.42 ; elapsed = 00:00:05 . Memory (MB): peak = 1760.988 ; gain = 0.000 ; free physical = 50450 ; free virtual = 414141
+xsim: Time (s): cpu = 00:00:00.44 ; elapsed = 00:00:07 . Memory (MB): peak = 1760.988 ; gain = 29.762 ; free physical = 50450 ; free virtual = 414141
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'tm4tn8_microbench_pilot_tb_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for all
+launch_simulation: Time (s): cpu = 00:01:04 ; elapsed = 00:00:47 . Memory (MB): peak = 1760.988 ; gain = 32.953 ; free physical = 50450 ; free virtual = 414141
+# close_sim
+INFO: xsimkernel Simulation Memory Usage: 387412 KB (Peak: 438580 KB), Simulation CPU Usage: 6910 ms
+INFO: [Simtcl 6-16] Simulation closed
+# set simlog [file join $work vivado tm4tn8_pilot_v1.sim sim_1 behav xsim simulate.log]
+# if {![file isfile $simlog]} { error "TM4 pilot simulator log missing" }
+# set handle [open $simlog r]
+# set output [read $handle]
+# close $handle
+# if {[string first "TM4TN8_MICROBENCH_PILOT_PASS" $output] < 0 ||
+#     [regexp {(^|\n)Fatal:|(^|\n)ERROR:} $output]} {
+#     error "TM4 pilot did not pass; see $simlog"
+# }
+# puts "TM4TN8_PILOT_V1_END"
+TM4TN8_PILOT_V1_END
+# close_project
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 10 20:47:16 2026...

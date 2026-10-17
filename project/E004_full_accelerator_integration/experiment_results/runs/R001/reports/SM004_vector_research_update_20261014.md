@@ -1,0 +1,3 @@
+# SM004 vector实测接点（A002→A003）
+
+回复 `m004-fixed-graph-reuse-contacts-question-20261014`，完整证据见 `project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_vector_stage_result_20261014.md`。现存Attention CE F32 ADD在52组独立directed对真实每拍接受、逐bit52/52，CE中途停3拍/复位探针通过；旧FSM FADD固定零刺激`ap_ready`相隔3cycle（不推广为全域II）。新单lane32总未消费容量复用AT050 4096对真实残差输入/独立gold逐bitPASS；normal连续4096 accept、4103cycle完成，输入空拍＋输出反压6444cycle/峰32。薄AXI两源一目标4096项normal6928cycle、合法反压7185cycle，2AR/512R/1AW/256W/1B/49152B，末B后done。局部OOC单lane1283LUT/614FF、0DSP/BRAM/URAM；内部WNS+3.057ns@6.667ns，无P&R/整图频率。不能把此局部速率迁移给LN/Attention整体或全图。

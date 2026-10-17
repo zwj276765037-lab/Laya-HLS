@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m004-rev21-at364-real-chain-milestone-20261016",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# 修订21 AT364真实独立生产串联里程碑\n\n2026-10-16；M004/SM004/E004/R001。按 D-M004-LN128-WPREP-Q16-01 继续实施，未收束本段。\n\n同版生产组合：上层 e2be4e1e…、下层 30816465…、唯一W服务 519a2ccb…、原cache 6d13fae4…。AT364 frozen manifest 绑定全部实际fixture；AT358只增量重编cache/W服务及串联TB，AT364复用其已编闭包并仅重编TB。独立TB直接实例化一份上层（内含唯一下层）和一份实际W服务；AXI peer提供真实raw/gamma、W载荷及STATE1内存返回，未预填norm或逐行发生产命令。\n\nAT357同版LN16 pilot 37.31625036895275s通过；AT356当前W服务冷载成功6.02931497246027s，三路24576/24576/3072 R、8 AUX R、98304次scale检查，单独协议/scale/混合错误分类短例各通过；AT362当前下层用独立保存norm合法逐行局部Q16样本25.696477884426713s，16行512响应、4352word最终复扫，前四行Q/scale对原独立gold逐位。成本式2.5×(8×LN16+W+Q16)=825.6394895212724575s，启动前RTL余额足够1800s。不同层次成本没有冒充串联延迟。\n\nAT364真实单runtime主例 guard_rtl_full_chain：302.6612185873091s、child0、trigger null，且日志无Fatal，`CHAIN_LN128_PASS`及`CHAIN_A16_PASS`终标。128行LN、131072个norm真实W握手和最终STATE1复扫逐位、8192 source R与8192 OKAY B、gamma256 R；continue在真实保留上下文握手后，W三路24576/24576/3072 R、AUX8 R；随后STATE1 1024 R、16384个Q输入、512同步Q响应、512个half写拍和256个scale写拍、4352word bank持有/最终复扫，前四行Q与scale对同请求原独立保存gold逐位通过。r4..15只签真实输入、叶子结果到bank的观察搬运/覆盖与保持，不签独立数值gold。最终A16_READY仍保留norm，未发布request_done/RAW/FINAL。\n\nAT363相同生产SHA先达到A16，但TB在最后退休位同沿检查自己的观察计数而Fatal；AT364只让TB多采一沿并加诊断，原AT363 Fatal与306.6056573148817s费用保留，不把exit0改为PASS。AT359旧TB层次路径编译FAIL、AT360 core重图120s静态timeout、AT361脚本相对路径FAIL也保留。当前账截至AT364：static488.59907988831400432/1800s，RTL736.4435322098433930/3600s；余额1311.40092011168599568/2863.5564677901566070s，host完整UNKNOWN。原修订20余额未用。\n\n父完整请求top的修订21源码仍待同版重编展开；真实父请求全128→A16、父exec100/Q16委派、交接反压、错误/恢复、共同reset等均未由上述独立主例代签。下一步为最终同版父top及受影响短例；不启动HLS/OOC/P&R或新gold。\n",
+  "in_reply_to": "m004-rev20-closeout-rev21-ln128-wprep-q16-dispatch-20261016",
+  "message_file": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev21_AT364_chain_milestone_20261016.md",
+  "associations": {},
+  "payload_sha256": "0e706f0b9f6a83a7101d9e43669770f7cd4fa163f2eba5e1bea365364a264794",
+  "created_at": "2026-10-15T20:28:10.549662+00:00",
+  "status": "delivered",
+  "client_user_message_id": "f70ecfdc-c40d-4ef4-81ab-2b64ef12e423",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T20:28:10.600923+00:00",
+  "recipient_turn_id": "01a14140-39d6-75d0-8737-0f4b5e57fecf"
+}

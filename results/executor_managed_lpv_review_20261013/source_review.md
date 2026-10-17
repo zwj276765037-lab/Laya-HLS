@@ -1,0 +1,31 @@
+# Managed LPV源码审核
+
+R-SM003-EXECUTOR-MANAGED-LPV-20261013。审阅冻结host_02及managed_lpv_rtl_04，比较历史差异，只核已有原始运行物，不执行DUT。
+
+## 完整A来源与边界
+
+`admission_owner_protocol.cpp`在capture时核已准入request/model、完整NumericIdentity及canonical L13M，核非零session/request、已知role映射的epoch/address/capacity、对齐/溢出与实际BO容量，未知role必须全零。capture不改FullRuntime；actor在真实准入后、HOLD前捕获，失败进入原隔离。host_02的actual文件由`encode(state->admitted_owner)`输出；host_01旧写literal不追认。22wire/7capture拒绝与SV执行相同22wire拒绝均有原始marker和断言。
+
+1024B LAD1独立重建使用已冻结v2请求的完整identity和L13M，加独立header/session/request及STATE0映射字段，不运行DUT或工程oracle。与actual、literal、RTL hex和冻结external全部逐字相同；layout不含S/H，保留位清零。STATE0物理映射仍受控，不是实际硬件ingress生成证据。
+
+## transport/portal
+
+managed首拍锁存A和实际选中lane，后半帧沿已锁route收齐。portal候选需完整A相等；正常入口还核当前lane资格，撤销cleanup候选需已有route或受控完整旧pending归属。transport在CHECK核完整identity/model及preowned预期全帧；普通撤销帧负返回，不到hub增加业务。损坏绑定/wire置protocol_error并隔离。响应pop核完整A/route，八次真实pop后才结束帧/推进可信序号；managed取消不走原transport_abort FIFO复位，亦不清持久cancel。
+
+单A安装要求无活动owner/scope/lease、monitor排空/adapter安全及真实监测base与A映射一致。安装后当前原型不支持替换，足以使hub保存的session/request引用唯一指向完整不可变A；无法据此推断硬件rearm。监测地址取旧A绑定，在当前输入变更时仍保留旧物理事务识别；若实际BO被外部重映射，当前单base测试不能证明其物理安全。
+
+## 唯一hub清理
+
+`find_bound`复用原owner数组，增加A引用与model核定；成功CLAIM/BEGIN在原实际接受路径写owner/active引用，没有新增transport发布/退休表。managed请求核完整A/identity/model、已知role及容量范围，END仍完整匹配active_begin和原物理规则。CLAIM-only INVALIDATE不依赖scope存在；成功/错误END后owner保持至实际INVALIDATE。managed取消禁原批量owner清理，domain_drained仍要求所有实际owner/scope/response/lease/guard排空，撤销标志本身不构成物理债务。
+
+portal使已接受的pending END继续获得真实monitor观测，末B/adapter fence未排空时hub不得退休。原source release路径保留；新source候选门增加同拍cancel/A身份校验，但七例没有合法lease。全13BO/alias及真实source AR/F9仍未证明。
+
+## 七例与兼容
+
+七例分别覆盖CLAIM-only及尾返回/错A-route/精确cleanup；两拍普通帧撤销和preowned负返回；一AW/W/B的错误END、真实末B/fence及唯一typed；坏model隔离；坏保留位隔离；source候选同拍撤销；从未发首拍的受控旧pending负返回。receive任务实际读取完整八拍并逐字比独立gold，末2/末1反压及帧归属/计数断言保留。1441cycles低于12000原帽。case内无reset，case间reset；lane候选变化不是实际全局HOLD切换。
+
+生产wrapper新hook保持tie0/default0；portal_17/18只能保留原正常/持续cancel查询fixture。monitor_17默认旧取消恢复、checkpoint_09五复位诊断及actor_09旧45F17/两软件请求均按原范围复用，不能覆盖managed完整请求。
+
+[verification.json](verification.json)保存355冻结pair/1128引用、33交付身份、12guard/152policy、四CLOSED旧capture、九组历史比较、已知失败及控制记录前像。唯一无子进程资源样本是0.177104s managed oracle，资源观测完整性为false。主控审核脚本最初误用了v2 model字段偏移，静态读取冻结layout/oracle后改为160:576；这是审核脚本修正，未执行DUT或改动原始证据。
+
+结论：接纳完整A主机捕获与有限managed RTL清理，未发现需新增通用框架的静态阻塞项。继续按已送最小硬件链优先级明确首次真实计算的必要工作，不把该局部PASS当作硬件性能基线。

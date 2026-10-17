@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "measurement-next-G-quant-Down-readonly-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# 下一算术连接入口的只读定位\n\n主控正在选择下一阶段时，工程只读定位了最短现有接点，未启动新工具或修改候选。旧 `t2_geglu_gate_quant_bridge_rtl_04/receipt.json` 的限定 PASS 覆盖四distinct原enc0 Wi输出行→真实G与AXI末B→量化→dualA commit/acquire/完整身份保持读与release；实际量化/读回共328组，即4行×82组。桥的读口已显式带slot/epoch、672bit numeric identity、96bit linear context、A ref、row block及group，返回四row q/scale；原收据明确**未**覆盖下游Down。KB1的四行Down输入仍是TB预量化A，K2624=82组、N1024，4096F32/335872 PS及256 AW/W/B已验。两边组数/行数吻合，是下一有限接链的具体候选；尚未逐SHA核四行数据、scale与Down输入的同源身份，也未证明同runtime交接、背压、双槽与完整生产控制。\n\n证据：`project/E002_Laya_HLS/experiment/results/compute_throughput_optimization_20261010/attempts/t2_geglu_gate_quant_bridge_rtl_04/receipt.json`、`project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/geglu_gate_quant_bridge_v1.sv`、`project/E005_full_request_performance/experiment_results/runs/R001/reports/KB0_KB1_Down_comparison_20261013.md`。旧receipt的外部绝对路径仍指历史baseline，本项目复制树可读，但下一运行必须重新冻结并映射本项目路径，不能写回旧工程。\n",
+  "in_reply_to": "measurement-first-ATN1-progress-review-20261013",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/next_arithmetic_join_readonly_20261013.md",
+  "associations": {},
+  "payload_sha256": "6f174e5456eddd18a59812ea3a94b7f4e00936f86c52388d9c4b1eed576402f0",
+  "created_at": "2026-10-13T11:08:25.124038+00:00",
+  "status": "delivered",
+  "client_user_message_id": "60d2f0c6-e793-4d96-b7a5-2b3b14d398f6",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T11:08:25.150535+00:00",
+  "recipient_turn_id": "01a134ef-8ac1-7311-b8df-7e52d73894e0"
+}

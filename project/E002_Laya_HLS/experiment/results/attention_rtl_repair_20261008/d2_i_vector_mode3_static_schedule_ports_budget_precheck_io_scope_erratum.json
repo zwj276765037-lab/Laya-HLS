@@ -1,0 +1,53 @@
+{
+  "schema": "d2_i_vector_mode3_static_precheck_io_scope_erratum_v1",
+  "created_utc": "2026-10-08T22:29:11.934941+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh",
+    "agent": "/root/q8_pipeline_analysis_astra_xhigh"
+  },
+  "status": "WORDING_CLARIFICATION_ONLY_NO_EXECUTION_RELEASE",
+  "original_report": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_i_vector_mode3_static_schedule_ports_budget_precheck.json",
+    "bytes": 70556,
+    "sha256": "cc2b6dfb20af23caa5f9e1f5f951f0de5cb830b193c43057d7f155cda9a1bb5d",
+    "preserved_unmodified": true
+  },
+  "affected_field": "physical_AXI_static_prediction.per_port.io.shape",
+  "original_text": "436 single-beat bursts (LEN0), three two-beat bursts (LEN1 at offsets24,32,120); SIZE2, aligned addresses. Exact legal-frame work is below832; full8pages remain mapped/scanned under existing contract.",
+  "corrected_interpretation": "436 single-beat bursts (LEN0), three two-beat bursts (LEN1 at offsets24,32,120); SIZE2, aligned addresses. DUT IO reads cover the832 unique frame bytes at offsets0..831. The TB maps and checks all8 IO pages (32KiB), including the untouched zero-filled bytes after offset831; the DUT parser does not scan those remaining pages.",
+  "clarification": {
+    "DUT_IO_unique_byte_offsets_inclusive": [
+      0,
+      831
+    ],
+    "DUT_IO_unique_frame_bytes": 832,
+    "DUT_IO_physical_AR_transactions": 439,
+    "DUT_IO_physical_R_beats": 442,
+    "DUT_IO_physical_bus_bytes": 1768,
+    "TB_IO_mapped_pages": 8,
+    "TB_IO_mapped_and_checked_bytes": 32768,
+    "meaning": "832 counts unique logical frame bytes, including legal-frame padding;439 AR/442 R count physical transactions and beats, including repeated aligned reads for separate byte fields. All8 pages are mapped and checked by the TB; mapped/scanned never means a32KiB DUT parser scan. The earlier phrase below832 refers to addresses below832, not fewer than832 unique frame bytes."
+  },
+  "unchanged": "All physical transaction counts, useful/bus byte counts,14-page mapping, producer/data-origin reasoning, completion conditions, schedule worksheet and candidate budgets in the original report remain unchanged. Candidate131072 cycles/120 seconds/4GiB remains advice only, not a runtime release.",
+  "existing_source_anchors": [
+    {
+      "source_ref_in_original": "request_parser",
+      "line_start": 130,
+      "line_end": 157,
+      "meaning": "Frame bounds, directory and actual aligned payload padding."
+    },
+    {
+      "source_ref_in_original": "request_parser",
+      "line_start": 159,
+      "line_end": 196,
+      "meaning": "B1/S64 payload reads and model-header call."
+    }
+  ],
+  "actions": {
+    "original_report_modified": false,
+    "source_or_fixture_modified": false,
+    "materialization_CPU_reference_compilation_CSim_EDA_simulation": false,
+    "new_erratum_JSON_only": true
+  }
+}

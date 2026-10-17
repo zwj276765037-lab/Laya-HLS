@@ -1,0 +1,158 @@
+{
+  "decision": "REQUEST_D2_I_DRAFT_V1_FIXES_BEFORE_CPU_CSIM_CSYNTH",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "reviewed_at_utc": "2026-10-08T09:27:49.373429+00:00",
+  "packet": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/draft_v1_pre_review_packet.json",
+  "packet_sha256": "83d794382a1d0b34526fe8026f882cb9b313962e784a3be0b0c35bc12eede53f",
+  "actual_packet_files_independently_rehashed": 26,
+  "source_snapshot": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/draft_snapshots/v1_before_review_fixes",
+  "accepted_structure": [
+    "Both isolated wrappers directly include the current official controller; 24 other official production sources linked without duplicate controller object",
+    "NORM/TMP/HIDDEN/TYPE_ROWS/CAND_RAW producers use actual physical writes then production cover/publish, with no hand-written READY or D1 stub",
+    "I-L calls actual runtime-selected pair and no-pair overloads with K1024/N3072/S64; all QKV values compare to independent GGUF-derived R0 reference",
+    "I-V exercises both hidden banks and a changed real second source, ADD_TYPE actual three-row publish, original binary missing-source rejection and valid unary candidate mask",
+    "Strict host floating-point flags and standard libm CSim preserved; future csynth remains separate from numerical RTL execution"
+  ],
+  "required_fixes": [
+    {
+      "priority": 1,
+      "files": [
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/linear_controller_slice.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/vector_controller_slice.cpp"
+      ],
+      "lines": [
+        107,
+        104
+      ],
+      "problem": "Producer refs hardcode epoch 1 while testbenches reuse static runtime across successive accepted requests. Production full_recycle_request preserves max_claimed_epoch and claim_index requires max+1, so I-L second NORM and I-V second TMP claim will reject before the intended changed-input paths.",
+      "change": "Construct every producer ref using actual controller.fresh(id, bank, region) after successful full_parse_request. First request naturally uses epoch1; later requests advance epochs. Preserve production ledger and source bytes; do not reset metadata to mask the lifecycle."
+    },
+    {
+      "priority": 2,
+      "file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/tb/test_linear_controller_slice.cpp",
+      "line": 188,
+      "problem": "Bad-scale and bad-header cases only use pair_present=true. They demonstrate individual guards but do not establish the requested error priority when pair is absent.",
+      "change": "Add no-pair plus bad-scale case expecting LOAD_W E_NUMERICAL/detail(7,LOAD_W,15) before missing-pair E_INTERNAL, with no quant/linear; also combine bad-header with absent pair to preserve parse-before-controller ordering. Retain successful recovery and monotonic request IDs."
+    }
+  ],
+  "required_run_input_closure": [
+    "Include captured candidate_raw_logits actual file ir_1469.bin with manifest SHA 658668099f53516791f192f6641dc9819d36c0aad1ce8f6c624faaca1c8ca0f5; current code correctly validates it through Evidence but the draft packet omits this actual input",
+    "Freeze every generated fixture and independent gold hash, all Evidence.checked sources/weight ranges, package BOs and generated source list before run",
+    "Retain exact official controller hash 23e428c81c7a4c40c7014db15e34c561958d88d53e40ac71abef8be0d4804623"
+  ],
+  "allowed_next": "Isolated fixes, fixture generation and updated source freeze for review; independently authorized small XSim memory diagnostic is unaffected",
+  "not_released": [
+    "D2-I CPU/CSim/csynth run gate pending corrected code review",
+    "No full 64-row QKV RTL simulation",
+    "No full-top HLS or complete functional RTL acceptance"
+  ],
+  "evidence": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/linear_controller_slice.cpp": {
+      "bytes": 6300,
+      "sha256": "8b2d030c446f5a9958a66b126fb5d12e467be358a315f267e7cce13e24afc90c"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/vector_controller_slice.cpp": {
+      "bytes": 6662,
+      "sha256": "497b3e8593f4139aa1869fba444bfa101cf6967668e10dc10913ffa5e4c21f1c"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/tb/test_linear_controller_slice.cpp": {
+      "bytes": 8510,
+      "sha256": "09d3b63395b9a07e1bac3a5e5b2cc82d04c4ce15ca727713dd774ae74fe7bc7e"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/tb/test_vector_controller_slice.cpp": {
+      "bytes": 5962,
+      "sha256": "7026dbb80c8d89815c9bf93cb6bf0c2fa68d0b33245738b812078677d21f4bd2"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/tb/generate_fixture.py": {
+      "bytes": 7480,
+      "sha256": "4e5b05a8af32ead002044fb15f2ece970cb8b5c88d41689fe4747970d572c54b"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/make_configs.py": {
+      "bytes": 3014,
+      "sha256": "0458f776e8a94e083dbde71f57986818ff361dcd7209df8a7ff44cc0580e8589"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/config_linear.cfg": {
+      "bytes": 4089,
+      "sha256": "045f8342fd21442e5549627e3e1efb0dba4de7ea1ac38c2c23fb07d8f1f4cafa"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/config_vector.cfg": {
+      "bytes": 4089,
+      "sha256": "0d5c77c6f7b37a958eed22d1e81d33a3ed2a287301b437c1d7a7001c41dd3cff"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source_list_manifest.json": {
+      "bytes": 7737,
+      "sha256": "bab818575030f6366ca633c505e22a99636ead8f3bbebb1e0e836e98d81efb2d"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/config/full_sources.cmake": {
+      "bytes": 932,
+      "sha256": "99ace612b8423e7eedebdb8869081d044ba4fa527a0b83244c93e8cd826eac5b"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/control/full_forward_controller.cpp": {
+      "bytes": 32405,
+      "sha256": "23e428c81c7a4c40c7014db15e34c561958d88d53e40ac71abef8be0d4804623"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/tests/full_reference.py": {
+      "bytes": 35233,
+      "sha256": "fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/tests/full_fixture_test.py": {
+      "bytes": 26548,
+      "sha256": "2ad2a26ad9ebe16f92946caba5d4c283471d3bf82cac40775ea8c8902f694a46"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/manifest.json": {
+      "bytes": 147765,
+      "sha256": "128768a4a42ffa9d5f5dfd2bb9808e0f7a12a7509638f4d5650cb9fd9fb56caa"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/tb/fixture_b1_s64_decision/request.bin": {
+      "bytes": 832,
+      "sha256": "47e2c2418b41ad4491ea20da54f5ba5aabc8eb4f17bc070796e9c1202dea33b5"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/abi_replay/manifest.json": {
+      "bytes": 1099267,
+      "sha256": "8588b69436e50c7500c22c677e174e77001e1e92e656bee2f46e1a88f4abb29a"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/gguf_inventory.json": {
+      "bytes": 36195,
+      "sha256": "40983ab871903db1281eb82901521fae5f5e1b862d8c2d4f22deba7cbe44c5c6"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/abi_replay/native/forward_0/ir_1410.bin": {
+      "bytes": 1048576,
+      "sha256": "8f0c975c750733a4c20be78d64e8d6f57dea978252d7e185dce4dc7003c93260"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/abi_replay/native/forward_0/ir_1413.bin": {
+      "bytes": 1048576,
+      "sha256": "b97d1094657bf8985a6a5b64496ac8c1918e089ab44544dabb4c2d164747d945"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/abi_replay/native/forward_0/ir_1414.bin": {
+      "bytes": 1048576,
+      "sha256": "ae6c6bc64d7fb249201a009215f29f7a5474239a8a77ede766a23c8abf17b749"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/reference/runs/typed_q8_ref_20261005/abi_replay/native/forward_0/ir_1428.bin": {
+      "bytes": 1048576,
+      "sha256": "10c3e61e7752b88d93203d50b1c6278875fed5b21dfd4912e200faf9379b97fa"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/model/quantized/gguf/mys/laya-typed-decisions-GGUF/Q8_0/laya_typed_decisions_q8_0.gguf": {
+      "bytes": 455179648,
+      "sha256": "6eb6ef58bc4f99bd9db40381604108af782ffc314aa00da6641f429991ca1f18"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/w_q0.bin": {
+      "bytes": 184682496,
+      "sha256": "be5ab09ff91d4a9dd56c3dbc9b84c138658b1a5ce3a274806b841a739f96970e"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/w_q1.bin": {
+      "bytes": 184680448,
+      "sha256": "b067525e7766a9f07e505a1e593548d3057f4bb5f12d1f7578c8538e2ee1b6ca"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/w_scale.bin": {
+      "bytes": 23085184,
+      "sha256": "ea159816b322f58b970d80cd0142ccd16cc7531de8ee5ed9108fc4edf2a2e898"
+    },
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/aux.bin": {
+      "bytes": 1671872,
+      "sha256": "66189c9c75216650eca75a08a4f9b6ede1ab315a49ad05f71a409d2eaaa4f6c0"
+    }
+  }
+}

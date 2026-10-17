@@ -1,0 +1,71 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Thu Oct 15 01:16:45 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+vivado-mcp server ready on port 10000
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT120_SM004_lnq_dcp_cell_audit_02/frozen/laya_lnq_dcp_ports.tcl
+# if {[llength $argv] != 1} {error "usage: DCP"}
+# open_checkpoint [lindex $argv 0]
+Command: open_checkpoint /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT116_SM004_lnq_row_ooc_01/work/lnq_row_v1_synth.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.04 . Memory (MB): peak = 1566.852 ; gain = 0.000 ; free physical = 27994 ; free virtual = 424030
+INFO: [Device 21-403] Loading part xcu55c-fsvh2892-2L-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.31 ; elapsed = 00:00:00.31 . Memory (MB): peak = 3048.082 ; gain = 0.000 ; free physical = 26560 ; free virtual = 422597
+INFO: [Netlist 29-17] Analyzing 4545 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2025.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.08 . Memory (MB): peak = 3099.340 ; gain = 8.414 ; free physical = 26486 ; free virtual = 422523
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3863.227 ; gain = 0.000 ; free physical = 25803 ; free virtual = 421840
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 812 instances were transformed.
+  DSP48E1 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 48 instances
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 2 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 3 instances
+  RAM32M16 => RAM32M16 (RAMD32(x14), RAMS32(x2)): 55 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 10 instances
+  RAM64M8 => RAM64M8 (RAMD64E(x8)): 694 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2025.2 (64-bit) build 6299465
+open_checkpoint: Time (s): cpu = 00:00:38 ; elapsed = 00:00:33 . Memory (MB): peak = 3863.262 ; gain = 2296.410 ; free physical = 25804 ; free virtual = 421841
+# foreach name {row_valid done_valid cmd_ready rsp_valid} {
+#   set port [get_ports $name]
+#   set nets [get_nets -of_objects $port]
+#   puts "LNQ_DCP_PORT name=$name port_count=[llength $port] net_count=[llength $nets] nets=$nets"
+#   foreach net $nets {
+#     puts "LNQ_DCP_NET name=$name net=$net pins=[get_pins -of_objects $net] cells=[get_cells -of_objects $net]"
+#   }
+# }
+LNQ_DCP_PORT name=row_valid port_count=1 net_count=1 nets=row_valid
+LNQ_DCP_NET name=row_valid net=row_valid pins=row_valid_INST_0/O cells=row_valid_INST_0
+LNQ_DCP_PORT name=done_valid port_count=1 net_count=1 nets=done_valid
+LNQ_DCP_NET name=done_valid net=done_valid pins=done_valid_INST_0/O cells=done_valid_INST_0
+LNQ_DCP_PORT name=cmd_ready port_count=1 net_count=1 nets=cmd_ready
+LNQ_DCP_NET name=cmd_ready net=cmd_ready pins=q/cmd_ready cells=q
+LNQ_DCP_PORT name=rsp_valid port_count=1 net_count=1 nets=rsp_valid
+LNQ_DCP_NET name=rsp_valid net=rsp_valid pins=rd_ready_INST_0/I0 row_release_ready_INST_0/I3 read_addr[0]_i_1/I5 rsp_valid_reg/Q q/rsp_valid cells=rd_ready_INST_0 row_release_ready_INST_0 read_addr[0]_i_1 rsp_valid_reg q
+# foreach cell_name {row_valid_INST_0 done_valid_INST_0 rd_ready_INST_0 row_release_ready_INST_0} {
+#   set cell [get_cells $cell_name]
+#   puts "LNQ_DCP_CELL name=$cell_name ref=[get_property REF_NAME $cell] init=[get_property INIT $cell]"
+# }
+LNQ_DCP_CELL name=row_valid_INST_0 ref=LUT2 init=4'h2
+LNQ_DCP_CELL name=done_valid_INST_0 ref=LUT2 init=4'h8
+LNQ_DCP_CELL name=rd_ready_INST_0 ref=LUT5 init=32'h00000010
+LNQ_DCP_CELL name=row_release_ready_INST_0 ref=LUT4 init=16'h0004
+# puts "LNQ_DCP_PORT_CHECK_DONE"
+LNQ_DCP_PORT_CHECK_DONE
+INFO: [Common 17-206] Exiting Vivado at Thu Oct 15 01:17:22 2026...

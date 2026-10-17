@@ -1,0 +1,63 @@
+{
+  "schema": "q8_joint_numerical_banking_preliminary_review_v1",
+  "at_utc": "2026-10-08T15:13:38.484385+00:00",
+  "reviewer": {
+    "agent": "/root/q8_proto_design_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "verdict": "PRELIMINARY_STATIC_AUDIT_ONLY_CHANGED_INPUT_NO_FINAL_IMPLEMENTATION_PASS",
+  "initial_inputs": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp",
+      "bytes": 34698,
+      "sha256": "07bec40e28b0f8c3ffd0dffa4504e00590b8f93c7da99a62a3b6bf25a2b39421"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tb/test_q8_joint.cpp",
+      "bytes": 16319,
+      "sha256": "58ba6e9368e9c25f3ce2ac522ecd5329ccb072b6f0d90f8cd5d1fc7297522076"
+    }
+  ],
+  "final_inputs": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp",
+      "bytes": 35789,
+      "sha256": "2f0f42da242f697eb3009fe56db174763fa29c2599a508182bb29bf2a3237531"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/tb/test_q8_joint.cpp",
+      "bytes": 16972,
+      "sha256": "f51c59ede30bcf851c0a39f98ad1acd63cb9e9783af6ae93cdb0b5481884316f"
+    }
+  ],
+  "changed_input_boundary": "Top and TB changed during preliminary reads. Initial hashes were captured before those reads; later source observations include the 8-lane quant rewrite and per-bank/per-tile error mask. This record does not combine them into a frozen passing snapshot. Frozen acceptance is separate.",
+  "confirmed_findings": [
+    {
+      "id": "Q8-PRE-001",
+      "priority": "P1",
+      "source_state": "initial top hash 07bec40e...",
+      "finding": "lane_bad[4][8] was shared by all column tiles inside one m0. A failure at tile1,row0,lane0,g0 suppressed tile0,row0,lane0 at later groups and could hide the earlier production-ranked failure, as well as suppress unrelated output columns.",
+      "example": "With at least two tiles, tile1/row0/lane0 fails at g0 and tile0/row0/lane0 would fail at g1. Production tile-first rank must select tile0, but the shared mask skipped its g1.",
+      "reported_to": [
+        "/root/vivado_project_sol_max",
+        "/root/resource_explain_astra_xhigh"
+      ],
+      "observed_correction": "Frozen top uses bool lane_bad[32][656], clears all used bank/tile pairs per m0, and addresses the same bank/tile as PS for compute and bias.",
+      "status": "CORRECTION_OBSERVED; broad multi-tile fault regression remains deferred; frozen source assessment separate."
+    }
+  ],
+  "static_observations": [
+    "Signed S8 dot products widen to INT32; adjacent tree has no INT32 overflow at 32 terms.",
+    "R0 quant uses full F32 d and reciprocal before half RNE, then F32 product/roundf away from zero; half subnormal handling matches production converters.",
+    "W8-bank, A4-bank, FP8-bank and PS32-bank address formulas fit actual legal K/N/rows maxima; N and row tails are skipped before payload access/output.",
+    "Production first-error rank is tile,row,lane,group,phase; bad_element encoding is not the rank.",
+    "ACT TB compares complete two-word outputs, all A8 q/scales, selected eight-group actual traces, tails, reuse, trace-off, rejection and recovery; scope is ACT only."
+  ],
+  "coverage_limits": [
+    "No runtime execution by reviewer.",
+    "Initial ACT-only test does not execute multi-tile linear fault rank, QKV scatter, rows3/5/15/16 or maximum K/N.",
+    "Observed unused suffix words18688..32767 is not asserted by TB; q/scale/group named-region tails are asserted.",
+    "C++ work/byte counters and done flags do not establish physical AXI responses, cycles, II, RAM/DSP use or placement."
+  ]
+}

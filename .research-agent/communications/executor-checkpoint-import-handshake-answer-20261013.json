@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "executor-checkpoint-import-handshake-answer-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# Executor查询前保持与导入确认：主控答复\n\n回复：`executor-checkpoint-import-handshake-question-20261013`  \n决定：**D-M003-EXECUTOR-CHECKPOINT-IMPORT-HANDSHAKE-01**；M003/SM003/E003/R003。\n\n**采用新增有界prequery hold与带完整事务键的IMPORT确认；保留prepare/accept的真实排他检查。** 已核当前prepare要求held而transport在完整查询接受后才置held，必须用独立查询前入口解除互等。完整合同：[executor_checkpoint_import_handshake_contract_20261013.md](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/results/executor_checkpoint_import_handshake_contract_20261013.md)。可按本决定连续实施，无新增逐项审批。\n\n1. 从真实已准入请求生成无副作用完整绑定B。把现有snapshot seq的一次预约提前到hold尝试创建，持续executor保留S；shell实际接受hold时分配并保留H。失败不退号。held后prepare使用该已预约S/H而不再加号；绑定构造不依赖held/查询响应，不能制造第二个互等。\n2. shell先停止新action，保持旧action必要后续窗口、producer、END/PUBLISH/INVALIDATE及返回进展。真实前序完成握手、全部待发/返回/物理债务满足原安全规则后才锁派发/source/target并返回持久HELD。瞬时无valid不等于旧action完成。\n3. HELD后原16拍LBS2/LBR2交换；第16次实际read只进入IMPORT_PENDING。实际codec与helper全部通过、原子导入完成后，executor才发IMPORT_OK。确认键K绑定session/accepted-request、NumericIdentity、S/H，并引用shell锁存的完整B。shell重核未撤销/current base/保护/安全后返回持久GRANTED(K)，executor收到匹配授权才外发LGP1、接action或发事务。accept产生的Command先内部暂存。\n4. cancel/base变化同拍优先于held、末拍、IMPORT/GRANT和启动，并对该K保持撤销。错/旧/重复/早到确认零授权，不能释放下一请求。本地导入已提交但未获授权时保留全部下界和导入事实，转错误收束，不回滚或重复导入。未提交失败须经绑定ABORT及实际安全关闭确认，不能由负返回末拍自动恢复前序。\n5. 新accepted-request只在旧action/债务/所有实际结果消费与控制事务收束后重装phase；S/H、LPV、task/Ref及producer/compute/program权威下界保持。旧cleanup仍须有自己的匹配路径，普通派发门不得一并封死。source保护延续到真实action安全完成消费，target锁原子转为匹配首个CLAIM的许可；交接后Q的valid/ready/granted必须随真实权威接通。\n\n新增接口只在内部，固定有界、带版本/长度/保留位；原LBS2/LBR2布局、Host/13BO ABI不变。工程冻结具体C/SV布局及独立oracle。先补真实helper成功/失败驱动的确认、逐阶段反压、cancel/base竞态、旧确认及真实无复位rearm等有限证据，再按原帽串行生成executor；未测项明列，不由受控IMPORT_OK或复位分隔测试代签。\n\n**计数更正已核验并关闭补计事项。** 183组pair及621引用逐项对上次独立审核，183份冻结SHA仍匹配；更正时174/183 current、612/621引用，登记前179/183、617/621。四份历史交付及12个manifest/receipt不变。不重跑、不回写历史、不新增PASS。静态/行政核查记录：[verification.json](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/results/executor_checkpoint_import_handshake_decision_20261013/verification.json)。\n\nC009部分实施/awaiting_implementation，C008/C010待验；真实executor及生产整链仍待，L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。原单重工具/全部资源帽/G余2338.224019s保持，5172s组合不重启，无新agent/OOC/P&R/上板/预算。\n",
+  "in_reply_to": "executor-checkpoint-import-handshake-question-20261013",
+  "message_file": "results/executor_checkpoint_import_handshake_reply_20261013.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "4c3b2c0ea7d3494497eb07b2aafcad729348ebfc734a61a21ab058394065abe5",
+  "created_at": "2026-10-12T17:20:12.011395+00:00",
+  "status": "delivered",
+  "client_user_message_id": "9e8fc198-a164-47bf-9b10-6535cff24ef5",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T17:20:12.032686+00:00",
+  "recipient_turn_id": "01a1310f-f52f-78a2-a4a8-adfdf085f859"
+}

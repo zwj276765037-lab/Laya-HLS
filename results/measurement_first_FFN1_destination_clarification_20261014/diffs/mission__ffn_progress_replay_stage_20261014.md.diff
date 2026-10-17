@@ -1,0 +1,20 @@
+--- before/mission/ffn_progress_replay_stage_20261014.md
++++ after/mission/ffn_progress_replay_stage_20261014.md
+@@ -1,6 +1,8 @@
+ # FFN1：真实进展覆盖、补充短测与一次有界回放
+ 
+ D-M004-FFN-PROGRESS-REPLAY-01；2026-10-14；M004/SM005/E005/R001。接续[FFN0停止审核](../results/measurement_first_FFN0_review_20261014.md)。A002唯一实现/工具，A001集中验收。按既有授权连续执行本合同内的普通准备、测试和准入，无逐步审批。新FFN1 NOT_RUN。
++
++2026-10-14补充D-M004-FFN-PROGRESS-REPLAY-01-A1：[末目的测试入口澄清](../results/measurement_first_FFN1_destination_clarification_20261014.md)。适配器保持固定HIDDEN目的；真实wrapper输入承接错目的短测。只澄清第3项验证层次，DUT、所有额度及停止边界不变；修订前合同和身份已保存。
+ 
+ ## 固定实现与变更边界
+ 
+@@ -33,7 +35,7 @@
+ 
+ 1. **host逻辑时间测试**：复用实际parser/计时决策代码，保存输入事件、逻辑时刻、接受/拒绝和超时判定。至少覆盖首次R后无新事件但cycle/重复日志不停；相同work/重复start/普通completed；非法回退/未知键；真正单端口q0-only、q1-only、scale-only增长；在小于120s时真实推进会更新计时、其后静默满120s应停止。检查120s阈值前后及与生产比较符一致的边界。不实际等120s，不以host测试代签RTL，不把几条parser断言称为逻辑时间验证。
+ 2. **同一观察器微测试**：短RTL或等价可审计观察逻辑测试，逐个激活表内关键事件（其余保持静止），包括仅W q0/q1/scale R、后段G算术、残差add与B、done/release真实消费。证明输出的累计字段由输入事件产生，再送实际parser/逻辑时间测试；重复valid但ready低不得计数。三个W端口同时握手不得少计或覆盖。另用AT057原52条W日志构造只读回放对照，记录旧观察遗漏与新规则预期，不伪造新的DUT样本或旧日志时间戳。静态连接表须核联合TB实际接了这些信号，微测试不代替真实连线。
+-3. **补齐FFN0短测缺口**：同SHA适配器，独立冷短用例允许各自reset；正常full仍只有初始reset。验证失败done、未绑定的旧/Wi completion、done_valid保持7拍但ready低、缺最后B/owner退休/READY/债务未零分别阻止残差；保留正确合法对照和唯一消费。坏TMP bank1/epoch2以及错最终目的在实际受影响的descriptor入口拒绝，零新增残差AXI；区分适配器输入和固定输出，不force其输出伪造用例。已有坏BO/Context/ledger忙/重复ticket/响应保持用例按同SHA可复用，但新TB覆盖必须实际运行。记录具体case/边沿/零副作用，不以一个总PASS替代未执行列表。
++3. **补齐FFN0短测缺口**：同SHA适配器，独立冷短用例允许各自reset；正常full仍只有初始reset。验证失败done、未绑定的旧/Wi completion、done_valid保持7拍但ready低、缺最后B/owner退休/READY/债务未零分别阻止残差；保留正确合法对照和唯一消费。Down真实cfg_dst_ref入口拒绝旧TMP bank1/epoch2和错误HIDDEN Ref，零新增残差AXI。适配器无最终HIDDEN目的输入，按[A1澄清](../results/measurement_first_FFN1_destination_clarification_20261014.md)核固定HIDDEN/bank1/epoch2完整Ref、local context、实际接线、等待保持及受理边沿；不新增输入、不force输出、不替换上游Q的FUTURE_DST_REF。错最终目的在独立短TB的同SHA AT057残差wrapper真实cfg_dst_bank/base入口分别测试bank0、base=STATE0，其余输入全部合法；核status7、真实零AXI/无成功发布与响应消费，并保留合法入口对照。该局部拒绝不代签适配器可变目的任务或生产授权。已有坏BO/Context/ledger忙/重复ticket/响应保持用例按同SHA可复用，但新TB覆盖必须实际运行。记录具体case/边沿/零副作用，不以一个总PASS替代未执行列表。
+ 4. static编译与上述短测合格后，执行≤120s新联合真实LN源读/迭代前缀，确认新观察与原数据/驱动同源。前缀不必到在120s内不可达的W段；该段的观测接线/微测试/原W实读证据分别列明，不能声称prefix已实际验证W或后段。
+ 
+ 已有同SHA算术/独立reference、52例FADD与AT054未受影响局部错误证据直接复用，无需新HLS或重跑参考。新短测试只为本合同缺口，不扩大全局取消/恢复矩阵。

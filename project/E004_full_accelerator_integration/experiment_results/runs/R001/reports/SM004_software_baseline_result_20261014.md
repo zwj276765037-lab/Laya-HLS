@@ -1,0 +1,9 @@
+# SM004 完整正常软件请求：限定 PASS
+
+A002；2026-10-14；M004/SM004/E004/R001。当前 E002/experiment 的 `full_execute_cpu_request` 在 g++ host 上执行真实 production-v2 `B1_from_b0_S128`，request id3、generation1、B1/S128、完整28 Encoder＋2 Decision。**AT091 为 `PASS_SCOPED_FULL_SOFTWARE_NORMAL_B1`**：46个中间checkpoint与最终18个F32，共47项/4,523,596个F32，均与原独立gold逐字节相同；18,887任务退休，962次QUANT。实际完整final18和32KiB IO输出保存在 [output](../attempts/AT091_SM004_full_software_b1_04/output/)。其中final18的72B SHA256=`b54436f6ec76ad541a001ae06ccd4a867584e90ac973cc0438a730a5959de2ad`，与独立gold完全相同。
+
+[AT091收据](../attempts/AT091_SM004_full_software_b1_04/receipt.json)复核本次[原日志](../attempts/AT091_SM004_full_software_b1_04/run_guard/driver.log)、[guard结果](../attempts/AT091_SM004_full_software_b1_04/run_guard/guard_result.json)、[构建manifest](../attempts/AT091_SM004_full_software_b1_04/build_work/build_manifest.json)及[preflight](../attempts/AT091_SM004_full_software_b1_04/preflight.json)。当前E002的41个HLS＋2个CPU服务源编译为单可执行文件；95个真实编译依赖当前SHA复核无漂移。原包preimage与当前源码有26项不同，显式 `--current-sources` 构建模式记录此差异，不把旧源码身份冒称为现行身份。模型包、请求、raw IO/STATE0和47个本地独立oracle文件逐SHA核验；oracle全组与旧CPU收据一致，未运行gold生成。新构建器仍保留旧strict默认模式。
+
+AT091构建15.173s、运行216.712s；运行guard child0/null，峰640172KiB、最低MemAvailable447404340KiB，CPU0–3/nice19/idle的实际policy检查合格。原命令和启动时间见build/run各自`guard_plan.json`及`launch.json`。本段全部4次host构建与2次完整正常请求累计463.240649s/1800s；单次均低于900s、峰远低于16GiB。AT088构建链接FAIL（旧numeric子测试漏`laya_tasks.cpp`），AT089受影响修正构建PASS；AT089首次完整软件请求在独立gold全部比较后因旧“B1必须走stateful Attention”路径断言退出1（186.994s），[原失败日志](../attempts/AT089_SM004_full_software_b1_02/run_guard/driver.log)保留。AT090构建PASS但未启动请求；AT091增加显式CPU Attention软件基线模式及实际输出保存后为本合同第二次、最后一次同场景完整请求。
+
+本次Attention实际为CPU QK/softmax/AV叶子各61440次，状态服务命令0次；零numerical/protocol错误。AT091显式要求这三个精确计数，默认旧四请求测试仍要求B1状态服务。本次PASS证明当前软件数值图与gold一致，**没有**验证状态Attention RTL、同一硬件完整推理、独立反压、II、资源、频率或加速比。当前硬件最小复用接点与需要保留的数值/AXI约束见[接点表](SM004_minimal_reuse_contacts_20261014.md)，供A001决定下一实现段。

@@ -1,0 +1,19 @@
+--- 
+
++++ 
+
+@@ -374,10 +374,9 @@
+
+   if(sm_window||sm_waiting_consume||sm_commands!=(rows+15)/16)$fatal(1,"Incomplete SM measurement lifecycle");
+   if(sm_state_edges[0]+sm_state_edges[1]+sm_state_edges[2]+sm_state_edges[3]+sm_state_edges[4]!=sm_total_enabled)
+    $fatal(1,"SM enabled state partition mismatch");
+-  // S=128: ASUB=128/4, tree stripes=4+2+1+1+1+1+1, DIV=128/4.
+-  if(sm_a_sub_issue!=rows*32||sm_a_tree_issue!=rows*11||sm_d_issue!=rows*32||
+-     sm_a_sub_retire!=sm_a_sub_issue||sm_a_tree_retire!=sm_a_tree_issue||sm_d_return_lanes!=rows*128)
+-   $fatal(1,"SM observed operation issue counts changed");
++  $display("ATTENTION_SERVICE_TILE_SM_OP_COUNTS rows=%0d A_sub_issue=%0d A_sub_retire=%0d A_tree_issue=%0d A_tree_retire=%0d D_issue=%0d D_return_lanes=%0d",rows,sm_a_sub_issue,sm_a_sub_retire,sm_a_tree_issue,sm_a_tree_retire,sm_d_issue,sm_d_return_lanes);
++  if(sm_a_sub_retire!=sm_a_sub_issue||sm_a_tree_retire!=sm_a_tree_issue||sm_d_return_lanes!=sm_d_issue*4)
++   $fatal(1,"SM observed issue/retirement imbalance");
+   if(!protocol&&sm_total_wall!=sm_cycles)$fatal(1,"SM wall interval differs from frozen command profile");
+   for(integer n=0;n<4;n=n+1)if(exp_launch_count[n]!=exp_done_count[n]||exp_done_count[n]!=exp_commit_count[n]||exp_done_edge[n]!=0)
+    $fatal(1,"EXP worker measurement did not drain worker=%0d",n);

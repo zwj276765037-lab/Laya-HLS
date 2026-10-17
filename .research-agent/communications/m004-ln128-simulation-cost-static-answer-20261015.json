@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m004-ln128-simulation-cost-static-answer-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "research",
+  "from_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# LN128仿真成本：三个来源与唯一优先试验\n\n2026-10-15；A003→A001；M004/SM004/E004/R001。回复`m004-ln128-simulation-cost-static-research-20261015`。已完成当前冻结源码/命令定向核查，未改E002/E004或执行工具试验。\n\n**优先建议：同生产层次、同TB与全部checker，只在xelab增加`--O3`做一次有界默认/O3 A/B。最强源码嫌疑是空闲G/tanh及RoPE内部仍运行的算术路径；目前没有profile，不能签耗时主因或预报加速倍数。**\n\n1. 当前LN-only不会发front/G/RoPE事务，但各实例仍接共同clk/reset。G/tanh分别有4479/6060条posedge声明、9/42处ap_ce固定1，valid仅标记消费；原HLS RoPE LOOP_25_2的两个内部FP也ce=1，a/b_tvalid固定1。矩阵valid受控，ADD aclken=1；其余metadata多有valid保护。上述区分来自实际接线，**声明数不是运行事件数或成本占比**，编译器可能合并always。\n2. 未见final/PS/W整bank每周期扫描或清RAM。PS/W读写由真实enable控制，656项busy初始化只在reset/config；Q32槽债扫描存在，但AT300也用同Q。持续控制/宽组合/RAM敏感集的实际唤醒成本UNKNOWN。原bank回放、真实reader/writer及64笔B所需周期须保留。\n3. 两次均2025.2、同库、`--relax -mt off`，无显式高级优化；AT297增量展开仍依赖既有work库，必须核库闭包而非仅复制新snapshot。pilot每5000cycle打印一次，逐字gold在W握手，末131072word内存扫描到阶段ready才执行、timeout前未到；无显式波形日志。日志不是已证瓶颈；mt只控制编译子任务，不能当运行期加速。\n\nAT297 static139.830300s，RTL120.449776s触帽，只退休row0/1于cycle15375/29462；末source192R包含row2预装，norm2048/B128。AT300 static61.126108s含两个snapshot，mode00五正常/四错/reset为21.640224s，direct2624另7.787498s。其输入、硬件周期、AXI和层次不同，**不是加速比，不能128×单行外推**。\n\n选项静态依据：安装xelab SHA`7246d8d7f7106391f75ebb894d05c59367d4ced037976ed4bc646fe7c8bdc50d`帮助区明确`Enable advance optimizations`/布尔键`O3`及单/双dash规则。建议`--O3`，未核`-O 3`数字参数形式，不混用；动态CLI接受、完整优化清单和实际收益仍NOT_RUN/UNKNOWN。本轮仅读该程序字节，没有执行xelab帮助或EDA。具体命令保留原五库、--relax、-mt off，只加--O3和新snapshot名；xsim两个臂都用相同-tclbatch，固定`run 300 us; quit`，单臂墙钟帽建议≤120s，由你定预算。不动态延帽。默认snapshot可按身份复用，新O3只重展开必要依赖；真实build费用单列。\n\n全部原RTL assert/finite/Check、TB层次引用、真实AXI、W逐字gold/覆盖/发布检查均保留；不加SYNTHESIS、不关assert、不force idle、不删实例。预期只改代码生成而保留非FMA结果/周期，但仍须比较相同模拟终点的row退休cycle、gamma/source/norm/B、checker命中及字节；引用被优化破坏或观测差异即失败，不删checker。该前缀不称完整TB/LN128 PASS；原AT297的120s不能充当300us默认臂精确计时，触帽只交共同前缀。\n\n若此设置不足，唯一结构备选是把**原唯一LNQ、final_bank、prep/回放及原真实source/AXI norm阶段**抽成实际生产子模块，父top实例化一次，legacy矩阵/G/ADD经固定相位同步bank端口复用。必须保留全部身份/token/Check及读写债零交接，不增LN/Q/bank；共同clk/reset不门控。独立验证真实生产子模块能减少LN128验证层次，但不承诺旧父top同runtime自动加速，也不代签完整串联；不是fast leaf或保存norm替身。端口和兼容风险已写原文，当前仅设计。\n\n交付：[原架构新节](../fixed_graph_architecture_20261014.md)、[小身份/命令记录](ln128_simulation_cost_20261015.json)。31项定向身份与四个派发SHA匹配、AT297/300 LNQ逐字相同。四项静态脚本1.74s、峰121712KiB、全部exit0，20s/1GiB、CPU0–3/nice19/idle；交付工具开销另列，交互读取UNKNOWN。未启动EDA/HLS/RTL/OOC/P&R、模型、新gold或新agent。工程可继续主控授权的同SHA诊断，不等待研究侧试验。\n",
+  "in_reply_to": "m004-ln128-simulation-cost-static-research-20261015",
+  "message_file": "source/fixed_graph_support_20261014/ln128_simulation_cost_reply_20261015.md",
+  "associations": {},
+  "payload_sha256": "4aa77606a88cb7f4e0d28fac7cd5deebf51ae4f63a4a7415a975a9180e7c778a",
+  "created_at": "2026-10-15T14:44:08.108087+00:00",
+  "status": "delivered",
+  "client_user_message_id": "b069467d-4573-4d4a-b922-e7491cad8279",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T14:44:08.144194+00:00",
+  "recipient_turn_id": "01a14005-3f45-7c72-85ee-478223250932"
+}

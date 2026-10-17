@@ -1,0 +1,69 @@
+--- a/v2/rtl/axivip/axi_slave_seq_lib.sv
++++ b/queue_exists_v1/rtl/axivip/axi_slave_seq_lib.sv
+@@ -102,27 +102,33 @@
+                     @(posedge vif.clk)
+                     # 0.1
+                     for(int i=0; i<cfg.id_num; i++) begin
+-                        if(state.awq[i].size) begin
+-                            for(int j=0; j<state.awq[i].size; j++) begin
+-                                state.awq[i][j].write_delay ++;
++                        if(state.awq.exists(i)) begin
++                            if(state.awq[i].size) begin
++                                for(int j=0; j<state.awq[i].size; j++) begin
++                                    state.awq[i][j].write_delay ++;
++                                end
+                             end
+                         end
+                     end
+                     //	foreach(state.wq);
+                     for(int i=0; i<cfg.id_num; i++) begin
+-                        if(state.wq[i].size) begin
+-                            for(int j=0; j<state.wq[i].size; j++) begin
+-                                if(state.wq[i][j].ainfo_rx==1)  begin
+-                                    state.wq[i][j].write_delay ++;
++                        if(state.wq.exists(i)) begin
++                            if(state.wq[i].size) begin
++                                for(int j=0; j<state.wq[i].size; j++) begin
++                                    if(state.wq[i][j].ainfo_rx==1)  begin
++                                        state.wq[i][j].write_delay ++;
++                                    end
+                                 end
+                             end
+                         end
+                     end
+                     //	foreach(state.bq_for_rsp_lat);
+                     for(int i=0; i<cfg.id_num; i++) begin
+-                        if(state.bq_for_rsp_lat[i].size) begin
+-                            for(int j=0; j<state.bq_for_rsp_lat[i].size; j++) begin
+-                                state.bq_for_rsp_lat[i][j].write_delay ++;
++                        if(state.bq_for_rsp_lat.exists(i)) begin
++                            if(state.bq_for_rsp_lat[i].size) begin
++                                for(int j=0; j<state.bq_for_rsp_lat[i].size; j++) begin
++                                    state.bq_for_rsp_lat[i][j].write_delay ++;
++                                end
+                             end
+                         end
+                     end
+@@ -136,9 +142,11 @@
+                     # 0.1
+                     //	foreach(state.rq_from_model)
+                     for(int i=0; i<cfg.id_num; i++) begin
+-                        if(state.rq_from_model[i].size) begin
+-                            for(int j=0; j<state.rq_from_model[i].size; j++) begin
+-                                state.rq_from_model[i][j].read_delay ++;
++                        if(state.rq_from_model.exists(i)) begin
++                            if(state.rq_from_model[i].size) begin
++                                for(int j=0; j<state.rq_from_model[i].size; j++) begin
++                                    state.rq_from_model[i][j].read_delay ++;
++                                end
+                             end
+                         end
+                     end
+--- a/v2/tb/build_static.sh
++++ b/queue_exists_v1/tb/build_static.sh
+@@ -17,4 +17,4 @@
+ 
+ "$vivado_bin/xelab" work.axi_allocation_diag_top \
+   -L uvm --sv_lib phase_rss --sv_root "$module_root/tb" \
+-  -s axi_allocation_diag --relax -mt off -log xelab.log
++  -s axi_queue_exists --relax -mt off -log xelab.log

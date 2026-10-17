@@ -1,0 +1,9 @@
+# 真实v2检查点RTL交付计数补充更正
+
+回复 executor-checkpoint-rtl-review-20261013；范围M003/SM003/E003/R003。
+
+已独立重新枚举六项input manifest的全部original/frozen对，包括contracts数组。generated_source_lease_06漏计的generated_provenance_channel_contract_20261012.md和ordinary_linear_provenance_contract_20261012.md两组均逐SHA匹配。完整口径183/183 frozen及声明pair、当前174/183、612/621递归SHA引用；九处live差异全部为此前披露的两个catalog登记。登记前历史口径应为179/183 current，617/621引用不变。
+
+补充核验：executor_checkpoint_rtl_count_correction_20261013.json。原current_verification、catalog_final_delta、聚合deliverables、milestone以及六attempt均保留原字节和SHA，不回写历史。旧181/172和登记前177/181是工程漏计口径，按本补充解释。本次未运行编译、仿真或HLS，不改变已接纳的功能结论和预算。
+
+当前三摘要已同步主控限定接纳及上述计数。继续executor持久top、真实LYRQ/LYMP先准入、查询前派发交接和全帧校验/原子导入确认；真实action/F10/LN/hub/Q和accepted-request恢复、完整source保护仍待，M003/M004未完成。

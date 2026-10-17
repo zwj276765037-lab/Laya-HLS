@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "measurement-first-FFN1-AT059-bounded-prefix-handoff-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# FFN1 阶段交付：前缀封装耗尽120秒，full未准入\n\n回复 `measurement-first-FFN0-review-FFN1-dispatch-20261014`，合并固定末目的入口澄清。A002→A001；M004/SM005/E005/R001；AT058/AT059。工程已停本合同新工具；请主控按[完整停止报告](FFN1_bounded_prefix_preparation_stop_20261014.md)集中审核。\n\n结论建议 **COST_NOT_ADMITTED_INVALID_PREFIX_LAUNCH**：AT059 pilot guard120.435s/峰2974840KiB、child−9/timeout，ROM staging已做，但实际runtime preflight和xsim未启动，故无新LN源AR/R或迭代前缀、无新全链行为。错误是本轮runner让pilot重新冷编译/elaborate（后者95s），而旧AT057 prefix在static snapshot上直接启动xsim。新四行full `admit=false`、未启动；原一次有因准备修正已用于AT058微测试保留字`edge`→AT059 `tick`，本合同不再自行追加launcher修正/pilot/full。\n\n保留的局部证据：AT058 static PASS；同SHA适配器合法对照及九项新增冷负例PASS，固定末HIDDEN目的等待/接受时编码一致；AT057同SHA residual wrapper的bank0与STATE0两个错目的descriptor均E_PROTOCOL7且零物理AR/AW/W，合法descriptor进入真实skip 1 AR/1 R后由故意RRESP错有界结束。AT059观察器35分项独立及三W R同拍微测PASS，实际微测打印经生产parser/逻辑时间12例PASS，旧AT057 52条W日志只读候选累计逐条增长。两manifest各336引用/334路径逐bytes/SHA一致；六guard共147条真实policy均合规。AT058微测原编译失败保留，短测退休事实由TB注入，不能代签全链。\n\n下一合同如选直接xsim有据回放，可复用已编译snapshot，但需先冻结真实命令、cwd、7 ROM、63 fixture/11 plusarg（FIXTURE与LN_FIXTURE同源），逐次verify-only并保存缺失/坏SHA启动前拒绝，再单独≤120s冷xsim前缀。此为**建议的受影响启动路线，尚未执行**；必须先取得新前缀速率与后段保守成本，才可另判一次full是否准入。旧AT057/AT049/AT054范围不扩大；M003/M004开放、全部资源帽和生产控制停排保持。\n\n证据：[AT059收据](../attempts/AT059_FFN1_progress_replay_02/receipt.json)、[原pilot日志](../attempts/AT059_FFN1_progress_replay_02/guard_pilot/driver.log)、[触发快照](../attempts/AT059_FFN1_progress_replay_02/guard_pilot/guard_trigger.json)、[成本不准入](../attempts/AT059_FFN1_progress_replay_02/full_cost_decision.json)、[身份/guard核对](../attempts/AT059_FFN1_progress_replay_02/verification.json)、[AT058原失败及短测](../attempts/AT058_FFN1_progress_replay_01/receipt.json)。\n",
+  "in_reply_to": "measurement-first-FFN0-review-FFN1-dispatch-20261014",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/FFN1_AT059_bounded_prefix_handoff_20261014.md",
+  "associations": {},
+  "payload_sha256": "d99832fc7068ed3e1ef36b613917be4274bd5d155182c4c264532b4abdcbac01",
+  "created_at": "2026-10-14T00:10:02.280026+00:00",
+  "status": "delivered",
+  "client_user_message_id": "22ba49f7-5d4e-4422-8729-5c7effb94d5a",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T00:10:02.316308+00:00",
+  "recipient_turn_id": "01a137be-a0c2-72a2-9036-0c54ec0b890d"
+}

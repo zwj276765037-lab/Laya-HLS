@@ -1,0 +1,437 @@
+{
+  "reviewer": "GPT-6 Astra xhigh independent read-only investigation",
+  "created_utc": "2026-10-08T05:58:12.971948+00:00",
+  "build_tag": "04934c15b3f83e842ec2e92ac2a81bf2",
+  "scope": "Existing source, saved LLVM IR/bitcode, HLS logs and RTL; disassembly only. No HLS/Vivado/simulation run, source edit or historical evidence change.",
+  "decision": {
+    "d0": "PASS_TO_MINIMAL_REPRODUCTION_WITH_SCOPED_CAUSE",
+    "repair_contract": "ACCEPTED_D0_D3_AND_PERFORMANCE_SLICE_WITH_VECTOR_SCOPE_REQUIRED",
+    "full_top_rerun": "NOT_RELEASED",
+    "functional_rtl": "NOT_ACCEPTED_CONFIRMED_FAILURE"
+  },
+  "earliest_proven_boundary": {
+    "input": "a.g.ld.5.gdce.bc",
+    "output": "a.g.lto.bc (byte-identical to a.g.0.bc)",
+    "transform": "Vitis HLS 2025.2 reflow, original autopilot.flow.log line 1181; exact command retained in reviewer_ir/transform_commands.json",
+    "classification": "Confirmed loss of nullable internal metadata-pointer presence semantics at this recorded transform boundary. Exact internal pass and base/offset-zero mechanism remain unproven.",
+    "specific_source_condition": "Controller::linear, full_forward_controller.cpp:210, if (!qkv_pair) return E_INTERNAL/detail(7,0,4)",
+    "source_witness": "Both stage2 and stage4 LIN_QKV calls pass the first element of a live local FullOwnerSpec[2], hence a non-null pointer; ordinary linear calls pass nullptr. The legal QKV call must not take this guard.",
+    "gdce_witness": {
+      "qkv_alloca_lines": [
+        5827,
+        5868
+      ],
+      "qkv_gep_lines": [
+        6104,
+        6596
+      ],
+      "qkv_call_lines": [
+        6105,
+        6597
+      ],
+      "guard_lines": [
+        14459,
+        14460,
+        14461
+      ],
+      "linear_function_lines": [
+        14295,
+        14916
+      ]
+    },
+    "lto_witness": [
+      {
+        "function": "Controller::linear",
+        "stage": 2,
+        "op": 48,
+        "lines": [
+          44919,
+          45066
+        ],
+        "successful_load_weight_result": "Always E_INTERNAL/status8/detail117440516 (0x07000004), bad_element=-1; pair parameter, claim, task loops, publish and writeback removed"
+      },
+      {
+        "function": "Controller::linear.17",
+        "stage": 4,
+        "op": 48,
+        "lines": [
+          47371,
+          47507
+        ],
+        "successful_load_weight_result": "Always the same E_INTERNAL/status8/detail0x07000004; pair parameter and all QKV production/publication removed"
+      }
+    ],
+    "lto_pair_content": "In Controller::graph both qkv.content and qkv152.content have only default-zero stores (excerpt lines775/1349; original IR lines40603/41177); QKV linear calls no longer receive them. RAW/FINAL metadata is never produced.",
+    "not_supported": [
+      "No evidence of old/final content aliasing: LTO attention copies produced into separate final arrays and writes FINAL only to final.content.",
+      "No evidence that loaded planes narrowing caused failure; planes=3 guard still exists before downstream dead code elimination."
+    ]
+  },
+  "additional_confirmed_same_family_defect": {
+    "source": "Controller::vector uses nullable src1 for ref, region and binding. residual:360 passes &hidden; type_add:412 passes &types.",
+    "gdce_nonnull_calls": [
+      {
+        "line": 16056,
+        "op": 98,
+        "source": "residual hidden reference"
+      },
+      {
+        "line": 16730,
+        "op": 99,
+        "source": "local types object"
+      }
+    ],
+    "lto": [
+      {
+        "function": "Controller::vector.28",
+        "operation": "ADD_RESIDUAL",
+        "issue_line": 53102,
+        "generated_src1": {
+          "id": 0,
+          "bank": 0,
+          "epoch": 0,
+          "region": 0
+        },
+        "binding": "Only src0 is bound"
+      },
+      {
+        "function": "Controller::vector.29",
+        "operation": "ADD_TYPE",
+        "issue_line": 53410,
+        "generated_src1": {
+          "id": 0,
+          "bank": 0,
+          "epoch": 0,
+          "region": 0
+        },
+        "binding": "Only src0 is bound"
+      }
+    ],
+    "mapping_check": "issue<VectorTask> formal signature at a.g.lto.ll:53151 maps these four literal zeros to task_src1_id/bank/epoch/region, independently of the local variable names.",
+    "implication": "A QKV-only repair would leave residual/type-add source metadata corrupted; include both nullable-output and nullable-input patterns in the repair and local RTL validation."
+  },
+  "downstream_chain": [
+    "At LTO/a.g.0 the two QKV controller functions already cannot succeed and cannot publish the pair.",
+    "full_begin_qkv_rope_pair retains 505 lines at LTO and539 at a.g.1, but a.g.2.prechk has only38 lines and always E_BUFFER/status5/detail67436549 (0x04050005), retaining only two legal_spec calls.",
+    "By a.o.1.tmp, final_qkv_ref id/bank/epoch have only reset-zero writers, no successful FINAL publication writers; RoPE numerical task disappears.",
+    "LOAD_KV still has its success code and loaded_kv writes in a.o.1.tmp, but final_qkv_ref.id cannot equal QKV(5). In a.o.2 the success branch and loaded_kv writes disappear.",
+    "QK and AV then reduce to fixed E_SHAPE on context success with elements0 and no numerical RAM paths in final full_run_task_33/35 RTL. These are secondary consequences, not fast attention implementations."
+  ],
+  "recommended_d1_checks": [
+    "Minimal dynamic reproduction must retain both original actual call styles: legal local array pointer and absent optional pointer; reproduce original E_INTERNAL mismatch without full-top HLS.",
+    "Compare one rewrite using fixed reference(s) and explicit presence; preserve missing-pair E_INTERNAL and all numeric/owner guards. Do not merely delete the failing guard.",
+    "Mirror nullable src1 reproduction for ADD_RESIDUAL and ADD_TYPE; check emitted src1 fields and source-binding count and perturb the real second source.",
+    "CPU plus generated RTL must show legitimate success and invalid rejection, dynamic data/state dependence, and owner publication only after actual coverage. No injected READY state as end-to-end evidence.",
+    "Restore numerical task and runtime writer chains before full-top rebuild, with new build identity; no performance acceptance inferred from restored ports alone."
+  ],
+  "limitations": [
+    "No internal reflow pass bisection/replay has been run, so base/offset0 is a leading hypothesis rather than an observed instruction transition.",
+    "No minimal reproduction or repair execution was performed by this reviewer.",
+    "This audit does not authorize a full-network synthesis run or declare other nullable pointer sites correct."
+  ],
+  "historical_evidence_policy": "results/performance_estimate_20261008 and prior OOC reviews preserved unchanged.",
+  "primary_files": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/control/full_forward_controller.cpp",
+      "sha256": "7e73939eba00bd062a5a6d75d77a82b2d0ec7fae0d2f5a16ebb359c821536b37",
+      "bytes": 30865
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_owner.cpp",
+      "sha256": "8ce4d28470798d122cf958acb5433f4f5786e565be1afe996c9fe64a5d1d6973",
+      "bytes": 36731
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/memory/full_loader.cpp",
+      "sha256": "e5536516ae56055e2e25f32f07e1f6f6bf27c7b012aa7b0d5d0906e23681cf1d",
+      "bytes": 16482
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/hls/control/full_forward_controller.cpp",
+      "sha256": "7e73939eba00bd062a5a6d75d77a82b2d0ec7fae0d2f5a16ebb359c821536b37",
+      "bytes": 30865
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md",
+      "sha256": "4bb63f905bc4c9fdcedd3da00f3405447125a628dbb069f7c1b0af7f1366ac8e",
+      "bytes": 13389
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/ir_capture/a.g.ld.5.gdce.ll",
+      "sha256": "bc81e1b415378dfca9c47504cfd5b02fc56c9cd75b2436f17fb44cd58b06c24e",
+      "bytes": 11087381
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/ir_capture/a.g.lto.ll",
+      "sha256": "57aee9007e9b017580fb7e5cb7dd4a66d8ef3464a1eec96b403607f0eb0b6c13",
+      "bytes": 7841441
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/ir_capture/a.g.2.prechk.ll",
+      "sha256": "5dde652813dde650e69c76e341e08dfcb5fcf8323a46d8c8d19f397805b9f363",
+      "bytes": 8392129
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.g.ld.5.gdce.bc",
+      "sha256": "f8ff97d8b4518c322d0f03ddca7cc75bc13c7a3d16e2180b09972d48657b4b1b",
+      "bytes": 2095172
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.g.lto.bc",
+      "sha256": "c47d7bc968c6009af85c306eab2129041686da171a9a160ebf0ccd13c82878a0",
+      "bytes": 3220628
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.g.0.bc",
+      "sha256": "c47d7bc968c6009af85c306eab2129041686da171a9a160ebf0ccd13c82878a0",
+      "bytes": 3220628
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.g.1.bc",
+      "sha256": "a0ddb8d16f20f75809ab0052f599e0076cc5fd774cb17be0c2f7ebd99486130a",
+      "bytes": 3835192
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.g.2.prechk.bc",
+      "sha256": "e55b2bea4a01bb73a8da5f444d89b69f125392d1a6596669217d46bfed6fdd1a",
+      "bytes": 3026188
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.o.1.tmp.bc",
+      "sha256": "f979c56c6901ad23baf5906ea1eeefad814946b587b25f4882d9d363414f0669",
+      "bytes": 2781512
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.o.2.bc",
+      "sha256": "20c2e535e68a2176c6977b0840543ee1a22921ae843e3dc8bd6c6a8fd74b42c6",
+      "bytes": 2602956
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/a.o.3.bc",
+      "sha256": "cbe8afbcad853aa285092bb951db74d884cdbfcc920cb95f73e0ec2bdfb4d208",
+      "bytes": 3425480
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/build/full-hls-newtag-04934c15b3f83e842ec2e92ac2a81bf2-csynth/csynth/hls/.autopilot/db/autopilot.flow.log",
+      "sha256": "ed9d149349910fb8a7a8652ccd006dc179251ec3d3bd8fc4b2a5bd2c81f10e28",
+      "bytes": 6220331
+    }
+  ],
+  "excerpt_files": [
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.0.bc.laya_full_anonymous_namespace_Controller_attention.ll",
+      "sha256": "4fcedd44f04d0f66b847e6daef02cbce148d228147ca05625ce20e7398bd2c5b",
+      "bytes": 54194
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.0.bc.laya_full_anonymous_namespace_Controller_linear.15.ll",
+      "sha256": "5aba801ee607f664d144fc60bbe15147de6efd807fe80c9d9088d7099b645bcd",
+      "bytes": 28348
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.0.bc.laya_full_anonymous_namespace_Controller_linear.16.ll",
+      "sha256": "d62e9ccc66d1b4dc8cf4dac1ec667987978a42b4cbc44c5f2811e9158229ad67",
+      "bytes": 28393
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.0.bc.laya_full_anonymous_namespace_Controller_linear.17.ll",
+      "sha256": "341f082076b53e90ca9af5577d832f7cb2dd20b0803ca263a22f8d0211544848",
+      "bytes": 12676
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.0.bc.laya_full_anonymous_namespace_Controller_linear.ll",
+      "sha256": "344826652bb3c2e9c5cd42779c77a3926a4a4dc3967f1c1dc2b9c87b14b8925f",
+      "bytes": 13029
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.0.bc.laya_full_anonymous_namespace_qkv_rope_specs.ll",
+      "sha256": "1911a37ce85043eaaed83f3be63657fd87ae15641a5adaa6e56d8cf6a36f05b1",
+      "bytes": 14747
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.0.bc.laya_full_full_begin_qkv_rope_pair.ll",
+      "sha256": "b6804cc641160aa662d8a9216ec63d1a1cf4f63d630647d27805bb3b23a38a51",
+      "bytes": 40409
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.1.bc.laya_full_anonymous_namespace_Controller_attention.ll",
+      "sha256": "dbdf63822ee8ed230e3e913c76f56fd5a0c34c89ac29f17b34d047af6e1585b1",
+      "bytes": 59514
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.1.bc.laya_full_anonymous_namespace_Controller_linear.15.ll",
+      "sha256": "43595185d949933c53538b00aa3af03487ce9648368049c1ab6d3befa1b3febc",
+      "bytes": 31623
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.1.bc.laya_full_anonymous_namespace_Controller_linear.16.ll",
+      "sha256": "39aebb35882a47999b51c687a0f5f662ceaf36fd357220d742b8d1963094dfc4",
+      "bytes": 30335
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.1.bc.laya_full_anonymous_namespace_Controller_linear.17.ll",
+      "sha256": "68166982c222cfb7083e2b259de5d3cf370b215e1358df7c5f98e63bd584bbb8",
+      "bytes": 11981
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.1.bc.laya_full_anonymous_namespace_Controller_linear.ll",
+      "sha256": "d3e741d47138b489d1a3764e6ae251c6dc38f91e659e984ac6f12622fcfa2333",
+      "bytes": 16225
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.1.bc.laya_full_anonymous_namespace_qkv_rope_specs.ll",
+      "sha256": "ac9918567992b460abed5da4094360a76cf929056b8f8fc3b89c732960d59c5e",
+      "bytes": 19547
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.1.bc.laya_full_full_begin_qkv_rope_pair.ll",
+      "sha256": "164ad6bc329f2b6919bb53c0b5816ccf3c6c35cf86e09750cebe9688a5d462d6",
+      "bytes": 51756
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.2.prechk.ll.full_begin_qkv_rope_pair.ll",
+      "sha256": "3af12622d3e23ab03cd70baa00bb8f033943c76366517b136eaaca1e317129f5",
+      "bytes": 3831
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.ld.5.gdce.ll.full_begin_qkv_rope_pair.ll",
+      "sha256": "22c03e0a14077ad3bc9fef60f7f249c55d5c641167e0253986b1bf1e6d0b2d83",
+      "bytes": 52490
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.ld.5.gdce.ll.full_claim_qkv_pair.ll",
+      "sha256": "3428921f9ebfe8555de4976b67dabcf873c9c5ad47c424bb2451d125ae1fc9cd",
+      "bytes": 55494
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.ld.5.gdce.ll.full_commit_qkv_rope_pair.ll",
+      "sha256": "fa19d23ca0448939546f0e37afeee0c6db41dcf95f3d1b555116fafc57052754",
+      "bytes": 39636
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.ld.5.gdce.ll.full_publish_qkv_pair.ll",
+      "sha256": "1a7cfa4652e4a53486185ad49a8227cd63d597e9abe722197412ef4029a0dd24",
+      "bytes": 33070
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.ld.5.gdce.ll.qkv_pair_specs.ll",
+      "sha256": "a9f659d374c006221b09dcf4f5a0bc4ff286fd01f7daa24f01ab5299f73a3baf",
+      "bytes": 23624
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.lto.ll.full_begin_qkv_rope_pair.ll",
+      "sha256": "b6804cc641160aa662d8a9216ec63d1a1cf4f63d630647d27805bb3b23a38a51",
+      "bytes": 40409
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.lto.ll.full_commit_qkv_rope_pair.ll",
+      "sha256": "d79a9c7824ee98e208a2f406ffed81922a4633e1a4ccb1180eeef8488a92deae",
+      "bytes": 30231
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.lto.ll.laya_full_anonymous_namespace_Controller_linear.15.ll",
+      "sha256": "5aba801ee607f664d144fc60bbe15147de6efd807fe80c9d9088d7099b645bcd",
+      "bytes": 28348
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.lto.ll.laya_full_anonymous_namespace_Controller_linear.16.ll",
+      "sha256": "d62e9ccc66d1b4dc8cf4dac1ec667987978a42b4cbc44c5f2811e9158229ad67",
+      "bytes": 28393
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.lto.ll.laya_full_anonymous_namespace_Controller_linear.17.ll",
+      "sha256": "341f082076b53e90ca9af5577d832f7cb2dd20b0803ca263a22f8d0211544848",
+      "bytes": 12676
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.g.lto.ll.laya_full_anonymous_namespace_Controller_linear.ll",
+      "sha256": "344826652bb3c2e9c5cd42779c77a3926a4a4dc3967f1c1dc2b9c87b14b8925f",
+      "bytes": 13029
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.o.1.tmp.bc.full_run_task.30.ll",
+      "sha256": "214ca7e5e9f6f0e3ca3cc33881aae50fe2289b17f387a2797c89b7447b2af62c",
+      "bytes": 160740
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.o.1.tmp.bc.full_run_task.33.ll",
+      "sha256": "f2b060ee7f74db0f60e165cd176f1a184aeefccae74edf8bef80b67aef72f910",
+      "bytes": 52677
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.o.1.tmp.bc.full_run_task.35.ll",
+      "sha256": "07cf254f325dd8d42f896403db6d9035710af02d1dc3cdb103a27d57b00a2a92",
+      "bytes": 46307
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.o.2.bc.full_run_task.30.ll",
+      "sha256": "3e5c6a1e010b276515d09bcea58ee426f3f1d234b990333debf91be2341b669a",
+      "bytes": 94389
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.o.2.bc.full_run_task.33.ll",
+      "sha256": "47789f847c7416819b71680398a2f86859cadc1b06ca3a213253f63389ca93b6",
+      "bytes": 12931
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/a.o.2.bc.full_run_task.35.ll",
+      "sha256": "f34346623ae44b8b5b49104ce2526cdfd3a4fbe5d9496465bb5f8f0787223a12",
+      "bytes": 10925
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/gdce.Controller5graph.ll",
+      "sha256": "9faa3c60e366c38919775b41910ebb7ca435bd21e5367ff6251d1a52c957b742",
+      "bytes": 137909
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/gdce.Controller6linear.ll",
+      "sha256": "42a8ba4ea0cf92b3a69b31f89620f1ace9ac7e2f25c66272a1c7a3a021584fef",
+      "bytes": 48797
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/gdce.Controller6vector.ll",
+      "sha256": "de436cd676f051ea36d5cc0acc6447c6cb8441d7bb5d44eb709420b0e59c9db5",
+      "bytes": 27707
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/gdce.Controller8residual.ll",
+      "sha256": "3f0d9bb3dfc060eb648cf8e4b3495e81a9dfd5f80fe464b3070a4cacb63ad75e",
+      "bytes": 8950
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/gdce.Controller8type_add.ll",
+      "sha256": "563f23ec603ae01759a8379110d452e05ded5b053aabdc8bd748a0ce0572c58a",
+      "bytes": 22990
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/lto.laya_full_anonymous_namespace_Controller_graph.ll",
+      "sha256": "055de8ea84d757d52b25f8a1a882242cc2b548861cd5bf13a6908617ce70922b",
+      "bytes": 206886
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/lto.laya_full_anonymous_namespace_Controller_vector.28.ll",
+      "sha256": "e16a37e6bc9781f32dde9de79ac067dd78f4bb98d50572173d2c73e7330a7219",
+      "bytes": 15338
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/lto.laya_full_anonymous_namespace_Controller_vector.29.ll",
+      "sha256": "c0e1320dbd4e41b39b81849097d694d9d7bc45a29359b0b3d25536e57b68f744",
+      "bytes": 16165
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/lto.laya_full_anonymous_namespace_Controller_vector.ll",
+      "sha256": "c00d18a7fa58630e15355c381afbcdfdead714154ad5aceffa0adb5defed4b25",
+      "bytes": 16743
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/prechk.full_begin_qkv_rope_pair.ll",
+      "sha256": "3af12622d3e23ab03cd70baa00bb8f033943c76366517b136eaaca1e317129f5",
+      "bytes": 3831
+    },
+    {
+      "path": "results/attention_rtl_repair_20261008/reviewer_ir/transform_commands.json",
+      "sha256": "65e4eb2d7bd82babe85e621c2c5cb8804c53d36b94e89cc7874924aa2add54c9",
+      "bytes": 5722
+    }
+  ]
+}

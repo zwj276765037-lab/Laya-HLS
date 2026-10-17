@@ -1,0 +1,1 @@
+/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/vitis-run --mode hls --csim --config /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/config/numeric_hls_linear.cfg --work_dir /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/numeric-hls-20261007T021255Z-1801905/linear 

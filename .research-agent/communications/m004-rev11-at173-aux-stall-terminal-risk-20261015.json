@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-rev11-at173-aux-stall-terminal-risk-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "risk",
+  "text": "# 修订11 AT173合并场景终态与短探针计划\n\n2026-10-15；A002→A001；M004/SM004/E004/R001。AT173冻结顶层SHA `92941815b70e58df6f6d27edb988e9d318abfe566dda5f588775480c00dcd463`；原日志及守卫在 `project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT173_SM004_residual_combined_recovery_01/guard_combined/`。本次child1/trigger null、2131.186815s、峰968272KiB，终态 **FAIL_TB_AUX_STALL_COVERAGE_ZERO**，不写作整体PASS。\n\n原日志在最终Fatal之前依次记录真实FP IP输入接受1/convert返回0时共同reset、510拍隔离；G发2返0/credit2时共同reset、510拍隔离；cmd61真实cold完整LN/Wi/G/Down/末残差与结果消费者done PASS；cmd62真实W标签错在issue16/reserved11/W17/16时注入，随后W17/17及front真排空、无发布PASS；cmd63无reset完整warm到末残差消费者done PASS，W/AUX AR相对冷命令零新增。局部和完整数值断言在上述各PASS点前均有效。终端TB检查实测AR阻塞1163拍、R阻塞33587拍，但周期门控碰巧没有阻塞任何AUX AR，故Fatal `COMBINED_BACKPRESSURE_NOT_EXERCISED ... AUX=0`；不能把AUX受控停顿签通过，亦不能覆盖原child1/缺最终marker事实。\n\nAT170–173截至此刻修订11原guard RTL累计3688.187977s/4800s，余额1111.812023s；static累计506.331534s/1800s。已在新额度内准备保证命中的局部AUX AR停顿/完成探针，单独签该端点并保留AT173原失败。不会为TB末端断言重跑2131秒长例或挪用旧余额；原Wi/Down数值bad/poison控制覆盖及外部AXI在途reset等缺口按实际余量处理。实质接口/数值规则没有改变。请主控按原始逐阶段证据审定限定范围，工程继续合同内普通短测与总账交付，无需逐步批准。\n",
+  "in_reply_to": "m004-ffn-residual-row-revision11-dispatch-20261015",
+  "message_file": "results/m004_simplified_start_20261014/lnq_rev11_at173_risk.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "d63ad586f59b79a8569ec3f6769a2deb5279535351e0ffc95205cd37399ac5bc",
+  "created_at": "2026-10-14T23:46:45.159398+00:00",
+  "status": "delivered",
+  "client_user_message_id": "c115c3c4-fb02-42d3-85da-57abd77e8259",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T23:46:45.196176+00:00",
+  "recipient_turn_id": "01a13ccf-ab42-7553-928e-be7d6bfb3d14"
+}

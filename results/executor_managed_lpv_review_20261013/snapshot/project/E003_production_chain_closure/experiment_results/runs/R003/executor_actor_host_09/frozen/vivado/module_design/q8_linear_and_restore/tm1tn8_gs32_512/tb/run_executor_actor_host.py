@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""Freeze v2 diagnostic checkpoint and run actual C++ caller/adapter tests."""
+import argparse
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import run_executor_bootstrap_host as host
+
+ROOT=host.ROOT
+PROJECT=host.PROJECT
+MODEL=host.MODEL
+M=Path('vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512')
+def main():
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--attempt',type=Path,required=True)
+    ap.add_argument('--shell-stimuli',action='store_true')
+    ap.add_argument('--shell-rtl-capture',type=Path)
+    ap.add_argument('--cancel-drain',action='store_true')
+    ap.add_argument('--request-close',action='store_true')
+    ap.add_argument('--closed-rtl-attempt',type=Path)
+    args=ap.parse_args()
+    attempt=args.attempt.resolve(); attempt.mkdir(parents=True,exist_ok=False)
+    launcher=host.launcher_state()
+    (attempt/'launcher.json').write_text(json.dumps(launcher,indent=2)+'\n')
+    if not launcher['pass']: raise RuntimeError('launcher rejected')
+    config=Path('config/executor_actor_sources.cmake')
+    production=host.cmake_sources(ROOT/config)
+    forbidden={'task_lifecycle_executor.cpp','full_forward_controller.cpp',
+        'controller_transaction_dispatch.cpp','controller_transaction_hls.cpp',
+        'controller_transaction_adapter.cpp','compute_portal_codec.cpp',
+        'generated_provenance_codec.cpp','producer_engine_codec.cpp'}
+    required={'executor_checkpoint.cpp','executor_checkpoint_protocol.cpp',
+        'executor_bootstrap.cpp','bootstrap_snapshot_protocol.cpp',
+        'task_lifecycle_fsm.cpp','task_lifecycle_port.cpp'}
+    names={p.name for p in production}
+    if names & forbidden or not required.issubset(names): raise RuntimeError('source closure rejected')
+    integration=[Path(s) for s in [
+        'hls/control/graph_program_sequencer.cpp','hls/control/graph_program_hls.cpp',
+        'hls/platform/controller_transaction_adapter.cpp','hls/platform/compute_portal_codec.cpp',
+        'hls/platform/generated_provenance_codec.cpp','hls/platform/producer_engine_codec.cpp']]
+    sources=production+integration
+    test=Path('tests/executor_actor_test.cpp')
+    flags=['-std=c++17','-O1','-Wall','-Wextra','-Werror','-Wno-unknown-pragmas',
+        '-Wno-unused-parameter','-Wno-aggressive-loop-optimizations','-fno-fast-math',
+        '-fno-associative-math','-ffp-contract=off','-DLAYA_PARTITIONED_PRODUCTION_CALLER',
+        '-DLAYA_CONTROLLER_TRANSACTION_SEQUENCER','-pthread']
+    vitis=Path('/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include')
+    includes=['-I'+str(ROOT/'include'),'-I'+str(ROOT/'hls'),
+        '-I'+str(ROOT/'hls/platform'),'-I'+str(ROOT/MODEL),'-isystem',str(vitis)]
+    closure=set()
+    for unit in sources+[test]:
+        deps=subprocess.check_output(['g++',*flags,*includes,'-MM',str(ROOT/unit)],
+            cwd=ROOT,text=True,timeout=1800,preexec_fn=host.limited)
+        for name in deps.replace('\\\n',' ').split(':',1)[1].split():
+            p=Path(name).resolve()
+            if ROOT in p.parents: closure.add(p)
+    fixed=[config,Path('config/full_module_registry.json'),
+        Path('config/production_hls_partitions.json'),Path('config/graph_action_registry.json'),
+        MODEL/'manifest.json',MODEL/'aux.bin',Path('tests/executor_handoff_fixture.py'),
+        Path('tests/program_pending_fixture.py'),Path('tests/admission_owner_fixture.py'),
+        M/'rtl/laya_admission_owner_layout_v1.sv',M/'rtl/laya_generated_provenance_layout_v1.sv',
+        M/'rtl/laya_model_identity_13bo_generated_v1.sv',M/'rtl/laya_program_pending_layout_v1.sv',
+        Path('tests/executor_bootstrap_fixture.py'),Path('tests/executor_checkpoint_fixture.py'),M/'rtl/laya_executor_handoff_layout_v1.sv',M/'rtl/laya_executor_checkpoint_layout_v2.sv',
+        M/'rtl/laya_bootstrap_snapshot_layout_v1.sv',M/'rtl/laya_graph_action_layout_v1.sv',
+        M/'tb/production_guard.py',Path('tools/hls_guard_helpers.py'),
+        Path(__file__).resolve().relative_to(ROOT),M/'tb/run_executor_bootstrap_host.py']
+    closure.update((ROOT/p).resolve() for p in fixed)
+    frozen=attempt/'frozen'; records=[]
+    def copy(src,rel):
+        dst=frozen/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copyfile(src,dst)
+        records.append({'relative':str(rel),'original':host.rec(src),'frozen':host.rec(dst)})
+    for src in sorted(closure): copy(src,src.relative_to(ROOT))
+    for name in ['production_hls_partition_contract_20261012.md',
+        'executor_bootstrap_source_contract_20261012.md','executor_checkpoint_high_water_contract_20261012.md',
+        'executor_checkpoint_import_handshake_contract_20261013.md',
+        'executor_revoke_unaccepted_action_contract_20261013.md','executor_close_rearm_contract_20261013.md',
+        'executor_managed_lpv_owner_contract_20261013.md']:
+        copy(PROJECT/'results'/name,Path('external/contracts')/name)
+    if args.shell_rtl_capture:
+        if not args.shell_stimuli: raise RuntimeError('capture requires helper-only mode')
+        source_capture=args.shell_rtl_capture.resolve()
+        source_attempt=source_capture.parent.parent
+        capture_receipt=json.loads((source_attempt/'receipt.json').read_text())
+        if capture_receipt['status']!='PASS' or capture_receipt['rtl_capture']['sha256']!=host.rec(source_capture)['sha256']:
+            raise RuntimeError('verified real RTL capture required')
+        copy(source_capture,Path('external/actual_handoff_checkpoint.hex'))
+        for name in ['input_manifest.json','receipt.json']:
+            copy(source_attempt/name,Path('external/capture_run')/name)
+    if args.closed_rtl_attempt:
+        if not args.request_close: raise RuntimeError('close capture requires close mode')
+        closed_run=args.closed_rtl_attempt.resolve()
+        closed_receipt=json.loads((closed_run/'receipt.json').read_text())
+        if closed_receipt['status']!='PASS': raise RuntimeError('verified CLOSED RTL run required')
+        for status in ['ok','error']:
+            for committed in [0,1]:
+                name='closed_'+status+'_c'+str(committed)+'_capture.hex'
+                source=closed_run/'fixture'/name
+                if not any(v['path']==str(source) and v['sha256']==host.rec(source)['sha256'] for v in closed_receipt['fixture_files']):
+                    raise RuntimeError('CLOSED capture identity mismatch')
+                copy(source,Path('external/closed_results')/name)
+        for name in ['input_manifest.json','receipt.json']:
+            copy(closed_run/name,Path('external/closed_run')/name)
+    compiler=Path(shutil.which('g++'))
+    build=[str(compiler),*flags,'-I'+str(frozen/'include'),'-I'+str(frozen/'hls'),
+        '-I'+str(frozen/'hls/platform'),'-I'+str(frozen/MODEL),'-isystem',str(vitis),
+        str(frozen/test),*[str(frozen/s) for s in sources],'-o',str(attempt/'test')]
+    fixture=[sys.executable,str(frozen/'tests/executor_handoff_fixture.py'),
+        '--model-header',str(frozen/MODEL/'laya_model_layout_generated.h'),
+        '--model-aux',str(frozen/MODEL/'aux.bin'),'--output',str(attempt/'fixture')]
+    commands={'oracle':fixture,'build':build,'run':[str(attempt/'test'),str(attempt/'fixture')]}
+    if args.shell_stimuli: commands['run'].append('--shell-stimuli')
+    if args.cancel_drain:
+        if args.shell_stimuli or args.shell_rtl_capture: raise RuntimeError('exclusive test mode')
+        commands['run'].append('--cancel-drain')
+    if args.request_close:
+        if args.shell_stimuli or args.cancel_drain: raise RuntimeError('exclusive close mode')
+        commands['run'].append('--request-close')
+        if args.closed_rtl_attempt: commands['run'].append(str(frozen/'external/closed_results'))
+    if args.shell_rtl_capture: commands['run'].append(str(frozen/'external/actual_handoff_checkpoint.hex'))
+    scope=('Persistent executor actor host preparation; seven full 1024B LHC1 literal frames; '
+        'sequence reserved before HOLD without HELD dependency; actual checkpoint codec/helper '
+        'success/failure drive IMPORT_OK/ABORT; controlled HELD/GRANTED/session/fences. '
+        'Two admitted LYRQ/LYMP requests share one actor runtime and the actual C++ program '
+        'top, lifecycle port/FSM and transaction adapter, with four windows each. '
+        'F17: persistent base/session/request/cancel revocation after complete LGP1; '
+        '33 unread/partial/validation cases including prestart fence loss and 12 active '
+        'BEGIN/producer cases use the actual actor/port/FSM with controlled LTC1 peers; '
+        'old completion tail stalls and matching END/cleanup progress remain checked. '
+        'No generated executor, physical shell hold/grant/rearm, RTL control, LN numerics '
+        'or production source protection is signed.')
+    if args.shell_stimuli:
+        scope=('Actual actor codec/helper generates full B/S1/H1 HOLD/query/IMPORT_OK and '
+          'unknown-reservation-hole commit0 ABORT for a bounded control-shell test; '
+          'proof and HELD/fences are controlled; IMPORT_OK matches independent literal. '
+          'No complete program/adapter requests, generated executor, real hub/physical hold '
+          'or hardware lifecycle is signed in this helper-only run.')
+        if args.shell_rtl_capture:
+            scope+=' Actual real hub/monitor/transport LBR2 capture completely decodes/roundtrips and imports task7/LPV179/target8; control outputs are offline, not generated helper in the same hardware runtime.'
+    if args.cancel_drain:
+        scope=('Bounded host cancel-drain preparation: actual explicit-state program command '
+          'consumer and pending ordinal record, LAP1 literal full-command/full-action ownership '
+          'codec, actor exclusive cancel consumer, actual LAX1/LAC1/LGR1 codecs and program '
+          'completion consumer. Complete/partial action and same-step first-read revoke, '
+          'tail waits, malformed/semantic/key/replay isolation, bound command partial drain '
+          'and actual no-action local result. HELD/GRANT/fences/key forwarding are controlled; '
+          'software streams are unbounded. No physical depth2/RTL, Host CLOSE, hardware '
+          'accepted-request rearm, generated executor or full production source protection.')
+    if args.request_close:
+        scope=('Managed close host preparation: eight independent LHC1 CLOSE/CLOSED status/commit literals, '
+          'latched managed lifecycle, actual admitted actor/program/port/FSM/adapter successful four-window result, '
+          'three actual cancel action consumers and two actual command no-action error result branches. '
+          'F19 six final-write/legacy/foreign/tagged-transition cases, independent managed consumption fact, tail2/tail1 software read waits and runtime unchanged. Full Host result required, actual C++ control codec and complete matching CLOSED required, '
+          'first error/commit/key rejection and persistent changed input closure, terminal wait without new admission. '
+          'Shell replies/fences remain controlled, software streams unbounded. No no-LGP local error path, '
+          'physical safety/RTL depth2/CLOSE transport/new accepted-request rearm or production chain signed.')
+        if args.closed_rtl_attempt:
+            scope+=' Four actual shell CLOSED captures completely decode/roundtrip and match independent fixed H1 literal; offline codec evidence does not sign same-hardware actual closure consumers.'
+    scope+=' Complete LAD1 admission A capture after actual LYRQ/LYMP, before HOLD; 22 wire and7 capture refusals; only controlled STATE0 physical map, no same-hardware admission or full13BO scope.'
+    mp=attempt/'input_manifest.json'
+    mp.write_text(json.dumps({'schema':'laya-executor-actor-host-input-v1','scope':scope,
+        'files':records,'production_sources':[str(p) for p in production],
+        'host_integration_sources':[str(p) for p in integration],'forbidden_present':[],
+        'planned_commands':commands,'launcher':host.rec(attempt/'launcher.json'),
+        'compiler':host.rec(compiler),'external_headers':[host.rec(vitis/'ap_int.h'),host.rec(vitis/'hls_stream.h')],
+        'dependency_extraction_limit':'1800s timeout /24GiB RLIMIT_AS; no owned-RSS sampling'},
+        indent=2)+'\n')
+    receipt={'schema':'laya-executor-actor-host-receipt-v1','scope':scope,
+        'status':'RUNNING','input_manifest':host.rec(mp)}
+    for mode,command in commands.items():
+        guarded=[sys.executable,str(frozen/M/'tb/production_guard.py'),
+            '--out',str(attempt/('guard_'+mode)),'--cwd',str(frozen),
+            '--rss-gib','24','--timeout-seconds','1800','--semantic-stall-seconds','120',
+            '--',*command]
+        proc=subprocess.run(guarded)
+        state=json.loads((attempt/('guard_'+mode)/'guard_result.json').read_text())
+        log=attempt/('guard_'+mode)/'driver.log'; body=log.read_text()
+        marker=('FULL_CURRENT_EXECUTOR_REQUEST_CLOSE_PASS' if args.request_close else
+            'FULL_CURRENT_EXECUTOR_CANCEL_DRAIN_PASS' if args.cancel_drain else
+            'FULL_CURRENT_EXECUTOR_SHELL_HELPER_PASS' if args.shell_stimuli else
+            'FULL_CURRENT_EXECUTOR_ACTOR_PASS') if mode=='run' else 'FULL_CURRENT_EXECUTOR_HANDOFF_FIXTURE_PASS'
+        passed=proc.returncode==0 and state['child_exit_code']==0 and state['trigger'] is None
+        if mode!='build': passed=passed and body.count(marker)==1
+        receipt[mode]={'status':'PASS' if passed else 'FAIL','started':True,'guard':state,
+            'runner_exit_code':proc.returncode,'driver_log':host.rec(log),
+            'markers':[s for s in body.splitlines() if marker in s]}
+        receipt['status']='PASS' if mode=='run' and passed else 'RUNNING' if passed else 'FAIL'
+        receipt['fixture_files']=[host.rec(p) for p in sorted((attempt/'fixture').rglob('*')) if p.is_file()]
+        (attempt/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+        print('FULL_CURRENT_EXECUTOR_ACTOR_'+mode.upper()+'_'+('PASS' if passed else 'FAIL'),flush=True)
+        if not passed: return 1
+    receipt['executable']=host.rec(attempt/'test')
+    (attempt/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    return 0
+
+if __name__=='__main__': raise SystemExit(main())

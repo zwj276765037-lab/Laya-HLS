@@ -1,0 +1,93 @@
+--- executor_handoff_portal_rtl_04/laya_generated_provenance_axi_portal_v1.sv
++++ executor_handoff_portal_rtl_05/laya_generated_provenance_axi_portal_v1.sv
+@@ -25,6 +25,14 @@
+   output logic [511:0] checkpoint_response_dout,
+   output logic checkpoint_response_empty_n,
+   input logic checkpoint_response_read,
++  // Internal managed shell connection. A first ingress reserves the old K;
++  // remaining beats and returns keep that owner despite later revocation.
++  input logic checkpoint_start_permit,checkpoint_owner_revoked,checkpoint_executor_route,
++  input logic [8191:0] checkpoint_owner_key,
++  input logic checkpoint_closed_valid,
++  input logic [8191:0] checkpoint_closed_key,
++  output logic checkpoint_ingress_started,checkpoint_query_accepted,checkpoint_query_drained,
++  output logic [8191:0] checkpoint_query_request,
+   input logic [511:0] executor_provenance_cmd_din,
+   input logic executor_provenance_cmd_write,
+   output logic executor_provenance_cmd_full_n,
+@@ -156,7 +164,7 @@
+   logic checkpoint_request_valid,checkpoint_request_ready;
+   logic [8191:0] checkpoint_request,checkpoint_response;
+   logic checkpoint_response_valid,checkpoint_response_ready;
+-  logic checkpoint_exclusion;
++  logic checkpoint_exclusion,checkpoint_abort_only;
+   logic legacy_checkpoint_authority,legacy_checkpoint_pulse;
+   logic checkpoint_base_seen,checkpoint_base_history_complete;
+   logic [63:0] checkpoint_history_epoch,checkpoint_history_address,checkpoint_history_capacity;
+@@ -186,19 +194,25 @@
+   end
+   assign checkpoint_exclusion=ENABLE_EXECUTOR_CHECKPOINT &&
+     checkpoint_dispatch_held && !(MANAGED_EXECUTOR_HANDOFF ?
+-      checkpoint_handoff_complete : checkpoint_authority_valid);
++      checkpoint_executor_route : checkpoint_authority_valid);
+   assign selected_cmd=ENABLE_EXECUTOR_CHECKPOINT && checkpoint_dispatch_held ?
+     executor_provenance_cmd_din : provenance_cmd_din;
+   assign selected_write=ENABLE_EXECUTOR_CHECKPOINT && checkpoint_dispatch_held ?
+     executor_provenance_cmd_write && (MANAGED_EXECUTOR_HANDOFF ?
+-      checkpoint_handoff_complete : checkpoint_authority_valid) : provenance_cmd_write;
++      checkpoint_executor_route : checkpoint_authority_valid) : provenance_cmd_write;
+   assign provenance_cmd_full_n=selected_full_n &&
+     (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held);
+   assign executor_provenance_cmd_full_n=ENABLE_EXECUTOR_CHECKPOINT &&
+-    (MANAGED_EXECUTOR_HANDOFF ? checkpoint_handoff_complete : checkpoint_authority_valid) && selected_full_n;
++    (MANAGED_EXECUTOR_HANDOFF ? checkpoint_executor_route : checkpoint_authority_valid) && selected_full_n;
+   generate if(ENABLE_EXECUTOR_CHECKPOINT)begin : checkpoint_enabled
+-    laya_executor_checkpoint_transport_v2 checkpoint_transport(
++    assign checkpoint_query_accepted=checkpoint_request_valid && checkpoint_request_ready;
++    assign checkpoint_query_request=checkpoint_request;
++    laya_executor_checkpoint_transport_v2 #(.MANAGED_HANDOFF(MANAGED_EXECUTOR_HANDOFF)) checkpoint_transport(
+       .clk,.rst_n,.cancel,.command_din(checkpoint_command_din),
++      .managed_start_permit(checkpoint_start_permit),.managed_revoked(checkpoint_owner_revoked),
++      .managed_owner_key(checkpoint_owner_key),.managed_closed_valid(checkpoint_closed_valid),
++      .managed_closed_key(checkpoint_closed_key),.ingress_started(checkpoint_ingress_started),
++      .request_abort_only(checkpoint_abort_only),.query_drained(checkpoint_query_drained),
+       .command_write(checkpoint_command_write),.command_full_n(checkpoint_command_full_n),
+       .response_dout(checkpoint_response_dout),.response_empty_n(checkpoint_response_empty_n),
+       .response_read(checkpoint_response_read),.request_valid(checkpoint_request_valid),
+@@ -226,6 +240,8 @@
+     assign checkpoint_accepted_queries=0;assign checkpoint_consumed_responses=0;
+     assign checkpoint_command_occupancy=0;assign checkpoint_response_occupancy=0;
+     assign checkpoint_request_valid=0;assign checkpoint_request=0;
++    assign checkpoint_ingress_started=0;assign checkpoint_query_accepted=0;
++    assign checkpoint_query_request=0;assign checkpoint_query_drained=0;assign checkpoint_abort_only=0;
+     assign checkpoint_response_ready=0;
+   end endgenerate
+ 
+@@ -254,7 +270,8 @@
+   laya_generated_provenance_hub_v1 #(
+     .ENABLE_BOOTSTRAP_SNAPSHOT(ENABLE_BOOTSTRAP_SNAPSHOT),
+     .ENABLE_BOOTSTRAP_SOURCE_GUARD(ENABLE_BOOTSTRAP_SOURCE_GUARD),
+-    .ENABLE_EXECUTOR_CHECKPOINT(ENABLE_EXECUTOR_CHECKPOINT)) hub(
++    .ENABLE_EXECUTOR_CHECKPOINT(ENABLE_EXECUTOR_CHECKPOINT),
++    .MANAGED_EXECUTOR_CHECKPOINT(MANAGED_EXECUTOR_HANDOFF)) hub(
+     .clk,.rst_n,.request_valid,.request_ready,.request,
+     .cancel(service_cancel),
+     .begin_external_ready(begin_ready),
+@@ -266,7 +283,7 @@
+     .physical_drained,.physical_coverage_complete,
+     .source_query_valid(source_query_valid &&
+                         (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held ||
+-                         (MANAGED_EXECUTOR_HANDOFF && checkpoint_handoff_complete))),
++                         (MANAGED_EXECUTOR_HANDOFF && checkpoint_executor_route))),
+     .source_query_ready,.source_query_command,
+     .source_query_granted,.source_release_valid,.source_release_ready,
+     .source_release_command,.source_release_drained,.source_lease_active,
+@@ -275,7 +292,7 @@
+     .snapshot_physical_quiescent(bootstrap_physical_safe),.snapshot_base_valid,
+     .snapshot_base_epoch,.snapshot_base_address,.snapshot_base_capacity,
+     .snapshot_sequence_high_water,
+-    .checkpoint_request_valid,.checkpoint_request_ready,.checkpoint_request,
++    .checkpoint_abort_only,.checkpoint_request_valid,.checkpoint_request_ready,.checkpoint_request,
+     .checkpoint_response_valid,.checkpoint_response_ready,.checkpoint_response,
+     .checkpoint_dispatch_held(checkpoint_exclusion),
+     .checkpoint_physical_quiescent(bootstrap_physical_safe && checkpoint_base_seen &&

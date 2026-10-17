@@ -1,0 +1,22 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_pkg.sv
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/rtl/axivip/axi_pkg.sv
+@@ -16,6 +16,9 @@
+ package axi_pkg;
+ import uvm_pkg::*;
+ `include "uvm_macros.svh"
++
++// Observer-only scalar: counts constructor requests, not live objects or bytes.
++longint unsigned diag_transfer_constructs = 0;
+ 
+ `include "axi_type.sv"
+ `include "axi_cfg.sv"
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_phase_probe/rtl/verilog/axivip/axi_transfer.sv
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/rtl/axivip/axi_transfer.sv
+@@ -85,6 +85,7 @@
+ 
+     function new (string name = "axi_transfer");
+       super.new(name);
++      diag_transfer_constructs++;
+       init();
+     endfunction
+ 

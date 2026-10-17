@@ -1,0 +1,217 @@
+# Review aid: only ATT_COLD/att_cold_progress labels normalized in preimage; history file retains exact bytes.
+--- cold_v2/control_after_cosmetic_label_normalization
++++ finite/att_finite_control.svh
+@@ -37,6 +37,17 @@
+   logic [31:0] r_selected_beat=0, r_hold_wait_latched=0, b_hold_wait_latched=0;
+   logic [63:0] r_selected_addr=0, b_selected_addr=0, attout_last_aw_addr=0;
+   logic r_selected_last=0;
++  wire selected_e_rvalid = SELECTED_PORT==3 ? u_port_qkv0.e_rvalid : u_port_qkv1.e_rvalid;
++  wire selected_e_rlast = SELECTED_PORT==3 ? u_port_qkv0.e_rlast : u_port_qkv1.e_rlast;
++  wire [7:0] selected_ar_beat = SELECTED_PORT==3 ?
++      u_port_qkv0.ram_mon.ar_beat[u_port_qkv0.ram_mon.ar_head] :
++      u_port_qkv1.ram_mon.ar_beat[u_port_qkv1.ram_mon.ar_head];
++  wire [63:0] selected_ar_address = SELECTED_PORT==3 ?
++      u_port_qkv0.ram_mon.ar_address[u_port_qkv0.ram_mon.ar_head] :
++      u_port_qkv1.ram_mon.ar_address[u_port_qkv1.ram_mon.ar_head];
++  wire [2:0] selected_ar_size = SELECTED_PORT==3 ?
++      u_port_qkv0.ram_mon.ar_size[u_port_qkv0.ram_mon.ar_head] :
++      u_port_qkv1.ram_mon.ar_size[u_port_qkv1.ram_mon.ar_head];
+   localparam int OUT_SAMPLE=4;
+   typedef struct packed {
+     logic [31:0] ordinal;
+@@ -92,7 +103,7 @@
+     lite_cmd_wdata_0=0; lite_cmd_wdata_1=0;
+   end
+   for (genvar p=0;p<7;p++) begin : hold_controls
+-    if (p==3) assign hold_final_r[p]=r_hold_reg;
++    if (p==SELECTED_PORT) assign hold_final_r[p]=r_hold_reg;
+     else assign hold_final_r[p]=1'b0;
+     if (p==5) assign hold_final_b[p]=b_hold_reg;
+     else assign hold_final_b[p]=1'b0;
+@@ -109,10 +120,10 @@
+       out_aw_shape_bad=0; out_w_shape_bad=0;
+     end else begin
+       sampled_ap_done <= dut.ap_done;
+-      if (r_hold_applied[3]) begin
+-        if (r_special_wait_cycles[3]<16)
+-          $fatal(1,"ATT_FINITE_R_HOLD_SHORT cycles=%0d",r_special_wait_cycles[3]);
+-        r_hold_wait_latched <= r_special_wait_cycles[3];
++      if (r_hold_applied[SELECTED_PORT]) begin
++        if (r_special_wait_cycles[SELECTED_PORT]<16)
++          $fatal(1,"ATT_FINITE_R_HOLD_SHORT cycles=%0d",r_special_wait_cycles[SELECTED_PORT]);
++        r_hold_wait_latched <= r_special_wait_cycles[SELECTED_PORT];
+         r_special_count <= r_special_count+1;
+       end
+       if (b_hold_applied[5]) begin
+@@ -132,7 +143,7 @@
+         if (out_aw_seen<=OUT_SAMPLE) out_aw_first[out_aw_seen-1]=aw_event;
+         out_aw_tail[(out_aw_seen-1)%OUT_SAMPLE]=aw_event;
+         if (m_axi_att_out_AWLEN !== 8'd0 || m_axi_att_out_AWSIZE !== 3'd2 ||
+-            m_axi_att_out_AWADDR !== pointer_base[5]+64'(4*((out_aw_seen-1)/4)))
++            m_axi_att_out_AWADDR !== pointer_base[5]+64'(OUTPUT_START+4*((out_aw_seen-1)/4)))
+           out_aw_shape_bad=out_aw_shape_bad+1;
+       end
+       if (running && m_axi_att_out_WVALID && m_axi_att_out_WREADY) begin
+@@ -185,14 +196,14 @@
+     bad[4]=((r_hold_wait_latched<32'd16) !== 1'b0) || $isunknown(r_hold_wait_latched);
+     bad[5]=((b_hold_wait_latched<32'd16) !== 1'b0) || $isunknown(b_hold_wait_latched);
+     bad[6]=(r_selected_last !== 1'b1);
+-    bad[7]=((r_selected_addr<pointer_base[3]) !== 1'b0) || $isunknown(r_selected_addr);
+-    bad[8]=((r_selected_addr>=pointer_base[3]+64'd12582912) !== 1'b0) || $isunknown(r_selected_addr);
++    bad[7]=((r_selected_addr<pointer_base[SELECTED_PORT]) !== 1'b0) || $isunknown(r_selected_addr);
++    bad[8]=((r_selected_addr>=pointer_base[SELECTED_PORT]+64'd12582912) !== 1'b0) || $isunknown(r_selected_addr);
+     bad[9]=(b_selected_index !== 32'd256);
+-    bad[10]=(b_selected_addr !== pointer_base[5]+64'd252);
++    bad[10]=(b_selected_addr !== pointer_base[5]+64'(OUTPUT_START+252));
+     return bad;
+   endfunction
+   task automatic print_out_samples(input int command_index);
+-    $display("ATT_FINITE_OUT_SHAPE cmd=%0d aw=%0d w=%0d b=%0d aw_bad=%0d w_bad=%0d expected_awlen=0 expected_awsize=2 expected_wstrb=1_shift_byte_lane expected_aw_addr=base_plus_4_floor_i_over_4",
++    $display("ATT_FINITE_OUT_SHAPE cmd=%0d aw=%0d w=%0d b=%0d aw_bad=%0d w_bad=%0d expected_awlen=0 expected_awsize=2 expected_wstrb=1_shift_byte_lane expected_aw_addr=base_plus_selected_offset_plus_4_floor_i_over_4",
+       command_index,out_aw_seen,out_w_seen,out_b_seen,out_aw_shape_bad,out_w_shape_bad);
+     for (int i=0;i<OUT_SAMPLE && i<out_aw_seen;i++)
+       $display("ATT_FINITE_OUT_EVENT cmd=%0d channel=AW sample=first txn=%0d addr=%h awlen=%0d awsize=%0d",
+@@ -273,10 +284,10 @@
+     $display("ATT_FINITE_CASE_HOLD cmd=%0d r_count_before=%0d r_count_now=%0d r_count_delta=%0d r_index=%0d r_beat=%0d r_addr=%h r_last=%b r_wait_latched=%0d r_wait_live=%0d r_hold_reg=%b b_count_before=%0d b_count_now=%0d b_count_delta=%0d b_index=%0d b_addr=%h b_wait_latched=%0d b_wait_live=%0d b_hold_reg=%b last_aw=%h expected_last_b_index=256 expected_last_b_addr=%h",
+       command_index,before_r_special,r_special_count,r_special_count-before_r_special,
+       r_selected_index,r_selected_beat,r_selected_addr,r_selected_last,
+-      r_hold_wait_latched,r_special_wait_cycles[3],r_hold_reg,before_b_special,
++      r_hold_wait_latched,r_special_wait_cycles[SELECTED_PORT],r_hold_reg,before_b_special,
+       b_special_count,b_special_count-before_b_special,b_selected_index,
+       b_selected_addr,b_hold_wait_latched,b_special_wait_cycles[5],
+-      b_hold_reg,attout_last_aw_addr,pointer_base[5]+64'd252);
++      b_hold_reg,attout_last_aw_addr,pointer_base[5]+64'(OUTPUT_START+252));
+     $display("ATT_FINITE_CASE_HOLD_PRED cmd=%0d r_count_bad=%0b b_count_bad=%0b r_index_zero_or_unknown=%0b b_index_zero_or_unknown=%0b r_wait_short_or_unknown=%0b b_wait_short_or_unknown=%0b r_last_bad=%0b r_addr_low_or_unknown=%0b r_addr_high_or_unknown=%0b b_index_bad=%0b b_addr_bad=%0b any_bad=%0b",
+       command_index,bad[0],bad[1],bad[2],bad[3],bad[4],bad[5],
+       bad[6],bad[7],bad[8],bad[9],bad[10],(|bad));
+@@ -303,16 +314,16 @@
+         $fatal(1,"ATT_FINITE_QKV1_CHANGED cmd=%0d mapped_byte=%0d",command_index,i);
+     end
+     for (int i=0;i<OUT_BYTES;i++) begin
+-      if (command_index<2 || i>=256) expected=8'ha5;
++      if (command_index<2 || i<OUTPUT_START || i>=OUTPUT_START+256) expected=8'ha5;
+       else if (command_index==2) begin
+-        output_word=obs_word(144+i/4);
+-        expected=8'(output_word >> (8*(i%4)));
+-      end
+-      else expected=saved_av[i];
++        output_word=obs_word(144+(i-OUTPUT_START)/4);
++        expected=8'(output_word >> (8*((i-OUTPUT_START)%4)));
++      end
++      else expected=saved_av[i-OUTPUT_START];
+       if (u_port_att_out.u_mem.mem[i] !== expected)
+         $fatal(1,"ATT_FINITE_ATT_OUT_MISMATCH cmd=%0d byte=%0d",command_index,i);
+-      if (command_index==2 && i<256)
+-        saved_av[i]=u_port_att_out.u_mem.mem[i];
++      if (command_index==2 && i>=OUTPUT_START && i<OUTPUT_START+256)
++        saved_av[i-OUTPUT_START]=u_port_att_out.u_mem.mem[i];
+     end
+     for (int i=1024;i<PAGE_BYTES;i++)
+       if (u_port_observed.u_mem.mem[i] !== 8'ha5)
+@@ -346,10 +357,21 @@
+         $fatal(1,"ATT_FINITE_INPUT_WRITE cmd=%0d port=%0d",command_index,p);
+       if (p==6 && dut_ar_count[p]!=before_ar[p])
+         $fatal(1,"ATT_FINITE_OUTPUT_READ cmd=%0d port=%0d",command_index,p);
+-      if (p==4 && (dut_ar_count[p]!=before_ar[p] ||
+-                   ram_r_count[p]!=before_r[p]))
+-        $fatal(1,"ATT_FINITE_QKV1_TRANSACTION cmd=%0d ar=%0d r=%0d",
+-          command_index,dut_ar_count[p]-before_ar[p],ram_r_count[p]-before_r[p]);
++      if (p==INACTIVE_PORT && (
++          dut_ar_count[p]!=before_ar[p] || ram_ar_count[p]!=before_ram_chan[p][0] ||
++          dut_r_count[p]!=before_dut_chan[p][1] || ram_r_count[p]!=before_r[p] ||
++          dut_rlast_count[p]!=before_dut_chan[p][2] ||
++          ram_rlast_count[p]!=before_ram_chan[p][2] ||
++          dut_aw_count[p]!=before_aw[p] || ram_aw_count[p]!=before_ram_chan[p][3] ||
++          dut_w_count[p]!=before_dut_chan[p][4] || ram_w_count[p]!=before_w[p] ||
++          dut_b_count[p]!=before_dut_chan[p][5] || ram_b_count[p]!=before_b[p] ||
++          dut_read_bus_bytes[p]!=before_read[p] ||
++          dut_write_bus_bytes[p]!=before_write[p] ||
++          dut_write_useful_bytes[p]!=before_useful[p] ||
++          ram_read_bus_bytes[p]!=before_ram_bytes[p][0] ||
++          ram_write_bus_bytes[p]!=before_ram_bytes[p][1] ||
++          ram_write_useful_bytes[p]!=before_ram_bytes[p][2]))
++        $fatal(1,"ATT_FINITE_INACTIVE_QKV_TRANSACTION cmd=%0d port=%0d",command_index,p);
+     end
+     if (command_index<2 || command_index==3)
+       for (int p=3;p<=5;p++) begin
+@@ -365,12 +387,13 @@
+           out_aw_shape_bad != 0 || out_w_shape_bad != 0)
+         $fatal(1,"ATT_FINITE_ATT_OUT_PHYSICAL_SHAPE aw=%0d w=%0d b=%0d aw_bad=%0d w_bad=%0d",
+           out_aw_seen,out_w_seen,out_b_seen,out_aw_shape_bad,out_w_shape_bad);
+-      if (ram_r_count[3]-before_r[3] !== 32'd8256 ||
+-          dut_read_bus_bytes[3]-before_read[3] !== 64'd33024 ||
+-          dut_ar_count[3]-before_ar[3] !== 32'd8256)
+-        $fatal(1,"ATT_FINITE_QKV0_READ_COVERAGE bus_bytes=%0d ar=%0d r=%0d",
+-          dut_read_bus_bytes[3]-before_read[3],
+-          dut_ar_count[3]-before_ar[3],ram_r_count[3]-before_r[3]);
++      if (ram_r_count[SELECTED_PORT]-before_r[SELECTED_PORT] !== 32'd8256 ||
++          dut_read_bus_bytes[SELECTED_PORT]-before_read[SELECTED_PORT] !== 64'd33024 ||
++          dut_ar_count[SELECTED_PORT]-before_ar[SELECTED_PORT] !== 32'd8256)
++        $fatal(1,"ATT_FINITE_SELECTED_QKV_READ_COVERAGE port=%0d bus_bytes=%0d ar=%0d r=%0d",
++          SELECTED_PORT,dut_read_bus_bytes[SELECTED_PORT]-before_read[SELECTED_PORT],
++          dut_ar_count[SELECTED_PORT]-before_ar[SELECTED_PORT],
++          ram_r_count[SELECTED_PORT]-before_r[SELECTED_PORT]);
+       if (dut_read_bus_bytes[5]-before_read[5] !== 64'd256 ||
+           dut_ar_count[5]-before_ar[5] !== 32'd64 ||
+           ram_r_count[5]-before_r[5] !== 32'd64)
+@@ -386,9 +409,10 @@
+           dut_aw_count[5]-before_aw[5],ram_w_count[5]-before_w[5],
+           ram_b_count[5]-before_b[5],dut_write_bus_bytes[5]-before_write[5],
+           dut_write_useful_bytes[5]-before_useful[5]);
+-      $display("ATT_FINITE_QKV0_READ_COVERAGE bus_bytes=%0d ar=%0d r=%0d",
+-        dut_read_bus_bytes[3]-before_read[3],
+-        dut_ar_count[3]-before_ar[3],ram_r_count[3]-before_r[3]);
++      $display("ATT_FINITE_SELECTED_QKV_READ_COVERAGE port=%0d bus_bytes=%0d ar=%0d r=%0d",
++        SELECTED_PORT,dut_read_bus_bytes[SELECTED_PORT]-before_read[SELECTED_PORT],
++        dut_ar_count[SELECTED_PORT]-before_ar[SELECTED_PORT],
++        ram_r_count[SELECTED_PORT]-before_r[SELECTED_PORT]);
+       $display("ATT_FINITE_ATT_OUT_READ_COVERAGE bus_bytes=%0d ar=%0d r=%0d",
+         dut_read_bus_bytes[5]-before_read[5],
+         dut_ar_count[5]-before_ar[5],ram_r_count[5]-before_r[5]);
+@@ -471,9 +495,9 @@
+       if (!running) phase_hint="setup_or_between_commands";
+       else if (cmd_idx<2) phase_hint="begin_or_pending_rejection";
+       else if (cmd_idx==3) phase_hint="replay_rejection";
+-      else if (ram_r_count[3]-before_r[3]<32'd8192)
++      else if (ram_r_count[SELECTED_PORT]-before_r[SELECTED_PORT]<32'd8192)
+         phase_hint="receipt_coverage_or_load_kv";
+-      else if (ram_r_count[3]-before_r[3]<32'd8256)
++      else if (ram_r_count[SELECTED_PORT]-before_r[SELECTED_PORT]<32'd8256)
+         phase_hint="qk_reads_or_later";
+       else phase_hint="softmax_av_or_report";
+       $display("ATT_FINITE_PROGRESS cycle=%0d cmd=%0d cmd_cycle=%0d state=%0d phase_hint=%s done=%0d",
+@@ -490,18 +514,18 @@
+     if (!resetn) begin r_hold_reg<=0; b_hold_reg<=0; end
+     else begin
+       r_hold_reg <= cmd_idx==2 && running && r_special_count==before_r_special &&
+-                    u_port_qkv0.e_rvalid && u_port_qkv0.e_rlast;
++                    selected_e_rvalid && selected_e_rlast;
+       b_hold_reg <= cmd_idx==2 && running && b_special_count==before_b_special &&
+                     dut_write_useful_bytes[5]-before_useful[5]==64'd256 &&
+                     ram_aw_count[5]-ram_b_count[5]==1 && u_port_att_out.e_bvalid;
+       if (cmd_idx==2 && running && r_special_count==before_r_special &&
+-          u_port_qkv0.e_rvalid && u_port_qkv0.e_rlast && r_selected_index==0)
++          selected_e_rvalid && selected_e_rlast && r_selected_index==0)
+         begin
+-          r_selected_index=ram_r_count[3]-before_r[3]+1;
+-          r_selected_beat=u_port_qkv0.ram_mon.ar_beat[u_port_qkv0.ram_mon.ar_head];
+-          r_selected_addr=u_port_qkv0.ram_mon.ar_address[u_port_qkv0.ram_mon.ar_head]+
+-              (64'(r_selected_beat) << u_port_qkv0.ram_mon.ar_size[u_port_qkv0.ram_mon.ar_head]);
+-          r_selected_last=u_port_qkv0.e_rlast;
++          r_selected_index=ram_r_count[SELECTED_PORT]-before_r[SELECTED_PORT]+1;
++          r_selected_beat=selected_ar_beat;
++          r_selected_addr=selected_ar_address+
++              (64'(r_selected_beat) << selected_ar_size);
++          r_selected_last=selected_e_rlast;
+         end
+       if (cmd_idx==2 && running && b_special_count==before_b_special &&
+           dut_write_useful_bytes[5]-before_useful[5]==64'd256 &&
+@@ -708,7 +732,7 @@
+         else begin cmd_idx=cmd_idx+1; test_state<=CASE_LOAD; end
+       end
+       FINISH: begin
+-        $display("ATT_FINITE_STATIC_BASE_H0_R0_PASS commands=4");
++        $display("ATT_FINITE_STATIC_%s_PASS commands=4",MODE_NAME);
+         $finish;
+       end
+       default: $fatal(1,"ATT_FINITE_BAD_TEST_STATE state=%0d",test_state);

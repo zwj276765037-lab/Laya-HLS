@@ -1,0 +1,861 @@
+{
+  "note": "Source loop bounds describe successful production C++ work at physical S=128. HLS loop figures are existing synthesis estimates and dynamic maxima; they are neither observed request cycles nor additive full-task estimates. QK/AV captured RTL anomaly is separately documented.",
+  "operations": {
+    "attention_softmax": {
+      "comment": "Dynamic HLS worst-case maxima are not the fixed S128 workload.",
+      "hls_reports": [
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": "2",
+              "latency_cycles": {
+                "max": "131071",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_63_1",
+              "path": [
+                "VITIS_LOOP_63_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "65535",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "3",
+              "latency_cycles": "45",
+              "name": "VITIS_LOOP_66_2",
+              "path": [
+                "VITIS_LOOP_66_2"
+              ],
+              "performance_pragma": "-",
+              "trip_count": "15"
+            },
+            {
+              "iteration_latency_cycles": "13",
+              "latency_cycles": {
+                "max": "851967",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_71_3",
+              "path": [
+                "VITIS_LOOP_71_3"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "65535",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "7516192769",
+                "min": "2"
+              },
+              "latency_cycles": {
+                "max": "30064771083",
+                "min": "2"
+              },
+              "name": "VITIS_LOOP_79_4",
+              "path": [
+                "VITIS_LOOP_79_4"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "4",
+                "min": "1"
+              }
+            },
+            {
+              "iteration_latency_cycles": "7",
+              "latency_cycles": {
+                "max": "7516192767",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_80_5",
+              "path": [
+                "VITIS_LOOP_79_4",
+                "VITIS_LOOP_80_5"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1073741823",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "11",
+              "latency_cycles": {
+                "max": "720895",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_87_6",
+              "path": [
+                "VITIS_LOOP_87_6"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "65535",
+                "min": "0"
+              }
+            }
+          ],
+          "module": "softmax_row_1",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "4510194108",
+            "Average-caseRealTimeLatency": "30.069 sec",
+            "Best-caseLatency": "2",
+            "Best-caseRealTimeLatency": "13.334 ns",
+            "Interval-max": "30066475070",
+            "Interval-min": "2",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "30066475070",
+            "Worst-caseRealTimeLatency": "200.453 sec",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/softmax_row_1_csynth.xml",
+          "source_sha256": "1a9dc104a1ec6c7709fe97c7501c20873a4c9342d2b297c077cf64d55dda7a2b"
+        },
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": {
+                "max": "48",
+                "min": "4"
+              },
+              "latency_cycles": "undef",
+              "name": "VITIS_LOOP_295_4",
+              "path": [
+                "VITIS_LOOP_295_4"
+              ],
+              "performance_pragma": "-",
+              "trip_count": "undef"
+            }
+          ],
+          "module": "full_run_task_34",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "undef",
+            "Average-caseRealTimeLatency": "undef",
+            "Best-caseLatency": "undef",
+            "Best-caseRealTimeLatency": "undef",
+            "Interval-max": "undef",
+            "Interval-min": "undef",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "undef",
+            "Worst-caseRealTimeLatency": "undef",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/full_run_task_34_csynth.xml",
+          "source_sha256": "38c927d27f2ed745ba5c939ba34d168b14524798bf3bee4d1989694d1d070483"
+        }
+      ],
+      "source": "hls/operators/attention_full_compute.cpp:60-93",
+      "source_bounds_at_S128": "three length=128 scans plus a 128-to-1 sum tree per attention row; candidate softmax uses length=16",
+      "source_sha256": "53eddc686607c63dc10b18f9139cac21dca6d578e8d17a0dd31a534d698f2c9f"
+    },
+    "av": {
+      "comment": "Captured task RTL is anomalous: successful context goes to E_SHAPE with zero elements. Its 3-5-cycle task report is not a successful AV runtime estimate.",
+      "hls_reports": [
+        {
+          "loops": [],
+          "module": "full_run_task_35",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "4",
+            "Average-caseRealTimeLatency": "26.668 ns",
+            "Best-caseLatency": "3",
+            "Best-caseRealTimeLatency": "20.001 ns",
+            "Interval-max": "5",
+            "Interval-min": "3",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "5",
+            "Worst-caseRealTimeLatency": "33.335 ns",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/full_run_task_35_csynth.xml",
+          "source_sha256": "b8a484660d8d0fa14c352ff72c4fa590997a26837fe1a84e5e7dd71a13443c75"
+        },
+        {
+          "loops": [],
+          "module": "p_anonymous_namespace_issue_AVTask_s",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "5",
+            "Average-caseRealTimeLatency": "33.335 ns",
+            "Best-caseLatency": "4",
+            "Best-caseRealTimeLatency": "26.668 ns",
+            "Interval-max": "6",
+            "Interval-min": "4",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "6",
+            "Worst-caseRealTimeLatency": "40.002 ns",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/p_anonymous_namespace_issue_AVTask_s_csynth.xml",
+          "source_sha256": "4ba366785784a2e037551b13f68097861150153006cc85aef2c1545c99e3a713"
+        }
+      ],
+      "source": "hls/operators/attention_full_compute.cpp:95-115",
+      "source_bounds_at_S128": "per query row: 64 outputs x 128 key multiplications and accumulations",
+      "source_sha256": "53eddc686607c63dc10b18f9139cac21dca6d578e8d17a0dd31a534d698f2c9f"
+    },
+    "embedding": {
+      "comment": "Includes half-scale conversion and Q8 element restore; full embedding task also accesses external memory.",
+      "hls_reports": [
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": {
+                "max": "278",
+                "min": "5"
+              },
+              "latency_cycles": {
+                "max": "8907",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_17_1",
+              "path": [
+                "VITIS_LOOP_17_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "32",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "1",
+              "latency_cycles": {
+                "max": "10",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_338_1",
+              "path": [
+                "VITIS_LOOP_17_1",
+                "VITIS_LOOP_338_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "10",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "8",
+              "latency_cycles": {
+                "max": "263",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_23_2",
+              "path": [
+                "VITIS_LOOP_17_1",
+                "VITIS_LOOP_23_2"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "32",
+                "min": "0"
+              }
+            }
+          ],
+          "module": "embedding_row",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "2199",
+            "Average-caseRealTimeLatency": "14.661 us",
+            "Best-caseLatency": "1",
+            "Best-caseRealTimeLatency": "6.667 ns",
+            "Interval-max": "8910",
+            "Interval-min": "1",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "8910",
+            "Worst-caseRealTimeLatency": "59.403 us",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/embedding_row_csynth.xml",
+          "source_sha256": "8363d798058b34518dd497d99c34cfc473115ad8aa61d6ecfdc352c0ecbce7ed"
+        }
+      ],
+      "source": "hls/operators/embedding_full_compute.cpp:13-34",
+      "source_bounds_at_S128": "32 Q8 groups x 32 lanes to produce 1024 float values per token row",
+      "source_sha256": "528f817e83c2a79681aed5344f6ed3907ab42613965c813dc1dcde7f12e51f81"
+    },
+    "fp_scorer_and_action": {
+      "comment": "Scorer leaf lacks a separate HLS report; no whole-task cycle estimate is asserted.",
+      "hls_reports": [
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": "2",
+              "latency_cycles": {
+                "max": "2057",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_139_1",
+              "path": [
+                "VITIS_LOOP_139_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1028",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "21600",
+                "min": "2"
+              },
+              "latency_cycles": {
+                "max": "5529611",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_141_2",
+              "path": [
+                "VITIS_LOOP_141_2"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "256",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "21",
+                "min": "11"
+              },
+              "latency_cycles": {
+                "max": "21598",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_143_3",
+              "path": [
+                "VITIS_LOOP_141_2",
+                "VITIS_LOOP_143_3"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1028",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "1",
+              "latency_cycles": {
+                "max": "10",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_338_1",
+              "path": [
+                "VITIS_LOOP_141_2",
+                "VITIS_LOOP_143_3",
+                "VITIS_LOOP_338_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "10",
+                "min": "0"
+              }
+            }
+          ],
+          "module": "fp_act_row",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "527970",
+            "Average-caseRealTimeLatency": "3.520 ms",
+            "Best-caseLatency": "3",
+            "Best-caseRealTimeLatency": "20.001 ns",
+            "Interval-max": "5531672",
+            "Interval-min": "3",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "5531672",
+            "Worst-caseRealTimeLatency": "36.880 ms",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/fp_act_row_csynth.xml",
+          "source_sha256": "b183d31a56466513d4c81a2014f4b5e0fd2c6464cd9c34024b81e66ca0e24a69"
+        },
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": {
+                "max": "29",
+                "min": "6"
+              },
+              "latency_cycles": "undef",
+              "name": "VITIS_LOOP_68_1",
+              "path": [
+                "VITIS_LOOP_68_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": "undef"
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "21589",
+                "min": "6"
+              },
+              "latency_cycles": {
+                "max": "5526784",
+                "min": "6"
+              },
+              "name": "VITIS_LOOP_73_2",
+              "path": [
+                "VITIS_LOOP_73_2"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "256",
+                "min": "1"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "21",
+                "min": "5"
+              },
+              "latency_cycles": {
+                "max": "21587",
+                "min": "4"
+              },
+              "name": "VITIS_LOOP_74_3",
+              "path": [
+                "VITIS_LOOP_73_2",
+                "VITIS_LOOP_74_3"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1028",
+                "min": "0"
+              }
+            }
+          ],
+          "module": "full_run_task_40",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "undef",
+            "Average-caseRealTimeLatency": "undef",
+            "Best-caseLatency": "undef",
+            "Best-caseRealTimeLatency": "undef",
+            "Interval-max": "undef",
+            "Interval-min": "undef",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "undef",
+            "Worst-caseRealTimeLatency": "undef",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/full_run_task_40_csynth.xml",
+          "source_sha256": "ba027410af095224c09b045c69daad67db51344d4ca3b78d972b7697adf5400c"
+        }
+      ],
+      "source": "hls/operators/attention_full_compute.cpp:117-157",
+      "source_bounds_at_S128": "scorer: 1024 F32 MACs per marker; action: 256 output channels x 1028 F16 weights per batch item",
+      "source_sha256": "53eddc686607c63dc10b18f9139cac21dca6d578e8d17a0dd31a534d698f2c9f"
+    },
+    "geglu": {
+      "comment": "The reported 38-78-cycle iteration range is leaf-loop evidence, not a full vector task latency.",
+      "hls_reports": [
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": {
+                "max": "78",
+                "min": "38"
+              },
+              "latency_cycles": {
+                "max": "204707",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_46_1",
+              "path": [
+                "VITIS_LOOP_46_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "2624",
+                "min": "0"
+              }
+            }
+          ],
+          "module": "geglu_row",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "74802",
+            "Average-caseRealTimeLatency": "0.499 ms",
+            "Best-caseLatency": "2",
+            "Best-caseRealTimeLatency": "13.334 ns",
+            "Interval-max": "204709",
+            "Interval-min": "2",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "204709",
+            "Worst-caseRealTimeLatency": "1.365 ms",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/geglu_row_csynth.xml",
+          "source_sha256": "d9bea03f0d21f945a7996669681fd592051521b78222b1a5891eb7aacaffc457"
+        }
+      ],
+      "source": "hls/operators/vector_full_compute.cpp:44-55",
+      "source_bounds_at_S128": "2624 output elements per row, with GELU/tanh and elementwise gating",
+      "source_sha256": "0233c31e9233bd9e637c1fc4982e5c8ab7f1f0bad098c7151edf05b3d3c4a068"
+    },
+    "layernorm": {
+      "comment": "HLS tree-reduction maxima reflect unconstrained dynamic width analysis and must not be used as S128 cycle predictions.",
+      "hls_reports": [
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": "2",
+              "latency_cycles": {
+                "max": "2049",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_69_1",
+              "path": [
+                "VITIS_LOOP_69_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1024",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "7516192769",
+                "min": "2"
+              },
+              "latency_cycles": {
+                "max": "75161927697",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_74_2",
+              "path": [
+                "VITIS_LOOP_74_2"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "10",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "7",
+              "latency_cycles": {
+                "max": "7516192767",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_75_3",
+              "path": [
+                "VITIS_LOOP_74_2",
+                "VITIS_LOOP_75_3"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1073741823",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "10",
+              "latency_cycles": {
+                "max": "10249",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_84_4",
+              "path": [
+                "VITIS_LOOP_84_4"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1024",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "7516192769",
+                "min": "2"
+              },
+              "latency_cycles": {
+                "max": "75161927697",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_90_5",
+              "path": [
+                "VITIS_LOOP_90_5"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "10",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "7",
+              "latency_cycles": {
+                "max": "7516192767",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_91_6",
+              "path": [
+                "VITIS_LOOP_90_5",
+                "VITIS_LOOP_91_6"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1073741823",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "15",
+                "min": "11"
+              },
+              "latency_cycles": {
+                "max": "15374",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_107_7",
+              "path": [
+                "VITIS_LOOP_107_7"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "1024",
+                "min": "0"
+              }
+            }
+          ],
+          "module": "layernorm_row_arithmetic",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "30064778434",
+            "Average-caseRealTimeLatency": "200.442 sec",
+            "Best-caseLatency": "4",
+            "Best-caseRealTimeLatency": "26.668 ns",
+            "Interval-max": "150323883104",
+            "Interval-min": "4",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "150323883104",
+            "Worst-caseRealTimeLatency": "1.0e+03 sec",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/layernorm_row_arithmetic_csynth.xml",
+          "source_sha256": "99ea10ce84304b970877ace8affffd4147143ffffbf14c565a9bc75ec7cce0a9"
+        }
+      ],
+      "source": "hls/operators/layernorm_compute.cpp:60-120",
+      "source_bounds_at_S128": "per row: 1024-element load, two 1024-to-1 tree reductions, 1024-element variance pass, 1024-element output pass",
+      "source_sha256": "7d4983e8e47cb1e41d8fb79009afcc4f162e96d9accf9042ed8606c602c93237"
+    },
+    "qk": {
+      "comment": "Captured task RTL is anomalous: successful context goes to E_SHAPE with zero elements. Its 3-5-cycle task report is not a successful QK runtime estimate.",
+      "hls_reports": [
+        {
+          "loops": [],
+          "module": "full_run_task_33",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "4",
+            "Average-caseRealTimeLatency": "26.668 ns",
+            "Best-caseLatency": "3",
+            "Best-caseRealTimeLatency": "20.001 ns",
+            "Interval-max": "5",
+            "Interval-min": "3",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "5",
+            "Worst-caseRealTimeLatency": "33.335 ns",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/full_run_task_33_csynth.xml",
+          "source_sha256": "a982228741719a91d908a6f53625eaaae66e481824f6ba4f54d682e63cc2a681"
+        },
+        {
+          "loops": [],
+          "module": "p_anonymous_namespace_issue_QKTask_s",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "5",
+            "Average-caseRealTimeLatency": "33.335 ns",
+            "Best-caseLatency": "4",
+            "Best-caseRealTimeLatency": "26.668 ns",
+            "Interval-max": "6",
+            "Interval-min": "4",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "6",
+            "Worst-caseRealTimeLatency": "40.002 ns",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/p_anonymous_namespace_issue_QKTask_s_csynth.xml",
+          "source_sha256": "9674c00712aad513686608ec53dbc5632c3762e7bf5249f9694d8f3b11bbcb78"
+        }
+      ],
+      "source": "hls/operators/attention_full_compute.cpp:21-58",
+      "source_bounds_at_S128": "per query row: 128 keys x 64 multiplications, with a 64-to-1 reduction and mask/bias per key",
+      "source_sha256": "53eddc686607c63dc10b18f9139cac21dca6d578e8d17a0dd31a534d698f2c9f"
+    },
+    "quantization": {
+      "comment": "The first 32-element pass has 3-cycle reported iteration latency; the second has 3-8. Full task cycles depend on dynamic bounds and other work.",
+      "hls_reports": [
+        {
+          "loops": [
+            {
+              "iteration_latency_cycles": {
+                "max": "784033",
+                "min": "4"
+              },
+              "latency_cycles": {
+                "max": "199928446",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_65_1",
+              "path": [
+                "VITIS_LOOP_65_1"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "255",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "383",
+                "min": "23"
+              },
+              "latency_cycles": {
+                "max": "784029",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_66_2",
+              "path": [
+                "VITIS_LOOP_65_1",
+                "VITIS_LOOP_66_2"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "2047",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": "3",
+              "latency_cycles": {
+                "max": "97",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_68_3",
+              "path": [
+                "VITIS_LOOP_65_1",
+                "VITIS_LOOP_66_2",
+                "VITIS_LOOP_68_3"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "32",
+                "min": "0"
+              }
+            },
+            {
+              "iteration_latency_cycles": {
+                "max": "8",
+                "min": "3"
+              },
+              "latency_cycles": {
+                "max": "263",
+                "min": "0"
+              },
+              "name": "VITIS_LOOP_80_4",
+              "path": [
+                "VITIS_LOOP_65_1",
+                "VITIS_LOOP_66_2",
+                "VITIS_LOOP_80_4"
+              ],
+              "performance_pragma": "-",
+              "trip_count": {
+                "max": "32",
+                "min": "0"
+              }
+            }
+          ],
+          "module": "activation_quantizer_compute",
+          "overall_latency_cycles": {
+            "Average-caseLatency": "15878150",
+            "Average-caseRealTimeLatency": "0.106 sec",
+            "Best-caseLatency": "5",
+            "Best-caseRealTimeLatency": "33.335 ns",
+            "Interval-max": "199929146",
+            "Interval-min": "5",
+            "PerformancePragma": "-",
+            "Worst-caseLatency": "199929146",
+            "Worst-caseRealTimeLatency": "1.333 sec",
+            "unit": "clock cycles"
+          },
+          "source": "results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifacts/reports/activation_quantizer_compute_csynth.xml",
+          "source_sha256": "0c33b9e1f6bb87173d0bb645f14e6b8449f7457470f2c40de8e99826b21889d5"
+        }
+      ],
+      "source": "hls/operators/activation_quantizer_compute.cpp:63-94",
+      "source_bounds_at_S128": "rows <= 16; groups = K/32; two 32-element passes per group",
+      "source_sha256": "ab45fb3f1b2a8355b45e183d9bde14efba08241dad98588ecb791d89d694ebaa"
+    },
+    "rope": {
+      "comment": "No standalone rope_head task/leaf report or RTL boundary was identified in this captured HLS output.",
+      "hls_reports": [],
+      "source": "hls/operators/rope_full_compute.cpp:13-42",
+      "source_bounds_at_S128": "per head/row: read 64 F32 entries, then rotate 32 pairs for each of Q and K",
+      "source_sha256": "17b57824d2213d8bf83751936346af4225618d9e40c5b3fc49c570bb971163ec"
+    }
+  },
+  "schedule": "results/performance_estimate_20261008/task_schedule_reconstructed.csv",
+  "schedule_sha256": "1e97341899a36a4d63eb1f30c69b22f791bb8fdcf0990cc8b5566a470ea52853",
+  "schema": "laya_non_q8_source_bounds_and_hls_loop_evidence_v1",
+  "task_counts_by_scenario": {
+    "B1_from_b0_S128": {
+      "AV": 3840,
+      "EMB_TOKEN": 8,
+      "FP_ACT_FC1": 1,
+      "FP_SCORER_FC2": 1,
+      "GEGLU": 224,
+      "LN_ATTN": 232,
+      "LN_EMB": 8,
+      "LN_FFN": 240,
+      "LN_FINAL": 8,
+      "LN_MARKER": 1,
+      "QK": 3840,
+      "QUANT": 962,
+      "ROPE": 3584,
+      "SOFTMAX_ATT": 3840,
+      "SOFTMAX_CAND": 1
+    },
+    "B1_from_b1_S128": {
+      "AV": 3840,
+      "EMB_TOKEN": 8,
+      "FP_ACT_FC1": 1,
+      "FP_SCORER_FC2": 1,
+      "GEGLU": 224,
+      "LN_ATTN": 232,
+      "LN_EMB": 8,
+      "LN_FFN": 240,
+      "LN_FINAL": 8,
+      "LN_MARKER": 1,
+      "QK": 3840,
+      "QUANT": 962,
+      "ROPE": 3584,
+      "SOFTMAX_ATT": 3840,
+      "SOFTMAX_CAND": 1
+    },
+    "B2_S128": {
+      "AV": 7680,
+      "EMB_TOKEN": 16,
+      "FP_ACT_FC1": 2,
+      "FP_SCORER_FC2": 2,
+      "GEGLU": 448,
+      "LN_ATTN": 464,
+      "LN_EMB": 16,
+      "LN_FFN": 480,
+      "LN_FINAL": 16,
+      "LN_MARKER": 2,
+      "QK": 7680,
+      "QUANT": 1924,
+      "ROPE": 7168,
+      "SOFTMAX_ATT": 7680,
+      "SOFTMAX_CAND": 2
+    }
+  }
+}

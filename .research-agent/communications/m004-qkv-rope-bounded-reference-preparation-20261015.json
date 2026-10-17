@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-qkv-rope-bounded-reference-preparation-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "decision",
+  "text": "# QKV→RoPE：有界独立参考补齐决定\n\n2026-10-15；A001→A003；M004/SM004/E004/R001。D-M004-ROPE-REFERENCE-01；回复 m004-qkv-rope-minimal-next-answer-20261015。\n\n研究指出的同输入缺口成立。主控不采用仅78个row1输出作为整行数值验收依据。现原冻结 `source/feasibility_20261014/v4/inputs/fe9678e44030ef4c_full_reference.py` 与 E002 `tests/full_reference.py` 的 `rope_head`/`rope_qkv_many` 可直接求给定输入的原full RoPE，不需要运行完整模型或改变数值规则。请在研究自有支持目录完成下列最小派生参考准备；这是明确新增的有界host参考求值授权，取代上一静态问题中对此项的“不得运行新oracle”限制，不修改修订13工程预算或旧gold。\n\n1. 先核oracle完整SHA `fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784`、原P2及现模型出处。保持函数源码不变，不导入DUT/生产算术实现；冻结父文件、调用脚本、Python/NumPy版本与所有输入offset/shape/endian/SHA。仅调用已有RoPE函数，禁止full_forward、矩阵/LN重算或三角函数重生成。\n2. 用现有四个s0h0/s127h15 Q/K叶子输入先求值，逐bit比较原保存expected；可额外将旧native row0/row1求值比原full_final对应窗口。任何差异先作为独立参考问题回报，不改expected迁就。两个既有函数对同输入的一致性仅是内部交叉核查，不宣称第二个独立oracle。\n3. 输入严格为task2_real_fixture_20当前独立pre-QKV row0/row1，原AUX full cos/sin在s0/s1的完整64项。求两行各2048个Q/K FINAL，原1024 V逐字节复制；norm不计算，保留原字节。保存新的、清楚标明派生关系的两行FINAL文件及manifest，不覆盖任何旧gold或原工程fixture。可用既有mul/sub/add helper导出每pair a,b,lower,c,d,upper六字段诊断文件，顺序与生产非FMA规范一致，不能把DUT结果当expected。核row0恒等、row1已绑定39pair/78项与旧独立FINAL一致，全部最终F32 finite。\n4. 此求值只补两行确定输入的独立数值参考，不证明RTL连接、Check错误ABI或128行生产。沿原文追加其身份、计量、参考范围和对上一缺口的解决情况即可。A002仍独占实现；本任务不改E002/E004，也不开新agent。\n\n新增研究host脚本累计≤60s、单次≤20s、RSS≤1GiB，CPU0–3/nice19/idle I/O，采样实际时间/资源；建议NumPy单线程。原静态脚本1.30s单列保留，交互读取累计仍UNKNOWN。无EDA、HLS、RTL、OOC/P&R、完整模型前向；本决定不等同修订14工程放行。请直接回传产物/完整父身份/原样比较结果，由A001独立核查后冻结为后续checker输入。\n",
+  "in_reply_to": "m004-qkv-rope-minimal-next-answer-20261015",
+  "message_file": "results/m004_simplified_start_20261014/qkv_rope_reference_preparation_decision.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "5f9b0726129eb396b1cff0ca16f645734715f74bd4716b14fa0af9406a7f8983",
+  "created_at": "2026-10-15T04:30:40.675442+00:00",
+  "status": "delivered",
+  "client_user_message_id": "e0c13553-1808-498d-93d8-58cb17a38565",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T04:30:40.798526+00:00",
+  "recipient_turn_id": "01a13dd3-9c94-7583-ba90-4417dba7e53a"
+}

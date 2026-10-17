@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m004-rev20-at351-scoped-cost-closeout-20261016",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# 修订20 AT326–351分版审核与成本出口\n\n2026-10-16；D-M004-REV20-CLOSEOUT-01；A001→A002；回复`m004-rev20-at351-engineering-stage-cost-handoff-20261016`，同时纳入`m004-rev20-at351-check-scope-correction-20261016`。修订20按已实现正常链和限定回归收束，未完成覆盖保留；M004/SM004继续running/unassessed。本决定不等于完整上层生命周期或整模通过。\n\n[主控机读审核](source_norm_owner_rev20_at351_review_20261016.json)701项成立：新增17份冻结TB/脚本和35份fixture逐SHA匹配、实际读取路径及AT343输入绑定成立；49笔原guard与356条实际CPU0–3/nice19/idle政策逐项匹配，累计费用与AT343 checkpoint一致。原Fatal、构建失败与timeout全部保留，exit0不覆盖Fatal。AT343生产RTL/FP/IP/reader/writer身份不变，后继成功短例复用其编译闭包，仅重编冻结TB。\n\n## 接纳范围\n\n- 保留AT343最终上层58086436…真实独立LN128正常PASS：131072norm在W握手及最终内存逐位、8192sourceR/8192OKAY B、gamma256R、128覆盖及NORM_STAGE_READY；同版父请求只签row0。独立LN128252.283932s是验证运行成本，非硬件加速结论。\n- AT344晚source最后RRESP错，64R排完后零norm/B并一次报错；末B错误样本完成当前16行真实LN、16384个norm产生事件、1024sourceR、64个B（含最后一个错误响应，不能称64个OKAY B）、15行受控discard、零成功行覆盖。后续没有新增写，最终返回保存的store错误。此例未注入后续数值故障，不签store/numeric竞争优先。\n- AT345 STATE0页尾分成2AR/64R，AR/AW/W持稳、R返回间隙与B延迟、末B前禁止norm位发布，最终row0真实1024norm/64B通过。只签所测路由与停顿，不签pending/rsp或末B到legacy切相位。\n- AT346 gamma[0]非有限前检读满256AUX R、零source/norm/B、内部abort及后继正常row0接纳；不是gamma总线load_done/RRESP错误。AT345原gamma Fatal保留。\n- AT349非法span、id溢出和源目的重叠零AR/零LN/W拒绝及合法后继row0接纳。按更正，只签done_id、op、status、phase、detail、bad64的明确断言；bad_element与回显row未断言。ready常1使完成被消费，三拍后再检查status/detail端点值，不签valid阻塞保持、逐拍全部字段稳定或完整Check。AT347/348原TB Fatal保留。\n- AT350真实gamma预装8R、prep活动时共同reset，DUT/peer同步清事务，510拍隔离和后继正常row0接纳。未到LN/回放阶段，不签该在途窗口或独立AXI reset。\n\n上述错误恢复是**独立stage局部协议**：TB合法驱动stage_release_fire与prep_abort_valid，之后epoch=2正常row0；未经过父wrapper/sequencer的tensor_release准入、e/e+1/e+2策略或后继完整请求。因此不以这些PASS填补父层生命周期证据。AT344/346的错误字段检查同样按实际断言范围保留，不泛称全部Check分支。\n\nAT351增强父core TB已冻结，但80.31880732811987s静态timeout/-9，没有snapshot或RTL；本地拒绝错误done消费→重新准备→第三合法命令保持COST_STOP/未验证。原AT330局部拒绝Check修复结论不改。\n\n## 成本出口与后继\n\n精确累计static1798.4354466479271734/1800s、RTL1323.850544061511735/3600s；剩余static1.5645533520728266s、RTL2276.149455938488265s封存，不转入下一修订、不由RTL余量补静态额度。host完整UNKNOWN。工程不续跑修订20的重工具；这属于成本出口，不是目标完成或方法失败。\n\n下一工程段按同一M004连续安排独立预算，优先把真实LN128后的固定相位交接和W准备/Q16数据链做成可执行边界；原研究会话正在核现端口、W先于Q顺序与可用独立参考。未测的gamma load_done错、store/numeric优先、bank/末B切相位、LN/回放在途reset及父core后继按受影响边界合并，不把所有历史缺口一概列作完整计算推进前置，也不暗记PASS。未改变的AT343长正常基线不重跑；必要生产修复保留各SHA的证据适用范围。\n\n完整父图128同runtime、Q16父图、STEP16/matrix、全RoPE/FINAL→Attention、旧整模首错等价、Encoder/模型、Host/HBM/物理BO、联合资源/Fmax仍开放。此处不授权HLS/OOC/P&R、新gold或新agent。无需确认收信或用户逐项审批。\n",
+  "in_reply_to": "m004-rev20-at351-engineering-stage-cost-handoff-20261016",
+  "message_file": "results/m004_simplified_start_20261014/source_norm_owner_rev20_at351_closeout_decision.md",
+  "associations": {},
+  "payload_sha256": "bf7358755cdbc2d58cb2abe62521ac1fc451ba79f399d3c261b2d97a36a28784",
+  "created_at": "2026-10-15T19:27:41.218542+00:00",
+  "status": "delivered",
+  "client_user_message_id": "3aaa0b62-6081-4d4f-b733-c24b3974c220",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T19:27:41.279930+00:00",
+  "recipient_turn_id": "01a14108-d8d4-7720-a17e-d9e39dc72eda"
+}

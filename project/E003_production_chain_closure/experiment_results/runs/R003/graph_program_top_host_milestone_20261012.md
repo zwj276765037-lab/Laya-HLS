@@ -1,0 +1,52 @@
+# Graph program accepted-request top 主机里程碑（2026-10-12）
+
+范围：M003/SM003/E003/R003，沿用 D-M003-GRAPH-LIFECYCLE-SPLIT-01；唯一实现根仍为 E002/experiment。
+
+## 结论
+
+`graph_program_top_host_01` 为 **PASS_SCOPED_HOST**。program分区现在有真实可调用HLS top、固定LGP1/LGR1 command/result schema、独立Python byte oracle，以及request result真实消费信号之前禁止后继command准入的有界主机证据。
+
+本里程碑不代签executor/shell的请求与模型准入权威、实际depth2 RTL FIFO consumer握手、lifecycle/adapter/LayerNorm/hub链、完整program PC图、HLS生成或最终13BO请求。
+
+## 实现
+
+- `laya_graph_program_sequencer` 顶层采用 `ap_ctrl_none`，接受cancel、`result_consumed`和四条512bit FIFO：accepted command、request result、action request、action completion。
+- LGP1 command与LGR1 result均为256B/4拍、小端、version1；C/C++与SV layout已经登记到program source closure、partition registry和module registry。
+- 当前有限entrypoint只生成B1/S64 `NORM_LAYER1_ATTN` action。成功LAC1才提交slot/PC；安全错误形成无slot更新的request失败。
+- LGR1最后一拍写入FIFO后进入`WAIT_RESULT_CONSUMED`。只有真实consumer末拍信号到达后才回到READ_COMMAND；写入完成或FIFO有空位均不能放行下一request。
+- action之前的坏command返回零ordinal、无binding、`LOCAL_REJECT|SAFE_TERMINAL|REQUEST_COMPLETE`。LGR1 validator允许该前置拒绝，同时继续禁止普通非拒绝request使用零ordinal。
+
+## 有界执行
+
+独立oracle生成一份patterned LGP1和一份LGR1共512B，C++ encoder逐字匹配。主机top执行：
+
+1. request901产生ordinal1的8拍LAX1，成功4拍LAC1提交slot并返回成功LGR1。
+2. request902在上一LGR1未消费时保持四拍command未读；消费后产生ordinal2。安全`E_BUFFER` LAC1返回request失败且无slot更新。
+3. 坏magic command返回可解码的零ordinal、无binding LOCAL_REJECT；其LGR1未消费时request904保持未读，消费后恢复并产生ordinal3。
+4. 语义坏LGR1 decode拒绝后，预置旧result的flags与ordinal清零。
+
+## 运行与身份
+
+launcher为CPU0–3、nice19、idle I/O、MemAvailable 430609528KiB（门槛201326592KiB），PASS。子进程限制为24GiB RLIMIT_AS和1800s timeout；当前无本项目重工具运行。
+
+三条命令均exit0：
+
+- Python byte oracle：0.066419s
+- C++ build：3.723993s
+- host run：0.005823s
+
+独立核查：32/32 current、32/32 frozen、32/32 pair；75/75 manifest/receipt SHA引用匹配，三条命令、唯一PASS marker和6源闭包均匹配。
+
+交付SHA256：
+
+- input manifest：`03cf285f7b024350a8224dac6ed51413f78ba31e2424881ea402fa875e7c281b`
+- receipt：`a3f6ce5f2dc5b42b7eaf617ea691e3e77d42b416a5b6ea3c8802c718c3e324c0`
+- run.log：`5c446e99d59ed77dc82b413136ac99ccfc94006a46933c554d90403db2e3ba5d`
+- oracle：`9da3038eb38399d5a220745b8618b95f13837d03c7701bcfedd6a54b41f48aa0`
+- verification：`4c8148463f8387f469b9ee2b76276add9ab43a0796794ed8f8c553dab5932b97`
+
+## 边界与后续
+
+TB直接提供“已接受”LGP1并驱动抽象`result_consumed`，host `hls::stream`不是实际depth2 RTL FIFO。因此下一步实现executor accepted-request bootstrap/top：executor/shell唯一完成请求与模型准入并产生不可变LGP1；在旧active action内部继续cleanup；把program result consumer、LAX1/LAC1 action门控和F10 LTX1/LTC1事务门控分别接到真实FIFO消费握手。host组合通过后再生成有结构差异的program/executor分区，并连接F10 adapter与真实LayerNorm master/monitor/hub→Q/fullA。
+
+C009仍为部分实施，C008/C010整体待验证；L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成。无新OOC/P&R/上板、agent或预算，G OOC余2338.224019s；5172s组合profile不重启。

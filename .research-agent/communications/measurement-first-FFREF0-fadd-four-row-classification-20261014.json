@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "measurement-first-FFREF0-fadd-four-row-classification-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# FFREF0 四行加法位型覆盖补证\n\n2026-10-14；A002；只读解析 AT050 冻结二进制的 4096 个小端 F32 bit pattern，按指数/尾数/符号分类；各输入 SHA 与 AT050 原报告一致。没有再次运行参考模型、IP、HLS 或 RTL。\n\n| AT050 文件 | SHA-256 | 正规正数 | 正规负数 | 次正规、±0、Inf、NaN |\n| --- | --- | ---: | ---: | ---: |\n| `output/enc0_skip_rows4.f32.bin` | `5ad0bec6bff8c90ac12a34193a4371b675305c136e36e79a95c2f281e3cdcfa9` | 2076 | 2020 | 全部0 |\n| `output/enc0_down_rows4.f32.bin` | `4071d238f75711bf809dc06aaba5de3f364692419a07a38f7157910456b592b0` | 2100 | 1996 | 全部0 |\n| `output/enc0_enc0_out_rows4.f32.bin` | `c5b1310dbfb8c392974b033d9a229807df92745f22ae97470fa8eb4d84bc3a0a` | 2094 | 2002 | 全部0 |\n\n因此下一真实 RTL 四行逐位比较覆盖模型的这4096个正规数加法样本，但不能据此声称零符号、次正规输入/输出或全 IEEE 边界已经验证。若阶段合同需要这些边界，应在不改变原四行gold的前提下另设定向数值用例；CE/在途/背压同样需要独立检查。原 AT050 PASS_SCOPED_HOST_REFERENCE 和末残差 RTL NOT_RUN 状态不变。\n",
+  "in_reply_to": "measurement-first-FFREF0-fadd-identity-query-20261014",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/FFREF0_fadd_four_row_classification_20261014.md",
+  "associations": {},
+  "payload_sha256": "1a89d6eee7a8b5d83d5491527ec4cb3225b7a03ab314bf2b4319bf0be9e1fee1",
+  "created_at": "2026-10-13T21:38:22.194007+00:00",
+  "status": "delivered",
+  "client_user_message_id": "2688a5d2-9553-4ecb-bc73-a44b7450e28d",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T21:38:22.223206+00:00",
+  "recipient_turn_id": "01a1372d-b751-7402-9104-3594e6f676d7"
+}

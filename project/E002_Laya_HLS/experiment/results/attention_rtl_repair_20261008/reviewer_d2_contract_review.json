@@ -1,0 +1,59 @@
+{
+  "reviewer": "GPT-6 Astra xhigh",
+  "created_utc": "2026-10-08T06:33:06.032081+00:00",
+  "decision": "ACCEPT_D2_C_R_I_DESIGN_FOR_BOUNDED_IMPLEMENTATION_AND_STAGED_VALIDATION",
+  "reviewed_sections": "repair_contract section7 including7.5, D2 slice source/design.md",
+  "proof_boundaries": {
+    "D2_C": "Actual modified production controller/owner and complete CPU/shadow/CSim regression; software-path proof only.",
+    "D2_R": "Real model QKV storage-boundary input written via actual full_write; production claim/coverage/publication and Load/RoPE/QK/Softmax/AV numerical/owner behavior in generated RTL. Does not prove upstreamQ8 projection or full controllerRTL reachability.",
+    "D2_I": "Modified production linear/vector methods must actually be reachable in the generated local top, proving patch reached production generation. Port/IR preservation alone is not numerical proof.",
+    "joint_limit": "These three complementary records cannot be merged into a single completeQ8→controller→AttentionRTL execution claim."
+  },
+  "review_findings": [
+    "Fixture adapter is an explicitly declared input boundary and uses actual model floats/aux/mask. It must write bytes before marking each corresponding coverage and use production publication. Direct successful-state injection is forbidden.",
+    "Both shards/all planes/heads/B/S required by QKV publication remain covered even when only one query/head is computed downstream. PartialATT_OUT coverage must not be published as a complete matrix.",
+    "S64 cropping preserves provenance as a model-intermediate operator slice, with independentQK/softmax/AV recomputation over the new64-key domain and correctB1 request rebasing.",
+    "Encoder path requires realRoPE table load, lease, fullQ/Kcoverage and atomiccommit; Decision bypassesRoPE by its legitimateFINAL producer contract.",
+    "Negative tests must observe typed status/detail, actual outputs/sentinels, coverage and subsequent legal recovery. Scalar or metadata probe outputs cannot substitute for these.",
+    "Section7.5 correctly separates same-input exactAV arithmetic from allowedsoftmax drift: recomputeAV with actualRTLprob bit patterns, and report independent end-to-endgold error separately. No numeric tolerance changes.",
+    "QKVgroup arithmetic was independently recalculated.50millioncycles is a simulation count limit and30minutes a wall limit; software simulator rate is measured rather than assumed150MHz."
+  ],
+  "execution_gate": "Implementation, CPU/CSim and bounded localcsynth may proceed. Review actual loop/latency/resources before initial RTL case. Preserve4CPU/nice19/idleIO,16GiBtreeRSS,192GiBMemAvailable and oneheavy run. Complete topHLS is not released.",
+  "initial_case": "Decisionstage4,B1/S64,head0,row0=0,rows1; expansion only on observed cost and each executed extent reported explicitly.",
+  "independent_arithmetic": [
+    {
+      "rows": 1,
+      "groups": 98304,
+      "group_cycles_min": 17596416,
+      "group_cycles_max": 19562496
+    },
+    {
+      "rows": 16,
+      "groups": 1572864,
+      "group_cycles_min": 281542656,
+      "group_cycles_max": 312999936
+    },
+    {
+      "rows": 128,
+      "groups": 12582912,
+      "group_cycles_min": 2252341248,
+      "group_cycles_max": 2503999488
+    }
+  ],
+  "functional_acceptance": false,
+  "full_top_hls_released": false,
+  "artifacts": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md",
+      "sha256": "a14cde859c6f0f4a5fad55f8b3f3fc1662005323b801de8d21fbac5f90dbb893"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/source/design.md",
+      "sha256": "01b00bbcc6ba57bc210a0ce3c86dd24ce90ec8a8d64943416bf10dadd030aa04"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/source/results.md",
+      "sha256": "85bed63200badae3d6c16dd2823d03a90755fca9b70765bbd89037e1dc79e3ec"
+    }
+  ]
+}

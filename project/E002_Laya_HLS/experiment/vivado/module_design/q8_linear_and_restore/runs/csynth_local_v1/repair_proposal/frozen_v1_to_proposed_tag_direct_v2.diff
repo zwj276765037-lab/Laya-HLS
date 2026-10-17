@@ -1,0 +1,49 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/source/q8_joint_tm4tn8.cpp
++++ proposed_isolated_tag_direct_v2/source/q8_joint_tm4tn8.cpp
+@@ -123,12 +123,14 @@
+ }
+ 
+ bool tag_matches(const Descriptor& d) {
+-  const uint8_t* expected[4] = {
+-      laya::full::kFullModelTag, laya::full::kFullNumericTag,
+-      laya::full::kFullLayoutTag, laya::full::kFullBuildTag};
+-  for (unsigned t = 0; t < 4; ++t)
+-    for (unsigned j = 0; j < 16; ++j)
+-      if (tag_byte(d.tags[t][j / 4], j % 4) != expected[t][j]) return false;
++  for (unsigned j = 0; j < 16; ++j)
++    if (tag_byte(d.tags[0][j / 4], j % 4) != laya::full::kFullModelTag[j]) return false;
++  for (unsigned j = 0; j < 16; ++j)
++    if (tag_byte(d.tags[1][j / 4], j % 4) != laya::full::kFullNumericTag[j]) return false;
++  for (unsigned j = 0; j < 16; ++j)
++    if (tag_byte(d.tags[2][j / 4], j % 4) != laya::full::kFullLayoutTag[j]) return false;
++  for (unsigned j = 0; j < 16; ++j)
++    if (tag_byte(d.tags[3][j / 4], j % 4) != laya::full::kFullBuildTag[j]) return false;
+   return true;
+ }
+ 
+@@ -494,13 +496,18 @@
+     bool header_ok = header[0] == 0x504d594cu && header[1] == 1 &&
+         header[2] == 128 && header[3] == 13 && header[4] == 1;
+     for (unsigned i = 5; i < 8; ++i) if (header[i]) header_ok = false;
+-    const uint8_t* expected[4] = {
+-        laya::full::kFullModelTag, laya::full::kFullNumericTag,
+-        laya::full::kFullLayoutTag, laya::full::kFullBuildTag};
+-    for (unsigned t = 0; t < 4; ++t)
+-      for (unsigned j = 0; j < 16; ++j)
+-        if (tag_byte(header[8 + t * 4 + j / 4], j % 4) != expected[t][j])
+-          header_ok = false;
++    for (unsigned j = 0; j < 16; ++j)
++      if (tag_byte(header[8 + j / 4], j % 4) != laya::full::kFullModelTag[j])
++        header_ok = false;
++    for (unsigned j = 0; j < 16; ++j)
++      if (tag_byte(header[12 + j / 4], j % 4) != laya::full::kFullNumericTag[j])
++        header_ok = false;
++    for (unsigned j = 0; j < 16; ++j)
++      if (tag_byte(header[16 + j / 4], j % 4) != laya::full::kFullLayoutTag[j])
++        header_ok = false;
++    for (unsigned j = 0; j < 16; ++j)
++      if (tag_byte(header[20 + j / 4], j % 4) != laya::full::kFullBuildTag[j])
++        header_ok = false;
+     for (unsigned j = 0; j < 32; ++j)
+       if (tag_byte(header[24 + j / 4], j % 4) !=
+           laya::full::kFullSourceSha256[j]) header_ok = false;

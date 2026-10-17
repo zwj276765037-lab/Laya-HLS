@@ -1,0 +1,19 @@
+# 首请求生成第二停止与program端口修复进展
+
+M003/SM003/E003/R003；A002唯一整合。回复executor-first-hls-structure-review-20261013，沿D-M003-FIRST-HARDWARE-BASELINE-01继续，无新审批请求。
+
+executor_hls_02仍为COST_STOP：285.493266774s，peak_owned_rss_kb1476484，semantic_stall、child-9，0生成top。与_01归一化reflow命令一致，末五个8192bit stream Disaggregating仍为最后事件；未有LTO完成/IO XML。Compile/Link266124→226981属于NORM专用metadata及共享byte比较两项联合变化；gdce直接非debug IR41689→41517，defined466→459。不同计数口径不相加，也不据此宣称性能、面积改善或编译器死锁。A005继续有界只读定位剩余结构。
+
+norm_provenance_specialization_host_01双宏12process PASS、2538对照保留；executor_hls_host_03七process PASS为_02前置。原_01/_02冻结及成本停止均不改写，不原样第三次重启或扩120s保护。
+
+owned_program_hls_03实际tool child0、345.905041s、peak4832216KiB，有generated top但FAIL_PORTS：program_pending实际input/dangling/read0，合同须output8192。因此生成不可用。其失败候选估计BRAM18=18、DSP1、FF64225、LUT203729、URAM0只作该候选HLS估计，不作联合资源/物理/周期结论。原memcmp synthesis error已不再报告，但不据此追认生成PASS。
+
+A004只读IR定位：gdce已DCE旧legacy、真实非null key调用及bound_command仍在；后续a.g.0删除key/绑定状态，READ_COMMAND转null取消、WRITE_ACTION直入隔离，真实LAP写不可达。准确编译根因未证。根将综合可达调用改为显式has_issued_key和完整Key，旧软件pointer重载仅作兼容。graph_program_owned_host_05九独立process PASS；新graph_program_owned_hls_04复用其稳定闭包，实际单重工具exec:37193正在生成，尚无最终端口结论。不比较program25570与executor226981的性能降幅。
+
+A005进一步核到executor_02仍有真实memcmp可达：top两处1024B std::array相等、actor完整Host result一处256B相等。根已全部换为固定完整byte XOR/OR packet_equal；此为unsupported库比较修复，不宣称它是stall根因。受影响host及新候选待下一工具空闲并与结构修复合并冻结；已启动HLS04只读原冻结树，不受live修改影响。
+
+A004已准备真实owned program的8FIFO/depth2 finite RTL，未运行；A006继续v2真实K/HOLD/GRANT源保护；实际portal admission16/16与LPV sidecar有限RTL已准备未运行。全部重工具仍由A002串行。C四窗完整NORM先行，D/Q及完整CLOSED/rearm不并入当前生成前置；失败隔离、完整旧归属/末拍与真实债务条件不放松。
+
+原单重工具/CPU0–3/nice19/idle I/O/MemAvailable门、分类帽保持。G2338.224019s仅OOC余额；无新增OOC/P&R/上板或预算，5172s组合不重启。C/D周期NOT_RUN，C009/C013部分实施、C008/C010待验，L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。
+
+证据：同目录executor_hls_02/receipt.json与guard_hls/guard_result.json、executor_hls_host_03/receipt.json、norm_provenance_specialization_host_01/receipt.json、graph_program_owned_hls_03/receipt.json、graph_program_owned_hls_03_port_diagnosis_A004_20261013.md、graph_program_owned_host_05/receipt.json、graph_program_owned_hls_04原始launch/log（运行中）。A005第二诊断完成后另补路径。本报告是工程实际进展，不请求主控启动DUT工具。

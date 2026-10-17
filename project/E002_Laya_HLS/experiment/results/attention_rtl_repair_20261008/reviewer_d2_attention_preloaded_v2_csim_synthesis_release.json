@@ -1,0 +1,77 @@
+{
+  "schema": "laya_attention_preloaded_v2_csim_acceptance_synthesis_release",
+  "created_utc": "2026-10-08T14:17:01.638188+00:00",
+  "reviewer": {
+    "agent": "/root/resource_explain_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "identity": "d2_attention_preloaded_v2_direct_cleanup",
+  "verdict": "STANDARD_LIBM_CSIM_ACCEPTED_ONE_LOCAL_SYNTHESIS_RELEASED",
+  "evidence": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/csim_standard_libm_v1/evidence.json",
+    "bytes": 9399,
+    "sha256": "bb22a8dc6822c376f346f3e67159f84216981b9867f8823424e7eab698c49a61"
+  },
+  "independent_audit": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_csim_hashcheck.json",
+    "bytes": 36227,
+    "sha256": "787159a8a5406092d5b72ab0b6208c052fdaa44923f149859f6251df77cf0b78"
+  },
+  "config": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/config.cfg",
+    "bytes": 4959,
+    "sha256": "598b811ee3c853ac898ccfd935d8f7a8fe94faed8bf5ba8b02338b4b501697c2"
+  },
+  "wrapper": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/attention_preloaded_slice.cpp",
+    "bytes": 15509,
+    "sha256": "843df3247473ae2a3e908eac3bab295ed968ee105c0afca83674cb124090f252"
+  },
+  "review": [
+    "Rehashed evidence and prelaunch references, all 85 frozen inputs agree; generated csim.mk and actual compile log resolve exactly wrapper + 24 production translation units + one unchanged testbench.",
+    "All 26 compile rules retain -O2 -fno-fast-math -ffp-contract=off; generated stdmath flag and -lm confirmed.",
+    "Complete CSim report has 3 legal and 17 negative cases; all case and suite markers match accepted v1. CSim zero errors and actual successful guard; no numerical tolerance changes.",
+    "59 process policies satisfy 4 CPUs/nice19/idle IO; wall31.3986 s, peak1279852 KiB, available host floor maintained and no trigger."
+  ],
+  "accepted_scope": "Software CSim of exact isolated BEGIN/RUN preloaded Attention wrapper and testbench; no numerical RTL or full-DUT equivalence.",
+  "release": {
+    "owner": "/root/vivado_project_sol_max",
+    "action": "One fresh local Vitis HLS synthesis of exact v2 source/config",
+    "command_prefix": [
+      "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/v++",
+      "--compile",
+      "--mode",
+      "hls"
+    ],
+    "command_tail": [
+      "--config",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/config.cfg",
+      "--work_dir",
+      "FRESH_V2_SYNTHESIS_RUN_WORKDIR"
+    ],
+    "rss_gib": 16,
+    "wall_seconds": 1800,
+    "cpus": 4,
+    "nice": 19,
+    "ionice": "idle",
+    "rss_sample_seconds": 0.2,
+    "host_mem_available_floor_gib": 192,
+    "serialization": "Only this Laya workflow/agent tree; no concurrent owned heavy tool.",
+    "prelaunch": "Freeze actual command/tool/config/source identities and fresh run directory; preserve failed v1 synthesis and CLI attempt.",
+    "evidence_required": [
+      "Guard, command, tool, input, logs and process policy bindings on success or failure.",
+      "Actual compiler IR showing whether early Controller/FullMemory escape via fail is removed; source changes alone do not prove lowering changes.",
+      "Actual source checks/errors and legal QK/Softmax/AV reachability; generated schedule/resource/interface/RTL hashes if present.",
+      "Map actual generated filenames and port/interface widths; requested150MHz is not Fmax."
+    ]
+  },
+  "not_released": [
+    "RTL static/elaboration",
+    "numerical cosimulation",
+    "OOC/physical implementation",
+    "production source/package changes"
+  ],
+  "next_gate": "Independent synthesis/IR review first. Future numerical RTL must preserve BEGIN then RUN in one DUT without reset and independently check full backing pages with a bounded numeric workload; do not cosim entire 3+17 software suite.",
+  "hypothesis_status": "Controller helper escape remains a candidate; actual new synthesis and IR determine the conclusion."
+}

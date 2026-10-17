@@ -1,0 +1,78 @@
+--- executor_checkpoint_host_01/executor_checkpoint.cpp
++++ executor_checkpoint_host_02/executor_checkpoint.cpp
+@@ -40,10 +40,10 @@
+ }
+ // Preflight source cache and every local owner mapping before any mutation.
+ Check owner_plan(const full::FullRuntime& rt, const Response& proof,
+-                 unsigned& source_slot, bool& existing,
++                 unsigned& source_slot, unsigned& target_slot, bool& existing,
+                  uint32_t& source_floor, uint32_t& target_floor) {
+   const auto& r = proof.binding;
+-  unsigned empty = 32; source_slot = 32; existing = false;
++  unsigned empty[2] = {32,32}; source_slot = target_slot = 32; existing = false;
+   source_floor = proof.source_epoch_floor; target_floor = proof.target_epoch_floor;
+   Span source_span, target_span;
+   if (!span(r.source.source.target_ref, 0, source_span) ||
+@@ -53,7 +53,11 @@
+     return protocol();
+   for (unsigned i = 0; i < 32; ++i) {
+     const auto& o = rt.owners.record[i];
+-    if (o.ref.id == Buffer::NONE) { if (empty == 32) empty = i; continue; }
++    if (o.ref.id == Buffer::NONE) {
++      if (empty[0] == 32) empty[0] = i;
++      else if (empty[1] == 32) empty[1] = i;
++      continue;
++    }
+     Span mapped;
+     // The diagnostic refuses local domains whose physical mapping is unknown.
+     if (!span({o.ref.id, o.ref.bank, 1}, o.region, mapped)) return protocol();
+@@ -78,12 +82,15 @@
+     if (target) {
+       if (o.ref.id != r.target.buffer || o.ref.bank != r.target.bank ||
+           o.region != r.target.region || o.valid || o.state != CacheState::INVALID ||
+-          o.readers) return protocol();
++          o.readers || target_slot != 32) return protocol();
++      target_slot = i;
+       if (target_floor < o.max_claimed_epoch) target_floor = o.max_claimed_epoch;
+     }
+   }
+-  if (source_slot == 32) source_slot = empty;
+-  return source_slot == 32 ? protocol() : ok();
++  if (source_slot == 32) source_slot = empty[0];
++  if (target_slot == 32)
++    target_slot = source_slot == empty[0] ? empty[1] : empty[0];
++  return source_slot == 32 || target_slot == 32 ? protocol() : ok();
+ }
+ void commit_source(full::FullRuntime& rt, const Request& r, unsigned slot,
+                    uint32_t source_floor) {
+@@ -148,13 +155,14 @@
+       port.machine.action_high_water == UINT64_MAX ||
+       !rt.portal_reservations.can(1) || rt.dispatch_command_generation == UINT64_MAX)
+     return protocol();
+-  unsigned source_slot; bool existing;
++  unsigned source_slot, target_slot; bool existing;
+   uint32_t source_floor, target_floor;
+-  if (!owner_plan(rt, proof, source_slot, existing, source_floor, target_floor))
++  if (!owner_plan(rt, proof, source_slot, target_slot, existing, source_floor, target_floor))
+     return protocol();
+   // This small copy is only an allocator capacity/overflow probe, not a
+   // second runtime or READY authority. No reservation is externally issued.
+   full::TaskReservation allocator = rt.dispatch_reservations;
++  target_floor = allocator.ref_high_water(Buffer::NORM, 0, 0, target_floor);
+   if (!allocator.raise_task_floor(proof.task_floor) ||
+       !allocator.raise_ref_floor(Buffer::HIDDEN, 0, 0, source_floor) ||
+       !allocator.raise_ref_floor(Buffer::NORM, 0, 0, target_floor) ||
+@@ -172,6 +180,13 @@
+   // All possible rejection points are above. This single commit neither
+   // calls retirement nor creates a target owner/READY record.
+   if (!existing) commit_source(rt, proof.binding, source_slot, source_floor);
++  // CLAIM compares epochs against the local owner history as well as the
++  // dispatch cursor. Cache the complete domain floor with no READY content.
++  auto& target_history = rt.owners.record[target_slot];
++  target_history = full::FullOwnerRecord{};
++  target_history.ref = {Buffer::NORM, 0, target_floor};
++  target_history.max_claimed_epoch = target_floor;
++  target_history.state = CacheState::INVALID;
+   rt.dispatch_reservations = allocator;
+   rt.last_task_id = proof.task_floor;
+   if (rt.provenance_event_high_water < proof.lpv_floor)

@@ -1,0 +1,44 @@
+--- pre_absolute_invocation_v1/run_mode3_entry.sh
++++ plusarg_entry_overlay_v2/run_mode3_entry.sh
+@@ -14,7 +14,7 @@
+ PACKET=$6
+ MODULE_ROOT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/rtl_static_mode3_alias_v2
+ VIVADO_BIN=/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin
+-python3 "$MODULE_ROOT/tb/verify_binding.py" "$PACKET" \
++/usr/bin/python3 "$MODULE_ROOT/tb/verify_binding.py" "$PACKET" \
+   --stage runtime --static-build-root "$STATIC_BUILD_ROOT" \
+   --runtime-root "$RUNTIME_ROOT" --prepared-root "$PREPARED_ROOT"
+ if [[ ! -d "$RUNTIME_ROOT" || -e "$RUNTIME_ROOT/xsim.dir" || -e "$RUNTIME_ROOT/xsim.log" ]]; then
+@@ -29,14 +29,14 @@
+   echo 'total cycle limit must cover DUT limit' >&2
+   exit 2
+ fi
+-ln -s "$STATIC_BUILD_ROOT/xsim.dir" "$RUNTIME_ROOT/xsim.dir"
+-mapfile -t data < <(find "$STATIC_BUILD_ROOT" -maxdepth 1 -type l -name '*.dat' | sort)
++/usr/bin/ln -s "$STATIC_BUILD_ROOT/xsim.dir" "$RUNTIME_ROOT/xsim.dir"
++mapfile -t data < <(/usr/bin/find "$STATIC_BUILD_ROOT" -maxdepth 1 -type l -name '*.dat' | /usr/bin/sort)
+ [[ ${#data[@]} -eq 73 ]]
+ for path in "${data[@]}"; do
+-  ln -s "$(readlink -f "$path")" "$RUNTIME_ROOT/$(basename "$path")"
++  /usr/bin/ln -s "$(/usr/bin/readlink -f "$path")" "$RUNTIME_ROOT/$(/usr/bin/basename "$path")"
+ done
+ for name in init_src0_input init_src1_input init_io init_aux init_state0 init_state1 init_observed expected_state1 expected_observed; do
+-  ln -s "$PREPARED_ROOT/$name.memh" "$RUNTIME_ROOT/$name.memh"
++  /usr/bin/ln -s "$PREPARED_ROOT/$name.memh" "$RUNTIME_ROOT/$name.memh"
+ done
+ cd "$RUNTIME_ROOT"
+ sim_status=0
+@@ -44,11 +44,11 @@
+   -testplusarg "MODE3_DUT_LIMIT=$DUT_CYCLE_LIMIT" \
+   -testplusarg "MODE3_TOTAL_LIMIT=$TOTAL_CYCLE_LIMIT" -log xsim.log || sim_status=$?
+ seal_status=0
+-python3 "$MODULE_ROOT/tb/seal_runtime.py" "$PACKET" \
++/usr/bin/python3 "$MODULE_ROOT/tb/seal_runtime.py" "$PACKET" \
+   "$STATIC_BUILD_ROOT" "$RUNTIME_ROOT" "$sim_status" || seal_status=$?
+ # The first XSim failure remains the command's exit status even if archival
+ # also finds a problem. A successful XSim still requires a successful seal.
+ if (( sim_status != 0 )); then exit "$sim_status"; fi
+ if (( seal_status != 0 )); then exit "$seal_status"; fi
+-python3 "$MODULE_ROOT/tb/check_runtime_mode3.py" "$RUNTIME_ROOT" \
++/usr/bin/python3 "$MODULE_ROOT/tb/check_runtime_mode3.py" "$RUNTIME_ROOT" \
+   "$RUNTIME_ROOT/independent_numeric_check.json"

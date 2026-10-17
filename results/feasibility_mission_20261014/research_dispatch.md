@@ -1,0 +1,15 @@
+# M005立即并行：独立整模流水性能与可行性预算
+
+A001→A003研究探索；2026-10-14；M005/SM006/E006/R001。用户当前直接要求建立完整mission并执行，回答完整通路能否算对、资源/频率、整个模型流水推理是否有吸引力以及项目是否可行。现唤醒既有研究会话，不创建新agent。
+
+项目根`/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS`。读research-agent技能及研究角色要求、适用AGENTS、当前新合同`mission/M005_代表通路与整模性能可行性评估/contract.md`，重点阶段C/D及所有权/预算。当前排程已改M005；旧SM002或旧goal的普通Q/L优先不能推翻最新指令。A002独占实现与重工具，AT063 FFN4 full正在运行；不要启动EDA/GPU/参考全图或另建子agent。
+
+你的任务现在开始，独占写`source/feasibility_20261014/`下脚本、CSV/JSON和报告，其它代码/attempt/三摘要只读。不要撤销他人改动。既有124个weight descriptor中122个Q8的维度/字节字段已与旧工作量表对齐；主控初核资料在`results/feasibility_mission_20261014/initial_budget.py`及生成JSON。B1_from_b0_S128旧profile是47,160,754,688 INT8 MAC、一次LOAD_W声明392,448,128B。必须重新核当前请求图/候选数/任务形状，不能直接继承旧串行Q8分钟数或把这两个总量当实测性能/总流量。
+
+立即做可复算的完整模型工作量、实际/假设流量和共享资源调度：Q8各类形状、Attention QK/softmax/AV、所有LN/quant/G/residual及Decision/scorer/ACT；冷/暖权重上传与缓存加载、row窗口复用、真实spill/scale/PS、端口竞争和合法重叠。分别报告单请求延迟与稳态完成间隔；不能假设串行共享matrix的Wi/Down并行，也不能把每级max或四行周期乘层数当端到端答案。
+
+按100/150/200MHz和有效带宽区间先给条件敏感性；A002新资源/布线时序到达后以实际证据替换。向engineering直接询问容量/绑定/复用或计数缺口，消息按原项目授权收发。先利用现有证据写第一版，不等待工程full结束，也不因此阻塞A002。找同口径CPU/GPU基线时只读已有资料，不新启动GPU；旧A6000 50ms口径不同不能直接算speedup。
+
+host每作业≤120s/8GiB，累计执行≤600s；CPU0–3/nice19/idle，MemAvailable>192GiB，不影响工程重工具；保留输入身份/真实命令/耗时，缺失采样UNKNOWN。给最敏感三假设、可能反驳乐观收益的瓶颈，以及继续当前路线/改架构/停止大投入的独立建议，区分“当前架构不划算”和“项目理论上不可行”。没有匹配对照不得宣称已优于GPU。
+
+更新A003真实state，第一份实质交付直接回复本消息，路径/简要结果/局限即可。A001维护mission/全局结论，A002维护E006工程摘要；不要覆盖他们的记录。

@@ -1,0 +1,41 @@
+--- bootstrap_source_guard_rtl_01/laya_bootstrap_source_guard_tb_v1.sv
++++ bootstrap_source_guard_rtl_02/laya_bootstrap_source_guard_tb_v1.sv
+@@ -397,21 +397,21 @@
+     while(!response_valid)tick();
+     if(response[RESPONSE_STATUS*8+:16]!=0)$fatal(1,"guard blocked legitimate destination CLAIM");
+     response_ready=1;tick();response_ready=0;tick();
+-    load_packet("invalidate",request);request_valid=1;
++    load_packet("invalidate",request);request_valid=1;#1;
+     repeat(12)begin
+       if(request_ready || !guard_active || !guard_match || accepted_events!=11)
+-        $fatal(1,"source INVALIDATE passed exclusion");
++        $fatal(1,"source INVALIDATE passed exclusion ready=%0d guard=%0d match=%0d events=%0d active=%0d published=%0d",request_ready,guard_active,guard_match,accepted_events,active_owners,published_owners);
+       tick();
+     end
+     request_valid=0;
+-    request=packet;request[ACTION*8+:16]=1;request[608*8+:32]=2;request_valid=1;
++    request=packet;request[ACTION*8+:16]=1;request[608*8+:32]=2;request_valid=1;#1;
+     repeat(12)begin
+       if(request_ready || !guard_match)$fatal(1,"source epoch replacement passed exclusion");
+       tick();
+     end
+     request_valid=0;
+     // A different buffer at the same physical source bytes is also excluded.
+-    request=packet;request[ACTION*8+:16]=1;request[612*8+:8]=3;request_valid=1;
++    request=packet;request[ACTION*8+:16]=1;request[612*8+:8]=3;request_valid=1;#1;
+     repeat(12)begin
+       if(request_ready || !guard_match)$fatal(1,"overlapping alias CLAIM passed exclusion");
+       tick();
+@@ -459,6 +459,12 @@
+     load_short("guard_completion",completion_key);completion_key[16*8+:32]=3;
+     consume_action(completion_key,0);
+     if(!guard_active)$fatal(1,"nonterminal action released source");
++    load_short("guard_completion",completion_key);completion_key[177*8+:8]=1;
++    consume_action(completion_key,0);
++    if(!guard_active)$fatal(1,"semantic bad completion released source");
++    load_short("guard_completion",completion_key);completion_key[148*8+:16]=0;
++    completion_key[16*8+:32]=79;consume_action(completion_key,0);
++    if(!guard_active)$fatal(1,"LOCAL_REJECT OK completion released source");
+     load_short("guard_completion",completion_key);consume_action(completion_key,1);
+     if(guard_active || guard_action_active || !base_change_ready || guard_error)
+       $fatal(1,"safe error consumption did not release clean guard");

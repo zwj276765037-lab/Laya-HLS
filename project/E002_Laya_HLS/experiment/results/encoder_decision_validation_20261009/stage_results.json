@@ -1,0 +1,103 @@
+{
+  "stage": "encoder_decision_validation_20261009",
+  "date": "2026-10-09",
+  "state": "PARTIAL_ACCEPTED_COST_STOP",
+  "executor": "GPT-6 Sol / xhigh",
+  "architect_reviewer": "GPT-6 Astra / xhigh",
+  "authoritative_table": "stage_results.md",
+  "results": [
+    {
+      "id": "cpu_full",
+      "status": "REUSED_PASS",
+      "scope": "3正常S128整图/141点，另1次故障恢复；原身份复用"
+    },
+    {
+      "id": "csim_b2_full",
+      "status": "REUSED_PASS",
+      "scope": "真实13口B2/S128；47点、9047192 F32、37158 tasks、28+2层"
+    },
+    {
+      "id": "csim_b1_persistent",
+      "status": "PASS",
+      "scope": "attempts/persistent_csim_01：真实13口/同一static runtime和BO；B2→gamma故障→B1×2，正常141点/18094384 F32，故障17 tasks/flags9/零logits/AUX完整恢复；exit0，197.22s，峰值1738524KiB"
+    },
+    {
+      "id": "frontend_source_package",
+      "status": "PASS",
+      "scope": "attempts/front_model_check_01 strict-current-source MODEL_PACKAGE_PASS; model/numeric/layout and 4 non-AUX BO hashes unchanged; AUX only build bytes 80–95; 4 rebound requests only build bytes 88–103; attempts/front_model_check_01/identity_comparison.json"
+    },
+    {
+      "id": "frontend_full_csim_regression",
+      "status": "PASS",
+      "scope": "attempts/persistent_csim_front_identity_01: new 71532 real 13-port same-static-runtime four requests B2→gamma failure→B1×2; 141 independent checkpoints/18094384 F32, fault 17 tasks/flags9 then recovery; exit0/no guard trigger, 197.096s, peak 1738684KiB; postrun_compiled_closure_check.json stable"
+    },
+    {
+      "id": "frontend_helper_csim",
+      "status": "PASS",
+      "scope": "attempts/frontend_chain_csim_02: B1_from_b0/S128 shared production frontend, independent raw/norm each 131072 F32 bit exact, 17 tasks (8 EMB+1 gamma+8 LN), 3 owner claims, exact owner/coverage/identity/workspace-tail sentinel and IO checks; exit0/no trigger, 20.818s, peak 1260096KiB. owner_leases exclusive counter 0; 16 transient read pairs are source-path expectation, physical reads pending RTL. _01 original PASS preserved; _02 rerun after report-label clarification."
+    },
+    {
+      "id": "frontend_thin_hls",
+      "status": "HLS_GENERATION_PASS",
+      "scope": "attempts/frontend_chain_hls_01 new 71532 six-port laya_frontend_chain generated RTL/IP, exit0/no guard trigger, 434.464s, peak 4184840KiB; actual six 32-bit data ports; HLS estimated LUT136486 (10% whole device), BRAM81, DSP23, FF39901, 4.867ns vs 6.67ns target, top latency unknown; static adapter audit and XSim compile_04 expansion PASS separately; no P&R claim"
+    },
+    {
+      "id": "frontend_thin_static",
+      "status": "PASS",
+      "scope": "attempts/frontend_chain_hls_01/static_audit.json seals 190 Verilog/68 DAT/6 FP IP VHDL and generated production path; pin-reset FSM/start, scalar cold initial/owner DAT, warm reset unverified. Original TB compile_01 and read-only LN probe compile_02 pass. run_02 exposed idle ap_done overcount in TB, stopped before LN; compile_03 stopped while correcting. Accepted child start→single ready/done probe compile_04 exit0/no trigger, 167.395s/4647460KiB, current snapshot frontend_chain_static."
+    },
+    {
+      "id": "current_full_hls",
+      "status": "HLS_GENERATION_PASS",
+      "scope": "attempts/full_hls_01：fe067完整25TU，exit0；RTL/IP与报告生成；1193.18s，峰值10435308KiB，无guard触发；实际13口32-bit、LUT估计1810065/138%"
+    },
+    {
+      "id": "production_connectivity",
+      "status": "PARTIAL_STATIC",
+      "scope": "attempts/full_hls_01/static_audit.json：80项生成结构检查通过，13口实际32-bit、28+2控制图、QK/AV真实数值端口与写路径、双residual输入、owner和commit模块；实际producer→consumer数据及AXI响应债务待有限RTL链"
+    },
+    {
+      "id": "full_top_front_chain_pilot",
+      "status": "COST_STOP",
+      "scope": "B2/S128完整top XSim展开exit0，931.50s/峰值14588352KiB；真实pilot 235.82s主动成本停止，172032 clocks、7426 AXI总握手、LN输出0B、峰值1746820KiB；相隔93s样本3214→6308总握手约33/s。若后续LN写保持该阶段总事务服务速率，仅1MiB输出262144个32-bit写握手需>7800s；条件成本估计而非LN实测吞吐下界；无数值PASS"
+    },
+    {
+      "id": "frontend_thin_rtl_probe_01",
+      "status": "COST_STOP",
+      "scope": "attempts/frontend_chain_run_01 cold B1 RTL stopped at 1014.660s under no-observable-semantic-progress rule after raw 524288B, AUX gamma 1024 F32, STATE0 first LN tile 16384 F32 reads; norm/observed 0, accepted 577199 then unchanged, peak 896012KiB, sigterm_requested/-9. run_02 diagnostic-only idle ap_done overcount stopped at34.468s; neither a numeric RTL FAIL nor full-chain PASS."
+    },
+    {
+      "id": "bounded_production_rtl",
+      "status": "COST_STOP",
+      "scope": "Prior full top B2 front COST_STOP preserved. attempts/frontend_chain_run_03 shared production frontend B1/S128 cold RTL actively cost-stopped at1584.281s; peak896308KiB, sigterm_requested/-9, last logged18882560 cycles. Actual raw524288B written, AUX gamma1024 F32 read, STATE0 first3 tile49152 F32 read, 34/128 LN rows arithmetic complete, STATE1 norm131072/524288B written. Two >=110s measured row/write-read intervals; fastest observed phase rates conditionally project total3686.181s (>3600 by86.181s), not strict lower bound; see cost_stop.json. No ap_done, full independent norm comparison, final owner or first-done AXI/adapter debt verification; no thin-chain RTL PASS or numeric FAIL. Acceptance-time reconstruction from samples 1163.095126s/16 rows and 1273.107552s/22 rows conditionally projects 3663.279252s/3678.996000s; not runtime-saved ETAs or strict lower bounds. Old terminal TB coverage gap remains tied to this run."
+    },
+    {
+      "id": "frontend_terminal_tb",
+      "status": "SOURCE_FIXED_NOT_RECOMPILED",
+      "scope": "Acceptance-time work TB SHA256 bc5f4c4a12f09abb4c32868003ebc1c468d86dd5b8e024eca2995558c483f9f2 had frozen 400-word terminal checks and C11 syntax PASS. Subsequent ordinary correction matched ok().bad_element=UINT64_MAX, so expected observed words5/6 are 0xffffffff; current work TB SHA256 bd43eac110bf2ab9813dff89459309cf1a96b0fe753eea693076c64ba0dd27a7, strict C11 syntax PASS. No XSim rebuild/run; frozen run_03 uses old TB SHA256 b923f6e7cebafbef4691f3d36f31fe9a4131aea05da52b5a74f479b1eda78ef4; no added RTL coverage."
+    },
+    {
+      "id": "encoder_qkv_attention_rtl",
+      "status": "NOT_RUN",
+      "scope": "真实QKV生产→RoPE→Attention；旧外部预置不覆盖"
+    },
+    {
+      "id": "full_model_rtl",
+      "status": "NOT_RUN_COST",
+      "scope": "fe067 HLS compute_one每GS32组179–199 cycles；B2 Q8单项需527610943072–586561886432 cycles，远超40000000-clock帽；整网RTL数值/协议未运行"
+    },
+    {
+      "id": "physical_platform",
+      "status": "NOT_RUN",
+      "scope": "P&R/Fmax、平台、上板、50ms未验证"
+    }
+  ],
+  "new_passes": 7,
+  "whole_offline_complete": false,
+  "build_identities": {
+    "fe067_complete_hls_and_reused_full_cpu_csim": "fe067c8aa0627ad770096f9721394645",
+    "71532_current_frontend_source_csim_and_thin_hls": "71532a6b269495506766d83080762740"
+  },
+  "acceptance": "final_acceptance.md",
+  "acceptance_date": "2026-10-10"
+}

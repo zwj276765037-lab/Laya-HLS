@@ -1,0 +1,1581 @@
+{
+  "decision": "ACCEPT_12_SMALL_GENERATED_MEMORY_MODEL_DIAGNOSTICS_ONLY",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "reviewed_at_utc": "2026-10-08T09:52:44.137256+00:00",
+  "checks": {
+    "packet_artifacts_rehashed": 50,
+    "source_manifest_artifacts_rehashed": 21,
+    "job_boundaries_and_logs_rehashed": 17,
+    "original_four_generated_files_equal_v3": true,
+    "instrumentation": "Reviewed exact diff: observation, counters and frame assertions only; original data/queue/array/copy behavior retained",
+    "small_frames": "All four exact fixture prefixes with valid big-endian count and trailer; original zero-offset file reused",
+    "runtime_passes": 12,
+    "actual_frame_readback": "Q and F header/byte/queue/page/copy counters match expected one transaction; Q/M/F all input bytes compared",
+    "stage_observer": "DPI /proc/self/status reads inside xsimk; own current RSS/HWM distinct from task-tree RSS",
+    "reported_slopes_independently_recomputed": true
+  },
+  "compile_history": [
+    {
+      "job": "gcc",
+      "result": "success"
+    },
+    {
+      "job": "xvlog",
+      "result": "preserved initial compile setup error"
+    },
+    {
+      "job": "xvlog_uvm",
+      "result": "success"
+    },
+    {
+      "job": "xelab",
+      "result": "preserved initial compile setup error"
+    },
+    {
+      "job": "xelab_lib",
+      "result": "success"
+    }
+  ],
+  "actual_rows": [
+    {
+      "mode": "Q",
+      "depth": 1024,
+      "baseline_rss_kib": 84040,
+      "readback_rss_kib": 84404,
+      "readback_increment_kib": 364,
+      "process_hwm_kib": 84404,
+      "tree_peak_kib": 852356,
+      "copy_increment_kib": 8,
+      "stages": [
+        {
+          "epoch_ms": 1791452302780,
+          "pid": 3344685,
+          "label": "process_baseline",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 84040,
+          "hwm_kb": 84040
+        },
+        {
+          "epoch_ms": 1791452302780,
+          "pid": 3344685,
+          "label": "reader_header",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84312,
+          "hwm_kb": 84312
+        },
+        {
+          "epoch_ms": 1791452302782,
+          "pid": 3344685,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84320,
+          "hwm_kb": 84320
+        },
+        {
+          "epoch_ms": 1791452302782,
+          "pid": 3344685,
+          "label": "reader_before_2d_copy",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 84320,
+          "hwm_kb": 84320
+        },
+        {
+          "epoch_ms": 1791452302782,
+          "pid": 3344685,
+          "label": "reader_after_2d_copy",
+          "elements": 1024,
+          "aux": 1,
+          "rss_kb": 84328,
+          "hwm_kb": 84328
+        },
+        {
+          "epoch_ms": 1791452302783,
+          "pid": 3344685,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 1040,
+          "rss_kb": 84328,
+          "hwm_kb": 84328
+        },
+        {
+          "epoch_ms": 1791452302783,
+          "pid": 3344685,
+          "label": "Q_frame_verified",
+          "elements": 1024,
+          "aux": 1040,
+          "rss_kb": 84396,
+          "hwm_kb": 84396
+        },
+        {
+          "epoch_ms": 1791452302783,
+          "pid": 3344685,
+          "label": "readback_verified",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 84404,
+          "hwm_kb": 84404
+        }
+      ]
+    },
+    {
+      "mode": "M",
+      "depth": 1024,
+      "baseline_rss_kib": 83872,
+      "readback_rss_kib": 84024,
+      "readback_increment_kib": 152,
+      "process_hwm_kib": 84024,
+      "tree_peak_kib": 852240,
+      "copy_increment_kib": null,
+      "stages": [
+        {
+          "epoch_ms": 1791452339333,
+          "pid": 3345276,
+          "label": "process_baseline",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 83872,
+          "hwm_kb": 83872
+        },
+        {
+          "epoch_ms": 1791452339333,
+          "pid": 3345276,
+          "label": "mem_after_mem_alloc",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84000,
+          "hwm_kb": 84000
+        },
+        {
+          "epoch_ms": 1791452339333,
+          "pid": 3345276,
+          "label": "mem_after_iswr_alloc",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84004,
+          "hwm_kb": 84004
+        },
+        {
+          "epoch_ms": 1791452339333,
+          "pid": 3345276,
+          "label": "mem_after_iswr_clear",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84004,
+          "hwm_kb": 84004
+        },
+        {
+          "epoch_ms": 1791452339334,
+          "pid": 3345276,
+          "label": "M_after_writes",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 84008,
+          "hwm_kb": 84008
+        },
+        {
+          "epoch_ms": 1791452339334,
+          "pid": 3345276,
+          "label": "readback_verified",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 84024,
+          "hwm_kb": 84024
+        }
+      ]
+    },
+    {
+      "mode": "F",
+      "depth": 1024,
+      "baseline_rss_kib": 83892,
+      "readback_rss_kib": 84536,
+      "readback_increment_kib": 644,
+      "process_hwm_kib": 84536,
+      "tree_peak_kib": 852152,
+      "copy_increment_kib": 8,
+      "stages": [
+        {
+          "epoch_ms": 1791452350424,
+          "pid": 3345623,
+          "label": "process_baseline",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 83892,
+          "hwm_kb": 83892
+        },
+        {
+          "epoch_ms": 1791452350425,
+          "pid": 3345623,
+          "label": "reader_header",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84296,
+          "hwm_kb": 84296
+        },
+        {
+          "epoch_ms": 1791452350426,
+          "pid": 3345623,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84304,
+          "hwm_kb": 84304
+        },
+        {
+          "epoch_ms": 1791452350426,
+          "pid": 3345623,
+          "label": "reader_before_2d_copy",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 84304,
+          "hwm_kb": 84304
+        },
+        {
+          "epoch_ms": 1791452350426,
+          "pid": 3345623,
+          "label": "reader_after_2d_copy",
+          "elements": 1024,
+          "aux": 1,
+          "rss_kb": 84312,
+          "hwm_kb": 84312
+        },
+        {
+          "epoch_ms": 1791452350426,
+          "pid": 3345623,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 1040,
+          "rss_kb": 84312,
+          "hwm_kb": 84312
+        },
+        {
+          "epoch_ms": 1791452350427,
+          "pid": 3345623,
+          "label": "mem_after_mem_alloc",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84448,
+          "hwm_kb": 84448
+        },
+        {
+          "epoch_ms": 1791452350427,
+          "pid": 3345623,
+          "label": "mem_after_iswr_alloc",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84452,
+          "hwm_kb": 84452
+        },
+        {
+          "epoch_ms": 1791452350427,
+          "pid": 3345623,
+          "label": "mem_after_iswr_clear",
+          "elements": 1024,
+          "aux": 8,
+          "rss_kb": 84452,
+          "hwm_kb": 84452
+        },
+        {
+          "epoch_ms": 1791452350427,
+          "pid": 3345623,
+          "label": "pages_before_copy",
+          "elements": 1024,
+          "aux": 1,
+          "rss_kb": 84452,
+          "hwm_kb": 84452
+        },
+        {
+          "epoch_ms": 1791452350427,
+          "pid": 3345623,
+          "label": "pages_after_copy",
+          "elements": 1024,
+          "aux": 1,
+          "rss_kb": 84452,
+          "hwm_kb": 84452
+        },
+        {
+          "epoch_ms": 1791452350427,
+          "pid": 3345623,
+          "label": "offset_bound",
+          "elements": 0,
+          "aux": 1,
+          "rss_kb": 84520,
+          "hwm_kb": 84520
+        },
+        {
+          "epoch_ms": 1791452350428,
+          "pid": 3345623,
+          "label": "F_chain_verified",
+          "elements": 1024,
+          "aux": 1024,
+          "rss_kb": 84520,
+          "hwm_kb": 84520
+        },
+        {
+          "epoch_ms": 1791452350428,
+          "pid": 3345623,
+          "label": "readback_verified",
+          "elements": 1024,
+          "aux": 0,
+          "rss_kb": 84536,
+          "hwm_kb": 84536
+        }
+      ]
+    },
+    {
+      "mode": "Q",
+      "depth": 4096,
+      "baseline_rss_kib": 84012,
+      "readback_rss_kib": 84452,
+      "readback_increment_kib": 440,
+      "process_hwm_kib": 84452,
+      "tree_peak_kib": 852488,
+      "copy_increment_kib": 32,
+      "stages": [
+        {
+          "epoch_ms": 1791452443121,
+          "pid": 3346885,
+          "label": "process_baseline",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 84012,
+          "hwm_kb": 84012
+        },
+        {
+          "epoch_ms": 1791452443121,
+          "pid": 3346885,
+          "label": "reader_header",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84284,
+          "hwm_kb": 84284
+        },
+        {
+          "epoch_ms": 1791452443124,
+          "pid": 3346885,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84292,
+          "hwm_kb": 84292
+        },
+        {
+          "epoch_ms": 1791452443128,
+          "pid": 3346885,
+          "label": "reader_queue_power2",
+          "elements": 2048,
+          "aux": 2056,
+          "rss_kb": 84300,
+          "hwm_kb": 84300
+        },
+        {
+          "epoch_ms": 1791452443134,
+          "pid": 3346885,
+          "label": "reader_queue_power2",
+          "elements": 4096,
+          "aux": 4104,
+          "rss_kb": 84320,
+          "hwm_kb": 84320
+        },
+        {
+          "epoch_ms": 1791452443134,
+          "pid": 3346885,
+          "label": "reader_before_2d_copy",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 84320,
+          "hwm_kb": 84320
+        },
+        {
+          "epoch_ms": 1791452443134,
+          "pid": 3346885,
+          "label": "reader_after_2d_copy",
+          "elements": 4096,
+          "aux": 1,
+          "rss_kb": 84352,
+          "hwm_kb": 84352
+        },
+        {
+          "epoch_ms": 1791452443134,
+          "pid": 3346885,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 4112,
+          "rss_kb": 84352,
+          "hwm_kb": 84352
+        },
+        {
+          "epoch_ms": 1791452443134,
+          "pid": 3346885,
+          "label": "Q_frame_verified",
+          "elements": 4096,
+          "aux": 4112,
+          "rss_kb": 84420,
+          "hwm_kb": 84420
+        },
+        {
+          "epoch_ms": 1791452443135,
+          "pid": 3346885,
+          "label": "readback_verified",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 84452,
+          "hwm_kb": 84452
+        }
+      ]
+    },
+    {
+      "mode": "M",
+      "depth": 4096,
+      "baseline_rss_kib": 83888,
+      "readback_rss_kib": 84096,
+      "readback_increment_kib": 208,
+      "process_hwm_kib": 84096,
+      "tree_peak_kib": 852512,
+      "copy_increment_kib": null,
+      "stages": [
+        {
+          "epoch_ms": 1791452448571,
+          "pid": 3347112,
+          "label": "process_baseline",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 83888,
+          "hwm_kb": 83888
+        },
+        {
+          "epoch_ms": 1791452448571,
+          "pid": 3347112,
+          "label": "mem_after_mem_alloc",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84028,
+          "hwm_kb": 84028
+        },
+        {
+          "epoch_ms": 1791452448571,
+          "pid": 3347112,
+          "label": "mem_after_iswr_alloc",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84032,
+          "hwm_kb": 84032
+        },
+        {
+          "epoch_ms": 1791452448571,
+          "pid": 3347112,
+          "label": "mem_after_iswr_clear",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84032,
+          "hwm_kb": 84032
+        },
+        {
+          "epoch_ms": 1791452448574,
+          "pid": 3347112,
+          "label": "M_after_writes",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 84036,
+          "hwm_kb": 84036
+        },
+        {
+          "epoch_ms": 1791452448578,
+          "pid": 3347112,
+          "label": "readback_verified",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 84096,
+          "hwm_kb": 84096
+        }
+      ]
+    },
+    {
+      "mode": "F",
+      "depth": 4096,
+      "baseline_rss_kib": 83928,
+      "readback_rss_kib": 84680,
+      "readback_increment_kib": 752,
+      "process_hwm_kib": 84680,
+      "tree_peak_kib": 852304,
+      "copy_increment_kib": 32,
+      "stages": [
+        {
+          "epoch_ms": 1791452453970,
+          "pid": 3347336,
+          "label": "process_baseline",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 83928,
+          "hwm_kb": 83928
+        },
+        {
+          "epoch_ms": 1791452453970,
+          "pid": 3347336,
+          "label": "reader_header",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84332,
+          "hwm_kb": 84332
+        },
+        {
+          "epoch_ms": 1791452453972,
+          "pid": 3347336,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84340,
+          "hwm_kb": 84340
+        },
+        {
+          "epoch_ms": 1791452453974,
+          "pid": 3347336,
+          "label": "reader_queue_power2",
+          "elements": 2048,
+          "aux": 2056,
+          "rss_kb": 84348,
+          "hwm_kb": 84348
+        },
+        {
+          "epoch_ms": 1791452453976,
+          "pid": 3347336,
+          "label": "reader_queue_power2",
+          "elements": 4096,
+          "aux": 4104,
+          "rss_kb": 84368,
+          "hwm_kb": 84368
+        },
+        {
+          "epoch_ms": 1791452453976,
+          "pid": 3347336,
+          "label": "reader_before_2d_copy",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 84368,
+          "hwm_kb": 84368
+        },
+        {
+          "epoch_ms": 1791452453977,
+          "pid": 3347336,
+          "label": "reader_after_2d_copy",
+          "elements": 4096,
+          "aux": 1,
+          "rss_kb": 84400,
+          "hwm_kb": 84400
+        },
+        {
+          "epoch_ms": 1791452453977,
+          "pid": 3347336,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 4112,
+          "rss_kb": 84400,
+          "hwm_kb": 84400
+        },
+        {
+          "epoch_ms": 1791452453977,
+          "pid": 3347336,
+          "label": "mem_after_mem_alloc",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84548,
+          "hwm_kb": 84548
+        },
+        {
+          "epoch_ms": 1791452453977,
+          "pid": 3347336,
+          "label": "mem_after_iswr_alloc",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84552,
+          "hwm_kb": 84552
+        },
+        {
+          "epoch_ms": 1791452453977,
+          "pid": 3347336,
+          "label": "mem_after_iswr_clear",
+          "elements": 4096,
+          "aux": 8,
+          "rss_kb": 84552,
+          "hwm_kb": 84552
+        },
+        {
+          "epoch_ms": 1791452453977,
+          "pid": 3347336,
+          "label": "pages_before_copy",
+          "elements": 4096,
+          "aux": 1,
+          "rss_kb": 84552,
+          "hwm_kb": 84552
+        },
+        {
+          "epoch_ms": 1791452453978,
+          "pid": 3347336,
+          "label": "pages_after_copy",
+          "elements": 4096,
+          "aux": 1,
+          "rss_kb": 84552,
+          "hwm_kb": 84552
+        },
+        {
+          "epoch_ms": 1791452453979,
+          "pid": 3347336,
+          "label": "offset_bound",
+          "elements": 0,
+          "aux": 1,
+          "rss_kb": 84620,
+          "hwm_kb": 84620
+        },
+        {
+          "epoch_ms": 1791452453979,
+          "pid": 3347336,
+          "label": "F_chain_verified",
+          "elements": 4096,
+          "aux": 4096,
+          "rss_kb": 84620,
+          "hwm_kb": 84620
+        },
+        {
+          "epoch_ms": 1791452453981,
+          "pid": 3347336,
+          "label": "readback_verified",
+          "elements": 4096,
+          "aux": 0,
+          "rss_kb": 84680,
+          "hwm_kb": 84680
+        }
+      ]
+    },
+    {
+      "mode": "Q",
+      "depth": 16384,
+      "baseline_rss_kib": 83896,
+      "readback_rss_kib": 84560,
+      "readback_increment_kib": 664,
+      "process_hwm_kib": 84560,
+      "tree_peak_kib": 852248,
+      "copy_increment_kib": 128,
+      "stages": [
+        {
+          "epoch_ms": 1791452459398,
+          "pid": 3347619,
+          "label": "process_baseline",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 83896,
+          "hwm_kb": 83896
+        },
+        {
+          "epoch_ms": 1791452459399,
+          "pid": 3347619,
+          "label": "reader_header",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84168,
+          "hwm_kb": 84168
+        },
+        {
+          "epoch_ms": 1791452459401,
+          "pid": 3347619,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84176,
+          "hwm_kb": 84176
+        },
+        {
+          "epoch_ms": 1791452459403,
+          "pid": 3347619,
+          "label": "reader_queue_power2",
+          "elements": 2048,
+          "aux": 2056,
+          "rss_kb": 84184,
+          "hwm_kb": 84184
+        },
+        {
+          "epoch_ms": 1791452459405,
+          "pid": 3347619,
+          "label": "reader_queue_power2",
+          "elements": 4096,
+          "aux": 4104,
+          "rss_kb": 84204,
+          "hwm_kb": 84204
+        },
+        {
+          "epoch_ms": 1791452459410,
+          "pid": 3347619,
+          "label": "reader_queue_power2",
+          "elements": 8192,
+          "aux": 8200,
+          "rss_kb": 84236,
+          "hwm_kb": 84236
+        },
+        {
+          "epoch_ms": 1791452459419,
+          "pid": 3347619,
+          "label": "reader_queue_power2",
+          "elements": 16384,
+          "aux": 16392,
+          "rss_kb": 84304,
+          "hwm_kb": 84304
+        },
+        {
+          "epoch_ms": 1791452459419,
+          "pid": 3347619,
+          "label": "reader_before_2d_copy",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 84304,
+          "hwm_kb": 84304
+        },
+        {
+          "epoch_ms": 1791452459419,
+          "pid": 3347619,
+          "label": "reader_after_2d_copy",
+          "elements": 16384,
+          "aux": 1,
+          "rss_kb": 84432,
+          "hwm_kb": 84432
+        },
+        {
+          "epoch_ms": 1791452459419,
+          "pid": 3347619,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 16400,
+          "rss_kb": 84432,
+          "hwm_kb": 84432
+        },
+        {
+          "epoch_ms": 1791452459419,
+          "pid": 3347619,
+          "label": "Q_frame_verified",
+          "elements": 16384,
+          "aux": 16400,
+          "rss_kb": 84500,
+          "hwm_kb": 84500
+        },
+        {
+          "epoch_ms": 1791452459421,
+          "pid": 3347619,
+          "label": "readback_verified",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 84560,
+          "hwm_kb": 84560
+        }
+      ]
+    },
+    {
+      "mode": "M",
+      "depth": 16384,
+      "baseline_rss_kib": 83896,
+      "readback_rss_kib": 84316,
+      "readback_increment_kib": 420,
+      "process_hwm_kib": 84316,
+      "tree_peak_kib": 852360,
+      "copy_increment_kib": null,
+      "stages": [
+        {
+          "epoch_ms": 1791452464846,
+          "pid": 3347853,
+          "label": "process_baseline",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 83896,
+          "hwm_kb": 83896
+        },
+        {
+          "epoch_ms": 1791452464846,
+          "pid": 3347853,
+          "label": "mem_after_mem_alloc",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84048,
+          "hwm_kb": 84048
+        },
+        {
+          "epoch_ms": 1791452464846,
+          "pid": 3347853,
+          "label": "mem_after_iswr_alloc",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84064,
+          "hwm_kb": 84064
+        },
+        {
+          "epoch_ms": 1791452464847,
+          "pid": 3347853,
+          "label": "mem_after_iswr_clear",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84064,
+          "hwm_kb": 84064
+        },
+        {
+          "epoch_ms": 1791452464852,
+          "pid": 3347853,
+          "label": "M_after_writes",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 84076,
+          "hwm_kb": 84076
+        },
+        {
+          "epoch_ms": 1791452464858,
+          "pid": 3347853,
+          "label": "readback_verified",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 84316,
+          "hwm_kb": 84316
+        }
+      ]
+    },
+    {
+      "mode": "F",
+      "depth": 16384,
+      "baseline_rss_kib": 83896,
+      "readback_rss_kib": 85040,
+      "readback_increment_kib": 1144,
+      "process_hwm_kib": 85040,
+      "tree_peak_kib": 852388,
+      "copy_increment_kib": 132,
+      "stages": [
+        {
+          "epoch_ms": 1791452470299,
+          "pid": 3348098,
+          "label": "process_baseline",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 83896,
+          "hwm_kb": 83896
+        },
+        {
+          "epoch_ms": 1791452470300,
+          "pid": 3348098,
+          "label": "reader_header",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84300,
+          "hwm_kb": 84300
+        },
+        {
+          "epoch_ms": 1791452470301,
+          "pid": 3348098,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84308,
+          "hwm_kb": 84308
+        },
+        {
+          "epoch_ms": 1791452470303,
+          "pid": 3348098,
+          "label": "reader_queue_power2",
+          "elements": 2048,
+          "aux": 2056,
+          "rss_kb": 84316,
+          "hwm_kb": 84316
+        },
+        {
+          "epoch_ms": 1791452470307,
+          "pid": 3348098,
+          "label": "reader_queue_power2",
+          "elements": 4096,
+          "aux": 4104,
+          "rss_kb": 84336,
+          "hwm_kb": 84336
+        },
+        {
+          "epoch_ms": 1791452470312,
+          "pid": 3348098,
+          "label": "reader_queue_power2",
+          "elements": 8192,
+          "aux": 8200,
+          "rss_kb": 84368,
+          "hwm_kb": 84368
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "reader_queue_power2",
+          "elements": 16384,
+          "aux": 16392,
+          "rss_kb": 84436,
+          "hwm_kb": 84436
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "reader_before_2d_copy",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 84436,
+          "hwm_kb": 84436
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "reader_after_2d_copy",
+          "elements": 16384,
+          "aux": 1,
+          "rss_kb": 84568,
+          "hwm_kb": 84568
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 16400,
+          "rss_kb": 84568,
+          "hwm_kb": 84568
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "mem_after_mem_alloc",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84724,
+          "hwm_kb": 84724
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "mem_after_iswr_alloc",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84724,
+          "hwm_kb": 84724
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "mem_after_iswr_clear",
+          "elements": 16384,
+          "aux": 8,
+          "rss_kb": 84724,
+          "hwm_kb": 84724
+        },
+        {
+          "epoch_ms": 1791452470321,
+          "pid": 3348098,
+          "label": "pages_before_copy",
+          "elements": 16384,
+          "aux": 1,
+          "rss_kb": 84724,
+          "hwm_kb": 84724
+        },
+        {
+          "epoch_ms": 1791452470326,
+          "pid": 3348098,
+          "label": "pages_after_copy",
+          "elements": 16384,
+          "aux": 1,
+          "rss_kb": 84724,
+          "hwm_kb": 84724
+        },
+        {
+          "epoch_ms": 1791452470326,
+          "pid": 3348098,
+          "label": "offset_bound",
+          "elements": 0,
+          "aux": 1,
+          "rss_kb": 84800,
+          "hwm_kb": 84800
+        },
+        {
+          "epoch_ms": 1791452470326,
+          "pid": 3348098,
+          "label": "F_chain_verified",
+          "elements": 16384,
+          "aux": 16384,
+          "rss_kb": 84800,
+          "hwm_kb": 84800
+        },
+        {
+          "epoch_ms": 1791452470332,
+          "pid": 3348098,
+          "label": "readback_verified",
+          "elements": 16384,
+          "aux": 0,
+          "rss_kb": 85040,
+          "hwm_kb": 85040
+        }
+      ]
+    },
+    {
+      "mode": "Q",
+      "depth": 65536,
+      "baseline_rss_kib": 83892,
+      "readback_rss_kib": 85356,
+      "readback_increment_kib": 1464,
+      "process_hwm_kib": 85356,
+      "tree_peak_kib": 852320,
+      "copy_increment_kib": 512,
+      "stages": [
+        {
+          "epoch_ms": 1791452475803,
+          "pid": 3348339,
+          "label": "process_baseline",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 83892,
+          "hwm_kb": 83892
+        },
+        {
+          "epoch_ms": 1791452475804,
+          "pid": 3348339,
+          "label": "reader_header",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 84164,
+          "hwm_kb": 84164
+        },
+        {
+          "epoch_ms": 1791452475806,
+          "pid": 3348339,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84172,
+          "hwm_kb": 84172
+        },
+        {
+          "epoch_ms": 1791452475808,
+          "pid": 3348339,
+          "label": "reader_queue_power2",
+          "elements": 2048,
+          "aux": 2056,
+          "rss_kb": 84180,
+          "hwm_kb": 84180
+        },
+        {
+          "epoch_ms": 1791452475811,
+          "pid": 3348339,
+          "label": "reader_queue_power2",
+          "elements": 4096,
+          "aux": 4104,
+          "rss_kb": 84200,
+          "hwm_kb": 84200
+        },
+        {
+          "epoch_ms": 1791452475816,
+          "pid": 3348339,
+          "label": "reader_queue_power2",
+          "elements": 8192,
+          "aux": 8200,
+          "rss_kb": 84232,
+          "hwm_kb": 84232
+        },
+        {
+          "epoch_ms": 1791452475825,
+          "pid": 3348339,
+          "label": "reader_queue_power2",
+          "elements": 16384,
+          "aux": 16392,
+          "rss_kb": 84300,
+          "hwm_kb": 84300
+        },
+        {
+          "epoch_ms": 1791452475841,
+          "pid": 3348339,
+          "label": "reader_queue_power2",
+          "elements": 32768,
+          "aux": 32776,
+          "rss_kb": 84440,
+          "hwm_kb": 84440
+        },
+        {
+          "epoch_ms": 1791452475872,
+          "pid": 3348339,
+          "label": "reader_queue_power2",
+          "elements": 65536,
+          "aux": 65544,
+          "rss_kb": 84716,
+          "hwm_kb": 84716
+        },
+        {
+          "epoch_ms": 1791452475872,
+          "pid": 3348339,
+          "label": "reader_before_2d_copy",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 84716,
+          "hwm_kb": 84716
+        },
+        {
+          "epoch_ms": 1791452475873,
+          "pid": 3348339,
+          "label": "reader_after_2d_copy",
+          "elements": 65536,
+          "aux": 1,
+          "rss_kb": 85228,
+          "hwm_kb": 85228
+        },
+        {
+          "epoch_ms": 1791452475873,
+          "pid": 3348339,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 65552,
+          "rss_kb": 85228,
+          "hwm_kb": 85228
+        },
+        {
+          "epoch_ms": 1791452475873,
+          "pid": 3348339,
+          "label": "Q_frame_verified",
+          "elements": 65536,
+          "aux": 65552,
+          "rss_kb": 85296,
+          "hwm_kb": 85296
+        },
+        {
+          "epoch_ms": 1791452475881,
+          "pid": 3348339,
+          "label": "readback_verified",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 85356,
+          "hwm_kb": 85356
+        }
+      ]
+    },
+    {
+      "mode": "M",
+      "depth": 65536,
+      "baseline_rss_kib": 83860,
+      "readback_rss_kib": 85148,
+      "readback_increment_kib": 1288,
+      "process_hwm_kib": 85148,
+      "tree_peak_kib": 852348,
+      "copy_increment_kib": null,
+      "stages": [
+        {
+          "epoch_ms": 1791452481286,
+          "pid": 3348561,
+          "label": "process_baseline",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 83860,
+          "hwm_kb": 83860
+        },
+        {
+          "epoch_ms": 1791452481286,
+          "pid": 3348561,
+          "label": "mem_after_mem_alloc",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 84120,
+          "hwm_kb": 84120
+        },
+        {
+          "epoch_ms": 1791452481286,
+          "pid": 3348561,
+          "label": "mem_after_iswr_alloc",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 84176,
+          "hwm_kb": 84176
+        },
+        {
+          "epoch_ms": 1791452481288,
+          "pid": 3348561,
+          "label": "mem_after_iswr_clear",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 84176,
+          "hwm_kb": 84176
+        },
+        {
+          "epoch_ms": 1791452481304,
+          "pid": 3348561,
+          "label": "M_after_writes",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 84188,
+          "hwm_kb": 84188
+        },
+        {
+          "epoch_ms": 1791452481324,
+          "pid": 3348561,
+          "label": "readback_verified",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 85148,
+          "hwm_kb": 85148
+        }
+      ]
+    },
+    {
+      "mode": "F",
+      "depth": 65536,
+      "baseline_rss_kib": 83908,
+      "readback_rss_kib": 86312,
+      "readback_increment_kib": 2404,
+      "process_hwm_kib": 86312,
+      "tree_peak_kib": 852532,
+      "copy_increment_kib": 512,
+      "stages": [
+        {
+          "epoch_ms": 1791452486723,
+          "pid": 3348790,
+          "label": "process_baseline",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 83908,
+          "hwm_kb": 83908
+        },
+        {
+          "epoch_ms": 1791452486723,
+          "pid": 3348790,
+          "label": "reader_header",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 84312,
+          "hwm_kb": 84312
+        },
+        {
+          "epoch_ms": 1791452486725,
+          "pid": 3348790,
+          "label": "reader_queue_power2",
+          "elements": 1024,
+          "aux": 1032,
+          "rss_kb": 84320,
+          "hwm_kb": 84320
+        },
+        {
+          "epoch_ms": 1791452486727,
+          "pid": 3348790,
+          "label": "reader_queue_power2",
+          "elements": 2048,
+          "aux": 2056,
+          "rss_kb": 84328,
+          "hwm_kb": 84328
+        },
+        {
+          "epoch_ms": 1791452486731,
+          "pid": 3348790,
+          "label": "reader_queue_power2",
+          "elements": 4096,
+          "aux": 4104,
+          "rss_kb": 84348,
+          "hwm_kb": 84348
+        },
+        {
+          "epoch_ms": 1791452486736,
+          "pid": 3348790,
+          "label": "reader_queue_power2",
+          "elements": 8192,
+          "aux": 8200,
+          "rss_kb": 84380,
+          "hwm_kb": 84380
+        },
+        {
+          "epoch_ms": 1791452486745,
+          "pid": 3348790,
+          "label": "reader_queue_power2",
+          "elements": 16384,
+          "aux": 16392,
+          "rss_kb": 84448,
+          "hwm_kb": 84448
+        },
+        {
+          "epoch_ms": 1791452486762,
+          "pid": 3348790,
+          "label": "reader_queue_power2",
+          "elements": 32768,
+          "aux": 32776,
+          "rss_kb": 84592,
+          "hwm_kb": 84592
+        },
+        {
+          "epoch_ms": 1791452486795,
+          "pid": 3348790,
+          "label": "reader_queue_power2",
+          "elements": 65536,
+          "aux": 65544,
+          "rss_kb": 84864,
+          "hwm_kb": 84864
+        },
+        {
+          "epoch_ms": 1791452486795,
+          "pid": 3348790,
+          "label": "reader_before_2d_copy",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 84864,
+          "hwm_kb": 84864
+        },
+        {
+          "epoch_ms": 1791452486795,
+          "pid": 3348790,
+          "label": "reader_after_2d_copy",
+          "elements": 65536,
+          "aux": 1,
+          "rss_kb": 85376,
+          "hwm_kb": 85376
+        },
+        {
+          "epoch_ms": 1791452486795,
+          "pid": 3348790,
+          "label": "reader_after_trailer",
+          "elements": 6510698339658363120,
+          "aux": 65552,
+          "rss_kb": 85376,
+          "hwm_kb": 85376
+        },
+        {
+          "epoch_ms": 1791452486796,
+          "pid": 3348790,
+          "label": "mem_after_mem_alloc",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 85644,
+          "hwm_kb": 85644
+        },
+        {
+          "epoch_ms": 1791452486796,
+          "pid": 3348790,
+          "label": "mem_after_iswr_alloc",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 85696,
+          "hwm_kb": 85696
+        },
+        {
+          "epoch_ms": 1791452486797,
+          "pid": 3348790,
+          "label": "mem_after_iswr_clear",
+          "elements": 65536,
+          "aux": 8,
+          "rss_kb": 85696,
+          "hwm_kb": 85696
+        },
+        {
+          "epoch_ms": 1791452486797,
+          "pid": 3348790,
+          "label": "pages_before_copy",
+          "elements": 65536,
+          "aux": 1,
+          "rss_kb": 85696,
+          "hwm_kb": 85696
+        },
+        {
+          "epoch_ms": 1791452486816,
+          "pid": 3348790,
+          "label": "pages_after_copy",
+          "elements": 65536,
+          "aux": 1,
+          "rss_kb": 85696,
+          "hwm_kb": 85696
+        },
+        {
+          "epoch_ms": 1791452486816,
+          "pid": 3348790,
+          "label": "offset_bound",
+          "elements": 0,
+          "aux": 1,
+          "rss_kb": 85772,
+          "hwm_kb": 85772
+        },
+        {
+          "epoch_ms": 1791452486816,
+          "pid": 3348790,
+          "label": "F_chain_verified",
+          "elements": 65536,
+          "aux": 65536,
+          "rss_kb": 85772,
+          "hwm_kb": 85772
+        },
+        {
+          "epoch_ms": 1791452486838,
+          "pid": 3348790,
+          "label": "readback_verified",
+          "elements": 65536,
+          "aux": 0,
+          "rss_kb": 86312,
+          "hwm_kb": 86312
+        }
+      ]
+    }
+  ],
+  "findings": [
+    "64KiB F own-process baseline 83908KiB, final 86312KiB; tree peak852532KiB",
+    "Q two-dimensional queue copy adds8/32/128/512KiB for1/4/16/64KiB payloads; finite small-size cost observed",
+    "F16-to64KiB normalized final-RSS incremental slope26.25B/B; this is a sample-range measurement, not a full-size bound",
+    "No evidence from these tests supports treating16GiB/planned21MB=806.6B/B as per-byte model cost",
+    "These tests contain no real AXI traffic or Attention DUT; original runtime growth stage and cause remain unknown"
+  ],
+  "limits": [
+    "No extrapolated large-depth or full-DUT peak bound is accepted",
+    "No Attention numerical RTL result or completion is established",
+    "No fourth uninstrumented Attention attempt is authorized by this review"
+  ],
+  "next_design": "Actual full-environment passive phase/reset/start/cycle/AXI/queue/RSS observation requires its own exact instrumentation/binding review and fixed diagnostic stop budget",
+  "artifact_sha256": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/final_packet.json": "e56aa63ba69a30da3986821162ab4c186ba9bc89ba83801e59ad7d33de6fd6ef",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/rtl/file_agent_pkg.sv": "f93acc4048a2359db0bd8a04297602956e1d46260ffd0bf906d1969868d7ccdc",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/rtl/file_read_agent.sv": "9c06fa3bb423eff7a388e36274e33cc426bf9df26c485198f5b72094cf549521",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/rtl/file_write_agent.sv": "291a8655a542ff4171737fa58fca85213f8fd50679da1cb45236f49484e4ea65",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/rtl/mem_model.sv": "c9a6f6c629614f54ae4fe7193dc9afd381f1e3c1841b6f24b73f0abe49e01a94",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/analysis.json": "999698ff465f360f5452517600b32616ea976dc7dd3ea8beb40886ef3cc27854",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/diag_rss.so": "6731411625d02acbac7c152e0e1773e150ceda3ff393746c700e74884fe8fb63",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xelab.log": "e5faa5fc3d3a29eacd50400f190b56859032a253815e734b386886238196bb38",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/Compile_Options.txt": "3154751e7a9edb2b44b5016ff7beae948cc61ffc4670697e7f1e0bc3cc863306",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.crvsdump": "4c9516b26eb04f4f5871bdc81adf7e66214bc33384e543268b3f0b717e340620",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.dbg": "a319a5f116c2e9cecec39094850c0f3006060700e8f3de872d5c4fb589e60c87",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.mem": "c225d5ec2cb55fcb6f25aa1774db92f6d482d7ece79e8c0a4035fbf5ed450334",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.reloc": "ab265b607fe3a66ef1d43602959e2a86f2182eee55483ba4b6fbc3c2a89ecff1",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.rtti": "96226ef870872884dbf6bedc0df3a91c1536a0667829210e774dcab29bb0e92f",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.svtype": "8ca6a8479d5d9bebba9ec3570b75c7d33b55099aaf7a7d2d2296462612905a5b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.type": "cf1c5a4aa3dd8007f3756f2f3d607d67751cd98e99c8f5038c3f8b9fd06aa8c8",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.version": "a15b42b7cedfdc50b6ac3c608a1a64d31d64690c57ccdd42e81a93c1c12b9468",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim.xdbg": "7d68c86d5231ac34ca594732d51cfa986c4d94925463aed6256c55150318b8fc",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsimSettings.ini": "3c6403ed7bdc72d65bb1a620761579e42b0925ec3a9f13df9d0bb3ed6166b9ab",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsim_script.tcl": "0b2d660942b24555051af550444fbb805db6963d2bca29fa0cd82771e5410810",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsimcrash.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsimk": "0004b80e728bffff2c6b0b9b3badb5d07b4d4fb65ca21b2da05c6dd4be13fdc9",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xsim.dir/diag_mem/xsimkernel.log": "d901bf5804d3a2e77c05d911e5a338c26482f18f1e9024afe9c007cbc7e3aef2",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/build/xvlog.log": "ed8e76ca9eb4275eda40ce952eab6e48e2048a8896659e407d4b0d0fdda91b78",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/diagnostic_results.json": "d50b467b3675e369cc50387ba8fa1d0c2e58478e354d4ebf529b35cd994a2604",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/analyze_results.py": "836f6e802821d5a9c75094506047d75870aee952fa5b66f28d7416bfdfa5b353",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/design.md": "22e9bdfb62e48374f3a5a817b14d6cd4051e9244b406517f94837350e29e17bf",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/guard_job.py": "82df6d9666d3ef72d6f3757554f890869edbb9d6f51326601cfdb93d05d65b55",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/hls_guard_helpers.py": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/instrumentation.diff": "d49962e7148fdf0c37dc3f8d6745a47609d947f0c40e4dc1640c71fbdc1090a6",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/make_final_packet.py": "40817836b9b96dbf10bd2e4da4d916c1b72d65836831193e69ca11a22ba5f3b8",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/original/file_agent_pkg.sv": "5b8483a0f96be3f71813963e0c3f4ba6a9632577d853cb41d42005ed731be83b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/original/file_read_agent.sv": "a0815b53a2689bb57254017e13df95e6c16a0eb6d6067b04a3b8b9c84ba21af0",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/original/file_write_agent.sv": "291a8655a542ff4171737fa58fca85213f8fd50679da1cb45236f49484e4ea65",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/original/mem_model.sv": "b54678fb1f3327a75a523ec7ef7319845077828eefa1ef38f8c26880eeb8abcf",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/prepare_diagnostic.py": "d84cfb75d54f960a070e21df173e59ac636fe2d3a7f7491a863003e487bac11a",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/results.md": "f917ea1e6f46f8be06fa7b3b53e46463a05febe6eb8391fd2d7394e1e3a3edd8",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/run_ladder.py": "131bf37a7f6d493415f976a7e1a118a56842686ad8197feb0d4e629baf8a4e9e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/source/source_manifest.json": "479ce5426f57c7e3c3183e5c4547f3527e71d2ca6522a250685f8f3759d0944b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/offset_r.dat": "773355323f42e5293f67f55e6530cfc69a1eee6b163636ce4c7fa964e91d7bdf",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/raw_1024.dat": "168f39443767ae4d35974ae63bc5323be460238fab4d12df73b5e5e8c288b2d7",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/raw_16384.dat": "577f58013d787710f71da2cb5b02d24c5039ddeaab4dabe2077d6c207cd54150",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/raw_4096.dat": "d53ffb5d57b7af7ab75b9143e835802692cdc52dc22a5f87a2f0fd9684712aa3",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/raw_65536.dat": "5fab583f17e52c2d35f4b5d3bce82a6161cced29c361c731fe420d8d63794abb",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/tv_1024.dat": "e8effb698a44a760d8829f71eef09009d007c219a6b05b4c03cff1e55125c142",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/tv_16384.dat": "1f44053e21320aa356e7c9ce9860024eba61bd4315bf36171a8aca6493705d42",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/tv_4096.dat": "1ccfbced3a6e0a700e2e9bca3c0c2b48b12491da3ba32a727118698e1c974d55",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/data/tv_65536.dat": "c0515769bd3b07baa3b482985744f7f5f2786501f540f80cad1563de21f24c02",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/diag_rss.c": "07de6f1820115b0b88bf314dccdbd1bae64788b459470143ed147ebd5ab0329d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/diag_tb.sv": "fc80c46396ec92764c003d5e4677ba5c8afbee8344fd1a48c5f4afd75556b092",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/tb/libdiag_rss.so": "6731411625d02acbac7c152e0e1773e150ceda3ff393746c700e74884fe8fb63",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/tv/cdatafile/c.attention_slice.autotvin_fixture.dat": "4b570676a0805b7c10208724c1691f7267a93f5bd056235a1bd6db1aae967c2e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/tv/cdatafile/c.attention_slice.autotvin_fixture_r.dat": "773355323f42e5293f67f55e6530cfc69a1eee6b163636ce4c7fa964e91d7bdf",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/gcc/driver.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/gcc/guard_plan.json": "3e91a0df2373b7eac265ad3ed6ebe4d1ca5e3ebc8e0ff48ac115fdef06600561",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/gcc/guard_result.json": "68829e230cecc5f7bd6477faa61b1ec3f2f9dc20d02871b20fbf8920006734ce",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/gcc/launch.json": "b5fdd0325d6efdf9e28119165ea9f34812fa972e0c4e69c4f5fd6cd6d78691cf",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/gcc/memory_timeline.csv": "50822cb3416042185058348067543d3514c1b7bd967143e30e2b987c390445b5",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog/driver.log": "5b803e202345f84fba564e78abbaed493579d873e05bf2beeaa77163d8361cc5",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog/guard_plan.json": "84f9afd6a51edc896d6046df64988d511edbe8cedb0e0fac18513511b2db11c1",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog/guard_result.json": "8206fe7146f994b90ebf741c40e13864bd81f44c7e92f82531755da8413d7332",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog/launch.json": "c7c203fa8d68b5d6be29a6e32d9cfca89bbd2e4c8dda4de27fabdb6de15850ea",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog/memory_timeline.csv": "12c967c4eb29d99d1cde95e717c3f06eadb586eb3e77e676a179d8a1959cfbff",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog/policy_checks.json": "21d82e177117c235e7a983090c56a6e9ca27288fb767031b6f60382b37dfc8d1",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog_uvm/driver.log": "ed8e76ca9eb4275eda40ce952eab6e48e2048a8896659e407d4b0d0fdda91b78",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog_uvm/guard_plan.json": "af0ba8b1b10c93fd0ff8913de57b98bfa551fec5a013354fb90acbdd24a8a838",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog_uvm/guard_result.json": "b74a2f1515b425bcfc898d158f5ab6d2606d8975bf70f15123fe8403fb59fb7f",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog_uvm/launch.json": "ec89c18e196881e119bea6a7de205e1171569880d068a4dda78dbb52e2120732",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog_uvm/memory_timeline.csv": "3822ebb24658d8ab41d60324575cd3d29d1d9e1bcfd3e8e8186d352bcc1807a0",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xvlog_uvm/policy_checks.json": "885d6a2b2ec08b6be9377dbe537ba7261ae65ba320f5cb8a2be3c1fe05c4d21b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab/driver.log": "4eddda91ab5c1ad181bd6f58f17d4bd6a167baf8f071b2956b9f6d8e3b0f2b4d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab/guard_plan.json": "7341e14e5e8efbd556a4ecd8fa572b87357816e075b24ee2a23f36d62d319a79",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab/guard_result.json": "1e45e14bfa8765b1dcc1be110c8421887d01f4873e5bd64668e1e6909de09cab",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab/launch.json": "7a9d54f4a88d44440fc26b293b51992bae9aa2541529d2fe55f4d50461d1eb76",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab/memory_timeline.csv": "250e3c87413298e6b90f1861f2f837eaf1479ebafcc02151fcb1d6c1d09c294b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab/policy_checks.json": "f929b67cdf4c9e4cccefcd7885407e9a4516b483cdb25e15613453d4034d52c4",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab_lib/driver.log": "33fda2d5cf3f4b7543355e660b50248195b5bf05af4bd7bb3a7dbf72d3653f21",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab_lib/guard_plan.json": "04e34ea831bd72737ad71fe9c1109662bbc06f99d2bb7c3778ffe882ae4de110",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab_lib/guard_result.json": "a47ca4dc01e3af6697be0ffb24db05ecb648323b84337e1f5de51b87704e6c6e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab_lib/launch.json": "53063166768ea6eb3c931338ec5616fbaabfac2a6ebf872a058e39e6e57271aa",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab_lib/memory_timeline.csv": "ced270d285a5149feea2238b03c45b6464d1b0d0682ad0ec9480769f0ffc116e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/xelab_lib/policy_checks.json": "1389c58328985efb50e3bf90a67ab89c594f580835e4337f3e8fb7fef85d986a",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_1024/driver.log": "03e188035dee545f3c10a52587cef51ff303293c0d1dcc5deb17e6912dcedd1d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_1024/guard_plan.json": "8151e5461c6a04b69b42db60baa4aba4e3555e1c117b4d8b1f49376ac1f9d43d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_1024/guard_result.json": "5df6ff0a1d70fc4442dbc614dc2ab7274cbdf96adfff831d65cc90bfecffce23",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_1024/launch.json": "05ced803f1d1f9abb07dcb61da9e9ecad2a7311da0ea2ac62ed702d049d6d64e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_1024/memory_timeline.csv": "3634302c7acae3a11df82af40ef447fc7c0aea19ac311985e4ea566377e4b28b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_1024/policy_checks.json": "82cfb0be0f6a28865693051a92da85e381535e5af3a298b0ec056c6b25ea0afa",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_1024/driver.log": "17e93b72edfc6195f53cefdf3b3a6677d4230ebb24e4125032ca0b662e6cd4fb",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_1024/guard_plan.json": "6a2ddf70f9109262bd935db176cbd3c30ea026397bc2a0daee9464882d5fe8e8",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_1024/guard_result.json": "b347ee1ebcff9fac514b100e9149450fd42638cc54f39ec72e36097df815bb58",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_1024/launch.json": "00be53d1c2903d6fb698263e253e3b66d5db9e9a0e4e66a47c83772d396c0ac3",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_1024/memory_timeline.csv": "2946b50b31ba1e95a9a4a08e2edc5c6e36c59a0db576b1a4347e8e0446ed2edd",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_1024/policy_checks.json": "8d9af717e5cf9cb1ad1b1adcd6f3f78326f6d437152855edc7f1a9a39b16dec6",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_1024/driver.log": "0c4632cf5d11f38aed9eefb00e85d7a419503cf0e938dd16e5a56436e80628b1",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_1024/guard_plan.json": "6ef7e1864440dbabc9ac51a09f46a4baf8b5d6b9a4cf801570754665d701987d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_1024/guard_result.json": "dadf64c274494142ab9f131a518f3f202f94fc99bc7e82ee2e506b9e64525b3d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_1024/launch.json": "44047bc4f73b69d1cdc0ab9e8ce0ab6bd117917fe7c6e670d754a4ca99b0b929",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_1024/memory_timeline.csv": "214ef731ab67a81983962e135f1c6d8850f67e7009a84cb11199429e6a003b3d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_1024/policy_checks.json": "06c8b8f6bc6d30fa5ba83f3acf7c75965aa8a7c160adb25dca568bf6e8cd6a14",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_4096/driver.log": "be209700b39d429030246a1d9692786ca4c1417e1327a4bea2ccdb9142bfb7de",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_4096/guard_plan.json": "5ed9bc68c527c8dd650d6ce75b600bb5383570cd819d3cd4a22a4a221c9ddc26",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_4096/guard_result.json": "a74f384ba08b090c761d71715a90572920741e2be7ce4e17794bab6e1b067975",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_4096/launch.json": "9501664f0fde02c5855a263dab3590964cb70091a5b674a1cbd7f7bff65a243f",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_4096/memory_timeline.csv": "782f286a0f7c570985b9524d916a3137b9e4ec32d55319e54add726728ece041",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_4096/policy_checks.json": "8905b3078e2c0b6126f0ef4f947f50dde2e003cb91a8d985690227f2a20896ce",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_4096/driver.log": "521cee470c192933d8c13bf86f3d5b380cce4635d8c93267bff143a0121250eb",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_4096/guard_plan.json": "3f482d91c545d3b734bfaf4534e453c70ded259889b12f971003acb0a1b33104",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_4096/guard_result.json": "79700c70fb05c2cc634e9690830a1b565ab5fe7ad3044f760a46fbc1dd147ed9",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_4096/launch.json": "00f5beec2eb57d92ed582c246ce550b02c1aeb263b2d74919674109445643f50",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_4096/memory_timeline.csv": "c6ef27461388281f82d76bb4be9bfaf4a22080d5495748c63b1af71a00094349",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_4096/policy_checks.json": "a8d3959a3d6b7fff8655c5f59e2469f452c407f2c7c08fec38e6cca9065dfe8b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_4096/driver.log": "18787e2c45b736a32cc86b9c04a417355271365ea1b16f339b15e26ed0a8307c",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_4096/guard_plan.json": "6e30e53a0689f3e98884419304238dc4402f3a88462f05a787490b1dfe7e7df8",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_4096/guard_result.json": "627637db3e35035a214ad715ea0fa45b82748846e7ea27ad1643aa5fd56c8d20",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_4096/launch.json": "74e9b4f816d2f5ebbd52f79bbca000d2bfc83e60b1bd03c4b658b86aea972ae6",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_4096/memory_timeline.csv": "7b2061ea33d05263a1822394c3eb1f4005f349a90e5b3a4cec19c5695a33e6ba",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_4096/policy_checks.json": "f30f936c0c6ff5c69c60dc188a799a3bcc0c05caa1f50f405aa8d3181364c9db",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_16384/driver.log": "120a03e322871d11f43ac7a1b27f4ff23b473e5f5aa0f919e6232a8bb3eb4baa",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_16384/guard_plan.json": "193da1d1ecdf4878da201d91cc87701f0609a31f89c705370d1df99ad01b8d73",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_16384/guard_result.json": "47c8b86619cf93e85ed43143f4adbbc153540da0aeba8c8d814d2fc7f79d422e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_16384/launch.json": "e85864955a35bc039e3b8cf2e38bd3102156561def8f981c74dc482f81667675",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_16384/memory_timeline.csv": "50df34feb8be56328169312d3482d5284fe78dfe3ef9234d27b90e827c3f868f",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_16384/policy_checks.json": "f1e850c74f80e87007e0238dfca51d36ec34c1dcb1cf1d79bf9b32757705c364",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_16384/driver.log": "544a3cfea68deaa3b8607086167a4056ac7d8818266ae812f08f7f8f0979dfff",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_16384/guard_plan.json": "0e738acbf63e4d3d5580387e1d2a53a2db6c80cc0a61ea0773f7d359b2c643ac",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_16384/guard_result.json": "77aa6d3ca1231e89a14a5e2accf2a2bccb2eb86bf9bded19308513bc102a2a22",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_16384/launch.json": "8d3744d47c9bc939ce4628e8d7e130fddbd03c0f8aee2c2c1f487d7fd6361178",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_16384/memory_timeline.csv": "757dfa6a156ee3e042b38c7d5798171bc937e3eaa0195d814668ec47acded113",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_16384/policy_checks.json": "be414dc1b1071d8dbcc8d731ab43cdae469d91b1c6d2486b75373dc86b57540a",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_16384/driver.log": "678f3dfdadab43808479376715177f7f6742d382d6d5f5e471f37a639a894e02",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_16384/guard_plan.json": "e0c2c7b14f5206c681c2bd243fad68670f4a212b4501b44e3ba9163538fbedbd",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_16384/guard_result.json": "462ec7b3998ff7ead3b781d14d760fc9564faf1dad5280430839a5e222990c5b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_16384/launch.json": "40519f329031dea4a350c1511793eaadf36269e386b5b34c47a3d4a98635b400",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_16384/memory_timeline.csv": "30421681d79e90b3dd1a3ff3ac250bc13d287632af73934d57555e26364b7ec8",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_16384/policy_checks.json": "c0a7ab5438285c7013ca3021f6b45b8ee89e41bfcf0776a208b337db2c7b3587",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_65536/driver.log": "f2c7b0d7f6d1cd09d316c101b62969fb5bbd18aeb161b3de00c920a5e01a6906",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_65536/guard_plan.json": "79fc0736d89568eb56d718e95ebf4cf46c999f176af6c85d3440f34f97c247d9",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_65536/guard_result.json": "bf36ebdb188bb6ec91e5a73404d183b0c11ada2484dce781760b96fb3f2986a1",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_65536/launch.json": "81fd6f8b31dd16e6a25dfbbc7bb13e838d92a7055ee96f9be35278cbb339f9d6",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_65536/memory_timeline.csv": "dcb771fe7aba2cacef50126a376f148068128bbb2ba235e32ec3990a342e460e",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/q_65536/policy_checks.json": "b3ef1712b3ac6cba5624ae12cf8f1f082c8a5b7d0f1e1657e68c2fed783811be",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_65536/driver.log": "423e313f46c15e09d896872b81cf6799fbf106dbb3c191c43b537d6902fb3c36",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_65536/guard_plan.json": "d4f134943e4467f7d93f6c2bba7239beccaa4503fea8d7e0ce094ce16347925c",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_65536/guard_result.json": "8a263c59ae820a7126715fdef5f0580e53398ed629f0d2f7c30bc89882040872",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_65536/launch.json": "126f2d35a8be95a0e10de311e8d2ac1e5d57077d566abc9f908721ab747a7d01",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_65536/memory_timeline.csv": "030793b41c95e317358a072be6c46e2226ad7e606d41bcc1cb9704797a737078",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/m_65536/policy_checks.json": "aab4353828eeb964585d287ed728b77aeff5f3adf03a0170262473f693b709b7",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_65536/driver.log": "9c98443fb6a3e446f7232f9d77b01f7c9c2276639f4aad0a7bbd2eb4c8a49a9a",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_65536/guard_plan.json": "ae4a293c84bcab32071dd42353c14c85c7d310b77f36d28fcad4c3e4d9159566",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_65536/guard_result.json": "be4fd2c5fc7a2e39040ceacbedfe79bb39863c9c362ddb2724f0c5fb048485fd",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_65536/launch.json": "f08addb514832e8b8a21775b2820fbd650323afc17427fe656aac28ffd13c9fa",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_65536/memory_timeline.csv": "7242f3bb82397d8778c511601396336a3fb31dbbc43ab49d49ce68f88406caed",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_memory_diagnostic/runs/guards/f_65536/policy_checks.json": "05bde9620871cda460b2710bf2d65fa747530e4bce1423a93f7b1790b25d0257"
+  }
+}

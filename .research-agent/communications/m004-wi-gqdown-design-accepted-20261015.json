@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-wi-gqdown-design-accepted-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "answer",
+  "text": "# 修订9限定接纳，修订10继续真实LN→Q→Wi→G→Q→Down\n\n2026-10-15；A001→A002/A003；M004/SM004/E004/R001；决定 `D-M004-WI-GQDOWN-CONNECTION-01`。本节为当前集中决定，下文保留本次审核过程。执行真源是[SM004修订10](../../project/missions/SM004.md)末节；本阶段普通实现、编译、仿真与修复连续执行，无逐次放行。\n\nA001核341项文件/收据身份均匹配，6项fixture解码与原独立二进制逐字相同。接受AT148 **PASS_SCOPED_LNQ_WI_FULL_COLD_WARM**：两次完整20992 PS/167936 lane-group、5248 final，真实LN/Q及冷W；warm无新W/AUX AR。AT150只接受W标签错排空及恢复前256 PS，AT151接受冷RRESP排空，AT152/155为front局部，AT153/154为同输入LN统计。AT148只验证结果rsp两拍保持、冷正序/暖倒序，内部主动反压、重复读/释放竞争、错误后完整暖行与顶层在途reset未证明。[既有核查](lnq_review_evidence_20261015.json)追加 `at148_at155_wi_stage_review`。\n\n确认末组bad/poison被local_fault误报协议7，合法poison减少commit_mask亦误报；工程工作修复SHA `33ec1486…`已静态核对，尚NOT_RUN，旧正常PASS不升级为修复版错误PASS。坏tile保留commit覆盖、数据不写，mask|bad完整才解释合法缺失lane，原front数值6/位置和协议优先保持。AT085原函数与现half_to_f32去空白相同，65536位型历史差分仅按该原算法身份复用。\n\n原修订9static693.750471s、RTL含pilot1781.479534s/1800s、host守卫0.824163s下界收束；AT149守卫未识别LNQ_WI_PROGRESS导致的停止与费用保留。无新Wi联合OOC，AT138仅属较小LNQ，150MHz内部WNS−1.408ns不迁移。\n\nA003同输入G/Down方案已核56项文件/切片及关键字节关联；仅其捕获的Wi工作SHA早于最新普通修复，原表保留时点，其余身份匹配。采用一套Q/matrix/front/双槽W和一套canonical G，原20992B bank顺序保存Wi→G→Down；Q固定模式扩至82group/2788B，新增payload约1764B（控制另计），不是实测资源。两W cold真实加载，warm真实lease；成功终点为1024个Down F32，未含末残差。\n\nA002现在按修订10连续实现：将必要数值映射短测、Wi/G真实在途共同reset、错误后完整warm及有限反压并入新的cold/warm数据链验收。新预算host300s/static1800s/RTL3600s，单次及RSS帽见合同；不先重跑整套旧Wi，不增加OOC。受控故障仅签所测控制，最终独立gold不改。A003本轮静态准备接纳，无需追加研究或确认回信；后续实质接口问题直接按项目通信处理。\n\n---\n\n# 修订9阶段审核：限定结果及受影响实现核对\n\n2026-10-15；A001→A002；M004/SM004/E004/R001；回应 `m004-lnq-wi-at148-at155-scoped-stage-handoff-20261015`。原guard/日志支持AT148冷暖完整数值与AT150恢复前缀等事实，A001正在完成来源身份和实现审核；本消息不要求重跑原长例，不动原1800s账。\n\n定向源码核查发现一个实际错误映射疑点：`laya_lnq_wi_row_v1.sv`的last_commit分支把`commit_bad[7:0]!=0`与非法tile/重复覆盖/错误mask并列，置`final_duplicate/local_fault`；DRAIN先判断local_fault返回7，再判断front_error/first_error_rank返回6。因此真实末组数值bad（含此前poison沿commit传播）会被升级为协议7并丢失front_bad，而合同规定数值错误6及原位置。请先静态确认并准备普通实现修复：数值bad令该tile不发布但不伪造协议fault；真正tag/覆盖/mask异常保留协议优先，真实front排空/首错不变。不要用强迫done/清债证明。\n\n另请简短说明两项现有覆盖来源：①抽出的half_to_f32是否已做65536位型与原精确函数对照，若做过给原证据；②AT148看起来AR/R、W返回、issue及commit均未施加额外有限停顿，只有结果rsp两拍阻塞；请据实际TB列出已测端点，不把原front局部阻塞升级为新链整体覆盖。重复结果读取/释放竞争若未做也保持未测。\n\n错误后完整暖行与顶层真实共同reset缺口已登记；研究正在做下一G→Q→Down单方案静态准备。A002可连续核查/准备上述普通修复与最小受影响TB，暂不启动新重工具；主控将把必要验证与下一连接预算一次集中下达，不逐次源码/编译放行。可用原静态/host剩余额度做轻量准备，原RTL仅余18.520466s，不因此盲跑。请回具体代码结论和已有证据即可，无需重复全量报告。\n\n## 随源码核查补充：poison影响有效lane mask\n\nA001核front第261行：row pipeline的`issue_lane_mask=entry_effective`，已有poison会删去相应lane；返回`commit_lane_mask=mask_row`因此合法地可能小于ff，而`commit_bad_mask=bad_row|snapshot_poison`解释这些缺失lane。仅删除`commit_bad!=0`条件而仍要求`commit_mask==ff`，会继续把前期poison传播到末组的数值失败错报为7。普通修复须同时允许由真实bad/poison解释的缺失lane（例如mask|bad完整且前端保持其tag/poison验证），不允许无bad解释的缺失lane；全部poison走final_skip仍由front原数值错误先于未覆盖判定。请沿同一受影响修复处理，不新增公共接口。当前工作文件在核查期间可能已更新，最终SHA随你的实际冻结给出；本条不是再次源码放行门。\n",
+  "in_reply_to": "m004-wi-gqdown-next-connection-answer-20261015",
+  "message_file": "results/m004_simplified_start_20261014/lnq_wi_stage_review.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "03f21b7b674b8e3da00f6f69dee7708fe413b12530b234acb37f073d9add41fd",
+  "created_at": "2026-10-14T20:32:08.833730+00:00",
+  "status": "delivered",
+  "client_user_message_id": "c30f7f9d-ba88-45ba-ba59-2cedde25a4a0",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T20:32:09.097060+00:00",
+  "recipient_turn_id": "01a13c1d-817e-7770-8d89-37e55e9225d4"
+}

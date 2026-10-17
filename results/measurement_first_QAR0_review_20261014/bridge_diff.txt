@@ -1,0 +1,29 @@
+--- AT034/frozen/vivado/module_design/activation_quantizer/rtl/geglu_gate_quant_bridge_v1.sv
++++ AT035/frozen/vivado/module_design/activation_quantizer/rtl/geglu_gate_quant_bridge_v1.sv
+@@ -174,10 +174,13 @@
+   logic [2:0] quant_done_status;
+   logic [63:0] quant_done_bad_element;
+   logic ext_quant_active,ext_quant_route;
+-  assign ext_quant_route=EXT_QUANT && (ext_quant_active ||
+-    (ext_quant_valid && phase==IDLE && !cfg_valid));
+-  assign ext_quant_ready=EXT_QUANT && !ext_quant_active && phase==IDLE &&
+-    !cfg_valid && !done_valid && quant_cfg_ready;
++  logic select_ext_quant;
++  // A waiting G command wins the idle slot. Once an external command is
++  // accepted, ext_quant_active owns the quantizer until its response retires.
++  assign select_ext_quant=EXT_QUANT && !ext_quant_active && phase==IDLE &&
++    !cfg_valid && !done_valid && ext_quant_valid;
++  assign ext_quant_route=EXT_QUANT && (ext_quant_active || select_ext_quant);
++  assign ext_quant_ready=select_ext_quant && quant_cfg_ready;
+   assign ext_quant_reject=EXT_QUANT && ext_quant_active && quant_cfg_reject;
+   assign ext_quant_done_valid=EXT_QUANT && ext_quant_active && quant_done_valid;
+   assign ext_quant_done_status=quant_done_status;
+@@ -202,7 +205,7 @@
+       cfg_bo_span!=0 && cfg_region_span!=0 && !bend[64] && !rend[64] && cfg_region_base>=cfg_bo_base && rend<=bend && first_addr[127:64]==0 && last_end[127:64]==0 && first_addr[5:0]==0 && last_end<=128'(rend) && last_end<=128'(bend);
+   end
+   assign cfg_ready=rst_n && phase==IDLE && writer_cfg_ready && !done_valid &&
+-    !(EXT_QUANT && (ext_quant_active || ext_quant_valid));
++    !(EXT_QUANT && ext_quant_active);
+   assign admit=cfg_valid && cfg_ready && command_ok;
+   assign producer_done_ready=phase==PRODUCE && producer_done_write_debt_zero;
+   assign quant_done_ready=phase==QUANT_RUN && quant_task_debt_zero;

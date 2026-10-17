@@ -1,0 +1,119 @@
+{
+  "schema": "reviewer_q8_actual_fp_boundary_source_acceptance_finite_execution_release_v1",
+  "created_utc": "2026-10-08T23:53:05.967958+00:00",
+  "reviewer": "GPT-6 Astra / xhigh",
+  "status": "SOURCE_ACCEPTED_SINGLE_STATIC_THEN_CONDITIONAL_SINGLE_FINITE_CHARACTERIZATION_AND_RAW_AUDIT_RELEASED",
+  "source_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/source/source_packet.json",
+    "bytes": 20071,
+    "sha256": "17d2771ef3fe1c03ddb1d8ec6976e1c14bd816a4187182cc8b560eed8ddeedb4"
+  },
+  "prior_design": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_actual_fp_boundary_source_preparation_release.json",
+    "bytes": 29369,
+    "sha256": "89b847de5851a6a8a836a70fba31bac78c468e8a847f3f110b19c3aa77c2830d"
+  },
+  "inherited_scorer_acceptance": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_v6_full_functional_acceptance.json",
+    "bytes": 22721,
+    "sha256": "4a1331b7a9aac562a280778602f12085e86ff8497cccb4d2d1ac4771669649bb"
+  },
+  "independent_checks": {
+    "inherited_source_files_rehashed": 712,
+    "direct_fp_inputs_rehashed": 28,
+    "maintained_source_files_rehashed": 12,
+    "installed_fp_library_files_rehashed": 3,
+    "launchers_rehashed": 4,
+    "frozen_rows_rederived_by_literal_contract_expansion": 119,
+    "SV_run_case_calls_matched": 119,
+    "wrappers": 7,
+    "wrapper_rows": {
+      "fdiv": 11,
+      "fmul2": 10,
+      "fmul3": 10,
+      "fadd": 10,
+      "sitofp": 8,
+      "fcmp1": 35,
+      "fcmp2": 35
+    },
+    "clock_and_sample": "10ns TB clock;inactive reset0;CE1;32warmup;negedge operands/opcode;32hold;3 consecutive posedge+1ps samples;65536-clock watchdog. Bound raw log emitted/flushed before checks; all119 evaluated before final conformance fatal.",
+    "comparison": "Exact expected table inherited from independently reviewed mathematical design; no numerical oracle execution or value change. All seven actual outer wrappers/simulationVHDL plus Tcl/XCI are bound.",
+    "valid": "r_tvalid recorded only as diagnostic under contract; outer DUT interfaces consume dout directly and drive input valid constantly. Numeric characterization does not claim handshakes or latency.",
+    "independent_checker": "Verifies case uniqueness/completeness, operands/opcodes/expectedbits, unknown/stability/bit results,3consecutivecycles and completion counts. Final review additionally examines tool exits and ERROR/FATAL classification."
+  },
+  "sequenced_gate": {
+    "owner": "GPT-6 Sol / max vivado_project_sol_max",
+    "concurrency": "One Laya heavy tool; coordinate root/mode3 and wait explicit slot handoff. No overlap with mode3 compiler or OOC.",
+    "fixed_source": "Do not modify this sealed source, regenerateIP,replaceFP model,rewrite table or rerun acceptedScorer/CPU. Any compiler failure ends this gate and requires new source cause review.",
+    "static": {
+      "maximum_invocations": 1,
+      "rss_gib": 4,
+      "wall_seconds": 900,
+      "argv": [
+        "/usr/bin/bash",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/tb/build_static.sh",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/runs/static_build_v1"
+      ],
+      "precondition": "Fresh existing build directory; bound source/library/tool hashes pass. Execute under guard_runtime_4g.py with exact requested limits and process policy.",
+      "success_gate": "All seven VHDL and outerVerilog compile; TB elaborates without missing/blackbox modules; full static snapshot manifest exists; source post-binding passes. Preserve and classify warnings. If these hold, runtime below is already authorized with no further approval."
+    },
+    "runtime": {
+      "maximum_invocations": 1,
+      "rss_gib": 4,
+      "wall_seconds": 600,
+      "argv": [
+        "/usr/bin/bash",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/tb/run_boundary.sh",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/runs/static_build_v1",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/runs/runtime_v1"
+      ],
+      "precondition": "Only clean static success described above; fresh existing runtime dir; recheck source and exact immutable static snapshot before launch.",
+      "behavior": "One full119-case run,not stop-on-first-numeric-mismatch; preserve all rawbits and original first mismatch; complete marker is not conformancePASS. No source/gold adaptation during or after run.",
+      "completion": "Snapshot source binding and allowed-runtime-file archive required even if XSim/run script returns nonzero. A finite R0 bit mismatch is a characterization result to analyze, not an excuse to rerun or change gold."
+    },
+    "offline_raw_audit": {
+      "maximum_invocations": 1,
+      "rss_gib": 4,
+      "wall_seconds": 120,
+      "argv": [
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/tb/independent_check.py",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/runs/runtime_v1",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_fp_boundary_v1/runs/runtime_v1/independent_raw_audit.json"
+      ],
+      "condition": "After archive/source/snapshot preservation,run once whenever raw data exists including expected numeric-conformance fatal or incomplete-run failure. Its nonzero result is preserved; no rerun. No simulator continued after resource/policy failure."
+    },
+    "snapshot_contract": {
+      "pre_static": "Bind complete source before and after elaboration. Record every regular snapshot file and symlink target.",
+      "runtime_mutable_allowlist": [
+        "fp_boundary/xsim_script.tcl",
+        "fp_boundary/xsimSettings.ini",
+        "fp_boundary/xsimkernel.log",
+        "fp_boundary/xsimcrash.log"
+      ],
+      "post_runtime": "Before any cleanup archive/hash all four allowed files that exist. Rehash every original compiled file and require exact identity; only these four paths may appear/change. Obtain post-binding without --expected-snapshot-report,then independently compare manifests with whitelist; verifier exact equality would otherwise reject new runtime files. If removing added files for an exact-check convenience,first archive,never delete/alter any preexisting compiled file.",
+      "failure": "Full raw logs,argv/cwd,all exit codes,guards,timeline,policy,partial/final snapshot and rawfile completeness saved on all outcomes; no unbound mutable exception."
+    },
+    "resource_policy": {
+      "cpu_ids": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "nice": 19,
+      "ionice": "idle",
+      "owned_rss_sample_seconds": 0.2,
+      "MemAvailable_strictly_above_KiB": 201326592,
+      "owned_processes_only": true
+    },
+    "budget_basis": "Seven wrappers and roughly4197 scheduled warmup/test clocks fit65536 hardwarewatchdog; budgets are finite environment allowances rather than latency predictions.4GiB includes verifier whole-file reading of inherited~2GB secureip as well as smallFP elaboration. No Scorer6000s budget inherited."
+  },
+  "acceptance_after_run": "Astra independently reviews all119 raw records,first mismatch/all categories,source/snapshot identity and tool/resource outcome. Never infer universal FTZ from one case or C_HAS_UNDERFLOW; no C1 implementation/numerical waiver or overall restore/quant acceptance here.",
+  "not_released": [
+    "C1 implementation or R0 deviation",
+    "OOC/HLS/P&R",
+    "Board or50ms claim"
+  ],
+  "reviewer_execution": "Source/code reading,streamed hashes,literal table andSV correspondence only; no numerical oracle or EDA."
+}

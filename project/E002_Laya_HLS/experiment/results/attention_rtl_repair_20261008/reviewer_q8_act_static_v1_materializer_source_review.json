@@ -1,0 +1,38 @@
+{
+  "schema": "q8_act_static_v1_materializer_source_review_v1",
+  "at_utc": "2026-10-08T18:29:34.158546+00:00",
+  "reviewer": "GPT-6 Astra xhigh /root/q8_proto_design_astra_xhigh",
+  "verdict": "SOURCE_CHECKS_ACCEPTED_FOR_EXISTING_SINGLE_4GIB_120S_MATERIALIZATION_AUTHORIZATION",
+  "basis": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_act_static_v1_dual_lite_design_preparation_release.json",
+    "bytes": 43588,
+    "sha256": "ac099d5cc31f8a3c9c1144c6f30d56ff2f8bd741d9eede1228c30d39732b50d9"
+  },
+  "source": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_act_static_v1/tb/materialize_act_pages.py",
+    "bytes": 23662,
+    "sha256": "7463f4536d35c0f93f82853b66659842fb5ec226356d3482c54ccb2971966df3"
+  },
+  "prior_candidate": {
+    "sha256": "f156714acc791f9b3e336fdc27f4843fef102a6aaab83fae2d33d3a53ea9e5c6",
+    "issue": "Identity gate base filenames already end in .bin; initial command() appended a second .bin. Caught read-only before materialization; no execution failure or partial fixtures occurred."
+  },
+  "reviewed_source_checks": [
+    "Final command() normalizes .bin exactly once, while identity word-XOR reads gate filename directly.",
+    "All 32 design baseline records verified by materializer, including every frozen descriptor and numeric gold; seven full package hashes separately checked before any output.",
+    "Q0 184680448+2048, scale 23085056+128 and aux bias 617664+8 extents match original files and frozen payloads; aux header 128 bytes preserved.",
+    "41 pages/167936 bytes follow formal physical-page list; q1/out1 sentinel pages; observed all 32 pages; fresh OUT refuses overwrite.",
+    "Legal nine commands preserve task sequence LOAD1, RUN quant2/task3, quant4/task5, replay reject, quant6/task7, NaN quant8 rejects before linear9, recovery quant9/task10; failed quant preserves PS/DST previous epoch3 and consumes A8 epoch4, recovery claims A8 epoch5/PS4/DST4.",
+    "Fault-load three commands inject +Inf at scale n0g1 and n1g0, NaN bias0; ordered scale validation reports bad_element1/detail0780000f, consumes LOAD1/W1; restored LOAD2/W2 and quant3/task4 recover.",
+    "Identity 24 commands use exact gate mutations, eight unclaimed descriptor tag failures plus two precedence failures; eight AUX tag failures claim W epochs1..8 without model payload, then LOAD9 and quant10/task11; changed session rejects, hardware-reset expectation clears state, new LOAD1 and quant2/task3 recover.",
+    "All 256 header words map independently to audited ABI and command/state contract. Descriptor read512; LOAD aux128 or136 and Q0 2048/scales128; RUN activation1024/out0 8; observed1024 plus528 when trace succeeds. Header total counters describe useful/source API bytes and are not a substitute for physical AXI monitor accounting.",
+    "Successful ACT quant_groups8/input256/issued8/retired8/writes2/MACs512, selected trace8groups; NaNs at activation2/7 select first_bad2/detail0720000f before any trace.",
+    "Numeric outputs/A8 bytes/scales/group traces copied only from existing frozen independent oracle files; no DUT output read or oracle computation. Full observed131072/out0 and out1 4096-byte expected images require sentinel outside intended writes.",
+    "Fresh per-command output sentinel expected images require TB to reinitialize external observed/output backing pages only at quiescent command boundaries; hardware warm-reset memory preservation is a separate in-place check."
+  ],
+  "allowed_action": "Owner may consume the existing one-shot materializer run under 4 GiB/120s, four CPUs/nice19/idle I/O/MemAvailable>192GiB/RSS0.2s, exact source hash above and a 4GiB-compatible frozen guard. Seal its outputs and first result. No compiler/simulator/runtime gate is implied.",
+  "pending": [
+    "Independent read/hash review of emitted 36 descriptor/header/full-image records against the contract before RTL runtime release.",
+    "Complete actual TB, adapter, monitor, all ports, actual schedule/budgets, source/IP/library closure and exact compiler/runtime argv."
+  ]
+}

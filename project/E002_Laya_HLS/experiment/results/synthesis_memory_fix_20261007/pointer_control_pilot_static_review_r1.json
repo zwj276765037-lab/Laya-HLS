@@ -1,0 +1,44 @@
+{
+  "reviewed_at_utc": "2026-10-07T10:59:45.280341+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "verdict": "ACCEPT_REVISED_FOCUSED_PILOT_STATIC_DESIGN; EXECUTION_GATE_AWAITS_HOST_DIFFERENTIAL_EVIDENCE",
+  "production_source_review_sha256": "5fd6ae0782351b5fb907582f235a0d95a3dff61ce6c010e54d446cc7f2d79cf3",
+  "wrapper_sha256": "8e1f2d9286b00f342dc640d3d681fdb6bd91dc7c3693feda23116c3cad675301",
+  "tb_sha256": "9f7bab9ae3ab0b2d0acead3684dc726f6ad6fe9c167d2d3a27c5fae1fb378f82",
+  "config_sha256": "2fa6056018309b0c70aa0b08bb066d183e668ebf7bcd993a54479402fc635a3a",
+  "scope": {
+    "top": "full_pointer_control_pilot",
+    "actual_production_translation_units": 25,
+    "separately_listed_production_translation_units": 24,
+    "wrapper_translation_unit": 1,
+    "controller": "Actual source included once in wrapper; excluded from standalone syn.file list. No copied or rewritten Controller method.",
+    "QK": "Calls actual production full_run_task(QKTask), which calls byte-identical qk_row. Runtime mask, dynamic S/batch/query/rows, QKV AXI read and score outputs are reachable.",
+    "lookup": "Calls actual mandatory-reference helper with two real production constant names; no artificial dynamic name pointer.",
+    "controller_observability": "Returned fresh epoch, cleanup Check and incomplete-state output distinguish first/later matches and busy early return.",
+    "QK_observability": "Check fields, two score raw bit patterns, done count, publication and lease counters reach top output. Actual IR liveness still must be inspected after synthesis."
+  },
+  "review_fix_verified": {
+    "pilot_batch_bound": "Before any batch-indexed cache access, run_qk rejects S>1024 or batch>=2. This is a harness-only guard. Existing invalid-context rows=0 still reaches actual production context validation.",
+    "tb_epoch_boundary": "Fresh at kMaxEpoch expects epoch 0.",
+    "tb_mask_observation": "Second score with mask[1]==0 must equal exact -10000.0f bits 0xc61c4000 in successful cases."
+  },
+  "HLS_config": {
+    "part": "xcu55c-fsvh2892-2L-e",
+    "freqhz": 150000000,
+    "flow_target": "vivado",
+    "pipeline_loops": 0,
+    "throughput_driven": "off",
+    "complete_threshold": 0,
+    "strict_fp_flags": [
+      "-fno-fast-math",
+      "-ffp-contract=off"
+    ],
+    "model_header": "Frozen f1a generated header as pilot constants only, not a claim of new final build identity."
+  },
+  "remaining_before_execution": [
+    "Host and synthesis-host focused TB pass with revised harness.",
+    "Frozen-f1a/current actual-source differential driver: full lookup table and optional API modes/failure sentinels; QK full score bits, Check, TaskDone and owner/publication state across specified successful/failure cases. Baseline for new required API is old optional API with &local.",
+    "Update preview hashes to match revised wrapper/TB and preserve commands/config/inputs."
+  ],
+  "execution_policy": "When host evidence is accepted, separately issue one focused real HLS pilot gate, 8 GiB owned RSS and 192 GiB MemAvailable floor, one heavy task, nice19/4CPUs/idle IO, verified owned process tree only. No full-top synthesis or promotion gate implied."
+}

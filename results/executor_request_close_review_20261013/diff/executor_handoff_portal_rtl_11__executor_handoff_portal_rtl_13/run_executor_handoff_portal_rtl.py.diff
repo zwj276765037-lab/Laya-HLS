@@ -1,0 +1,21 @@
+--- executor_handoff_portal_rtl_11/run_executor_handoff_portal_rtl.py
++++ executor_handoff_portal_rtl_13/run_executor_handoff_portal_rtl.py
+@@ -114,6 +114,9 @@
+     import_contract=PROJECT/'results/executor_checkpoint_import_handshake_contract_20261013.md'
+     import_contract_copy=source/'external/executor_checkpoint_import_handshake_contract_20261013.md'
+     shutil.copyfile(import_contract,import_contract_copy)
++    close_contract=PROJECT/'results/executor_close_rearm_contract_20261013.md'
++    close_contract_copy=source/'external/executor_close_rearm_contract_20261013.md'
++    shutil.copyfile(close_contract,close_contract_copy)
+     tool = Path('/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/vivado')
+     guard = source / MODULE / 'tb/production_guard.py'
+     command = [
+@@ -143,6 +146,8 @@
+         'proof_only':args.proof_only,'query_case':args.query_case,'control_oracle':control_oracle,'oracle_command':oracle_command,
+         'contract': {'original': rec(contract), 'frozen': rec(contract_copy)},
+         'import_contract': {'original': rec(import_contract), 'frozen': rec(import_contract_copy)},
++        'close_contract': {'original': rec(close_contract), 'frozen': rec(close_contract_copy)},
++        'request_close_mode': 'default-disabled; all close fact input ports tied0 in this wrapper',
+         'fixture_command': fixture_command, 'prelude_command': prelude_command,
+         'host_fixture_files': [rec(path) for path in sorted(host_fixture.iterdir())],
+         'fixture_files': fixture_files,

@@ -1,0 +1,29 @@
+--- host02/hls/control/graph_program_sequencer.cpp
++++ host03/hls/control/graph_program_sequencer.cpp
+@@ -38,6 +38,7 @@
+                    uint8_t target_region, uint8_t gamma,
+                    action::Request& request) {
+   if (!state.request_active || state.action_active || state.cancel_pending ||
++      !state.first_error ||
+       source_slot >= kGraphSlots || target_slot >= kGraphSlots ||
+       !state.slot[source_slot].valid || state.action_high_water == UINT64_MAX)
+     return protocol(9);
+@@ -92,12 +93,17 @@
+         completion.slot_delta.owner.region != state.pending.target_region ||
+         completion.slot_delta.owner.stage != state.pending.stage ||
+         completion.slot_delta.owner.layer != state.pending.layer ||
++        completion.slot_delta.owner.batch != 255 ||
+         completion.slot_delta.owner.row_space !=
+             state.pending.source.owner.row_space ||
++        completion.slot_delta.owner.row0 != 0 ||
+         completion.slot_delta.owner.rows != state.pending.identity.S ||
+         completion.slot_delta.owner.width != 1024 ||
+         completion.slot_delta.owner.content != Content::F32 ||
+-        !completion.retired_tasks || !completion.first_task_id ||
++        completion.retired_tasks !=
++            uint32_t(state.pending.identity.B) *
++                ((uint32_t(state.pending.identity.S) + 15u) / 16u) ||
++        !completion.first_task_id ||
+         completion.last_task_id < completion.first_task_id ||
+         completion.last_task_id - completion.first_task_id + 1 !=
+             completion.retired_tasks)

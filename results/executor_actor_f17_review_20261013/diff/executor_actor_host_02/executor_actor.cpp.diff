@@ -1,0 +1,55 @@
+--- executor_actor_host_02/executor_actor.cpp
++++ actor_04/executor_actor.cpp
+@@ -99,14 +99,16 @@
+           hls::stream<ap_uint<512>>& transaction_completions) {
+ #pragma HLS pipeline off
+   if (!in.request_valid) s.request_seen = false;
+-  if (s.phase != Phase::IDLE && s.phase != Phase::WAIT_CHECKPOINT &&
+-      s.phase != Phase::RUN_ACTION && s.phase != Phase::WRITE_RESULT &&
+-      s.phase != Phase::WAIT_RESULT_CONSUMED && s.phase != Phase::ISOLATED) {
+-    const auto& b = s.checkpoint.pending.source;
++  // Immutable admission belongs to the actor for its entire lifetime,
++  // including partial action frames, active work and result consumption.
++  // Physical quiescence is deliberately not part of this check: accepted
++  // work creates debt and must still finish its old completion/cleanup path.
++  if (s.phase != Phase::IDLE && s.phase != Phase::ISOLATED) {
++    const auto& b = s.admitted_base;
+     if (in.cancel || in.session != s.session ||
+         in.accepted_request != s.accepted_request_high_water ||
+-        in.fence.base.epoch != b.base_epoch || in.fence.base.address != b.base_address ||
+-        in.fence.base.capacity != b.base_capacity) s.revoked = true;
++        in.fence.base.epoch != b.epoch || in.fence.base.address != b.address ||
++        in.fence.base.capacity != b.capacity) s.revoked = true;
+   }
+   switch (s.phase) {
+     case Phase::IDLE: {
+@@ -129,12 +131,13 @@
+       s.beat = s.result_beat = 0; s.import_pending = false;
+       s.program_result_consumed = false; s.result_consumed_pending = false;
+       s.session = in.session; s.accepted_request_high_water = in.accepted_request;
++      s.admitted_base = in.fence.base;
+       s.revoked = false; s.control_pending = s.control_sent = false;
+       s.error = ok(); ++s.admissions; s.phase = Phase::WAIT_CHECKPOINT;
+       return;
+     }
+     case Phase::WAIT_CHECKPOINT: {
+-      if (in.cancel) { isolate(s, protocol()); return; }
++      if (s.revoked) { isolate(s, protocol()); return; }
+       if (!in.checkpoint_valid) return;
+       checkpoint::Request binding;
+       Check c = checkpoint::reserve_hold(s.checkpoint, s.port, s.runtime, memory,
+@@ -224,6 +227,14 @@
+       }
+       return;
+     case Phase::RUN_ACTION: {
++      // Before an action has started, loss of the held dispatch/source/target
++      // fence is also a persistent revocation.  A partially read frame still
++      // drains under its original key; the port's cancel path prevents its
++      // CLAIM/producer work.  Once active, ownership/fences may transfer and
++      // physical debt is normal, so only immutable admission is sampled above.
++      if ((s.port.phase == lifecycle::PortPhase::READ_ACTION ||
++           s.port.phase == lifecycle::PortPhase::VALIDATE_ACTION) &&
++          !live(in, s.checkpoint.pending)) s.revoked = true;
+       // Only the original active action advances cleanup. A pending new
+       // request never calls begin/admit or re-enters the action start path.
+       lifecycle::port_step(s.port, s.runtime, memory, in.cancel || s.revoked,

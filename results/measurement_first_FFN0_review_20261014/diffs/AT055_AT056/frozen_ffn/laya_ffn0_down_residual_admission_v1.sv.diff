@@ -1,0 +1,24 @@
+--- AT055_FFN0_single_runtime_01/frozen_ffn/laya_ffn0_down_residual_admission_v1.sv
++++ AT056_FFN0_single_runtime_02/frozen_ffn/laya_ffn0_down_residual_admission_v1.sv
+@@ -131,8 +131,9 @@
+       gate_q_held[31:0]<cfg_linear_context[31:0];
+     matrix_cfg_valid=state==EMPTY && down_candidate_valid && static_ok &&
+       !handoff_error;
+-    down_candidate_ready=state==EMPTY &&
+-      (!static_ok || (matrix_cfg_ready && ledger_claim_ready));
++    down_candidate_ready=(state==FINISHED || state==FAILED) ||
++      (state==EMPTY &&
++       (!static_ok || (matrix_cfg_ready && ledger_claim_ready)));
+     accept_down=matrix_cfg_valid && matrix_cfg_ready &&
+       ledger_claim_ready && ledger_claim_admitted;
+     residual_cfg_valid=state==ISSUE_RESIDUAL;
+@@ -201,6 +202,9 @@
+           observed_down_aw<=0;observed_down_w<=0;observed_down_b<=0;
+         end
+       end
++      if((state==FINISHED || state==FAILED) && down_candidate_valid &&
++         down_candidate_ready)
++        down_candidate_reject<=1;
+       if(state==WAIT_DOWN)begin
+         if(matrix_cfg_reject || ledger_claim_reject)begin
+           state<=FAILED;handoff_error<=1;

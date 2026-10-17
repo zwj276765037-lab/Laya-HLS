@@ -1,0 +1,67 @@
+{
+  "artifact_sha256": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/manifest.json": "128768a4a42ffa9d5f5dfd2bb9808e0f7a12a7509638f4d5650cb9fd9fb56caa",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md": "935464f9b644180d6369c3528de411d838da1a83319db36ded56704c8da14e5d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/design_source/04_model_package_and_memory_map.md": "d4d4d80ecb317833b1a7f2e38b4eb80e089a30fbb01b68065527eec331c34dac",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/design_source/09_q8_linear_and_restore.md": "f03dd5f85cb3914346960519b0348b01bfdf2efc93e1c3e7ad0e45d08e35762b",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/results/laya_gpu_inference_benchmark_20261005.md": "f758bb7362dc37136b80541b8572179b724f9ca43bed52a0e4013ab8b18a52b2"
+  },
+  "banking_review": [
+    "W bank=n%8,address=(n/8)*G+g is bijective within each actualK/N and maximumdepth20992 covers all122Q8weights.",
+    "A retains all16rows:bank=r%4,address=(r//4)*G+g; maxaddress511 atG128, with current4row group broadcast acrossN.",
+    "FP input bank=k%8,address=r*512+k//8 retains full16rows of maxK4096.",
+    "PS bank=r_local*8+n%8,address=n//8 covers4x5248 current microblock; full16rowtask completes via4microblocks, singlePS serializes drain/reuse.",
+    "512bit q0/q1 can target same two banks on same cycle; explicit per-bank one-write arbitration/FIFO/backpressure is necessary and is specified.",
+    "N2 physicalpad8 storage is preserved but only2valid output lanes execute/write."
+  ],
+  "contract_sha256_at_review": "935464f9b644180d6369c3528de411d838da1a83319db36ded56704c8da14e5d",
+  "decision": "ACCEPT_GPU_COMPARISON_SCOPE_AND_FUTURE_TM4_TN8_DESIGN_NO_IMPLEMENTATION_RELEASE",
+  "full_top_hls_released": false,
+  "gpu_comparison": "P50/P95 scenarios, resident timing, model SHA and BF16 autocast settings agree with existing GPU report. Different model/precision/B/S/candidates and timing boundaries are explicit;50ms retained as user target with no hardware attainment claim.",
+  "implementation_authorized_by_this_review": false,
+  "logical_capacities_bytes": {
+    "A_q": 65536,
+    "A_scale": 4096,
+    "FP_input": 262144,
+    "PS": 83968,
+    "W_q": 5373952,
+    "W_scale": 335872,
+    "bias": 20992
+  },
+  "max_depth_from_actual_122_Q8_weights": 20992,
+  "performance_limits": [
+    "These idealMAC bounds exclude utilization, quantization, restore,PSfeedback,load,drain,attention,nonlinear andhost costs.",
+    "TM4/TN8 cannot meet50msQ8bound;TM16/TN16B2 idealQ8bound already exceeds50ms.",
+    "NoDSPpacking efficiency,actualII,Fmax,platformHBMbandwidth or fullkernel resourcefit accepted.",
+    "Implementation must first map this contract to existing module source/design.md andresults.md and pass designated technical release. FunctionalD2 repair remains independent andpriority."
+  ],
+  "physical_memory_examples": {
+    "W_q_URAM_if_72x4096": 192,
+    "W_scale_BRAM36_if_18x2048": 88,
+    "status": "arithmetic estimates only; actual primitive inference/fragmentation must be measured"
+  },
+  "r0_review": [
+    "INT32 dot, F16 subnormal scale preservation, fullprecision quant reciprocal before halfsave, separate scale multiply/term multiply/group-ascending addition preserved.",
+    "32INT32 conversions+64F32multiplies+32F32adds per idealTM4/TN8 issue is correct; scalar leaf II does not prove those throughputs.",
+    "Feedback interval=max(ceil(N/8)*issueII,F) without bypass is valid as a lower-bound recurrence constraint; N2 explicitly stalls or uses separately verified forwarding.",
+    "First error must retain original traversal priority across parallel lanes; implementation must track original indices and required earlier work, not pick first arrival.",
+    "Backpressure credit, tag/payload alignment, finalPSwrite, output write-response and allmicroblocks retirement are required beforeTaskDone."
+  ],
+  "recomputed_optimistic_q8_only_ms_at_150mhz": {
+    "B1_TM16_TN16": 38.379520416666665,
+    "B1_TM4_TN8": 307.0361633333333,
+    "B2_TM16_TN16": 76.75904083333333
+  },
+  "review_scope": [
+    "repair_contract.md section1.1",
+    "repair_contract.md sections4.4-4.7"
+  ],
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "section_sha256": {
+    "### 1.1": "b7fc341af5fc147160bd853338e684697902e3dccd04914ef2dadf920ac26679",
+    "### 4.4": "a9ac3230fcb298c434a791e15d43c2b6b1554103df52c74668bbf81d830f4bb0"
+  }
+}

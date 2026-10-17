@@ -1,0 +1,44 @@
+--- executor_handoff_portal_rtl_04/laya_generated_provenance_hub_v1.sv
++++ executor_handoff_portal_rtl_05/laya_generated_provenance_hub_v1.sv
+@@ -6,7 +6,8 @@
+   parameter int OWNERS=32,
+   parameter bit ENABLE_BOOTSTRAP_SNAPSHOT=0,
+   parameter bit ENABLE_BOOTSTRAP_SOURCE_GUARD=0,
+-  parameter bit ENABLE_EXECUTOR_CHECKPOINT=0
++  parameter bit ENABLE_EXECUTOR_CHECKPOINT=0,
++  parameter bit MANAGED_EXECUTOR_CHECKPOINT=0
+ ) (
+   input  logic clk,rst_n,
+   input  logic request_valid,
+@@ -53,6 +54,7 @@
+   input logic [63:0] snapshot_base_epoch,snapshot_base_address,snapshot_base_capacity,
+   output logic [63:0] snapshot_sequence_high_water,
+   // Optional diagnostic v2 query from the unique portal. No Host authority.
++  input logic checkpoint_abort_only,
+   input logic checkpoint_request_valid,
+   output logic checkpoint_request_ready,
+   input logic [8191:0] checkpoint_request,
+@@ -516,9 +518,10 @@
+   endfunction
+ 
+   assign checkpoint_request_ready=ENABLE_EXECUTOR_CHECKPOINT &&
+-    !checkpoint_response_valid && !checkpoint_dispatch_held &&
++    !checkpoint_response_valid && (!checkpoint_dispatch_held || MANAGED_EXECUTOR_CHECKPOINT) &&
+     !request_valid && !response_valid && !pending_end && !scope_active &&
+-    !source_lease_active && !cancel_pending && !cancel &&
++    !source_lease_active &&
++    ((MANAGED_EXECUTOR_CHECKPOINT && checkpoint_abort_only) || (!cancel_pending && !cancel)) &&
+     (!ENABLE_BOOTSTRAP_SNAPSHOT || !snapshot_response_valid) &&
+     (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !bootstrap_source_guard_active);
+ 
+@@ -580,8 +583,8 @@
+              checkpoint_request[680*8+:64]>checkpoint_handoff_high_water)begin
+             checkpoint_sequence_high_water<=checkpoint_request[16*8+:64];
+             checkpoint_handoff_high_water<=checkpoint_request[680*8+:64];
+-            status=E_BUFFER;
+-            if(matched && domain_known && !target_active && typed_slot>=0)begin
++            status=(MANAGED_EXECUTOR_CHECKPOINT && checkpoint_abort_only)?E_PROTOCOL:E_BUFFER;
++            if(!(MANAGED_EXECUTOR_CHECKPOINT && checkpoint_abort_only) && matched && domain_known && !target_active && typed_slot>=0)begin
+               status=E_PROTOCOL;
+               if(typed_frontier_complete[typed_slot] && typed_last_task[typed_slot]!=0 &&
+                  typed_last_task[typed_slot]<32'hffffffff &&

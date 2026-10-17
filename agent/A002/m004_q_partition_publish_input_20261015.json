@@ -1,0 +1,19 @@
+{
+  "source": "# E004：完整软件基线与固定图局部服务实验\n\nM004/SM004/E004/R001；A002唯一工程/工具owner。当前按SM004修订7对真实LN→Q单行连接中的Q有界选槽和银行平衡树作受影响验证，沿同一算术、P1输入/独立gold、LN/顶层接口。AT091完整B1/S128软件请求、AT101向量服务、AT110 LN首错、AT121/124原LN→Q局部范围保留。修订7预算host≤600s、static≤1800s、RTL≤1200s、联合OOC≤1800s；U55C 6.667ns，单重工具/CPU0–3/nice19/idle及内存保护保持。完整硬件图仍是目标。",
+  "results": "# E004：限定结果\n\nAT130最终Q SHA `a1fd5b03…`：114组真实Q/3648字节及27 adapter边界逐位独立gold通过；82组任务164预约=164真实FP发射，四相位reset恢复、平衡选择标量oracle及受控同ordinal平局通过。最终同版LN→Q两真实P1行全部LN统计/1024输出和Q/FP16 scale逐位通过，5正常/4错误/1算术在途reset，合法反压/读释放/无reset恢复保持。gamma0/gamma1 cmd→row_valid 8597/11087cycle，比AT121同刺激+24/+23。\n\nAT131唯一成功U55C联合OOC：37346 LUT、12518 FF、50 DSP、16 RAMB18E2，0 URAM/blackbox；相对AT116 LUT−4309、FF+326。6.667ns内部WNS −1.750ns、TNS −1225.669ns，150MHz仍FAIL；最差路径已改为FMUL结果→首错归并→done_status（39级）。AT132最终DCP只读核row_valid/done_valid为逻辑LUT2，并非综合网表GND。未做P&R，外部I/O无delay，实际Fmax未知。修订7受守卫实测static208.642645s、RTL100.811515s、OOC248.809009s；历史AT126静态FAIL、AT128相对路径启动FAIL保留。详见[同一阶段报告](runs/R001/reports/SM004_lnq_row_stage_result_20261015.md)与[机读证据](runs/R001/reports/SM004_q_partition_stage_evidence_20261015.json)。",
+  "status": "# E004：状态\n\nexecution_state: running；verdict: unassessed（完整M004加速器）。SM004修订7本次工程段已完成：同版Q及LN→Q局部功能PASS、联合资源已测、6.667ns综合内部时序仍FAIL。第一个成功OOC已按合同停止，下一最长段为Q FMUL返回至done_status首错归并，交A001集中选择后续物理闭合或矩阵A连接。无本项目owned重工具运行。真实final gamma、外部AXI/HBM、矩阵A、完整硬件图、P&R、板端和整模性能均NOT_RUN；本局部PASS不代签全图。",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "SM004修订7同版Q/LN→Q局部RTL与U55C综合内部资源/时序；非完整硬件图或布线Fmax",
+  "evidence": [
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_q_partition_stage_evidence_20261015.json",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT130_SM004_q_partition_tie_06/guard_sim/driver.log",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT130_SM004_q_partition_tie_06/guard_lnq_sim/driver.log",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT130_SM004_q_partition_tie_06/guard_lnq_reset/driver.log",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT131_SM004_lnq_partition_ooc_01/work/utilization.rpt",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT131_SM004_lnq_partition_ooc_01/work/timing_summary.rpt",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT131_SM004_lnq_partition_ooc_01/work/blackboxes.txt",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT132_SM004_lnq_partition_dcp_audit_01/guard_static/driver.log"
+  ]
+}

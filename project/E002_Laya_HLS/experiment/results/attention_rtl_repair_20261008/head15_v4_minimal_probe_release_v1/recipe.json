@@ -1,0 +1,51 @@
+{
+  "work": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/runs/minimal_record_probe_v1/work",
+  "stages": [
+    {
+      "stage": "xvlog",
+      "argv": [
+        "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xvlog",
+        "--sv",
+        "-work",
+        "xil_defaultlib",
+        "-i",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/tb",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v4/diagnostic/record_boundary_probe.sv",
+        "-log",
+        "xvlog_probe.log"
+      ]
+    },
+    {
+      "stage": "xelab",
+      "argv": [
+        "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xelab",
+        "xil_defaultlib.record_boundary_probe",
+        "-L",
+        "floating_point_v7_1_21",
+        "-L",
+        "unisims_ver",
+        "-L",
+        "xpm",
+        "-L",
+        "secureip",
+        "--relax",
+        "-mt",
+        "off",
+        "-s",
+        "record_boundary_probe",
+        "-log",
+        "xelab_probe.log"
+      ]
+    },
+    {
+      "stage": "xsim",
+      "argv": [
+        "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/xsim",
+        "record_boundary_probe",
+        "-runall",
+        "-log",
+        "xsim_probe.log"
+      ]
+    }
+  ]
+}

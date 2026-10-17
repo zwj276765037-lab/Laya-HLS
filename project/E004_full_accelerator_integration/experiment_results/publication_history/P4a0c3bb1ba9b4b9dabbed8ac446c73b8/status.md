@@ -1,0 +1,31 @@
+# E004：状态
+
+execution_state: running（M004完整目标）；verdict: unassessed（完整加速器）。主控D-M004-REV14-CLOSEOUT-01已按分版证据有界收束SM004修订14：AT225旧wrapper真实row0冷/row1暖RAW→RoPE正常链限定PASS；当前wrapper `0d3e340e…`的AT230–241受影响控制/传输局部和AT232真实core/IP展开PASS；AT236/237/242原full-Check叶子与生产adapter局部算术、异常次序和恢复PASS。AT242只签四种Check次序、结果保持与无reset后继正常head，不签wrapper错误写回或全请求首错。
+
+修订14最终55笔guard实耗static/IP1001.90892168506979732/1800s、RTL1247.0794125087559535/4800s，未用798.09107831493020268s及3552.9205874912440465s均封存；host完整累计UNKNOWN。本段不再启动重工具，原FAIL/COST_STOP及严格MUL IP已接受未返回reset NOT_RUN保留。当前wrapper真实两行/跨mode FFN同SHA长链、物理BO/邻区哨兵、全128行真实producer、Attention/Encoder/整模、生产Host/HBM及联合资源/Fmax仍未验。S128真实源与固定请求修订15已开始实施并获得所测前缀证据，FINAL→Attention仍未实施；M004继续running/unassessed。
+
+修订15工程阶段running，AT250旧wrapper两行真实前缀获主控限定接纳；当前wrapper `d4856aee…` AT264一行真实全链及逻辑哨兵、AT256/259/261/260局部控制、AT252模拟128行调度、AT262/263真实core局部入口已获主控D-M004-REV15-AT264-01分版接纳。累计42笔guard，static1769.133914342150093/1800s、RTL2768.097435323521494/4800s，host完整UNKNOWN；本轮已停止重工具。修订15未因两行前缀而完成128行生产或请求发布，完整目标继续running/unassessed。
+
+AT265按AT264决定补完末行错误peer，static/RTL本次各20s小帽内child0/null；仅局部调度出口PASS，已由D-M004-REV15-CLOSEOUT-01限定接纳。AT243–265合计44笔guard，static1773.706414608284832/1800s、RTL2773.568239858373999/4800s，余static26.293585391715168s、RTL2026.431760141626001s已封存；旧两行真实前缀、当前一行全链和未验完整请求的边界不变。
+
+修订15已按D-M004-REV15-CLOSEOUT-01有界收束，不启动同修订重工具；M004/SM004完整目标仍running/unassessed。逐行与旧全请求head优先异常首错次序差异维持UNRESOLVED，该句为修订15收束时点历史；修订16现已实施。
+
+## 修订16收束与修订17当前状态（2026-10-15）
+
+D-M004-REV16-CLOSEOUT-01已按AT268旧adapter八tile及AT270–272当前adapter短例分版收束，旧余额封存。修订17依据D-M004-STAGED-LNQ-01继续工程阶段，AT297同版120秒pilot仅退休row0/1，未达16行估计门，真实LN128/NORM_STAGE_READY为COST_STOP/NOT_RUN；AT290 Q16局部、AT292/294/296错误/恢复、AT298/299模拟调度/reset及AT300当前leaf旧模式兼容仅在所测范围通过。原失败和pilot费用完整计入。修订17账余额static109.0716547369957103s、RTL1939.0749267190694595s仍属本段，待A001集中审核决定，不自行封存或转移。完整M004/SM004保持running/unassessed；全请求异常等价、完整producer→FINAL→Attention、Host/HBM与联合物理未验。
+
+
+---
+Published: 2026-10-15T14:22:22.989948+00:00
+Publication: Pc9972adf851d42f9909b330e990109ee
+Execution state: running
+Research verdict: unassessed
+Applicability: 修订17当前三模块真实LN仅row0/1前缀COST_STOP；Q16、错误、调度和旧模式均限定短例；完整M004未验收
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev17_staged_lnq_engineering_handoff_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev17_guard_ledger_AT273_AT300_20261015.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT297_SM004_rev17_current_ln128_prefix_pilot_01/guard_rtl_pilot/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT290_SM004_rev17_q16_current_core_gate_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT296_SM004_rev17_real_ln_discard_ack_01/guard_last_b_drain/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT298_SM004_rev17_current_seq_norm_metadata_regression_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT300_SM004_rev17_lnq_legacy_modes_compat_01/guard_direct_legacy/guard_result.json

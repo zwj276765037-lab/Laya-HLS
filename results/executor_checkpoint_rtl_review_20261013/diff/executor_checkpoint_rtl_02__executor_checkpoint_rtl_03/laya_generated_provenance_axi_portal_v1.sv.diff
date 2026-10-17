@@ -1,0 +1,41 @@
+--- executor_checkpoint_rtl_02/laya_generated_provenance_axi_portal_v1.sv
++++ executor_checkpoint_rtl_03/laya_generated_provenance_axi_portal_v1.sv
+@@ -154,6 +154,28 @@
+   logic [8191:0] checkpoint_request,checkpoint_response;
+   logic checkpoint_response_valid,checkpoint_response_ready;
+   logic checkpoint_exclusion;
++  logic checkpoint_base_seen,checkpoint_base_history_complete;
++  logic [63:0] checkpoint_history_epoch,checkpoint_history_address,checkpoint_history_capacity;
++  // Historical Ref equivalence is meaningful only within this locked base.
++  // A lifecycle change after any predecessor ingress cannot reuse old arrays.
++  always_ff @(posedge clk)begin
++    if(!rst_n)begin
++      checkpoint_base_seen<=0;checkpoint_base_history_complete<=0;
++      checkpoint_history_epoch<=0;checkpoint_history_address<=0;checkpoint_history_capacity<=0;
++    end else if(ENABLE_EXECUTOR_CHECKPOINT)begin
++      if(!checkpoint_base_seen && provenance_cmd_write && provenance_cmd_full_n)begin
++        checkpoint_base_seen<=1;
++        checkpoint_base_history_complete<=snapshot_base_valid && snapshot_base_address==monitored_bo_base;
++        checkpoint_history_epoch<=snapshot_base_epoch;
++        checkpoint_history_address<=snapshot_base_address;
++        checkpoint_history_capacity<=snapshot_base_capacity;
++      end
++      if(checkpoint_base_seen &&
++         (!snapshot_base_valid || snapshot_base_epoch!=checkpoint_history_epoch ||
++          snapshot_base_address!=checkpoint_history_address || snapshot_base_capacity!=checkpoint_history_capacity ||
++          monitored_bo_base!=checkpoint_history_address))checkpoint_base_history_complete<=0;
++    end
++  end
+   assign checkpoint_exclusion=ENABLE_EXECUTOR_CHECKPOINT &&
+     checkpoint_dispatch_held && !checkpoint_authority_valid;
+   assign selected_cmd=ENABLE_EXECUTOR_CHECKPOINT && checkpoint_dispatch_held ?
+@@ -244,7 +266,8 @@
+     .checkpoint_request_valid,.checkpoint_request_ready,.checkpoint_request,
+     .checkpoint_response_valid,.checkpoint_response_ready,.checkpoint_response,
+     .checkpoint_dispatch_held(checkpoint_exclusion),
+-    .checkpoint_physical_quiescent(bootstrap_physical_safe),
++    .checkpoint_physical_quiescent(bootstrap_physical_safe && checkpoint_base_seen &&
++                                   checkpoint_base_history_complete),
+     .checkpoint_lpv_floor(last_event_seq),
+     .checkpoint_sequence_high_water,.checkpoint_handoff_high_water,
+     .bootstrap_source_guard_active,

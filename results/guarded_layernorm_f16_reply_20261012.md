@@ -1,0 +1,43 @@
+# F16限定关闭与真实guarded LayerNorm有限出口审核
+
+回复：`guarded-layernorm-f16-milestone-20261012`  
+审核：**R-SM003-GUARDED-LAYERNORM-F16-20261012**  
+范围：M003/SM003/E003/R003；唯一实现owner、现合同和原预算保持。
+
+**F16在本次冻结hub、实际C++ provenance decoder/transaction adapter及所测有限RTL范围关闭。接纳guarded LN_05的一行真实数值、F9同consumer、完成派生END和诚实短窗口错误收束证据。没有新增阻塞修复项；C009和完整生产source保护仍不关闭。** 本审核不扩大此前F15等限定关闭范围，不代签新版本或未运行的生产链。
+
+## 独立核查
+
+主控独立读取七项manifest/receipt、原始日志、guard与policy、冻结源/TB/fixture及历史差异。517/517 frozen/声明pair、23/23交付SHA一致；本次采样506/517 current及1584/1595递归SHA引用一致，11项差异逐项匹配已披露的两个catalog登记，DUT/TB/gold/生成物没有额外漂移。不能把当前506/517写成当前517/517。
+
+17阶段child0/trigger null，选中阶段起止串行；179条实际policy符合CPU0–3/nice19/idle I/O，实际采样的内存、MemAvailable、墙钟及120s停滞保护均符合各入口帽。host run仅0.165295s，在首次采样前结束：无owned-RSS或child-policy观测，仅有launcher/wrapper配置。此限制保留。
+
+LN_05为57201cycles、pilot25.581878s，static59.064432s；复用原layernorm_producer_hls_01的71份Verilog/7份DAT，7份DAT落位逐项匹配。36份实际LPV捕获为18对；host的四对输入与其中8个实际文件逐字节SHA一致。1024个F32比较来自原独立gold，未改gold或取DUT输出构造期待值。核查路径：`results/guarded_layernorm_f16_review_20261012/verification.json`。
+
+## F16关闭范围
+
+_07→_08共同23项中只有hub与TB改变；guard本体保持。冲突非END返回E_BUFFER/drained0/scope0，内部旧scope保留；错误END仍可返回scope1。四个真实RTL响应经过现C++ codec完整roundtrip和实际transaction adapter，核绑定及LTC1安全终态：两项非END冲突不安全，错task END为drained1/scope1且不退休，匹配短窗口END为drained1/scope0的安全错误。
+
+原F16非END/scope1负变体仍由codec/adapter隔离，不产生可信后继完成；没有放宽codec或清旧scope迎合测试。host使用真实捕获和实际C++ adapter，但不等于本轮生成adapter与guarded LN同runtime接线。
+
+## 真实guarded LN接纳范围
+
+唯一hub的来源通过正常CLAIM→四个BEGIN/真实AW-W-B/END→PUBLISH建立：64 AW/4096 W/64 B、262144B，四次hub typed终态。内存起初未知，来源由实际W写入；数值是冻结16行重复到64行的受控前序，不是encoder算术。
+
+已接入的前序writer与生成LN writer共用单STATE0写口及同monitor/hub；guard期间前序writer无AW/W准入。真实source AR的memory VALID与engine READY同门控；锁存base/epoch/capacity持续比较。生成LN实际1 AR/64 R、4096B，一行1024个F32逐字匹配。F9核完整LPE1/LPC1且使用同一个真实depth2完成consumer，末2/末1拍各停12周期时job/guard/fence保持。
+
+实际LPC1消费和读债归零之后，错END仍保留旧scope；随后调用侧从真实LPC1构造匹配END。目标完整64行而只完成一行，真实返回短窗口E_PROTOCOL，hub task5终态恰一次并允许target INVALIDATE。最终18事件/18返回、3次准入拒绝、5次hub终态（前序4+本段错误1）。END终态错误不计成准入拒绝。
+
+安全错误LAC1仍由独立受控fixture提供，经真实depth2末拍消费释放guard；它不证明生成executor报告、唯一软件typed退休、完整action成功或任意错误恢复。单base/两个writer不覆盖全部13BO生命周期、跨role/base alias和旁路写入口。真实来源保护只接纳这段实际接线范围。
+
+## 兼容、历史与后续
+
+monitor_13和snapshot_05保持各自旧fixture范围；portal_08仅单行pilot。LN→Q_04本轮为单行LN兼容和六项F9拒绝，原始marker为quant_AR=0/quant_R=0/fullA_groups=0；rows16 full未启动，本轮不新增QUANT数值结论。旧_03 LN→Q/fullA仅按原冻结身份保留。
+
+guard_05 FAIL/06 PASS与LN_01–04 FAIL均保留。历史差异核实：LN_01为F16隔离；_02为统计断言；_03错误END fixture语义不合法；_04在完成消费前等待END造成cycle cap；_05移到实际LPC1消费/fence后检查错END，并保留数值、scope和唯一终态断言。修正未覆盖历史失败。
+
+检查点问题已另以**D-M003-EXECUTOR-CHECKPOINT-HIGH-WATER-01**直接答复：按`results/executor_checkpoint_high_water_contract_20261012.md`实施仅诊断的LBS2/LBR2真实下界交接。hub typed/Ref、实际LPV transport序号、原持久producer/program权威须分清；初始化退休比较前驱不增加本段退休统计。继续当前v2/schema/helper/host负例，再接唯一hub/transport交接、独立executor top、真实8/4 action consumer与F10真实LTC1 consumer；按已授权顺序验证后串行生成，不需逐项请批。
+
+后续仍需实际program→executor→F10→LN/monitor/hub→真实END/唯一软件退休→Q/fullA，再扩大tensor/family/PC、错误恢复及最终13BO请求。保持先前source保护全部入口义务，SOURCE_READY_PROOF不是永久授权。
+
+C009部分实施/awaiting_implementation，C008/C010整体待验；L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成。原单重工具/帽、G余2338.224019s保持，5172s组合不重启；本轮主控仅静态/证据审核，无编译仿真HLS、新agent/OOC/P&R/上板或预算。工程继续实施，无需用户转发。

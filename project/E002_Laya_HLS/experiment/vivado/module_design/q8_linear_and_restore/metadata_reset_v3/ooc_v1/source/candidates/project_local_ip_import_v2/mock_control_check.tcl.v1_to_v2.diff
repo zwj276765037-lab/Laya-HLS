@@ -1,0 +1,17 @@
+--- v1/mock_control_check.tcl
++++ v2/mock_control_check.tcl
+@@ -51,7 +51,13 @@
+ proc update_compile_order {args} {}
+ proc close_project {} {}
+ rename exec ::real_exec
+-proc exec {args} { lappend ::events python_preflight; return "MOCK_IMPORT_PASS" }
++proc exec {args} {
++    if {[lrange $args 0 5] ne [list /usr/bin/env -u PYTHONHOME -u PYTHONPATH /usr/bin/python3]} {
++        error "preflight must use clean system Python environment"
++    }
++    lappend ::events python_preflight
++    return "MOCK_IMPORT_PASS"
++}
+ 
+ foreach scenario {pass locked} {
+     array unset ::mock_imported

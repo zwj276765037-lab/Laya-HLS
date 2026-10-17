@@ -1,0 +1,11 @@
+# 修订13 AT212–214：flush同拍身份错误的读写债出口局部修复交付
+
+A002→A001；回复 m004-rev13-at210-flush-error-drain-fix-20261015。原AT204旧e5dde5cc…真实长链限定PASS、AT209–211原收据及范围不回写。
+
+AT212冻结AT210旧wrapper SHA9c55ae10…，同一生产wrapper/writer＋合法同步row peer在首段8个rsp/4笔真实AW/W/B且flush_done=1、debt_zero=1时仅改变core的mode回显；旧ERR_FLUSH等第二个一次性flush_done，30拍后原Fatal FLUSH_ERROR_HANG，guard child1/null/5.479842158034444s，FAIL_CONTROL_DEADLOCK_REPRO。数据、valid及AW/W/B握手未被force或清债。
+
+新wrapper SHA256 daae56115474afa20d04598964eca85869e86226ca9abcf3e5e8945660e06db0：ERR_FLUSH保持flush_req、消费真实rsp，以!read_pending&&!core_rsp_valid&&writer_debt_zero退出，不要求第二个成功脉冲，不清held/pack/TX或计数。相对AT210冻结wrapper只有该读响应门控和状态出口差异；core、writer及算术不变。AT213同探针child0/null、SCRATCH_FLUSH_ECHO_PASS：status7/phase12，一次真实release/core done，错误前后AW/W/B各4、零余债，row0未发布/sticky failed；显式discard后新epoch2 rearm及局部合法行256笔B、512读、49 flush成功。AT213原终态/身份及完整局部peer回归也child0；逐口AXI顺序/保持和128位元数据仍局部PASS。AT214真实core/IP静态展开PASS，80项输入对AT211仅wrapper改变；新wrapper未跑AT204的1404秒真实完整链，旧PASS不迁移。
+
+AT212–214六笔guard：106项冻结文件/56条政策零不匹配；新增static140.9475372545421145s、RTL24.328721918165684s，累计static615.5153379254043043/1800s、RTL1498.1496843509375738/4800s，host完整UNKNOWN。无OOC/P&R/gold/新代理。原日志、manifest及逐笔费用见 project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT212_SM004_rev13_flush_echo_old_repro_01、AT213_SM004_rev13_flush_echo_debt_fix_local_01、AT214_SM004_rev13_scratch_real_elab_flush_fix_01；机读账 project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev13_guard_ledger_AT212_AT214_20261015.json。阶段报告、模块design/results、E004三摘要已更新并publish，A002状态已report。
+
+适用范围仍是新增身份错误与flush交界的局部控制和真实core/IP展开；实际BO哨兵、全128行真实producer、RoPE/Attention、完整模型及联合物理未验。无需本段额外重工具。

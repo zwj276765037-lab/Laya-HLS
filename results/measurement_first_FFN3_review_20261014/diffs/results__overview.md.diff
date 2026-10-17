@@ -1,0 +1,20 @@
+--- before/results/overview.md
++++ after/results/overview.md
+@@ -1,6 +1,6 @@
+ # Laya-HLS 当前概览
+ 
+-[FFN2准备停止已核](measurement_first_FFN2_review_20261014.md)：AT060缺完整库身份、AT061把Bash loader误送ldd，未进入xsim/prefix/full。当前[FFN3](../mission/ffn_typed_runtime_preparation_stage_20261014.md)固定DUT/TB/guard/data，按脚本/ELF分层核依赖；纯host在累计120s预算内连续准备，一次真实冷前缀后有据决定至多一次full，NOT_RUN。普通Q/L/整体生产控制停排，M003/M004开放。
++[FFN3语义失败已核](measurement_first_FFN3_review_20261014.md)：AT062冷前缀通过，full到LN/Q/Wi后于271096发生Wi reader cfg Fatal；Wi消费271089、标记271090，后段未到达。当前[FFN4](../mission/ffn_wi_descriptor_replay_stage_20261014.md)仅分离Wi DDR与Down STATE1描述符；新static/短测/冷前缀后按分阶段成本决定唯一full，NOT_RUN。普通Q/L/整体生产控制停排，M003/M004开放。
+ 
+ | 工作 | 当前结论 | 接下来的处理 |
+ | --- | --- | --- |
+@@ -30,7 +30,8 @@
+ | FFN0同runtime末残差 | AT057守卫观测漏W实读，COST_STOP | 原额度结束；后段及完整保护未到达 |
+ | FFN1受影响观察准备 | 局部短测PASS；pilot启动前超帽/full未准入 | 原准备纠正额度已收束，无新联合动态样本 |
+ | FFN2运行包准备 | host准备停止；无xsim/prefix/full | 脚本误作ELF，旧纠正额度收束 |
+-| FFN3类型感知启动 | NOT_RUN | 脚本/source链与ELF依赖核验；一次冷前缀后再有据full |
++| FFN3类型感知启动 | AT062前缀PASS；full Wi reader配置语义FAIL | 已达LN/Q/Wi，后段NOT_REACHED，旧额度收束 |
++| FFN4存储描述符分离 | NOT_RUN | 稳定Wi DDR/Down STATE1；新static/短测/冷前缀/成本后唯一full |
+ | 全模型/真实请求/恢复/资源 | M003/M004未完成 | 最终验收义务保留 |
+ 
+ WI0全TB101335，GQD0全TB102660各有自己的诊断边界，不相加成连续链延迟。当前连接统一B1/S128/batch0/row0四行窗口，AT032外部输入为预量化LN_FFN A，AT034已推进到原LN_FFN F32；链间无reset，原容量A/W单实例递增epoch复用，AT032已取得完整四行数值及最终有效区/保护区读回；LN producer已在AT049接入同一后段并通过限定四行检查；末FFN residual、完整模型与生产恢复未验证。WI0旧样本未做独立DDR哨兵读回，不回写成已完成。

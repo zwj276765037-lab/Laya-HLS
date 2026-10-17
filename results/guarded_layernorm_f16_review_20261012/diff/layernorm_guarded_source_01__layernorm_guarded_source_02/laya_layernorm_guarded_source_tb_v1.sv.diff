@@ -1,0 +1,11 @@
+--- layernorm_guarded_source_01/laya_layernorm_guarded_source_tb_v1.sv
++++ layernorm_guarded_source_02/laya_layernorm_guarded_source_tb_v1.sv
+@@ -240,7 +240,7 @@
+     transaction("target_claim",CLAIM,0,1);
+     transaction("target_begin",BEGIN_EVENT,0,3);producer_loaded=1;
+     while(source_ar==0)tick();
+-    transaction("source_conflict_live",INVALIDATE,E_BUFFER,2);
++    transaction("source_conflict_live",INVALIDATE,E_BUFFER,0);
+     while(completion_index<6)pop_producer();
+     while(producer_completion_occupancy!=2)tick();
+     repeat(12)begin

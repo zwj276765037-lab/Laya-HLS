@@ -1,0 +1,167 @@
+diff --git a/examples/laya/src/engine.cpp b/examples/laya/src/engine.cpp
+index caf539d..e6db11a 100644
+--- a/examples/laya/src/engine.cpp
++++ b/examples/laya/src/engine.cpp
+@@ -343,6 +343,7 @@ DecideResult DecisionEngine::decide(const JsonValue& state, const std::vector<Qu
+         for (int qi : idxs) {
+             S = std::max(S, clamp_seq(static_cast<int>(encs[qi].ids.size())));
+         }
++        if (std::getenv("LAYA_REFERENCE_ABI128")) S=128;
+         const int cap = batch_cap_for_seq(S);
+         int graph_B = 0;
+         size_t cursor = 0;
+@@ -367,6 +368,9 @@ DecideResult DecisionEngine::decide(const JsonValue& state, const std::vector<Qu
+                 std::vector<int32_t> ids, mpos, qt, decide;
+                 std::vector<float> att, mmask;
+                 pad_encoded_batch(slice, recipe_, try_b, S, ids, att, mpos, mmask, qt, decide);
++                if (std::getenv("LAYA_REFERENCE_ABI128")) {
++                    for(int b=0;b<try_b;b++)for(int k=0;k<seq_.max_opts;k++)if(mmask[b*seq_.max_opts+k]==0) mpos[b*seq_.max_opts+k]=b*S;
++                }
+                 try {
+                     std::vector<float> logits, act;
+                     bind_and_run_batch(try_b, S, ids, att, mpos, mmask, qt, decide, logits, act);
+diff --git a/runtime/src/executor.cpp b/runtime/src/executor.cpp
+index 7f5ef78..e853406 100644
+--- a/runtime/src/executor.cpp
++++ b/runtime/src/executor.cpp
+@@ -13,6 +13,9 @@
+ #include <cstdlib>
+ #include <vector>
+ #include <climits>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
+ #include "ggml.h"
+ #include "ggml-impl.h"
+ #include "ggml-backend.h"
+@@ -2811,6 +2814,10 @@ void ModelExecutor::prepare(const std::unordered_map<std::string, int64_t>& symb
+     // those buffers while GET_ROWS / FA / later layers still need them.
+     pin_live_graph_tensors();
+ 
++    if (std::getenv("LAYA_REFERENCE_DUMP") && (!std::getenv("LAYA_REFERENCE_OUTPUT_ONLY") || std::getenv("LAYA_REFERENCE_FORCE_PIN"))) {
++        for (int i=0; i<cgraph_->n_nodes; ++i) ggml_set_output(cgraph_->nodes[i]);
++        for (auto &kv : ggml_tensors_) ggml_set_output(kv.second);
++    }
+     // 4. Allocate tensor storage for compute activations on backend (CPU or CUDA)
+     if (enable_arena_reuse) {
+         galloc_ = ggml_gallocr_new(ggml_backend_get_default_buffer_type(backend_));
+@@ -3029,11 +3036,44 @@ void ModelExecutor::run(int n_threads) {
+     // Outer CUDAGraphManager capture nests with ggml_backend_cuda_graph_compute and
+     // aborts on bucket switches; pad-stable SET_ROWS graphs make that wrapper unnecessary.
+ 
++    if (std::getenv("LAYA_REFERENCE_AUDIT") && std::getenv("LAYA_REFERENCE_DUMP")) {
++        std::filesystem::path d(std::getenv("LAYA_REFERENCE_DUMP")); std::filesystem::create_directories(d);
++        std::ofstream f(d/"topology.tsv"); f<<"node\tname\top\tdtype\tsrc0_name\tsrc0_type\tsrc1_name\tsrc1_type\tsrc2_name\tsrc2_type\tdata_eq_src0\tdata_eq_src1\tdata_eq_src2\n";
++        for(int i=0;i<cgraph_->n_nodes;i++) {auto t=cgraph_->nodes[i]; f<<i<<"\t"<<t->name<<"\t"<<ggml_op_name(t->op)<<"\t"<<ggml_type_name(t->type);
++        for(int j=0;j<3;j++)f<<"\t"<<(t->src[j]?t->src[j]->name:"")<<"\t"<<(t->src[j]?ggml_type_name(t->src[j]->type):"");
++        for(int j=0;j<3;j++)f<<"\t"<<(t->src[j] && t->data==t->src[j]->data ? 1 : 0);f<<"\n";}
++    }
+     enum ggml_status status = ggml_backend_graph_compute(backend_, cgraph_);
+     if (status != GGML_STATUS_SUCCESS) {
+         throw std::runtime_error("GGML backend graph compute failed with status: " + std::to_string(status));
+     }
+ 
++    if (const char* root = std::getenv("LAYA_REFERENCE_DUMP")) {
++        static unsigned run_id=0;
++        auto dir=std::filesystem::path(root)/("forward_"+std::to_string(run_id++));
++        std::filesystem::create_directories(dir);
++        std::ofstream meta(dir/"tensors.tsv");
++        meta << "id\tname\top\tdtype\tne0\tne1\tne2\tne3\tnb0\tnb1\tnb2\tnb3\tbytes\tfile\n";
++        auto dump=[&](const std::string& id, struct ggml_tensor* t) {
++            if(!t || !t->buffer) return;
++            if (std::getenv("LAYA_REFERENCE_OUTPUT_ONLY") && id != "ir_1469" && id != "ir_1616") return;
++            size_t n=ggml_nbytes(t);
++            std::string file=id+".bin";
++            std::vector<char> data(n);
++            ggml_backend_tensor_get(t,data.data(),0,n);
++            std::ofstream f(dir/file,std::ios::binary); f.write(data.data(),n);
++            meta<<id<<"\t"<<t->name<<"\t"<<ggml_op_name(t->op)<<"\t"<<ggml_type_name(t->type);
++            for(int j=0;j<4;j++)meta<<"\t"<<t->ne[j];
++            for(int j=0;j<4;j++)meta<<"\t"<<t->nb[j];
++            meta<<"\t"<<n<<"\t"<<file<<"\n";
++        };
++        std::unordered_set<struct ggml_tensor*> seen;
++        for(auto &kv:ggml_tensors_) {
++            if(kv.second->op==GGML_OP_NONE && std::find(model_graph_.inputs.begin(),model_graph_.inputs.end(),kv.first)==model_graph_.inputs.end())continue;
++            dump("ir_"+std::to_string(kv.first),kv.second);seen.insert(kv.second);
++        }
++        for(int i=0;i<cgraph_->n_nodes;i++)if(!seen.count(cgraph_->nodes[i]))dump("node_"+std::to_string(i),cgraph_->nodes[i]);
++    }
+     // Execution completed successfully
+ }
+ 
+diff --git a/third_party/ggml/src/ggml-cpu/ggml-cpu.c b/third_party/ggml/src/ggml-cpu/ggml-cpu.c
+index 87ac0a7..0a562cc 100644
+--- a/third_party/ggml/src/ggml-cpu/ggml-cpu.c
++++ b/third_party/ggml/src/ggml-cpu/ggml-cpu.c
+@@ -1268,6 +1268,8 @@ void ggml_compute_forward_mul_mat(
+ 
+     const int ith = params->ith;
+     const int nth = params->nth;
++    const bool ref_audit = getenv("LAYA_REFERENCE_AUDIT") != NULL;
++    if(ref_audit && ith==0)fprintf(stderr,"[REF_MUL_MAT] node=%s weight=%s weight_type=%s activation=%s activation_type=%s dot_type=%s\n",dst->name,src0->name,ggml_type_name(src0->type),src1->name,ggml_type_name(src1->type),ggml_type_name(type_traits_cpu[src0->type].vec_dot_type));
+ 
+     enum ggml_type           const vec_dot_type         = type_traits_cpu[src0->type].vec_dot_type;
+     ggml_from_float_t        const from_float           = type_traits_cpu[vec_dot_type].from_float;
+@@ -1314,6 +1316,7 @@ void ggml_compute_forward_mul_mat(
+                                      src1->type,
+                                      dst->type))
+                     goto UseGgmlGemm1;
++        if(ref_audit && ith==0)fprintf(stderr,"[REF_BRANCH] node=%s path=llamafile_direct\n",dst->name);
+         return;
+     }
+ UseGgmlGemm1:;
+@@ -1362,6 +1365,13 @@ UseGgmlGemm1:;
+     }
+ 
+     ggml_barrier(params->threadpool);
++    if (ref_audit && ith==0 && src0->type==GGML_TYPE_Q8_0 && src1->type!=vec_dot_type) {
++        const char* root=getenv("LAYA_REFERENCE_DUMP");
++        if(root){char path[4096];snprintf(path,sizeof(path),"%s/native_q8_activation_%s.bin",root,dst->name);
++        FILE* f=fopen(path,"wb");if(f){size_t n=ggml_row_size(vec_dot_type,ne10)*ne11*ne12*ne13;fwrite(params->wdata,1,n,f);fclose(f);
++        fprintf(stderr,"[REF_Q8_SCRATCH] node=%s type=%s shape=%lld,%lld,%lld,%lld bytes=%zu file=%s\n",dst->name,ggml_type_name(vec_dot_type),(long long)ne10,(long long)ne11,(long long)ne12,(long long)ne13,n,path);}}
++    }
++
+ 
+ #if GGML_USE_LLAMAFILE
+     if (src1->type != vec_dot_type) {
+@@ -1382,11 +1392,13 @@ UseGgmlGemm1:;
+                                      vec_dot_type,
+                                      dst->type))
+                     goto UseGgmlGemm2;
++        if(ref_audit && ith==0)fprintf(stderr,"[REF_BRANCH] node=%s path=llamafile_converted\n",dst->name);
+         return;
+     }
+ UseGgmlGemm2:;
+ #endif
+ 
++    if(ref_audit && ith==0)fprintf(stderr,"[REF_BRANCH] node=%s path=ggml_vec_dot\n",dst->name);
+     // This is the size of the first dimension of the result, so we can iterate that way. (see the ASSERT above, these are the same numbers)
+     const int64_t nr0 = ne0;
+ 
+diff --git a/third_party/ggml/src/ggml-cpu/ops.cpp b/third_party/ggml/src/ggml-cpu/ops.cpp
+index 7c13e79..51d5d5a 100644
+--- a/third_party/ggml/src/ggml-cpu/ops.cpp
++++ b/third_party/ggml/src/ggml-cpu/ops.cpp
+@@ -11,6 +11,8 @@
+ #include <algorithm>
+ #include <cfloat>
+ #include <cmath>
++#include <cstdio>
++#include <cstdlib>
+ 
+ // ggml_compute_forward_dup
+ 
+@@ -5832,6 +5834,12 @@ void ggml_compute_forward_clamp(
+ 
+     const ggml_tensor * src0 = dst->src[0];
+ 
++    if (std::getenv("LAYA_REFERENCE_AUDIT") && params->ith==0 && params->nth==1) {
++        const char* root=std::getenv("LAYA_REFERENCE_DUMP");
++        if(root){static unsigned idx=0;char file[4096];std::snprintf(file,sizeof(file),"%s/preclamp_%u.bin",root,idx++);
++        FILE* f=std::fopen(file,"wb");if(f){size_t n=ggml_nbytes(src0);std::fwrite(src0->data,1,n,f);std::fclose(f);
++        std::fprintf(stderr,"[REF_PRECLAMP] source=%s node=%s dtype=%s bytes=%zu file=%s\n",src0->name,dst->name,ggml_type_name(src0->type),n,file);}}
++    }
+     switch (src0->type) {
+         case GGML_TYPE_F32:
+             {

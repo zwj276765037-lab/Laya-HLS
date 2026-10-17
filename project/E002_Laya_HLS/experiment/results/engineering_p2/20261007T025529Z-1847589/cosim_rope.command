@@ -1,0 +1,1 @@
+env LAYA_FULL_HLS_PROBE_PROJECT=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/full-hls-20261007T025529Z-1847589/rope_cosim LAYA_FULL_HLS_DO_COSIM=1 /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/vitis-run --mode hls --tcl /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/config/full_hls_rope.tcl 

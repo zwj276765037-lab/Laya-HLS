@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "executor-handoff-shell-review-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# Executor HOLD/IMPORT shell有限交付审核\n\n回复：`executor-handoff-shell-milestone-20261013`  \n审核：**R-SM003-EXECUTOR-HANDOFF-SHELL-20261013**；M003/SM003/E003/R003。\n\n**接纳本批各冻结身份已测的有限PASS；新增F18控制响应仲裁缺口，尚未动态复现，须修复并补有界交错验证。** C009及生产shell整体不关闭，旧PASS/FAIL和F17有限host关闭不回写。工程继续原授权内的独立wrapper、错误结果及rearm工作，无新增逐项审批。\n\n## 本次接纳范围\n\n- `executor_handoff_shell_rtl_02`：PASS_SCOPED_RTL_CONTROL_SHELL_PROTOTYPE。16例/1818cycles证明完整键HOLD→DRAIN→HELD、16次受控consumer读取后只进入IMPORT_PENDING、actual-helper确认与GRANTED消费后唯一授权，以及所测cancel/base/session/request撤销与旧owner保留。同request S/H1→2的未提交重试不等于两个硬件accepted-request。\n- `executor_handoff_shell_helper_host_02`：PASS_SCOPED_HOST_REAL_CAPTURE_CONFIRMATION。真实软件LYRQ/LYMP准入、完整codec roundtrip及helper导入实际捕获的7/179/8，下界导入统计贡献0；未知预约空洞被拒并产生commit0 ABORT。该helper-only入口执行后直接返回，没有重跑完整actor/F17或program/adapter四窗口。\n- `executor_handoff_portal_rtl_02`：PASS_SCOPED_RTL_DIAGNOSTIC_HANDOFF_PORTAL。唯一真实hub/monitor/LPV前序，双depth2 16/16拍及末2/末1反压；实际helper离线确认回放、GRANTED持12周期并实际消费后切换。后继CLAIM180/epoch9、typed仍7。`portal_rtl_01`仅保留捕获proof-only范围。\n- `executor_checkpoint_rtl_07`：默认MANAGED_EXECUTOR_HANDOFF关闭时原五个复位诊断的兼容PASS，不代签managed生产接线或跨request恢复。\n\n受控前序112AW/7168W/112B、458752B及7次真实typed终态已核；数据是地址pattern。HOLD先接受而不锁旧END/末B/返回，有限前序真实完成并交出键后才HELD。LBR2末拍、延迟helper及GRANTED反压期间两入口均无新准入；末拍read不是生产授权。portal_02在managed模式显式屏蔽旧authority/pulse，旧route与新启动authority分离。cancel后的旧executor full_n可达只证明route保留，本轮没有执行旧END/INVALIDATE完整cleanup。\n\n真实capture_01与_02的hex SHA均为`c2442fd8a8c35c39777229f95075c47958fde0c77c41dd8e52affa5b82a9ccc6`；逐拍还原1024B为`05fd66a4d50e3bcca0d086a3cb2503202f595ed10a6d1e287cc817a34e1a64a6`，与helper输入、shell/portal proof逐字一致。原独立checkpoint literal仅将已定义S/H从4改1后逐字匹配；actual-helper HOLD/query/IMPORT/ABORT及独立控制返回literal链均核对。host HELD/fence仍受控，不能合并成同一硬件runtime的准入、导入和授权。\n\n## F18：DRAIN取得保持与ABORT同拍可覆盖已呈现响应\n\n静态位置：本次冻结`laya_executor_handoff_shell_v1.sv`的135–138、186–198行，`control_ready=!response_valid`。这是源码可推导的受支持输入组合，**不是本批日志中的动态FAIL，也不声称当前actor已产生该组合**。\n\n设旧state=DRAIN，predecessor_done、old_channels_drained、physical_safe及live条件都成立，未撤销且response_valid=0；同拍control握手接收完整匹配键的ABORT(commit0)。现代码明确允许DRAIN接受该ABORT。前一独立if发布HELD并置response_valid、locks_owned；后一if把state覆盖成ABORT_WAIT。下一拍若response_ready=0且安全条件仍成立，ABORT_WAIT分支直接把尚未消费的HELD改成ABORT_CLOSED，违反ready/valid反压稳定性，也使响应语义与phase不一致。\n\n请集中仲裁每拍的控制接收、保持取得、query接收及响应发布/消费，保证唯一一致的状态/响应提交。可选择接受ABORT并抑制此次HELD，或明确将该早到ABORT按有界拒绝处理、维持HELD原语义；不能同时承认两条冲突转移。若缩窄DRAIN的ABORT语义，须明确真实前序撤销的合法关闭路径，不使旧cleanup无出口。所有已呈现返回必须保持至实际消费，不能通过清valid、丢帧或覆盖字节掩盖撤销。\n\n补DRAIN取得保持与匹配ABORT同拍、随后返回持续反压的动态例，核字节/phase/锁/高水位、零授权、一次关闭及旧工作进展；连同HELD_READY query接收与ABORT等相邻同拍入口检查实际仲裁。测试不以撤valid、reset、清FIFO制造通过。保持现16例、actual-helper字节链及受影响managed/default portal范围；修复后以新attempt冻结，旧_02 PASS不改写。此项先在有限shell闭包封口，再纳入受影响executor生成身份，不要求重跑未变算术full或无关HLS。\n\n## 证据身份、成本与历史\n\n主控独立核对聚合及13个交付SHA、211/211 frozen/声明pair、200/211 current、707/718递归manifest/receipt引用。11项live差异为8项catalog登记及portal_01的portal/TB/runner三项后续变化，不能统称metadata；冻结输入和原始运行物一致。\n\nhelper_01→02共同83项只变TB/runner，新增真实capture依赖；shell_01→02共同11项只变fixture生成器，shell DUT未变，外部helper刺激改为_02身份。portal_01→02共同31项只变portal/TB/runner，新增完整helper proof输入。checkpoint_06→07共同28项有portal、此前HOLD描述/helper header与codec、两catalog变化；该RTL兼容不代签新C++功能，C++功能另由actual helper与既有host证据限定。\n\n8段所选guard起止串行、child0/trigger null，110条实际policy符合CPU0–3/nice19/idle I/O及MemAvailable门。RTL8GiB/120s/120s和helper24GiB/1800s/120s原帽保持。短helper run0.176434s和shell oracle0.172765s无owned-child RSS/policy样本，保留null，仅签配置与功能出口；portal fixture生成/-MM不扩大为owned-tree观测。全部有限pilot，无full投影、性能或新综合结论。\n\n[独立核查与冻结快照](executor_handoff_shell_review_20261013/verification.json)保存具体SHA、原始guard/marker、历史差异与字节核查。主控未编译、仿真或运行HLS。\n\n## 连续下一步\n\n同runtime真实已准入请求、codec/helper与实际控制consumer，绑定ABORT/已提交错误结果、CLOSE/rearm及各权威高水位继续按原合同实现。另收到残帧问题，已以[D-M003-EXECUTOR-REVOKE-UNACCEPTED-ACTION-01](executor_revoke_unaccepted_action_contract_20261013.md)直接答复：专用取消consumer可完整核验并终结未准入旧action；可信ordinal只推进接收防重放下界，零业务预约/退休，坏帧不伪造安全完成，真实LAC1/LGR1/Host消费及物理安全后才关闭。\n\n生产wrapper须真实实施query入口许可、所有source读写/修改入口与F9保护，grant期间不能仅依赖TB门装配；交接后合法QUANT lease/读债仍须实测。之后沿原顺序连接独立executor、8/4 action、F10 24/16 consumer、LN/monitor/唯一hub→实际END/唯一软件退休→Q/fullA及完整13BO/恢复。\n\nC009部分实施/awaiting_implementation，F18待修；C008/C010待验。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。G余2338.224019s、原单重工具/资源帽保持，无新增agent/OOC/P&R/上板/预算，5172s组合不重启。\n",
+  "in_reply_to": "executor-handoff-shell-milestone-20261013",
+  "message_file": "results/executor_handoff_shell_reply_20261013.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "9e14a9028567058bb9a439bd2dd5d9f2371729c70fa8460ee91a5802c53891b1",
+  "created_at": "2026-10-12T22:02:06.886844+00:00",
+  "status": "delivered",
+  "client_user_message_id": "4d7d5b55-d79c-46b9-b20d-875206969b09",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T22:02:06.910591+00:00",
+  "recipient_turn_id": "01a1321b-2c21-7b72-9ffd-a391940e3d1f"
+}

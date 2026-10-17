@@ -1,0 +1,73 @@
+{
+  "decision": "ACCEPT_D2_R_DEPTH_V3_DESIGN_FOR_SOURCE_FREEZE_CSIM_CSYNTH_SETUP_ONLY",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "scope": "Same single Decision stage4 layer0 B1 S64 head0 query0 rows1 case",
+  "old_depth_elements": {
+    "fixture": 786432,
+    "io": 32768,
+    "aux": 1671872,
+    "qkv0": 12582912,
+    "qkv1": 12582912,
+    "att_out": 8388608,
+    "observed": 256
+  },
+  "new_depth_elements": {
+    "fixture": 786432,
+    "io": 32768,
+    "aux": 128,
+    "qkv0": 10240064,
+    "qkv1": 10240064,
+    "att_out": 4100,
+    "observed": 256
+  },
+  "old_payload_bytes": 36046528,
+  "new_payload_bytes": 21304580,
+  "reduction_bytes": 14741948,
+  "reduction_fraction": 0.40896998457105216,
+  "access_review": {
+    "fixture": "All786432 fixture bytes consumed; unchanged",
+    "io": "Frozen832-byte request within existing32768; no change",
+    "aux": "full_parse_request calls full_check_model_header, which accesses only0..127. LOAD_KV kind1 and subsequent QK/Softmax/AV tasks do not load LN/RoPE/weight AUX payloads. FullMemory aux_bytes remains1671872.",
+    "qkv": "All3planes*16heads*64rows scatter through production fixed B2/S1024 physical layout. Highest exclusive address10240000 per bank. New depth retains64 extra A5 bytes after this endpoint. Current head0 Q/K/V reads fall inside these writes.",
+    "att_out": "DUT first64 F32 outputs and readback use0..255. Existing host sentinel at4096..4099 now lies inside actual returned RTL prefix.",
+    "observed": "DUT writes words0..10,16..207; existing tail including208..255 remains fully represented by depth256 uint32.",
+    "alignment": "Generated v2 ports have32-bit AXI data and64-bit addresses. Every v3 byte depth is a multiple of4; QKV/fixture/AUX endpoints are also64-byte aligned. Regenerated v3 interfaces still require review."
+  },
+  "required_changes": [
+    "Only four m_axi depth values may change in source; FullMemory capacities, owner logic, production operators, numerical inputs and parameters remain unchanged.",
+    "TB adds only QKV0/QKV1 A5 checks at10240000..10240063; all original arrays and checks remain.",
+    "Freeze v2 failed-run evidence and source/TB before mutation; bind new source/TB and dependencies by hashes.",
+    "Fresh CSim, csynth and cosim setup, followed by generated interface/wrapper/input TV depth and watchdog binding review before RTL execution."
+  ],
+  "postcheck_boundary": "Only prefixes serialized by the new generated wrappers are RTL-observed. The remainder of unchanged12MiB QKV and8MiB ATT_OUT host arrays stays host initialization and is not RTL tail evidence. Full generated C postcheck remains required, with independent raw-TV audit of all returned bytes and new QKV tail guards.",
+  "unchanged_resource_limits": {
+    "tree_rss_gib": 16,
+    "host_available_floor_gib": 192,
+    "cpus": 4,
+    "wall_seconds": 1800,
+    "cycles": 50000000,
+    "heavy_jobs": 1,
+    "nice": 19,
+    "io": "idle"
+  },
+  "not_accepted": [
+    "No v3 source implementation or build results reviewed yet.",
+    "No v3 RTL execution released before binding review.",
+    "No numerical result from either prior resource-stopped RTL attempt.",
+    "No full-top HLS synthesis or complete functional RTL acceptance.",
+    "No claim that40.9percent smaller TV footprint guarantees16GiB simulator success."
+  ],
+  "artifact_sha256": {
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/source/attention_slice.cpp": "f9de2f1af595bb8d5ffe11f4ebd01ccf43bcc66f5707a13df698b60b84dfe88d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_io.cpp": "c9d7b9f985f819e926bc68aede5d1acb1bff907c05dc9b7f1af8ac393961ae46",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_memory.cpp": "a838cb4910ee824b42d9cd14bae009ec59c1b0b2f9df4ac5e26dda67e950ffca",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/memory/full_loader.cpp": "e5536516ae56055e2e25f32f07e1f6f6bf27c7b012aa7b0d5d0906e23681cf1d",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/full_tasks_attention.cpp": "c59328610b12bff2a6546f4f7064e63227a545c785b6e687770e95f80cb2ab60",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/operators/attention_full_compute.cpp": "53eddc686607c63dc10b18f9139cac21dca6d578e8d17a0dd31a534d698f2c9f",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/tb/test_attention_slice.cpp": "c0883b2ffd1aad405ade2b521f6e28ee984570a244887797a8409a1d4ef5fa0f",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v2/csynth_work/hls/syn/verilog/attention_slice.v": "1e9ac4d6b375937e30e24d2e0690c514d133590756b17734e7c36542b5d5e75b"
+  }
+}

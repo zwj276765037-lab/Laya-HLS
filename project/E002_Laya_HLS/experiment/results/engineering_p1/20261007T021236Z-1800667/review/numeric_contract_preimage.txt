@@ -1,0 +1,92 @@
+P1 Q8-F R0
+续任务：P1首批真实数值计算切片（2026-10-07）
+
+用户再次询问能否开始各硬件模块搭建，本轮按行动请求实施 **LayerNorm → Group32量化 → Q8-F Linear**。合同由GPT-6 Astra（`gpt-6-astra`, `xhigh`）核定，代码／参考／TB／工具运行交GPT-6 Sol（`gpt-6-sol`, `max`），实现后由Astra审核。本文§10的P0历史与全forward门禁保留；本节是新增的可执行算术范围，不把20/20合同测试扩大为数值或硬件通过。
+
+权威约束： [总体研究§5.1/§5.4/§12.1](../source/laya_baseline_design.md)、[07§2–4](../vivado/design_source/07_layernorm_engine.md)、[08§2–5](../vivado/design_source/08_activation_quantizer.md)、[09§2/§5](../vivado/design_source/09_q8_linear_and_restore.md)、[15§10–14](../vivado/design_source/15_integration_interfaces_and_pipeline.md)；2026-10-07实际读取并核查。本轮细化如下，取代“尚无候选算术”作为后续实施目标；未运行阶段仍不得改成PASS。
+
+### 11.1 本轮边界与唯一源
+
+- 实现固定容量、可用于HLS的阻塞数组计算：LN为D=1024、rows=1…16；Quant为K∈{256,1024,2624,4096}、rows=1…16；Linear为同一tile的完整K，输出窗口`n0…n0+cols-1`，cols=1…8，n0为8的倍数，`cols=min(8,N-n0)`，N由现有WeightKey确定。全矩阵N不能偷换成cols。BATCH行空间仍rows=1，不以act B2打包成一个两行task。
+- 窗口是完整Linear的**内部算术子函数**，不是新op或缩小的LinearTask；只返回slice结果/状态，不能发送完整Linear TaskDone、发布整个QKV/WI/TMP、解除全层屏障。仅act N=2窗口恰含全部列，也不因本轮切片通过使全forward放行。
+- 唯一维护源新增`hls/operators/layernorm_compute.cpp`、`activation_quantizer_compute.cpp`、`q8_linear_compute.cpp`；公共纯数值声明`include/laya_numeric.h`，固定元数据／切片声明`include/laya_numeric_tasks.h`，必要数值辅助放`hls/common/laya_numeric.cpp`。既有`*_engine.cpp`等P0合同源保留。相关头可直接复用现有POD Task/BufferRef/WeightKey/Status；不得另抄一套op/状态schema。
+- 数值库单独源清单／编译目标，不链接host-only所有权容器进入综合；综合可达的数据结构只能是标量/POD/有编译上限的C数组，无vector/map/string、动态分配、文件IO、异常、虚调用、递归或数据相关无界循环。`std`容器仅可出现在主机参考/TB/P0，不得作为综合参数或可达存储。
+- 本轮不实现完整forward、AXI/HBM加载器、QKV scatter及全层coverage、RoPE/attention/FFN/尾层全图、XRT，也不改TM16×TN8生产设计的吞吐声明。当前串行切片验证运算与存储边界；后续并行化保持同一数值合同。R1、融合、预取、双任务重叠均不启用。
+
+### 11.2 函数、数组与切片身份合同
+
+函数命名可作等价调整，实际映射须写回模块design.md。`layernorm_compute`接受LayerNormTask、请求/源/可选gamma元数据、`x[16][1024]`和`gamma[1024]`，输出`y[16][1024]`及每行mean/variance/inverse；`activation_quantizer_compute`接受QuantTask、请求/源元数据及`x[16][4096]`（物理行stride4096，有效列K），输出`q[16][128][32]`与`scale_bits[16][128]`及A8元数据；`q8_linear_compute`接受完整LinearTask、请求、预期量化来源、A8/W元数据和n0/cols，读取上述A8数组及`wq[8][128][32]`/`ws[8][128]`、`bias[8]`，输出`y[16][8]`及slice状态。无bias时不得额外执行加+0；真实act有且只加一次绑定bias。诊断trace可用独立测试辅助入口或编译期配置，不能把文件写入综合路径；至少能观察指定(row,col,group)的dot/term/partial。
+
+共享请求身份为`request_id:u64,generation:u64,B/S:u16, model/numeric/layout/build_tag:各16个u8`，运行前锁存。本轮离线numeric/build身份由合同/参考/源版本生成并标为实验身份，不能伪称生产已认证；native请求帧的零tag只用于读取来源，不用作数值切片绕过检查。合法请求task_id严格递增由本轮测试调度器承担，运算调用期间无新任务/别名写入。
+
+本批缓存绑定必须在任何数值读取前完成，不得只检查Content：
+
+| 对象 | 发布时保存并在消费时逐项核验 | 覆盖与失效 |
+| --- | --- | --- |
+| F32源tile | 请求四tag/request/generation/B/S，BufferRef和region，row_space/batch/row0/rows，K，READY/content=F32 | 源身份来自生产者已发布记录；接受时验证完整rows×K覆盖、合法ref/shape；LN src/dst不重叠 |
+| gamma | model_tag、gamma_kind=1/2、LN_GAMMA相应bank及epoch、D1024、READY | LN_EMB只能emb；LN_FINAL只能final；gamma0不读取gamma；不得凭指针接受任意affine |
+| A8 | 请求全身份、a_dst ref、生产Quant task_id和stage/layer、K/rows/batch/row0/row_space、**src BufferRef/region/source epoch**及完整源身份 | 仅所有rows×K/32组成功写完发布READY；Linear匹配自己的a及ctx/K，并与独立传入的预期源身份比较，不能把A8自身字段拷回当expected |
+| W窗口 | model/numeric/layout/build及request/generation，WEIGHT ref、WeightKey family/layer、完整K/N、n0/cols、bias_kind与绑定权重/偏置身份 | READY表示本窗口cols×K/32完整，绝不表示整张W已加载；窗口切换先失效/增epoch；父整矩阵缓存的复用策略保持15，不因测试窗口改变 |
+| 输出/PS窗口 | request/task_id/dst ref/region、row身份、N/n0/cols、成功状态及精确输出数rows×cols | 所有group累加及bias完成后才置有效；调用返回前读写全部结束，output_beats=0；不是完整Linear TaskDone |
+
+新计算边界须复用或等价落实P0的ctx/op/WeightKey/来源目的规则，但不能仅主机wrapper校验、综合入口裸读。元数据不符返回E_BUFFER或E_SHAPE，模型tag不符E_MODEL；非有限／溢出等返回E_NUMERICAL。每次调用先将目的valid清零，失败不发布，内部或输出数组可有部分暂存但消费者禁止读；成功时数量精确。reset/generation切换使所有slice valid失效，旧a/w/源epoch不许复活；epoch不回绕。拒绝busy/READ/FILL等非READY输入、不全coverage及读者持锁时覆写。阻塞调用与明确READY/FILL/INVALID状态足以表达本轮F0串行所有权，尚不证明AXI排空或物理复位。
+
+#### 11.2.1 目的owner与失败不发布的精确解释（首轮审核澄清）
+
+本段明确上述“拒绝读者持锁覆写／新epoch／失败不发布”，不改变算术范围。每个目的`(buffer_id,bank,region)`保留持久owner；LN/A8可复用返回元数据作为该owner，Linear窗口返回记录另含state并同时保留PS与dst引用。owner不得在每次调用前无条件重建为空记录，也不允许把另一bank/region的owner冒用为本目的。
+
+- 领取前：先做参数、输入绑定和目的owner检查，只有FREE/INVALID可领取；READY必须经无reader的合法release，READ/FILL/EXCLUSIVE_RW/DRAIN或busy均拒绝。领取前拒绝必须保留旧owner的valid、ref、epoch及旧数组，不能因本次失败把旧消费者的有效数据清掉；返回Check表示本次未执行，不是发布一个新结果。
+- epoch：初次未绑定owner领取epoch=1；此后目的ref必须同一bank/region且epoch=保留旧epoch+1，PS与dst分别检查；kMaxEpoch不能回绕。已有合法新epoch即使算术失败也已消耗，不得重试复用该epoch。
+- 领取后：写入本次ref、请求身份及已领取epoch，状态FILL、valid=false；数值计算才能写数组。成功后READY/valid=true；数值失败INVALID/valid=false，保留已消耗的ref/epoch。此时部分数组可以作为无效暂存，不供消费者读取。
+- release/reset：合法release只在无reader的READY执行，变FREE并清valid，但保留ref/epoch；READ持锁时不得release。reset/generation切换清valid和覆盖状态，保留最大已领取epoch（包括失败或FILL预留值），再按下一epoch发任务；输入侧仍匹配新generation，旧记录不能复活。初次使用另一目的需要它自己的owner记录。
+
+直接TB须分别证明“READ目的拒写且旧valid/数组保留”、“release后旧epoch拒绝”、“新epoch成功”、“领取后数值错误保留消耗epoch”和“reset后旧epoch不能复活”。这只证明本轮阻塞切片owner，不代替物理复位/AXI排空。
+
+### 11.3 数值版本：P1 Q8-F R0
+
+所有基本运算是IEEE binary32 RNE（ties-to-even），保留次正规和signed zero；每个式子标出的FP32操作必须分别舍入。主机编译至少`-fno-fast-math -ffp-contract=off`，检查默认RNE及非FTZ/DAZ环境；不使用FMA或重结合。CPU `sqrtf` / 单精度除法实现与版本、编译器选项进入numeric记录；本批先使用IEEE sqrt/div，不批准近似rsqrt替代。HLS数学适配若改变数值，必须保留首次差异并交Astra裁定，不能放宽后伪报逐位通过。
+
+- LN：相邻二叉树精确定义为1024输入，第一层`v[j]=FP32(x[2j]+x[2j+1])`，逐层至一值（512/256/…/1）；mean=FP32(sum/1024)。delta=FP32(x-mean)，square=FP32(delta*delta)，同树求sum，var=FP32(sum/1024)，t=FP32(var+bits(0x3727c5ac))，root=FP32(sqrt(t))，inv=FP32(1/root)，norm=FP32(delta*inv)，有gamma时y=FP32(norm*gamma)。不加beta，不能换成RMS/E[x²]-mean²。每一输入和中间结果有限、var非负；异常显式失败。
+- Quant：对每32个有限值求abs最大；amax零为+0。d_full=FP32(amax/127)，inverse=(d_full!=0)?FP32(1/d_full):+0；q=roundf(FP32(x*inverse))，恰半整数远离0；d_saved=IEEE FP16 RNE(d_full)。q用d_full的inverse，不能用d_saved。d_full下溢到0时q和scale为+0；允许FP16次正规/舍入为零，禁止默认FTZ；inverse非有限、FP16 Inf/NaN、q超[-127,127]均失败。不得默默clamp。
+- Linear：每32个S8乘积精确求和到I32（本模型q在[-127,127]，一般有符号8bit的保守界524288亦在I32内），scale由FP16位模式无损扩展F32，term=FP32(FP32(sa*sw)*FP32(dot))，acc从+0沿group0…K/32-1逐次`FP32(acc+term)`；最后只按绑定关系加一次FP32 Linear bias。权重scale须有限非负，负零按非负零处理并保留其位模式；native固定模型实际无负/零scale。禁止跨组整数累加后一次恢复。N2无效6列不访存不输出。
+- 相同输入下CPU DUT对独立oracle：quant q/FP16、I32 dot、FP16转换、R0 term及group partial逐位；LN mean/var/inv/y也逐位。硬件CSim沿用相同测试。未来RTL若工具sqrt实现出现差异，本轮尚不批准换数值版本；现有总体中间误差线`1e-4+1e-4*abs(ref)`只作定位辅助，不覆盖本轮CPU精确合同。
+- native LN/Q8 GEMM作为模型对照，记录bit差数、max_abs、max_rel（分母下限明确）、RMSE和首差索引，不要求与其逐位相等，不为native差异偷换候选规则。此项报告无本批新设质量PASS阈值；400例/全forward质量仍未执行。
+
+### 11.4 静态存储、端口与调度
+
+本轮一个请求、一个任务/子调用在途，无stream，无跨任务FIFO。所有接口数组在调用期间独占读/写，阵列数据先全部准备好才调用下级；函数返回后才发布。LN逐行处理，可用x行缓存＋tree工作区各1024×4B；相邻树原地压缩必须先读两个子结点再写父结点，不覆盖未读结点。Quant按row/group顺序用局部32F32组buffer，两遍组内计算；全局输入数组保留，但不强制额外复制256KiB输入缓存。Linear逐row/col/group/k安全串行，32次整数贡献后恢复并更新一个acc；acc退休后进入下一group，不通过错误依赖pragma强取II=1。
+
+固定接口最大逻辑容量（不含测试trace/外部原始fixture）：Quant输入262144B；A8 q+scale=69632B；8列W窗口=34816B；LN输入/输出各65536B（接口）；Linear输出512B；LN两块工作区合计8192B，gamma4096B，Quant组工作区128B。接口数组不自动全变成片上缓存，不能把外部接口和本地缓存重复相加成BRAM结果。第一版只需每存储一到两次顺序访问；不要求16×8广播bank、全部展开或TM16吞吐。若用RAM绑定/PIPELINE pragma，记录实际端口与冲突，不能改变归约树。
+
+候选HLS scalar clock可请求150MHz（周期约6.667ns）以沿用研究起点，不是已达频率。只对isolated top使用本机catalogue已有`xcu55c-fsvh2892-2L-e`作为**实验器件**；不声称冻结U55C实际shell/板part。平台reset/CDC、AXI时序、全层coverage和生产缓存容量不在本轮验证结论中。
+
+### 11.5 已核对的真实数据与可复现切片
+
+只读[abi_replay manifest](../reference/runs/typed_q8_ref_20261005/abi_replay/manifest.json)，本轮实际重算SHA-256为`8588b69436e50c7500c22c677e174e77001e1e92e656bee2f46e1a88f4abb29a`；[GGUF inventory](../reference/runs/typed_q8_ref_20261005/gguf_inventory.json)为`40983ab871903db1281eb82901521fae5f5e1b862d8c2d4f22deba7cbe44c5c6`；455179648B模型完整重算为`6eb6ef58bc4f99bd9db40381604108af782ffc314aa00da6641f429991ca1f18`。下面文件的完整hash已与manifest逐一核对；测试仍须每次读取并核hash，不仅信任本表。路径/sha字段从原manifest引用到新run manifest，禁止改写reference/runs或重跑capture/make_fixture覆盖数据。
+
+| 算术场景 | 真实输入／参考与布局 | 权重／窗口 |
+| --- | --- | --- |
+| 主链LN→quant→Wi | `ir_267` residual→候选LN；native LN参考`ir_268`；ne=[1024,128,2,1]，nb=[4,4096,524288,1048576]。候选LN产生量化输入，再用Wi；native Wi `ir_269` ne=[5248,128,2,1]、nb=[4,20992,2686976,5373952] | `mlp_wi.0.weight` Q8_0 ne=[1024,5248,1,1]，absolute offset181644640；n0=0,2616,2624,5240，各8列，覆盖U尾/G首 |
+| 带gamma LN及QKV | `ir_216` embedding_raw→候选LN/gamma；与`ir_217` embedding_norm比较；另单独以native `ir_217`量化，以隔离上游误差；QKV参考`ir_237` ne=[3072,128,2,1]、nb=[4,12288,1572864,3145728] | `emb_norm_w` F32[1024] offset2055520；`qkv.0.weight` Q8_0 [1024,3072] offset56864096；n0=0,1024,2048,3064 |
+| K2624量化→down | `ir_273` gate ne=[2624,128,2,1]、nb=[4,10496,1343488,2686976]；输出native `ir_274` ne=[1024,128,2,1]、nb同1024行 | `mlp_wo.0.weight` Q8_0 [2624,1024] offset341519712；n0=0,1016 |
+| K256/N2量化→act | `ir_1615` ne=[256,2,1,1]、nb=[4,1024,2048,2048]；pre-bias原生`node_1808`与含bias `ir_1616`均ne=[2,2,1,1]、nb=[4,8,16,16] | `act_fc2.weight` Q8_0[256,2] offset449922624；F32 bias[2] offset449923168；n0=0/cols2，两题分别rows1 |
+
+前三个TOKEN场景至少处理b0,row0=0,rows16和b1,row0=112,rows16，覆盖首/末tile及PAD。另由真实输入切出rows1与rows15检查尾部。LN_FINAL gamma模式可用相同已核模型final_norm_w参数做单元校验，未覆盖真实final全链需如实记录。K4096在本轮用明确标supplemental的固定seed输入覆盖最大存储边界；不把该项写成真实Decision全链。
+
+native scratch对应`linear`(QKV)、`linear_2`(Wi)、`linear_3`(down)、`node_1808`(act)。前两项shape1024×128×2、278528B，down2624×128×2、713728B，act256×2、544B；块序是row优先、每组34B=`FP16 little-endian +32 S8`。本轮已核各sha，act scratch为`3abe87cf12fdeda361e44f49f4566c1d9b167079e20ba9161ea5d8bfe3657e52`。量化比较必须给DUT和oracle同一F32输入；另将候选LN输出作为下一步输入独立oracle，不能悄悄替回native norm。native scratch只用于差异报告，不能当DUT输出或代替候选quant。
+
+GGUF Q8每行G=K/32组；选取block offset=`tensor.absolute_file_offset+(global_n*G+g)*34`，无损解包q/scale，逆拼原34B逐字节检查，记录选中张量及窗口hash。gamma/bias从inventory明确dtype/shape/offset读取。测试读取`ne/nb`必须通用按stride寻址，nb是字节单位；act的batch在ne[1]，不能误按TOKEN的ne[2]。窗口n0不得加到K维。真实输出native仅作对照，不进入独立期望值生成。
+
+### 11.6 独立验证、构建与证据
+
+独立参考放`tests/numeric_reference.py`或等价唯一入口，允许NumPy FP32和Python整数/struct；不得调用/导入DUT helper生成期望、不得用被测结果倒推expected。固定相邻树、group升序、每步F32舍入由独立向量/整数路径表达；FP16 RNE oracle可用Python IEEE half打包，需独立边界常量验证。真实fixture驱动放`vivado/module_design/top/tb/numeric_fixture_test.py`；三个模块`tb/numeric_tb.cpp`直接编译/执行DUT，接口/元数据反例也必须直接到数值入口。
+
+必须覆盖：真实链逐值对账；LN常数、大偏置近常数、抵消、gamma；Quant全零、±0、半整数远离0、FP16 RNE ties/次正规/零/溢出、d_full下溢和reciprocal溢出、K最后一组；dot极值/正负抵消、零scale负dot的signed-zero term、组升序导致的舍入反例、act bias及N2尾部；NaN/Inf出现在首/末有效输入、无效row/col不访问（guard/sentinel）；各缓存元数据单字段变异、错WeightKey/K/N/n0/cols、来源epoch、同shape跨request/generation、缺coverage/非READY、错误后不发布及重新运行恢复。trace至少在所有真实选定窗口逐group核dot/term/partial，或由专门trace入口完整回放这些同一输入。
+
+P1使用独立CMake入口或默认OFF的显式选项，不能改变既有P0脚本20/20统计与HLS全15模块门禁测试含义。新增`scripts/run_numeric_tests.sh`、isolated HLS配置与`scripts/run_numeric_hls.sh`，构建/日志输出`build/numeric-*`、`results/engineering_p1/<run_id>/`，不得覆盖P0证据。保存命令、编译器/数学库/Python/NumPy版本、源码和所有实际fixture/hash、候选numeric合同身份、逐项数量、完整日志/退出码、native差异报告。P0 20项回归仍应通过；P1 PASS命名明确为`NUMERIC_SLICE_PASS`，不输出全网/上板通过。
+
+2025.2工具可执行且本机器件查询证据在[query_parts.log](../results/p1_environment_20261007/query_parts.log)。本轮授权并要求尝试isolated HLS CSim；依本机vitis-run接口提供显式实验part和真实DUT/TB，不连接host-only P0库。条件允许时综合最小切片（先LN或Group32量化/R0窗口），保存report并核查实际源/端口/FP算子/存储/II；不能仅dry-run或g++通过就写HLS通过。若工具/许可/FP支持阻塞，保留失败退出码与日志，继续完成CPU数值验证。完整forward HLS入口继续非0拒绝，不能因三个切片实现而把15模块改成complete。
+
+### 11.7 交付判据与后续边界
+
+交付需实际算术源、独立oracle、真实数据/反例测试、可重现运行脚本、各模块design映射/results实测分阶段记录，并由Astra审核源码与原始日志。可以报告“首批三个模块的数值切片及已执行验证”；只有真正执行且通过才分别报告HLS CSim/isolated综合。器件实验综合不是实际platform链接，未执行的RTL cosim、布局布线/时序、xo/xclbin及U55C实测明确保留未执行。完整A8/W绑定仅限本节切片边界；生产全矩阵W常驻、完整Linear输出发布及QKV plane/head/B/S覆盖仍是后续集成前置项。最终路线保持单forward→Vitis→XRT。

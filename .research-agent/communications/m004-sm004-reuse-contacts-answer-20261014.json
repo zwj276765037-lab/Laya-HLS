@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m004-sm004-reuse-contacts-answer-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "answer",
+  "text": "# SM004：固定图最小复用接点（首版静态核对）\n\nA002；2026-10-14。源码为当前 E002/experiment；本表给 A001 的架构选择提供可调用接点，不声称这些接点已经组成完整硬件。B1/S128 软件正常请求使用 `tests/current_production_full_csim_tb.cpp` → `full_execute_cpu_request`，后者属于完整软件参考执行入口；当前正常软件基线结果另见同目录 `SM004_software_baseline_result_20261014.md`。\n\n| 服务 | 最低可复用算术入口与真实接口 | 当前容量/吞吐证据边界 | 固定图所需薄适配与仍需的约束 |\n| --- | --- | --- | --- |\n| Q8 矩阵 | `tm4tn8_sync_ps_front_v2.sv` 接原 `tm4tn8_matrix_resident_v2.sv` 的四行/8列/GS32流；HLS `q8_tm1tn8_joint_dma` 接descriptor、q0/q1/scale/aux、512-bit activation，输出2816-bit group issue、256-bit bias tile及完成流。完整 resident 接全A/双W借还口、两路512-bit输出AXI。 | 四行 QKV/Wi/Down真实流局部算术检查分别为12288/20992/10496 stripes PASS；对应记录 `vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/source/results.md`。HLS `q8_tm1tn8_engine.cpp` 声明W12288、A8 32、FP128、PS384深度；声明容量不等于已证明物理RAM。全图共享矩阵速率和联合物理频率未证。 | 固定层/shape给出K,N、权重key、行块、A8/scale、目标地址和返回；保留实际AXI握手、读债、写B退休、边界/数值检查。`resident_v2` 仍硬耦合旧A/W lease、numeric identity、owner退休，需要薄固定槽或换用更低层stream front，不能简单删线即视为可用。通用13BO portal/动态Ref路由/跨请求owner协议属于旧框架。 |\n| LN / Q | `hls/operators/layernorm_compute.cpp::layernorm_row_arithmetic`：F32 x/gamma[1024] → y[1024]及mean/variance/inverse，固定1024二叉树归约、epsilon bits `0x3727c5ac`；`activation_quantizer_compute`：最多16行F32、K∈{256,1024,2624,4096}，逐32元素 → A8 Group32与F16 scale。已提取 `laya_front16_wide` 为512-bit STATE0/AUX → STATE1的16×1024固定LN接点；真实LN/Q联合shell为 `laya_layernorm_quant_source_shell_v1.sv`。 | LN/Q旧LQ1真实16行局部循环II2、联合TB 528307cycle对旧659334cycle；单top估计slack−48.76ns，不能推成可达频率。AT073同runtime LN来源/lease前缀通过，整体后续失败。LN/Q shell仍是一个source subset，不是全部层的producer。 | 固定图提供源/目的基址、gamma种类、行窗和发布边沿。保留数值顺序、非有限值拒绝、最后R及全部Q内部债排空后一次发布；可去通用任务Context/Ref查询和可恢复跨窗口lease层，但要用实际Q AXI读债替代，不能用外部常量零。 |\n| Attention QK/SM/AV | `attention_tile_service_v1.sv` / `laya_attention_tile_service`命令19/20/21分别整tile QK/softmax/AV；完整单head存储，F32 Q/K/V、mask、F32 score/prob/Y。纯软件算术接点为 `attention_full_compute.cpp::qk_row/softmax_row/av_row`，D=64，S合法64..1024，另有16槽softmax。 | RTL写明一任务共享M16/A16/D4、四exp worker，物理bank 1R1W；旧局部OOC/行为需按其实际版本引用，当前固定全图同版II、频率、共享资源尚未实测。当前B1软件路径确实调用状态服务（由软件运行日志单独核）。 | 固定head/query/tile顺序及KV/score/prob scratch地址，供给16行Q与S行K/V及mask；保留QK树顺序、mask/滑窗、exp/归约/除法顺序、合法S与有限值/first-error、返回保持。55词binding/完整Ref/epoch属于旧状态服务协议；若换更薄接口须重新验证数值和物理bank，不能把C模型数组当硬件存储。 |\n| G / 残差 | `hls/operators/vector_full_compute.cpp::geglu_row`：Wi F32[5248] → G F32[2624]；`add_row`：两路F32[1024] → F32[1024]。RTL为 `geglu_row_wrapper.sv`（5248输入、tag、返回）和 `laya_ffn_fadd_slot_v1.sv`（一项在途，32-bit双输入/输出，无外部tag），四行AXI读写包装 `laya_ffn0_residual_four_row_v1.sv`。 | AT054局部4096 add/约103289cycle；add slot只有一项在途，22cycle叶子延迟不是接收II。AT073达到Down TMP但残差票据合取Fatal，未取得同runtime末残差或整链PASS。 | 固定图提供Wi/G/Down缓冲交接与两源真实地址；保留同skip/刚写TMP重读、F32位级加法、AXI末B后发布/响应一次消费。四行wrapper仍绑旧task Context、Ref、epoch和固定目的；绕开旧通用portal需要单请求本地顺序/债务和跨四行/128行覆盖计账。 |\n| scorer / ACT尾部 | `hls/operators/decision_full_compute.cpp::candidate_mask/candidate_stats/concat_act_row`、`full_tasks_tail.cpp`中scorer FC2/ACT FC1；`vector_full_compute.cpp::bias_gelu_row`。输入F32候选16槽与mask、最终16+2 logits；复用矩阵/Attention及必要F32尾算术。 | production-v2 B1物理计算128 token行、scorer16槽，旧M005预算给122个Q8矩阵且总MAC 47,160,754,688；这些是工作量，不是本路线新硬件延迟。 | 固定顺序FSM仍要保留mask、有效候选数、输出布局、数值首错和结果身份；旧通用任务图、可恢复多请求调度不必直接搬入最简首版。scorer/ACT FP尾部不是Q8矩阵的免费附属。 |\n\n存储边界：模型包 `embedding/w_q0/w_q1/w_scale/aux` 合计约449MB，权重主体约392MB，不能声明整模片上驻留。STATE、QKV、FF、attention临时张量和外部读写须按真实图容量配置；128行权重复用、有效带宽和完整层间流水II均未实测。固定图首版建议由A001确定统一请求入口、逐阶段顺序和共享算术槽；本表只界定复用接口及无法删掉的数学/AXI约束。\n",
+  "in_reply_to": "m004-fixed-graph-reuse-contacts-question-20261014",
+  "message_file": "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_minimal_reuse_contacts_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "148edeae663ccb341aa93f46a70c9b9589dcf1a591be480d7629631cb0ed3a52",
+  "created_at": "2026-10-14T14:24:53.749589+00:00",
+  "status": "delivered",
+  "client_user_message_id": "3aa0aa3a-e835-4340-ac5a-c5f7aef142e0",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T14:24:54.081737+00:00",
+  "recipient_turn_id": "01a13abf-a607-7ec3-91d0-9a31412508f2"
+}

@@ -1,0 +1,212 @@
+`timescale 1ns/1ps
+
+// One fixed Wi -> canonical G -> Down row with shared Q/matrix/W services.
+module laya_lnq_wi_gqdown_row_v1 (
+  input logic clk, rst_n,
+  input logic cmd_valid,
+  output logic cmd_ready,
+  input logic [31:0] cmd_id,
+  input logic cmd_cold,
+  input logic cmd_mode,
+  input logic [6:0] cmd_row,
+  input logic cmd_prepared_source,
+  input logic [31:0] cmd_source_epoch,
+  input logic prep_begin_valid,
+  output logic prep_begin_ready,
+  input logic [31:0] prep_id,
+  input logic [6:0] prep_row,
+  input logic [31:0] prep_epoch,
+  input logic prep_write_valid,
+  output logic prep_write_ready,
+  input logic [10:0] prep_write_index,
+  input logic [31:0] prep_write_bits,
+  input logic prep_commit_valid,
+  output logic prep_commit_ready,
+  input logic prep_abort_valid,
+  output logic prep_abort_ready,
+  output logic prep_token_valid,
+  output logic prep_fault,
+  input logic [31:0] cmd_w_epoch,
+  input logic [15:0] cmd_weight_key,
+  input logic [3327:0] cmd_model_identity,
+  input logic [671:0] cmd_numeric_identity,
+  input logic [95:0] cmd_task_context,
+  input logic [1023:0] cmd_expected_aux_header,
+  input logic [2:0][63:0] cmd_load_base,
+  input logic [2:0][31:0] cmd_load_bytes,
+  input logic [63:0] cmd_aux_base,
+  input logic [63:0] cmd_bias_base,
+  input logic [31:0] cmd_bias_bytes,
+  input logic [31:0] cmd_down_w_epoch,
+  input logic [15:0] cmd_down_weight_key,
+  input logic [1023:0] cmd_down_expected_aux_header,
+  input logic [2:0][63:0] cmd_down_load_base,
+  input logic [2:0][31:0] cmd_down_load_bytes,
+  input logic [63:0] cmd_down_aux_base,
+  input logic [63:0] cmd_down_bias_base,
+  input logic [31:0] cmd_down_bias_bytes,
+  input logic x_valid,
+  output logic x_ready,
+  input logic [31:0] x_bits,
+  input logic gamma_valid,
+  output logic gamma_ready,
+  input logic [31:0] gamma_bits,
+  output logic row_valid,
+  input logic rd_valid,
+  output logic rd_ready,
+  input logic [9:0] rd_tile,
+  output logic rsp_valid,
+  input logic rsp_ready,
+  output logic [9:0] rsp_tile,
+  output logic [255:0] rsp_bits,
+  input logic row_release_valid,
+  output logic row_release_ready,
+  output logic done_valid,
+  input logic done_ready,
+  output logic [3:0] done_status,
+  output logic [3:0] done_phase,
+  output logic result_mode,
+  output logic [6:0] result_row,
+  output logic [31:0] done_bad_element,
+  output logic [31:0] mean_bits, variance_bits, inverse_bits,
+  output logic [31:0] actual_w_reads, actual_w_returns,
+  output logic [31:0] actual_stripes, actual_ps_commits,
+  output logic [2:0][63:0] araddr,
+  output logic [2:0][7:0] arlen,
+  output logic [2:0][2:0] arsize,
+  output logic [2:0][1:0] arburst,
+  output logic [2:0] arvalid,
+  input logic [2:0] arready,
+  input logic [2:0][511:0] rdata,
+  input logic [2:0][1:0] rresp,
+  input logic [2:0] rlast, rvalid,
+  output logic [2:0] rready,
+  output logic [63:0] aux_araddr,
+  output logic [7:0] aux_arlen,
+  output logic [2:0] aux_arsize,
+  output logic [1:0] aux_arburst,
+  output logic aux_arvalid,
+  input logic aux_arready,
+  input logic [127:0] aux_rdata,
+  input logic [1:0] aux_rresp,
+  input logic aux_rlast, aux_rvalid,
+  output logic aux_rready
+);
+  typedef enum logic [1:0] {IDLE, ROW, DONE} state_t;
+  state_t state;
+  logic [9:0] pending_tile;
+  logic pending;
+  logic [3:0] held_status, held_phase;
+  logic [31:0] held_bad;
+  logic bad_tag_mode;
+  logic prep_active, prep_token, prep_fault_reg, fault_once;
+  logic [11:0] prep_count;
+  logic [31:0] prepared_id, prepared_epoch;
+  logic [6:0] prepared_row;
+  integer abort_count, accepted_prepared_count;
+  // Local peer fault injection changes only the result echo. The producer's
+  // row, response and completion handshakes continue through their RTL path.
+  task automatic corrupt_result_echo;
+    result_mode = ~result_mode;
+  endtask
+  assign cmd_ready = state == IDLE && (!cmd_prepared_source ||
+      (prep_token && prepared_id == cmd_id &&
+       prepared_row == cmd_row && prepared_epoch == cmd_source_epoch));
+  assign prep_begin_ready=state == IDLE && !prep_active && !prep_token;
+  assign prep_write_ready=prep_active && !prep_fault_reg && prep_count<2048;
+  assign prep_commit_ready=prep_active && !prep_fault_reg && prep_count==2048;
+  assign prep_abort_ready=prep_active || prep_token;
+  assign prep_token_valid=prep_token;
+  assign prep_fault=prep_fault_reg;
+  assign row_valid = state == ROW;
+  assign rd_ready = state == ROW && !row_release_valid &&
+                    !rsp_valid && !pending &&
+                    rd_tile <= (result_mode ? 10'd511 : 10'd127);
+  assign row_release_ready = state == ROW && !rsp_valid && !pending;
+  assign done_valid = state == DONE;
+  assign done_status = held_status;
+  assign done_phase = held_phase;
+  assign done_bad_element = held_bad;
+  assign x_ready = 0;
+  assign gamma_ready = 0;
+  assign mean_bits = 0; assign variance_bits = 0; assign inverse_bits = 0;
+  assign actual_w_reads = 0; assign actual_w_returns = 0;
+  assign actual_stripes = 0; assign actual_ps_commits = 0;
+  assign araddr = '0; assign arlen = '0; assign arsize = '0;
+  assign arburst = '0; assign arvalid = '0; assign rready = '0;
+  assign aux_araddr = 0; assign aux_arlen = 0; assign aux_arsize = 0;
+  assign aux_arburst = 0; assign aux_arvalid = 0; assign aux_rready = 0;
+  always_ff @(posedge clk) begin
+    if (!rst_n) begin
+      state <= IDLE; pending <= 0; pending_tile <= 0;
+      rsp_valid <= 0; rsp_tile <= 0; rsp_bits <= 0;
+      result_mode <= 0; result_row <= 0;
+      held_status <= 0; held_phase <= 4'd7;
+      held_bad <= 32'hffffffff;
+      bad_tag_mode <= 0;
+      prep_active<=0;prep_token<=0;prep_fault_reg<=0;
+      fault_once<=1;prep_count<=0;
+      prepared_id<=0;prepared_row<=0;prepared_epoch<=0;
+      abort_count<=0;accepted_prepared_count<=0;
+    end else begin
+      if(prep_begin_valid && prep_begin_ready)begin
+        prep_active<=1;prep_count<=0;prep_fault_reg<=0;
+        prepared_id<=prep_id;prepared_row<=prep_row;
+        prepared_epoch<=prep_epoch;
+      end
+      if(prep_write_valid && prep_write_ready)begin
+        if(prep_write_index!=prep_count) prep_fault_reg<=1;
+        else prep_count<=prep_count+1'b1;
+        if(fault_once && prep_count==4) prep_fault_reg<=1;
+      end
+      if(prep_commit_valid && prep_commit_ready)begin
+        prep_active<=0;prep_token<=1;
+      end
+      if(prep_abort_valid && prep_abort_ready)begin
+        abort_count<=abort_count+1;
+        prep_active<=0;prep_token<=0;prep_fault_reg<=0;
+        fault_once<=0;
+      end
+      if (rsp_valid && rsp_ready) rsp_valid <= 0;
+      if (pending) begin
+        rsp_valid <= 1;
+        rsp_tile <= bad_tag_mode ? pending_tile + 1'b1 : pending_tile;
+        for (int lane=0; lane<8; lane++)
+          rsp_bits[lane*32+:32] <=
+              cmd_id == 32'd703 && lane == 0 &&
+              (pending_tile == 10'd8 || pending_tile == 10'd128) ?
+              32'h7fc00000 :
+              32'h3f000000 + (32'(pending_tile) << 3) + 32'(lane);
+        pending <= 0;
+      end
+      case (state)
+        IDLE: if (cmd_valid && cmd_ready) begin
+          if(cmd_prepared_source)begin
+            prep_token<=0;
+            accepted_prepared_count<=accepted_prepared_count+1;
+          end
+          result_mode <= cmd_id == 32'd401 ? !cmd_mode : cmd_mode;
+          result_row <= cmd_id == 32'd402 ? cmd_row + 1'b1 : cmd_row;
+          bad_tag_mode <= cmd_id == 32'd98;
+          held_status <= cmd_id == 32'd99 ? 4'd6 : 0;
+          held_phase <= cmd_id == 32'd99 ? 4'd11 : 4'd7;
+          held_bad <= cmd_id == 32'd99 ? 32'd42 : 32'hffffffff;
+          state <= cmd_id == 32'd99 ? DONE : ROW;
+        end
+        ROW: begin
+          if (rd_valid && rd_tile > (result_mode ? 10'd511 : 10'd127) &&
+              !row_release_valid && !rsp_valid && !pending) begin
+            held_status <= 4'd7; held_phase <= 4'd7;
+            held_bad <= 32'hffffffff;
+            state <= DONE;
+          end else if (row_release_valid && row_release_ready) state <= DONE;
+          else if (rd_valid && rd_ready) begin
+            pending <= 1; pending_tile <= rd_tile;
+          end
+        end
+        DONE: if (done_ready) state <= IDLE;
+        default: state <= IDLE;
+      endcase
+    end
+  end
+endmodule

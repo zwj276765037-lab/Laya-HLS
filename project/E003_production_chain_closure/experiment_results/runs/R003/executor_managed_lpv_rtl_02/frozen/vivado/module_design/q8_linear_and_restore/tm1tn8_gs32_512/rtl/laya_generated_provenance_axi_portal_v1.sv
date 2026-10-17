@@ -1,0 +1,436 @@
+`timescale 1ns/1ps
+// First physical integration of the persistent provenance portal with one
+// protected generated AXI512 write port.  The role/base are supplied by the
+// outer 13-BO owner domain; the original Host ABI is unchanged.
+module laya_generated_provenance_axi_portal_v1 #(
+  parameter int MONITORED_ROLE=6,
+  parameter bit ENABLE_BOOTSTRAP_SNAPSHOT=0,
+  parameter bit ENABLE_BOOTSTRAP_SOURCE_GUARD=0,
+  parameter bit ENABLE_EXECUTOR_CHECKPOINT=0,
+  // The external full-key shell owns start/grant/rearm. In this mode the
+  // transport's completed query selects a route only; it is not authority.
+  parameter bit MANAGED_EXECUTOR_HANDOFF=0,
+  parameter bit MANAGED_LPV_OWNER=0
+) (
+  input  logic clk,rst_n,cancel,
+  // Whole-record install belongs to the unique real admission ingress. This
+  // bounded implementation retains one A; replacement/rearm is still external.
+  input logic lpv_admission_valid,
+  output logic lpv_admission_ready,lpv_admission_accepted,
+  input logic [8191:0] lpv_admission_record,
+  input logic lpv_revoke_valid,
+  input logic [8191:0] lpv_revoke_owner,
+  input logic lpv_candidate_valid,lpv_candidate_route,
+  input logic [8191:0] lpv_candidate_owner,
+  input logic lpv_pending_valid,lpv_pending_route,
+  input logic [8191:0] lpv_pending_owner,lpv_pending_packet,
+  input logic lpv_response_route,
+  input logic [8191:0] lpv_response_owner,
+  output logic lpv_owner_installed,lpv_owner_revoked,lpv_frame_owned,lpv_frame_route,
+  output logic [8191:0] lpv_owner_record,lpv_frame_owner,
+  input  logic [511:0] provenance_cmd_din,
+  input  logic provenance_cmd_write,
+  output logic provenance_cmd_full_n,
+  output logic [511:0] provenance_rsp_dout,
+  output logic provenance_rsp_empty_n,
+  input  logic provenance_rsp_read,
+  // Internal v2 diagnostic transport and successor dispatch to the same LPV FIFO.
+  input logic [511:0] checkpoint_command_din,
+  input logic checkpoint_command_write,
+  output logic checkpoint_command_full_n,
+  output logic [511:0] checkpoint_response_dout,
+  output logic checkpoint_response_empty_n,
+  input logic checkpoint_response_read,
+  // Internal managed shell connection. A first ingress reserves the old K;
+  // remaining beats and returns keep that owner despite later revocation.
+  input logic checkpoint_start_permit,checkpoint_owner_revoked,checkpoint_executor_route,
+  input logic [8191:0] checkpoint_owner_key,
+  input logic checkpoint_closed_valid,
+  input logic [8191:0] checkpoint_closed_key,
+  output logic checkpoint_ingress_started,checkpoint_query_accepted,checkpoint_query_drained,
+  output logic [8191:0] checkpoint_query_request,
+  input logic [511:0] executor_provenance_cmd_din,
+  input logic executor_provenance_cmd_write,
+  output logic executor_provenance_cmd_full_n,
+  output logic checkpoint_dispatch_held,checkpoint_handoff_complete,
+  output logic checkpoint_handoff_pulse,checkpoint_authority_valid,
+  output logic checkpoint_protocol_error,
+  output logic [31:0] checkpoint_accepted_queries,checkpoint_consumed_responses,
+  output logic [63:0] checkpoint_sequence_high_water,checkpoint_handoff_high_water,
+  output logic [1:0] checkpoint_command_occupancy,checkpoint_response_occupancy,
+  input  logic [63:0] monitored_bo_base,
+  input  logic adapter_pending_zero,
+  input  logic source_query_valid,
+  output logic source_query_ready,
+  input  logic [8191:0] source_query_command,
+  output logic source_query_granted,
+  input  logic source_release_valid,
+  output logic source_release_ready,
+  input  logic [8191:0] source_release_command,
+  input  logic source_release_drained,
+  output logic source_lease_active,
+  // Read-only successful BEGIN snapshot; publication authority remains in hub.
+  output logic [8191:0] accepted_begin_packet,
+  input logic snapshot_request_valid,
+  output logic snapshot_request_ready,
+  input logic [6143:0] snapshot_request,
+  output logic snapshot_response_valid,
+  input logic snapshot_response_ready,
+  output logic [6143:0] snapshot_response,
+  input logic snapshot_base_valid,
+  input logic [63:0] snapshot_base_epoch,snapshot_base_address,snapshot_base_capacity,
+  output logic [63:0] snapshot_sequence_high_water,
+  input logic bootstrap_source_guard_active,
+  input logic [6143:0] bootstrap_source_guard_key,
+  output logic bootstrap_source_guard_match,
+  output logic bootstrap_physical_safe,
+
+  input  logic [63:0] s_axi_awaddr,
+  input  logic [7:0] s_axi_awlen,
+  input  logic [2:0] s_axi_awsize,
+  input  logic [1:0] s_axi_awburst,
+  input  logic s_axi_awvalid,
+  output logic s_axi_awready,
+  input  logic [511:0] s_axi_wdata,
+  input  logic [63:0] s_axi_wstrb,
+  input  logic s_axi_wlast,
+  input  logic s_axi_wvalid,
+  output logic s_axi_wready,
+  output logic [1:0] s_axi_bresp,
+  output logic s_axi_bvalid,
+  input  logic s_axi_bready,
+
+  output logic [63:0] m_axi_awaddr,
+  output logic [7:0] m_axi_awlen,
+  output logic [2:0] m_axi_awsize,
+  output logic [1:0] m_axi_awburst,
+  output logic m_axi_awvalid,
+  input  logic m_axi_awready,
+  output logic [511:0] m_axi_wdata,
+  output logic [63:0] m_axi_wstrb,
+  output logic m_axi_wlast,
+  output logic m_axi_wvalid,
+  input  logic m_axi_wready,
+  input  logic [1:0] m_axi_bresp,
+  input  logic m_axi_bvalid,
+  output logic m_axi_bready,
+
+  output logic transport_busy,cancel_pending,protocol_error,
+  output logic scope_active,domain_drained,monitor_scope_active,
+  output logic monitor_drained,monitor_coverage_complete,
+  output logic [15:0] monitor_status,
+  output logic [63:0] monitor_observed0,monitor_observed1,
+  output logic [63:0] last_event_seq,
+  output logic [5:0] active_owners,published_owners,
+  output logic [31:0] accepted_requests,retired_responses,
+  output logic [31:0] accepted_events,semantic_rejections,terminal_tasks,
+  output logic [31:0] forwarded_aw,forwarded_w,retired_b,
+  output logic [31:0] rejected_transactions,
+  output logic [1:0] command_fifo_occupancy,response_fifo_occupancy
+);
+  import laya_generated_provenance_layout_v1::*;
+  logic request_valid,request_ready,service_cancel;
+  logic [8191:0] request,accepted_request;
+  logic response_valid,response_ready;
+  logic [4095:0] response;
+  logic transport_protocol_error,hub_cancel_pending;
+  logic physical_observation_valid,physical_observation_ready;
+  logic [15:0] physical_status;
+  logic [31:0] physical_error_detail,monitor_error_detail;
+  logic [63:0] physical_bad_element,monitor_bad_element;
+  logic [63:0] physical_observed0,physical_observed1;
+  logic physical_drained,physical_coverage_complete;
+  logic begin_valid,begin_ready,begin_supported,end_commit;
+  logic begin_reserved,begin_block;
+  logic owner_coverage_complete,monitor_protocol_error;
+  logic end_issued_bytes_observed;
+  logic [15:0] request_action;
+
+  assign request_action=request[ACTION*8+:16];
+  // END may reach the private FIFO while stores accepted by HLS are still
+  // emerging at the AXI pins.  Do not present a drain observation to the hub
+  // until the physical WSTRB count has caught up with END's issued-byte
+  // commitment.  AW/W/B debt and adapter_pending_zero remain independent
+  // requirements in monitor_drained.
+  assign end_issued_bytes_observed=
+      monitor_observed0==request[ISSUED0*8+:64] &&
+      monitor_observed1==request[ISSUED1*8+:64];
+  // The accepted service packet remains immutable through WAIT_SERVICE. Its
+  // real monitor observation must remain visible while hub pending END waits.
+  assign physical_observation_valid=(request_valid || (MANAGED_LPV_OWNER && transport_busy)) &&
+      ((request_action==END_EVENT && monitor_scope_active && (MANAGED_LPV_OWNER || monitor_drained) &&
+        end_issued_bytes_observed) ||
+       (request_action==PUBLISH && !monitor_scope_active && monitor_drained) ||
+       ((request_action==RELEASE || request_action==INVALIDATE) &&
+        !monitor_scope_active && monitor_drained));
+  assign physical_status=request_action==END_EVENT ? monitor_status : 0;
+  assign physical_error_detail=request_action==END_EVENT ? monitor_error_detail : 0;
+  assign physical_bad_element=request_action==END_EVENT ? monitor_bad_element :
+                                  64'hffffffffffffffff;
+  assign physical_observed0=request_action==END_EVENT ? monitor_observed0 : 0;
+  assign physical_observed1=request_action==END_EVENT ? monitor_observed1 : 0;
+  assign physical_drained=monitor_drained;
+  assign physical_coverage_complete=request_action==END_EVENT ?
+      monitor_coverage_complete : request_action==PUBLISH ?
+      owner_coverage_complete : 1'b1;
+  assign protocol_error=transport_protocol_error || monitor_protocol_error;
+  assign begin_block=begin_reserved ||
+      (request_valid && request_action==BEGIN_EVENT);
+
+  logic [511:0] selected_cmd;
+  logic selected_write,selected_full_n,selected_route,selected_lane_live;
+  logic legacy_lpv_route,legacy_lane_authority,managed_lpv_candidate;
+  logic [1:0] lpv_routes_used;
+  logic lpv_revoking;
+  localparam int LPV_MAP=576+MONITORED_ROLE*24;
+  assign lpv_admission_ready=MANAGED_LPV_OWNER && !lpv_owner_installed &&
+    !cancel && !transport_busy && !scope_active && !monitor_scope_active &&
+    monitor_drained && adapter_pending_zero && active_owners==0 && !source_lease_active;
+  assign lpv_admission_accepted=lpv_admission_valid && lpv_admission_ready &&
+    admission_record_ok(lpv_admission_record) &&
+    lpv_admission_record[12*8+MONITORED_ROLE] && snapshot_base_valid &&
+    lpv_admission_record[LPV_MAP*8+:64]==snapshot_base_epoch &&
+    lpv_admission_record[(LPV_MAP+8)*8+:64]==monitored_bo_base &&
+    monitored_bo_base==snapshot_base_address &&
+    lpv_admission_record[(LPV_MAP+16)*8+:64]==snapshot_base_capacity;
+  assign lpv_revoking=lpv_owner_revoked || cancel ||
+    (lpv_revoke_valid && lpv_revoke_owner==lpv_owner_record) ||
+    (lpv_owner_installed && (!snapshot_base_valid ||
+      monitored_bo_base!=lpv_owner_record[(LPV_MAP+8)*8+:64] ||
+      snapshot_base_epoch!=lpv_owner_record[LPV_MAP*8+:64] ||
+      snapshot_base_address!=lpv_owner_record[(LPV_MAP+8)*8+:64] ||
+      snapshot_base_capacity!=lpv_owner_record[(LPV_MAP+16)*8+:64]));
+  always_ff @(posedge clk)begin
+    if(!rst_n)begin
+      lpv_owner_installed<=0;lpv_owner_record<=0;lpv_owner_revoked<=0;lpv_routes_used<=0;
+    end else if(MANAGED_LPV_OWNER)begin
+      if(lpv_admission_accepted)begin
+        lpv_owner_installed<=1;lpv_owner_record<=lpv_admission_record;
+      end
+      if(lpv_owner_installed && lpv_revoking)lpv_owner_revoked<=1;
+      if(selected_write && selected_full_n)lpv_routes_used[selected_route]<=1;
+    end
+  end
+  assign legacy_lpv_route=ENABLE_EXECUTOR_CHECKPOINT && checkpoint_dispatch_held;
+  assign legacy_lane_authority=MANAGED_EXECUTOR_HANDOFF ? checkpoint_executor_route : checkpoint_authority_valid;
+  assign selected_route=MANAGED_LPV_OWNER ?
+    (lpv_frame_owned ? lpv_frame_route : lpv_candidate_route) : legacy_lpv_route;
+  assign selected_lane_live=selected_route ?
+    (ENABLE_EXECUTOR_CHECKPOINT && legacy_lane_authority) : !legacy_lpv_route;
+  assign managed_lpv_candidate=lpv_owner_installed && lpv_candidate_valid &&
+    lpv_candidate_owner==lpv_owner_record &&
+    (lpv_revoking ? lpv_routes_used[selected_route] : selected_lane_live);
+
+  logic checkpoint_request_valid,checkpoint_request_ready;
+  logic [8191:0] checkpoint_request,checkpoint_response;
+  logic checkpoint_response_valid,checkpoint_response_ready;
+  logic checkpoint_exclusion,checkpoint_abort_only;
+  logic legacy_checkpoint_authority,legacy_checkpoint_pulse;
+  logic checkpoint_base_seen,checkpoint_base_history_complete;
+  logic [63:0] checkpoint_history_epoch,checkpoint_history_address,checkpoint_history_capacity;
+  // Managed consumers use only the full-key shell's consumed GRANTED reply.
+  // Never export the old last-read authority/pulse as a competing permission.
+  assign checkpoint_authority_valid=!MANAGED_EXECUTOR_HANDOFF && legacy_checkpoint_authority;
+  assign checkpoint_handoff_pulse=!MANAGED_EXECUTOR_HANDOFF && legacy_checkpoint_pulse;
+  // Historical Ref equivalence is meaningful only within this locked base.
+  // A lifecycle change after any predecessor ingress cannot reuse old arrays.
+  always_ff @(posedge clk)begin
+    if(!rst_n)begin
+      checkpoint_base_seen<=0;checkpoint_base_history_complete<=0;
+      checkpoint_history_epoch<=0;checkpoint_history_address<=0;checkpoint_history_capacity<=0;
+    end else if(ENABLE_EXECUTOR_CHECKPOINT)begin
+      if(!checkpoint_base_seen && provenance_cmd_write && provenance_cmd_full_n)begin
+        checkpoint_base_seen<=1;
+        checkpoint_base_history_complete<=snapshot_base_valid && snapshot_base_address==monitored_bo_base;
+        checkpoint_history_epoch<=snapshot_base_epoch;
+        checkpoint_history_address<=snapshot_base_address;
+        checkpoint_history_capacity<=snapshot_base_capacity;
+      end
+      if(checkpoint_base_seen &&
+         (!snapshot_base_valid || snapshot_base_epoch!=checkpoint_history_epoch ||
+          snapshot_base_address!=checkpoint_history_address || snapshot_base_capacity!=checkpoint_history_capacity ||
+          monitored_bo_base!=checkpoint_history_address))checkpoint_base_history_complete<=0;
+    end
+  end
+  assign checkpoint_exclusion=ENABLE_EXECUTOR_CHECKPOINT &&
+    checkpoint_dispatch_held && !(MANAGED_EXECUTOR_HANDOFF ?
+      checkpoint_executor_route : checkpoint_authority_valid);
+  assign selected_cmd=selected_route ? executor_provenance_cmd_din : provenance_cmd_din;
+  assign selected_write=(selected_route ? executor_provenance_cmd_write : provenance_cmd_write) &&
+    (MANAGED_LPV_OWNER ? (lpv_frame_owned || managed_lpv_candidate) :
+      (!selected_route || legacy_lane_authority));
+  assign provenance_cmd_full_n=selected_full_n && !selected_route &&
+    (!MANAGED_LPV_OWNER || lpv_frame_owned || managed_lpv_candidate);
+  assign executor_provenance_cmd_full_n=selected_full_n && selected_route &&
+    (MANAGED_LPV_OWNER ? (lpv_frame_owned || managed_lpv_candidate) :
+      (ENABLE_EXECUTOR_CHECKPOINT && legacy_lane_authority));
+  generate if(ENABLE_EXECUTOR_CHECKPOINT)begin : checkpoint_enabled
+    assign checkpoint_query_accepted=checkpoint_request_valid && checkpoint_request_ready;
+    assign checkpoint_query_request=checkpoint_request;
+    laya_executor_checkpoint_transport_v2 #(.MANAGED_HANDOFF(MANAGED_EXECUTOR_HANDOFF)) checkpoint_transport(
+      .clk,.rst_n,.cancel,.command_din(checkpoint_command_din),
+      .managed_start_permit(checkpoint_start_permit),.managed_revoked(checkpoint_owner_revoked),
+      .managed_owner_key(checkpoint_owner_key),.managed_closed_valid(checkpoint_closed_valid),
+      .managed_closed_key(checkpoint_closed_key),.ingress_started(checkpoint_ingress_started),
+      .request_abort_only(checkpoint_abort_only),.query_drained(checkpoint_query_drained),
+      .command_write(checkpoint_command_write),.command_full_n(checkpoint_command_full_n),
+      .response_dout(checkpoint_response_dout),.response_empty_n(checkpoint_response_empty_n),
+      .response_read(checkpoint_response_read),.request_valid(checkpoint_request_valid),
+      .request_ready(checkpoint_request_ready),.request(checkpoint_request),
+      .hub_response_valid(checkpoint_response_valid),
+      .hub_response_ready(checkpoint_response_ready),.hub_response(checkpoint_response),
+      // Do not acquire on the same edge as any new predecessor FIFO write.
+      // Old half-frames/END/response/final-B all retain their original progress.
+      .acquisition_safe(bootstrap_physical_safe && command_fifo_occupancy==0 &&
+                        response_fifo_occupancy==0 && !provenance_cmd_write),
+      .base_valid(snapshot_base_valid && checkpoint_base_history_complete &&
+                  monitored_bo_base==snapshot_base_address),.base_epoch(snapshot_base_epoch),
+      .base_address(snapshot_base_address),.base_capacity(snapshot_base_capacity),
+      .dispatch_held(checkpoint_dispatch_held),.handoff_complete(checkpoint_handoff_complete),
+      .handoff_pulse(legacy_checkpoint_pulse),.authority_valid(legacy_checkpoint_authority),
+      .protocol_error(checkpoint_protocol_error),
+      .accepted_queries(checkpoint_accepted_queries),.consumed_responses(checkpoint_consumed_responses),
+      .command_occupancy(checkpoint_command_occupancy),.response_occupancy(checkpoint_response_occupancy));
+  end else begin : checkpoint_disabled
+    assign checkpoint_command_full_n=0;
+    assign checkpoint_response_dout=0;assign checkpoint_response_empty_n=0;
+    assign checkpoint_dispatch_held=0;assign checkpoint_handoff_complete=0;
+    assign legacy_checkpoint_pulse=0;assign legacy_checkpoint_authority=0;
+    assign checkpoint_protocol_error=0;
+    assign checkpoint_accepted_queries=0;assign checkpoint_consumed_responses=0;
+    assign checkpoint_command_occupancy=0;assign checkpoint_response_occupancy=0;
+    assign checkpoint_request_valid=0;assign checkpoint_request=0;
+    assign checkpoint_ingress_started=0;assign checkpoint_query_accepted=0;
+    assign checkpoint_query_request=0;assign checkpoint_query_drained=0;assign checkpoint_abort_only=0;
+    assign checkpoint_response_ready=0;
+  end endgenerate
+
+  laya_generated_provenance_v1 #(.MANAGED_LPV_OWNER(MANAGED_LPV_OWNER)) transport(
+    .clk,.rst_n,.cancel,
+    .managed_owner_valid(lpv_owner_installed),.managed_owner(lpv_owner_record),
+    .managed_revoked(lpv_revoking),.managed_cmd_route(selected_route),
+    .managed_pending_valid(lpv_pending_valid),.managed_pending_route(lpv_pending_route),
+    .managed_pending_owner(lpv_pending_owner),.managed_pending_packet(lpv_pending_packet),
+    .managed_response_route(lpv_response_route),.managed_response_owner(lpv_response_owner),
+    .managed_frame_owned(lpv_frame_owned),.managed_frame_route(lpv_frame_route),
+    .managed_frame_owner(lpv_frame_owner),
+    .provenance_cmd_din(selected_cmd),.provenance_cmd_write(selected_write),
+    .provenance_cmd_full_n(selected_full_n),
+    .provenance_rsp_dout,.provenance_rsp_empty_n,.provenance_rsp_read,
+    .service_request_valid(request_valid),.service_request_ready(request_ready),
+    .service_request(request),.service_cancel,
+    .service_response_valid(response_valid),
+    .service_response_ready(response_ready),.service_response(response),
+    .service_scope_active(scope_active),.service_domain_drained(domain_drained),
+    .busy(transport_busy),.cancel_pending,.protocol_error(transport_protocol_error),
+    .last_event_seq,.accepted_requests,.retired_responses,
+    .command_fifo_occupancy,.response_fifo_occupancy
+  );
+
+  // Exclusion/cancel ownership is not part of this fence: it is held until
+  // the fence plus real action consumption permit release. No circular wait.
+  assign bootstrap_physical_safe=!transport_busy && !request_valid &&
+      !response_valid && !scope_active && !monitor_scope_active &&
+      monitor_drained && adapter_pending_zero && !source_lease_active &&
+      !protocol_error;
+
+  laya_generated_provenance_hub_v1 #(
+    .ENABLE_BOOTSTRAP_SNAPSHOT(ENABLE_BOOTSTRAP_SNAPSHOT),
+    .ENABLE_BOOTSTRAP_SOURCE_GUARD(ENABLE_BOOTSTRAP_SOURCE_GUARD),
+    .ENABLE_EXECUTOR_CHECKPOINT(ENABLE_EXECUTOR_CHECKPOINT),
+    .MANAGED_EXECUTOR_CHECKPOINT(MANAGED_EXECUTOR_HANDOFF),
+    .MANAGED_LPV_OWNER(MANAGED_LPV_OWNER)) hub(
+    .clk,.rst_n,.request_valid,.request_ready,.request,
+    .cancel(service_cancel),.managed_owner_valid(lpv_owner_installed),
+    .managed_owner(lpv_owner_record),.managed_request_owner(lpv_frame_owner),
+    .begin_external_ready(begin_ready),
+    .begin_external_supported(begin_supported),
+    .physical_observation_valid,.physical_observation_ready,
+    .physical_status,.physical_error_detail,.physical_bad_element,
+    .physical_observed_store_bytes0(physical_observed0),
+    .physical_observed_store_bytes1(physical_observed1),
+    .physical_drained,.physical_coverage_complete,
+    .source_query_valid(source_query_valid &&
+                        (!ENABLE_EXECUTOR_CHECKPOINT || !checkpoint_dispatch_held ||
+                         (MANAGED_EXECUTOR_HANDOFF && checkpoint_executor_route))),
+    .source_query_ready,.source_query_command,
+    .source_query_granted,.source_release_valid,.source_release_ready,
+    .source_release_command,.source_release_drained,.source_lease_active,
+    .snapshot_request_valid,.snapshot_request_ready,.snapshot_request,
+    .snapshot_response_valid,.snapshot_response_ready,.snapshot_response,
+    .snapshot_physical_quiescent(bootstrap_physical_safe),.snapshot_base_valid,
+    .snapshot_base_epoch,.snapshot_base_address,.snapshot_base_capacity,
+    .snapshot_sequence_high_water,
+    .checkpoint_abort_only,.checkpoint_request_valid,.checkpoint_request_ready,.checkpoint_request,
+    .checkpoint_response_valid,.checkpoint_response_ready,.checkpoint_response,
+    .checkpoint_dispatch_held(checkpoint_exclusion),
+    .checkpoint_physical_quiescent(bootstrap_physical_safe && checkpoint_base_seen &&
+                                   checkpoint_base_history_complete),
+    .checkpoint_lpv_floor(last_event_seq),
+    .checkpoint_sequence_high_water,.checkpoint_handoff_high_water,
+    .bootstrap_source_guard_active,
+    .bootstrap_source_guard_key,.bootstrap_source_guard_match,
+    .response_valid,.response_ready,.response,
+    .scope_active,.domain_drained,.cancel_pending(hub_cancel_pending),
+    .active_owners,.published_owners,
+    .accepted_events,.semantic_rejections,.terminal_tasks
+  );
+
+  assign begin_valid=response_valid && response_ready &&
+      response[ACTION*8+:16]==BEGIN_EVENT &&
+      response[RESPONSE_STATUS*8+:16]==0;
+  assign end_commit=response_valid && response_ready &&
+      response[ACTION*8+:16]==END_EVENT &&
+      !response[RESPONSE_FLAGS*8+1];
+
+  laya_generated_store_monitor_v1 #(.MONITORED_ROLE(MONITORED_ROLE)) monitor(
+    .clk,.rst_n,.cancel(MANAGED_LPV_OWNER ? lpv_revoking : cancel),.begin_valid,.begin_ready,.begin_block,
+    .candidate_packet(request),.begin_packet(accepted_request),
+    .bo_base(MANAGED_LPV_OWNER ? lpv_owner_record[(LPV_MAP+8)*8+:64] : monitored_bo_base),.end_commit,
+    .adapter_pending_zero,.begin_supported,
+    .scope_active(monitor_scope_active),.physical_drained(monitor_drained),
+    .coverage_complete(monitor_coverage_complete),
+    .physical_status(monitor_status),
+    .physical_error_detail(monitor_error_detail),
+    .physical_bad_element(monitor_bad_element),
+    .observed_store_bytes0(monitor_observed0),
+    .observed_store_bytes1(monitor_observed1),
+    .forwarded_aw,.forwarded_w,.retired_b,.rejected_transactions,
+    .s_axi_awaddr,.s_axi_awlen,.s_axi_awsize,.s_axi_awburst,
+    .s_axi_awvalid,.s_axi_awready,.s_axi_wdata,.s_axi_wstrb,.s_axi_wlast,
+    .s_axi_wvalid,.s_axi_wready,.s_axi_bresp,.s_axi_bvalid,.s_axi_bready,
+    .m_axi_awaddr,.m_axi_awlen,.m_axi_awsize,.m_axi_awburst,
+    .m_axi_awvalid,.m_axi_awready,.m_axi_wdata,.m_axi_wstrb,.m_axi_wlast,
+    .m_axi_wvalid,.m_axi_wready,.m_axi_bresp,.m_axi_bvalid,.m_axi_bready
+  );
+
+  always_ff @(posedge clk)begin
+    if(!rst_n)begin
+      accepted_request<=0;accepted_begin_packet<=0;owner_coverage_complete<=0;
+      monitor_protocol_error<=0;begin_reserved<=0;
+    end else begin
+      if(request_valid && request_ready)begin
+        accepted_request<=request;
+        if(request_action==BEGIN_EVENT)begin_reserved<=1;
+      end
+      if(response_valid && response_ready &&
+         response[ACTION*8+:16]==BEGIN_EVENT)
+        begin_reserved<=0;
+      if(begin_valid)accepted_begin_packet<=accepted_request;
+      if(begin_valid && !begin_ready)
+        monitor_protocol_error<=1;
+      if(response_valid && response_ready)begin
+        if(response[ACTION*8+:16]==CLAIM &&
+           response[RESPONSE_STATUS*8+:16]==0)
+          owner_coverage_complete<=0;
+        if(response[ACTION*8+:16]==END_EVENT &&
+           !response[RESPONSE_FLAGS*8+1])
+          owner_coverage_complete<=response[RESPONSE_STATUS*8+:16]==0;
+        if((response[ACTION*8+:16]==RELEASE ||
+            response[ACTION*8+:16]==INVALIDATE) &&
+           response[RESPONSE_STATUS*8+:16]==0)
+          owner_coverage_complete<=0;
+      end
+    end
+  end
+endmodule

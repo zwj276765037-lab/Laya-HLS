@@ -1,0 +1,17 @@
+{
+  "source": "# E006 实验依据摘要\n\nM005/SM006以同一可综合代表top评估B1/S128四行FFN通路与目标xcu55c-fsvh2892-2L-e、Vivado 2025.2的联合资源/时序。原GGUF、request3/generation1、独立LN/Down/末残差gold及655360B局部保护不改；外部DDR/fixture/sequencer留TB。R2允许功能未闭合候选的诊断性物理测量，仍要求无黑盒/关键裁剪、真实资源和有效约束。AT073功能top SHA b47f57f087cc65d6be3cb87cd43421a0d7dad6c8245c63188effd00713338f79；物理端口显式wire声明归一化后与功能top逐字相同。R3选择同周期有界组合几何检查；受影响后继又将store monitor最多32项扫描、矩阵half→F32规格化最多10步改为固定循环，算术/存储容量和外部接口未改。新物理候选身份见AT086清单；这些局部等价验证不替代完整链回归。\n",
+  "results": "# E006 关键结果摘要\n\nAT073最后正常full在cycle375074完成LN/Q/Wi/G/Down前缀及Down 256 AW/W/B、TMP 64KiB总检查窗口（16KiB有效写入/gold、48KiB未写哨兵），随后Down→残差票据断言Fatal。原Down状态计数16185cycle是cfg接受358881→首次done375066端点差；至实际消费375073端点差16192cycle，两端采样都计入16193cycle。残差未受理、HIDDEN结果与655360B保护未测，独立合法反压完整样本未做；3/3 full累计4974.979578s。阶段C原v4使用16192，无数值重估。\n\nAT074/075/077综合停在端口/几何动态循环，无网表。R3后的AT079冻结AT040旧函数与新函数：140个已知用例逐值一致，另无效count2例及未知role拒绝；AT080真实portal原回归与新增重叠BEGIN拒绝/响应保持PASS。AT081在store monitor动态循环处展开失败；AT082同监视器受影响短测PASS。AT083在矩阵half解码while处展开失败；AT085旧/新half解码全部65536输入逐bit一致。AT086联合综合已通过输入核验并运行中，尚无资源/时序结论。短/static保守预算和证据见M005_budget_ledger_R3_before_AT081_20261014.json；host历史精确执行时间仍UNKNOWN，不按零计。\n",
+  "status": "# E006 实验状态摘要\n\n- execution_state: running；verdict: unassessed。阶段A最后一次正常full终态FAIL，3/3新full用尽；正常完整链和独立合法反压两个完整样本均未达到，AT073冻结尝试不重跑。\n- 阶段B依据R2/R3进行同一代表top诊断综合。AT079/080/082/085仅为受影响局部验证；AT086已冻结、preflight ACCEPT，联合综合运行中。未有有效网表/LUT/FF/DSP/BRAM/URAM/Fmax或route。\n- 阶段C仍为条件预算；外部sequencer/shell/Attention及完整生产义务单列。下一步以AT086真实终态判断是否可在原余额内取得有效网表和route；物理结果必须注明完整功能与稳定性未闭合。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "AT073功能到Down退休票据失败；AT086诊断物理候选综合运行中，完整功能/稳定性未闭合",
+  "evidence": [
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT073_down_retirement_fail_20261014.md",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_budget_ledger_R3_before_AT081_20261014.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT079_M005_hub_disjoint_differential_02/run_result.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT080_M005_hub_disjoint_portal_01/run_result.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT082_M005_store_monitor_bounded_short_01/receipt.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT085_M005_half_decode_differential_02/run_result.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT086_M005_joint_physical_bounded_half_06/preflight_synth.json"
+  ]
+}

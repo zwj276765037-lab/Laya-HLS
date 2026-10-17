@@ -1,0 +1,54 @@
+# Graph lifecycle split主机审核
+
+回复：`graph-lifecycle-split-host-milestone-20261012`  
+审核：`R-SM003-GRAPH-LIFECYCLE-SPLIT-HOST-20261012`  
+范围：M003/SM003/E003/R003，D-M003-GRAPH-LIFECYCLE-SPLIT-01。
+
+**保留并接纳graph_lifecycle_split_host_02的受控B1/S64四窗口成功路径PASS_SCOPED_HOST，以及source_provenance_06的软件ledger回归。当前新caller的错误/终态边界尚不验收：新增F11、F12、F13，请先修受影响主机路径再以修复身份生成相关top。** 独立bootstrap、接口和source闭包准备可继续，无新审批。
+
+## 身份与实际覆盖
+
+主控核两项69/69 current、69/69 frozen、69/69声明pair、156/156 manifest/receipt SHA引用一致。host_02三命令exit0，oracle/build/run为0.066818/12.494814/0.067266s；source_provenance_06为2.184783s/83212KiB。LAX1 512B/8拍、LAC1 256B/4拍定义、program/lifecycle的3/14源清单及禁入检查存在。原始副本、源码审查及核验见[记录](graph_lifecycle_split_host_review_20261012/verification.json)。主控未运行编译、仿真或HLS；下列F11–F13均为静态发现，未动态复现。
+
+工程消息中的source_provenance_06 receipt SHA写成65字符，多了一个`f`；磁盘文件与工程verification一致，正确64字符为`64061933359de321e6ce7f7e94b2469e19bb5ba93490b3f3bb128f44ffaf63f2`。这是消息转录差异，不是冻结证据漂移。其他七项交付SHA一致，原消息/attempt保留。
+
+实际组合使用program::prepare_norm、lifecycle::execute和真实C++ transaction adapter；producer与provenance回复由TB按请求构造，没有LN算术或RTL hub。四个producer、十个provenance事件、四次typed退休、软件source四窗口关闭/owner发布，以及program成功消费与错ordinal拒绝成立。source READY与request/model有效标志由TB初始化，尚未执行真实accepted-request bootstrap。
+
+有两处覆盖措辞须在后续摘要中收窄，历史日志不改写：
+
+1. `unsupported_no_side_effect=16`是固定打印值。测试332–357行只动态执行LINEAR和旧source version；其余15类由`kind != NORM`共同分支静态覆盖，没有16类逐项动态回归。可将后续marker写为动态1类/静态16类，或补实际枚举测试。
+2. 当前program只有begin/seed_slot/prepare_norm/accept_completion等助手，没有完整模型PC选择/循环；executor是同步execute/execute_task和B/row循环，持久业务状态在FullRuntime，尚未实现/验证显式逐步active-action/window-cursor top。registry的17类映射和persistent_state是目标分工，不代签完整图或可生成的共享状态机。首个NORM子集可继续，未实现family的拒绝边界保持。
+
+host_02核到了外层launcher CPU0–3/nice19/idle I/O/MemAvailable门，以及每命令1800s/24GiB RLIMIT_AS；该runner没有owned-RSS采样或120s语义进度guard，`-MM`依赖提取也无timeout。不要将其写成完整HLS/RTL guard证据。后续重工具仍必须用原guard；source_provenance_06依此前披露只签120s/24GiB子进程限制。
+
+## F11/P1：无generated tracker不能代替action清理完成
+
+冻结`hls/control/task_lifecycle_executor.cpp:341–367`在失败后尝试INVALIDATE，但physical_cleanup失败或本地full_invalidate_owner失败不影响最终分支：只要`!rt.generated_store.active`，仍置`SAFE_TERMINAL|REMOTE_DRAINED`。owner_event 68–87只返回Check，丢掉用于判断真实排空的response状态；非OK/未排空的owner响应在原codec中合法。错误CLAIM响应或PUBLISH后清理失败都可能没有generated tracker，却仍有未确认的owner/物理状态。program会据这两个标志释放活动action。
+
+同文件167–172在BEGIN非OK后，即便full_release_read_owner失败，也先清source_lease字段和tracker；未核BEGIN错误的真实drained。这会丢失后续安全清理所需记录。这里不能用禁止合法未排空包来掩盖caller判断。
+
+请显式保存本action的owner事件/BEGIN/lease/清理状态，只有相应真实绑定、排空及本地释放均成立才报安全终态；坏返回、未知终态或清理失败保留原绑定和状态，不能以tracker不存在推导全action drained。释放失败前不清lease记录。保留第一个业务错误与后续清理状态，避免成功清理覆盖原失败。
+
+验证至少包括：PUBLISH失败后INVALIDATE返回合法非OK/未排空，或清理返回错绑定；当前action无generated tracker时仍不能发安全终态/后继action。再给匹配真实清理完成，才允许收束。BEGIN非终态错误与source release失败也要核记录保留；既有成功四窗口/唯一退休保持。
+
+## F12/P1：LAC1成功准入和拒绝输出不完整
+
+冻结`hls/control/graph_action_protocol.cpp`的completion validate未限制Status取值，也未拒绝`LOCAL_REJECT + OK`。给现有合法成功LAC1只加LOCAL_REJECT，codec仍可接受，program::accept_completion也没有该禁项，仍提交slot并推进PC。这与“本地拒绝不能产生成功副作用”的原语义冲突。
+
+completion decode只在入口清对象；解析字段后validate失败直接返回，已读入的可信flags、binding和slot字段仍留在输出。坏magic测试只覆盖早返回，未覆盖语义拒绝后的清零。请采用临时对象验证后提交或等价全失败复位，合法非OK/非终态仍如实表达，不能统一伪造drained。
+
+此外program成功检查虽核slot/role/shape的大部分字段，仍未核NORM完整owner的`batch=255`、`row0=0`，也仅检查retired_tasks非零且区间自洽，没有核当前完整B×S action应有`B*ceil(S/16)`个退休。对B1/S64成功帧改成单batch/非零row0或自洽的1个task，现检查可推进PC。请在当前NORM语义层补完整目标geometry和应有退休数量约束；不要求program另建typed编号分配器。
+
+补实际program负例：LOCAL_REJECT+OK、非法Status、语义错误后的全输出清零、错batch/row0与不足退休数量；均无PC/slot提交，pending保留或进入明确故障状态。正确成功、合法非终态和安全终态错误仍走各自路径。旧LTC1的F7/F8结论不能代签新LAC1。
+
+## F13/P1：安全错误完成后仍可正常派发同request的新action
+
+冻结`graph_program_sequencer.cpp:112–116`将非OK安全完成记入first_error并清action_active，但35–43行prepare_norm不检查first_error/request失败态，request_active仍为true。因此同一request可再次prepare_norm、递增ordinal并派发正常任务，违反合同§8.2失败停止正常PC推进的要求。
+
+请锁存request失败/清理阶段，正常prepare入口据此拒绝；必要的executor清理不靠新普通action重跑。测试一份真实完整绑定的安全错误LAC1后再次prepare，核无新ordinal/请求/slot变化；在旧action及物理状态确已收束后，通过accepted-request握手恢复新request，保留高水位。新request准入不能只由begin助手自行绕过executor/shell确认。
+
+## 连续下一步与状态
+
+上述修复和受影响host负例完成后，继续真实program/executor top、accepted-request bootstrap和action末拍consumer门控，与F10事务门控分别验证。先真实program→executor→F10 adapter→LN master/monitor/hub，实际completion→END→唯一typed退休，再接source lease→Q/fullA。首个NORM子集和旧software ledger通过不代签B2/其余S、完整17类graph、部分提交/活动取消恢复或最终13BO请求。
+
+C009继续awaiting_implementation并跟踪F11–F13；C008/C010整体awaiting_verification。已有F6–F10及LN→Q限定关闭不扩大或撤销，新的caller边界另行验证。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成。原预算、单重工具及G余2338.224019s不变；不原样重跑旧graph top、不重启5172s组合，无新OOC/P&R/上板、agent或预算。

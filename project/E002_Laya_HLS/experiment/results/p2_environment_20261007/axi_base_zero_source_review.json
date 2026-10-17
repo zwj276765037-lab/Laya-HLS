@@ -1,0 +1,91 @@
+{
+  "utc": "2026-10-07T05:35:14.530683+00:00",
+  "reviewer": "GPT-6 Astra xhigh",
+  "status": "BASE_ZERO_SOURCE_FIX_AND_ISOLATED_GENERATED_READ_HELPER_RTL_ACCEPTED",
+  "before_pilot_extraction_manifest": "results/engineering_p2/axi_base_zero_pilot_20261007/source/extraction_manifest.json",
+  "before_rtl": "results/engineering_p2/axi_base_zero_pilot_20261007/rtl/axi_base_zero_pilot_full_read.v",
+  "before_rtl_sha256": "1bbe57e2364eb1b13fb6d9c2d2c1b1128b8b096dc5a57338119e4670e9775b6c",
+  "before_rtl_observations": [
+    {
+      "line": 1440,
+      "fact": "All thirteen named AXI bases route through selected 64-bit retval mux."
+    },
+    {
+      "line": 2167,
+      "fact": "icmp_ln11 compares selected 64-bit base to zero."
+    },
+    {
+      "line": 2079,
+      "fact": "A zero comparison directs state1 to state11, bypassing transaction state2."
+    },
+    {
+      "line": 1789,
+      "fact": "Embedding ARVALID requires state2; analogous other read requests are skipped."
+    },
+    {
+      "line": 1479,
+      "fact": "Rejected path sets result bits0 and2 to 1, yielding E_BUFFER=5."
+    }
+  ],
+  "accepted_fix": {
+    "source": "hls/common/laya_full_memory.cpp",
+    "sha256": "00b4374c6418ea939a44b9c8e358305eba4e9e7b87fb90f54b26caf63873e861",
+    "synthesis": "present checks valid Bo enum; mutable_present checks eight writable Bo enums; numerical AXI base is not presence",
+    "CPU_and_CSim": "retain original real-pointer null rejection",
+    "unchanged": "13 parameters, memory capacities, bounds, arithmetic, model/workspace layout and permissions"
+  },
+  "required_host_responsibility": "allocate all thirteen BOs successfully and provide all kernel arguments; base zero does not mean missing BO",
+  "remaining": [
+    "Full-top synthesis and platform/AXI response-drain acceptance remain independent and unverified."
+  ],
+  "scope": "Small pilot demonstrates address validation lowering only; no full-network RTL or platform validation.",
+  "after_rtl": {
+    "file": "build/full-hls-axi-base-zero-pilot-after/work/hls/syn/verilog/axi_base_zero_pilot_full_read.v",
+    "sha256": "ec4edc6445783bf40efcee75f4bd166bb6921809c933c9504697c50287e8b1e2",
+    "observations": [
+      {
+        "line": 1965,
+        "fact": "Start now enters transaction state2 without a selected-base==0 rejection."
+      },
+      {
+        "line": 1677,
+        "fact": "Selected BO0 issues its request in state2."
+      },
+      {
+        "line": 1414,
+        "fact": "Request base is registered without changing zero to another address."
+      },
+      {
+        "line": 2174,
+        "fact": "Embedding request ARADDR directly equals the registered base."
+      }
+    ]
+  },
+  "after_xsim": {
+    "log": "results/engineering_p2/axi_base_zero_pilot_20261007/after/xsim.log",
+    "log_sha256": "709372d81f2555bda82723c2575c870d17eaad943bb2afde4216b0664661c3c9",
+    "tb": "results/engineering_p2/axi_base_zero_pilot_20261007/after/tb/full_read_axi_tb.sv",
+    "tb_sha256": "681f98c7647f5769cd8570949354a46106d720bc0a605969ed9fb04c7d39ac5a",
+    "cases": [
+      {
+        "base": 0,
+        "request_count": 1,
+        "local_output_writes": 1,
+        "observed_byte": 83
+      },
+      {
+        "base": 256,
+        "request_count": 1,
+        "local_output_writes": 1,
+        "observed_byte": 83
+      }
+    ],
+    "scope": "Generated full_read helper RTL internal memory-request interface only; external top m_axi adapters and complete AXI4 protocol are not instantiated by this TB."
+  },
+  "final_functional_regression": {
+    "CPU_gate": "results/engineering_p2/full_cpu_final_20261007/full_final_gate_report.json",
+    "full_top_CSim": "results/engineering_p2/csim_full_final_20261007/csim.log",
+    "build_tag": "4f12ecfe940ecf2a8998a8626fc1ed1c",
+    "status": "PASS_CURRENT_BUILD"
+  }
+}

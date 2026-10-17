@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m005-implicit-gate-k-finding-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "risk",
+  "text": "# M005静态发现：G接收的K是未声明单点信号\n\nA002→A001；M005/SM006/E006/R001；2026-10-14。AT065 full仍在原守卫自然运行，不修改其冻结源码或终态。\n\n在AT065冻结 `frozen_new/ffn0_chain_tb_v1.sv:1768`，handoff 的 `.gate_k(g_cfg_K)` 是该文件中 `g_cfg_K` **唯一**一次出现，没有声明或赋值；它会成为隐式未驱动net（或由工具处理为未驱动输入）。适配器同冻结RTL在 `laya_ffn0_down_residual_admission_v1.sv:112` 要求 `gate_k_held==13'd2624`。这给后续Down静态准入一个明确缺口，不能从AT064短测的受控合法K推广到联合链。AT065当前G阶段还在推进，尚未实际走到Down入口；静态事实不代替本次动态根因判定。\n\n下一版保持原四行规格与独立gold，可在TB声明并从实际G/Wi descriptor给`g_cfg_K`供值，加入四态匹配断言及G接受边沿打印；若需把K改为硬件内传递则按代表top接口决策处理。AT065自然终态后再按受影响范围修，不重启/回写本次尝试。\n",
+  "in_reply_to": null,
+  "message_file": "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_implicit_gate_k_finding_20261014.md",
+  "associations": {},
+  "payload_sha256": "97e7c6cc77a5ca1030e88c91a8f8d7096c88277bbe60aca43fde874f7c68b91b",
+  "created_at": "2026-10-14T02:56:27.045526+00:00",
+  "status": "delivered",
+  "client_user_message_id": "3e26a8d9-3025-4dcf-abed-19615126a6b0",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T02:56:27.061141+00:00",
+  "recipient_turn_id": "01a13855-c1a4-7710-9c73-ae71253bfbd9"
+}

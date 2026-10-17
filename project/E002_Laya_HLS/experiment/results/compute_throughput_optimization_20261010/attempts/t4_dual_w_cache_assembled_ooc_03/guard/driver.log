@@ -1,0 +1,70 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sun Oct 11 11:51:12 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t4_dual_w_cache_assembled_ooc_03/frozen_source/vivado/module_design/hbm_loader_and_cache/tb/t4_dual_w_cache_assemble_ooc.tcl
+# if {[llength $argv] != 2 && [llength $argv] != 3} {error "usage: t4_dual_w_cache_assemble_ooc.tcl FRESH_WORK FULL_BANK_DCP"}
+# lassign $argv work bank_dcp parent_dcp
+# set work [file normalize $work]
+# set bank_dcp [file normalize $bank_dcp]
+# set module [file normalize [file join [file dirname [info script]] ..]]
+# set_param general.maxThreads 4
+# if {$parent_dcp ne ""} {
+#   open_checkpoint [file normalize $parent_dcp]
+# } else {
+#   foreach f {t4_w_reader_port_v1 t4_three_port_reader_v1 t4_aux_bias_reader_v1 t4_w_cache_bank_stub_v1 t4_dual_w_cache_v1} {
+#     read_verilog -sv [file join $module rtl ${f}.sv]
+#   }
+#   synth_design -top t4_dual_w_cache_v1 -part xcu55c-fsvh2892-2L-e -mode out_of_context -flatten_hierarchy none
+#   write_checkpoint [file join $work parent_stub_synth.dcp]
+#   close_design
+#   close_project -quiet
+#   open_checkpoint [file join $work parent_stub_synth.dcp]
+# }
+Command: open_checkpoint /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t4_dual_w_cache_assembled_ooc_02/work/parent_stub_synth.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 1566.035 ; gain = 0.000 ; free physical = 44031 ; free virtual = 415107
+INFO: [Device 21-403] Loading part xcu55c-fsvh2892-2L-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.16 ; elapsed = 00:00:00.16 . Memory (MB): peak = 3048.344 ; gain = 0.000 ; free physical = 42707 ; free virtual = 413784
+INFO: [Netlist 29-17] Analyzing 1158 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 't4_dual_w_cache_v1' is not ideal for floorplanning, since the cellview 't4_dual_w_cache_v1' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2025.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3055.594 ; gain = 5.250 ; free physical = 42669 ; free virtual = 413746
+CRITICAL WARNING: [Project 1-560] Could not resolve non-primitive black box cell 't4_w_cache_bank_v1' instantiated as 'slots[0].parity[0].columns[0].bank'. 32 instances of this cell are unresolved black boxes. [/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t4_dual_w_cache_assembled_ooc_02/frozen_source/vivado/module_design/hbm_loader_and_cache/rtl/t4_dual_w_cache_v1.sv:259]
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3334.750 ; gain = 0.000 ; free physical = 42356 ; free virtual = 413433
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 273 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 18 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 1 instance 
+  RAM64M8 => RAM64M8 (RAMD64E(x8)): 254 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2025.2 (64-bit) build 6299465
+open_checkpoint: Time (s): cpu = 00:00:26 ; elapsed = 00:00:22 . Memory (MB): peak = 3334.785 ; gain = 1768.750 ; free physical = 42366 ; free virtual = 413443
+# set banks [get_property NAME [get_cells -hierarchical -filter {REF_NAME == t4_w_cache_bank_v1}]]
+# if {[llength $banks] != 32} {error "T4_CACHE_BANK_INSTANCE_COUNT [llength $banks]"}
+# set mapping [open [file join $work bank_cell_mapping.txt] w]
+# foreach cell [lsort $banks] {
+#   puts $mapping "$cell <- $bank_dcp"
+#   read_checkpoint -cell $cell $bank_dcp
+#   set boundary [get_cells -hierarchical -filter [format {NAME == "%s"} $cell]]
+#   if {[llength $boundary] != 1 || [get_property IS_BLACKBOX $boundary]} {error "T4_CACHE_UNRESOLVED_BANK $cell"}
+#   set_property DONT_TOUCH true $boundary
+#   puts "T4_CACHE_BANK_IMPORTED cell=$cell"
+# }
+Command: read_checkpoint -cell {slots[0].parity[0].columns[0].bank} /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/t4_w_cache_bank_ooc_01/work/bank_synth.dcp
+WARNING: [Vivado 12-12435] Any Tcl variable pointing to design objects become invalid when read_checkpoint is executed subsequently after open_checkpoint. The content of those variables need to be rebuilt after read_checkpoint. Otherwise this could result in unwanted behavior due to referencing objects that do not exist anymore.
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.17 ; elapsed = 00:00:00.06 . Memory (MB): peak = 3907.082 ; gain = 6.461 ; free physical = 41914 ; free virtual = 412993
+read_checkpoint: Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 3916.082 ; gain = 581.297 ; free physical = 41916 ; free virtual = 412997
+ERROR: [Project 1-9] Cannot open structural netlist because no structural source files were specified. Edif, ngc ngo and verilog structural netlists are supported.
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 11 11:51:43 2026...

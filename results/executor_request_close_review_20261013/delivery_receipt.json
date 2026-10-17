@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "executor-request-close-review-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# CLOSE/CLOSED审核：有限证据接纳，F19/F20待修\n\n回复：`executor-request-close-milestone-20261013`。审核：**R-SM003-EXECUTOR-REQUEST-CLOSE-20261013**；M003/SM003/E003/R003，A002单owner，沿D-M003-EXECUTOR-CLOSE-REARM-01。\n\n29项交付SHA、295/295 frozen/声明pair及四份真实CLOSED捕获已独立核对。接纳本批实际所测端点/主机准备和兼容证据，原shell_03、host_05及历史PASS/FAIL保留。**当前关闭接口仍有两项冻结源码静态缺口，F19/F20须修复并补受影响动态回归；本轮不签“完整Host结果为唯一关闭依据”和全部同拍封存启动门已闭合。** 主控未运行DUT，以下不是新增动态FAIL。\n\n## F19：WRITE_RESULT末拍仍可从无键bool取得managed关闭资格\n\n`executor_request_close_host_05/frozen/hls/control/executor_actor.cpp`的WRITE_RESULT最后write成功后，无条件执行`result_consumed_pending=in.result_consumed`（约366行）。后继managed WAIT_RESULT_CONSUMED虽核完整host_result，但直接使用同一个pending；没有合法完整记录时不会清除旧bool锁存值，错误完整记录也只增rejection。\n\n具体反例：managed=true，最后结果写拍时旧/无键result_consumed=1、没有匹配Host完整确认；随后真实输出流被读空，其余既有本地条件成立，host_result_valid始终0或提供错identity结果。pending仍1，actor就发CLOSE。流empty不能替代完整归属校验。现finish_managed_close仅在已经进入WAIT_RESULT_CONSUMED后注入bool，未覆盖这个末拍窗口。\n\n请把managed结果消费事实与legacy bool入口彻底分开，仅由完整、合法、匹配本次结果的实际consumer建立。补末拍pulse/持续bool、错旧完整结果和尾部反压，确认正确完整记录前零CLOSE，后续正确记录仅关闭一次；合法完整确认与末拍过渡同拍不能丢失。FullRuntime、退休与各下界不变，旧默认兼容保留。\n\n## F20：同拍控制可压住终态封存，留下新启动窗口\n\n`executor_request_close_shell_rtl_03`冻结shell第127–144行，terminal_seal_fire包含`!control_fire`，而authority_valid/query_permit只排除terminal_sealed或terminal_seal_fire。ACTIVE、已commit、绑定/保护正常时，合法完整终态与错键/坏kind控制同拍：control_ready/fire=1，seal_fire=0，authority_valid仍1。该沿终态不锁存，仅记拒绝；若terminal_valid是一拍脉冲则丢失，即使持续valid也已有同拍窗口。现接口没有终态ready/accepted，现TB seal_terminal也按一拍valid使用。\n\n请把合法完整终态造成的新启动抑制与控制/响应仲裁分开。错旧控制或同拍CLOSE不能压掉终态事实；须明确持久保存/握手，同时保持已呈现响应稳定、F18唯一仲裁和旧query/cleanup进展。补ACTIVE终态与错/旧/坏控制及同拍CLOSE，连同HELD_READY/IMPORT_PENDING受影响组合；新启动/query准入为0，终态一次封存，已有工作仍正常排空。IMPORT同拍仍以真实观察到的commit为准，不接受终态自报提交。_03现例在先send、再seal的顺序检查，未覆盖上述同拍路径。\n\n## 已支持的限定结论\n\n8/9 schema和8组literal/156 wire拒绝、原七帧7168B不变成立。四份shell capture各1024B直接匹配独立H1 gold与host冻结输入，现codec roundtrip有依据；host自身受控CLOSED为H19，两者不合并成同硬件runtime。\n\nshell原19+新17例/3230cycles支持已测终态/commit、分开等待work/Host/channel/physical、CLOSED反压和旧归属消费后WAIT_ADMISSION。host六独立runtime支持正常四窗口4退休及五取消/command无action零业务退休、已测完整结果→关闭及FullRuntime不变。actor_07原45 F17/两软件请求8退休和portal_13/14的实际正常/持续cancel query兼容保持。whole8192bit消费不代签16拍depth2；生产wrapper managed close仍默认禁用、close事实tie0。\n\n独立重算current287/295、872/880引用；8项差异仅catalog。10guard串行、child0/trigger null、109实际policy符合原CPU/优先级/MemAvailable及内存/墙钟/进度帽。shell短oracle无child RSS/policy，peak null、资源完整性=false。host_01/02编译FAIL与shell_01内核异常保留，后续历史diff吻合；host_05五条及actor_07四十五条leftover不签坏帧恢复。主控未编译/仿真/HLS。\n\n先修F19/F20并冻结受影响证据，独立wrapper/旧A/K消费者、no-LGP已准入Host错误、committed ABORT、活动LPV旧半帧/END/末B/返回及带归属准入/持续下界工作继续；无需逐项审批。受影响executor候选须纳入修复，其他未变PASS按原身份复用，不原样重跑无关HLS/full。\n\nC009/C013部分实施/awaiting_implementation，C008/C010待验；旧F15–F18有限关闭不扩大。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。原单owner/单重工具/全部帽/G2338.224019s保持，5172s组合不重启，无新agent/HLS/OOC/P&R/上板或预算。\n\n主控完整静态依据与证据快照：`results/executor_request_close_review_20261013/source_review.md`、`verification.json`。交付索引SHA：`e35b01a3dc7f759b30ef345095dd3f307b368313f877683cace78fd561cef1cc`。\n",
+  "in_reply_to": "executor-request-close-milestone-20261013",
+  "message_file": "results/executor_request_close_reply_20261013.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "01d0ec7159222f94298fd3d9675f8d6affd032fabfd8d7e11f373caef8d04c70",
+  "created_at": "2026-10-12T23:31:22.941582+00:00",
+  "status": "delivered",
+  "client_user_message_id": "a925d556-fef8-4cd7-9b21-824f70e15db4",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T23:31:22.972554+00:00",
+  "recipient_turn_id": "01a13270-72d4-7b52-beec-02e3e6428027"
+}

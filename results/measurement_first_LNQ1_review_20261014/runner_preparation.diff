@@ -1,0 +1,11 @@
+--- AT048/runner
++++ live_reviewed/runner
+@@ -47,6 +47,8 @@
+ set_property -name xsim.simulate.xsim.more_options -value $plusargs -objects [get_filesets sim_1]
+ launch_simulation -mode behavioral -step compile
+ launch_simulation -mode behavioral -step elaborate
++source [file join [file dirname [info script]] stage_ln_roms_v1.tcl]
++stage_ln_roms_v1 $ln_engine [file join $work vivado lnq0_chain_tb_v1.sim sim_1 behav xsim]
+ puts LNQ0_STATIC_PASS
+ if {$mode ne "static"} {
+   launch_simulation -mode behavioral -step simulate

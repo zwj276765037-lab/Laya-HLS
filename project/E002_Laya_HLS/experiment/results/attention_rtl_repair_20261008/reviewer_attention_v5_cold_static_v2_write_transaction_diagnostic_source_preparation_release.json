@@ -1,0 +1,103 @@
+{
+  "schema": "reviewer_attention_cold_v2_tb_correction_source_preparation_v1",
+  "created_utc": "2026-10-08T20:30:41.497580+00:00",
+  "reviewer": "GPT-6 Astra / xhigh",
+  "status": "SOURCE_PREPARATION_RELEASED_ONLY_ACTUAL_SOURCE_AND_EXECUTION_GATE_PENDING",
+  "authority": "Root directed fresh bounded TB-only correction and complete pre-failure diagnostics after sealed first failure. Offline mission already authorized; no repeat user permission.",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_cold_v2",
+  "failure_review": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v1_first_runtime_failure_review.json",
+    "bytes": 310489,
+    "sha256": "b34da8d0e082bd2ba49d715be9cc61b6ccd183d8526459a44d6cfacc677e4971"
+  },
+  "old_source_packet": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_cold_v1/source/source_packet.json",
+    "bytes": 260610,
+    "sha256": "72f0531bf4d8456abf56fbdef354d1539ab6a58f1d9c075c78b4b4f72e3abc15"
+  },
+  "source_diagnosis_records": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice_full_write.v",
+      "bytes": 50856,
+      "sha256": "7ccb5190500ce694661ceed3de060abaf6a54a19e38b4847ba90e1cebaf3eb0d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice_full_read.v",
+      "bytes": 46281,
+      "sha256": "92bfe66cebdb60e2ed6eb39e95b4884836aed3e4d797c1eb8097c406b0cb4146"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice_att_out_m_axi.v",
+      "bytes": 151261,
+      "sha256": "bb64cd587be3bbcfdba6a534705bb2ace7b2613b44744f7369f1784517fa3620"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice.v",
+      "bytes": 1995338,
+      "sha256": "05e49d520dcff41601a073393298c8ccbdfa42abee20e95a5e6ff77d5363543f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/runs/local_csynth_v1/work/hls/syn/verilog/attention_preloaded_slice_full_run_task_9.v",
+      "bytes": 627621,
+      "sha256": "613382c0f4ddd4cf4362a1f1366db935753151ab5cca5bc44a3eb19cc4a1cff4"
+    }
+  ],
+  "scope": [
+    "Only fresh TB/runner/packet/current isolated-doc edits; preserve original v1 source/runs/snapshot/failure bytes.",
+    "Same actual v5 DUT216Verilog/35DAT/6FP wrappers, installed library closure, original10preparedpages+materialization record, strict numeric checker and originalgold/tolerances. No new materialization, CPUoracle or HLS/OOC.",
+    "Same fourcommands base_h0_r0 only: BEGIN, pendingBEGIN reject, originalRUN, replayRUN reject; same physical page layout and addresses."
+  ],
+  "correction": {
+    "ATT_OUT_write": {
+      "source_derived_AW_W_B_each": 256,
+      "source_derived_bus_bytes": 1024,
+      "useful_bytes": 256,
+      "external_AWLEN": 0,
+      "external_AWSIZE": 2,
+      "address_formula_zero_based_transaction": "base+4*floor(i/4), i=0..255",
+      "WSTRB_formula_zero_based_transaction": "1 << (i%4)",
+      "last_B_index": 256,
+      "last_AW_aligned_address": "base+252",
+      "last_W_covered_byte": "base+255",
+      "change": "Replace writecount64 and busbytes256 only; retain useful256, output256B extent, last aligned+252 and finalB hold."
+    },
+    "ATT_OUT_read": {
+      "AR_R_RLAST_each": 64,
+      "bus_bytes": 256,
+      "reason": "full_read.v ARLEN=4 HLSbyte request,one state2 request; external fullword once,4internalbyte returns. Do not copy perbyte write multiplier to reads."
+    },
+    "QKV0_read": {
+      "AR_R_RLAST_each": 8256,
+      "bus_bytes": 33024,
+      "reason": "Same full_read length4 helper perF32; source expectation already confirmed by500kprogress, retain exactQ/K/V ranges."
+    },
+    "QKV1": "All numeric traffic zero in firstmode.",
+    "other_ports": "Retain frozen allowed ranges and noinputwrites/noobservedreads, bothsides/debts checks; record physical counts and busbytes separately from logical unique bytes. No invented fixed physicalcount for descriptor/io/aux/observed without generated schedule proof."
+  },
+  "diagnostics_before_any_command_result_assertion": [
+    "At quiescent CASE_CHECK, dump full observed4096B and full ATT_OUT262144B before check_status/scan or any terminalhold predicate. Record commandindex and dumps as raw/precheck artifacts; file presence never denotes PASS. Keep existing fullstatus/sentinel/bus/numeric assertions.",
+    "Print r/b delta specialcounts; selectedindex/address/beat/LAST; latchedwait; expectedlastBindex/address; before counters and current counters. Print individually named boolean failure bits for every terminalhold predicate, including unknown via case comparisons. Then evaluate same aggregate assert with correctedwriteindex.",
+    "Print all7ports BOTH monitor-side cumulative and percommand AR/R/RLAST/AW/W/B, readbusbytes/writebusbytes/writeusefulbytes; adapteraccepted/delivered/debts and command/start/done scopes. Diagnostics must precede fatal so any mismatch remains inspectable.",
+    "Record bounded first/final ATT_OUT AW/W/B event samples or equivalent fixed capacity AWSIZE/AWLEN/WSTRB summary to demonstrate actual256singlebeat byte-strobe writes; use semantic index,address,AWSIZE/AWLEN,WSTRB,not logicalF32 count.",
+    "If any assertion fails, preserve raw dumps/logs/guard/sourcebinding and4runtime snapshot artifacts, halt immediately with failure status; never continue replay or label partialnumerical diagnostic as completeprotocol PASS."
+  ],
+  "retained_checks": [
+    "all30statuswords eachcommand",
+    "fullmappedinput/output/observedsentinels",
+    "allsevenphysicaladdressread/writeallowlists",
+    "noqkv1traffic",
+    "oneQKVterminalR and finalphysicalATT_OUTB eachhold>=16cycles",
+    "Bselectedindex256 and alignedaddressbase+252",
+    "adaptercountsidentical and alloutstandingdebtszero atfirstsampledap_done andCSRdoneidle",
+    "RUN192numeric words and64ATT_OUTF32 checked with originalstrictQK/probabilitytol/actualprobabilityAV/endtoendtol",
+    "replayno numerictraffic and dataretention"
+  ],
+  "single_use_execution_proposal_not_yet_released": {
+    "static": "freshstatic_build_v1 undernewroot,16GiB/300s",
+    "runtime": "fresh rtl_base_h0_r0_v1 undernewroot,8GiB/3600s",
+    "watchdogs": "RUN2M/nonRUN200k/suite2.7M clocks unchanged",
+    "after_actual_source_review": "A separately hashboundrelease may authorize staticonce then automatically firstfourcommands ifstatic/selfchecks pass; no intermediateuserpermission.",
+    "resource_policy": "oneLayatool,affinity4CPUs,nice19,idleIO,RSS0.2s,MemAvailable strictly>192GiB; failstop preservefirstfailure; no unchangedretry orbudgetonlyincrease."
+  },
+  "acceptance_boundary": "Originalv1source review writecount mistake is explicitly corrected. Source-derived counts are not actual measuredtransactions untilnewdiagnostics confirm. Priorfirstfailure remainsfailure; no numericalacceptance,warmreset,otherhead,changedQKV orperformanceclaim."
+}

@@ -1,0 +1,25 @@
+# E004：状态
+
+execution_state: running；verdict: unassessed（完整M004加速器）。SM004修订10 AT166真实LN→Q→Wi→G→Q→Down单行cold/warm完整正常数值PASS_SCOPED；AT168 Wi FP在途与AT169 G已发未返的共同reset后510拍隔离各PASS_SCOPED。AT167 guard误判计数回退COST_STOP及原费用保留。修订10正确累计static1113.567624s/1800s、RTL3459.293175s/3600s，余RTL140.706825s不足再跑真实cold前缀；host未全采样UNKNOWN。数值bad/poison错误映射、错误后完整warm、复位后完整cold、主动内部反压/读释放竞争及外部AXI在途reset仍NOT_RUN。末残差、Attention/完整图、外部HBM、联合物理/Fmax及整模性能仍未知；旧AT138较小LNQ的150MHz内部时序FAIL不迁移至本顶层。工程本阶段有限证据已交主控集中审核，M004继续running。
+
+
+---
+Published: 2026-10-14T20:16:57.355979+00:00
+Publication: P165aca12280d4885bcdc84fb999d346f
+Execution state: running
+Research verdict: unassessed
+Applicability: SM004修订10真实单行LN→Q→Wi→G→Q→Down冷暖同输入完整正常数值PASS_SCOPED；Wi FP/G在途共同reset的510拍隔离PASS_SCOPED；未完成复位后完整恢复、错误后完整warm、数值bad/poison动态映射或联合物理验收
+Evidence:
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT148_SM004_lnq_wi_full_cold_warm_06/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT149_SM004_lnq_wi_tag_abort_recover_07/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT150_SM004_lnq_wi_tag_abort_recover_prefix_08/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT151_SM004_lnq_wi_cold_rresp_09/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT152_SM004_ps_front_abort_edges_10/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT153_SM004_ln_wi_row0_stats_11/guard_host/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT154_SM004_ln_wi_row0_stats_rtl_12/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT155_SM004_ps_front_abort0_regression_13/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT166_SM004_down_ret_pair_index_full_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT167_SM004_wi_fp_common_reset_01/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT168_SM004_wi_fp_reset_guard_epoch_02/guard_rtl/guard_result.json
+- project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT169_SM004_g_inflight_common_reset_01/guard_rtl/guard_result.json

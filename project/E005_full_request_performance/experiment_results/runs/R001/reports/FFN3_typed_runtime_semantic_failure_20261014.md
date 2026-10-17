@@ -1,0 +1,17 @@
+# FFN3 类型感知运行包与唯一冷 full：Wi reader 配置语义失败
+
+2026-10-14；D-M004-FFN-TYPED-RUNTIME-PREPARATION-01；A002；E005/R001；AT062。
+
+**FAIL_SEMANTIC_WI_READER_CONFIG。** 本次纯 host 准备、一次真实冷前缀均通过；唯一四行冷 full 在 Wi 输出完成后的 G 接入处触发原冻结 TB 的 `Fatal: WIGQD Wi reader cfg rejected`。guard child0/trigger null、xsim 自然退出不覆盖语义 Fatal。FFN3 只有这一次 full，合同在此停止，不重跑、不改旧 AT059/060/061 记录。
+
+AT062 从 AT059 elaborated `ffn0_chain_tb_v1_behav` 只读复制 262 文件/130020393B，核原 336 项源码引用及七份 LN ROM；原 DUT/TB/guard、算术核、gold、fixture 和激励保持。新 launcher 按 magic 把 Vivado wrapper、loader、setupEnv、rdiArgs、ldlibpath 归为脚本，记录 shebang/source 边和 Bash 解释器；只对选定 `xsimk`、实际 unwrapped xsim、Bash 与两个 vendor kernel ELF 根执行 readelf/ldd。通过原 wrapper/loader 环境路径解析并逐 SHA/bytes 记录 80 个 ELF/库身份；各 probe 原 stdout/stderr/返回码在 `host_raw/`。`DT_NEEDED` 与已列 kernel 范围不代签所有晚期 dlopen。host 累计 7.11s，实测自进程峰 1522944KiB、子进程峰 88796KiB；启动命令设置 taskset CPU0–3、nice19、ionice idle，host 脚本读回 affinity/nice，**I/O 策略没有实际采样，保持 UNKNOWN**。两 host 阶段无完整逐采样 RSS，原峰是进程 rusage 口径。完整包 ACCEPT，缺 ROM、坏 ROM、缺 reloc、错 ELF 身份、错库身份五个受控反例均由同一 verify 路径 REJECT/exit2，未调用 spawn。
+
+pilot 每次启动前复核实际隔离 cwd、262 包文件、7 ROM、63 fixture 文件、11 个 plusarg 根与 `FIXTURE=LN_FIXTURE`；冷 xsim 得到 `FFN0_SIM_START`、真实 LN 1 AR/64 R、`FFN0_PREFIX_PILOT_PASS cycle=5224`、`$finish`。guard 28.989676s、峰 1035900KiB、child0/null。活体 `xsimk` maps 样本未见清单外 ELF 共享库；额外三个映射为动态 `/dev/shm` 输出、系统 locale archive 和 gconv 缓存，已单列，晚期加载仍未穷尽。基于本次 180.202 cycles/s、旧 AT049 较慢 148.458 cycles/s、AT049 375074 加 AT054 103289 加 21637 集成规划周期，启动前记录 500000/148.458×1.05=3536.346s<3600s；这是有不确定性的准入估计，不是联合完成保证。
+
+full 独立冷副本无 PREFIX plusarg，原先 35 分项观察与真实握手守卫有效。原 `LNQ0_LN_SOURCE_PASS` 在 cycle170043 到达，Q A 发布169979，Wi W 三端口 R 分别 41984/41984/5248，并在 cycle271090 出现 `WIGQD_WI_COMPLETE`，Wi writer 1312 AW/W/B、末 B/响应消费原断言到达。随后 G cfg 于 cycle271094 接受，Wi reader cfg 于 cycle271096 握手但 `cfg_reject=1`，原 TB 第2503行 Fatal。guard 1696.153932s、峰 1036100KiB，85 条认可的进展、无 trigger；仅 Wi 前缀及实时检查达到，**没有**真实 Wi reader R、G/GATE、第二 Q、Down 实写 TMP、末残差同源重读/HIDDEN 输出、655360B 最终扫描或整链周期。
+
+只读源码定位到单一明确的配置矛盾：冻结 TB 中 `wi_region_base=DDR_BASE+4096=0x100001000`，Wi reader 的 `cfg_bo_base/span` 接共享 `cfg_bo_base[0]/cfg_bo_span[0]`。先前 Wi 配置将其设为 DDR `0x100000000`/0x2000000；在 G 接入前第2465行把同一共享槽改为 STATE1 `0x310000000`/16919104B 以配置后续 Down。reader 的 `command_ok` 明确要求 `cfg_region_base>=cfg_bo_base`，此时 `0x100001000 < 0x310000000`，故即使其它字段合法也必须拒绝。原日志 G cfg/reader cfg/拒绝边沿与该静态反例一致；并未通过新仿真单独隔离其它可能拒绝条件。后继需在新合同中把 Wi DDR BO 描述符与 Down STATE1 描述符分别接入并复核身份/范围，再做受影响静态和真实短测；本轮冻结源不改。
+
+证据：[AT062收据](../attempts/AT062_FFN3_typed_xsim_01/receipt.json)、[完整包清单](../attempts/AT062_FFN3_typed_xsim_01/package_manifest.json)、[脚本链](../attempts/AT062_FFN3_typed_xsim_01/script_chain_audit.json)、[host预算](../attempts/AT062_FFN3_typed_xsim_01/host_budget.json)、[六项闸口](../attempts/AT062_FFN3_typed_xsim_01/preflight_negatives.json)、[前缀](../attempts/AT062_FFN3_typed_xsim_01/result_pilot.json)、[成本准入](../attempts/AT062_FFN3_typed_xsim_01/full_cost_decision.json)、[full结果](../attempts/AT062_FFN3_typed_xsim_01/result_full.json)、[原full日志](../attempts/AT062_FFN3_typed_xsim_01/guard_full/driver.log)、[guard](../attempts/AT062_FFN3_typed_xsim_01/guard_full/guard_result.json)、[冻结TB](../attempts/AT059_FFN1_progress_replay_02/frozen_new/ffn0_chain_tb_v1.sv)、[reader RTL](../../../../../E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_wi_axi_reader_v1.sv)。
+
+AT049到Down及AT054局部末残差的旧限定PASS保留，不能拼成本次联合PASS。外部 Attention residual、生产双源授权/lease、普通 Q/L 多窗口、全模型/13BO/恢复、联合资源/物理时序和 M003/M004 仍开放。原单重工具与全部资源帽、整体 executor/恢复停排不变。

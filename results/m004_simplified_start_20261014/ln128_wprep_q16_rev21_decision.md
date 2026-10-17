@@ -1,0 +1,62 @@
+# 修订21：真实LN128→W准备→STATE1首Q16窗口
+
+2026-10-16；D-M004-LN128-WPREP-Q16-01；A001→A002；M004/SM004/E004/R001。承接[修订20成本出口](source_norm_owner_rev20_at351_closeout_decision.md)和A003的`m004-ln128-q16-next-interface-answer-20261016`。本段在现生产共享服务上连接下一段计算，出口为真实首A16窗口保持，不接矩阵或RoPE。工程按以下独立预算连续实施、修复与验证，无用户逐项审批。
+
+## 起点、归属与采用的静态依据
+
+起点为AT343最终上层58086436…、下层f63e25e2…、core452deb9c…、wrapperb1b73970…、sequencer8b9261e0…。修订20已按局部范围结束，旧余static1.5645533520728266s/RTL2276.149455938488265s封存，不转移。当前独立LN128 PASS和父row0只归原冻结身份，新生产变化不自动继承。
+
+采用[架构增量](../../source/fixed_graph_architecture_20261014.md#at343之后ln128w_prep_only真实state1首q16窗口2026-10-16)的固定继续握手、唯一W服务、STATE1读路由和首Q16窗口方案。[主控静态核验](ln128_wprep_q16_interface_review_20261016.json)104项成立：六组current/frozen、相关依赖/保存产品、全norm字节与前四行Q输入绑定、16行地址和整数工作量。它是实现依据，不是接口已实现、数值PASS或墙钟上界。研究首次脚本失败与修正计量保留。
+
+A002继续唯一拥有E002生产RTL/TB/design/results及E004原始证据/三摘要；A001维护合同与审核，A003维护source研究。既有各角色还在工作，不回滚他人记录。保留一份LN/Q、一份8×656×32bit bank、原Q/skip存储、唯一现W cache及原reader/writer；可移动实例与固定控制，不能复制或用TB算术替代。原FP/IP、数值顺序、clk/reset/CE不变；无HLS/OOC/P&R、新oracle/gold或新agent。
+
+## 固定实现
+
+1. **保持norm的继续握手。** 在现上层增加一次`stage_continue_valid/ready`，成功SL_HELD→W_SEND/WAIT→NORM_PREP/Q16→A16_HELD。将norm上下文存活与当前LN路由占有分开，不能仅回SL_IDLE开放新请求。原LN-only caller不发continue时行为保持；完整父请求的后继由生产固定阶段代理发起，不由TB逐行驱动。
+
+   continue锁存request/generation、norm_epoch、next_base_id、独立a_epoch和原W描述符；与保留的norm身份匹配，预检新id区间不回绕/不与LN退休区间冲突。全部128 norm覆盖、STATE1 base/span/epoch/model/numeric、tensor占有保持，norm留给后继WO残差。continue不调用tensor_release、prep_abort或清覆盖，也不发布request_done/RAW/FINAL。
+
+   下层导出真实`service_quiescent`：staged/QF/Q16控制空闲，LNQ可收命令且物理债零，无prep活动/token、同步pending/rsp或未消费done；gamma token单独处理。上层还核两reader实际完成、FIFO/holding清空、SP/SS空闲、writer末B及debt_zero、tile/flush撤下、父core无旧done/lease。任一不满足就不接受continue/换路，不以core IDLE或TB常量代替债。
+
+   接受继续时以专用gamma_retire握手清gamma_token_valid，保留诊断身份及外部norm；Q16覆盖w1024..2047后不能留下假有效gamma。该退休须与真实握手绑定、下层quiescent且无A/prep占有。后继需要gamma时重新真实读入。失败保持norm上下文和错误直到显式discard与清债，不把继续当请求释放；原e/e+1/e+2规则不改。
+
+2. **唯一W服务及exec100。** 将原唯一`t4_dual_w_cache_v1`与固定W_PREP命令锁存/LOAD_REQ/WAIT/done保持封为薄生产服务；完整父core实际调用它，legacy LOAD/lease/read/release透传到同一cache。独立阶段也调用同一生产服务，省去无关重算术层次；不得创建第二cache、TB版W控制或模拟成功回执作为主链证据。原slot容量、读拍、无ready返回和legacy行为保持。
+
+   core的`cmd_exec=100`在prepared检查之前单独译码，固定Encoder0 QKV、cold=1、slot0/key0001/K1024/N3072/bias0、空A/prep/读债；prepared_source=0。全LN准入由生产阶段控制保证；本命令不消费prep、不reset结果视图、不发LN/Q/matrix/G/ADD，LOAD成功直接返回W阶段done。011继续明确拒绝。slot0 load_epoch=旧epoch+1且不回绕，slot1不动，numeric绑定在回执保存；后继matrix仍须真正lease。
+
+   锁存原load bundle、128B期望header、id/source/W epoch/key/model/numeric及地址/长度到完成消费。成功必须实际load_done、无错/拒绝、slot0 READY且epoch匹配/readers0、原三口和AUX排净、载荷覆盖完整及98304次scale检查。静态载荷为1572864+1572864+196608B，三口R64计数24576/24576/3072，AUX header为8个R16；实测须逐项核身份、有效字节/数据和覆盖，不能由AR数代签cache完成。W回执成功且被真实消费前，零STATE1 AR/QUANT。
+
+   采用研究指出的错误分类修复：cache保留原合并load_error供legacy，同时分别锁存协议/传输错误和数值错误、原scale_bad_min；不能仅凭bad_element区分混合错误。全载荷取得且无物理/协议错时，scale数值错返回op80/status6/detail0780000f/bad64=n×32+g；物理/标签/header/覆盖错误采用本固定适配status7/detail07800005/bad64全1并保存路由诊断，有此类缺失时不按已观察min声称CPU首错。成功bad64全1。旧全请求异常等价和完整E_MODEL/E_BUFFER ABI继续开放。
+
+3. **STATE1真实读和首16行量化。** 给上层及父层固定接线增加STATE1的512bit AR/R口，现scratch reader扩为STATE0/STATE1/QKV0/QKV1路由，仍只有一个reader/512bit holding。路由在load握手锁存，到load_done、FIFO/holding及真实债清空后才能变；不能借STATE0物理口冒称STATE1。
+
+   复用上层SP_BEGIN/LOAD/WAIT/COMMIT，NORM目的用保留dest_base+r×4096，source epoch为norm epoch，4096B/64R/1024字，prep_kind10写w4224..5247。此阶段不再要求gamma；准入、match与prep_begin_allow按当前选中的NORM/Q16相位译码，禁止live caller改变地址/身份。最后R、offset/epoch/last/bytes、holding空及1024实际写入均成立后才提交token。
+
+   上层固定循环r0..15调用同一下层q16_fill；Q16 source epoch与新增独立cmd_a_epoch分离，窗口绑定norm来源，后15行不换源/A epoch。原partial owner规则保持：只允许兼容kind10/exec010，prep_abort不释放A；Q16覆盖位仅在对应QF成功和真实done消费时一次退休。完整Check含本次id/row/exec/source及A epoch，op20/status6/detail0720000f/bad64按原task-local row×4096+col，协议错保持原协议映射；不得复用旧完成字段。
+
+   保留QF真实消费1024norm、64half/32scale收齐并进入ROW后才EXPORT，再等待原叶子release/done的顺序。r15输入区与导出区交叠w4224..4351共512B，全部输入消费且物理债退完前不得覆盖。全16行成功并完成4352word落bank及Q done消费后进入A16_HELD；不清A、不假装matrix已消费。必要内部同步读视图复用原结果口，地址0..543、E0/E1及阻塞保持不变，不发布legacy结果。
+
+## 验证与数值证据范围
+
+先完成固定实现和接口表，在独立生产组合层稳定后集中重建最终父top，避免每搬一组状态就重建重图。复用未改FP/IP编译闭包，全部改动生产源/TB实际重编展开并冻结；源码、闭包、实际读取的fixture和guard归同账，旧失败保留。
+
+主例实例化同版上/下层及唯一W服务，用真实raw/gamma和AXI存储peer，在同runtime完成LN128→continue→真实W冷载→真实STATE1首16行→A16_HELD。阶段TB可作为合法caller在实际阶段done后提出一次continue；不能预填norm、伪造128覆盖/ready/W完成、逐行发生产调度或force债零。父top应使用同一固定继续接口，而非另建一份循环。
+
+- LN128核131072norm在真实W及最终内存逐位、8192sourceR/成功B、128覆盖与退休。链末复扫STATE1仍等于完整原norm，且W/Q阶段无norm写事务。
+- 真W冷载核上述载荷/header/scale覆盖、真实cache及回执身份、先W后STATE1/Q；不拿保存W数据注入cache替代AXI读取。
+- 首16行核1024次STATE1 R、16384实际Q输入逐位、1024个Q half/512个scale、768次导出写拍与4352word持有。r0..3全部Q/scale按原独立保存gold逐位；r4..15只有独立norm，核实际Q执行及叶子输出→导出→最终bank逐位传递/覆盖/保持，记录为观察值，不能称独立数值gold或全16行算术gold通过。旧两行交替样本仅保留原局部口径。
+- 最终父请求top真实展开，验证exec100/Check/回执/路由及实际Q16委派的受影响短事务；局部可以合法上游上下文peer或保存norm触发，但须明示边界。主例绝不使用这些替身。完整重父top若未从LN128跑到A16仍NOT_RUN；独立主例不能代签它。
+
+优先三组受影响短例：①末B、同步pending/rsp、done未消费时continue不准入，握手后norm上下文保持、gamma真实退休、legacy不抢占；②真实W末R/AUX有限停顿、至少一条实际响应错误、独立scale数值错误及混合错误分类，失败零STATE1 AR/Q，回执阻塞至少3拍逐拍全字段稳定到消费并核错epoch拒绝；③norm末R/最后输入受阻、r15交叠/最终A16复扫、部分窗口错kind/epoch拒绝及真实清债后显式discard。错误恢复必须经过实际生产相应接口，TB直连释放/abort仅签局部，不泛称父请求恢复。
+
+AT351缺口并入本次改动core的局部拒绝done消费→合法后继事务；可使用真实W_PREP合法后继，明确这不自动补签原第三条LN命令。AT349遗漏的bad_element/row若本次测试涉及同完成接口须逐字段核；不只在三拍后抽样。旧gamma load_done、store/numeric、LN在途reset等未被本次实际覆盖的排列继续OPEN，不作为全部推进前置，不以正常主例关闭。受影响的common reset行为须保持，未测窗口明确列出。
+
+## 独立预算、自动主例门槛和出口
+
+修订21新host准备累计300s/8GiB；static/IP累计1800s/24GiB、单次600s；RTL累计3600s/8GiB、单次1800s/40Mcycle。CPU0–3/nice19/idle、MemAvailable>192GiB、全项目一个重工具、120s真实语义停滞保护。所有失败/构建/局部/主例计费，不挪旧封存余额，交互host累计未知如实UNKNOWN。总static内计划保留400s给最终同版父层构建/受影响修正；这是计划空间而非额外额度。
+
+新未知执行路径先固定≤120s pilot，不动态加帽。取得同版实际生产组合层完整LN16前缀，以及真实W服务完整冷载与真实下层完整Q16局部成本样本后，按实耗形成启动依据；局部Q16可用现保存norm经合法接口供数，不能因此签主链。至少用2.5×(8×T_LN16+T_W完整+T_Q16完整)作为保守成本估计，未测适配开销单列UNKNOWN，不当数学上界或硬件性能。估计≤1440s、全部实际路径正常且剩余RTL可容纳1800s时，自动执行一次固定≤1800s/40Mcycle主例，无需再问A001或用户。不同层次费用不可包装成实测串联延迟；新主例的硬帽仍独立生效。
+
+如果任一pilot未达到完整局部样本，保留真实前缀和COST_STOP，不用行数/字节比或AT343旧252s直接拼保证；普通功能修复可在原预算内以新身份继续，不能对同一未变timeout动态延帽。正常主例通过后不重复旧LN128/FFN/Attention长基线，生产变化按受影响范围和版本补证。阶段里程碑、实质阻塞或预算出口集中回传，不逐步等放行。
+
+出口报告必须区分：唯一生产连接是否落地、独立主例是否实测、前四行数值与其余行搬运证据、父top的实际范围、错误/恢复缺口、各SHA/闭包及精确预算账。M004/SM004继续running/unassessed；STEP16/matrix、全RoPE/FINAL→Attention、旧全请求首错、整模、Host/HBM/物理BO、联合资源/Fmax均未由本段完成。无需确认收信，按合同直接实施。

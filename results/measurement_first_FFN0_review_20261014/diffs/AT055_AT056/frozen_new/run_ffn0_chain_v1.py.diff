@@ -1,0 +1,70 @@
+--- AT055_FFN0_single_runtime_01/frozen_new/run_ffn0_chain_v1.py
++++ AT056_FFN0_single_runtime_02/frozen_new/run_ffn0_chain_v1.py
+@@ -14,7 +14,7 @@
+ TB = E002 / "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb"
+ RTL = E002 / "vivado/module_design/vector_and_ffn/rtl"
+ RUNS = ROOT / "project/E005_full_request_performance/experiment_results/runs/R001/attempts"
+-ATTEMPT = RUNS / "AT055_FFN0_single_runtime_01"
++ATTEMPT = RUNS / "AT056_FFN0_single_runtime_02"
+ DOWN = RUNS / "AT035_QAR0_shared_admission_01/frozen"
+ LN = RUNS / "AT040_LNF0_ffn4_02/frozen"
+ PARENT = RUNS / "AT049_LNQ2_runtime_01"
+@@ -24,6 +24,7 @@
+         "tanh_libm_leaf_fp_add_bits.v")
+ VIVADO = Path("/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/vivado")
+ NEW_NAMES = ("laya_ffn0_source_stage_v1.sv", "ffn0_chain_tb_v1.sv",
++             "ffn0_admission_short_tb_v1.sv", "run_ffn0_admission_short_v1.tcl",
+              "run_ffn0_chain_v1.tcl", "run_ffn0_chain_v1.py",
+              "ffn0_guard.py", "ffn0_guard_host_test.py",
+              "verify_ffn0_runtime_v1.py", "stage_ln_roms_v1.tcl",
+@@ -137,25 +138,34 @@
+     command = [str(VIVADO), "-mode", "batch", "-notrace",
+                "-log", str(ATTEMPT / f"{phase}.log"),
+                "-journal", str(ATTEMPT / f"{phase}.jou"),
+-               "-source", str(new / "run_ffn0_chain_v1.tcl"),
+-               "-tclargs", phase, str(work), str(DOWN), str(LN),
+-               str(new), str(ffn), str(LEAF),
+-               *map(str, FIXTURES)]
++               "-source", str(new / ("run_ffn0_admission_short_v1.tcl"
++                                      if phase == "short" else
++                                      "run_ffn0_chain_v1.tcl")),
++               "-tclargs"]
++    if phase == "short":
++        command += [str(work), str(LN), str(new), str(ffn),
++                    str(FIXTURES[7]), str(FIXTURES[8])]
++    else:
++        command += [phase, str(work), str(DOWN), str(LN), str(new),
++                    str(ffn), str(LEAF), *map(str, FIXTURES)]
+     write(ATTEMPT / f"launch_{phase}.json", {"command": command,
+           "cwd": str(E002), "manifest_sha256":
+           identity(ATTEMPT / "source_manifest.json", "manifest")["sha256"],
+           "at": dt.datetime.now(dt.timezone.utc).isoformat()})
+-    seconds = 1800 if phase == "static" else 120 if phase == "pilot" else 3600
++    seconds = 1800 if phase == "static" else 120 if phase in ("short", "pilot") else 3600
+     rss = 24 if phase == "static" else 8
+     guarded = [sys.executable, str(new / "ffn0_guard.py"), "--out",
+                str(ATTEMPT / f"guard_{phase}"), "--cwd", str(E002),
+                "--rss-gib", str(rss), "--timeout-seconds", str(seconds),
+-               "--semantic-stall-seconds", "120", "--phase", phase,
++               "--semantic-stall-seconds", "120", "--phase",
++               "error" if phase == "short" else phase,
+                "--", *command]
+     result = subprocess.run(guarded, cwd=E002, check=False)
+     guard = json.loads((ATTEMPT / f"guard_{phase}/guard_result.json").read_text())
+     log = (ATTEMPT / f"guard_{phase}/driver.log").read_text(errors="replace")
+-    marker = {"static": "FFN0_STATIC_PASS", "pilot": "FFN0_PREFIX_PILOT_PASS",
++    marker = {"static": "FFN0_STATIC_PASS",
++              "short": "FFN0_ADMISSION_SHORT_PASS",
++              "pilot": "FFN0_PREFIX_PILOT_PASS",
+               "full": "FFN0_CHAIN_PASS"}[phase]
+     passed = (result.returncode == 0 and guard.get("trigger") is None and
+               marker in log and "Fatal:" not in log and "ERROR:" not in log and
+@@ -171,7 +181,7 @@
+ def main():
+     parser = argparse.ArgumentParser()
+     parser.add_argument("phase", choices=("freeze", "verify", "host",
+-                                          "static", "pilot", "full"))
++                                          "static", "short", "pilot", "full"))
+     phase = parser.parse_args().phase
+     if phase == "freeze":
+         freeze()

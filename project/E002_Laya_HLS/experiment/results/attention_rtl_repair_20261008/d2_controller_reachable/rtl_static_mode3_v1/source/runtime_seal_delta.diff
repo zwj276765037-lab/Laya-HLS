@@ -1,0 +1,227 @@
+--- before/tb/run_mode3.sh
++++ after/tb/run_mode3.sh
+@@ -38,8 +38,16 @@
+   ln -s "$PREPARED_ROOT/$name.memh" "$RUNTIME_ROOT/$name.memh"
+ done
+ cd "$RUNTIME_ROOT"
++sim_status=0
+ "$VIVADO_BIN/xsim" vector_mode3_static -runall -onerror quit -onfinish quit \
+   -testplusarg "+MODE3_DUT_LIMIT=$DUT_CYCLE_LIMIT" \
+-  -testplusarg "+MODE3_TOTAL_LIMIT=$TOTAL_CYCLE_LIMIT" -log xsim.log
++  -testplusarg "+MODE3_TOTAL_LIMIT=$TOTAL_CYCLE_LIMIT" -log xsim.log || sim_status=$?
++seal_status=0
++python3 "$MODULE_ROOT/tb/seal_runtime.py" "$MODULE_ROOT/source/source_packet.json" \
++  "$STATIC_BUILD_ROOT" "$RUNTIME_ROOT" "$sim_status" || seal_status=$?
++# The first XSim failure remains the command's exit status even if archival
++# also finds a problem. A successful XSim still requires a successful seal.
++if (( sim_status != 0 )); then exit "$sim_status"; fi
++if (( seal_status != 0 )); then exit "$seal_status"; fi
+ python3 "$MODULE_ROOT/tb/check_runtime_mode3.py" "$RUNTIME_ROOT" \
+   "$RUNTIME_ROOT/independent_numeric_check.json"
+--- before/tb/check_runtime_mode3.py
++++ after/tb/check_runtime_mode3.py
+@@ -104,6 +104,24 @@
+     ap.add_argument('runtime', type=Path)
+     ap.add_argument('output', type=Path)
+     args = ap.parse_args()
++    seal_path = args.runtime / 'runtime_seal.json'
++    seal = json.loads(seal_path.read_text())
++    if seal['schema'] != 'd2_i_mode3_runtime_seal_v1' or \
++       seal['status'] != 'SNAPSHOT_OTHER_FILES_UNCHANGED' or \
++       seal['xsim_exit_code'] != 0 or \
++       set(seal['mutable_artifacts']) != {
++           'vector_mode3_static/xsim_script.tcl',
++           'vector_mode3_static/xsimSettings.ini',
++           'vector_mode3_static/xsimkernel.log',
++           'vector_mode3_static/xsimcrash.log',
++       }:
++        raise ValueError('runtime seal/snapshot status')
++    for name in ('xsim.log', 'state1_raw.hex', 'observed_raw.hex'):
++        sealed = seal['raw_runtime_files'][name]
++        path = args.runtime / name
++        if not sealed['present'] or (path.stat().st_size, sha(path.read_bytes())) != \
++           (sealed['bytes'], sealed['sha256']):
++            raise ValueError(f'raw runtime evidence changed: {name}')
+     for path, digest in ((RELEASE, RELEASE_SHA), (PREDICTION, PREDICTION_SHA), (ERRATUM, ERRATUM_SHA)):
+         if sha(path.read_bytes()) != digest:
+             raise ValueError(f'frozen authority changed: {path}')
+@@ -147,6 +165,7 @@
+               'candidate_sha256': sha(source), 'cpu_gold_sha256': sha(gold),
+               'state1_dump_sha256': sha(state1), 'observed_dump_sha256': sha(observed),
+               'xsim_log_sha256': sha(log_path.read_bytes()),
++              'runtime_seal_sha256': sha(seal_path.read_bytes()),
+               'f32_exact_words': 16, 'mapped_state1_bytes_checked': PAGE,
+               'observed_words_checked': 32, 'observed_tail_bytes_checked': PAGE - 128,
+               'metrics': metrics}
+--- before/tb/make_source_packet.py
++++ after/tb/make_source_packet.py
+@@ -93,8 +93,10 @@
+                    path.suffix in ('.py', '.sh', '.sv', '.svh'))
+     local += [ROOT / 'source/design.md', ROOT / 'source/results.md',
+               ROOT / 'source/source_delta.diff',
++              ROOT / 'source/runtime_seal_delta.diff',
+               ROOT / 'rtl/README.md',
+-              ROOT / 'source/history/before_source_completion_20261009/manifest.json']
++              ROOT / 'source/history/before_source_completion_20261009/manifest.json',
++              ROOT / 'source/history/before_runtime_seal_patch_20261009/manifest.json']
+     external = [ENDPOINT] + [ATT_TB / name for name in
+                 ('att_static_axi_stall.sv', 'att_axi_monitor.sv',
+                  'att_axi_port.sv', 'att_axi_lite_master.sv')]
+@@ -115,7 +117,6 @@
+     prepared_root = ROOT / 'runs/materialize_mode3_v1/prepared'
+     snapshot_manifest = static_build_root / 'snapshot_manifest.json'
+     sources = inventory(local)
+-    source_by_name = {Path(info['path']).name: info for info in sources}
+     compile_argv = {
+         'xvhdl': [str(VIVADO_BIN / 'xvhdl'), '-work', 'xil_defaultlib',
+                    *[str(path) for path in wrappers], '-log', 'xvhdl.log'],
+@@ -146,7 +147,8 @@
+         'local_active_sources': sources,
+         'reused_accepted_endpoint_sources': inventory(external),
+         'guard_sources': inventory(guards),
+-        'preimage_manifest': source_by_name['manifest.json'],
++        'preimage_manifest': record(ROOT / 'source/history/before_source_completion_20261009/manifest.json'),
++        'runtime_seal_preimage_manifest': record(ROOT / 'source/history/before_runtime_seal_patch_20261009/manifest.json'),
+         'installed_library_provenance_packet': record(ATT_PACKET),
+         'installed_library_files': libraries,
+         'installed_library_status': 'Inherited exact SHA-256 records from accepted Attention V5 source packet; current paths and byte sizes checked. Fresh 2GB library rehash deferred to a reviewed compiler gate.',
+@@ -191,6 +193,8 @@
+                 str(runtime_root), str(prepared_root), '131072', '140000'],
+             'future_numeric_check_within_guard_NOT_RELEASED': ['python3', str(TB / 'check_runtime_mode3.py'),
+                 str(runtime_root), str(runtime_root / 'independent_numeric_check.json')],
++            'future_evidence_seal_even_on_xsim_failure_NOT_RELEASED': ['python3', str(TB / 'seal_runtime.py'),
++                str(OUT), str(static_build_root), str(runtime_root), '<actual_xsim_exit_code>'],
+         },
+         'candidate_budget_advice_only': {'dut_cycles': 131072, 'total_cycles': 140000,
+                                           'runtime_seconds': 120, 'runtime_rss_gib': 4,
+@@ -200,6 +204,7 @@
+         'expected_physical_prediction_only': prediction['physical_AXI_static_prediction']['totals'],
+         'mandatory_io_erratum': 'DUT reads unique IO offsets 0..831; TB maps and checks all 8 IO pages (32768 bytes).',
+         'snapshot_note': 'The compiled snapshot is uncreated. A later seal must bind exact xsim.dir files before any runtime; runtime must verify the manifest at its explicit static_build_root.',
++        'runtime_snapshot_note': 'After XSim, the runner archives four named mutable snapshot artifacts and hashes available raw outputs even on failure; it retains the original XSim nonzero exit code and never overwrites the static snapshot manifest.',
+         'policy': 'One Laya heavy tool. No new run follows from this source packet; first failure is preserved and a separate execution gate is required.',
+     }
+     OUT.write_text(json.dumps(packet, indent=2, sort_keys=True) + '\n')
+--- before/source/design.md
++++ after/source/design.md
+@@ -26,4 +26,6 @@
+ 
+ `tb/check_cpu_gold.py` independently reapplies the frozen 16-element FP32 candidate-mask rule to the immutable input and mask, checking the existing CPU gold bit for bit. `tb/check_runtime_mode3.py` independently checks those 16 result bits, raw payload, all 32 observed words, mapped page tails, port/adapter totals and first-done log against the frozen sources. Both are source only here. `tb/build_static.sh`, `tb/run_mode3.sh`, `tb/seal_snapshot.py`, `tb/verify_binding.py` and `tb/make_source_packet.py` prepare exact future stage identities. The packet's static build, snapshot, prepared and runtime paths are separate authoritative fields; every executable shell entrance uses `/usr/bin/bash` explicitly.
+ 
++The runtime runner invokes `tb/seal_runtime.py` after XSim whether the simulator succeeds or fails. The seal records the original XSim exit code, hashes any available log and raw dumps, archives the four known mutable snapshot artifacts, and compares every other snapshot file against the static manifest without rewriting it. The runner returns the simulator's nonzero code first; a successful simulator still requires a successful seal before independent numerical checking.
++
+ The static worksheet predicts 636 AR, 639 R, 132 AW, 179 W and 132 B; 3272 physical bus bytes and 1420 cumulative logical useful bytes. The TB reports actual per-side transfers for later comparison. The 131072-cycle DUT watchdog, 120 s/4 GiB runtime envelope and 64-cycle adapter work-unit allowance remain advice awaiting an exact source/snapshot and runtime gate. A PASS in one source checker alone cannot establish numerical RTL acceptance.
+--- before/source/results.md
++++ after/source/results.md
+@@ -7,3 +7,5 @@
+ Source continuation: the original seven local files were copied byte for byte into `source/history/before_source_completion_20261009/` with a SHA-256 manifest before changes. `source/source_delta.diff` records the small changes to those seven originals; the added controller, checkers and shell sources are individually hashed in the packet. The active generator, controller, checker and shell files are in `tb/`; the unchanged generated RTL remains in `../runs/v3/csynth_vector_work/hls/`. The packet `source/source_packet.json` records active source hashes, the original 102 precheck bindings, 226+73+8 generated inputs, accepted endpoint sources, installed simulation library provenance, and explicit planned build/snapshot/prepared/runtime roots. One original binding is the subsequently edited `mission/task.md` activity log: its old record remains unchanged, its current hash is noted as context, and the other 101 original references still match byte for byte. Packet creation and light syntax checks do not execute fixture materialization, CPU reference, Vivado, XSim or synthesis.
+ 
+ The source worksheet predicts per-port/total physical transactions and a 20000-cycle rounded internal contribution, then proposes 131072 accepted-start-to-first-done cycles with a 31328-cycle margin under stated AXI and adapter allowances. These remain unmeasured and do not establish a proven worst-case bound. The installed library SHA list is inherited from the accepted Attention V5 source packet; this preparation checks current paths/sizes and defers a fresh large-library hash pass to a reviewed compiler gate. Functional RTL, CPU crosscheck, static compiler, XSim numerical result, OOC, timing and board validation for this mode3 packet all remain **not executed**.
++
++The later runtime source preserves first-failure evidence: the XSim exit status takes precedence over an archival error, available dumps/logs are hashed even on a nonzero simulator exit, and four known mutable snapshot files are archived before the rest of the snapshot is compared with the static manifest. This source was added after a separate six-file preimage at `source/history/before_runtime_seal_patch_20261009/`; `source/runtime_seal_delta.diff` contains the narrow change. No runtime artifact exists yet.
+--- /dev/null
++++ after/tb/seal_runtime.py
+@@ -0,0 +1,103 @@
++#!/usr/bin/env python3
++"""Archive raw XSim evidence, including a failed run, without changing its exit code."""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import shutil
++
++MUTABLE = (
++    'vector_mode3_static/xsim_script.tcl',
++    'vector_mode3_static/xsimSettings.ini',
++    'vector_mode3_static/xsimkernel.log',
++    'vector_mode3_static/xsimcrash.log',
++)
++RAW = ('xsim.log', 'state1_raw.hex', 'observed_raw.hex')
++
++
++def sha(path: Path) -> str:
++    h = hashlib.sha256()
++    with path.open('rb') as stream:
++        for block in iter(lambda: stream.read(1 << 20), b''):
++            h.update(block)
++    return h.hexdigest()
++
++
++def info(path: Path) -> dict:
++    return {'bytes': path.stat().st_size, 'sha256': sha(path)}
++
++
++def main() -> int:
++    ap = argparse.ArgumentParser()
++    ap.add_argument('packet', type=Path)
++    ap.add_argument('static_build_root', type=Path)
++    ap.add_argument('runtime_root', type=Path)
++    ap.add_argument('xsim_exit_code', type=int)
++    args = ap.parse_args()
++    packet = json.loads(args.packet.read_text())
++    paths = packet['paths']
++    if packet['schema'] != 'd2_i_vector_mode3_exact_source_packet_v1' or \
++       str(args.packet.resolve()) != paths['source_packet'] or \
++       str(args.static_build_root.resolve()) != paths['static_build_root'] or \
++       str(args.runtime_root.resolve()) != paths['runtime_root']:
++        raise ValueError('runtime seal path binding')
++    snapshot = Path(paths['snapshot_root'])
++    baseline_path = Path(paths['snapshot_manifest'])
++    baseline = json.loads(baseline_path.read_text())
++    if baseline['schema'] != 'd2_i_mode3_compiled_snapshot_manifest_v1' or \
++       baseline['snapshot_root'] != str(snapshot.resolve()):
++        raise ValueError('static snapshot baseline binding')
++    runtime = args.runtime_root
++    archive = runtime / 'snapshot_runtime_artifacts'
++    archive.mkdir(parents=False, exist_ok=False)
++    archived = {}
++    for relative in MUTABLE:
++        source = snapshot / relative
++        if source.is_file():
++            target = archive / Path(relative).name
++            shutil.copy2(source, target)
++            archived[relative] = {'present': True, 'source': info(source),
++                                  'archive_path': str(target), 'archive': info(target)}
++            if archived[relative]['source'] != archived[relative]['archive']:
++                raise ValueError(f'archive copy changed: {relative}')
++        else:
++            archived[relative] = {'present': False}
++    baseline_files = baseline['files']
++    mutable_missing = [name for name in MUTABLE if not archived[name]['present']]
++    current_files = {str(path.relative_to(snapshot)): path for path in snapshot.rglob('*') if path.is_file()}
++    nonmutable_changed = []
++    for relative in sorted((set(baseline_files) | set(current_files)) - set(MUTABLE)):
++        path = current_files.get(relative)
++        if path is None or relative not in baseline_files or info(path) != baseline_files[relative]:
++            nonmutable_changed.append(relative)
++    raw = {}
++    for name in RAW:
++        path = runtime / name
++        raw[name] = {'present': path.is_file(), **(info(path) if path.is_file() else {})}
++    report = {
++        'schema': 'd2_i_mode3_runtime_seal_v1',
++        'status': ('SNAPSHOT_OTHER_FILES_CHANGED' if nonmutable_changed else
++                   'SNAPSHOT_MUTABLE_MISSING' if args.xsim_exit_code == 0 and mutable_missing else
++                   'SNAPSHOT_OTHER_FILES_UNCHANGED'),
++        'xsim_exit_code': args.xsim_exit_code,
++        'static_snapshot_manifest': str(baseline_path),
++        'static_snapshot_manifest_sha256': sha(baseline_path),
++        'mutable_artifacts': archived,
++        'mutable_missing': mutable_missing,
++        'unexpected_snapshot_changes': nonmutable_changed,
++        'raw_runtime_files': raw,
++    }
++    output = runtime / 'runtime_seal.json'
++    with output.open('x') as stream:
++        json.dump(report, stream, indent=2, sort_keys=True)
++        stream.write('\n')
++    print('D2_MODE3_RUNTIME_SEALED xsim_exit=', args.xsim_exit_code,
++          'mutable_present=', sum(item['present'] for item in archived.values()),
++          'nonmutable_changed=', len(nonmutable_changed))
++    return 0 if not nonmutable_changed and (args.xsim_exit_code != 0 or not mutable_missing) else 1
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())

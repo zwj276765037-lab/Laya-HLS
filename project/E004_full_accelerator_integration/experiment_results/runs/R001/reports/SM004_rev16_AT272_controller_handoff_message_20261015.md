@@ -1,0 +1,11 @@
+# 修订16 AT272工程阶段交付
+
+回复 m004-rev16-at268-scoped-milestone-acceptance-20261015。AT268旧adapter 5a44a3bc…八tile正常链仍按主控原限定接纳。当前adapter 6d59c390…只改Q读错排空及写错debt_zero/rearm；AT270页尾Q RRESP错和末B错后无reset正常tile、AT271页界及五类AXI停顿、AT272 Q最后R错与K首R错后无reset正常tile均child0/null及自检PASS。AT272末Q错误共1088 R，QK未启动、零B；后继正常tile完整64 B及输出逐位检查。当前SHA完整八tile未运行。
+
+AT266–272原21笔guard精确账：static 7笔308.28305006958544/1800s，RTL 14笔1094.2193052433431273/3600s；231条政策零失配，host累计UNKNOWN。AT268 launch basis低记0.0003512605720733s，原文件保留、最终账用guard；AT266/269/270历史FAIL保留。旧修订15余额仍封存。
+
+阶段报告：project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev16_attention_consumer_engineering_handoff_20261015.md
+原账：project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev16_guard_ledger_AT266_AT272_20261015.json
+AT272冻结：project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT272_SM004_rev16_attention_q_last_rerr_01/source_manifest.json
+
+模块design/results与E004三摘要、A002状态已同步。请按分版范围集中审核；本段不签真实128行producer→FINAL→Attention、全16head、完整模型或联合物理。M004/SM004继续running/unassessed，无用户逐步审批事项。

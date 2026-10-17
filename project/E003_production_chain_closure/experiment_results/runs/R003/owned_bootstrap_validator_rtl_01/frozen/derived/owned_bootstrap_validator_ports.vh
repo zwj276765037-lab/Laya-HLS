@@ -1,0 +1,2 @@
+`define OWNED_BOOTSTRAP_VALIDATOR_MODULE laya_graph_program_owned_sequencer_p_anonymous_namespace_validate_fields
+`define OWNED_BOOTSTRAP_RETURN_WIDTH 3

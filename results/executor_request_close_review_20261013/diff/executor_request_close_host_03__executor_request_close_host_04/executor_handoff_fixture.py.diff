@@ -1,0 +1,12 @@
+--- executor_request_close_host_03/executor_handoff_fixture.py
++++ executor_request_close_host_04/executor_handoff_fixture.py
+@@ -40,6 +40,9 @@
+                     struct.pack_into('<I',p,24,0x0700000e)
+                 name=('close' if kind==8 else 'closed')+('_error' if failed else '_ok')+'_c'+str(committed)
+                 (a.output/(name+'.bin')).write_bytes(p);closing.append(p)
++                if kind==9:
++                    shell=bytearray(p);struct.pack_into('<Q',shell,680,1)
++                    (a.output/('shell_'+name+'.bin')).write_bytes(shell)
+     (a.output/'all_close_control.bin').write_bytes(b''.join(closing))
+     subprocess.run([sys.executable,str(Path(__file__).with_name('program_pending_fixture.py')),
+         '--output',str(a.output)],check=True)

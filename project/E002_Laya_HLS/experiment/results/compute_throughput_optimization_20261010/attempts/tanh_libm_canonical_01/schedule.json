@@ -1,0 +1,1395 @@
+{
+  "commit_edge": 384,
+  "first_consume_edge": 385,
+  "fp_nodes": [
+    {
+      "a_expression": "low ? 32'hc0000000 : 32'h40000000",
+      "a_sources": [
+        "low"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "core_branch ? abs : 32'b0",
+      "b_sources": [
+        "core_branch",
+        "abs"
+      ],
+      "consumer_edge": 16,
+      "index": 0,
+      "instance": "core/mul0_kernel",
+      "launch_edge": 2,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul0",
+      "op": "mul"
+    },
+    {
+      "a_expression": "32'h3fb8aa3b",
+      "a_sources": [],
+      "after_nba_latency": 13,
+      "b_expression": "mul0",
+      "b_sources": [
+        "mul0"
+      ],
+      "consumer_edge": 30,
+      "index": 1,
+      "instance": "core/mul1_kernel",
+      "launch_edge": 16,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul1",
+      "op": "mul"
+    },
+    {
+      "a_expression": "mul1",
+      "a_sources": [
+        "mul1"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "yn_at_30 ? 32'hbf000000 : 32'h3f000000",
+      "b_sources": [
+        "yn"
+      ],
+      "consumer_edge": 36,
+      "index": 0,
+      "instance": "core/add0_kernel",
+      "launch_edge": 30,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add0",
+      "op": "add"
+    },
+    {
+      "a_expression": "fk",
+      "a_sources": [
+        "fk"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "32'h3f317180",
+      "b_sources": [],
+      "consumer_edge": 52,
+      "index": 2,
+      "instance": "core/mul2_kernel",
+      "launch_edge": 38,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul2",
+      "op": "mul"
+    },
+    {
+      "a_expression": "fk",
+      "a_sources": [
+        "fk"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "32'h3717f7d1",
+      "b_sources": [],
+      "consumer_edge": 52,
+      "index": 3,
+      "instance": "core/mul3_kernel",
+      "launch_edge": 38,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul3",
+      "op": "mul"
+    },
+    {
+      "a_expression": "mul0_at_52",
+      "a_sources": [
+        "mul0"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "mul2 ^ 32'h80000000",
+      "b_sources": [
+        "mul2"
+      ],
+      "consumer_edge": 58,
+      "index": 1,
+      "instance": "core/add1_kernel",
+      "launch_edge": 52,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add1",
+      "op": "add"
+    },
+    {
+      "a_expression": "add1",
+      "a_sources": [
+        "add1"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "mul3_at_58 ^ 32'h80000000",
+      "b_sources": [
+        "mul3"
+      ],
+      "consumer_edge": 64,
+      "index": 2,
+      "instance": "core/add2_kernel",
+      "launch_edge": 58,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add2",
+      "op": "add"
+    },
+    {
+      "a_expression": "add1_at_65",
+      "a_sources": [
+        "add1"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "x ^ 32'h80000000",
+      "b_sources": [
+        "x"
+      ],
+      "consumer_edge": 71,
+      "index": 3,
+      "instance": "core/add3_kernel",
+      "launch_edge": 65,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add3",
+      "op": "add"
+    },
+    {
+      "a_expression": "add3",
+      "a_sources": [
+        "add3"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "mul3_at_71 ^ 32'h80000000",
+      "b_sources": [
+        "mul3"
+      ],
+      "consumer_edge": 77,
+      "index": 4,
+      "instance": "core/add4_kernel",
+      "launch_edge": 71,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add4",
+      "op": "add"
+    },
+    {
+      "a_expression": "32'h3f000000",
+      "a_sources": [],
+      "after_nba_latency": 13,
+      "b_expression": "x",
+      "b_sources": [
+        "x"
+      ],
+      "consumer_edge": 79,
+      "index": 4,
+      "instance": "core/mul4_kernel",
+      "launch_edge": 65,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul4",
+      "op": "mul"
+    },
+    {
+      "a_expression": "x_at_79",
+      "a_sources": [
+        "x"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "mul4",
+      "b_sources": [
+        "mul4"
+      ],
+      "consumer_edge": 93,
+      "index": 5,
+      "instance": "core/mul5_kernel",
+      "launch_edge": 79,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul5",
+      "op": "mul"
+    },
+    {
+      "a_expression": "mul5",
+      "a_sources": [
+        "mul5"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "32'hb457edbb",
+      "b_sources": [],
+      "consumer_edge": 107,
+      "index": 6,
+      "instance": "core/mul6_kernel",
+      "launch_edge": 93,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul6",
+      "op": "mul"
+    },
+    {
+      "a_expression": "32'h36867e54",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "mul6",
+      "b_sources": [
+        "mul6"
+      ],
+      "consumer_edge": 113,
+      "index": 5,
+      "instance": "core/add5_kernel",
+      "launch_edge": 107,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add5",
+      "op": "add"
+    },
+    {
+      "a_expression": "mul5_at_113",
+      "a_sources": [
+        "mul5"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "add5",
+      "b_sources": [
+        "add5"
+      ],
+      "consumer_edge": 127,
+      "index": 7,
+      "instance": "core/mul7_kernel",
+      "launch_edge": 113,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul7",
+      "op": "mul"
+    },
+    {
+      "a_expression": "32'hb8a670cd",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "mul7",
+      "b_sources": [
+        "mul7"
+      ],
+      "consumer_edge": 133,
+      "index": 6,
+      "instance": "core/add6_kernel",
+      "launch_edge": 127,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add6",
+      "op": "add"
+    },
+    {
+      "a_expression": "mul5_at_133",
+      "a_sources": [
+        "mul5"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "add6",
+      "b_sources": [
+        "add6"
+      ],
+      "consumer_edge": 147,
+      "index": 8,
+      "instance": "core/mul8_kernel",
+      "launch_edge": 133,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul8",
+      "op": "mul"
+    },
+    {
+      "a_expression": "32'h3ad00d01",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "mul8",
+      "b_sources": [
+        "mul8"
+      ],
+      "consumer_edge": 153,
+      "index": 7,
+      "instance": "core/add7_kernel",
+      "launch_edge": 147,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add7",
+      "op": "add"
+    },
+    {
+      "a_expression": "mul5_at_153",
+      "a_sources": [
+        "mul5"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "add7",
+      "b_sources": [
+        "add7"
+      ],
+      "consumer_edge": 167,
+      "index": 9,
+      "instance": "core/mul9_kernel",
+      "launch_edge": 153,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul9",
+      "op": "mul"
+    },
+    {
+      "a_expression": "32'hbd088889",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "mul9",
+      "b_sources": [
+        "mul9"
+      ],
+      "consumer_edge": 173,
+      "index": 8,
+      "instance": "core/add8_kernel",
+      "launch_edge": 167,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add8",
+      "op": "add"
+    },
+    {
+      "a_expression": "mul5_at_173",
+      "a_sources": [
+        "mul5"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "add8",
+      "b_sources": [
+        "add8"
+      ],
+      "consumer_edge": 187,
+      "index": 10,
+      "instance": "core/mul10_kernel",
+      "launch_edge": 173,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul10",
+      "op": "mul"
+    },
+    {
+      "a_expression": "32'h3f800000",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "mul10",
+      "b_sources": [
+        "mul10"
+      ],
+      "consumer_edge": 193,
+      "index": 9,
+      "instance": "core/add9_kernel",
+      "launch_edge": 187,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add9",
+      "op": "add"
+    },
+    {
+      "a_expression": "add9",
+      "a_sources": [
+        "add9"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "mul4_at_193",
+      "b_sources": [
+        "mul4"
+      ],
+      "consumer_edge": 207,
+      "index": 11,
+      "instance": "core/mul11_kernel",
+      "launch_edge": 193,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul11",
+      "op": "mul"
+    },
+    {
+      "a_expression": "32'h40400000",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "mul11 ^ 32'h80000000",
+      "b_sources": [
+        "mul11"
+      ],
+      "consumer_edge": 213,
+      "index": 10,
+      "instance": "core/add10_kernel",
+      "launch_edge": 207,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add10",
+      "op": "add"
+    },
+    {
+      "a_expression": "x_at_213",
+      "a_sources": [
+        "x"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "add10",
+      "b_sources": [
+        "add10"
+      ],
+      "consumer_edge": 227,
+      "index": 12,
+      "instance": "core/mul12_kernel",
+      "launch_edge": 213,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul12",
+      "op": "mul"
+    },
+    {
+      "a_expression": "add9_at_213",
+      "a_sources": [
+        "add9"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "add10 ^ 32'h80000000",
+      "b_sources": [
+        "add10"
+      ],
+      "consumer_edge": 219,
+      "index": 11,
+      "instance": "core/add11_kernel",
+      "launch_edge": 213,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add11",
+      "op": "add"
+    },
+    {
+      "a_expression": "32'h40c00000",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "mul12 ^ 32'h80000000",
+      "b_sources": [
+        "mul12"
+      ],
+      "consumer_edge": 233,
+      "index": 12,
+      "instance": "core/add12_kernel",
+      "launch_edge": 227,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add12",
+      "op": "add"
+    },
+    {
+      "a_expression": "add11_at_233",
+      "a_sources": [
+        "add11"
+      ],
+      "after_nba_latency": 11,
+      "b_expression": "add12",
+      "b_sources": [
+        "add12"
+      ],
+      "consumer_edge": 245,
+      "index": 0,
+      "instance": "core/div0_kernel",
+      "launch_edge": 233,
+      "module": "tanh_libm_stream_leaf_stream_div_node_0_s",
+      "name": "div0",
+      "op": "div"
+    },
+    {
+      "a_expression": "mul5_at_245",
+      "a_sources": [
+        "mul5"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "div0",
+      "b_sources": [
+        "div0"
+      ],
+      "consumer_edge": 259,
+      "index": 13,
+      "instance": "core/mul13_kernel",
+      "launch_edge": 245,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul13",
+      "op": "mul"
+    },
+    {
+      "a_expression": "mul13",
+      "a_sources": [
+        "mul13"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "c_at_259 ^ 32'h80000000",
+      "b_sources": [
+        "c"
+      ],
+      "consumer_edge": 265,
+      "index": 13,
+      "instance": "core/add13_kernel",
+      "launch_edge": 259,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add13",
+      "op": "add"
+    },
+    {
+      "a_expression": "x_at_266",
+      "a_sources": [
+        "x"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "mul14_operand",
+      "b_sources": [
+        "mul14_operand"
+      ],
+      "consumer_edge": 280,
+      "index": 14,
+      "instance": "core/mul14_kernel",
+      "launch_edge": 266,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul14",
+      "op": "mul"
+    },
+    {
+      "a_expression": "mul14",
+      "a_sources": [
+        "mul14"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "add14_operand_at_280",
+      "b_sources": [
+        "add14_operand"
+      ],
+      "consumer_edge": 286,
+      "index": 14,
+      "instance": "core/add14_kernel",
+      "launch_edge": 280,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add14",
+      "op": "add"
+    },
+    {
+      "a_expression": "add14",
+      "a_sources": [
+        "add14"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "mul5_at_286 ^ 32'h80000000",
+      "b_sources": [
+        "mul5"
+      ],
+      "consumer_edge": 292,
+      "index": 15,
+      "instance": "core/add15_kernel",
+      "launch_edge": 286,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add15",
+      "op": "add"
+    },
+    {
+      "a_expression": "add16_operand_a",
+      "a_sources": [
+        "add16_operand_a"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "add16_operand_b",
+      "b_sources": [
+        "add16_operand_b"
+      ],
+      "consumer_edge": 300,
+      "index": 16,
+      "instance": "core/add16_kernel",
+      "launch_edge": 294,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add16",
+      "op": "add"
+    },
+    {
+      "a_expression": "add17_operand_a",
+      "a_sources": [
+        "add17_operand_a"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "add17_operand_b",
+      "b_sources": [
+        "add17_operand_b"
+      ],
+      "consumer_edge": 300,
+      "index": 17,
+      "instance": "core/add17_kernel",
+      "launch_edge": 294,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add17",
+      "op": "add"
+    },
+    {
+      "a_expression": "add18_operand_a",
+      "a_sources": [
+        "add18_operand_a"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "add18_operand_b",
+      "b_sources": [
+        "add18_operand_b"
+      ],
+      "consumer_edge": 307,
+      "index": 18,
+      "instance": "core/add18_kernel",
+      "launch_edge": 301,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add18",
+      "op": "add"
+    },
+    {
+      "a_expression": "factor_at_308",
+      "a_sources": [
+        "factor"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "mul15_operand",
+      "b_sources": [
+        "mul15_operand"
+      ],
+      "consumer_edge": 322,
+      "index": 15,
+      "instance": "core/mul15_kernel",
+      "launch_edge": 308,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul15",
+      "op": "mul"
+    },
+    {
+      "a_expression": "scale_input",
+      "a_sources": [
+        "scale_input"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "final_bias_at_323",
+      "b_sources": [
+        "final_bias"
+      ],
+      "consumer_edge": 329,
+      "index": 19,
+      "instance": "core/add19_kernel",
+      "launch_edge": 323,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add19",
+      "op": "add"
+    },
+    {
+      "a_expression": "exp_value",
+      "a_sources": [
+        "exp_value"
+      ],
+      "after_nba_latency": 5,
+      "b_expression": "32'h40000000",
+      "b_sources": [],
+      "consumer_edge": 337,
+      "index": 20,
+      "instance": "core/add20_kernel",
+      "launch_edge": 331,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add20",
+      "op": "add"
+    },
+    {
+      "a_expression": "dtanh_numerator_at_337",
+      "a_sources": [
+        "dtanh_numerator"
+      ],
+      "after_nba_latency": 11,
+      "b_expression": "add20",
+      "b_sources": [
+        "add20"
+      ],
+      "consumer_edge": 349,
+      "index": 1,
+      "instance": "core/div1_kernel",
+      "launch_edge": 337,
+      "module": "tanh_libm_stream_leaf_stream_div_node_0_s",
+      "name": "div1",
+      "op": "div"
+    },
+    {
+      "a_expression": "32'h3f800000",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "div1 ^ 32'h80000000",
+      "b_sources": [
+        "div1"
+      ],
+      "consumer_edge": 355,
+      "index": 21,
+      "instance": "core/add21_kernel",
+      "launch_edge": 349,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add21",
+      "op": "add"
+    },
+    {
+      "a_expression": "32'h3f800000",
+      "a_sources": [],
+      "after_nba_latency": 5,
+      "b_expression": "tiny_input",
+      "b_sources": [
+        "tiny_input"
+      ],
+      "consumer_edge": 9,
+      "index": 22,
+      "instance": "core/add22_kernel",
+      "launch_edge": 3,
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "name": "add22",
+      "op": "add"
+    },
+    {
+      "a_expression": "tiny_input_at_9",
+      "a_sources": [
+        "tiny_input"
+      ],
+      "after_nba_latency": 13,
+      "b_expression": "add22",
+      "b_sources": [
+        "add22"
+      ],
+      "consumer_edge": 23,
+      "index": 16,
+      "instance": "core/mul16_kernel",
+      "launch_edge": 9,
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "name": "mul16",
+      "op": "mul"
+    }
+  ],
+  "helper_classes": [
+    {
+      "dcp": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/nodes/tanh_libm_stream_leaf_stream_add_node_0_s/child_synth.dcp",
+      "dependencies": [
+        {
+          "file": {
+            "bytes": 62922,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_stream_add_node_0_s.v",
+            "sha256": "70d852e1e7c141a9884c0fd9052fe18fb77eb57b4276c066e5de6bad7ff46939"
+          },
+          "module": "tanh_libm_stream_leaf_stream_add_node_0_s"
+        }
+      ],
+      "instance": "grp_stream_add_node_0_s_fu_315",
+      "module": "tanh_libm_stream_leaf_stream_add_node_0_s",
+      "node": 0,
+      "normalized_module_body_sha256": "d10265fde9e89d7802f0763dcf86610eeae061bfefdd07d90f555b60ce73de9b",
+      "op": "add",
+      "parent_cell": "leaf/grp_stream_add_node_0_s_fu_315",
+      "ports": [
+        "\n\ninput   ap_clk;",
+        "input   ap_rst;",
+        "input  [31:0] a;",
+        "input  [31:0] b;",
+        "output  [31:0] ap_return;",
+        "input   ap_ce;"
+      ],
+      "sources": [
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_stream_add_node_0_s.v"
+      ]
+    },
+    {
+      "dcp": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/nodes/tanh_libm_stream_leaf_stream_div_node_0_s/child_synth.dcp",
+      "dependencies": [
+        {
+          "file": {
+            "bytes": 1880,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_17_7_32_1_0.v",
+            "sha256": "9d199f86c35303f8f01c8374455b0b3c949e7f296c9efc314fcf50769ac17717"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_17_7_32_1_0"
+        },
+        {
+          "file": {
+            "bytes": 1209,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_25_1_0.v",
+            "sha256": "9f31eca59dd801b20e4f87049a00dcd9aa1d406861f9c564eeb691d68622d9cd"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_7_2_25_1_0"
+        },
+        {
+          "file": {
+            "bytes": 1209,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_27_1_0.v",
+            "sha256": "9cfd10b463c1fb5b0d984534a61c40404b5b539f78fa7c8af4a4875911695044"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_7_2_27_1_0"
+        },
+        {
+          "file": {
+            "bytes": 1208,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_9_1_0.v",
+            "sha256": "3a528173d6a94865b697414382d4c88cf7a171a8875b80e070c96e298cffaa85"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_7_2_9_1_0"
+        },
+        {
+          "file": {
+            "bytes": 120315,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_stream_div_node_0_s.v",
+            "sha256": "0b8e0c42feac04b73bfdc37516de41e2229051a87b9a6b46ac13739758f1fd6b"
+          },
+          "module": "tanh_libm_stream_leaf_stream_div_node_0_s"
+        }
+      ],
+      "instance": "grp_stream_div_node_0_s_fu_448",
+      "module": "tanh_libm_stream_leaf_stream_div_node_0_s",
+      "node": 0,
+      "normalized_module_body_sha256": "6c93f3902415582188bd5c8eaeea89ed44ba55dae86f7e47b6cb92fe5a1cdf04",
+      "op": "div",
+      "parent_cell": "leaf/grp_stream_div_node_0_s_fu_448",
+      "ports": [
+        "\n\ninput   ap_clk;",
+        "input   ap_rst;",
+        "input  [31:0] a;",
+        "input  [31:0] b;",
+        "output  [31:0] ap_return;",
+        "input   ap_ce;"
+      ],
+      "sources": [
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_17_7_32_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_25_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_27_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_9_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_stream_div_node_0_s.v"
+      ]
+    },
+    {
+      "dcp": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/nodes/tanh_libm_stream_leaf_stream_mul_node_14_s/child_synth.dcp",
+      "dependencies": [
+        {
+          "file": {
+            "bytes": 640,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_mul_24ns_24ns_48_1_0.v",
+            "sha256": "51d875da3a82ed90f3689d0de123685642cb503c7cb1c631e80bb8fbdd863c14"
+          },
+          "module": "tanh_libm_stream_leaf_mul_24ns_24ns_48_1_0"
+        },
+        {
+          "file": {
+            "bytes": 1746,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_15_6_32_1_0.v",
+            "sha256": "6220f9a3251053f7ed1e066cd5f3da38a86eaf107e8de8e240f5e541e459333f"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_15_6_32_1_0"
+        },
+        {
+          "file": {
+            "bytes": 1209,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_24_1_0.v",
+            "sha256": "b239ff384415159b4759bcb1de3a5c6f9348f393e54755ca38a2d71820c692db"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_7_2_24_1_0"
+        },
+        {
+          "file": {
+            "bytes": 1209,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_28_1_0.v",
+            "sha256": "c38e36829838ab4af9e9d0e73740fa0b73bc1c94cbcd419521ab1dc4a140e825"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_7_2_28_1_0"
+        },
+        {
+          "file": {
+            "bytes": 1208,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_9_1_0.v",
+            "sha256": "3a528173d6a94865b697414382d4c88cf7a171a8875b80e070c96e298cffaa85"
+          },
+          "module": "tanh_libm_stream_leaf_sparsemux_7_2_9_1_0"
+        },
+        {
+          "file": {
+            "bytes": 97241,
+            "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_stream_mul_node_14_s.v",
+            "sha256": "b6079d6e4ffc09e6ab960e56719f64c3bf58c4fac5816e32e3277baa3f330a34"
+          },
+          "module": "tanh_libm_stream_leaf_stream_mul_node_14_s"
+        }
+      ],
+      "instance": "grp_stream_mul_node_14_s_fu_466",
+      "module": "tanh_libm_stream_leaf_stream_mul_node_14_s",
+      "node": 14,
+      "normalized_module_body_sha256": "7ea8b1b4104c8ef0bf68a08de96f500c2d10b10b0fbbf2c370c433be93cd8ea3",
+      "op": "mul",
+      "parent_cell": "leaf/grp_stream_mul_node_14_s_fu_466",
+      "ports": [
+        "\n\ninput   ap_clk;",
+        "input   ap_rst;",
+        "input  [31:0] a;",
+        "input  [31:0] b;",
+        "output  [31:0] ap_return;",
+        "input   ap_ce;"
+      ],
+      "sources": [
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_mul_24ns_24ns_48_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_15_6_32_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_24_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_28_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_sparsemux_7_2_9_1_0.v",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/rtl/tanh_libm_stream_leaf_stream_mul_node_14_s.v"
+      ]
+    }
+  ],
+  "prior_bottomup_receipt": {
+    "bytes": 92678,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/receipt.json",
+    "sha256": "79d87dbc2972f52fc75243b64619cb3e0923aa346f3cdfc69eb7a3754855f221"
+  },
+  "prior_cumulative_ooc_seconds": 220.97339908406138,
+  "remaining_ooc_seconds": 3379.0266009159386,
+  "reused_add_dcp": {
+    "bytes": 374728,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/tanh_libm_stream_bottomup_01/nodes/tanh_libm_stream_leaf_stream_add_node_0_s/child_synth.dcp",
+    "sha256": "94da0b741f7476e1935079b1f027581a82f09ac9ec0565afc65cdc23e3ebe719"
+  },
+  "schema": "laya-canonical-static-edges-v1",
+  "signals": [
+    {
+      "edge": 1,
+      "name": "input_bits",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 2,
+      "name": "sign",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 2,
+      "name": "abs",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 2,
+      "name": "core_branch",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 2,
+      "name": "low",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 16,
+      "name": "mul0",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 17,
+      "name": "ya",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 17,
+      "name": "yn",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 17,
+      "name": "reduce",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 17,
+      "name": "simple",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 30,
+      "name": "mul1",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 36,
+      "name": "add0",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 37,
+      "name": "k",
+      "signed": true,
+      "width": 32
+    },
+    {
+      "edge": 38,
+      "name": "fk",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 52,
+      "name": "mul2",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 52,
+      "name": "mul3",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 58,
+      "name": "add1",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 64,
+      "name": "add2",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 65,
+      "name": "x",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 71,
+      "name": "add3",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 77,
+      "name": "add4",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 78,
+      "name": "c",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 79,
+      "name": "mul4",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 93,
+      "name": "mul5",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 107,
+      "name": "mul6",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 113,
+      "name": "add5",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 127,
+      "name": "mul7",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 133,
+      "name": "add6",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 147,
+      "name": "mul8",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 153,
+      "name": "add7",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 167,
+      "name": "mul9",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 173,
+      "name": "add8",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 187,
+      "name": "mul10",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 193,
+      "name": "add9",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 207,
+      "name": "mul11",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 213,
+      "name": "add10",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 227,
+      "name": "mul12",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 219,
+      "name": "add11",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 233,
+      "name": "add12",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 245,
+      "name": "div0",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 259,
+      "name": "mul13",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 265,
+      "name": "add13",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 266,
+      "name": "mul14_operand",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 280,
+      "name": "mul14",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 94,
+      "name": "add14_operand",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 286,
+      "name": "add14",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 292,
+      "name": "add15",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 293,
+      "name": "e",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 66,
+      "name": "k1neg",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 66,
+      "name": "forward_branch",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 38,
+      "name": "power",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 38,
+      "name": "rep_t",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 67,
+      "name": "factor",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 38,
+      "name": "outside",
+      "signed": false,
+      "width": 1
+    },
+    {
+      "edge": 67,
+      "name": "final_bias",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 294,
+      "name": "add16_operand_a",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 294,
+      "name": "add16_operand_b",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 300,
+      "name": "add16",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 294,
+      "name": "add17_operand_a",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 294,
+      "name": "add17_operand_b",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 300,
+      "name": "add17",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 301,
+      "name": "add18_operand_a",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 301,
+      "name": "add18_operand_b",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 307,
+      "name": "add18",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 308,
+      "name": "mul15_operand",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 322,
+      "name": "mul15",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 323,
+      "name": "scale_input",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 329,
+      "name": "add19",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 330,
+      "name": "rebuilt",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 331,
+      "name": "exp_value",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 337,
+      "name": "add20",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 332,
+      "name": "dtanh_numerator",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 349,
+      "name": "div1",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 355,
+      "name": "add21",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 3,
+      "name": "tiny_input",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 9,
+      "name": "add22",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 23,
+      "name": "mul16",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 356,
+      "name": "selected_result",
+      "signed": false,
+      "width": 32
+    },
+    {
+      "edge": 356,
+      "name": "selected_status",
+      "signed": false,
+      "width": 32
+    }
+  ]
+}

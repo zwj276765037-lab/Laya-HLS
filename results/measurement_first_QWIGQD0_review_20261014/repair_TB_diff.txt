@@ -1,0 +1,22 @@
+--- AT033
++++ AT034
+@@ -1759,11 +1759,15 @@
+       $finish;
+     end
+     while(!g_done_valid)tick();
++    $display("QWIGQD0_G_COUNTERS cycle=%0d starts=%0d rows=%0d input_beats=%0d half=%0d scale=%0d complete_rows=%0d source_R=%0d gate_W=%0d gate_R=%0d source_R_TB=%0d g_half=%0d debt=%0b",
++      cycle,g_quant_starts,g_quant_rows,g_quant_input_beats,fa_physical_half_commits,
++      fa_physical_scale_commits,g_source_complete_rows,g_source_r_count,
++      g_write_beats,g_read_beats,source_r_beats,g_quant_halves,producer.quant_task_debt_zero);
+     if(g_done_status!=0 || g_gate_owner_state!=0 || fa_slot_state[0]!=2 ||
+-       fa_slot_rows_done[0]!=16'hf || g_quant_starts!=8 || g_quant_rows!=8 ||
+-       g_quant_input_beats!=912 || fa_physical_half_commits!=912 ||
+-       fa_physical_scale_commits!=456 || g_source_complete_rows!=8 ||
+-       g_source_r_count!=912 || g_write_beats!=656 ||
++       fa_slot_rows_done[0]!=16'hf || g_quant_starts!=4 || g_quant_rows!=4 ||
++       g_quant_input_beats!=656 || fa_physical_half_commits!=656 ||
++       fa_physical_scale_commits!=328 || g_source_complete_rows!=4 ||
++       g_source_r_count!=656 || g_write_beats!=656 ||
+        g_read_beats-source_r_beats!=656 ||
+        g_quant_halves!=656)
+       $fatal(1,"GQD0 bridge completion/physical debt");

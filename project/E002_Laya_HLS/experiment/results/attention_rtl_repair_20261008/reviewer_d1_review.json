@@ -1,0 +1,904 @@
+{
+  "reviewer": "GPT-6 Astra xhigh independent reviewer",
+  "created_utc": "2026-10-08T06:25:51.869935+00:00",
+  "decision": "ACCEPT_D1_CONTROL_SEMANTICS_REPRODUCTION_AND_P1_P2_P3_PRODUCTION_PATCH_APPLICATION",
+  "full_functional_rtl_acceptance": false,
+  "full_top_hls_released": false,
+  "reviewed_contract": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md",
+    "sha256": "b16e5e40b5ba817a83059882f93d0b68238abc6187bb2f3e85d9c0b29b14c28c",
+    "sections": "D1 and section6 including production-patch gate; this hash supersedes only the D1 contract review, not the frozen D0 record"
+  },
+  "scope": "Read-only source/TB/config/log/IR/RTL-artifact review and independent raw AXI TV decoding; reviewer ran no compiler, HLS or simulator. Production implementation is still pending and requires diff review plus D2/D3.",
+  "findings": [
+    "A and B use the same source and independent expectation TB. The only configuration difference is EXPLICIT_PRESENCE=1; no expected values or inputs change between variants.",
+    "A retains the production nullable-pointer expressions and live local array/non-null src1 call pattern, using real FullOwnerSpec, BufferRef and VectorTask types. Load/bind/issue are openly declared probe-only stubs.",
+    "A CPU/CSim and C pre-check expectations pass120 assertions. Actual Verilog/XSim produces all15 AXI records, then post-check rejects first legalQKV status8. Independent decoding additionally confirms all3 legalQKV and all3 binary-vector records fail with matching D0 error family;9 other cases match every word.",
+    "B actual Verilog/XSim passes120 assertions, and its15x36 output words plus framing are byte-identical to both variants C expectation files, SHA256605f9caa0f3d47e1a87ec9b7251e806f89a5755bf196dfbe566f1c77f3e79c95.",
+    "A LTO linear_impl.1 retains fixed E_INTERNAL/detail0x07000004 after successful load; B linear_impl is181 lines retaining explicit missing-pair error and pair writeback. A binary-vector metadata is dropped, whereas B returns perturbed second source and binding fields correctly.",
+    "P3 attention-source selection, including norm failure priority, passes in both A and B. Its change is an equivalent separate simplification, not a demonstrated root cause.",
+    "The source/TB/config and35 listed input/evidence hashes match their manifests; all six tool guards completed without resource triggers and all recorded CPU-affinity/nice/IO checks matched."
+  ],
+  "coverage": {
+    "transactions": 15,
+    "assertions_per_csim_and_b_cosim": 120,
+    "output_words_per_transaction": 36,
+    "qkv": "stage2 RAW, stage4 FINAL, epoch perturbation, two banks, output pair content/rows/width/stage/layer, missing pair, load failure priority, ordinary linear",
+    "vector": "ADD_RESIDUAL and ADD_TYPE op, dynamic id/bank/epoch/region, second binding metadata, missing second input and unary NONE",
+    "attention_selection": "layer0, nonzero layer and norm failure priority"
+  },
+  "proof_boundaries": [
+    "This proves metadata-control representation repair in the isolated top, not actual QKV arithmetic, owner coverage, RoPE, attention numerical outputs or complete model inference.",
+    "ADD_TYPE is a metadata probe using stub context stage2; production stage3/layer255 and real owner validation must be covered by D2.",
+    "P1/P2/P3 production edits must preserve original error priority/guard locations, owner operations and numerical task ordering, be separately diffable, and use a new build identity.",
+    "D2 storage-boundary tests using real model QKV values can prove actual downstream tasks and owner lifecycle from that boundary only; they cannot replace proof of the preceding QKV producer or full-top RTL.",
+    "No precise internal reflow pass or base-offset0 instruction mechanism is claimed; the reproducible semantic mismatch and equivalent rewrite are sufficient for this bounded repair."
+  ],
+  "transactions": {
+    "a": [
+      {
+        "index": 0,
+        "case": "qkv_first",
+        "status_expected": 0,
+        "status_actual": 8,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x07000004",
+        "all36_words_equal": false,
+        "mismatch_indices": [
+          0,
+          1,
+          2,
+          4,
+          5,
+          6,
+          7,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "index": 1,
+        "case": "qkv_epoch_change",
+        "status_expected": 0,
+        "status_actual": 8,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x07000004",
+        "all36_words_equal": false,
+        "mismatch_indices": [
+          0,
+          1,
+          2,
+          4,
+          5,
+          6,
+          7,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "index": 2,
+        "case": "qkv_stage4",
+        "status_expected": 0,
+        "status_actual": 8,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x07000004",
+        "all36_words_equal": false,
+        "mismatch_indices": [
+          0,
+          1,
+          2,
+          4,
+          5,
+          6,
+          7,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "index": 3,
+        "case": "absent_qkv",
+        "status_expected": 8,
+        "status_actual": 8,
+        "detail_expected": "0x07000004",
+        "detail_actual": "0x07000004",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 4,
+        "case": "load_failure",
+        "status_expected": 5,
+        "status_actual": 5,
+        "detail_expected": "0x04000011",
+        "detail_actual": "0x04000011",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 5,
+        "case": "ordinary_linear",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 6,
+        "case": "binary_vector",
+        "status_expected": 0,
+        "status_actual": 3,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x07030001",
+        "all36_words_equal": false,
+        "mismatch_indices": [
+          0,
+          1,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          20,
+          21,
+          22
+        ]
+      },
+      {
+        "index": 7,
+        "case": "binary_changed",
+        "status_expected": 0,
+        "status_actual": 3,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x07030001",
+        "all36_words_equal": false,
+        "mismatch_indices": [
+          0,
+          1,
+          8,
+          10,
+          11,
+          12,
+          13,
+          20,
+          22
+        ]
+      },
+      {
+        "index": 8,
+        "case": "type_add",
+        "status_expected": 0,
+        "status_actual": 3,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x07030001",
+        "all36_words_equal": false,
+        "mismatch_indices": [
+          0,
+          1,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          20,
+          21,
+          22
+        ]
+      },
+      {
+        "index": 9,
+        "case": "binary_absent",
+        "status_expected": 3,
+        "status_actual": 3,
+        "detail_expected": "0x07030001",
+        "detail_actual": "0x07030001",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 10,
+        "case": "unary",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 11,
+        "case": "attention_layer0",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 12,
+        "case": "attention_layer3",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 13,
+        "case": "norm_failure",
+        "status_expected": 5,
+        "status_actual": 5,
+        "detail_expected": "0x04000012",
+        "detail_actual": "0x04000012",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 14,
+        "case": "invalid_mode",
+        "status_expected": 3,
+        "status_actual": 3,
+        "detail_expected": "0x07070007",
+        "detail_actual": "0x07070007",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      }
+    ],
+    "b": [
+      {
+        "index": 0,
+        "case": "qkv_first",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 1,
+        "case": "qkv_epoch_change",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 2,
+        "case": "qkv_stage4",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 3,
+        "case": "absent_qkv",
+        "status_expected": 8,
+        "status_actual": 8,
+        "detail_expected": "0x07000004",
+        "detail_actual": "0x07000004",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 4,
+        "case": "load_failure",
+        "status_expected": 5,
+        "status_actual": 5,
+        "detail_expected": "0x04000011",
+        "detail_actual": "0x04000011",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 5,
+        "case": "ordinary_linear",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 6,
+        "case": "binary_vector",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 7,
+        "case": "binary_changed",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 8,
+        "case": "type_add",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 9,
+        "case": "binary_absent",
+        "status_expected": 3,
+        "status_actual": 3,
+        "detail_expected": "0x07030001",
+        "detail_actual": "0x07030001",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 10,
+        "case": "unary",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 11,
+        "case": "attention_layer0",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 12,
+        "case": "attention_layer3",
+        "status_expected": 0,
+        "status_actual": 0,
+        "detail_expected": "0x00000000",
+        "detail_actual": "0x00000000",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 13,
+        "case": "norm_failure",
+        "status_expected": 5,
+        "status_actual": 5,
+        "detail_expected": "0x04000012",
+        "detail_actual": "0x04000012",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      },
+      {
+        "index": 14,
+        "case": "invalid_mode",
+        "status_expected": 3,
+        "status_actual": 3,
+        "detail_expected": "0x07070007",
+        "detail_actual": "0x07070007",
+        "all36_words_equal": true,
+        "mismatch_indices": []
+      }
+    ]
+  },
+  "guards": [
+    {
+      "name": "vitis_a_cosim_guard",
+      "result": {
+        "child_exit_code": 1,
+        "elapsed_seconds": 60.83802347443998,
+        "finished_at": "2026-10-08T06:18:11.379571+00:00",
+        "minimum_mem_available_kb": 444653436,
+        "peak_owned_rss_kb": 3175072,
+        "rss_capture_count": 302,
+        "rss_captured": true,
+        "rss_sample_count": 302,
+        "trigger": null
+      },
+      "configured_rss_limit_kb": 8388608,
+      "policy_checks": 39,
+      "all_affinity_priority_checks_matched": true
+    },
+    {
+      "name": "vitis_a_csim_guard",
+      "result": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 10.352110262960196,
+        "finished_at": "2026-10-08T06:14:58.716146+00:00",
+        "minimum_mem_available_kb": 446596164,
+        "peak_owned_rss_kb": 1222056,
+        "rss_capture_count": 52,
+        "rss_captured": true,
+        "rss_sample_count": 52,
+        "trigger": null
+      },
+      "configured_rss_limit_kb": 8388608,
+      "policy_checks": 11,
+      "all_affinity_priority_checks_matched": true
+    },
+    {
+      "name": "vitis_a_csynth_guard",
+      "result": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 30.983139105141163,
+        "finished_at": "2026-10-08T06:16:36.791035+00:00",
+        "minimum_mem_available_kb": 445746268,
+        "peak_owned_rss_kb": 2392272,
+        "rss_capture_count": 154,
+        "rss_captured": true,
+        "rss_sample_count": 155,
+        "trigger": null
+      },
+      "configured_rss_limit_kb": 8388608,
+      "policy_checks": 20,
+      "all_affinity_priority_checks_matched": true
+    },
+    {
+      "name": "vitis_b_cosim_guard",
+      "result": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 62.20993042178452,
+        "finished_at": "2026-10-08T06:21:24.813121+00:00",
+        "minimum_mem_available_kb": 444559704,
+        "peak_owned_rss_kb": 3274072,
+        "rss_capture_count": 310,
+        "rss_captured": true,
+        "rss_sample_count": 310,
+        "trigger": null
+      },
+      "configured_rss_limit_kb": 8388608,
+      "policy_checks": 31,
+      "all_affinity_priority_checks_matched": true
+    },
+    {
+      "name": "vitis_b_csim_guard",
+      "result": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 10.428715627640486,
+        "finished_at": "2026-10-08T06:15:37.815483+00:00",
+        "minimum_mem_available_kb": 446637088,
+        "peak_owned_rss_kb": 1222476,
+        "rss_capture_count": 52,
+        "rss_captured": true,
+        "rss_sample_count": 52,
+        "trigger": null
+      },
+      "configured_rss_limit_kb": 8388608,
+      "policy_checks": 10,
+      "all_affinity_priority_checks_matched": true
+    },
+    {
+      "name": "vitis_b_csynth_guard",
+      "result": {
+        "child_exit_code": 0,
+        "elapsed_seconds": 32.465563867241144,
+        "finished_at": "2026-10-08T06:19:26.659333+00:00",
+        "minimum_mem_available_kb": 445835928,
+        "peak_owned_rss_kb": 2419484,
+        "rss_capture_count": 162,
+        "rss_captured": true,
+        "rss_sample_count": 162,
+        "trigger": null
+      },
+      "configured_rss_limit_kb": 8388608,
+      "policy_checks": 21,
+      "all_affinity_priority_checks_matched": true
+    }
+  ],
+  "verified_manifest_files": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/source/optional_pointer_pilot.cpp",
+      "sha256": "785f49a585a66111dc206ec12e745ec1edf9381397c30decd541a76caa8ce501"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/tb/test_optional_pointer_pilot.cpp",
+      "sha256": "2b0753a3d81ee12e8f73b8204afc7f619bd409ff75b3f5647078692b6a667e0c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/config_a.cfg",
+      "sha256": "2913e3da5430417e116a00334bdefa2ef85d0c5fb187cb2b9796e0c993e96ce8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/config_b.cfg",
+      "sha256": "546eecca639d19056939130bc36bded6605d9e51bd971f6fdf9972f0d2116b41"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_full_runtime.h",
+      "sha256": "9f518fd26db66bf0a2e865e6ba8a1150d6c2d70486856663f1e3368fa3c16621"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_full_numeric.h",
+      "sha256": "88e779f53cd6a1ad77996efb92fdc6fb00653e23ad87f80bc15d1b1550851700"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_numeric_tasks.h",
+      "sha256": "a5f0b77d30c0a5ae62eac52da48d047cb66e458fc86057a5fbc1931e2da150e2"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_tasks.h",
+      "sha256": "20a8a3a0a94e997c05d0f81657498f16f8d08e406a202eb8b08dde5b2ccd55bf"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_types.h",
+      "sha256": "eae5761a76816daa33231a8aac35f2c7d373f67a2ad58ff75b662b8ff7366c61"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_config.h",
+      "sha256": "86a6ceccab5937b49f3ebe46a63ea9eac46579599b628a50dc4db2efdf394829"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/include/laya_memory_map.h",
+      "sha256": "cc1aabcfc1c6612d17872de1457b46893dab5d64c1db8e1e596ec8afeb5cfe45"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/run_guarded_hls.py",
+      "sha256": "6f9eea7076c154489c054ede97fdfffd5e9dd04d423778896d38dd8739c8f9d7"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tools/hls_guard_helpers.py",
+      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csim_guard/guard_result.json",
+      "sha256": "1c28193909ddcb4c3f140ceb9ab8162d72924b44404040ca5049d4bb01022b38"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_guard/guard_result.json",
+      "sha256": "e47273e844d071f5b311ccaabd60ff69ab5ac5e80d008955823d7e778e69c313"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_cosim_guard/guard_result.json",
+      "sha256": "185c13f6b80589f717883e02123002c28314b06950ebbb7f50cf72a8a49572bc"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csim_guard/guard_result.json",
+      "sha256": "783dc39419f0ef957a7dde64ff5de0438894ed04b8b674c0aee556455b85f4bc"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_guard/guard_result.json",
+      "sha256": "87f2c5e7ce74b3b79d23fdb5220cf13e7c3fc895737bfbfe2386d670a9586232"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_cosim_guard/guard_result.json",
+      "sha256": "1d45137b57c4a516ee9d43e118f185ba36ec2dbb4c8a12593a1662bc8c344cae"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csim_guard/guard_plan.json",
+      "sha256": "f3dcc1bf6a80e6f82be6ddf4dc4d77d5b64ad90263b064b368422b63795ce46c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_guard/guard_plan.json",
+      "sha256": "a8c5a8e08f01cfd027e3af58310966106d8b61f1c204ce3601279efdef74fc2e"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_cosim_guard/guard_plan.json",
+      "sha256": "fc86a2f1c854ddbfa3748f3437c8851ef68750c61f13352fc27003f64d94d406"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csim_guard/guard_plan.json",
+      "sha256": "653ef0d41a8c7711ad59cac6d6ea0e61d4ce15285686361c0c7a81aa37e93785"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_guard/guard_plan.json",
+      "sha256": "0400ad8caa53d6c731ebacc5ad431fd6161b72220309d86e3e504715ab076497"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_cosim_guard/guard_plan.json",
+      "sha256": "2b0a9b39083aaa6b856814393b663db1addcaad2f5aab6b08f849b6f95efdbb7"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csim_guard/driver.log",
+      "sha256": "373085ff4e40cfe649f3e9a6a4028c55142dfbad1b24738bf6e3d00865901d0d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_guard/driver.log",
+      "sha256": "d45ecdc3f34d7af2ebdd52acc63b64dff05fe0d8536747386b0f608a2a2a90c8"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_cosim_guard/driver.log",
+      "sha256": "b0ac9537eb08dfe4a0987296d598dc9454a63eabeb3ce4ce7bdcb71380656eca"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csim_guard/driver.log",
+      "sha256": "44a3c4eb6ea1e88a36ed0feb5e2dc894c7f43718d7182aceea4db863440cca0a"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_guard/driver.log",
+      "sha256": "5e9fe8ce30d0ec9e9feeb051b197e6e56aa821cab5a05dbefdec3b647a18594f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_cosim_guard/driver.log",
+      "sha256": "205eeda42aa12c583a47adb907b5db0305a815f4fc5be2c92fbb623131e35db2"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/sim/tv/cdatafile/c.optional_pointer_pilot.autotvout_gmem.dat",
+      "sha256": "605f9caa0f3d47e1a87ec9b7251e806f89a5755bf196dfbe566f1c77f3e79c95"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/sim/tv/rtldatafile/rtl.optional_pointer_pilot.autotvout_gmem.dat",
+      "sha256": "13ad993c17719fa917af8798a0dd5476127014243d06acf765ec55062138518d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/sim/tv/cdatafile/c.optional_pointer_pilot.autotvout_gmem.dat",
+      "sha256": "605f9caa0f3d47e1a87ec9b7251e806f89a5755bf196dfbe566f1c77f3e79c95"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/sim/tv/rtldatafile/rtl.optional_pointer_pilot.autotvout_gmem.dat",
+      "sha256": "605f9caa0f3d47e1a87ec9b7251e806f89a5755bf196dfbe566f1c77f3e79c95"
+    }
+  ],
+  "additional_reviewed_artifacts": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md",
+      "sha256": "b16e5e40b5ba817a83059882f93d0b68238abc6187bb2f3e85d9c0b29b14c28c",
+      "bytes": 27041
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/source/design.md",
+      "sha256": "fc5ebeb27de16f6ed3f8080dec0fad6af5ea9360191a8f8a48053d06ca9a36ce",
+      "bytes": 1335
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/source/results.md",
+      "sha256": "6499b21baaefde796fa62072b8e8b6294046526e1de0bdc6e302531bcb9ab4a3",
+      "bytes": 2352
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/input_hashes.sha256",
+      "sha256": "7006e27e78ddf0b8d128300f500cf3b994407c71c8efccbfb33d34f5ea2e9b56",
+      "bytes": 2396
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/evidence_hashes.sha256",
+      "sha256": "3800c3a5e51aa7fd3001d1f9cdb415d9c0f676e371e3e11b19739aab99ab067b",
+      "bytes": 5466
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d1_a_transactions.json",
+      "sha256": "4185a43fe5b94ef9f1418c60a8d16308b54627bee82862e4799c582cb96ed10f",
+      "bytes": 9702
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/control/full_forward_controller.cpp",
+      "sha256": "7e73939eba00bd062a5a6d75d77a82b2d0ec7fae0d2f5a16ebb359c821536b37",
+      "bytes": 30865
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/.autopilot/db/a.g.lto.bc",
+      "sha256": "18b6a722360a82cf7f5838a8879d5a8078a1c14bdc25cd85ab846ca6e068073e",
+      "bytes": 102528
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/sim/report/optional_pointer_pilot_cosim.rpt",
+      "sha256": "271c6b34762887d37ccd863153485874ea8dff9f1aa801c2b4e42444881d9ccc",
+      "bytes": 1249
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot.v",
+      "sha256": "23d89f30360fbabf25c6133c7a6216fdf4e8b2323071753a35178a58a9f88a98",
+      "bytes": 65668
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot_control_r_s_axi.v",
+      "sha256": "2058b536f30e231ff79e43c23737061f610302f1b9525e4d4f457627c22fec4b",
+      "bytes": 6055
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot_control_s_axi.v",
+      "sha256": "5c93fca65493f7b016ea2fe189c82eb52a9abdcdfb41d71fa86846fc5bcae86c",
+      "bytes": 17893
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot_gmem_m_axi.v",
+      "sha256": "2fd6d4a373cb40cf7b17a0487440bdffe5399b9c1387d3e04ce2d3b21c3ebcb4",
+      "bytes": 117064
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot_p_anonymous_namespace_linear_impl.v",
+      "sha256": "f3ae1811289b0e758be26a146be909c331eb83f2d89a6e29ae228a6bfbdc4e0b",
+      "bytes": 2763
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot_p_anonymous_namespace_linear_impl_1.v",
+      "sha256": "ce70f1c1b867f1fa768a7740bbbe3dda7a8eaad4b8e0c78c8f71b44d1b51b72e",
+      "bytes": 2230
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot_p_anonymous_namespace_vector_impl.v",
+      "sha256": "b764cb769dd923e0ca60ed2b2b7ee3a4d9ba4143c946097985574877636450d3",
+      "bytes": 1658
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_a_csynth_work/hls/syn/verilog/optional_pointer_pilot_p_anonymous_namespace_vector_impl_2.v",
+      "sha256": "1109db5e48a286bfcd389262f8d95dc42f68e74d22504da10f8041887776488a",
+      "bytes": 768
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/reviewer_ir/a.anonymous_namespace_linear_impl.1.ll",
+      "sha256": "9704c60a97dfaa6ea1c930b63d9d306a8708f54b6729123b85abcb78b0cc83e9",
+      "bytes": 4860
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/reviewer_ir/a.anonymous_namespace_linear_impl.ll",
+      "sha256": "0d535d1c1a8757106916224eac5efdf76f23f79a7d3d082b5a868aecfbafd9a8",
+      "bytes": 3582
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/reviewer_ir/a.anonymous_namespace_vector_impl.2.ll",
+      "sha256": "fd184ddc9d12bec2eca81475a92d6be45f595553235dadfe052e1c7713d017b2",
+      "bytes": 5471
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/reviewer_ir/a.anonymous_namespace_vector_impl.ll",
+      "sha256": "be19399b08d9b69d9d3ccfd09e651f041404c37b8be2c71d96263d1ec28be38d",
+      "bytes": 4290
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/.autopilot/db/a.g.lto.bc",
+      "sha256": "ae4a0b861482cb50312377c2ae9e7d649d0b3321f415adbfc78e4252ed1183df",
+      "bytes": 121784
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/sim/report/optional_pointer_pilot_cosim.rpt",
+      "sha256": "29ae284ef4cb25aa3e1259ff529de822995956e4e59f400debe4811d1f307538",
+      "bytes": 1249
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot.v",
+      "sha256": "7f9fc4bf387fa4b9f12059b8f8378cf51139921a21182d86449f69f2e75aedc0",
+      "bytes": 330822
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_control_r_s_axi.v",
+      "sha256": "2058b536f30e231ff79e43c23737061f610302f1b9525e4d4f457627c22fec4b",
+      "bytes": 6055
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_control_s_axi.v",
+      "sha256": "5c93fca65493f7b016ea2fe189c82eb52a9abdcdfb41d71fa86846fc5bcae86c",
+      "bytes": 17893
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_gmem_m_axi.v",
+      "sha256": "2fd6d4a373cb40cf7b17a0487440bdffe5399b9c1387d3e04ce2d3b21c3ebcb4",
+      "bytes": 117064
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_optional_pointer_pilot_Outline_1.v",
+      "sha256": "928e28420571a61b5ffcfa7483994614ecb7acfe814aec3878f13f8369bbf232",
+      "bytes": 14527
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_optional_pointer_pilot_Outline_2.v",
+      "sha256": "803580e54e3d1c884bc5e7abbb616e76cd25be8cf2773c635f11a83ee8dd90c3",
+      "bytes": 14040
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_p_anonymous_namespace_linear_impl.v",
+      "sha256": "194c40b1e18b246a28a3e230926edc8f91612466bbd8828944cdc91521fd67fe",
+      "bytes": 56406
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_p_anonymous_namespace_vector_impl.v",
+      "sha256": "3cbdb4a269ac8ac9fb28c78e4eac771618beff01d699098b9c93f2d591ac5c00",
+      "bytes": 5067
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_probe_pair_content_RAM_AUTO_1R1W.v",
+      "sha256": "9086f22ca35e131da5be85adfc1f61afe8f43d11766035504c1703026db4c38a",
+      "bytes": 1255
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_probe_pair_layer_RAM_AUTO_1R1W.v",
+      "sha256": "6f1b27675eed5c07cf18d49c664292f8b8b2a77fbdb0d81fe7efe4b9087a6c77",
+      "bytes": 1253
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_probe_pair_ref_bank_RAM_AUTO_1R1W.v",
+      "sha256": "0a93b14aa3f03805c8e270347e39a68c96211aa6073d9e4c01cabff64929433b",
+      "bytes": 1256
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_probe_pair_ref_epoch_RAM_AUTO_1R1W.v",
+      "sha256": "83e51bcf37b0b2a09f52cbe08814408993882595b7f655b4dbc41a88c3cd4975",
+      "bytes": 1258
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_probe_pair_ref_id_RAM_AUTO_1R1W.v",
+      "sha256": "3ee698716510ffe373c13c1a1fbc18a0cc7a7dafde3655cd6920dbf6b35ab025",
+      "bytes": 1254
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_probe_pair_width_RAM_AUTO_1R1W.v",
+      "sha256": "8a9c9d2a4b15b89029c1af2e005641e33e50dfa1c78a6853d0d2595aaa1bc0ec",
+      "bytes": 1253
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_unused_pair_content_RAM_AUTO_0R0W.v",
+      "sha256": "bf0daa0804bea27c3b9746796735e3cf2775bf664efe724d861d3f59bb5d5960",
+      "bytes": 1092
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_unused_pair_layer_RAM_AUTO_0R0W.v",
+      "sha256": "b10776960ac6d23c96f9b57768973cc224c0e168e830da5bd96cabd36055cccd",
+      "bytes": 1090
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_unused_pair_ref_bank_RAM_AUTO_0R0W.v",
+      "sha256": "729d4530a0d320328fdef42f5220fcdda919fd8a8db65a534688a358e9d9bacb",
+      "bytes": 1093
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_unused_pair_ref_epoch_RAM_AUTO_0R0W.v",
+      "sha256": "046c29eb0dd02a8d2ca301406188973efb4833424b9c30b5067dca59b8502e15",
+      "bytes": 1095
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_unused_pair_ref_id_RAM_AUTO_0R0W.v",
+      "sha256": "e06d4e26713600c3ff1ab23091fd30ae3083f72b7cdc15af45c782cabaa180a4",
+      "bytes": 1091
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/runs/vitis_b_csynth_work/hls/syn/verilog/optional_pointer_pilot_unused_pair_width_RAM_AUTO_0R0W.v",
+      "sha256": "a3a1042cfe26571b2c8c5dfef317dff49df82d2b125cd5720aa89ebdfc19c8f1",
+      "bytes": 1090
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/reviewer_ir/b.anonymous_namespace_linear_impl.ll",
+      "sha256": "82b52096d7914f2cd15c12d3276cefd2c9e73c946fdc3ed78c0eddb38172b630",
+      "bytes": 13912
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d1_optional_pointer_pilot/reviewer_ir/b.anonymous_namespace_vector_impl.ll",
+      "sha256": "1f456b9192de297c66571fe80945acbf9c14652461b1f290e0bb74f0ee4b7c88",
+      "bytes": 5711
+    }
+  ]
+}

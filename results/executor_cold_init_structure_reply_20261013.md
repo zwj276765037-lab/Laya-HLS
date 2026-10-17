@@ -1,0 +1,39 @@
+# Executor第四次停止与分区内冷初始化结构答复
+
+决定：D-M003-EXECUTOR-COLD-INIT-STRUCTURE-01。审核：R-SM003-EXECUTOR-COLD-INIT-STRUCTURE-20261013。回复 executor-fourth-stop-stream-progress-20261013；M003/SM003/E003/R003，A002唯一整合。
+
+**两项均属于现分区合同内的实现结构调整，可以直接继续：完整Runtime的显式有界串行冷初始化，以及同一executor内按职责组织独立存储/调用边界。无需新用户审批，不增加生成分区、接口或预算。** 优先形成冷初始化这一有明确观察目标的候选；仅为完成它所需的内部存储整理可一并实施并如实列明，避免同时无依据改写整套actor。必要旧cleanup独立继续，C完整NORM仍先于D及完整恢复。
+
+## 本次结果核定
+
+`executor_hls_04`保留COST_STOP：280.468527s、peak1454096KiB、1401RSS、semantic_stall120s/child-9，0generatedtop、port_evidence=null。Compile/Link少7不是硬件收益。主控核验冻结及gdce的1212028B/SHA，保留A006只读IR报告：FIRST确实进入in_place，原const wrapper不可达，Inputs整对象副本已去除，但未解除停止；未自行重跑LLVM分析，也不据静态对象尺寸断言根因、死锁或不可综合。未取得的live pass/argv观测仍记缺失。
+
+`executor_stream_host_03`两独立process及同冻结gold的有限软件结果接纳。各5859次调用的持久Inputs语义字段检查、20control/48response/2Host/1action实际消费事实按工程原范围保留；in_place接本次fresh且不别名的scratch。它没有跨process逐对象镜像对照，也没有真实depth2硬件，不能扩大为完整等价证明或RTL结果。已审核program HLS06、nested15及owned RTL05范围不重开。
+
+## 冷初始化的实施边界
+
+依据[分区合同§8.1–8.4](production_hls_partition_contract_20261012.md)，共享有限步骤允许跨周期执行；初值建立也是executor内部职责。允许在FIRST前加内部INIT状态、有限游标和done门，不新增Host/service wire。
+
+1. **仅在真实冷启动、首次准入之前执行一次。** INIT期间first_ready=0、admission_valid=0、program_result_consumed=0，其他对外状态使用已定义的启动值；不能先读尚未初始化的actor字段再靠valid遮盖。executor不pop请求/owner/command/completion、不写业务或控制帧、不发模型/IO AXI、不预约任务或退休。first_valid可持续等待，只有INIT完成后原FIRST ready/valid才锁存session/config及A，不提前接受或绑定变化中的输入。
+2. INIT控制小状态本身必须有真实、确定的复位初值。以原容量的固定上界循环/游标覆盖所有相关字段，再一次性开放FIRST；不得让部分owner/lease/表项被业务读取。给出由实际状态/循环推导的最大初始化步数；额外启动周期单列，之后测端到端周期时计入相应范围，不当作免费成本。
+3. **保持构造完成后的全部语义初值。** 当前有layer/head等255哨兵、Check.bad_element和import_bad_element的UINT64_MAX、枚举/Ref/各reservation下界等，不能对整对象memset0代替构造语义。保留所有合法shape和容量，包括原owner/source/window/reservation表；FullCache中非综合的大数值数组本来受宏保护，不能把host对象大小当生成存储量，亦不能为此删host缓存。
+4. 请求开始、cancel、CLOSE/CLOSED及rearm都不能重启INIT；full_begin_request/full_soft_reset不能替代它。已准入的A/K、commit、各自高水位、旧半帧/返回/物理债务仍按原合同持续。硬件reset仍只能按原全局冷复位/会话合同使用，不增加撤销后局部复位恢复路径。INIT期间cancel不放行FIRST，也不反复清空初始化进度；尚未准入时原FIRST取消语义保持。
+5. 必须使生成路径的冷构造结构真实改变。保留原大构造链再附加一轮赋值，不是本假设的有效干预；以实际可达IR/构造调用和表初始化循环是否降低为依据。使用合法C++对象生命周期、类型化字段与存储，不能靠未定义的裸内存、指针别名或访问私有对象字节避开构造。正常软件构造/API的默认语义继续保留。
+
+受影响验证集中在同一语义边界：对照原可信默认状态逐字段核全部定义值及数组覆盖，排除padding；覆盖非零哨兵、首末表项、INIT期间持续FIRST/变化输入/cancel、完成后仅一次准入，以及准入后不再进入INIT且不回退已增长下界。软件构建及综合宏下存在的字段集合分别说明。先受影响host、再有区别生成和有限RTL；不因新增INIT要求完整第二请求恢复矩阵先完成。
+
+## 存储与调用边界
+
+可以将当前职责拆成明确的metadata、reservations、trackers、protocol transport等存储/助手，保留**一个逻辑Runtime、一套可变权威、一条预约/提交/退休控制路径**。同top内部的类型化引用/索引是实现细节；不得复制FullRuntime、READY/lease表或新增可自行提交的owner。原容量、完整键/validate-before-commit、原子可见的提交时点、计数及失败耗号均不变。若把校验/复制跨周期展开，途中数据只在私有候选中，完整校验前不能发布半写状态。
+
+同一生成top内部增加函数或存储，不改变§8.2权威和§8.3协议。只有引入独立生成top、独立时钟/复位，或跨现有分区新增可变状态交接协议，才需要明确扩展§8.2/8.3和对应source/top清单、有限接口及消费规则；整份Runtime/裸指针仍不能跨界。当前两项内部实现不触发该扩展，不另造审批清单。
+
+## 下一次区分出口
+
+这是允许测试的结构假设，尚无具体pass耗时证明冷初始化就是停点。新候选先核原大构造图是否真实变化、INIT边界和默认值是否保持，再观察LTO/五宽口lower、top及完整端口是否生成。若仍停在同处，只能判本干预不足；不以尺寸缩小、少量指令变化或诊断微top通过代签生产生成。
+
+可在下一次原授权候选实际运行期间，有限只读其已核owned进程的argv/pass入口退出信息，沿原guard资源和进展定义记录；观测本身不能制造进展、延长120s或另启重工具。无该信息也不阻塞已明确的本次结构实施。没有新证据时不原样再试。
+
+下一对用户可见出口仍是实际executor生成，随后同runtime B1/S64四窗NORM、65536F32独立gold、真实END/发布/唯一退休与cycles。冷初始化改造本身不关闭M003/M004或首END/INVALIDATE缺口。原A002整合/单重工具、CPU0–3/nice19/idle I/O/MemAvailable、HLS/static24GiB/1800s/120s与有限RTL原帽保持；G2338.224019s仅OOC余额，5172s组合不重启，不新增OOC/P&R/上板预算。
+
+主控仅做静态审核，未运行DUT工具；本次两attempt共193组frozen/声明配对、1206项immutable SHA/bytes引用匹配，当前无live差异；6段选中guard起止串行、233项实际policy符合原帽。短host run各仅1次RSS采样，不外推连续观测。冻结与原始收据核验见[审核记录](executor_cold_init_structure_review_20261013/verification.json)。C/D数值及周期仍NOT_RUN，C009/C013部分实施，M003/M004未完成。

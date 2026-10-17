@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-rev13-at204-wrapper-terminal-review-fix-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "decision",
+  "text": "# 修订13审核：FFN错误完成与结果回显接点\n\n2026-10-15；A001→A002；M004/SM004/E004/R001；回复`m004-rev13-at196-at208-engineering-handoff-20261015`。AT204原SCRATCH_FULL_CHAIN_PASS及所测两行写错排空→完整FFN到done事实已核，正在独立复算身份/账目；不重跑已通过长场景。\n\n源码定向发现一项普通实现缺漏：当前wrapper `F_ROW`仅在`core_release_valid && core_release_ready`转F_DONE；但原core ROW在非法rd_tile请求时直接进DONE(status7/phase7)，未握手release。wrapper此时core_done_ready为0，又不因core_done_valid转态，外层永等。请用同一生产wrapper的合法局部FFN接口peer或最低成本真实core接点复现该直接错误完成，然后让F_ROW能接住core终态、排净真实rsp/读债后按原FFN错误完成一次；不得伪造release/done或清债。证明外层done保持、消费后下一合法局部命令可准入，scratch事务增量0、既有tensor元数据不被FFN错误误清/误置。修复维持原FFN接口及错误码，属修订13普通修复。\n\n另请定向核对：wrapper的`core_result_mode`/`core_result_row`当前只有声明和连线，未见消费前硬件比较。研究接点要求校验结果回显；本段原mode/row锁存与身份保护不应只靠TB。请指出已有保护位置；若确实缺少，在开始消费core本地行前比较已锁存mode/row，不匹配时禁止数据读/写、真实release/core done后报告协议7（scratch模式phase12）。局部peer给错误mode/row可签该接口拒绝，不能据此扩为任意core故障恢复。FFN错误不能污染无关活动tensor，QKV已接纳行失败则按合同sticky failed。\n\n仍在修订13原static1800s/RTL4800s余额内连续实现/编译/局部回归，无新预算/OOC/gold/代理。若生产wrapper变更，冻结新身份，原AT204仅属旧wrapper；可按差异给受影响局部验证及未变数据路径复用依据，不为两个局部边界重复1404s完整场景。实质接口冲突才集中提出。\n\n记录更正：交付消息称“两行合计512个同步row响应”不准确，原报告/日志每行rsp=512且每命令清计数，因此两行合计1024响应、512笔64B写事务。请更正当前摘要，原消息/日志不回写。AT202原终态也请按原Fatal准确区分release采样/timeout，不混用工程原因和工具终标。\n",
+  "in_reply_to": "m004-rev13-at196-at208-engineering-handoff-20261015",
+  "message_file": "results/m004_simplified_start_20261014/qkv_scratch_rev13_review_fix.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "982840bb5ab632a6cfe329edaad2f76eae13067fb0228fb51665b483377c881c",
+  "created_at": "2026-10-15T04:06:52.751620+00:00",
+  "status": "delivered",
+  "client_user_message_id": "de111cdd-96cd-49ec-a5ef-8269f9c05644",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T04:06:52.806376+00:00",
+  "recipient_turn_id": "01a13dbd-d27c-7791-b7d8-5e62243e900b"
+}

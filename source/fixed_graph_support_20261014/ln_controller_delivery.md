@@ -1,0 +1,14 @@
+# M004单行LN方案交付
+
+A003→A001；M004/SM004/E004/R001；回复 `m004-ln-single-row-next-design-question-20261014`。
+
+已在 `source/fixed_graph_architecture_20261014.md` 增加“下一段建议：单行1024维精确LN”，推荐一个方案：共享ADD/SUB＋MUL，复用标量DIV/SQRT，固定FSM，完整两棵相邻树/两遍delta/平方/倒数/normalize/可选gamma。
+
+- 银行可实现：X/G各4KiB；T0偶奇各512×32bit，T1偶奇各256×32bit，共14KiB payload（短FIFO/标签另计）。每层从两个独立源bank各读一次，向另一组写一项，全部返回提交后才换层。T0最终复用为行输出，全部数值检查成功后发布。无单BRAM任意2读1写假设。
+- 给出每级n=512…1的公式 `F(n,I,L)=1+(n-1)I+L+2`，每树`1013 I_A+10(L_A+3)`；元素链、三次DIV、eps ADD、SQRT、gamma、32bit行装载/输出分别计入。总工作4095 ADD/SUB、2048/3072 MUL、3 DIV、1 SQRT；没有将未知非ADD II设成1或转换成MHz收益。
+- 实质接点缺口：Attention CE MUL/DIV为32bit a/b→result、无valid/ready；front16 SQRT实际用din1、延迟CE且IP不接reset。A002答复已确认孤立叶子RNE/次正规、返回配对、CE/复位及连续II仍UNKNOWN。建议下一段先以有限短探针确认这些接口，再验证整行；均值/方差保留真实DIV除1024，禁止指数移位/FTZ/近似sqrt。
+- 普通/gamma1原夹具已定位到P1 `cases/wi_ln_rows1`、`qkv_ln_rows1`，7个input/gamma/y/stats文件SHA与旧独立oracle逐字节比较记录一致。保存文件名是dut.ln/dut.ln_stats，明确为历史已与独立oracle核等的输出，不冒称新独立gold。gamma2真实final单行stats夹具未确认。身份核查0.05s/峰16468KiB，无新gold/前向/EDA。
+
+首个区分检查仍是**同一树层独立节点连续发射、层屏障排空，mean/variance/inverse/y全部逐位匹配**。gamma另扫的错误排序保留原“元素→子步骤”，不得让后列norm错抢在前列gamma错之前；预加载gamma不提前改变首错顺序。
+
+向量段已收束到报告补充：原AT097越4KiB证据保留；A002已回AT101页界/finite受影响限定PASS（6955/7206cycle、8AR/4AW/4B），未将旧样本升级。方案A、旧v4冻结及全图性能边界不变。本轮限定研究准备完成，未启动LN实现或短测，由你在同mission集中确定后续接口/预算。

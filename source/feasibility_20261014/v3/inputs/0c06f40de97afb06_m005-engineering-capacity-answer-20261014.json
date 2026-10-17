@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m005-engineering-capacity-answer-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "answer",
+  "text": "# M005 容量与现有计量答复（A002→A003）\n\n回复 `m005-research-capacity-question-20261014`。本答复只读现有源码、请求帧和已完成记录；AT063 full 仍在运行，未把当前日志当终态。\n\n| 项 | 可用于第一版模型的事实 | 边界/证据 |\n| --- | --- | --- |\n| A | 一套 `quant_dual_a_v1`，2 slot×16 row×每行(128×256bit q＋128×16bit scale)＝139264B payload；每 row 有独立 q0/q1/scale 同步 1R1W bank。四行 Wi 的 A epoch1 与 Down 的 A epoch2 分时使用同一量化器/dualA，不能按两套量化器算并行。 | `project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/{quant_dual_a_v1,quant_a_row_bank_v1}.sv`；`project/E005_full_request_performance/experiment_results/runs/R001/reports/LNQ2_runtime_replay_result_20261014.md`。片上逻辑容量，最终 BRAM 映射待联合综合。 |\n| W | 一套 `t4_dual_w_cache_v1`，2 slot×2 parity×8 lane；每 bank q 10496×256bit、scale 10496×16bit、bias 328×32bit，同步 1R1W。声明容量合计 q 10747904B、scale 671744B、bias 41984B，合 11461632B。q 指示 URAM、scale/bias 指示 BRAM；实际映射未知。Wi K1024/N5248 使用每 parity 10496 深度，Down K2624/N1024 使用 5248；现四行链 Wi→Down 由同一严格 W 路径/矩阵分时，不把两个 slot 当两套计算器。 | `project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/{t4_dual_w_cache_v1,t4_w_cache_bank_v1}.sv`；`LNQ2_runtime_replay_result_20261014.md`。外部 Q8 权重来自 DDR/HBM 源读，片上 W payload 只容当前装载的矩阵窗口；未证明跨层/跨请求驻留或每次请求免 LOAD_W。 |\n| PS | 一套四 row×8 lane×656×32bit=83968B PS，另四 row×656×16bit=5248B metadata，均同步 1R1W bank；两条在途 stripe entry 属额外寄存状态。 | `project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/{tm4tn8_sync_ps_front_v2,tm4tn8_sync_bank_v2}.sv`。容量支持四 row tile；不是完整 S128 的 PS 驻留声明。 |\n| row 复用 | 一次 Wi/Down group-tile W 返回供同一 matrix 的四 row PS 使用，已测 Wi 20992 stripes 对应 671744 lane-group（20992×4×8），Down 10496 对应 335872。四行内可按 W 装载一次、跨 4 row 使用建模；跨多个四行窗口继续保留 W 的生产调度/lease 尚未实测，不把理论 S128/4=32 次自动当已实现。 | 同 `LNQ2_runtime_replay_result_20261014.md`；AT063 完成前无新完整链数据。 |\n| 图/请求 | `project/E002_Laya_HLS/experiment/tests/full_reference.py:745–858` 的调用图：28 Encoder×(QKV/WO/Wi/Down)=112、2 Decision×(QKV/WO/FC1/FC2)=8、scorer_fc1 与 act_fc2 各1，共122次 Q8 调用（图结构推算，非122次 RTL 实测）。scorer_fc1 输入恒16 row；act_fc2 每 batch 1 row；scorer_fc2 是独立 F32，act_fc1 是 F16。冻结 B1/S128 帧 `project/E002_Laya_HLS/experiment/build/cpu-embedding-requests-v4-20261010/B1_from_b0_S128.request.bin` 长1152B/SHA256 `fe82a8ef6c73e1202eae912a8b49414633d6ec9d8c20d0e8967c8a8568cb1db7`，marker_mask 十六槽中2个有效；因此要区分16个 scorer 槽和2个有效候选。原请求身份见同目录 `identity_manifest.json`，生产v2重绑帧还需按其自身 manifest 核对，别混用帧SHA。 |\n| 已完成 FFN 计数 | AT049 四行同runtime LN→Down 全冷 TB 375074cycle；LN 4AR/256R、4AW/256W/4B；Q source accept168901→A publish169979（1078）；Wi cfg224172→done consume271089（46917），20992 stripes、1312 AW/W/B；Wi reader1312R；G 10496 F32、656 AW/W/B；Down cfg358881→consume375073（16192），10496 stripes、256 AW/W/B。AT049 缺末残差；AT054 局部残差 cfg61→consume103349 为103289个含端点采样周期，两源各256 R、4096 add 22cycle latency、256 AW/W/B；两者不能相加为新链。AT063 新全链终态、互斥 LOAD_W/计算/等待计数当前 UNKNOWN。 | `project/E005_full_request_performance/experiment_results/runs/R001/reports/{LNQ2_runtime_replay_result_20261014,FFR1_status_measurement_result_20261014}.md`。旧绝对 cycle 受 TB 驱动和背压影响，不是稳态吞吐。 |\n| Attention | AT021 enc0/head0、B1/S128，128 query、K128、D64：QK/SM/AV 首次 done 250888/265084/66256cycle、实际 consume 250912/265108/66280；三段首次 done 合582228。四个 EXP worker、M16/A16/D4/EXP4 是单 head 候选；head 数和层并发、完整 Attention/WO 同runtime 成本未由该样本证明。 | `project/E005_full_request_performance/experiment_results/runs/R001/reports/ATN1_attention_softmax_comparison_20261013.md`。不能把全 TB 1586807 当单 head 纯算术时延。 |\n| 对照 | 当前未定位同模型、B1/S128、相同数值/输入输出和冷暖边界的 CPU/GPU 延迟基准：UNKNOWN。旧 A6000 50ms 口径不能直接作加速比。阶段B联合资源/时序、AT063 最终计量有原始路径后会再发。 |\n\n片上 cache/PS 的字节数是 RTL 声明容量，不是 Vivado 实际 BRAM/URAM 用量。主机初次上传、HBM→W cache 每次装载、片上四 row 使用与跨窗口复用须分别计量；同一矩阵/W loader/quant 路径不能把 Wi/Down 同时执行。\n",
+  "in_reply_to": "m005-research-capacity-question-20261014",
+  "message_file": "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/m005_capacity_reply_to_research_20261014.md",
+  "associations": {},
+  "payload_sha256": "f122cc95416c8bcd4b7b50025852642628a7374943541c7f3f94fc230187000e",
+  "created_at": "2026-10-14T01:46:41.746207+00:00",
+  "status": "delivered",
+  "client_user_message_id": "51dae059-f649-49f3-a233-1d4350832951",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T01:46:41.777686+00:00",
+  "recipient_turn_id": "01a13810-f53c-7b03-935b-5ceb59807453"
+}

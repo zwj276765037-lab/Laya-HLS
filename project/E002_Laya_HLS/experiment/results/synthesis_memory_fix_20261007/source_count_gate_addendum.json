@@ -1,0 +1,45 @@
+{
+  "at_utc": "2026-10-07T10:00:07.412306+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "decision": "APPROVE_EXACT_PRODUCTION_SOURCE_COUNT_ASSERTION_24_TO_25",
+  "file": "tools/full_final_gate.py",
+  "line_before_change": 74,
+  "exact_change": "len(sources) == 24 -> len(sources) == 25",
+  "justification": "Original repair contract adds full_cache_storage.cpp as the 25th real production source and requires registry/compiler closure to reflect the actual source count.",
+  "assertions_preserved": [
+    "15-module registry schema/target/top/state check",
+    "mapped == sources",
+    "all registered production source files exist",
+    "strict-current-sources and current manifest binding",
+    "compiled_sources set equals source list",
+    "current source/object/header/dependency/library/CMake/database hashes",
+    "all original numeric fixtures, exact expected comparison counts, graph, error and persistent recovery gates"
+  ],
+  "scope_audit": {
+    "paths": [
+      "CMakeLists.txt",
+      "config/",
+      "scripts/",
+      "tools/",
+      "tests/",
+      "hls/",
+      "host/",
+      "vivado/module_design/ test/runner source"
+    ],
+    "findings": [
+      "Only tools/full_final_gate.py:74 hardcodes the old24 production source count.",
+      "15-module checks remain correct.",
+      "Other24 tokens are ABI offsets, error shifts or numerical constants and remain unchanged.",
+      "CPU runner, HLS runner and CMake default model package are already build/model-repair.",
+      "Exporter CLI default build/model-p2 remains intentionally unchanged; explicit --out build/model-repair is required for this task.",
+      "No additional active old model-p2-final default found in the searched execution paths."
+    ]
+  },
+  "identity_and_promotion": [
+    "Include this tool file in final build_preimage and exact reviewed promotion list; backup baseline before any promotion.",
+    "Preserve tag22c256c157981ad8d54e2a0f9ffa3990 package as historical evidence, not final current-source regression package.",
+    "Export new final tag only after this one-line fix and previously authorized source/runner/guard edits are stable.",
+    "All final CPU/shadow/CSim/full-synthesis records must bind the final package and exact test inputs."
+  ],
+  "baseline_sha256": "12efb3d580eaab0e7e4b72ee19b2ec95d41f144f0bdf6a08579df74f905a8828"
+}

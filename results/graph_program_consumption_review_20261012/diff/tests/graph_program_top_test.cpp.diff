@@ -1,0 +1,120 @@
+--- 01/tests/graph_program_top_test.cpp
++++ 02/tests/graph_program_top_test.cpp
+@@ -38,6 +38,15 @@
+           uint8_t(word.range(byte * 8 + 7, byte * 8));
+   }
+   return packet;
++}
++
++template<std::size_t Bytes>
++void dequeue_beat(hls::stream<ap_uint<512>>& stream,
++                  std::array<uint8_t, Bytes>& packet, unsigned beat) {
++  const ap_uint<512> word = stream.read();
++  for (unsigned byte = 0; byte < 64; ++byte)
++    packet[beat * 64 + byte] =
++        uint8_t(word.range(byte * 8 + 7, byte * 8));
+ }
+ 
+ NumericIdentity patterned_identity() {
+@@ -179,25 +188,28 @@
+ 
+   enqueue(action_completion, action::encode(success(first_action)));
+   for (unsigned cycle = 0; cycle < 200 &&
+-       result.size() < program_wire::kResultBeats; ++cycle)
+-    tick(false, false, command, result, action_request, action_completion);
+-  assert(result.size() == program_wire::kResultBeats);
++       result.size() < program_wire::kResultBeats - 1; ++cycle)
++    tick(false, false, command, result, action_request, action_completion);
++  assert(result.size() == program_wire::kResultBeats - 1);
+ 
+   const program_wire::Command second = current_command(902, 1);
+   enqueue(command, program_wire::encode(second));
+-  for (unsigned cycle = 0; cycle < 24; ++cycle)
+-    tick(false, false, command, result, action_request, action_completion);
+-  assert(command.size() == program_wire::kCommandBeats &&
+-         action_request.empty());
+-
++  program_wire::ResultPacket first_result_packet{};
++  for (unsigned beat = 0; beat < program_wire::kResultBeats - 1; ++beat)
++    dequeue_beat(result, first_result_packet, beat);
++  // The consumer's final-beat notification is adjacent to the producer's
++  // transition into WAIT_RESULT_CONSUMED.  It must be retained rather than
++  // lost as a one-cycle pulse, and it belongs only to this result.
++  tick(false, true, command, result, action_request, action_completion);
++  assert(result.size() == 1 && command.size() == program_wire::kCommandBeats);
++  dequeue_beat(result, first_result_packet, program_wire::kResultBeats - 1);
+   program_wire::Result first_result;
+-  assert(program_wire::decode(
+-      dequeue<program_wire::kResultBytes>(result), first_result));
++  assert(program_wire::decode(first_result_packet, first_result));
+   assert((first_result.flags & program_wire::REQUEST_COMPLETE) &&
+          (first_result.flags & program_wire::SLOT_UPDATE_VALID) &&
+          first_result.action_ordinal == 1 && first_result.pc == 1);
+ 
+-  tick(false, true, command, result, action_request, action_completion);
++  tick(false, false, command, result, action_request, action_completion);
+   for (unsigned cycle = 0; cycle < 200 &&
+        action_request.size() < action::kRequestBeats; ++cycle)
+     tick(false, false, command, result, action_request, action_completion);
+@@ -216,9 +228,22 @@
+   failure.retired_tasks = 0;
+   failure.slot_delta = action::SlotDelta{};
+   enqueue(action_completion, action::encode(failure));
++  // A notification from an earlier result, before this result's final beat,
++  // must not open the next command boundary.
++  tick(false, true, command, result, action_request, action_completion);
+   for (unsigned cycle = 0; cycle < 200 &&
+        result.size() < program_wire::kResultBeats; ++cycle)
+     tick(false, false, command, result, action_request, action_completion);
++  assert(result.size() == program_wire::kResultBeats);
++
++  auto bad_command = program_wire::encode(current_command(903, 1));
++  bad_command[0] ^= 0x80;
++  enqueue(command, bad_command);
++  for (unsigned cycle = 0; cycle < 24; ++cycle)
++    tick(false, false, command, result, action_request, action_completion);
++  assert(command.size() == program_wire::kCommandBeats &&
++         action_request.empty());
++
+   program_wire::Result second_result;
+   assert(program_wire::decode(
+       dequeue<program_wire::kResultBytes>(result), second_result));
+@@ -232,9 +257,6 @@
+   // result must still be self-consistent and must retain the same consumer
+   // boundary before a later valid request may enter the program.
+   tick(false, true, command, result, action_request, action_completion);
+-  auto bad_command = program_wire::encode(current_command(903, 1));
+-  bad_command[0] ^= 0x80;
+-  enqueue(command, bad_command);
+   for (unsigned cycle = 0; cycle < 200 &&
+        result.size() < program_wire::kResultBeats; ++cycle)
+     tick(false, false, command, result, action_request, action_completion);
+@@ -267,10 +289,27 @@
+                         third_action));
+   assert(third_action.ordinal == 3 && third_action.identity.request_id == 904);
+ 
++  enqueue(action_completion, action::encode(success(third_action)));
++  for (unsigned cycle = 0; cycle < 200 &&
++       result.size() < program_wire::kResultBeats; ++cycle)
++    tick(false, false, command, result, action_request, action_completion);
++  program_wire::Result third_result;
++  assert(program_wire::decode(
++      dequeue<program_wire::kResultBytes>(result), third_result));
++  assert(third_result.result && third_result.action_ordinal == 3 &&
++         (third_result.flags & program_wire::REQUEST_COMPLETE) &&
++         (third_result.flags & program_wire::SLOT_UPDATE_VALID));
++  tick(false, true, command, result, action_request, action_completion);
++  assert(command.empty() && result.empty() && action_request.empty() &&
++         action_completion.empty());
++
+   std::cout << "FULL_CURRENT_GRAPH_PROGRAM_TOP_PASS "
+             << "schema=LGP1/LGR1 command_beats=4 result_beats=4 "
+             << "python_byte_oracle=1 action_beats=8/4 "
+-            << "result_consumer_gate=1 ordinal_recovery=1 "
++            << "result_consumer_gate=1 adjacent_consume_latched=1 "
++            << "delayed_consume_gate=1 ordinal_recovery=1 "
++            << "early_stale_consume_ignored=1 completed_requests=3 "
++            << "completed_local_rejects=1 final_streams_empty=1 "
+             << "success_slot_commit=1 safe_error_request_complete=1 "
+             << "bad_command_local_reject=1 reject_gate_recovery=1\n";
+   return 0;

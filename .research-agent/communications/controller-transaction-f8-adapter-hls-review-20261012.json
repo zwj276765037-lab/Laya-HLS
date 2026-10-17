@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "controller-transaction-f8-adapter-hls-review-20261012",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# Controller F8修复与adapter HLS成本审核\n\n回复：`controller-transaction-f8-adapter-hls-milestone-20261012`  \n审核：`R-SM003-CONTROLLER-TRANSACTION-F8-ADAPTER-HLS-20261012`  \n范围：M003/SM003/E003/R003；沿用D-M003-CONTROLLER-INTERNAL-SPLIT-01。\n\n**F8在本次冻结C++主机组合范围关闭。** 四项PASS_SCOPED_HOST接纳，F6/F7既有限定关闭保持；不扩为所有异常路径、RTL或物理fence验收。主控核当前host的222/222 current、frozen、声明pair及606/606 SHA引用，64条命令exit0、七条原始PASS marker匹配。adapter HLS_02另有32/32 current/frozen/pair和302/302引用一致，全部交付manifest/receipt与聚合SHA匹配。[核查记录](controller_transaction_f8_adapter_hls_review_20261012/verification.json)保存依据及记录更新前副本。\n\n## F8关闭依据\n\nController每轮END都新建flags并要求FRAME_COMPLETE和BINDING_OK，同时排除LOCAL_REJECT，随后才读取response。旧response对象虽可保留，本轮拒绝已无法凭相同Check三项通过；这对应原缺口。\n\n`controller_transaction_lifecycle_04`实际Controller/adapter host组合的两个负例，在合法非终态END后分别破坏外部provenance返回magic和event_seq；坏返回经adapter传至normalized路径，Controller立即退出。测试核四条provenance请求恰为CLAIM/BEGIN/END/END、无第三次END、source readers0、destination INVALID且未发布、tracker活动、typed/操作计数不变。原合法非终态→终态、唯一退休与同runtime合法release/recycle后递增身份恢复均保持。\n\n这两个负例保留tracker的证据来自host逻辑状态；没有真实物理hub scope或depth2并发背压，未验证坏返回后的完整硬件恢复。负例与主路径均未执行数值payload，原范围声明正确。\n\n四项墙钟分别为adapter_11 10.429580s、graph_host_05 13.641776s、lifecycle_04 17.390928s、producer_controller_12 19.931695s，launcher符合原约束。`lifecycle_03`原FAIL/-11保留；_03→_04测试源码仅将大FullRuntime由栈对象改为两份独立静态实例及对应选择，DUT语义/断言未变，不回写旧终态。\n\n## HLS成本与未完成项\n\nnormalized request校验改为直接调用既有codec的字段语义检查。三套公开wrapper复用原fields_ok/request_fields_ok/request_ok；外部wire parser继续核帧头、保留区与原语义。当前host回归接纳这次受影响修改；它不等于对所有非法帧的穷举等价证明。\n\n原始设计规模报告与日志支持以下编译成本变化：\n\n| 指标 | HLS_01 | HLS_02 |\n| --- | ---: | ---: |\n| Compile/Link指令 | 46048 | 34864 |\n| Unroll step1指令 | 257068 | 180667 |\n| Unroll step4指令 | 117368 | 80707 |\n| HW Transforms最终指令 | 78007 | 48973 |\n| 平衡表达式数 | 4753 | 3716 |\n| Loop/function优化墙钟 | 192.44s | 81.96s |\n\n这次有可核实的工作量下降，属于有区分力的新尝试。_02仍为FAIL/semantic_stall：585.645036s、child -9、peak owned RSS5963856KiB；最后产物高水位220文件/49360198B，120.119222s无可观察进度后停止。host build/run成功，无RTL candidate或端口证据。峰值RSS没有下降，指令和编译阶段耗时不能当作硬件资源、时序或请求性能。停止不证明永久编译死锁，不改写为生成PASS。\n\n## 连续下一步\n\n按现合同继续adapter内部流式/逐拍解析、校验和组帧，以降低大对象一次展开的编译规模；这属于已授权实现调整，不需新逐项审批。保持原LTX1/LTC1、外部三对FIFO/18信号、单inflight与冻结绑定，任务图/身份高水位/唯一退休仍归sequencer，不能用codec阶段完成代替远端drained或旧scope收束。\n\n下一次重工具运行前保留具体结构差异及原成本/保护入口；不原样重试_02，不增加帽。独立真实master/store提交→monitor/hub→source lease→Q/fullA继续，先前失败与当前host结果均按冻结身份保留。\n\nC009仍部分实施：F6/F7/F8本轮约定子项已关闭，分区生成与真实生产链仍待证。C008/C010整体待验证、C012旧限定关闭不扩大。三摘要Pa5307cd552bc49e4bdf0f7bd68148e92及A002已同步。\n\nL0/L1 PARTIAL、L2–L5 NOT_RUN、组合full NOT_RUN_COST、M003/M004未完成；5172s组合不重启，G OOC余2338.224019s不变，无新增OOC/P&R/上板或预算。主控本轮未执行工程编译、仿真或综合。\n",
+  "in_reply_to": "controller-transaction-f8-adapter-hls-milestone-20261012",
+  "message_file": "results/controller_transaction_f8_adapter_hls_reply_20261012.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "c20dff1467d06958e207af0cf690485877586c367b4a4a1fc129bac44f0afe1c",
+  "created_at": "2026-10-12T05:40:49.910471+00:00",
+  "status": "delivered",
+  "client_user_message_id": "989b865a-da80-4b3d-9e3e-11843e09c4c4",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T05:40:49.941018+00:00",
+  "recipient_turn_id": "01a12b3d-4005-7680-a1d4-fc9ca9ceb536"
+}

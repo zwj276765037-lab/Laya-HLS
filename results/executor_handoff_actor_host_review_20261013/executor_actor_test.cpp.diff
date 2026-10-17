@@ -1,0 +1,72 @@
+--- actor_01/executor_actor_test.cpp
++++ actor_02/executor_actor_test.cpp
+@@ -137,9 +137,19 @@
+       state.runtime.owner_claims==0 && state.runtime.owner_leases==0 &&
+       state.runtime.last_task_id==p.task_floor && state.phase==executor::Phase::WAIT_IMPORT_CONFIRMATION);
+     for(unsigned i=0;i<24;++i){h.call();assert(h.commands.empty() && h.actions.empty() && h.events==10*request);}
++    auto early=state.control_request;early.kind=handoff::Kind::GRANTED;
++    h.incoming(early);assert(h.commands.empty() && state.control_pending);
+     auto confirmation=h.outgoing();assert(confirmation.kind==handoff::Kind::IMPORT_OK && confirmation.local_committed);
++    for(unsigned which=0;which<4;++which) {
++      auto wrong=confirmation;wrong.kind=handoff::Kind::GRANTED;
++      if(which==0)++wrong.session;
++      if(which==1)++wrong.binding.source.sequence;
++      if(which==2)++wrong.binding.handoff_epoch;
++      if(which==3)++wrong.binding.source.identity.request_id;
++      h.incoming(wrong);assert(h.commands.empty() && state.imports==request+1);
++    }
+     auto stale=confirmation;stale.kind=handoff::Kind::GRANTED;--stale.accepted_request;
+-    h.incoming(stale);assert(h.commands.empty() && state.control_rejections==request+1);
++    h.incoming(stale);assert(h.commands.empty() && state.control_rejections==6*(request+1));
+     auto grant=confirmation;grant.kind=handoff::Kind::GRANTED;
+     h.incoming(grant);assert(state.phase==executor::Phase::WRITE_COMMAND);
+     for(unsigned i=0;i<10000 && state.phase!=executor::Phase::WAIT_RESULT_CONSUMED;++i)h.call(true);
+@@ -147,6 +157,9 @@
+       state.runtime.tasks_retired==4 && state.runtime.last_task_id==p.task_floor+4 &&
+       state.runtime.producer_request_high_water==4*(request+1) &&
+       state.port.machine.action_high_water==request+1 && h.producers==4*(request+1));
++    assert(state.port.machine.completion.retired_tasks==4 &&
++      state.port.machine.completion.first_task_id==p.task_floor+1 &&
++      state.port.machine.completion.last_task_id==p.task_floor+4);
+     program_wire::Result result;assert(program_wire::decode(dequeue<256>(h.results),result));
+     assert(result.result && result.action_ordinal==request+1 && result.pc==1);
+     for(unsigned i=0;i<24;++i){h.call(true);assert(state.admissions==request+1 && state.phase==executor::Phase::WAIT_RESULT_CONSUMED);}
+@@ -154,6 +167,25 @@
+     assert(h.commands.empty() && h.program_results.empty() && h.actions.empty() && h.completions.empty());
+   }
+   assert(state.admissions==2 && state.imports==2 && state.results==2 && state.checkpoint.sequence_high_water==2 && state.checkpoint.handoff_high_water==20);
++}
++void helper_reservation(const std::string& fixture,const checkpoint::Response& gold) {
++  auto state=std::make_unique<executor::State>();Harness h(*state,fixture);
++  h.start_hold();
++  auto& cp=state->checkpoint;
++  const auto seq=cp.sequence_high_water;
++  checkpoint::Request out;out.source.sequence=999;
++  assert(!checkpoint::reserve_hold(cp,state->port,state->runtime,h.ports,h.in.source,h.in.fence.base,out));
++  assert(seq==1 && cp.sequence_high_water==seq && out.source.sequence==999);
++  auto held=cp.pending;held.handoff_epoch=19;
++  auto fence=h.in.fence;fence.physical_quiescent=fence.predecessor_dispatch_held=fence.source_held=fence.target_held=true;
++  fence.cancel=true;
++  const auto retired=state->runtime.tasks_retired;
++  assert(!checkpoint::prepare_held(cp,state->port,state->runtime,h.ports,held,fence,out));
++  assert(cp.sequence_high_water==seq && cp.handoff_high_water==19 && cp.hold_reserved &&
++    !state->runtime.checkpoint_baseline.valid && state->runtime.tasks_retired==retired);
++  fence.cancel=false;auto proof=gold;proof.binding=cp.pending;program_wire::Command command;
++  assert(!checkpoint::accept(cp,state->port,state->runtime,proof,fence,command));
++  assert(!state->runtime.checkpoint_baseline.valid && cp.handoff_high_water==19);
+ }
+ void failures(const std::string& fixture,const checkpoint::Response& gold) {
+   for(unsigned which=0;which<4;++which) {
+@@ -189,9 +221,9 @@
+   assert(argc==2);const std::string fixture=argv[1];wire(fixture);
+   auto p=packet<1024>(bytes(fixture+"/v2/checkpoint_request.bin"));checkpoint::Request r;assert(checkpoint::decode(p,r));
+   checkpoint::Response proof;assert(checkpoint::decode(packet<1024>(bytes(fixture+"/v2/checkpoint_response.bin")),r,proof));
+-  failures(fixture,proof);consecutive(fixture,proof);
+-  std::cout<<"FULL_CURRENT_EXECUTOR_ACTOR_PASS literal_control_bytes=7168 wire_reserved_rejects=20 full_key_mutants=5 "
++  helper_reservation(fixture,proof);failures(fixture,proof);consecutive(fixture,proof);
++  std::cout<<"FULL_CURRENT_EXECUTOR_ACTOR_PASS literal_control_bytes=7168 wire_reserved_rejects=20 full_key_mutants=5 early_wrong_grants=12 "
+     <<"same_runtime_requests=2 host_windows_retired=8 import_stat_contribution=0 control_held_query_import_grant=1 "
+-    <<"real_helper_reject_abort=1 committed_cancel_base_request_revoke=3 source_shell_fences_controlled=1 "
++    <<"real_helper_reject_abort=1 cancel_held_no_sequence_reuse=1 committed_cancel_base_request_revoke=3 source_shell_fences_controlled=1 "
+     <<"real_hls_top_shell_rearm_NOT_RUN=1\n";
+ }

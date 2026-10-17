@@ -1,0 +1,24 @@
+--- executor_checkpoint_rtl_06/executor_checkpoint_protocol.cpp
++++ executor_checkpoint_rtl_07/executor_checkpoint_protocol.cpp
+@@ -57,9 +57,9 @@
+   return validate(r);
+ }
+ } // namespace
+-Check validate(const Request& r) {
++Check validate_description(const Request& r) {
+   const auto& t = r.target;
+-  if (!bootstrap::validate(r.source) || r.mode != kMode || !r.handoff_epoch ||
++  if (!bootstrap::validate(r.source) || r.mode != kMode ||
+       t.buffer != Buffer::NORM || t.bank || t.region || t.role != Bo::STATE0 ||
+       t.base_epoch != r.source.base_epoch || t.base_address != r.source.base_address ||
+       t.capacity != r.source.base_capacity || t.offset != 8ull * 1024 * 1024 ||
+@@ -68,6 +68,9 @@
+       t.extent > t.capacity - t.offset)
+     return protocol();
+   return ok();
++}
++Check validate(const Request& r) {
++  return r.handoff_epoch ? validate_description(r) : protocol();
+ }
+ Check validate(const Response& r) {
+   if (!validate(r.binding) || uint16_t(r.result.code) > uint16_t(Status::E_INTERNAL))

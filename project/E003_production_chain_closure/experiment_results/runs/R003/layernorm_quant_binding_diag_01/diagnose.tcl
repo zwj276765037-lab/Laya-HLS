@@ -1,0 +1,18 @@
+run 10 us
+puts "F9_DIAG job_active=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/job_active]"
+puts "F9_DIAG request_capture_beat=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/request_capture_beat]"
+puts "F9_DIAG request_loaded=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/request_loaded]"
+puts "F9_DIAG request_verified=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/request_verified]"
+puts "F9_DIAG fifo_protocol_error=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/fifo_protocol_error]"
+puts "F9_DIAG begin_grant_pending=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/begin_grant_pending]"
+puts "F9_DIAG begin_event_seq=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/begin_event_seq]"
+puts "F9_DIAG accepted_begin_packet=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/accepted_begin_packet]"
+puts "F9_DIAG request_packet=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/request_packet]"
+puts "F9_DIAG producer_request_beat=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/producer_request_beat]"
+puts "F9_DIAG engine_request_empty_n=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/engine_request_empty_n]"
+puts "F9_DIAG engine_request_read=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/engine_request_read]"
+puts "F9_DIAG completion_capture_beat=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/completion_capture_beat]"
+puts "F9_DIAG completion_loaded=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/completion_loaded]"
+puts "F9_DIAG completion_verified=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/completion_verified]"
+puts "F9_DIAG engine/ap_CS_fsm=[get_value -radix hex /laya_layernorm_quant_source_shell_tb_v1/dut/producer/engine/ap_CS_fsm]"
+quit

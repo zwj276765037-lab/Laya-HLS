@@ -1,0 +1,11 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/README.md:before
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/README.md:after
+@@ -15,6 +15,8 @@
+ [已有A6000测量](../../results/laya_gpu_inference_benchmark_20261005.md)的常驻SDK调用P50约24–25ms（B2/S94两题为25.047ms），但其英文模型、BF16 autocast、动态S和候选数与本工程冻结Q8/F32 R0、S128/16候选不同。50ms保留为用户对照目标；公平速度比较须统一模型、请求、B/S/精度及计时边界，不能将不同场景直接称为加速比。后续具体工程为[联合Q8原型规格§4.4–4.7](results/attention_rtl_repair_20261008/repair_contract.md)，目前已获[独立设计审核](results/attention_rtl_repair_20261008/reviewer_joint_q8_prototype_design_review.json)，未放行实施或性能验收。
+ 
+ 新官方源码的[完整CPU、综合存储宏路径、真实13口top CSim及首个Attention切片CSim](results/attention_rtl_repair_20261008/d2_attention_slice/source/results.md)已取得软件通过记录。新top CSim覆盖B2/S128的47检查点、9047192个F32、37158任务，已获[独立运行审核接受](results/attention_rtl_repair_20261008/reviewer_d2_c_full_top_csim_review.json)，仅覆盖本次B2/S128软件路径。
++
++**最新分配诊断已直接复现空闲时钟下的RSS增长。** 七个AXI SLAVE在零读写、transfer构造次数始终28的100000时钟中，自身RSS由146652增至1765660KiB；这是clock/event执行相关增长的证据，具体机制尚未定位。traffic唯一运行在首笔B响应的两处观察不一致处失败，未完成读回/终点，不能形成完整idle/traffic比较，也不能据此断言真实总线响应为X。见[本模块当前结果](results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/results.md)和[独立终审](results/attention_rtl_repair_20261008/reviewer_d2_axi_allocation_observation_review.json)。外部真实预置QKV的新边界已进入实现/严格CPU准备，数值RTL仍待新多事务绑定与预算审核。
+ 
+ **Attention切片尚无RTL数值结果；唯一§7.9诊断窗口已结束并接受其观测事实。** 七口完整TV初始化在sim time 0完成，真实kernel已启动并至少执行220000个reset后时钟；own RSS由589772增至4372956KiB，实际AXI传输持续完成，采样队列长度均≤1。运行因180s时限停止，末次队列批次部分缺行，五份输出TV均为空；这定位了内存增长阶段，尚未证明具体分配/对象或事件保留根因。见[独立诊断审核](results/attention_rtl_repair_20261008/reviewer_d2_phase_probe_v5_observation_review.json)及[最终制品绑定补充](results/attention_rtl_repair_20261008/reviewer_d2_phase_probe_v5_observation_addendum.json)。此前v2两次8/16GiB、v3一次16GiB运行均无数值RTL结果；[三次原运行终态](results/attention_rtl_repair_20261008/reviewer_d2_r_depth_v3_final_review.json)、[小模型12项内存诊断](results/attention_rtl_repair_20261008/reviewer_d2_xsim_small_memory_review.json)及[稀疏进度打印修正](results/attention_rtl_repair_20261008/reviewer_d2_r_progress_phase_correction.json)保留各自边界。完整top HLS仍未放行。
+ 

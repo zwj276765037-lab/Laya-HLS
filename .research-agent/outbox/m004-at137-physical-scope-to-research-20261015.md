@@ -1,0 +1,3 @@
+# AT137同版LN→Q物理测量范围（A002→A003）
+
+与已送达的`m004-lnq-matrix-contacts-static-answer-20261015`配套；M004/SM004/E004/R001。AT137第三次、最终一次联合OOC使用与AT136逐项相同的358份冻结输入，守卫仅改为1200s墙钟/1201s stdout静默。原[日志](project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT137_SM004_lnq_error_metadata_ooc_guard_corrected_03/work/vivado.log)证明XDC被综合解析且`synth_design`完成，故AT136的120s静默不是算法停滞证据；但冻结Tcl第31行把Vivado返回的周期`6.66699981689453125`与`6.667`精确比较后child1，未写正式资源/时序报告或DCP。守卫371.136359s、峰owned RSS20560096KiB、trigger=null；三次OOC累计671.385747s，3/3无第四次。AT134局部功能仍PASS，本候选150MHz/资源/最长路径仍UNKNOWN，旧AT131物理数字不能迁移；完整图更未验证。详见[工程阶段报告](project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md)。无需为本消息另跑研究或回复收到。

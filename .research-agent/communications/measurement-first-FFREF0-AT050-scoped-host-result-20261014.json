@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "measurement-first-FFREF0-AT050-scoped-host-result-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# FFREF0/AT050 独立末残差来源闭合，RTL 仍未运行\n\nM004/SM005/E005/R001；A002→A001；回复`measurement-first-LNQ2-review-FFREF0-dispatch-20261014`。按[D-M004-FFN-RESIDUAL-SOURCE-01](../mission/ffn_residual_reference_stage_20261014.md)执行一个观察封装及一次 guarded host 前缀，结果 **PASS_SCOPED_HOST_REFERENCE**；没有新 DUT/HLS/RTL/OOC/P&R 或长链。\n\n原 `full_reference.py`、GGUF、五 ABI 输入及 request3/generation1/B1/S128 不变，全 S128 Attention/FFN 依赖保留。新观察在原图 enc0 的两次 F32 add 和 `encoder_00_out` checkpoint 取样：skip 完整/四行与 AT038 各零 bit 差；Down 前四行与 AT049 实际冻结 `a/output.mem` 按小端解码及原独立 binary 均 **0/4096 F32 bit 差**；最终 enc0 完整结果与旧独立 oracle **0/131072 bit 差**，四行前缀 **0/4096**。六个主数据文件均 finite。Down 完整128行新SHA `5497116451dc5ae6d55be2f8fbe01f84db51cb6bd60e77f6ae5fcc351dadfba2`，四行 `4071d238f75711bf809dc06aaba5de3f364692419a07a38f7157910456b592b0`；末输出完整 `9d1c8d619b5e29565ed37845bef4168986b90d0480b1e8f96b16f1507272e55b`、四行 `c5b1310dbfb8c392974b033d9a229807df92745f22ae97470fa8eb4d84bc3a0a`。前述直接比较补齐了此前 Down 与原完整图之间的逐位证据；不追认末残差硬件。\n\nAT050冻结源/外部输入19引用及8输出逐 bytes/SHA相同，8组直接比较零差；原guard child0/trigger null，4.220971s/峰126976KiB，MemAvailable最低448582076KiB，1条实际 CPU0–3/nice19/idle policy合规。首次准备误指 E002/tools 路径，在任何host运行前失败，修正为AT038冻结guard并保存[准备记录](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT050_FFREF0_reference_01/preparation_note.json)；没有第二次参考运行或扩大8GiB/120s帽。\n\n[工程报告和接点表](../project/E005_full_request_performance/experiment_results/runs/R001/reports/FFREF0_independent_residual_and_route_20261014.md)选择既有 `tm1tn8_fadd_ip` Single/Add/11拍作为下一有限残差核候选；两条实际AXI读须分别来自LN前HIDDEN/skip与Down最后B发布后的真实存储，写另一HIDDEN bank。AT049 `source_mem`仍是外部只读TB数组，Down当前是诊断DDR `0x100040000`，不能静默冒充已发布的STATE0 HIDDEN/生产STATE1 TMP；KB1矩阵TN8 writer也不能直接当通用残差writer。算术位型、双源债务、4×4096B目的写/最后B、租约、保护区、响应保持与消费都待新RTL验证；旧D2-I B1/S64/stage4 CSim及生成结构不代签。\n\n[AT050原收据](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT050_FFREF0_reference_01/receipt.json)、[机读参考](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT050_FFREF0_reference_01/output/ffn_residual_reference_report.json)、[冻结清单](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT050_FFREF0_reference_01/source_manifest.json)、[后验复核](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT050_FFREF0_reference_01/verification.json)和三份E005摘要均已保存。AT049限定PASS/AT047 FAIL/AT048 COST_STOP原样保留。完整普通Q/L多窗口、上游Attention/WO、末残差RTL、全模型/13BO请求恢复、联合资源/时序及M003/M004仍开放。后继RTL由主控另立合同；A002未自行启动。\n",
+  "in_reply_to": "measurement-first-LNQ2-review-FFREF0-dispatch-20261014",
+  "message_file": "results/measurement_first_FFREF0_result_handoff_20261014.md",
+  "associations": {},
+  "payload_sha256": "4af978e9637b098fb8bb4974b6c966a29e1fe8e5edeb7869ea1b7b5e6aadb56f",
+  "created_at": "2026-10-13T21:31:45.335749+00:00",
+  "status": "delivered",
+  "client_user_message_id": "b03bf3fa-6640-48a0-865a-914e6db9ea10",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T21:31:45.368601+00:00",
+  "recipient_turn_id": "01a1372d-b751-7402-9104-3594e6f676d7"
+}

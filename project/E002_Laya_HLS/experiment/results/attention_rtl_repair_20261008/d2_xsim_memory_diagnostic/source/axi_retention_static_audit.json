@@ -1,0 +1,77 @@
+{
+  "inference": "No explicit scoreboard queue retains every completed 8-bit access until ap_done. Pending per-ID state/driver queues and simulator allocation high-water could grow if handshakes/responses lag or if objects are not reclaimed; actual queue lengths, number of transfers and active phase were not measured in v3.",
+  "negative_search": "No uvm_tlm_analysis_fifo, uvm_recorder, begin_tr/end_tr or transaction record call found in frozen generated axivip/attention_slice_subsystem/svtb/svr .sv source search; simulator internals were not audited.",
+  "next_observables": "Any new independently reviewed bounded run should align RSS with simulation time, ap_start/ap_done, cumulative per-port AXI AR/AW/R/W/B handshakes, per-ID state queue sizes and actual owner/task progress. Sample at source callbacks without changing production arithmetic or bus behavior. This audit alone does not authorize a run.",
+  "observations": [
+    {
+      "fact": "A new axi_transfer is created on AW/W/B/AR/R and AW2B/AR2R completion paths and written to analysis ports; W and R transfers carry byte queues. Delay queues push at AW/AR and pop at B/R.",
+      "lines": "128-349",
+      "source": "axi_monitor"
+    },
+    {
+      "fact": "The monitor analysis ports connect synchronously to axi_state implementations; state.item_wtr_port and item_rtr_port pass completed transfers onward.",
+      "lines": "70-106",
+      "source": "axi_env"
+    },
+    {
+      "fact": "Per-ID AW/W/B/AR/R and read-model queues hold pending transfer handles. AW/W merges move handles to B response queues and completed B paths pop them. AR creates a cloned read-model transfer; R data consumption pops its model queue at last segment, and AR/R assembled transfer is popped on AR2R. bq_rsp and bq_for_rsp_lat briefly share a handle until their respective pops.",
+      "lines": "39-48,109-184,187-298",
+      "source": "axi_state"
+    },
+    {
+      "fact": "Completed W/R callbacks synchronously call reference_model and scoreboard; the monitor has no additional transaction queue.",
+      "lines": "111-201",
+      "source": "subsystem_monitor"
+    },
+    {
+      "fact": "AXI write/read callback bodies are empty; scoreboard retains no explicit per-access transaction collection.",
+      "lines": "58-109",
+      "source": "scoreboard"
+    },
+    {
+      "fact": "AXI write callbacks send transfer byte data/address into page memory writes; AXI read callbacks are empty.",
+      "lines": "298-344",
+      "source": "reference_model"
+    },
+    {
+      "fact": "Each transfer object has dynamic queues for data, byte addresses, strobe, response and delay; pending bursts can therefore have host cost beyond payload bytes.",
+      "lines": "33-37",
+      "source": "axi_transfer"
+    }
+  ],
+  "scope": "Read-only static retention audit of frozen v3 generated AXI/UVM chain; no XSim rerun or memory attribution",
+  "sources": {
+    "axi_env": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/axivip/axi_env.sv",
+      "sha256": "2f090aa034987654e1014858780201ad0c0dece3089c5abe9d32bc370d5204e7"
+    },
+    "axi_monitor": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/axivip/axi_monitor.sv",
+      "sha256": "488672a53c0edef11d62c217b8b2e922c38810a723e9ad2721ffa4c833d60f98"
+    },
+    "axi_state": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/axivip/axi_state.sv",
+      "sha256": "c5b5c36536c9e0dca0ae0305d6582c6ba021f8249c16355e2cc4eb910d693f34"
+    },
+    "axi_transfer": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/axivip/axi_transfer.sv",
+      "sha256": "ebd731a86106242f46769f992c544c1c88c926c43d53f946c8ad3f88b098e1a4"
+    },
+    "reference_model": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice_subsystem/attention_slice_reference_model.sv",
+      "sha256": "32bc2f1b0414154dfe933851f12c11308d71627f34a918513b8c45e2dbadcbe1"
+    },
+    "scoreboard": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice_subsystem/attention_slice_scoreboard.sv",
+      "sha256": "40bfbb49358dd531b20412ea4eba1d6f5a0d362e31f905e673367e89cba7dbbd"
+    },
+    "subsystem_env": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice_subsystem/attention_slice_env.sv",
+      "sha256": "2cf44b021d46a0d17b8a73e47d0028a09106435bf9838fcd65a3c10d91d8d0b6"
+    },
+    "subsystem_monitor": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_slice/runs/depth_v3/csynth_work/hls/sim/verilog/attention_slice_subsystem/attention_slice_subsystem_monitor.sv",
+      "sha256": "56e6babbb7de0e7528173be4caf6910b9bcc5d19a112aead3be5b027e2f3aea6"
+    }
+  }
+}

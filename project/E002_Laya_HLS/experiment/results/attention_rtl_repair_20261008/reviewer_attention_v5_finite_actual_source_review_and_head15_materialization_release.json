@@ -1,0 +1,335 @@
+{
+  "accepted_dependency": {
+    "bytes": 26622,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_cold_static_v2_full_functional_acceptance.json",
+    "sha256": "5166ae99b1d2378e1229de7a5758707813b25b581a19f4852221a983e4cffc97"
+  },
+  "audit_execution": {
+    "board": "not_run",
+    "cpu_numeric_model": "not_run",
+    "frozen_source_mutations": 0,
+    "hls": "not_run",
+    "materialization": "not_run",
+    "ooc": "not_run",
+    "rtl_runtime": "not_run",
+    "rtl_static": "not_run",
+    "source_reads_hashes_python_ast_and_read_only_pin_audit": "completed"
+  },
+  "authoritative_semantics": {
+    "arithmetic": {
+      "locations": [
+        "section 2: adjacent-tree QK, full-row softmax, ascending-key separate F32 AV multiply/add"
+      ],
+      "source": {
+        "bytes": 5874,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/design_source/11_attention_and_fp_engine.md",
+        "sha256": "5e064e42947092e5f3fe9ea6c3ae9879f15834d46b8daccb6e0812bfe74d6890"
+      }
+    },
+    "integration": {
+      "locations": [
+        "sections 11/12 owner identity and coverage",
+        "section 14 completion and AXI drain"
+      ],
+      "source": {
+        "bytes": 40802,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/design_source/15_integration_interfaces_and_pipeline.md",
+        "sha256": "80e22e2a51f4f0343deade49a8d66771a04e130f8a5919f197caae9f979dc690"
+      }
+    },
+    "memory_map": {
+      "locations": [
+        "section 4 QKV sharding and byte-offset equation",
+        "section 7 ATT_OUT F32[2,1024,1024] mapping"
+      ],
+      "source": {
+        "bytes": 10958,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/design_source/04_model_package_and_memory_map.md",
+        "sha256": "d4d4d80ecb317833b1a7f2e38b4eb80e089a30fbb01b68065527eec331c34dac"
+      }
+    },
+    "repair": {
+      "locations": [
+        "sections 7.3 through 7.5",
+        "section 7.11 external preload boundary"
+      ],
+      "source": {
+        "bytes": 66073,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md",
+        "sha256": "cff90d5bbe53c76b6756fb3d1596c1aa812cd3cbca9e83b03cac6995ce4cfa49"
+      }
+    },
+    "scope": "B1/S64 Decision stage4/layer0, fresh cold process per finite mode; no inherited coverage from accepted base_h0_r0 beyond reused hardware and verification infrastructure"
+  },
+  "authority": {
+    "bytes": 7983,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_changed_finite_source_preparation_release.json",
+    "sha256": "7044e85372af05ba3660ac0bde6a094f7385229c11ff86ae090f8a3168ef2203"
+  },
+  "created_utc": "2026-10-09T01:16:29.927683+00:00",
+  "findings": [
+    {
+      "description": "Frozen packet lists guard_16g.py but omits its local imported hls_guard_helpers.py. This review adds the exact helper record without editing the frozen packet. Executor must validate both guard and helper before and after the authorized stage.",
+      "id": "FINITE-GUARD-DEPENDENCY",
+      "line": 13,
+      "severity": "execution-binding-gap-addressed-by-this-gate",
+      "source": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+      "supplemental_record": {
+        "bytes": 7083,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/hls_guard_helpers.py",
+        "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+      }
+    }
+  ],
+  "finite_modes": [
+    {
+      "ATT_OUT_write_read_offset_bytes": [
+        261888,
+        262144
+      ],
+      "K_read_offset_bytes": [
+        6029312,
+        6045696
+      ],
+      "Q_read_offset_bytes": [
+        1851136,
+        1851392
+      ],
+      "V_read_offset_bytes": [
+        10223616,
+        10240000
+      ],
+      "final_aligned_AW_offset": 262140,
+      "gold_case": "base_h15_r63",
+      "head": 15,
+      "inactive_numeric_port": "qkv0",
+      "mode": "base_h15_r63",
+      "query": 63,
+      "selected_port": "qkv1",
+      "source_case": "base"
+    },
+    {
+      "ATT_OUT_write_read_offset_bytes": [
+        0,
+        256
+      ],
+      "K_read_offset_bytes": [
+        4194304,
+        4210688
+      ],
+      "Q_read_offset_bytes": [
+        0,
+        256
+      ],
+      "V_read_offset_bytes": [
+        8388608,
+        8404992
+      ],
+      "final_aligned_AW_offset": 252,
+      "gold_case": "changed_h0_r0",
+      "head": 0,
+      "inactive_numeric_port": "qkv1",
+      "mode": "changed_h0_r0",
+      "query": 0,
+      "selected_port": "qkv0",
+      "source_case": "changed"
+    }
+  ],
+  "hash_audit": {
+    "hash_size_and_permissions_mismatches": [],
+    "reference_records": 556,
+    "supplemental_runtime_dependency": {
+      "bytes": 7083,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/hls_guard_helpers.py",
+      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+    },
+    "unique_paths": 556,
+    "unique_total_bytes": 2280965427
+  },
+  "immutable_hardware_checks": {
+    "production_numerical_and_owner_source_changes": 0,
+    "same_adapter_monitor_lite_rss_files": [
+      "att_static_axi_stall.sv",
+      "att_axi_monitor.sv",
+      "att_axi_port.sv",
+      "att_axi_lite_master.sv",
+      "phase_rss.c",
+      "phase_rss.so"
+    ],
+    "same_as_cold_v2_dat_records": 35,
+    "same_as_cold_v2_fp_wrapper_records": 6,
+    "same_as_cold_v2_verilog_records": 216
+  },
+  "implementation_change_requests": [],
+  "later_gates": {
+    "changed": "held until head15 actual numerical/protocol result is independently accepted and its own bounded gate is issued",
+    "head15_static_and_first_runtime": "held pending actual accepted derived bytes and separately reviewed budget/command gates"
+  },
+  "limits": [
+    "No finite numerical result exists. Accepted cold V2 is only original B1S64 head0/query0.",
+    "Fresh process per case cannot prove persistent cache invalidation or warm reset.",
+    "No all-head/query/shape coverage, producer Q8/RoPE, full graph, Fmax, resource closure, board or 50ms claim."
+  ],
+  "module_workspace": {
+    "checked_markdown_links": "all filesystem targets in source Markdown resolve",
+    "rtl_directory_present": true,
+    "source_design": {
+      "bytes": 7263,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/source/design.md",
+      "sha256": "aa189d5df19945c88edd34482fbaa861b34d6e5ce51ccca94de480ea04624c22"
+    },
+    "source_results": {
+      "bytes": 3876,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/source/results.md",
+      "sha256": "bbe5a0432b80db5353a6fa6b52d5b64c5e83c74d80a678dabe98e3a4fc592be9"
+    },
+    "tb_directory_present": true
+  },
+  "reviewed_behavior": [
+    "Producer reconstructs each full 12 MiB shard and inverse-checks all bytes, validates frozen full/prefix SHA, and emits ten serialized page files plus a materialization record. It never writes internal DUT payload RAM.",
+    "Independent checker does not import producer; it reconstructs mapped QKV bytes from frozen raw tensor and verifies ten files totaling 460*4096 bytes, 267 initially mapped pages, both 96-page QKV shards, descriptors, request, AUX and sentinels.",
+    "Only descriptor words 44/45 change for selected head/query. The derived request remains request_id301/generation1; BEGIN FILL precedes host external fill, then RUN coverage/publish uses real production tasks.",
+    "The generated top gives only the selected QKV port Q/K/V read allowlists; the inactive port has no read allowance and both-side AR/R/RLAST/AW/W/B and bytes must remain zero.",
+    "Control retains four calls BEGIN, repeat-BEGIN rejection, RUN, replay rejection; 30 exact status words, all seven ports on both sides, adapter debt, first sampled ap_done and CSR drain checks.",
+    "RUN expects 8256 selected QKV AR/R and 33024 read bus bytes; 64 ATT_OUT AR/R and 256 read bytes; 256 one-beat AW/W/B with 1024 bus bytes and 256 useful bytes. Address and WSTRB sequences, final B index256 and selected offset+252 are checked.",
+    "Selected QKV terminal R and final ATT_OUT B stalls follow SELECTED_PORT and have latched >=16-cycle checks. Full observed and ATT_OUT dumps precede result assertions. All normal display format strings were checked against runtime fatal regex; no collision found.",
+    "Complete 256 KiB ATT_OUT scan admits only selected 256 B; head15 touches final mapped byte. Input/sentinel scans and whole-output replay comparison remain intact.",
+    "Offline checker binds frozen mode/raw/gold; QK64 exact, probability64 original 1e-4+1e-4*abs(ref) F32 tolerance, AV64 exact independent ascending-key binary32 from observed probability and selected V, plus frozen end-to-end tolerance and physical output equality.",
+    "Changed raw source SHA and each score/probability/AV gold SHA differ from frozen base_h0_r0; no gold regeneration or precision change.",
+    "Build/runtime entrypoints are executable mode0755, fresh paths are checked, snapshot is explicitly linked, and only four named simulator runtime artifacts may change after build. No finite stage output exists at review time."
+  ],
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh",
+    "role": "independent read-only source review"
+  },
+  "schema": "reviewer_attention_v5_finite_actual_source_and_head15_materialization_v1",
+  "single_use_next_gate": {
+    "dispatch": "Only /root scheduler may dispatch a Sol max executor after acquiring the unique Laya heavy-tool slot. This review does not occupy or preempt the slot; no overlap with Q8/OOC/other tree work.",
+    "evidence_and_acceptance": [
+      "Create run root once; hash-check packet and supplemental guard/helper; source-only binding precheck must pass before launch.",
+      "One guarded materializer; require exit0, no guard trigger, full/prefix hashes and source/gold identities unchanged.",
+      "One guarded independent serializer checker; require exit0, no guard trigger, exact ten-file data/size checks.",
+      "On success, binding_post inventories the ten page files plus materialization.json and independent_page_check.json.",
+      "Always preserve raw guard plans, timelines, launch/policy data, logs, results and created bytes, then run attempt archive even after first failure; missing outputs are recorded and never treated as pass.",
+      "On failure perform immutable-source post-hash where possible, record stage/payload exit; do not require nonexistent prepared outputs or retry unchanged.",
+      "Return actual materialization/binding/guard/archive files for independent review before any static compile."
+    ],
+    "fresh_run_directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1",
+    "must_be_absent_before_dispatch": [
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/prepared"
+    ],
+    "not_released": [
+      "changed_h0_r0 materialization or execution",
+      "finite RTL compilation/elaboration/runtime",
+      "v5 HLS regeneration",
+      "full CPU golden oracle rerun",
+      "warm reset or producer-chain tests"
+    ],
+    "ordered_commands": {
+      "attempt_archive": [
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/tb/archive_attempt.py",
+        "base_h15_r63",
+        "materialize",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/attempt_archive"
+      ],
+      "binding_post": [
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/tb/verify_binding.py",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/source/source_packet.json",
+        "base_h15_r63",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/binding_post.json",
+        "--prepared",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/prepared"
+      ],
+      "binding_pre": [
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/tb/verify_binding.py",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/source/source_packet.json",
+        "base_h15_r63",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/binding_pre.json"
+      ],
+      "independent_serialization_guard": [
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+        "--out",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/independent_guard",
+        "--cwd",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1",
+        "--rss-gib",
+        "8",
+        "--timeout-seconds",
+        "120",
+        "--",
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/tb/check_prepared_pages.py",
+        "base_h15_r63",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/prepared",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/independent_page_check.json"
+      ],
+      "materializer_guard": [
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+        "--out",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/guard",
+        "--cwd",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1",
+        "--rss-gib",
+        "8",
+        "--timeout-seconds",
+        "300",
+        "--",
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/tb/materialize_cold_pages.py",
+        "base_h15_r63",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/runs/materialize_base_h15_r63_v1/prepared"
+      ]
+    },
+    "policy": {
+      "cpus": 4,
+      "independent_checker_max_owned_rss_gib": 8,
+      "independent_checker_max_wall_seconds": 120,
+      "io_class": "idle",
+      "materializer_max_owned_rss_gib": 8,
+      "materializer_max_wall_seconds": 300,
+      "mem_available_kib_strictly_above": 201326592,
+      "nice": 19,
+      "sample_seconds": 0.2
+    },
+    "released": "base_h15_r63 host-only materialization and independent byte serialization check, once each",
+    "source_packet_sha256": "cccbc316c4bed7e245c7a714bf36e872d70aae1c118d0e39c4e20bc27b521656",
+    "supplemental_guard_records": [
+      {
+        "bytes": 10218,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+        "sha256": "c3c3de6190945c548b4f9934aa2f5ecefb61ac53fdcd283b4381606b17e511e8"
+      },
+      {
+        "bytes": 7083,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/hls_guard_helpers.py",
+        "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+      }
+    ]
+  },
+  "source_packet": {
+    "bytes": 225128,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/source/source_packet.json",
+    "sha256": "cccbc316c4bed7e245c7a714bf36e872d70aae1c118d0e39c4e20bc27b521656"
+  },
+  "source_pin_audit": {
+    "exit_code": 0,
+    "independent_formula_check": "4*((((plane*2+batch)*8+(head>>1))*1024+row)*64+feature); ATT_OUT=4*(query*1024+head*64); both mode gate ranges agree",
+    "observed_lines": [
+      "ATT_FINITE_SOURCE_AUDIT_PASS mode=base_h15_r63 exact_top_pins=352 mapped_pages=267 selected=qkv1 output_offset=261888 no_eda=1",
+      "ATT_FINITE_SOURCE_AUDIT_PASS mode=changed_h0_r0 exact_top_pins=352 mapped_pages=267 selected=qkv0 output_offset=0 no_eda=1"
+    ],
+    "read_only_command": [
+      "python3",
+      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_v1/tb/audit_source.py"
+    ]
+  },
+  "status": "SOURCE_ACCEPTED_HEAD15_MATERIALIZATION_SINGLE_USE_RELEASED_STATIC_AND_RUNTIME_HELD"
+}

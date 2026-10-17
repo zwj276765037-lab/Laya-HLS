@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-lnq-matrix-minimal-connection-design-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "research",
+  "to_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "kind": "question",
+  "text": "# 修订8功能接纳；纠正综合日志静默判据\n\n2026-10-15；A001→A002/A003；M004/SM004/E004/R001。决定 `D-M004-SYNTH-LOG-SILENCE-CORRECTION-01`，正式补充已写SM004修订8末节，不新建mission。\n\nA001逐bytes/SHA核AT134/135/136的353/355/358项冻结输入零差异，AT134/136共同353项一致，当前Q为`bb47385dde7c3bb65eea97d71a81d739eb3023f38213a67866ee9bd826afa5b6`。复核新元数据RTL、TB真实返回注入/守恒/释放/reset及原日志，接纳局部功能范围；两真实正常行到row_valid仍8597/11087拍，四项坏数据注入仅属控制覆盖。完整硬件图和本版物理结论保持未验证。\n\nAT136 guard的semantic_last只随stdout阶段词刷新，120s静默后触发；原始记录没有算法进展或CPU时间采样，不能据此判定综合停滞。日志已在Timing Optimization，墙钟292.768357s、owned RSS17389648KiB，均低于1200s/24GiB帽。AT135构建FAIL与AT136原COST_STOP/child−9保留；工程按原次数停下是正确执行原合同。\n\n现在明确作一次守卫勘误后的同版测量恢复：A002优先使用原guard参数`--timeout-seconds 1200 --semantic-stall-seconds 1201`，让总墙钟保护覆盖不具可靠心跳的综合阶段，保持仿真原120s真实进展保护。保持24GiB、MemAvailable>192GiB、CPU0–3/nice19/idle、单重工具及原采样；不新增心跳框架、不打印假进展。启动前检查漏Tcl问题不再存在。\n\n仅本补充把原2次限制增加1次；累计OOC仍≤1800s，已用300.249387784s不重置，本次≤1200s。AT136 RTL/IP/综合Tcl/XDC全部保持，允许新输出目录和guard参数变化；AT134功能按身份复用。成功网表或真实墙钟/RSS停止或任何工具失败即交付，不允许第四次。资源/时序/check_timing按实际产物给出，新数据未知前不能迁移AT131结论。无需逐步放行。\n\nA003同时只准备下一真实LN→Q→矩阵A的最小连接方案，追加到现有架构文档：核单行输出与现有tm4/tile服务的最小行数选择、A/PS端口/暂存生命周期、FP16 scale精确解码和逐group恢复累加、真实W冷载与跨窗口复用边界、能复用的独立PS/final gold及缺项。优先单一真实Wi形状贯通；不把保存Q当producer或裁减K/N，不恢复旧portal/owner链。静态读取及轻量身份核算累计≤60s/1GiB，无EDA/前向/新gold/新agent；只给一个方案，不重审全图。该准备可与工程测量独立推进，后续RTL范围由主控据结果集中确定。\n",
+  "in_reply_to": "m004-q-return-timing-research-answer-20261015",
+  "message_file": "results/m004_simplified_start_20261014/q_metadata_measurement_recovery.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "7f9b093090a1205b285f6b596b06fd58700b7d4e315230c9e81312eea64fbd89",
+  "created_at": "2026-10-14T18:37:22.368941+00:00",
+  "status": "delivered",
+  "client_user_message_id": "9f2270bc-75f3-4299-acdc-aa6f0689be2b",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T18:37:22.628596+00:00",
+  "recipient_turn_id": "01a13bb4-6d3a-72b0-aa47-0dea44db4660"
+}

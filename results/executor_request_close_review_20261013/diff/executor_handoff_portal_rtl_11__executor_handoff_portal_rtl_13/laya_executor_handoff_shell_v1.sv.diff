@@ -1,0 +1,66 @@
+--- executor_handoff_portal_rtl_11/laya_executor_handoff_shell_v1.sv
++++ executor_handoff_portal_rtl_13/laya_executor_handoff_shell_v1.sv
+@@ -63,6 +63,7 @@
+   logic terminal_sealed,request_work_done,host_result_consumed;
+   logic [8191:0] terminal_record;
+   logic closed_pop;
++  logic terminal_seal_fire;
+ 
+   // Remove only fields that the control header owns. Full B/S/H and request
+   // ownership remain in this exact 8192-bit key, without a short hash.
+@@ -125,9 +126,13 @@
+   // the old response consumer progressing while ABORT remains asserted.
+   assign control_ready=!response_valid && state!=QUERY && !query_ingress_owned && !query_ingress_started && !query_accepted && !query_response_pop;
+   assign control_fire=control_valid && control_ready;
++  assign terminal_seal_fire=MANAGED_REQUEST_CLOSE && terminal_seal_valid &&
++      !control_fire && !terminal_sealed && state!=IDLE && state!=WAIT_ADMISSION &&
++      terminal_ok(terminal_seal_record);
+   assign predecessor_done_ready=state==DRAIN && !predecessor_done;
+   assign stop_predecessor=state!=IDLE;
+-  assign query_permit=state==HELD_READY && !query_ingress_owned && !revoked && !cancel && immutable_live && protection_valid;
++  assign query_permit=state==HELD_READY && !query_ingress_owned && !revoked && !cancel && immutable_live && protection_valid &&
++      (!MANAGED_REQUEST_CLOSE || (!terminal_sealed && !terminal_seal_fire));
+   assign import_pending=state==IMPORT_PENDING;
+   assign request_closed=state==WAIT_ADMISSION;
+   assign closed_pop=response_valid && response_ready && state==CLOSE_REPLY &&
+@@ -135,7 +140,8 @@
+   // Physical quiescence is checked at grant only. Normal active work creates
+   // debt; authority then depends on its immutable binding and held protection.
+   assign authority_valid=state==ACTIVE && executor_owns_dispatch && !revoked &&
+-    !cancel && immutable_live && protection_valid;
++    !cancel && immutable_live && protection_valid &&
++    (!MANAGED_REQUEST_CLOSE || (!terminal_sealed && !terminal_seal_fire));
+   always_comb begin
+     assembled=captured_response;
+     assembled[response_beats[3:0]*512+:512]=query_response_word;
+@@ -154,8 +160,9 @@
+       if(state!=IDLE && (cancel || !immutable_live))revoked<=1;
+       if(MANAGED_REQUEST_CLOSE)begin
+         if(terminal_seal_valid)begin
+-          if(!terminal_sealed && state!=IDLE && state!=WAIT_ADMISSION && terminal_ok(terminal_seal_record))begin
++          if(terminal_seal_fire)begin
+             terminal_record<=terminal_seal_record;terminal_sealed<=1;
++            revoked<=1;
+           end else if(!terminal_sealed || terminal_seal_record!=terminal_record)
+             control_rejections<=control_rejections+1'b1;
+         end
+@@ -201,7 +208,8 @@
+         else control_rejections<=control_rejections+1'b1;
+       end
+       if(state==DRAIN && !control_fire && !response_valid && predecessor_done && old_channels_drained && physical_safe &&
+-          !revoked && !cancel && immutable_live)begin
++          !revoked && !cancel && immutable_live &&
++          (!MANAGED_REQUEST_CLOSE || (!terminal_sealed && !terminal_seal_fire)))begin
+         locks_owned<=1;response<=reply(pending_key,HELD,0,0);
+         response_valid<=1;state<=HELD_REPLY;
+       end
+@@ -261,7 +269,8 @@
+           // Commit is a retained fact even when the same edge revokes grant.
+           local_committed<=1;
+           if(proof_success && !revoked && !cancel && immutable_live &&
+-              protection_valid && physical_safe && old_channels_drained)begin
++              protection_valid && physical_safe && old_channels_drained &&
++              (!MANAGED_REQUEST_CLOSE || (!terminal_sealed && !terminal_seal_fire)))begin
+             response<=reply(pending_key,GRANTED,0,1);response_valid<=1;state<=GRANT_REPLY;
+           end else revoked<=1;
+         end else if(control[8*8+:8]==ABORT && control[10*8+:16]!=0 &&

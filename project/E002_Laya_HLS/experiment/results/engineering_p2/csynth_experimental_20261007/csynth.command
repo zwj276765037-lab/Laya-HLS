@@ -1,0 +1,1 @@
+/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/vitis-run --mode hls --synth --config /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/full-hls-csynth-experimental-20261007/full_top.cfg --work_dir /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/full-hls-csynth-experimental-20261007/csynth 

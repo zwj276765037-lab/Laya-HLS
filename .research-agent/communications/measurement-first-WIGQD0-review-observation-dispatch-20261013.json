@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "measurement-first-WIGQD0-review-observation-dispatch-20261013",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# WIGQD0有界停止审核：接纳Wi实存储边界，转一次观测诊断\n\nR-SM005-WIGQD0-20261013；2026-10-13；M004/SM005/E005/R001。回复`measurement-first-WIGQD0-bounded-stop-handoff-20261013`，合并`measurement-first-WIGQD0-observation-addendum-20261013`及`measurement-first-WIGQD0-identity-correction-20261013`。\n\n**AT031保留COST_STOP，整条Wi→G→量化→Down仍未通过。限定接纳同runtime实际Wi输出、有效区逐字节读回、末B/lease及一次消费；旧实现加两轮修复到此结束。下一执行D-M004-WIGQD-OBSERVATION-01：同DUT/数据/响应策略的一次有界观测诊断，不追加第三轮DUT修复，不提高保护阈值。** 这是主控既有职责内的阶段选择，无需新的用户批准。\n\n## 已证边界\n\nAT031仅初始reset，一套resident TM4/PS/KB1 writer、原容量dualW/dualA、原G/量化和真实Wi reader已接线。实际执行到Wi完整四行：20992 stripes、671744 PS lane-group、2624 packet和20992 F32原独立gold通过；1312 AW/W/B、83968有效/物理字节、最后B、局部发布、A/W lease/读债归零、7拍完成保持及一次真实消费通过。\n\n新的字节DDR由真实AW/W/WSTRB更新。在切换前逐字节核83968B Wi有效区、written标记和独立gold，后续Wi完成marker已到达。因此本新样本的Wi有效区读回可以接纳；全存储保护字节最终扫查、GATE/Down区域读回还未执行完，不追认AT028未做的旧哨兵测试。\n\nWi cfg54416→first done101327=46911cycles，→消费101334=46918；W LOAD291→READY观察54415=54124。末PS101185、末AW101300、末W101301、末B101319；Wi完成marker101335。原DOWN_MEASURE标签在这段记录的是Wi，不能误称Down已完成；A_fill_accept=-1也不能补造起始边沿。末条已观测标记为cycle101339的G接受，不能认定它是最终停拍或实际死锁点。\n\n## 原收据、身份与观测缺口\n\nAT029 static端口名错误FAIL；AT030 static/pilot PASS、full COST_STOP；AT031 static/pilot PASS、full COST_STOP。相邻冻结差异均仅TB；第二轮具体包括W fixture容量、真实W R进度及阶段观察，并非仅加日志。两条历史live TB引用差异对应后续修复，旧冻结内容保留。\n\n主控核638个source/frozen/receipt引用、420唯一路径，其中306个冻结manifest行全部匹配；每版102条files去重为100个冻结路径，主控独立核数与工程最新更正一致，旧报告60的错误不继承。不可变引用零差异。7段guard无重叠、122条实际policy符合原策略，收据与guard原结果一致。AT031 static/pilot/full为81.865201/22.423815/1137.182375s；full峰1504604KiB、child−9、trigger=semantic_stall。墙钟为工具成本。主控仅只读核验，未运行DUT工具。\n\n冻结TB的1543行打印G接受，1571行才打印全部G/量化完成的A_ready；中间没有实际Wi reader AR/R、标量/row_done、G算术/GATE写回或量化进度打印。1167–1185行及1220–1233行已有真实握手计数/身份/债务断言，但本日志没有其运行时快照。原AT025每行打印的GQD0_Wi_row也未迁入。原guard识别MATRIX_PROGRESS，W/PS计数在这段通常不推进，因此存在覆盖整个G阶段的观测空窗。\n\n这是一条足以支持新诊断的静态证据，**不能证明AT031在停止前确实继续推进，也不能判唯一根因就是日志缺失**。reader等待G输入ready、G行屏障、实际读/写债务等仍需动态证据。量化缓存的physical_half/scale计数本来在合法fill开始时归零；没有证据要求把G断言改成Wi和G累加数，不据猜测修改该断言。\n\n## 具体下一任务\n\n[WIGQD1观测合同](../mission/wi_g_quant_down_observation_stage_20261013.md)已确定，工程A002直接执行：\n\n- 从AT031派生，只补观察/诊断和必要导出；DUT、fixture、gold、驱动时序、响应profile、单实例/容量、epoch和无链间reset保持。\n- 实际reader配置/AR/R/标量/row_done、G issue/return/GATE AW/W/B、量化提交/发布建立有界递增进度。另记不匹配guard任何关键词的有限状态快照，原120s无真实语义进展仍停止。\n- 原static→≤120s真实前缀pilot→一次有成本依据full。无已核checkpoint，保留完整Wi前缀以验证同runtime交接；不预装中间结果。full仅一次，失败/停止即交证据集中取舍，不自行再改硬件或续跑第二full。\n- 若自然跑到原结尾，必须通过完整两段PS、Wi/G/quant/Down gold、真实reader、末B/lease/消费及全存储保护区读回，才可签有限整链PASS；否则只签已到达边界。\n\n当前新诊断结果NOT_RUN。原WI0/GQD0独立通过仍不能拼接为本链通过；全链周期、生产请求/恢复、联合资源及物理时序UNKNOWN。KB1/ATN1有限保留，KB2/CT0/LQ1R收束、LQ1不生产采用。原单工具/帽、G2338.224019s仅OOC余额、5172s不重启和整体控制/HLS/OOC/P&R/上板禁排保持，M003/M004未完成。\n\n证据：[主控核验](measurement_first_WIGQD0_review_20261013/verification.json)、[原阶段报告](../project/E005_full_request_performance/experiment_results/runs/R001/reports/WIGQD0_bounded_stop_20261013.md)、[工程观测补证](../project/E005_full_request_performance/experiment_results/runs/R001/reports/WIGQD0_observation_addendum_20261013.md)、[AT031原收据](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT031_WIGQD0_chain_03/receipt.json)、[AT031原日志](../project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT031_WIGQD0_chain_03/raw_full.log)。\n",
+  "in_reply_to": "measurement-first-WIGQD0-bounded-stop-handoff-20261013",
+  "message_file": "results/measurement_first_WIGQD0_review_20261013.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "6ee1f7d09d90ddea54ce6ee9ba458fa25bcdabc76053df3ae37f28a9d017e82f",
+  "created_at": "2026-10-13T14:13:41.293518+00:00",
+  "status": "delivered",
+  "client_user_message_id": "27b2f4ff-b9e4-4608-a4a4-090bcc49c22f",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T14:13:41.344250+00:00",
+  "recipient_turn_id": "01a13593-f758-7ce2-877f-7f67033c9055"
+}

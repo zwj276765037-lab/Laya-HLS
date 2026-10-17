@@ -1,0 +1,531 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Sun Oct 11 00:48:46 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+source vivado/module_design/activation_quantizer/tb/run_quant16_stream_real.tcl
+# if {[llength $argv] != 2 && [llength $argv] != 3} {
+#     error "usage: run_quant16_stream_real.tcl FRESH_WORK FIXTURE_DIR ?ADAPTER_FIXTURE_DIR?"
+# }
+# lassign $argv work fixture adapter
+# set work [file normalize $work]
+# set fixture [file normalize $fixture]
+# if {$adapter ne ""} {
+#     set adapter [file normalize $adapter]
+#     if {![file isfile [file join $adapter manifest.json]]} {
+#         error "independent adapter fixture manifest required"
+#     }
+# }
+# if {![file isdirectory $work] || [file exists [file join $work vivado]] ||
+#     ![file isfile [file join $fixture manifest.json]]} {
+#     error "fresh work directory and independent fixture required"
+# }
+# set module [file normalize [file join [file dirname [info script]] ..]]
+# set root [file normalize [file join $module .. .. ..]]
+# set ipdir [file join $root results compute_throughput_optimization_20261010 \
+#     attempts quant16_hls_syn_03 work quant16_project solution1 syn verilog]
+# set divtcl [file join $ipdir \
+#     laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.tcl]
+# set multcl [file join $ipdir \
+#     laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.tcl]
+# if {![file isfile $divtcl] || ![file isfile $multcl]} {
+#     error "frozen syn03 FP IP Tcl missing"
+# }
+# create_project quant16_stream_real [file join $work vivado] \
+#     -part xcu55c-fsvh2892-2L-e
+# set_param general.maxThreads 4
+# add_files -norecurse -fileset sources_1 [list \
+#     [file join $root vivado module_design q8_linear_and_restore \
+#         metadata_reset_v3 r0_numeric_adapter_v1 rtl r0_fp_bits_pkg.sv] \
+#     [file join $module rtl quant16_slot_banks.sv] \
+#     [file join $module rtl quant16_amax16.sv] \
+#     [file join $module rtl quant16_half_rne.sv] \
+#     [file join $module rtl quant16_tiny_div127.sv] \
+#     [file join $module rtl quant16_divider_service.sv] \
+#     [file join $module rtl quant16_stream_row.sv]]
+# add_files -norecurse -fileset sim_1 \
+#     [file join $module tb quant16_stream_row_tb.sv]
+# source $divtcl
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/ip'.
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 6 \
+##                           CONFIG.c_mult_usage No_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Divide \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+# source $multcl
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 1 \
+##                           CONFIG.c_mult_usage Max_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Multiply \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+# set divip [get_ips laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip]
+# set mulip [get_ips laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip]
+# if {[llength $divip] != 1 || [get_property CONFIG.C_LATENCY $divip] != 6 ||
+#     [get_property CONFIG.C_RATE $divip] != 1 ||
+#     [get_property CONFIG.HAS_ARESETN $divip] != false ||
+#     [llength $mulip] != 1 || [get_property CONFIG.C_LATENCY $mulip] != 1 ||
+#     [get_property CONFIG.C_RATE $mulip] != 1 ||
+#     [get_property CONFIG.HAS_ARESETN $mulip] != false} {
+#     error "frozen FP IP configuration drift"
+# }
+# set_property top quant16_stream_row [get_filesets sources_1]
+# set_property top quant16_stream_row_tb [get_filesets sim_1]
+# set_property target_simulator XSim [current_project]
+# set_property xsim.simulate.runtime {all} [get_filesets sim_1]
+# set simargs "-testplusarg FIXTURE=$fixture"
+# if {$adapter ne ""} { append simargs " -testplusarg ADAPTER=$adapter" }
+# set_property -name xsim.simulate.xsim.more_options \
+#     -value $simargs -objects [get_filesets sim_1]
+# update_compile_order -fileset sim_1
+update_compile_order: Time (s): cpu = 00:00:11 ; elapsed = 00:00:07 . Memory (MB): peak = 1718.988 ; gain = 0.180 ; free physical = 4225 ; free virtual = 371146
+# launch_simulation -simset sim_1 -mode behavioral
+Command: launch_simulation  -simset sim_1 -mode behavioral
+INFO: [Vivado 12-25911] Executing simulation for 'XSim' simulator
+INFO: [Project 1-5737] Running on host user (64) - Ubuntu 24.04.4 LTS
+INFO: [Vivado 12-28535] Process started - Sun Oct 11 00:49:01 2026
+
+INFO: [Vivado 12-12493] Simulation top is 'quant16_stream_row_tb'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-13660] Precompiled IP simulation library mode is enabled (default). The design IP libraries will be referenced from the compiled library path. Please note that if the precompiled version of the library is not found from the path or the IP is in locked state, then the library source files for these IPs will be compiled locally as part of the compile order.
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/xsim/xsim.ini' copied to run dir:'/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'quant16_stream_row_tb' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj quant16_stream_row_tb_vlog.prj
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/rtl/quant16_amax16.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant16_amax16
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/rtl/r0_fp_bits_pkg.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module r0_group_bit_scan
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/rtl/quant16_divider_service.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant16_divider_service
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/rtl/quant16_half_rne.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant16_half_rne
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/rtl/quant16_slot_banks.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant16_slot_banks
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/rtl/quant16_stream_row.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant16_stream_row
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/rtl/quant16_tiny_div127.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant16_tiny_div127
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/tb/quant16_stream_row_tb.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module quant16_stream_row_tb
+INFO: [VRFC 10-2263] Analyzing Verilog file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim/glbl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module glbl
+xvhdl --incr --relax -prj quant16_stream_row_tb_vhdl.prj
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.gen/sources_1/ip/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip/sim/laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip'
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.gen/sources_1/ip/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip/sim/laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip'
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '4' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 4 -L xil_defaultlib -L xbip_utils_v3_0_15 -L axi_utils_v2_0_11 -L xbip_pipe_v3_0_11 -L xbip_dsp48_wrapper_v3_0_7 -L mult_gen_v12_0_24 -L floating_point_v7_1_21 -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot quant16_stream_row_tb_behav xil_defaultlib.quant16_stream_row_tb xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2025.2
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 4 -L xil_defaultlib -L xbip_utils_v3_0_15 -L axi_utils_v2_0_11 -L xbip_pipe_v3_0_11 -L xbip_dsp48_wrapper_v3_0_7 -L mult_gen_v12_0_24 -L floating_point_v7_1_21 -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot quant16_stream_row_tb_behav xil_defaultlib.quant16_stream_row_tb xil_defaultlib.glbl -log elaborate.log 
+Using 4 slave threads.
+WARNING: [XSIM 43-3431] One or more environment variables have been detected which affect the operation of the C compiler. These are typically not set in standard installations and are not tested by AMD, however they may be appropriate for your system, so the flow will attempt to continue.  If errors occur, try running xelab with the "-mt off -v 1" switches to see more information from the C compiler. The following environment variables have been detected:
+    LIBRARY_PATH
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package std.textio
+Compiling package ieee.std_logic_1164
+Compiling package ieee.numeric_std
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_viv_comp
+Compiling package xbip_utils_v3_0_15.xbip_utils_v3_0_15_pkg
+Compiling package axi_utils_v2_0_11.axi_utils_v2_0_11_pkg
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_consts
+Compiling package ieee.math_real
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_exp_table...
+Compiling package mult_gen_v12_0_24.mult_gen_v12_0_24_pkg
+Compiling package ieee.std_logic_arith
+Compiling package ieee.std_logic_signed
+Compiling package floating_point_v7_1_21.floating_point_v7_1_21_pkg
+Compiling package floating_point_v7_1_21.flt_utils
+Compiling package unisim.vcomponents
+Compiling package xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv_comp
+Compiling package ieee.vital_timing
+Compiling package ieee.vital_primitives
+Compiling package unisim.vpkg
+Compiling package xil_defaultlib.r0_fp_bits_pkg
+Compiling module xil_defaultlib.quant16_slot_banks
+Compiling module xil_defaultlib.quant16_amax16
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=23,length=0)\]
+Compiling architecture muxcy_v of entity unisim.MUXCY [muxcy_default]
+Compiling architecture xorcy_v of entity unisim.XORCY [xorcy_default]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=25,length=0,fast_in...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity floating_point_v7_1_21.flt_div_mant_addsub [\flt_div_mant_addsub(c_xdevicefa...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=26,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=23)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=24,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=25,fast_input=true)...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity floating_point_v7_1_21.flt_div_mant_addsub [\flt_div_mant_addsub(c_xdevicefa...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=26)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [delay_default]
+Compiling architecture virtex of entity floating_point_v7_1_21.flt_div_mant [\flt_div_mant(c_xdevicefamily="v...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=10,length=0,fast_in...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=0,fast_input=true)...]
+Compiling architecture rtl of entity floating_point_v7_1_21.special_detect [\special_detect(c_xdevicefamily=...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(length=5,fast_input=true)...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2,length=0,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=4,length=0,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8,length=5)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=3,length=5,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=4,length=5,fast_inp...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=14,length=0)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_div_exp [\flt_div_exp(c_xdevicefamily="no...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=12,length=0,fast_in...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=3,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=2,length=0)\]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_round_bit [\flt_round_bit(c_xdevicefamily="...]
+Compiling architecture rtl of entity floating_point_v7_1_21.renorm_and_round_logic [\renorm_and_round_logic(c_xdevic...]
+Compiling architecture synth of entity floating_point_v7_1_21.flt_dec_op_lat [\flt_dec_op_lat(c_xdevicefamily=...]
+Compiling architecture virtex of entity floating_point_v7_1_21.flt_div [\flt_div(c_xdevicefamily="virtex...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=32,length=0)\]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21_viv [\floating_point_v7_1_21_viv(c_xd...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21 [\floating_point_v7_1_21(c_xdevic...]
+Compiling architecture laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip_arch of entity xil_defaultlib.laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip [laya_quant16_functional_fdiv_32n...]
+Compiling module xil_defaultlib.quant16_tiny_div127
+Compiling module xil_defaultlib.quant16_divider_service
+Compiling module xil_defaultlib.quant16_half_rne
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(acascreg=0,adreg=0,alum...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=7,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=4,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=16,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=17,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=25,length=0)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(a_width=24,b_wi...]
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(acascreg=0,adreg=0,alum...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=48,length=0)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(a_width=24,b_wi...]
+Compiling architecture struct of entity floating_point_v7_1_21.fix_mult_dsp48e1_sgl [\fix_mult_dsp48e1_sgl(registers=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.fix_mult [\fix_mult(c_xdevicefamily="virte...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=8,length=0,fast_inp...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture struct of entity floating_point_v7_1_21.carry_chain [\carry_chain(c_xdevicefamily="vi...]
+Compiling architecture synth of entity floating_point_v7_1_21.compare_eq_im [\compare_eq_im(c_xdevicefamily="...]
+Compiling architecture rtl of entity floating_point_v7_1_21.special_detect [\special_detect(c_xdevicefamily=...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=3,length=0,fast_inp...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_mult_exp [\flt_mult_exp(c_xdevicefamily="v...]
+Compiling architecture dsp48e1_v of entity unisim.DSP48E1 [\DSP48E1(acascreg=0,adreg=0,alum...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=30,length=0)\]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_has_ce=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.delay [\delay(width=18,length=0)\]
+Compiling architecture rtl of entity floating_point_v7_1_21.dsp48e1_wrapper [\dsp48e1_wrapper(a_width=30,b_wi...]
+Compiling architecture struct of entity floating_point_v7_1_21.flt_round_dsp_opt_full [\flt_round_dsp_opt_full(c_xdevic...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_mult_round [\flt_mult_round(c_xdevicefamily=...]
+Compiling architecture synth of entity floating_point_v7_1_21.flt_dec_op_lat [\flt_dec_op_lat(c_xdevicefamily=...]
+Compiling architecture rtl of entity floating_point_v7_1_21.flt_mult [\flt_mult(c_xdevicefamily="virte...]
+Compiling architecture synth of entity xbip_pipe_v3_0_11.xbip_pipe_v3_0_11_viv [\xbip_pipe_v3_0_11_viv(c_latency...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21_viv [\floating_point_v7_1_21_viv(c_xd...]
+Compiling architecture xilinx of entity floating_point_v7_1_21.floating_point_v7_1_21 [\floating_point_v7_1_21(c_xdevic...]
+Compiling architecture laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip_arch of entity xil_defaultlib.laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip [laya_quant16_functional_fmul_32n...]
+Compiling module xil_defaultlib.quant16_stream_row_default
+Compiling module xil_defaultlib.quant16_stream_row_tb
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot quant16_stream_row_tb_behav
+execute_script: Time (s): cpu = 00:00:20 ; elapsed = 00:00:13 . Memory (MB): peak = 1718.988 ; gain = 0.000 ; free physical = 4346 ; free virtual = 371278
+INFO: [USF-XSim-69] 'elaborate' step finished in '13' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in '/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/work/vivado/quant16_stream_real.sim/sim_1/behav/xsim'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "quant16_stream_row_tb_behav -key {Behavioral:sim_1:Functional:quant16_stream_row_tb} -tclbatch {quant16_stream_row_tb.tcl} -log {simulate.log} -testplusarg FIXTURE=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/rtl/quant16_stream_fixture_02 -testplusarg ADAPTER=/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/compute_throughput_optimization_20261010/attempts/quant16_stream_adapter_01/fixture"
+INFO: [USF-XSim-8] Loading simulator feature
+Time resolution is 1 ps
+source quant16_stream_row_tb.tcl
+## set curr_wave [current_wave_config]
+## if { [string length $curr_wave] == 0 } {
+##   if { [llength [get_objects]] > 0} {
+##     add_wave /
+##     set_property needs_save false [current_wave_config]
+##   } else {
+##      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+##   }
+## }
+WARNING: [Wavedata 42-489] Can't add object "/quant16_stream_row_tb/down_source" to the wave window because it has 83968 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+## run all
+QUANT16_STREAM_ROW_PASS case=0 groups=32 cycles=141 q_bytes=1024
+QUANT16_SERVICE_OBS task=101 cycles=141 scale_issue_first_last=12/109 scale_return_first_last=19/116 recip_issue_first_last=20/117 recip_return_first_last=27/124 scale_gap_min_max=1/4 slots_peak=24 div_pending_peak=7 stalls_input_div_output=0/3/14 fp=64/64 dummy=0 helper=0/0 semantic=64
+QUANT16_STREAM_ROW_PASS case=1 groups=82 cycles=341 q_bytes=2624
+QUANT16_SERVICE_OBS task=202 cycles=341 scale_issue_first_last=12/309 scale_return_first_last=19/316 recip_issue_first_last=20/317 recip_return_first_last=27/324 scale_gap_min_max=1/4 slots_peak=32 div_pending_peak=7 stalls_input_div_output=68/3/34 fp=164/164 dummy=0 helper=0/0 semantic=164
+QUANT16_STREAM_ROW_PASS case=0 groups=2 cycles=36 q_bytes=64
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/13 scale_return_first_last=19/20 recip_issue_first_last=21/21 recip_return_first_last=28/28 scale_gap_min_max=1/1 slots_peak=2 div_pending_peak=2 stalls_input_div_output=0/3/0 fp=3/3 dummy=1 helper=1/1 semantic=3
+QUANT16_STREAM_PROTOCOL_PASS bad_second_mask=1
+QUANT16_SERVICE_OBS task=303 cycles=4 scale_issue_first_last=-1/-1 scale_return_first_last=-1/-1 recip_issue_first_last=-1/-1 recip_return_first_last=-1/-1 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=0 stalls_input_div_output=0/0/0 fp=0/0 dummy=0 helper=0/0 semantic=0
+QUANT16_STREAM_NUMERIC_PASS case=2 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=402 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_STREAM_NUMERIC_PASS case=3 groups=1 first_col=5 scale=0 recip=0
+QUANT16_SERVICE_OBS task=403 cycles=11 scale_issue_first_last=-1/-1 scale_return_first_last=-1/-1 recip_issue_first_last=-1/-1 recip_return_first_last=-1/-1 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=0 stalls_input_div_output=0/0/0 fp=0/0 dummy=0 helper=0/0 semantic=0
+QUANT16_STREAM_NUMERIC_PASS case=4 groups=2 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=404 cycles=31 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=2 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_STREAM_NUMERIC_PASS case=5 groups=2 first_col=1 scale=0 recip=0
+QUANT16_SERVICE_OBS task=405 cycles=13 scale_issue_first_last=-1/-1 scale_return_first_last=-1/-1 recip_issue_first_last=-1/-1 recip_return_first_last=-1/-1 scale_gap_min_max=0/0 slots_peak=2 div_pending_peak=0 stalls_input_div_output=0/0/0 fp=0/0 dummy=0 helper=0/0 semantic=0
+QUANT16_STREAM_RESET_INFLIGHT_PASS kind=0
+QUANT16_STREAM_ROW_PASS case=0 groups=2 cycles=36 q_bytes=64
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/13 scale_return_first_last=19/20 recip_issue_first_last=21/21 recip_return_first_last=28/28 scale_gap_min_max=1/1 slots_peak=2 div_pending_peak=2 stalls_input_div_output=0/3/0 fp=3/3 dummy=1 helper=1/1 semantic=3
+QUANT16_STREAM_RESET_INFLIGHT_PASS kind=1
+QUANT16_STREAM_ROW_PASS case=0 groups=2 cycles=36 q_bytes=64
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/13 scale_return_first_last=19/20 recip_issue_first_last=21/21 recip_return_first_last=28/28 scale_gap_min_max=1/1 slots_peak=2 div_pending_peak=2 stalls_input_div_output=0/3/0 fp=3/3 dummy=1 helper=1/1 semantic=3
+QUANT16_STREAM_OTHER_BOUNDARIES_PASS numerical=4 reset=2 protocol=1
+QUANT16_STREAM_NUMERIC_PASS case=1 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=401 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=27 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=27 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=-1/-1 recip_return_first_last=-1/-1 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=1/1 dummy=1 helper=1/1 semantic=1
+QUANT16_ADAPTER_CASE_PASS slot=0 status=0 amax=00000000 d=00000000 reciprocal=00000000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=27 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=27 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=-1/-1 recip_return_first_last=-1/-1 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=1/1 dummy=1 helper=1/1 semantic=1
+QUANT16_ADAPTER_CASE_PASS slot=1 status=0 amax=00000000 d=00000000 reciprocal=00000000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=27 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=27 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=-1/-1 recip_return_first_last=-1/-1 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=1/1 dummy=1 helper=1/1 semantic=1
+QUANT16_ADAPTER_CASE_PASS slot=2 status=0 amax=00000001 d=00000000 reciprocal=00000000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=27 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=27 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=-1/-1 recip_return_first_last=-1/-1 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=1/1 dummy=1 helper=1/1 semantic=1
+QUANT16_ADAPTER_CASE_PASS slot=3 status=0 amax=0000003f d=00000000 reciprocal=00000000
+QUANT16_STREAM_NUMERIC_PASS case=104 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=504 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=4 status=1 amax=00000040 d=00000001 reciprocal=7f800000
+QUANT16_STREAM_NUMERIC_PASS case=105 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=505 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=5 status=1 amax=00800000 d=00010204 reciprocal=7f800000
+QUANT16_STREAM_NUMERIC_PASS case=106 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=506 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=6 status=1 amax=02fdffff d=00200000 reciprocal=7f800000
+QUANT16_STREAM_NUMERIC_PASS case=107 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=507 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=7 status=1 amax=02fe0000 d=00200000 reciprocal=7f800000
+QUANT16_STREAM_NUMERIC_PASS case=108 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=508 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=8 status=1 amax=02fe0001 d=00200000 reciprocal=7f800000
+QUANT16_STREAM_NUMERIC_PASS case=109 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=509 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=9 status=1 amax=02fe0002 d=00200000 reciprocal=7f800000
+QUANT16_STREAM_NUMERIC_PASS case=110 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=510 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=10 status=1 amax=02fe0003 d=00200000 reciprocal=7f800000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=11 status=0 amax=02fe0004 d=00200001 reciprocal=7f7ffff8
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=12 status=0 amax=02fe0005 d=00200001 reciprocal=7f7ffff8
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=13 status=0 amax=03fdffff d=007fffff reciprocal=7e800001
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=14 status=0 amax=03fe0000 d=00800000 reciprocal=7e800000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=15 status=0 amax=03fe0001 d=00800001 reciprocal=7e7ffffe
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=16 status=0 amax=037e0000 d=00400000 reciprocal=7f000000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=17 status=0 amax=037e0000 d=00400000 reciprocal=7f000000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=18 status=0 amax=42fe0000 d=3f800000 reciprocal=3f800000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=19 status=0 amax=367e0000 d=33000000 reciprocal=4c000000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=20 status=0 amax=367e0001 d=33000001 reciprocal=4bfffffe
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=21 status=0 amax=36fe0000 d=33800000 reciprocal=4b800000
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=22 status=0 amax=4afde040 d=477fe000 reciprocal=37801002
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=23 status=0 amax=4afdf01f d=477fefff reciprocal=37800801
+QUANT16_STREAM_NUMERIC_PASS case=124 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=524 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=24 status=1 amax=4afdf020 d=477ff000 reciprocal=37800801
+QUANT16_STREAM_NUMERIC_PASS case=125 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=525 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=25 status=1 amax=4afdf021 d=477ff001 reciprocal=37800800
+QUANT16_STREAM_NUMERIC_PASS case=126 groups=1 first_col=0 scale=1 recip=1
+QUANT16_SERVICE_OBS task=526 cycles=30 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/0 fp=2/2 dummy=0 helper=0/0 semantic=2
+QUANT16_ADAPTER_CASE_PASS slot=26 status=1 amax=4b000000 d=47810204 reciprocal=377e0000
+QUANT16_ADAPTER_CASES_PASS count=27 independent_reference=R0_finite_v2
+QUANT16_STREAM_ROW_PASS case=0 groups=6 cycles=48 q_bytes=192
+QUANT16_SERVICE_OBS task=101 cycles=48 scale_issue_first_last=12/19 scale_return_first_last=19/26 recip_issue_first_last=20/27 recip_return_first_last=27/34 scale_gap_min_max=1/2 slots_peak=6 div_pending_peak=5 stalls_input_div_output=0/3/3 fp=11/11 dummy=4 helper=4/4 semantic=11
+QUANT16_ADAPTER_MIXED_PASS groups=6 normal_tiny_zero=1 finite_backpressure=1
+QUANT16_STREAM_RESET_INFLIGHT_PASS kind=2
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_STREAM_RESET_INFLIGHT_PASS kind=3
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_STREAM_RESET_INFLIGHT_PASS kind=4
+QUANT16_STREAM_ROW_PASS case=0 groups=1 cycles=36 q_bytes=32
+QUANT16_SERVICE_OBS task=101 cycles=36 scale_issue_first_last=12/12 scale_return_first_last=19/19 recip_issue_first_last=20/20 recip_return_first_last=27/27 scale_gap_min_max=0/0 slots_peak=1 div_pending_peak=1 stalls_input_div_output=0/3/1 fp=2/2 dummy=1 helper=1/1 semantic=2
+QUANT16_ADAPTER_RESET_PASS helper=1 normalized_recip=1 fmul_bypass=1 recovery=3
+QUANT16_STREAM_REAL_ROWS_PASS groups=114 q_bytes=3648 edges=2 protocol=1 numerical=5 reset=2
+$finish called at time : 14171916 ps : File "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/activation_quantizer/tb/quant16_stream_row_tb.sv" Line 563
+xsim: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:06 . Memory (MB): peak = 1755.000 ; gain = 30.762 ; free physical = 4357 ; free virtual = 371291
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'quant16_stream_row_tb_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for all
+launch_simulation: Time (s): cpu = 00:00:26 ; elapsed = 00:00:26 . Memory (MB): peak = 1755.000 ; gain = 36.012 ; free physical = 4357 ; free virtual = 371291
+# close_sim
+INFO: xsimkernel Simulation Memory Usage: 314728 KB (Peak: 355352 KB), Simulation CPU Usage: 4950 ms
+INFO: [Simtcl 6-16] Simulation closed
+# set simlog [file join $work vivado quant16_stream_real.sim sim_1 behav xsim simulate.log]
+# if {![file isfile $simlog]} { error "stream simulator log missing" }
+# set handle [open $simlog r]
+# set output [read $handle]
+# close $handle
+# if {[string first "QUANT16_STREAM_REAL_ROWS_PASS groups=114 q_bytes=3648 edges=2 protocol=1 numerical=5 reset=2" $output] < 0 ||
+#     [regexp {(^|\n)Fatal:|(^|\n)ERROR:} $output]} {
+#     error "stream real-row simulation failed; see $simlog"
+# }
+# if {$adapter ne "" &&
+#     ([string first "QUANT16_ADAPTER_CASES_PASS count=27 independent_reference=R0_finite_v2" $output] < 0 ||
+#      [string first "QUANT16_ADAPTER_MIXED_PASS groups=6 normal_tiny_zero=1 finite_backpressure=1" $output] < 0 ||
+#      [string first "QUANT16_ADAPTER_RESET_PASS helper=1 normalized_recip=1 fmul_bypass=1 recovery=3" $output] < 0)} {
+#     error "integrated adapter coverage marker missing; see $simlog"
+# }
+# puts "QUANT16_STREAM_REAL_SIM_END"
+QUANT16_STREAM_REAL_SIM_END
+# close_project
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 11 00:49:27 2026...

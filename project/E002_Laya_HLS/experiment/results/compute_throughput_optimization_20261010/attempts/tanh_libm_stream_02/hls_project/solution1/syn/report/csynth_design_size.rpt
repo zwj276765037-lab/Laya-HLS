@@ -1,0 +1,400 @@
+================================================================
+== Design Size Report
+================================================================
+
+* Total Instructions per Compilation Phase
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Phase         | Step                       | Instructions | Description                                                                            |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Compile/Link  |                            | 15,435       | After all functions are compiled and linked into a single design                       |
+|               |                            |              |                                                                                        |
+| Unroll/Inline |                            |              | After user unroll and inline pragmas are applied                                       |
+|               | (1) unroll                 | 20,931       | user unroll pragmas are applied                                                        |
+|               | (2) simplification         | 17,679       | simplification of applied user unroll pragmas                                          |
+|               | (3) inline                 | 17,627       | user inline pragmas are applied                                                        |
+|               | (4) simplification         | 17,591       | simplification of applied user inline pragmas                                          |
+|               |                            |              |                                                                                        |
+| Array/Struct  |                            |              | After user array partition and struct aggregate/disaggregate pragmas are applied       |
+|               | (1) array partition        | 14,685       | user array partition pragmas are applied                                               |
+|               | (2) simplification         | 14,685       | simplification of applied user array partition & struct aggregate/disaggregate pragmas |
+|               | (3) aggregate/disaggregate | 14,685       | user struct aggregate/disaggregate pragmas are applied                                 |
+|               | (4) array reshape          | 14,685       | apply array reshape pragmas                                                            |
+|               | (5) access patterns        | 14,685       | array access pattern optmizations                                                      |
+|               |                            |              |                                                                                        |
+| Performance   |                            |              | After transformations are applied to meet performance pragma targets                   |
+|               | (1) loop simplification    | 14,685       | loop and instruction simplification                                                    |
+|               | (2) parallelization        | 14,685       | loops are unrolled or pipelined to meet performance targets                            |
+|               | (3) array partition        | 14,685       | arrays are partitioned to meet performance targets                                     |
+|               | (4) simplification         | 14,685       | simplification of design after performance transformations                             |
+|               |                            |              |                                                                                        |
+| HW Transforms |                            |              | After hardware transfomations                                                          |
+|               | (1) lowering               | 14,688       | initial conversion to HW specific instructions                                         |
+|               | (2) optimizations          | 14,775       | high level synthesis optimizations                                                     |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+
+* Instructions per Function for each Compilation Phase
++-------------------------+-------------------------------+-----------------+---------------+--------------+-------------+---------------+
+| Function                | Location                      | Compile/Link    | Unroll/Inline | Array/Struct | Performance | HW Transforms |
++-------------------------+-------------------------------+-----------------+---------------+--------------+-------------+---------------+
+| + tanh_libm_stream_leaf | tanh_libm_stream_bits.cpp:280 | 15,435          | 17,591        | 14,685       | 14,685      | 14,775        |
+|  + stream_graph         | tanh_libm_stream_bits.cpp:199 | 15,424          |               |              |             |               |
+|   + stream_mul_node<0>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_mul_node<1>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<0>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|     to_int              | tanh_libm_stream_bits.cpp:160 |    20           |               |              |             |               |
+|   + from_int            | tanh_libm_stream_bits.cpp:154 |   131           |               |              |             |               |
+|    + pack               | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_mul_node<2>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_mul_node<3>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<1>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<2>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<3>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<4>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<4>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_mul_node<5>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_mul_node<6>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<5>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<7>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<6>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<8>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<7>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<9>  | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<8>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<10> | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<9>  | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<11> | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<10> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<12> | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<11> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<12> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_div_node<0>  | tanh_libm_stream_bits.cpp:191 |   295           |               |              |             |               |
+|    + fp_div_bits        | tanh_libm_stream_bits.cpp:128 |   293           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_mul_node<13> | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<13> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<14> | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<14> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<15> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<16> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<17> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<18> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<15> | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<19> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<20> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_div_node<1>  | tanh_libm_stream_bits.cpp:191 |   295           |               |              |             |               |
+|    + fp_div_bits        | tanh_libm_stream_bits.cpp:128 |   293           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<21> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_add_node<22> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|   + stream_mul_node<16> | tanh_libm_stream_bits.cpp:186 |   286           |               |              |             |               |
+|    + fp_mul_bits        | tanh_libm_stream_bits.cpp:115 |   284           |               |              |             |               |
+|       unpack            | tanh_libm_stream_bits.cpp:15  |    80 (2 calls) |               |              |             |               |
+|       jam               | tanh_libm_stream_bits.cpp:9   |    19           |               |              |             |               |
+|     + pack              | tanh_libm_stream_bits.cpp:26  |   113           |               |              |             |               |
+|        jam              | tanh_libm_stream_bits.cpp:9   |    38 (2 calls) |               |              |             |               |
+|   + stream_add_node<23> | tanh_libm_stream_bits.cpp:181 |   397           |               |              |             |               |
+|    + fp_add_bits        | tanh_libm_stream_bits.cpp:89  |   395           |               |              |             |               |
+|     + add_unpack        | tanh_libm_stream_bits.cpp:61  |   134 (2 calls) |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    78 (2 calls) |               |              |             |               |
+|       add_jam           | tanh_libm_stream_bits.cpp:55  |    17           |               |              |             |               |
+|     + add_pack          | tanh_libm_stream_bits.cpp:72  |   133           |               |              |             |               |
+|        add_clz32        | tanh_libm_stream_bits.cpp:45  |    39           |               |              |             |               |
+|        add_jam          | tanh_libm_stream_bits.cpp:55  |    34 (2 calls) |               |              |             |               |
+|    stream_mul_node<0>   | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_mul_node<1>   | tanh_libm_stream_bits.cpp:186 |                 |   444         |   356        |   356       |   358         |
+|    stream_add_node<0>   | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_mul_node<2>   | tanh_libm_stream_bits.cpp:186 |                 |   445         |   357        |   357       |   359         |
+|    stream_mul_node<3>   | tanh_libm_stream_bits.cpp:186 |                 |   445         |   357        |   357       |   359         |
+|    stream_add_node<1>   | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<2>   | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<3>   | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<4>   | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_mul_node<4>   | tanh_libm_stream_bits.cpp:186 |                 |   445         |   357        |   357       |   359         |
+|    stream_mul_node<5>   | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_mul_node<6>   | tanh_libm_stream_bits.cpp:186 |                 |   446         |   358        |   358       |   360         |
+|    stream_add_node<5>   | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_mul_node<7>   | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<6>   | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_mul_node<8>   | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<7>   | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_mul_node<9>   | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<8>   | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_mul_node<10>  | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<9>   | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_mul_node<11>  | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<10>  | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_mul_node<12>  | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<11>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<12>  | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_div_node<0>   | tanh_libm_stream_bits.cpp:191 |                 |   855         |   679        |   679       |   681         |
+|    stream_mul_node<13>  | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<13>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_mul_node<14>  | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<14>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<15>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<16>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<17>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<18>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_mul_node<15>  | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
+|    stream_add_node<19>  | tanh_libm_stream_bits.cpp:181 |                 |   253         |   253        |   253       |   255         |
+|    stream_add_node<20>  | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_div_node<1>   | tanh_libm_stream_bits.cpp:191 |                 |   855         |   679        |   679       |   681         |
+|    stream_add_node<21>  | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_add_node<22>  | tanh_libm_stream_bits.cpp:181 |                 |   188         |   188        |   188       |   190         |
+|    stream_mul_node<16>  | tanh_libm_stream_bits.cpp:186 |                 |   675         |   499        |   499       |   501         |
++-------------------------+-------------------------------+-----------------+---------------+--------------+-------------+---------------+
+
+* Design Size Message Settings
++---------------------------------------------+--------+------------------------------------------------------------------+
+| Message Setting                             | Value  | Description                                                      |
++---------------------------------------------+--------+------------------------------------------------------------------+
+| config_compile -design_size_maximum_warning | 100000 | Show a warning when total design instructions exceeds this value |
++---------------------------------------------+--------+------------------------------------------------------------------+
+
+

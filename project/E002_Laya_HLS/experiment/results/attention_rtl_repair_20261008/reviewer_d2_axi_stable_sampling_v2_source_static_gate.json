@@ -1,0 +1,88 @@
+{
+  "schema": "independent_axi_stable_sampling_v2_source_static_gate_v1",
+  "reviewer": "GPT-6 Astra xhigh",
+  "at_utc": "2026-10-08T13:15:22.495760+00:00",
+  "status": "SOURCE_ACCEPTED_ONE_STATIC_BUILD_RELEASED_RUNTIME_NOT_RELEASED",
+  "inputs": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/source/source_binding_packet.json",
+      "bytes": 58756,
+      "sha256": "907120bf496a71042126286c24b8ba5bc60dc853efab45a7a9d870600e7d7ec2"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/source/stable_sampling_v2.diff",
+      "bytes": 11780,
+      "sha256": "28f8e057445e0e42c98f22c2ac821584389c25073b9747bc81e7150e1024545a"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_axi_pending_hashcheck.json",
+      "bytes": 30722,
+      "sha256": "d65f96e0bc65721e367864c181f99eff2202b078e20728e466ea683371d9325d"
+    }
+  ],
+  "hash_audit": {
+    "reference_count": 227,
+    "unique_count": 101,
+    "archived_document_mappings": [
+      {
+        "old_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/design.md",
+        "archive": {
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/history/design_first_contrast_reviewed.md",
+          "bytes": 8466,
+          "sha256": "4c54ca18ef5a92956def98508b2d58b82927b51d486fef4d8a0047c553566214"
+        }
+      },
+      {
+        "old_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/results.md",
+        "archive": {
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/history/results_preflight_before_static.md",
+          "bytes": 240,
+          "sha256": "5aa6ee2305104f14e5ad9ae0bf1917539da4d5e4c881f18af26dcda52e48ba76"
+        }
+      },
+      {
+        "old_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/results.md",
+        "archive": {
+          "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/history/results_static_before_runtime.md",
+          "bytes": 3587,
+          "sha256": "d78776474a13910c06ccd5b693cdcea1fecccfc9ca398c31f92b6dfc57b365bb"
+        }
+      }
+    ],
+    "unresolved_mismatches": 0
+  },
+  "independent_checks": {
+    "actual_diff_exact": true,
+    "copied_rtl_count": 32,
+    "copied_pairs_checked": 38
+  },
+  "review_findings": [
+    "One #1step clocking event supplies AW/W/AR/R/B counters, read-ring metadata and complete last B/R response tuples. No separate top posedge response latch remains.",
+    "Top waits for updated count and checks stored tuple after 1 ps; one outstanding serial readback pair makes last-response storage sufficient for this workload.",
+    "All seven VIP instances, their classes/timing, 65536-byte per-port arrays and test/driver/assertion code outside monitor wiring and sampled response references remain unchanged.",
+    "All readback bytes, response IDs/status/LAST, expected counts, fixed read ring and full backing arrays remain checked; no failure criteria relaxed.",
+    "This changes observer scheduling only. An eventual PASS would validate the controlled diagnostic workload, not prove full-DUT AXI behavior or the source of RSS growth."
+  ],
+  "release": {
+    "static_builds": 1,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/tb/build_static.sh",
+    "cwd": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/runs/static_build_v1/work",
+    "limits": {
+      "cpus": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "nice": 19,
+      "ionice": "idle",
+      "owned_rss_gib": 16,
+      "wall_seconds": 300,
+      "min_memavailable_gib": 192,
+      "rss_sample_seconds": 0.2
+    },
+    "heavy_scope": "one heavy tool for this Laya workflow and its agents only",
+    "runtime": "not released; actual static logs, full snapshot binding and source rehash require independent gate",
+    "later_runtime_budget": "if gated: idle then traffic once each, fresh processes, 4 GiB/90 s, seed 1, unchanged 100000 clocks and 1024 write/readback pairs"
+  }
+}

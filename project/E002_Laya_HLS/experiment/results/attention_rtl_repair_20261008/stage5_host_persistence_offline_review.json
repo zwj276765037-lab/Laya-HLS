@@ -1,0 +1,284 @@
+{
+  "schema": "laya-independent-stage5-host-offline-review-v1",
+  "created_utc": "2026-10-08T13:50:06.856468+00:00",
+  "reviewer": {
+    "agent": "/root/q8_proto_design_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "task": "Independent supplemental review of existing host_session_offline_v1 against actual one-shot Host and persistent kernel lifecycle; not a replacement design.",
+  "verdict": "Existing smallest offline scope is coherent. Three API/test details below remain to be made explicit; this review does not approve execution, production changes, XRT integration, or platform completion.",
+  "review_boundaries": {
+    "only_written_artifact": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/stage5_host_persistence_offline_review.json",
+    "module_mission_production_sources_modified": false,
+    "commands_executed": "Read-only source inspection and lightweight hashing/artifact serialization only.",
+    "tests_builds_heavy_tools_xrt_device_commands_executed": false,
+    "dependency_state": "No board/XRT/platform capability claimed. Missing-dependency observations are inherited documented evidence; no duplicate environment probe was run.",
+    "authoritative_current_design": "vivado/module_design/kernel_wrapper/source/design.md:3-21, host_session_offline_v1",
+    "historical_text": "Old 04934 resource statements and earlier claims of resident model upload are historical; actual one-shot Host and current Stage 5 header control this review."
+  },
+  "verified_correspondence": [
+    {
+      "item": "13 persistent BOs and model once per successful Session initialization",
+      "evidence": [
+        "host/laya_host.cpp:390-414",
+        "hls/platform/full_kernel_wrapper.cpp:13-52"
+      ],
+      "assessment": "Existing run_host allocates all 13 once per invocation and uploads five once per invocation; a process/session lifetime change is still future work. Protocol event counts can test planned reuse without pretending actual XRT transfer occurred."
+    },
+    {
+      "item": "Conservative workspace behavior",
+      "evidence": [
+        "host/laya_host.cpp:395-424"
+      ],
+      "assessment": "Keep all seven original allocation extents, whole-buffer zero/H2D each request, and full 32768 B IO zero/H2D. Smaller FullMemory accessible extents in laya_forward_full.cpp are not permission to shrink Host allocation or transfer contracts."
+    },
+    {
+      "item": "Manifest and model validation",
+      "evidence": [
+        "host/laya_host.cpp:236-275",
+        "host/laya_host.cpp:318-359"
+      ],
+      "assessment": "Actual code verifies exact five filenames/sizes/hashes, source SHA, four compiled tags, and AUX header. Per-file SHA is checked before its upload sync; AUX structural check follows all uploads but precedes first launch. Ready must only become observable after all initialization checks complete."
+    },
+    {
+      "item": "Strict request identity ordering",
+      "evidence": [
+        "hls/common/laya_full_io.cpp:194-216",
+        "hls/common/laya_full_owner.cpp:835-845"
+      ],
+      "assessment": "The proposed nonzero, nondecreasing generation and strictly increasing same-generation request ID match the kernel parser. New generation may start at any nonzero ID. Host ledger must distinguish submitted identity from kernel last_accepted identity, retain failed submitted IDs, and leave purely local preflight rejects unconsumed."
+    },
+    {
+      "item": "Owner/epoch preservation",
+      "evidence": [
+        "hls/platform/full_kernel_wrapper.cpp:6",
+        "hls/common/laya_full_owner.cpp:746-845"
+      ],
+      "assessment": "FullRuntime is static across invocations. full_recycle_request refuses FILL/READ/EXCLUSIVE_RW/DRAIN or outstanding readers, invalidates cache metadata, and preserves epoch high-water marks. Host workspace zeroing cannot reset on-chip ownership; Host must not invent BufferRef epochs or claim a higher generation forcibly cancels live owners."
+    },
+    {
+      "item": "Accepted kernel error versus transport failure",
+      "evidence": [
+        "hls/control/full_forward_controller.cpp:812-838",
+        "hls/control/full_result.cpp:40-139",
+        "tests/full_forward_dut_runner.cpp:191-224"
+      ],
+      "assessment": "Controller attempts owner cleanup before committing an accepted error frame; cleanup failure returns without a new result header, and per-request IO zeroing allows Host validation to detect this. Existing CPU tests cover one accepted numerical failure and recovery, not arbitrary XRT abort. Valid identity-matched error frames may be delivered as errors and followed by a new identity; malformed/stale/absent frames poison the session."
+    },
+    {
+      "item": "Completion and result publication",
+      "evidence": [
+        "host/laya_host.cpp:426-469",
+        "hls/common/laya_io.cpp:107-149"
+      ],
+      "assessment": "Existing Host wait/readback/codec/identity/finite checks provide the intended ingredients. The old CLI writes the raw file before validating it; persistent API must distinguish raw diagnostics from validated delivery, as current design already requires. Shared decoder checks reserved bytes, counts, flags, unused B1 outputs, and error payload zeroing; separate finite checks remain necessary."
+    },
+    {
+      "item": "Real XRT dependency preserved",
+      "evidence": [
+        "CMakeLists.txt:80-114",
+        "config/u55c_link.cfg"
+      ],
+      "assessment": "Default-off real XRT target requires actual headers/library and generated package. Protocol-only core must remain separate, with no stubs satisfying that target. group_id derives actual memory grouping; listed HBM banks remain candidates."
+    }
+  ],
+  "frozen_bo_contract": {
+    "allocation_argument_order": [
+      {
+        "index": 0,
+        "name": "embedding",
+        "bytes": 54803648
+      },
+      {
+        "index": 1,
+        "name": "io",
+        "bytes": 32768
+      },
+      {
+        "index": 2,
+        "name": "w_q0",
+        "bytes": 184682496
+      },
+      {
+        "index": 3,
+        "name": "w_q1",
+        "bytes": 184680448
+      },
+      {
+        "index": 4,
+        "name": "w_scale",
+        "bytes": 23085184
+      },
+      {
+        "index": 5,
+        "name": "aux",
+        "bytes": 1671872
+      },
+      {
+        "index": 6,
+        "name": "state0",
+        "bytes": 33554432
+      },
+      {
+        "index": 7,
+        "name": "state1",
+        "bytes": 33554432
+      },
+      {
+        "index": 8,
+        "name": "qkv0",
+        "bytes": 16777216
+      },
+      {
+        "index": 9,
+        "name": "qkv1",
+        "bytes": 16777216
+      },
+      {
+        "index": 10,
+        "name": "ff0",
+        "bytes": 50331648
+      },
+      {
+        "index": 11,
+        "name": "ff1",
+        "bytes": 25165824
+      },
+      {
+        "index": 12,
+        "name": "att_out",
+        "bytes": 16777216
+      }
+    ],
+    "model_indices": [
+      0,
+      2,
+      3,
+      4,
+      5
+    ],
+    "model_total_bytes": 448923648,
+    "workspace_indices": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "workspace_total_bytes": 192937984,
+    "workspace_total_MiB": 184,
+    "all_bo_total_bytes": 641894400,
+    "request_h2d_io_bytes": 32768,
+    "result_d2h_offset": 16384,
+    "result_d2h_bytes": 384,
+    "current_generated_build_tag": "fe067c8aa0627ad770096f9721394645",
+    "binding_note": "Package was read for generated sizes/tags only; this review did not rehash the five 448923648 B model binaries."
+  },
+  "specific_review_findings": [
+    {
+      "id": "S5-01",
+      "priority": "P1 implementation invariant, not a demonstrated bug in an unwritten core",
+      "title": "Separate logical Poisoned state from whether device ownership has ended",
+      "source": "design.md:13-17 and actual host/laya_host.cpp:426-440, main exception unwinding",
+      "issue": "The prose correctly forbids release before a confirmed terminal state, but a four-state enum alone cannot distinguish Poisoned with confirmed completion from Poisoned while start/wait/abort has thrown and device activity is unknown. Copying existing exception unwinding into a resident adapter would destroy BO-owning objects without proving quiescence.",
+      "minimal_resolution": "Freeze an orthogonal terminal/quiescence fact or equivalent explicit ownership token in the portable API. Set ownership conservatively before a start that can submit then throw. Enter Poisoned on transport/sync exceptions and unknown acceptance; never auto-retry. close/destruction must not emit BO release while ownership is uncertain. A confirmed terminal can allow resource cleanup according to the later pinned XRT contract, but never returns this first-version poisoned session to Ready.",
+      "offline_acceptance": [
+        "Inject start submission followed by throw, wait throw, abort throw, and abort nonterminal/unknown.",
+        "Request close/destruction after each; event ledger must show no BO rewrite, new start, release, or return to Ready until terminal/quiescence is explicitly proven.",
+        "Exercise timeout then abort COMPLETED and timeout then ABORT: caller still receives timeout and session remains poisoned."
+      ],
+      "scope": "This refines the already documented ownership requirement; no XRT recovery API or online reset implementation is requested."
+    },
+    {
+      "id": "S5-02",
+      "priority": "P2 API boundary",
+      "title": "Require exactly 384 result bytes at the portable transport boundary",
+      "source": "hls/common/laya_io.cpp:135-137; design.md:13,19",
+      "issue": "decode_result rejects fewer than 384 bytes but accepts trailing bytes. The current real Host is safe on this point because it always reads a fixed 384-byte array; a generic vector-returning test/backend API must preserve that exact-length contract explicitly.",
+      "minimal_resolution": "Use an exact-size result frame type or require returned byte count == kResultBytes before decode_result. Retain strict request_frame.size == request.frame_bytes.",
+      "offline_acceptance": [
+        "Reject result lengths 0, 383, and 385 with no accepted delivery; accept a separately frozen valid 384 B vector.",
+        "Keep raw malformed bytes diagnostic-only and poison the session after a malformed completed result."
+      ],
+      "scope": "No shared codec or production Host change is required for this offline core."
+    },
+    {
+      "id": "S5-03",
+      "priority": "P2 boundary coverage",
+      "title": "Define identity exhaustion without unsigned wraparound",
+      "source": "design.md:11,19; hls/common/laya_full_io.cpp:198-205",
+      "issue": "The monotonic rule is sound, but the planned matrix omits UINT64_MAX boundaries. Any convenience increment in a future ledger/CLI could wrap to zero or incorrectly reopen an old generation.",
+      "minimal_resolution": "Compare supplied uint64 identities directly; do not silently rewrite them. At request_id max, only a supplied higher nonzero generation can permit another request. At generation max there is no higher generation; same-generation larger ID remains legal only while one exists. Once both values are max, no next request exists in that session. Recovery/new session must not assume kernel state reset merely because Host objects were reconstructed.",
+      "offline_acceptance": [
+        "Accept ID max once, reject same-generation reuse/zero, and accept ID 1 only with an available larger supplied generation.",
+        "Reject generation decrease and overflow-to-zero; exhaust (generation max, request_id max) without incrementing wrapped counters."
+      ],
+      "scope": "No new ID allocator or tokenizer is required."
+    }
+  ],
+  "smallest_offline_evidence_matrix": [
+    {
+      "case": "Initialization and repeated requests",
+      "assertions": "13 allocations and five model uploads once per successful session; two serial valid requests produce two workspace clears/H2D of 192937984 B, two 32768 B IO H2D, two starts/waits, two 384 B D2H; exact BO indices/order retained. These are event assertions only."
+    },
+    {
+      "case": "Preflight and exclusive access",
+      "assertions": "Bad tags/header/offset/padding/shape/payload size and duplicate/decreasing identities produce no request BO mutation/sync/start and consume no submitted identity. A second submission during an active request is rejected without device events."
+    },
+    {
+      "case": "Outcome validation",
+      "assertions": "Frozen B2 then B1 success, stale identity, different B/S, malformed result length, reserved/count/flags inconsistency, nonzero unused B1 lanes, NaN/Inf, and valid zero-payload nonOK frame. Only completed+synced+validated frames are delivered; valid errors retain status/detail/counters and are not success."
+    },
+    {
+      "case": "Submission and terminal fault edges",
+      "assertions": "Fault injection before/after possible start, each wait/abort outcome and exception, result sync/readback failure, timeout-abort race, late stale completion, attempted close/destructor while uncertain, and any submission after Poisoned. Test event order and absence of forbidden release/reuse, not only final enum."
+    },
+    {
+      "case": "Initialization failure",
+      "assertions": "Model/init-validation failure never reaches Ready or permits start; partial allocation/upload is not reported as a successfully resident model. No protocol test claims actual SHA scanning unless that code is actually included and exercised."
+    },
+    {
+      "case": "Independent fixture provenance",
+      "assertions": "Use exact frozen request/result bytes with named profile, package/build identity and fixture hashes plus independent byte-order vectors; do not generate all expected frames with the same codec under test. Pre-existing zero-tag reference-only requests must be rejected under current expected identity."
+    }
+  ],
+  "remaining_integration_gaps_not_offline_blockers": [
+    "Current source compiles package tags and verifies an independently provided xclbin SHA, but no checked deployment record currently binds that xclbin SHA to the four tags, kernel name/argument metadata, selected platform/shell, and Host build. Preserve this as a required future deployment binding; fake backend events cannot prove it.",
+    "Explicitly select LAYA_FULL_MODEL_DIR=build/model-attention-rtl-repair-20261008 when current fe067 identity is intended. Existing CMake default build/model-repair is historical; a default directory must not silently choose the evaluated package.",
+    "Real XRT compile/link and version-specific wait/abort/destructor semantics, actual xclbin reload/reset and HBM retention, device exclusivity, group mapping and parameter metadata need pinned platform evidence later. The present source comment that abort is synchronous is not a board verification result.",
+    "CPU owner recovery evidence and protocol event backend cannot establish RTL AXI response drain at ap_done, asynchronous cancel quiescence, cache reset or HBM retention. Higher generation is not a replacement for terminal/quiescence confirmation.",
+    "A protocol-only core need not extract the production manifest/SHA/OpenSSL implementation now. Report initialization validation as an external attested/preconditioned step if it is not executed by that core, and test failed attestation explicitly.",
+    "No tokenizer redesign, network service, business decoding, production adapter, workspace-clear elimination, or performance claim is part of this independent review."
+  ],
+  "timing_contract": {
+    "cold_initialization": "Monotonic Host time from beginning deployment/package validation through device/kernel setup, 13 BO allocation, model read/hash/upload and Ready. If cold first response is reported, separately add the first full request and label that endpoint.",
+    "resident_kernel_host_observed": "Immediately before kernel submission/start through observed COMPLETED. Includes Host/XRT dispatch/wait overhead; never label this hardware-only cycles.",
+    "resident_preencoded_request": "Frame availability/admission through workspace/IO preparation and sync, start/wait, result D2H and validation/delivery. Keep 184 MiB workspace cost visible. This excludes tokenization/business decoding and therefore is not the complete service metric.",
+    "resident_full_host_request_future": "Raw input preparation/tokenization through synchronization, kernel, readback, validation and actual business postprocessing. Mission Stage 5 full-service metric remains pending until these stages exist.",
+    "hardware_cycles": "Read and label only valid counter scope; current full_result leaves prewrite_cycles/counter_scope and cycles_valid absent. Zero means unavailable here, not a zero-cycle kernel.",
+    "reporting": "Later use warmup/sample count, P50/P95, B/S/candidate count, errors and throughput with B1/B2 separated; keep cold/per-request/model upload scopes distinct. Fake-backend wall time is not Host/device performance, and historical A6000 BF16 B2/S94/K_pad3 data is not a same-contract acceleration baseline."
+  },
+  "source_hashes_sha256": {
+    "mission/task.md": "3aa7a8eb80295590bbca9242795dd39f052992aa71db9e04723ee119264fa81a",
+    "host/laya_host.cpp": "ebcd93bda7cc0b075513fefb95f7df4dab3f307fde7dbaad3ab3608ad3bb117e",
+    "CMakeLists.txt": "8ab4281f8ad3aef9de6e4ae41d4a283a0a8b85519f932a249e6c74233a00d454",
+    "hls/platform/full_kernel_wrapper.cpp": "090ae1a8f855e30860dd863311082c43ed7dec24896b3e64caa6f050b44de494",
+    "config/u55c_link.cfg": "cb6144174e919b50dd536628b650f3eb97c6f56406bb81edaed0b6028ea51ef4",
+    "vivado/module_design/kernel_wrapper/source/design.md": "e59e2e4e276ab8f8418ad535d1ead055a04ccca6d941a727fc86b74e9f4c0b90",
+    "vivado/module_design/kernel_wrapper/source/results.md": "e077f241ab6ca612616028591eb750d97d792d853b200f3b0a8c529c8eb0a65f",
+    "vivado/design_source/01_host_runtime_and_abi.md": "b2ae78e05318c40c00ca3011cca0b736d7164cf72a0b540b35d454edd1aba938",
+    "include/laya_io.h": "87f695e11aec95eeebb57a420c586a456879ad321833d1a9c7dea94f1a692701",
+    "hls/common/laya_io.cpp": "8cce530e8ded36e33aa93a5e7cc106e13982e6fd633aa1c25b31fd2e8a274ddb",
+    "hls/common/laya_full_io.cpp": "c9d7b9f985f819e926bc68aede5d1acb1bff907c05dc9b7f1af8ac393961ae46",
+    "hls/common/laya_full_owner.cpp": "8ce4d28470798d122cf958acb5433f4f5786e565be1afe996c9fe64a5d1d6973",
+    "hls/laya_forward_full.cpp": "dcf892555631d5c9cd441609737f35a2373a8d6e48792b9313d87c55c77cc7d4",
+    "hls/control/full_forward_controller.cpp": "23e428c81c7a4c40c7014db15e34c561958d88d53e40ac71abef8be0d4804623",
+    "hls/control/full_result.cpp": "f072b230bf99328a80d0220bc10b8b953605c3830fc25ba50da26e46ba5fcb3a",
+    "tests/abi_contract_tb.cpp": "4e4e3cad02a5045c8837d4ec9719827ef5712e7bd31bc32b9a61ffb27efb843f",
+    "tests/full_forward_dut_runner.cpp": "f59aad7b2a366268fdddfafdf05a2e9766094c81f9208e746d88b5b694a50d1a",
+    "build/model-attention-rtl-repair-20261008/laya_model_layout_generated.h": "c2fd1da7b00c7361d616ac15af431dea14c4979ac2aded6b37888fb1d633630a"
+  }
+}

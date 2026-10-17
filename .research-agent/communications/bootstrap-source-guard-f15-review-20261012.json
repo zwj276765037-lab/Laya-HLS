@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "bootstrap-source-guard-f15-review-20261012",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# F15限定关闭；source冲突返回的生产协议语义待验证\n\n回复：`bootstrap-source-guard-f15-milestone-20261012`  \n审核：`R-SM003-BOOTSTRAP-SOURCE-GUARD-F15-20261012`  \n范围：M003/SM003/E003/R003；原来源合同、实现owner与预算保持。\n\n**F15在bootstrap_source_guard_rtl_07的冻结guard及真实受控consumer交错范围关闭，接纳PASS_SCOPED_RTL_F15_SOURCE_GUARD。来源冲突的本地hub拒绝/旧scope保留/末B后旧END进展有证据；但冻结_07的非END冲突返回scope标志不符合真实codec/adapter语义，记F16/P1待验证。已看到工作hub/TB正在修正该标志，不要求重复修改；提交修正身份及有界解码/RTL证据即可。完整生产source保护与C009不关闭。**\n\n## 独立核查\n\n23/23 frozen/声明pair、四个交付SHA均匹配；9466cycles、29.792819s、peak1595672KiB。原始marker包含2 AR/128 R及三项F15断言，guard child0/trigger null，18条实际policy符合CPU0–3/nice19/idle I/O；MemAvailable、8GiB/120s/120s进度策略核过。本项在pilot内完成，无full/性能外推。主控未运行编译、仿真、HLS或新agent。\n\n工程核验时23/23 current和99/99引用是其历史时点。主控采样为21/23 current、97/99引用；仅live hub与guard TB已发生后续两处修改：冲突response仅在END时携scope标志，TB对非END期待flags0。两处采样已保存，冻结_07与其他输入/运行物均未漂移；当前guard本体保持_07身份。详见[核查记录](bootstrap_source_guard_f15_review_20261012/verification.json)。\n\n_05原FAIL保留，原始Fatal为partial END绕过末B断言；_05→06仅TB切包后增加1ns settle，DUT不变。_06→07仅guard/TB改变，fixture/codec/hub/runner未变。_04→06共同23组有六项变化，即hub/fixture/TB/runner四份与两份此前catalog登记，符合交付说明。不重标或覆盖历史attempt。\n\n## F15关闭依据与边界\n\n`producer_ready`现在同时排除已锁存的`action_safe_consumed`与当前完整安全LAC1末拍实际消费的`safe_completion_pop`，释放分支额外排除当拍producer握手。前者封住消费当拍，锁存状态封住物理fence等待及下一释放拍，旧已接收producer仍沿原完成consumer退出。\n\nTB从匹配安全末拍当拍保持producer_valid；physical_safe延迟12周期后恢复，再保持valid12周期，检查无新producer、无新增AR且无`producer_active && !guard_active`。第二份新proof/action保留一个R拍和producer完成尾2/尾1拍，安全LAC1消费后不丢弃旧producer；真实旧完成末拍与最后R先消费，随后仍等待physical_safe才释放。下一action重新snapshot，坏完成/非终态/LOCAL_REJECT+OK/prestart cancel仍有断言。\n\nproducer completion仍是两轮0..7传输probe，LAC1安全错误与宽action/producer仍是受控fixture。F15关闭不签合法F9 LPC1、真实executor/生成LN完成、成功LAC1生产路径、任意硬件错误恢复或完整来源保护。\n\n## 来源冲突与F16：保留内部scope不等于可在所有返回中设置scope标志\n\n冻结hub把冲突从永久ready0改为一次真实接受、完整绑定E_BUFFER、drained0；冲突路径不消费physical observation，原owner/typed/scope状态保持。不同role在当前单base范围保守拒绝，不是完整13BO物理alias解决方案。\n\n有限TB确实覆盖来源INVALIDATE、epoch、同role alias、不同role及新identity拒绝，response持有12周期状态稳定。非重叠目标BEGIN后的实际4096B部分store保留最后B；冲突INVALIDATE返回消费后，旧END可等待末B再返回原E_PROTOCOL/detail0700000e及observed4096/drained，task5只退休一次，之后目标INVALIDATE可清理。接受计数对每次拒绝增加一次；这不是新的成功生产事件或额外typed退休。\n\n**F16/P1，静态协议不一致，当前已有工作修正但未独立验收：** 冻结_07 hub的`reject(E_BUFFER,...,scope_active,0)`在旧scope活动时给非END的INVALIDATE/CLAIM返回scope_active=1。真实`generated_provenance_codec.cpp`的response decoder（321–324行）及实际HLS_03冻结`controller_transaction_adapter.cpp`的`provenance_binding_ok`（241–255行）都要求非BEGIN/END返回scope_active=0。因此，当前TB期待flags2并手工消费的旧scope冲突拒绝，不能称为实际adapter可接受的合法返回；它会落入生产绑定拒绝，而非预期的可信E_BUFFER。\n\n工作版本已把返回字段改为`request_action==END_EVENT && scope_active`，这是正确的修正方向：内部旧scope继续保持，错误END可报告旧scope；非END拒绝不把全局旧scope写入该动作的返回标志。不要放宽现codec或清旧scope来迎合测试。\n\n请按原授权冻结该修正，并用实际C++ provenance decoder/transaction adapter核完整非END冲突response可解码且绑定、drained=false、非可信成功；配套保留真实hub旧scope/末B/旧END和返回反压回归。至少区分idle冲突、活动scope非END冲突与错误END保持scope的合法语义。字段检查应取完整实际响应或独立字节oracle，不能只改TB常量期待。F16可与正在准备的受影响hub/门户兼容验证合并，不要求无关HLS或full重跑。相关真实链在新身份未验证前不扩大PASS，独立已授权工作继续。\n\n## 后续与总体状态\n\n继续真实F9已校验LPC1的同一consumer、AR两侧握手、唯一STATE0 writer与monitor、来源/base生命周期和全部修改入口连接，再接executor及真实completion→END/唯一退休、Q/fullA独立gold。`layernorm_guarded_source_01`按独立attempt交付，本次未审核其运行结果；不从F15原型推定其PASS。\n\nF14等此前限定关闭保持；C009部分实施并跟踪F16，C008/C010整体待验。L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST、M003/M004未完成。G余2338.224019s、原单重工具/全部资源帽保持，5172s组合不重启，无新agent、OOC/P&R/上板或预算。\n",
+  "in_reply_to": "bootstrap-source-guard-f15-milestone-20261012",
+  "message_file": "results/bootstrap_source_guard_f15_reply_20261012.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "3f53f08f3a0e5d4de61ddc718ede649a5b9665200bf2fb2d58da1a59645ae988",
+  "created_at": "2026-10-12T15:03:58.338380+00:00",
+  "status": "delivered",
+  "client_user_message_id": "a012b9e6-3480-4875-b85a-c0cba694a070",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-12T15:03:58.368122+00:00",
+  "recipient_turn_id": "01a13016-56a7-7aa2-b0c9-e2452f18f251"
+}

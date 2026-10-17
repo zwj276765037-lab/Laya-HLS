@@ -1,0 +1,38 @@
+diff --git a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v6/preimages/q8_full_scorer_control.svh b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/q8_full_scorer_control.svh
+index c203322..6f6a400 100644
+--- a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v6/preimages/q8_full_scorer_control.svh
++++ b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/q8_full_scorer_control.svh
+@@ -3,6 +3,9 @@
+   localparam int PAGE_BYTES = 4096;
+   localparam int OBS_BYTES = 131072;
+   localparam int COMMANDS = 3;
++  integer o_ap_accept [0:COMMANDS-1], o_ap_done [0:COMMANDS-1];
++  integer o_issues [0:COMMANDS-1], o_retires [0:COMMANDS-1];
++  integer o_sub_starts [0:COMMANDS-1][0:4], o_sub_dones [0:COMMANDS-1][0:4];
+   localparam int MAX_COMMAND_CLOCKS = 7000000;
+   localparam int MAX_TOTAL_CLOCKS = 16000000;
+   localparam int PROGRESS_CLOCK_INTERVAL = 131072;
+diff --git a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v6/preimages/q8_full_scorer_observer.svh b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/q8_full_scorer_observer.svh
+index 9bf4908..750332e 100644
+--- a/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v6/preimages/q8_full_scorer_observer.svh
++++ b/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/q8_full_scorer_observer.svh
+@@ -2,9 +2,8 @@
+   localparam int O_PORTS = 9;
+   localparam int O_CHANNELS = 5; // AW W B AR R
+   integer o_lite_aw [0:COMMANDS-1], o_lite_w [0:COMMANDS-1];
+-  integer o_ap_accept [0:COMMANDS-1], o_ap_done [0:COMMANDS-1];
+-  integer o_issues [0:COMMANDS-1], o_first_issue [0:COMMANDS-1];
+-  integer o_retires [0:COMMANDS-1], o_first_retire [0:COMMANDS-1];
++  integer o_first_issue [0:COMMANDS-1];
++  integer o_first_retire [0:COMMANDS-1];
+   integer o_last_retire [0:COMMANDS-1];
+   integer o_last_issue [0:COMMANDS-1], o_max_issue_gap [0:COMMANDS-1];
+   integer o_issue_hist [0:COMMANDS-1][0:4];
+@@ -28,7 +27,6 @@
+   // Subcall IDs: q-load, scale-load, activation-load, quant scan, quant pack.
+   // Start counts are rising request markers. Done counts are rising completion
+   // markers. Neither is mislabeled as a child acceptance handshake.
+-  integer o_sub_starts [0:COMMANDS-1][0:4], o_sub_dones [0:COMMANDS-1][0:4];
+   integer o_sub_first_start [0:COMMANDS-1][0:4];
+   integer o_sub_last_done [0:COMMANDS-1][0:4];
+   bit o_sub_prev_start [0:4], o_sub_prev_done [0:4];

@@ -1,0 +1,144 @@
+{
+  "schema": "laya_full_top_expanded_memory_retry_review_v1",
+  "reviewed_at_utc": "2026-10-07T07:12:25.859519+00:00",
+  "reviewer": "GPT-6 Astra xhigh",
+  "status": "APPROVED_TO_EXECUTE_WITH_SCOPED_MEMORY_GUARD",
+  "authorization": {
+    "source": "Current explicit user instruction, forwarded verbatim by controller /root",
+    "user_quote": "大胆一点去继续拿生成，服务器的内存应该是够用的",
+    "authorized_scope": "Continue the same complete-top experimental HLS synthesis to attempt generated RTL with an increased host memory budget.",
+    "requires_additional_user_confirmation": false,
+    "additional_user_quote": "注意不要影响到服务器别的项目的工作就行",
+    "additional_constraint": "Protect other server projects; consume only bounded idle-capacity resources and never modify or signal unrelated work."
+  },
+  "execution_owner": "GPT-6 Sol max; one implementation/synthesis owner only",
+  "execution": {
+    "project_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline",
+    "entrypoint": "scripts/run_full_hls.sh --csynth",
+    "result_directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/csynth_expanded_memory_20261007T072000Z",
+    "build_directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/full-hls-csynth-expanded-memory-20261007T072000Z",
+    "environment": {
+      "LAYA_FULL_HLS_RESULTS": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/csynth_expanded_memory_20261007T072000Z",
+      "LAYA_FULL_HLS_BUILD": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/full-hls-csynth-expanded-memory-20261007T072000Z",
+      "LAYA_FULL_MODEL_DIR": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-p2-final",
+      "LAYA_FULL_PART": "xcu55c-fsvh2892-2L-e"
+    },
+    "monitor_placement": "Independent wrapper and evidence under this result directory; do not alter tagged production source/script/config.",
+    "fixed_synthesis_timeout_seconds": null
+  },
+  "frozen_inputs": {
+    "build_tag": "4f12ecfe940ecf2a8998a8626fc1ed1c",
+    "model_manifest_sha256": "0d3ef9fbcc0de7ddf49c26921b523f4ca22a16d856c58e1c523b52b61e7dbec3",
+    "run_full_hls_script_sha256": "fca0fcc0bab379e9d5a2ba0ff538ccdee7d2763fefb65ed185257f9b7ccc3e4e",
+    "script_matches_previous_run_identity": true,
+    "previous_generated_config": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/full-hls-csynth-array-f0-final-20261007/full_top.cfg",
+    "previous_generated_config_sha256": "375f990e2dfc3eaad5ac848deac43f0892df465a937be639145c03515dfe0730",
+    "part": "xcu55c-fsvh2892-2L-e",
+    "frequency_hz": 150000000,
+    "flow_target": "vivado",
+    "retained_hls_options": {
+      "syn.compile.pipeline_loops": "0",
+      "syn.array_partition.throughput_driven": "off",
+      "syn.array_partition.complete_threshold": "0"
+    },
+    "must_remain_unchanged": [
+      "production HLS C++ and headers",
+      "model package and model identity",
+      "arithmetic and task/interface contracts",
+      "cache storage pragmas",
+      "current HLS optimization options",
+      "scripts/run_full_hls.sh"
+    ],
+    "verification_required": "Execution owner must retain the fresh input_hashes.sha256 and compare actual synthesis inputs against the prior final run; generated config differences are permitted only for run-specific paths, with semantic options unchanged."
+  },
+  "host_snapshot": {
+    "source": "/proc/meminfo at review; not a reservation",
+    "MemTotal_KiB": 527917948,
+    "MemAvailable_KiB": 445982636,
+    "SwapTotal_KiB": 8388604,
+    "SwapFree_KiB": 56,
+    "MemTotal_GiB": 503.46178817749023,
+    "MemAvailable_GiB": 425.3221855163574,
+    "other_workloads": "Other users Vivado jobs present per controller observation; never signal or change them.",
+    "usable_swap_assumption": "None; swap is effectively exhausted."
+  },
+  "resource_budget": {
+    "MemAvailable_floor_KiB": 67108864,
+    "MemAvailable_floor_GiB": 64,
+    "own_process_tree_RSS_cap_KiB": 398458880,
+    "own_process_tree_RSS_cap_GiB": 380,
+    "sampling_interval_seconds": 2,
+    "trigger": "MemAvailable <= 64 GiB OR sum of RSS for this task process tree >= 380 GiB, whichever occurs first.",
+    "RSS_accounting": "Sum of owned processes VmRSS is a conservative guard and may double-count shared pages; retain per-process RSS and largest-process peak as well.",
+    "headroom_from_snapshot_GiB": 361.3221855163574,
+    "interpretation": "Host headroom is shared and can change. The 380 GiB cap is not reserved capacity or a guarantee that synthesis will complete. The global available-memory guard may trigger sooner.",
+    "protection_limit": "Periodic user-space monitoring reduces risk but cannot guarantee against an allocation spike or independent host pressure between samples."
+  },
+  "guard_execution_requirements": [
+    "Start the task in its own verified session/process group; keep the monitor outside the group and active for the entire synthesis.",
+    "Track descendants together with PID starttime to avoid PID reuse errors and cover any child-created groups; never use process-name or user-wide kill commands.",
+    "Retain a durable 2-second log with UTC, MemAvailable, tree RSS, process count, largest process RSS, and peak statistics.",
+    "At a threshold or monitor failure, freeze only the verified task group/tree with SIGSTOP before taking a bounded snapshot; terminate only those owned tasks with SIGKILL after capture. A stopped process cannot promptly handle SIGTERM without being resumed.",
+    "Record the exact trigger, measured limits, owned PID/PGID/session identities, command, stage/log tail and exit status; do not kill or renice other users processes.",
+    "Do not impose a fixed runtime timeout. Distinguish success, tool-reported failure, operator/user stop, and memory-guard termination.",
+    "Apply and verify nice 19 and the four-CPU task affinity before launching the compiler; apply ionice idle when supported and explicitly record any unsupported status.",
+    "Use the new 64 GiB / 380 GiB limits throughout; the superseded 32 GiB / 400 GiB proposal is not approved for this run.",
+    "If protected headroom is already below the new floor before launch, do not launch the task. Preserve evidence without interfering with unrelated processes."
+  ],
+  "completion_evidence": [
+    "Capture actual command, tool version, input identities, full synthesis diagnostics, monitored peaks and final process exit.",
+    "If successful, independently verify complete-top csynth report and generated RTL exist and correspond to this run; inspect real resource/interface/latency results.",
+    "HLS completion/generated RTL alone do not establish RTL cosimulation, Vivado physical synthesis/implementation timing, U55C platform link or board success."
+  ],
+  "no_architecture_change_authorized_by_this_review": true,
+  "synthesis_started_by_reviewer": false,
+  "prior_failed_run_preserved": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/csynth_array_f0_final_20261007",
+  "resource_priority": {
+    "nice": 19,
+    "ionice_class": "idle, if supported",
+    "cpu_affinity": "Restrict the task to four logical CPUs selected from its existing allowed CPU affinity; never alter affinity of other work.",
+    "reviewer_observed_allowed_cpu_count": 96,
+    "thread_environment": {
+      "OMP_NUM_THREADS": "2",
+      "MKL_NUM_THREADS": "2",
+      "OPENBLAS_NUM_THREADS": "2",
+      "NUMEXPR_NUM_THREADS": "2"
+    },
+    "scope": "Controls host execution only; no production HLS options, architecture or source changes.",
+    "concurrency": "Exactly one complete-top synthesis; no parallel exploratory runs.",
+    "must_verify": "Log actual task PID affinity, nice and I/O priority, plus tool child inheritance; environment limits do not by themselves guarantee proprietary-tool thread count."
+  },
+  "review_updates": [
+    {
+      "at_utc": "2026-10-07T07:12:25.859519+00:00",
+      "reason": "User explicitly required that other projects be protected.",
+      "superseded_limits_GiB": {
+        "MemAvailable_floor": 32,
+        "own_tree_RSS_cap": 400
+      },
+      "current_limits_GiB": {
+        "MemAvailable_floor": 64,
+        "own_tree_RSS_cap": 380
+      }
+    }
+  ],
+  "guard_source_review": {
+    "at_utc": "2026-10-07T07:21:38.032819+00:00",
+    "reviewer": "GPT-6 Astra xhigh",
+    "status": "ACCEPTED_FOR_CURRENT_SCOPED_RUN",
+    "run_guard_sha256": "61efd282999acb029972eeb782ec7f945058223be74ce348c385cf231ee1bfd8",
+    "priority_exec_sha256": "7ac0f9052433d5bf82d395e421c49e9410327b94cce8d8391258bd6882024806",
+    "verified_from_source": [
+      "Non-numeric ps nice values are recorded as None; owned HLS priority still requires 19.",
+      "SIGTERM sets a termination request handled by the monitoring/cleanup path.",
+      "Final cleanup examines registered live descendants even after launcher exit.",
+      "PID starttime registry covers observed reparented descendants; group signals require surviving verified group/session membership.",
+      "Missing process starttime is never accepted as an identity match.",
+      "MemAvailable checked before launch and before optional policy diagnostics; tree RSS cap retained.",
+      "Bounded diagnostic tails; SIGKILL remains in finally even if diagnostic writing fails."
+    ],
+    "scope": "Static source review only; actual priority inheritance, monitor timeline, synthesis outcome and generated RTL must be verified from execution evidence.",
+    "prior_failed_wrapper_run": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/engineering_p2/csynth_expanded_memory_20261007T071141Z",
+    "prior_failure": "ps nice parse failed before HLS start; scoped guard terminated its task with exit -9."
+  }
+}

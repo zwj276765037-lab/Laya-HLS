@@ -1,0 +1,42 @@
+# LQ0有限验收与LQ1当前取舍依据
+
+2026-10-13；M004/SM005/E005/R001，主控A001。回复 `measurement-first-LQ0-result-LQ1-execution-20261013`，继续执行 `D-M004-LNQ-MEASUREMENT-01`，不新增源码/运行审批。工程A002继续唯一实现、整合和重工具owner。
+
+**接纳AT014的LQ0有限数值与周期基线。LQ1继续原单候选验证；目前没有LQ1实测收益结论。** 主控只做文件、日志、源码差异与收据核对，未启动DUT工具。
+
+## LQ0已核事实
+
+153份冻结文件逐项与历史`layernorm_quant_source_03/frozen`对应，仅观察TB不同；原601行全部保留，插入121行观察与一致性断言。历史manifest声明152项，额外一项是历史树已存在的`tools/__pycache__/hls_guard_helpers.cpython-312.pyc`，身份一致，不误报为新DUT。83份生成物、17份full/17份pilot fixture、7个native IP与7组运行DAT均核对。两个manifest的overlay前身份应分别对照历史原文件，不能把同路径后来安装的观察TB/候选源当作原文件SHA损坏。
+
+AT014原始标记、收据和保护记录一致；完整16384 LN F32、16384 Q INT8、512 FP16 scale沿原独立gold通过，真实LN stores供Q读取，末B、真实completion、END、发布、source lease、fullA读回和最终零债务保持。来源仍是B1/S128 checkpoint前16行，诊断身份B1/S64、stage2/layer1、gamma0；不是完整S64请求。
+
+| 同一LQ0边界 | 实测cycles |
+| --- | ---: |
+| 全TB最终零债务/结束 | 659334 |
+| 生成LN run start→done，4441→653821 | 649380 |
+| Q命令接受→实际响应消费，655498→658765 | 3267 |
+| fullA acquire→末组核对，658766→659278 | 512 |
+
+互斥TB阶段为25+54+72+655290+3838+55=659334；LN run包含真实读、算、写，不是纯算术时间。source AR16/R1024、destination AW16/W1024/B16、Q AR16/R1024；三向DDR共196608B，fullA128次4row返回/512 row-group。source AR11、destination W12、Q AR6等valid&&!ready计数既不互斥，也没有覆盖全部供数和内部等待，不可相加或据小计数判定存储零成本。
+
+static/pilot/full分别76.867212/56.399040/735.843213s，peak2389328/863332/863076KiB；3段guard串行、36条实际policy符合原CPU0–3/nice19/idle I/O及内存/停滞帽。全TB与旧03同为659334，工具墙钟差异不是硬件收益。AT013观察资格/生命周期缺口保留，不追认为AT014；未变F9证据仅按原冻结身份继承。
+
+## LQ1已经可读的生成结果与下一出口
+
+交付后主控定向核到AT015终态收据及报告。31份候选冻结文件与原LN HLS冻结树对照，仅`layernorm_compute.cpp`多一行`#pragma HLS PIPELINE II=1`，原FP表达式、归约、检查、return顺序均未改。候选仍是原合同内的一个结构变化；不能把pragma本身当作硬件达成情况。
+
+实际HLS报告的最终归一化循环`VITIS_LOOP_107_7`为**pipelined=yes、II=2、Resource Limitation**，循环估计10249→2049cycles；2052是其生成子模块估计，二者不要混用。报告top估计BRAM29→29、DSP13→18、FF19765→19804、LUT47775→48104、URAM0；都是各自单top HLS估计，不是物理或联合预算。候选HLS报告slack为**-48.76ns**，原top为0.00ns；这项显著恶化必须随周期/资源一起交付，不能因工具生成成功就写时序通过，不能将RTL cycles按150MHz换算成可实现延迟。
+
+原始`csim_build`实际命令为g++，其16384值PASS记为**主机C++/HLS类型模型对照**，不写成Vitis `csim_design`工具已执行。AT015收据为限定生成PASS，实际HLS guard99.684351s/peak3143944KiB、child0/trigger null；真实RTL正确性及完成周期继续由AT016等原合同入口证明，主控本轮不提前验收。
+
+工程连续完成以下同一候选的收束即可，无需逐项回询：
+
+1. 保持全部原fixture/gold、AXI响应策略、真实store→Q重读、最后B及实际完成消费；观察器若因生成层级名变化而适配，仅调整观察引用并保留端点含义。
+2. 按LQ0同口径交全TB、LN run、末B/END、Q实际消费/fullA/最终零债务差值，以及实际流量、重叠等待；不能拿HLS循环估计替代这些动态结果，也不把LQ收益与Down局部周期相加。
+3. 随交付提供上述II限制和时序估计的有界定位：明确限制对应的实际资源/操作和关键路径证据。若能在原数值与接口合同内做有证据的受影响修复，沿原至多两次边界自主继续；不为追II1扫描参数、加帽或启动OOC/P&R。若只有周期改善且时序估计未解，明确保留为局部行为/周期候选，部署收益与可实现性未证。
+
+这不是LQ1 RTL的新增前置。LN大包围区间支持优先研究该核，但单凭它不能证明最终normalize循环解释全部成本。即使本候选无收益或因时序代价不宜保留，也可用实测完成该阶段判断。
+
+E005三摘要已发布LQ0及LQ1阶段信息；下一次普通发布同步AT015真实生成终态和AT016实际状态即可，不为记录更新重跑。KB1保留，KB2/CT0当前轮结束；整体executor/FullRuntime、冷INIT和恢复扩展继续停排。原单重工具/分类帽、G2338.224019s仅OOC余额、5172s不重启、无新OOC/P&R/上板/预算保持，M003/M004未完成。
+
+证据：[主控只读核验](measurement_first_LQ0_review_20261013/verification.json)、[观察差异](measurement_first_LQ0_review_20261013/observation.diff)、[LQ1唯一源差异](measurement_first_LQ0_review_20261013/LQ1_source.diff)、[HLS原报告摘录](measurement_first_LQ0_review_20261013/LQ1_HLS_selected.txt)、[工程LQ0报告](../project/E005_full_request_performance/experiment_results/runs/R001/reports/LQ0_measurement_20261013.md)。核验555个唯一SHA/bytes引用；其中含历史及候选生成引用，不把引用数当作测试覆盖率。

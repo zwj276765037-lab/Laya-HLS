@@ -1,0 +1,151 @@
+--- executor_request_close_shell_rtl_03/laya_executor_handoff_shell_tb_v1.sv
++++ executor_request_close_shell_rtl_04/laya_executor_handoff_shell_tb_v1.sv
+@@ -27,12 +27,15 @@
+   logic [8191:0] close_ok0,close_ok1,close_error0,close_error1;
+   logic [8191:0] closed_ok0,closed_ok1,closed_error0,closed_error1;
+   logic [8191:0] close_frame,closed_gold;
+-  int cycles=0,cases=0,close_cases=0;
++  int cycles=0,cases=0,close_cases=0,f20_cases=0,terminal_accepts=0;
++  logic terminal_seal_ready,terminal_seal_accepted;
+   logic stalled_response=0;
+   logic [8191:0] stalled_bytes;
+   laya_executor_handoff_shell_v1 #(.MANAGED_REQUEST_CLOSE(1)) dut(.query_ingress_started(1'b0),.query_ingress_owned(),.*);
+   always @(posedge clk)begin
+     cycles<=cycles+1;
++    if(!rst_n)terminal_accepts<=0;
++    else if(terminal_seal_accepted)terminal_accepts<=terminal_accepts+1;
+     if(cycles>6000)$fatal(1,"cycle cap");
+     if(authority_valid && (revoked || cancel || !executor_owns_dispatch || !local_committed))
+       $fatal(1,"authority without owner/commit/live binding");
+@@ -127,6 +130,40 @@
+       $fatal(1,"sealed request has same-cycle new-start authority");
+     tick();
+     @(negedge clk);terminal_seal_valid=0;
++  endtask
++  // Fast setup uses the same actual control/query consumers, omitting the
++  // original repeated stalls so all new cases stay under the existing cap.
++  task automatic fast_setup(input int stage);
++    reset_case();send(hold_frame);
++    @(negedge clk);predecessor_done_key=pending_key;predecessor_done_valid=1;
++    old_channels_drained=1;physical_safe=1;tick();
++    @(negedge clk);predecessor_done_valid=0;tick();
++    if(!response_valid || response!==held_gold)$fatal(1,"F20 setup HELD");
++    @(negedge clk);response_ready=1;tick();@(negedge clk);response_ready=0;
++    if(stage>=1)begin query_begin();for(int i=0;i<16;i++)query_pop(i);end
++    if(stage>=2)begin send(import_frame);consume_grant();end
++    close_frame=stage==2?close_error1:close_error0;
++    closed_gold=stage==2?closed_error1:closed_error0;
++  endtask
++  task automatic seal_and_control(input logic [8191:0] c,input logic [8191:0] t);
++    @(negedge clk);control=c;control_valid=1;terminal_seal_record=t;terminal_seal_valid=1;#1;
++    if(!control_ready || !terminal_seal_ready || !terminal_seal_accepted || authority_valid || query_permit)
++      $fatal(1,"F20 same-edge terminal suppressed or new start allowed");
++    tick();
++    @(negedge clk);control_valid=0;terminal_seal_valid=0;
++    if(!dut.terminal_sealed || dut.terminal_record!==t || terminal_accepts!=1 || !revoked)
++      $fatal(1,"F20 terminal pulse lost or counted twice");
++  endtask
++  task automatic f20_finish();
++    if(phase!=11)send(close_frame);
++    if(phase!=11 || authority_valid || query_permit)$fatal(1,"F20 close not retained");
++    work_done();host_done();tick();
++    if(!response_valid || response!==closed_gold)$fatal(1,"F20 old cleanup did not close");
++    repeat(12)begin tick();if(response!==closed_gold || !response_valid || !locks_owned)
++      $fatal(1,"F20 CLOSED backpressure changed bytes/owner");end
++    consume_closed();
++    if(terminal_accepts!=1)$fatal(1,"F20 seal not unique");
++    f20_cases++;
+   endtask
+   task automatic work_done();
+     @(negedge clk);request_work_done_record=close_frame;request_work_done_valid=1;tick();
+@@ -393,7 +430,89 @@
+     send(close_frame);work_done();host_done();tick();
+     if(!response_valid || response!==closed_gold)$fatal(1,"old owner cancel prevented close cleanup");
+     consume_closed();close_cases++;
+-    $display("FULL_CURRENT_EXECUTOR_HANDOFF_SHELL_RTL_PASS cases=%0d cycles=%0d close_cases=%0d sealed_terminal_commit=1 terminal_same_edge_no_start=1 full_closed_consumer=1 closed_wait_new_admission=1 old_cancel_close_progress=1 close_safety_inputs_controlled=1 F18_drain_abort_same_edge=1 F18_held_query_abort_priority=1 F18_accepted_query_persistent_abort=1 response_stall_stable=1 actual_helper_import_abort=1 held_query_import_grant=1 final_read_no_authority=1 tail2_tail1_stalls=1 unique_grant=1 no_reset_precommit_retry=1 cancel_base_same_edge=1 active_session_request_revoke=1 cleanup_owner_retained=1 controlled_safety_inputs=1 hardware_rearm_NOT_RUN=1",cases,cycles,close_cases);
++    // F20: five concurrent control classes at three live phases. Invalid
++    // control cannot suppress a one-cycle terminal, nor can same-edge CLOSE.
++    for(int stage=0;stage<3;stage++)for(int variant=0;variant<5;variant++)begin
++      logic [8191:0] c;
++      fast_setup(stage);c=close_frame;
++      case(variant)
++        0:c[784*8+:64]=102; // foreign request
++        1:c[16*8+:64]=2;    // foreign sequence
++        2:c[8*8+:8]=10;     // unknown kind
++        3:c[1023*8+:8]=1;   // reserved byte
++        4:begin end         // matching CLOSE on the terminal edge
++      endcase
++      old_channels_drained=0;physical_safe=0;
++      seal_and_control(c,close_frame);
++      if(phase!=(variant==4?11:(stage==0?3:stage==1?5:7)))$fatal(1,"F20 control/terminal phase conflict");
++      // Replay of the same full seal is idempotent. It is not a second fact.
++      @(negedge clk);terminal_seal_valid=1;terminal_seal_record=close_frame;#1;
++      if(terminal_seal_accepted)$fatal(1,"F20 duplicate terminal reaccepted");
++      tick();@(negedge clk);terminal_seal_valid=0;
++      repeat(3)begin tick();if(authority_valid || query_permit || !locks_owned ||
++        sequence_high_water!=1 || handoff_high_water!=1)$fatal(1,"F20 seal reopened/mutated floors");end
++      old_channels_drained=1;physical_safe=1;f20_finish();
++    end
++    // The actual IMPORT handshake is the commit witness for a same-edge seal.
++    fast_setup(1);close_frame=close_error1;closed_gold=closed_error1;
++    seal_and_control(import_frame,close_frame);
++    if(!local_committed || response_valid || grants!=0 || phase!=5)$fatal(1,"F20 IMPORT granted sealed terminal");
++    f20_finish();
++    // A foreign IMPORT cannot lend commit1 to a terminal's own assertion.
++    fast_setup(1);
++    @(negedge clk);control=import_frame;control[784*8+:64]=102;control_valid=1;
++    terminal_seal_record=close_error1;terminal_seal_valid=1;#1;
++    if(terminal_seal_ready || terminal_seal_accepted)$fatal(1,"F20 foreign IMPORT forged commit");
++    tick();@(negedge clk);control_valid=0;terminal_seal_valid=0;
++    if(local_committed || dut.terminal_sealed || phase!=5)$fatal(1,"F20 false commit retained");
++    seal_and_control(close_frame,close_frame);f20_finish();
++    // An early IMPORT at HELD_READY is not an accepted commit either.
++    fast_setup(0);
++    @(negedge clk);control=import_frame;control_valid=1;terminal_seal_record=close_error1;terminal_seal_valid=1;#1;
++    if(terminal_seal_accepted)$fatal(1,"F20 early IMPORT forged commit");
++    tick();@(negedge clk);control_valid=0;terminal_seal_valid=0;
++    if(local_committed || dut.terminal_sealed || phase!=3)$fatal(1,"F20 early commit accepted");
++    seal_and_control(close_frame,close_frame);f20_finish();
++    // A real commit1 ABORT communicates the import fact without grant.
++    fast_setup(1);close_frame=close_error1;closed_gold=closed_error1;
++    begin logic [8191:0] c;c=abort_frame;c[792*8+:8]=1;seal_and_control(c,close_frame);end
++    if(!local_committed || response_valid || phase!=10)$fatal(1,"F20 committed ABORT fact lost");
++    f20_finish();
++    // A presented GRANTED stays byte stable while the terminal independently
++    // seals; the attempted control is not accepted while response is held.
++    fast_setup(1);send(import_frame);close_frame=close_error1;closed_gold=closed_error1;
++    @(negedge clk);control=close_frame;control_valid=1;terminal_seal_record=close_frame;terminal_seal_valid=1;#1;
++    if(control_ready || !terminal_seal_accepted || authority_valid)$fatal(1,"F20 stalled GRANT arbitration");
++    tick();@(negedge clk);control_valid=0;terminal_seal_valid=0;
++    repeat(12)begin tick();if(response!==grant_gold || !response_valid || grants!=0 || terminal_accepts!=1)
++      $fatal(1,"F20 terminal overwrote presented GRANT");end
++    consume_grant();if(authority_valid || grants!=0 || !executor_owns_dispatch)$fatal(1,"F20 sealed GRANT opened start");
++    f20_finish();
++    // Terminal/new query same-edge: zero new acceptance.
++    fast_setup(0);
++    @(negedge clk);terminal_seal_record=close_frame;terminal_seal_valid=1;query_request=query_frame;query_accepted=1;#1;
++    if(query_permit || !terminal_seal_accepted)$fatal(1,"F20 seal permitted new query");
++    tick();@(negedge clk);terminal_seal_valid=0;query_accepted=0;
++    if(phase!=3 || terminal_accepts!=1)$fatal(1,"F20 new query crossed terminal fence");
++    f20_finish();
++    // An already owned query returns all 16 beats after a seal. Its final
++    // read is not suppressed; matching work/Host records co-present with the
++    // seal are retained, while debt still prevents CLOSED.
++    fast_setup(0);query_begin();
++    for(int i=0;i<15;i++)query_pop(i);
++    old_channels_drained=0;physical_safe=0;
++    @(negedge clk);terminal_seal_record=close_frame;terminal_seal_valid=1;
++    request_work_done_record=close_frame;request_work_done_valid=1;
++    host_result_consumed_record=close_frame;host_result_consumed_valid=1;
++    query_response_word=proof_frame[15*512+:512];query_response_pop=1;#1;
++    if(!terminal_seal_accepted || query_permit || authority_valid)$fatal(1,"F20 owned-query terminal not accepted");
++    tick();@(negedge clk);terminal_seal_valid=0;request_work_done_valid=0;host_result_consumed_valid=0;query_response_pop=0;
++    if(phase!=5 || dut.response_beats!=16 || !dut.request_work_done || !dut.host_result_consumed || terminal_accepts!=1)
++      $fatal(1,"F20 seal lost old query/work/Host progress");
++    send(close_frame);not_closed(12);old_channels_drained=1;physical_safe=1;tick();
++    if(!response_valid || response!==closed_gold)$fatal(1,"F20 retained facts did not close");
++    consume_closed();f20_cases++;
++    $display("FULL_CURRENT_EXECUTOR_HANDOFF_SHELL_RTL_PASS cases=%0d cycles=%0d close_cases=%0d F20_cases=%0d terminal_control_independent=1 terminal_full_handshake=1 observed_IMPORT_commit=1 same_edge_CLOSE=1 owned_query_cleanup=1 sealed_terminal_commit=1 terminal_same_edge_no_start=1 full_closed_consumer=1 closed_wait_new_admission=1 old_cancel_close_progress=1 close_safety_inputs_controlled=1 F18_drain_abort_same_edge=1 F18_held_query_abort_priority=1 F18_accepted_query_persistent_abort=1 response_stall_stable=1 actual_helper_import_abort=1 held_query_import_grant=1 final_read_no_authority=1 tail2_tail1_stalls=1 unique_grant=1 no_reset_precommit_retry=1 cancel_base_same_edge=1 active_session_request_revoke=1 cleanup_owner_retained=1 controlled_safety_inputs=1 hardware_rearm_NOT_RUN=1",cases,cycles,close_cases,f20_cases);
+     $finish;
+   end
+ endmodule

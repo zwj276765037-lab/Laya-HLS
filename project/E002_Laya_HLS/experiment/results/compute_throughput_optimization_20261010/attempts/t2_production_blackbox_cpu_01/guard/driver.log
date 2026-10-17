@@ -1,0 +1,28 @@
+ACT_BLACKBOX_CPU_COMPILED name=production_activation_quantizer
+NUMERIC_QUANT_TB_PASS cases=30
+ACT_BLACKBOX_CPU_CHECK_COMPLETE name=production_activation_quantizer
+ACT_BLACKBOX_CPU_COMPILED name=production_q8_linear_and_restore
+NUMERIC_LINEAR_TB_PASS cases=57
+ACT_BLACKBOX_CPU_CHECK_COMPLETE name=production_q8_linear_and_restore
+ACT_BLACKBOX_CPU_COMPILED name=owned_seven_shapes
+ACT_TM4_OWNED_SHAPE_PASS K=256 N=2 rows=1 last_tile=0
+ACT_TM4_OWNED_SHAPE_PASS K=1024 N=3072 rows=4 last_tile=383
+ACT_TM4_OWNED_SHAPE_PASS K=1024 N=1024 rows=4 last_tile=127
+ACT_TM4_OWNED_SHAPE_PASS K=1024 N=5248 rows=16 last_tile=655
+ACT_TM4_OWNED_SHAPE_PASS K=2624 N=1024 rows=4 last_tile=127
+ACT_TM4_OWNED_SHAPE_PASS K=1024 N=4096 rows=4 last_tile=511
+ACT_TM4_OWNED_SHAPE_PASS K=4096 N=1024 rows=4 last_tile=127
+ACT_TM4_OWNED_SHAPE_PASS K=1024 N=3072 rows=4 last_tile=383
+ACT_TM4_OWNED_SHAPE_PASS K=1024 N=1024 rows=4 last_tile=127
+ACT_TM4_OWNED_SHAPE_PASS K=1024 N=1024 rows=4 last_tile=127
+TM4_OWNED_SHAPES_PASS unique_shapes=7 families=10 full_owner_bits=1024 rows16=1 late_error_recovery=10
+ACT_BLACKBOX_CPU_CHECK_COMPLETE name=owned_seven_shapes
+ACT_BLACKBOX_CPU_COMPILED name=quant_fixture
+QUANT_BLACKBOX_CSIM_PASS real_groups=114 full_owner_bits=896 late_error=31 recovery=1
+ACT_BLACKBOX_CPU_CHECK_COMPLETE name=quant_fixture
+ACT_BLACKBOX_CPU_COMPILED name=tm4_fixture
+ACT_TM4_FIXTURE_PASS name=wi_rows4 groups=32 tiles=656
+ACT_TM4_FIXTURE_PASS name=down_rows4 groups=82 tiles=128
+TM4_BLACKBOX_CSIM_PASS real_calls=31488 real_lane_groups=1007616 full_owner_bits=1024 max_group=127 max_tile=655 error_recovery=1
+ACT_BLACKBOX_CPU_CHECK_COMPLETE name=tm4_fixture
+ACT_PRODUCTION_BLACKBOX_CPU_PASS affected_numeric=2 independent_services=2

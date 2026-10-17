@@ -1,0 +1,14 @@
+{
+  "source": "# E004：完整软件基线与固定图局部服务实验\n\nM004/SM004/E004/R001；A002 为 E002 实现与本批工具唯一写入负责人。当前权威 LN 单行合同为 `project/missions/SM004.md` 修订5；Vivado 2025.2、`xcu55c-fsvh2892-2L-e`、6.667ns 请求，只测试固定图候选的局部服务。原模型、F32 逐步舍入、独立 P1 保存夹具及 gamma 身份保持。AT091 是完整 B1/S128 的 host 软件正常请求；AT101 是受控 AXI4 向量服务；AT104/107/108 分别为 LN 叶子探针、1024 维单行 RTL 和同版单行 OOC。叶子/行参考仅复用独立 oracle，不重跑完整模型。预算为 LN host600s/8GiB、static1800s/24GiB、RTL1200s/8GiB、唯一 OOC1200s/24GiB；原始 attempts 不回写。",
+  "results": "# E004：限定结果\n\nAT091 完整软件正常请求 47 项/4,523,596 F32 对独立 gold 逐字节 PASS，实际 Attention 为 CPU 叶子。AT101 受控 AXI4 向量服务 4096 项正常/反压 6955/7206cycle，8AR/512R/4AW/256W/4B；AT099 仅单 lane 算术流 OOC 为 1283LUT/614FF，非搬运服务面积。\n\nLN：AT104 固定 CE 16 组连续 MUL/DIV/SQRT 独立位模式匹配，观测 lag14/12/6、所测 II1。AT107 同版完整单行 RTL 九例 PASS：真实 gamma0 8482cycle，真实 embedding gamma1 含反压 11792cycle，mean/variance/inverse 及各 1024 个 y 对保存独立核验夹具逐位相同；gamma2 仅复用 gamma1 数据。错误首错/无输出、连续行与局部在途 reset 后新行通过。AT106 child0 但 `LN_GOLD` Fatal，为原语义 FAIL。\n\nAT108 唯一同版 U55C OOC DCP 已生成、blackbox0；14279 LUT（8510 logic、5460 distributed RAM、309 SRL）、3375 FF、2 DSP、0 BRAM/URAM。综合内部 WNS+1.967ns@6.667ns；输入72/输出179无外部 delay且未布线，不是物理 Fmax。单条 critical warning 为同 SHA ADD 定义重复读入。OOC152.791918s/峰 owned RSS4314552KiB，无资源触发；LN 守卫累计 host0.373702s（下界）、static106.040047s、RTL29.865697s、OOC152.791918s。详见[阶段报告](runs/R001/reports/SM004_ln_row_stage_result_20261015.md)与[机读身份/guard收据](runs/R001/reports/SM004_ln_row_stage_evidence_20261015.json)。真实 final gamma、外存/联合图、连续硬件请求和 P&R 均未测。",
+  "status": "# E004：状态\n\nexecution_state: running；verdict: unassessed（完整 M004 加速器）。AT091 软件单正常请求、AT101 受控向量服务及 AT107/108 LN 单行分别在其局部范围完成；LN 单行本段已收束并交主控集中审核。AT106 语义 FAIL 保留，AT108 重复定义 warning 保留。host 未守卫准备的 RSS/policy/耗时未知，不将 0.373702s 说成完整 host 累计。当前工具队列空闲；下一步由 A001 在同 M004 确定后续共享服务/连接段。真实 final gamma 夹具、外部 AXI/HBM、完整硬件图、联合资源/布线频率、连续请求和板端仍开放。阶段证据：`project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_row_stage_result_20261015.md`；`project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_row_stage_evidence_20261015.json`。",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "AT091 host B1/S128 单正常请求、AT101 受控向量服务、AT107 LN 单行 RTL 与同版 AT108 局部 OOC；不适用于完整硬件图或物理 Fmax",
+  "evidence": [
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_row_stage_result_20261015.md",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_row_stage_evidence_20261015.json",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT107_SM004_ln_row_03/guard_sim/driver.log",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT108_SM004_ln_row_ooc_01/work/utilization.rpt"
+  ]
+}

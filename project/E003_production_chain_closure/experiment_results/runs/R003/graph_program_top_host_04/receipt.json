@@ -1,0 +1,104 @@
+{
+  "schema": "laya-graph-program-top-host-receipt-v1",
+  "status": "PASS",
+  "scope": "bounded graph-program HLS-top host execution: independent Python LGP1/LGR1 byte oracle; one accepted B1/S64 NORM_LAYER1_ATTN command emits one bound LAX1 action and commits its successful LAC1 slot update; a second safe action error returns request failure without slot commit; an invalid command returns a decodable zero-ordinal LOCAL_REJECT; the next accepted command remains unread until the prior four-beat LGR1 result-consumed signal and then preserves the monotonic action ordinal; final-write-adjacent consumer notification is retained, earlier stale notification is ignored, delayed consumption retains the boundary, and the recovered third action completes with all four streams empty. The test directly drives accepted commands and an abstract result-consumed signal with host hls::stream; it does not verify the executor/shell admission authority, real depth2 RTL FIFO handshake, lifecycle/adapter/LayerNorm/hub path, cancel cleanup, complete program PC graph, HLS generation, resources, timing, 13BO request, or board.",
+  "launcher": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/launcher.json",
+    "bytes": 200,
+    "sha256": "7acfd2413e63ee8bcde3a697719172da8a77470c893dcc9a1fbe72f2aad74bfc"
+  },
+  "input_manifest": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/input_manifest.json",
+    "bytes": 31062,
+    "sha256": "8ed620fbda369a9e0229c30a9de356935d3d9036d6c5b4545bc47a5714d7c24e"
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/tests/graph_program_protocol_oracle.py",
+        "--output",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/graph_program_oracle.bin"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "elapsed_seconds": 0.06634746305644512,
+      "log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/oracle.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": [
+        "/usr/bin/g++",
+        "-std=c++17",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-unknown-pragmas",
+        "-Wno-unused-parameter",
+        "-Wno-aggressive-loop-optimizations",
+        "-fno-fast-math",
+        "-fno-associative-math",
+        "-ffp-contract=off",
+        "-DLAYA_PARTITIONED_PRODUCTION_CALLER",
+        "-DLAYA_CONTROLLER_TRANSACTION_SEQUENCER",
+        "-pthread",
+        "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/include",
+        "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls",
+        "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/platform",
+        "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/build/model-current-production-v2-20261011",
+        "-isystem",
+        "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/tests/graph_program_top_test.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/common/laya_numeric.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/common/laya_tasks.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/control/graph_action_protocol.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/control/graph_program_protocol.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/control/program_pending_protocol.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/control/graph_program_sequencer.cpp",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/frozen/hls/control/graph_program_hls.cpp",
+        "-o",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/graph_program_top_test"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "elapsed_seconds": 3.822621386498213,
+      "log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/build.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": [
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/graph_program_top_test",
+        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/graph_program_oracle.bin"
+      ],
+      "exit_code": 0,
+      "timeout": false,
+      "elapsed_seconds": 0.01096363179385662,
+      "log": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/run.log",
+        "bytes": 506,
+        "sha256": "247b8ffe8e43f233f5f5cd075e6ea7637d54afa4bc8bf2cfe31edd41258d4adc"
+      }
+    }
+  ],
+  "markers": [
+    "FULL_CURRENT_GRAPH_PROGRAM_TOP_PASS schema=LGP1/LGR1 command_beats=4 result_beats=4 python_byte_oracle=1 action_beats=8/4 result_consumer_gate=1 adjacent_consume_latched=1 delayed_consume_gate=1 ordinal_recovery=1 early_stale_consume_ignored=1 completed_requests=3 completed_local_rejects=1 final_streams_empty=1 success_slot_commit=1 safe_error_request_complete=1 bad_command_local_reject=1 reject_gate_recovery=1"
+  ],
+  "program_source_count": 7,
+  "executable": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/graph_program_top_test",
+    "bytes": 88432,
+    "sha256": "fe6cfbd9bc2467eefdb7216d08a47561aee6a5fb16028daa284d1fc4a7ede51e"
+  },
+  "oracle": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E003_production_chain_closure/experiment_results/runs/R003/graph_program_top_host_04/graph_program_oracle.bin",
+    "bytes": 512,
+    "sha256": "9da3038eb38399d5a220745b8618b95f13837d03c7701bcfedd6a54b41f48aa0"
+  }
+}

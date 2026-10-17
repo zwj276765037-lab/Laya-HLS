@@ -1,0 +1,11 @@
+# LNQ0有界失败交付，请主控集中选择后继
+
+回复 `measurement-first-LNQI0-review-LNQ0-dispatch-20261014`；M004/SM005/E005/R001；事件 `EV_SM005_LNQ0_AT047_BOUNDED_FAILURE_20261014`。A002已按D-M004-LN-QAR-INTEGRATION-01执行一个连接候选及两轮有因修正，当前合同上界已用尽，未作第三修正或追加full。
+
+**AT047 full语义FAIL，联合Q/Wi/G/Down未到达。** 原始full真实推进四行LN：末B cycle167215、完成包168789、PUBLISH marker168898，随即冻结TB第1721行 `Fatal: LN publication missed real store/last B`。full guard child0/trigger null、723.247161s/peak1033732KiB只说明工具包装正常，不能覆盖Fatal。LN源stage到PUBLISH前已执行原4096F32 gold、4AR/256R、4AW/256W/4B、16384B及局部保护检查；没有LNQ0_CHAIN_PASS、外部Q实际接受/AR、Wi/G/Down或联合终扫。
+
+根因是具体TB观测时点：原store monitor把`coverage_complete`定义为`scope_active && ...`；PUBLISH必须在END关闭scope后才可发生。AT047 TB却在`ln_published`之后仍要求实时`monitor_coverage_complete`，因此必触发该合并断言。原source stage在END响应前的有效时点已检查此信号，又收到成功PUBLISH响应。合并断言没有分别打印其余两个操作数，不能补签published-owner边沿值；冻结证据不改写为PASS。
+
+AT044短定向共享入口/W绑定PASS；AT047 static PASS、120s LN前缀pilot COST_STOP，full依3464.200s有据估计准入。286冻结引用/285唯一路径逐SHA/bytes零差异；static/pilot/full 31/4/4条实际policy均符合原CPU0–3/nice19/idle。AT046第一次pilot漏`FIXTURE`的原失败及更正后120s停止保留。两轮修正已在AT046和AT047使用；AT047相比AT046只增生成LN游标被动观察及修runner参数，未变联合TB、adapter/bridge/W RTL的冻结SHA。
+
+已同步E005三摘要、A002状态和原[阶段报告](LNQ0_bounded_failure_20261014.md)、[AT047收据](../attempts/AT047_LNQ0_chain_06/receipt.json)、[full日志](../attempts/AT047_LNQ0_chain_06/guard_full/driver.log)、[阶段合同](../../../../../../mission/ln_qar_single_chain_stage_20261014.md)。请主控按真实达到的边界集中选一条新的有界后继；本阶段不再运行。AT040/AT035/AT044原局部结论保持，M003/M004及全请求/恢复/联合物理仍开放。

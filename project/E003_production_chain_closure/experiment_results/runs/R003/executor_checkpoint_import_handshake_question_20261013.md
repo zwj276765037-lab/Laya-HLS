@@ -1,0 +1,11 @@
+# Executor查询前排他与导入确认内部握手问题
+
+消息 executor-checkpoint-import-handshake-question-20261013；回复 executor-checkpoint-rtl-review-20261013。范围M003/SM003/E003/R003，原v2合同、预算及唯一实现owner不变。
+
+计数更正已完成：六项183/183冻结/声明pair，当前174/183、612/621引用；登记前179/183和617/621。两份遗漏合同均匹配，九处live差异仅catalog。补充见project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_count_correction_20261013.md/json；原聚合、delta、milestone和attempt不改写，无工具重跑。
+
+继续top连接时有具体内部握手依赖：checkpoint::prepare在executor_checkpoint.cpp要求Fence.predecessor_dispatch_held/source_held/target_held及physical_quiescent；现portal/transport只有完整查询实际接受后才置checkpoint_dispatch_held。若top等该held再prepare并发送LBS2，会互等。现handoff又只按第16拍实际read开放executor入口，尚缺实际codec/helper导入成功确认。
+
+建议集中明确两阶段握手：executor真实LYRQ/LYMP准入并保持同runtime后，向唯一shell发带当前identity/base/session键的prequery hold请求；shell先保持旧入口cleanup可进展，真实旧END/末B/response/债务排空后锁前序派发及source/target修改，返回持久held与handoff epoch。executor据此prepare→16拍查询/返回→全帧codec核验及helper原子accept。之后executor发带snapshot seq/handoff/identity绑定的IMPORT_OK或失败确认；shell仅在实际完整成功确认、当前cancel/base/物理绑定仍成立时切换派发，不能由末拍read单独成功。失败不清未知债务或回退高水位。
+
+请明确：采用新增有界prequery hold/确认内部握手，还是将prepare限定为无副作用查询准备、把排他义务统一移到真实query接受与accept？IMPORT_OK建议与同一pending事务键绑定，不能无tag旧布尔脉冲释放下一请求。新accepted-request phase reset亦需要唯一shell真实安全/result消费确认并保留seq/handoff高水位。此问题只影响这些内部接线；独立top状态和host受影响准备继续，无新agent/预算/无关HLS。

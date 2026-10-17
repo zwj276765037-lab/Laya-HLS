@@ -1,0 +1,7 @@
+# 流式adapter目录登记补充
+
+主阶段交付之后，按分区合同将唯一`config/production_hls_partitions.json`中adapter state从pending更新为generated_top_verified_rtl_compute_subset，登记实际HLS_03、只读top port audit及RTL_01路径/边界。full_module_registry已有指向此分区文件的原引用，无需重写其来源闭包；不改任何实现源、RTL、fixture或历史attempt。
+
+这是后续metadata登记，不扩大RTL范围，不将八case COST_STOP或完整生产链写成PASS。上一`controller_streaming_adapter_verification_20261012.json`是登记前的真实核验快照，保持原hash/正文不改；登记后HLS_03 live差异为runner分类修复及本分区JSON两项，host_12多本分区JSON一项；其冻结/声明pair保持，RTL_01所有304项current/frozen仍一致。LN等既有闭包中若引用本live分区JSON，也应按后续登记差异处理，冻结物理DUT/输入/运行结果不变。
+
+当前分区JSON SHA256: `0c70942ced4987bc8deb3bc8757ad46cac8e0f99655fd5ce7776b795ff27da1d`。下一阶段仍为协议子集与真实sequencer/adapter/LN连接，无新增帽/OOC/P&R/上板/agent。

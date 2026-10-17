@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "m004-rev15-at264-engineering-stage-handoff-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# SM004修订15 AT243–264工程阶段交付\n\n回复`m004-rev15-at250-scoped-acceptance-input-fixes-20261015`；M004/SM004/E004/R001。修订15两项控制修复、既定输入/复位/调度/legacy短回归和真实入口前缀已在原独立预算内连续完成，本段重工具停止，提交A001按冻结身份审核；不声称修订15或M004整体完成。\n\nAT250旧wrapper `d8e52ea3…`原主场景已由主控限定接纳：一次固定S128请求自动row0 cold→row1 warm，真实STATE0/gamma预装、LN/Q/PS/pre-QKV及两行4096个Q/K FINAL逐位，合计RAW512 B＋RoPE256 B；仅两行覆盖、无request done/FINAL发布。当前wrapper `d4856aee1f59c07e3af7b9427e50d0cd4d177f859cee4ee905637128f0c60209`的AT264新同版仅签真实row0完整RAW256＋RoPE128 B、原逐位checker、输入2048字不变和未生产row1 QKV192块/norm64块逻辑哨兵；没有当前SHA同runtime两行或真实128行成功。AT264 static135.58864064514637s、RTL455.91410728543997s，child0/null，唯一`SOURCE_LOGICAL_SENTINEL_PASS`且无Fatal/Error。\n\nAT259用生产wrapper/readers＋合法prepared-core peer在raw第7个R时报告早期fault，已接受64R真实排净后才一次abort、一次7/phase14；discard后epoch3 raw64R/gamma256R及2048字预装、core接受。AT256真实core的source RAW-only row0完整512响应/256 B后，下一行只改AUX base或span各即时拒绝、零新AR/core，恢复原描述符可再次准入。AT251旧wrapper晚STATE0/gamma RRESP错与部分R共同reset、AT255旧wrapper回放共同reset510拍隔离及gamma错/discard后epoch3完整RAW256＋RoPE128 B恢复分别保留身份；AT251/254旧guard对真实共同reset计数归零误停，AT255守卫仅按实际复位标记重开epoch，原child−9不回写。\n\nAT261同生产reader/core入口以冻结row0字节作row127页尾**局部路由**验证：STATE0 2AR/64R、gamma 5AR/256R及两段各1024字bank后core准入，不当row127数值gold。AT263真实core缺token、bank占有时普通命令、2048字commit后错id token分别核协议7/phase14和零W/AUX AR。AT262当前真实core旧外部raw/gamma各1024字及1024个LN输出逐位通过，止于LN。AT260当前wrapper FFN直接错误done/回显、flush同拍及RAW-only/release局部回归通过；AT252模拟row-wrapper peer的128唯一行/锁存字段/非法范围/发布屏障通过，仅调度元数据。AT243/248/257原静态失败、AT245 timeout和AT251/254守卫误停全保留费用/终态。\n\n[同一阶段报告](project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md)与[逐guard机读账](project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev15_guard_ledger_AT243_AT264_20261015.json)：42笔guard（20 static、22 RTL），static **1769.133914342150093/1800s**、RTL **2768.097435323521494/4800s**，402条实际政策样本零不匹配，1270项manifest SHA复核零差异，host完整累计UNKNOWN。三摘要已发布为`P4299bcec2cd244cc85b9f11b12ecc482`，E002 design/results与A002状态同步。余额30.866085657849907s/2031.902564676478506s仍属本修订，工程不自行转移或宣布封存。\n\n真实128行producer、实际请求成功done/FINAL发布、全请求异常首错、Attention/Encoder/模型、生产Host/HBM及物理BO、联合资源/Fmax仍未验；原逐行首错与旧全请求head优先次序冲突继续UNRESOLVED。AT264逻辑哨兵只签紧凑内存，不签设备物理隔离。请按原冻结版本集中审核并决定修订15有界出口；无新增预算或后继实现申请。\n",
+  "in_reply_to": "m004-rev15-at250-scoped-acceptance-input-fixes-20261015",
+  "message_file": ".research-agent/outbox/m004-rev15-at264-engineering-stage-handoff-20261015.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "651783308dc1665235a36f452c5b50bdfa8a408935a4df0ceba6f9da2db1783d",
+  "created_at": "2026-10-15T09:13:35.674396+00:00",
+  "status": "delivered",
+  "client_user_message_id": "a7c70750-0e8d-48e5-8c9e-b14172dedb98",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T09:13:35.710082+00:00",
+  "recipient_turn_id": "01a13ed6-a0d2-7b03-be46-d05c4b11fd28"
+}

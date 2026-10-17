@@ -1,0 +1,101 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT047_LNQ0_chain_06/frozen_new/laya_lnq0_source_stage_v1.sv	2026-10-14 03:25:29.773873682 +0800
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT048_LNQ1_observation_01/frozen_new/laya_lnq0_source_stage_v1.sv	2026-10-14 03:57:53.439529832 +0800
+@@ -95,6 +95,26 @@
+   logic source_read_active=0,destination_write_active=0;
+   logic producer_loaded=0,completion_seen=0,end_sent=0;
+   logic [511:0] completion_hold;
++  // END-time evidence is transient: the monitor drops coverage_complete
++  // when its physical scope closes. Keep the actual sampled packet/key and
++  // counters for the post-PUBLISH checker; this is observation-only TB state.
++  logic coverage_witness_valid=0,coverage_witness_complete=0;
++  logic coverage_witness_scope_active=0,coverage_witness_drained=0;
++  logic [15:0] coverage_witness_status=0;
++  logic [63:0] coverage_witness_bytes=0;
++  logic [8191:0] coverage_witness_packet=0;
++  integer coverage_witness_cycle=-1;
++  integer coverage_witness_source_ar=0,coverage_witness_source_r=0;
++  integer coverage_witness_destination_aw=0,coverage_witness_destination_w=0;
++  integer coverage_witness_destination_b=0,coverage_witness_store_bytes=0;
++  logic end_response_witness_valid=0,publish_response_witness_valid=0;
++  logic [4095:0] end_response_witness=0,publish_response_witness=0;
++  integer end_response_witness_cycle=-1,publish_response_witness_cycle=-1;
++  always @(negedge rst_n)begin
++    coverage_witness_valid=0;
++    end_response_witness_valid=0;
++    publish_response_witness_valid=0;
++  end
+   integer observed_real_row=-1;
+   integer observed_pass0_bucket=-1,observed_pass1_bucket=-1;
+   always @(posedge clk)begin
+@@ -331,6 +351,8 @@
+ 
+   initial begin
+     ln_published=0;ln_owner_released=0;
++    coverage_witness_valid=0;
++    end_response_witness_valid=0;publish_response_witness_valid=0;
+     provenance_cmd_din=0;provenance_cmd_write=0;provenance_rsp_read=0;
+     source_axi_arready=0;source_axi_rdata=0;source_axi_rresp=0;
+     source_axi_rlast=0;source_axi_rvalid=0;
+@@ -353,6 +375,10 @@
+       $fatal(1,"base initialization/fence failed");
+     $display("FULL_CURRENT_LAYERNORM_PRODUCER_PORTAL_PROGRESS base_configured cycles=%0d",cycles);
+ 
++    // This shell runs one task after the initial reset. New CLAIM starts
++    // with no evidence inherited from a prior task or reset.
++    coverage_witness_valid=0;
++    end_response_witness_valid=0;publish_response_witness_valid=0;
+     phase=1;transact("claim",CLAIM,8'h01);
+     phase=2;transact("begin",BEGIN_EVENT,8'h03);
+     $display("FULL_CURRENT_LAYERNORM_PRODUCER_PORTAL_PROGRESS begin_response_complete cycles=%0d",cycles);
+@@ -381,6 +407,31 @@
+     end_sent=1;
+     if(!monitor_coverage_complete)
+       $fatal(1,"monitor did not close real WSTRB coverage before END response");
++    coverage_witness_valid=1;
++    coverage_witness_complete=monitor_coverage_complete;
++    coverage_witness_scope_active=monitor_scope_active;
++    coverage_witness_drained=monitor_drained;
++    coverage_witness_status=monitor_status;
++    coverage_witness_bytes=monitor_observed0;
++    coverage_witness_packet=provenance_packet;
++    coverage_witness_cycle=cycles;
++    coverage_witness_source_ar=source_ar_count;
++    coverage_witness_source_r=source_r_count;
++    coverage_witness_destination_aw=destination_aw_count;
++    coverage_witness_destination_w=destination_w_count;
++    coverage_witness_destination_b=destination_b_count;
++    coverage_witness_store_bytes=destination_store_bytes;
++    $display("LNQ1_WITNESS_END_SAMPLE cycle=%0d scope=%0d coverage=%0d drained=%0d status=%0d bytes=%0d source=%0d/%0d destination=%0d/%0d/%0d store_bytes=%0d task=%0d context=%h descriptor=%h geometry=%h",
++      coverage_witness_cycle,coverage_witness_scope_active,
++      coverage_witness_complete,coverage_witness_drained,
++      coverage_witness_status,coverage_witness_bytes,
++      coverage_witness_source_ar,coverage_witness_source_r,
++      coverage_witness_destination_aw,coverage_witness_destination_w,
++      coverage_witness_destination_b,coverage_witness_store_bytes,
++      coverage_witness_packet[TASK*8+:64],
++      coverage_witness_packet[CONTEXT*8+:96],
++      coverage_witness_packet[DESCRIPTOR0*8+:1024],
++      coverage_witness_packet[GEOMETRY0*8+:512]);
+     if(completion_packet[0+:32]!=32'h3143504c ||
+        completion_packet[10*8+:16]!=0 || completion_packet[12*8+:8]!=1 ||
+        completion_packet[13*8+:8]!=1 ||
+@@ -393,6 +444,9 @@
+       $fatal(1,"producer completion fields mismatch");
+     while(!provenance_rsp_empty_n)tick();
+     receive_provenance(END_EVENT,0,8'h01);
++    end_response_witness=provenance_response;
++    end_response_witness_valid=1;
++    end_response_witness_cycle=cycles;
+     if(monitor_observed0!=target_rows*4096 || monitor_status!=0 ||
+        source_outstanding_beats!=0 ||
+        forwarded_aw!=target_rows || forwarded_w!=target_rows*64 || retired_b!=target_rows ||
+@@ -411,6 +465,9 @@
+         $fatal(1,"LN NORM guard changed word=%0d",i);
+ 
+     phase=4;transact("publish",PUBLISH,8'h05);
++    publish_response_witness=provenance_response;
++    publish_response_witness_valid=1;
++    publish_response_witness_cycle=cycles;
+     ln_published=1;
+     $display("MATRIX_PROGRESS cycle=%0d LN_publish=1 last_B=%0d",cycles,destination_b_count);
+     wait(source_lease_active);

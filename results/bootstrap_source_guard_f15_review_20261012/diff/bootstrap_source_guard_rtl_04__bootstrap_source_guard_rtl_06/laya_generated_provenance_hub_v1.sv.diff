@@ -1,0 +1,48 @@
+--- bootstrap_source_guard_rtl_04/laya_generated_provenance_hub_v1.sv
++++ bootstrap_source_guard_rtl_06/laya_generated_provenance_hub_v1.sv
+@@ -100,12 +100,14 @@
+   assign request_ready=!response_valid && !pending_end &&
+                        (!ENABLE_BOOTSTRAP_SNAPSHOT ||
+                         (!snapshot_response_valid)) &&
+-                       (!ENABLE_BOOTSTRAP_SOURCE_GUARD || !guard_conflict(request)) &&
+-                       (request_action!=BEGIN_EVENT || begin_external_ready) &&
+-                       (!needs_physical || physical_observation_valid);
++                       ((ENABLE_BOOTSTRAP_SOURCE_GUARD && guard_conflict(request)) ||
++                        ((request_action!=BEGIN_EVENT || begin_external_ready) &&
++                         (!needs_physical || physical_observation_valid)));
+   assign physical_observation_ready=(pending_end && !response_valid) ||
+                                     (request_valid && request_ready &&
+-                                     needs_physical);
++                                     needs_physical &&
++                                     (!ENABLE_BOOTSTRAP_SOURCE_GUARD ||
++                                      !guard_conflict(request)));
+   assign domain_drained=!scope_active && !pending_end && !response_valid &&
+                         !source_lease_active &&
+                         !cancel_pending && active_owners==0 &&
+@@ -401,7 +403,11 @@
+     first=d[40*8+:64];after=first+d[64*8+:64];
+     protected_first=protected_descriptor[40*8+:64];
+     protected_after=protected_first+protected_descriptor[64*8+:64];
+-    return same_physical(d,protected_descriptor) ||
++    // This finite shell knows one STATE0 base. A different role has no
++    // proven physical disjointness here; reject it while this key is held.
++    // A future multi-BO shell must prove addresses with its locked base table.
++    return d[28*8+:8]!=protected_descriptor[28*8+:8] ||
++      same_physical(d,protected_descriptor) ||
+       d[8*8+:64]==protected_descriptor[0+:64] ||
+       (d[28*8+:8]==protected_descriptor[28*8+:8] &&
+        (after<first || (first<protected_after && protected_first<after)));
+@@ -911,7 +917,12 @@
+         descriptor0=request[DESCRIPTOR0*8+:1024];
+         descriptor1=request[DESCRIPTOR1*8+:1024];
+         identity=request[IDENTITY*8+:672];slot0=-1;slot1=-1;
+-        case(request_action)
++        // A conflict is a consumed, bound rejection, not a blocked portal
++        // head. Keep scope/owner/typed state so a following old END can run.
++        // Held exclusion is not a drain proof for the rejected mutation.
++        if(ENABLE_BOOTSTRAP_SOURCE_GUARD && guard_conflict(request))
++          reject(E_BUFFER,32'h04000008,scope_active,0);
++        else case(request_action)
+           CLAIM:begin
+             if(scope_active || !owner_descriptors_ok(request))
+               reject(E_PROTOCOL,32'h04000017,0,1);

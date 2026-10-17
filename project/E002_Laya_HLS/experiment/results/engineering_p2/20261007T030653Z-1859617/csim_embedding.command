@@ -1,0 +1,1 @@
+/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/vitis-run --mode hls --csim --config /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/config/full_hls_embedding.cfg --work_dir /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/full-hls-20261007T030653Z-1859617/embedding 

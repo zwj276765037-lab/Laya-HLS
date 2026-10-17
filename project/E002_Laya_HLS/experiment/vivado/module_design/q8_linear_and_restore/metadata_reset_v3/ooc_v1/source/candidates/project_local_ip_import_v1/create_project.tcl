@@ -1,0 +1,78 @@
+if {[llength $argv] != 1} { error "usage: create_project.tcl FRESH_RUN_DIR" }
+proc require_project_path {label path project_dir} {
+    if {$path eq "" || [file pathtype $path] ne "absolute"} {
+        error "$label is missing or not absolute: $path"
+    }
+    set actual [file split [file normalize $path]]
+    set root [file split [file normalize $project_dir]]
+    if {[llength $actual] <= [llength $root] || [lrange $actual 0 [expr {[llength $root] - 1}]] ne $root} {
+        error "$label escapes project directory: $path"
+    }
+    return [file normalize $path]
+}
+set run_dir [file normalize [lindex $argv 0]]
+set rtl_dir [file join $run_dir stage rtl]
+set ip_dir [file join $run_dir stage ip]
+set xdc [file join $run_dir stage constraints q8_joint_tm4tn8_ooc.xdc]
+set hook [file join $run_dir stage scripts prepare_dat.tcl]
+set project_dir [file join $run_dir vivado]
+if {[file exists $project_dir]} { error "project directory already exists: $project_dir" }
+set verilog [lsort [glob -nocomplain -directory $rtl_dir *.v]]
+set dat [lsort [glob -nocomplain -directory $rtl_dir *.dat]]
+set ip_tcl [lsort [glob -nocomplain -directory $rtl_dir *_ip.tcl]]
+set xci [lsort [glob -nocomplain -directory $ip_dir *.xci]]
+if {[llength $verilog] != 230 || [llength $dat] != 108 || [llength $ip_tcl] != 7 || [llength $xci] != 7} {
+    error "staged Q8 input count mismatch: V=[llength $verilog] DAT=[llength $dat] Tcl=[llength $ip_tcl] XCI=[llength $xci]"
+}
+if {![file isfile $xdc] || ![file isfile $hook]} { error "clock XDC or DAT hook is missing" }
+set_param general.maxThreads 4
+create_project q8_same_source_ooc $project_dir -part xcu55c-fsvh2892-2L-e
+set_property target_language Verilog [current_project]
+set_property simulator_language Mixed [current_project]
+add_files -norecurse -fileset sources_1 $verilog
+add_files -norecurse -fileset sources_1 $dat
+add_files -norecurse -fileset constrs_1 $xdc
+add_files -norecurse -fileset utils_1 $hook
+set_property top q8_joint_tm4tn8 [get_filesets sources_1]
+set_property -dict [list {STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS} {-mode out_of_context}] [get_runs synth_1]
+if {[get_property {STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS} [get_runs synth_1]] ne "-mode out_of_context"} {
+    error "OOC synthesis mode option was not preserved"
+}
+set_property STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY none [get_runs synth_1]
+set_property STEPS.SYNTH_DESIGN.TCL.PRE $hook [get_runs synth_1]
+set map_path [file join $project_dir ip_import_paths.tsv]
+set map [open $map_path w]
+puts $map "ip\tstaged_xci\timported_xci\toutput_dir\tis_locked"
+set imported_xci {}
+foreach file $xci {
+    import_ip -srcset sources_1 $file
+}
+set locked_names {}
+foreach file $xci {
+    set name [file rootname [file tail $file]]
+    set ip [get_ips -quiet $name]
+    if {[llength $ip] != 1} { error "import did not create exactly one IP: $name" }
+    set is_locked [get_property IS_LOCKED $ip]
+    if {$is_locked} { lappend locked_names $name }
+    set imported [require_project_path "$name IP_FILE" [get_property IP_FILE $ip] $project_dir]
+    if {![file isfile $imported]} { error "imported XCI missing: $imported" }
+    if {[file tail $imported] ne "${name}.xci" || [file tail [file dirname $imported]] ne $name} {
+        error "$name IP_FILE is not in its own named directory: $imported"
+    }
+    set expected [file normalize [file join $project_dir q8_same_source_ooc.gen sources_1 ip $name]]
+    set output [require_project_path "$name IP_OUTPUT_DIR" [get_property IP_OUTPUT_DIR $ip] $project_dir]
+    if {$output ne $expected} { error "$name IP_OUTPUT_DIR mismatch: $output expected $expected" }
+    set obj [get_files -quiet $imported]
+    if {[llength $obj] != 1} { error "imported XCI not registered exactly once: $imported" }
+    set_property GENERATE_SYNTH_CHECKPOINT false $obj
+    lappend imported_xci $obj
+    puts $map "$name\t$file\t$imported\t$output\t$is_locked"
+}
+close $map
+set checker [file join [file dirname [info script]] verify_imported_xci.py]
+puts [exec /usr/bin/python3 $checker $run_dir $map_path]
+if {[llength $locked_names] != 0} { error "imported IP locked: $locked_names" }
+foreach obj $imported_xci { generate_target {synthesis simulation} $obj }
+update_compile_order -fileset sources_1
+puts "Q8_OOC_PROJECT_PREPARED xpr=[file join $project_dir q8_same_source_ooc.xpr] V=230 DAT=108 Tcl=7 XCI=7"
+close_project

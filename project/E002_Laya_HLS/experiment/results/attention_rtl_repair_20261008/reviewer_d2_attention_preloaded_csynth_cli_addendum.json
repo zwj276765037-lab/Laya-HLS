@@ -1,0 +1,61 @@
+{
+  "schema": "preloaded_local_synthesis_cli_correction_v1",
+  "at_utc": "2026-10-08T12:38:50.178811+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "decision": "CORRECT_REVIEWER_COMMAND_EXAMPLE_RELEASE_VPP_SAME_CONFIG_AND_LIMITS",
+  "prior_review": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_csim_review.json",
+    "sha256": "15812cc9aa122badfd4d540e4b0bf0aaf6f907b94a3d4695164c895be70b16df"
+  },
+  "first_attempt": {
+    "guard": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v1/guard/guard_result.json",
+      "sha256": "723a2dc6b0d7a68fa0f824792e4731e376377991c6854232d3892fcc55d00b85"
+    },
+    "driver_log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v1/guard/driver.log",
+      "sha256": "f6ff8afba0ac45307f2bf74ac2c6675f18f46b5b56711de4fe380b6ffca16121"
+    },
+    "result": {
+      "child_exit_code": 2,
+      "elapsed_seconds": 1.8623548597097397,
+      "finished_at": "2026-10-08T12:35:35.191579+00:00",
+      "minimum_mem_available_kb": 448167116,
+      "peak_owned_rss_kb": 184332,
+      "rss_capture_count": 9,
+      "rss_captured": true,
+      "rss_sample_count": 9,
+      "trigger": null
+    },
+    "classification": "CLI rejects unsupported vitis-run --csynth before compilation; not HLS design failure"
+  },
+  "corrected_tool": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/v++",
+  "corrected_arguments": [
+    "--compile",
+    "--mode",
+    "hls",
+    "--config",
+    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/config.cfg",
+    "--work_dir",
+    "new independent local synthesis work directory"
+  ],
+  "config": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/config.cfg",
+    "sha256": "c590caeb65a0027a194fd745ac114a831b2df80b52d30b47ef0c8e9dea5f1d21"
+  },
+  "unchanged": {
+    "source_package_identity": "fe067 and reviewed preloadedwrapper",
+    "owned_rss_GiB": 16,
+    "wall_seconds": 1800,
+    "cpus": 4,
+    "nice": 19,
+    "io": "idle",
+    "minimum_MemAvailable_GiB": 192,
+    "sample_seconds": 0.2,
+    "scope": "localcsynth only;Laya agenttree one heavy tool"
+  },
+  "reason": "Existing successful D2 synthesis uses v++ --compile --mode hls. Reviewer example in prior gate incorrectly used vitis-run --csynth; this addendum corrects only execution entry. Preserve first failure and bind actual second argv/guard/input hashes."
+}

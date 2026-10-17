@@ -1,0 +1,202 @@
+--- executor_actor_host_06/executor_actor_test.cpp
++++ executor_actor_host_07/executor_actor_test.cpp
+@@ -113,6 +113,112 @@
+     if(which==4)++changed.binding.source.identity.request_id;
+     assert(handoff::validate(changed) && !handoff::same_key(changed,m));
+   }
++}
++void close_wire(const std::string& fixture) {
++  unsigned cases=0;
++  for(const std::string kind:{"close","closed"})
++    for(const std::string status:{"ok","error"})for(unsigned commit=0;commit<2;++commit) {
++      const auto p=packet<1024>(bytes(fixture+"/"+kind+"_"+status+"_c"+std::to_string(commit)+".bin"));
++      handoff::Message m;assert(handoff::decode(p,m) && handoff::encode(m)==p &&
++        m.local_committed==bool(commit) && bool(m.result)==(status=="ok"));++cases;
++      for(unsigned offset:{0u,4u,6u,9u,12u,28u,664u,678u,744u,768u,793u,1023u}) {
++        auto bad=p;bad[offset]^=1;handoff::Message out;out.session=99;
++        assert(!handoff::decode(bad,out) && !out.session);
++      }
++      for(unsigned unknown:{0u,10u,11u,127u,255u}) {
++        auto bad=p;bad[8]=unknown;handoff::Message out;out.session=99;
++        assert(!handoff::decode(bad,out) && !out.session);
++      }
++      auto bad=p;bad[792]=2;handoff::Message out;assert(!handoff::decode(bad,out));
++      bad=p;portal::put(bad.data(),680,0,8);assert(!handoff::decode(bad,out));
++      if(status=="ok") {bad=p;bad[24]=1;assert(!handoff::decode(bad,out));}
++    }
++  assert(cases==8);
++}
++void actual_closed_capture(const std::string& fixture,const std::string& directory) {
++  unsigned frames=0;
++  for(const std::string status:{"ok","error"})for(unsigned commit=0;commit<2;++commit) {
++    const std::string name="closed_"+status+"_c"+std::to_string(commit);
++    std::ifstream file(directory+"/"+name+"_capture.hex");assert(file);
++    handoff::Packet captured{};
++    for(unsigned beat=0;beat<16;++beat) {
++      std::string line;assert(bool(file>>line) && line.size()==128);
++      for(unsigned byte=0;byte<64;++byte)
++        captured[beat*64+byte]=uint8_t(std::stoul(line.substr(126-2*byte,2),nullptr,16));
++    }
++    std::string extra;assert(!(file>>extra));
++    handoff::Message decoded;
++    assert(handoff::decode(captured,decoded) && handoff::encode(decoded)==captured &&
++      decoded.kind==handoff::Kind::CLOSED && decoded.local_committed==bool(commit) &&
++      bool(decoded.result)==(status=="ok") && decoded.binding.handoff_epoch==1 &&
++      captured==packet<1024>(bytes(fixture+"/shell_"+name+".bin")));
++    ++frames;
++  }
++  assert(frames==4);
++}
++void finish_managed_close(Harness& h,const std::string& fixture,
++                          const program_wire::ResultPacket& consumed,const std::string& name) {
++  auto& s=h.state;
++  assert(s.managed_close && s.phase==executor::Phase::WAIT_RESULT_CONSUMED);
++  const auto before=std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(&s.runtime),
++    reinterpret_cast<const uint8_t*>(&s.runtime)+sizeof(s.runtime));
++  const auto task=s.runtime.last_task_id;
++  const auto lpv=s.runtime.provenance_event_high_water;
++  const auto producer=s.runtime.producer_request_high_water;
++  // An untagged last-read or a foreign syntactically valid result has no
++  // managed close authority. The full result belongs to the old admitted A/K.
++  h.in.result_consumed=true;h.call();h.in.result_consumed=false;
++  assert(s.phase==executor::Phase::WAIT_RESULT_CONSUMED && !s.control_pending);
++  auto wrong=s.result;++wrong.identity.request_id;
++  h.in.host_result_valid=true;h.in.host_result=program_wire::encode(wrong);h.call();
++  assert(s.phase==executor::Phase::WAIT_RESULT_CONSUMED && !s.result_consumed_pending);
++  h.in.host_result=consumed;h.call();h.in.host_result_valid=false;
++  assert(s.phase==executor::Phase::WAIT_CLOSE && s.control_pending && s.result_consumed_pending);
++  auto expected=s.control_request;assert(expected.kind==handoff::Kind::CLOSE && expected.local_committed);
++  const auto literal=packet<1024>(bytes(fixture+(expected.result?"/close_ok_c1.bin":"/close_error_c1.bin")));
++  assert(handoff::encode(expected)==literal);
++  auto closed=expected;closed.kind=handoff::Kind::CLOSED;
++  h.incoming(closed);assert(!s.closed_consumed && s.phase==executor::Phase::WAIT_CLOSE);
++  for(unsigned i=0;i<12;++i) {h.call();assert(s.control_pending && handoff::encode(s.control_request)==literal);}
++  auto actual=h.outgoing();assert(handoff::encode(actual)==literal);
++  for(unsigned which=0;which<9;++which) {
++    auto foreign=closed;
++    if(which==0)++foreign.session;
++    if(which==1)++foreign.accepted_request;
++    if(which==2)++foreign.binding.source.sequence;
++    if(which==3)++foreign.binding.handoff_epoch;
++    if(which==4)++foreign.binding.source.identity.request_id;
++    if(which==5)foreign.local_committed=false;
++    if(which==6)foreign.result={Status::E_BUFFER,laya::detail(7,0,14)};
++    if(which==7) {foreign.result={Status::E_PROTOCOL,laya::detail(7,0,15)};}
++    if(which==8)foreign.kind=handoff::Kind::GRANTED,foreign.result=ok();
++    h.incoming(foreign);assert(s.phase==executor::Phase::WAIT_CLOSE && !s.closed_consumed);
++  }
++  // Persistently changed live inputs do not replace the old CLOSED owner.
++  h.in.cancel=true;++h.in.fence.base.epoch;++h.in.session;++h.in.accepted_request;
++  for(unsigned i=0;i<12;++i) {h.call();}
++  h.incoming(closed);
++  assert(s.closed_consumed && s.closed_requests==1 && s.phase==executor::Phase::WAIT_NEW_ADMISSION &&
++    handoff::encode(s.closed_record)==packet<1024>(bytes(fixture+(closed.result?"/closed_ok_c1.bin":"/closed_error_c1.bin"))));
++  std::ofstream capture(fixture+"/actual_close_"+name+".bin",std::ios::binary);
++  capture.write(reinterpret_cast<const char*>(literal.data()),literal.size());assert(capture);
++  h.in.cancel=false;h.in.request_valid=true;h.in.managed_close=false;
++  for(unsigned i=0;i<24;++i) {h.call();}
++  h.incoming(closed);
++  assert(s.closed_requests==1 && s.admissions==1 && s.phase==executor::Phase::WAIT_NEW_ADMISSION &&
++    h.commands.empty() && h.results.empty() && s.runtime.last_task_id==task &&
++    s.runtime.provenance_event_high_water==lpv && s.runtime.producer_request_high_water==producer &&
++    std::equal(before.begin(),before.end(),reinterpret_cast<const uint8_t*>(&s.runtime)));
++}
++void managed_success_host(const std::string& fixture,const checkpoint::Response& gold) {
++  auto state=std::make_unique<executor::State>();Harness h(*state,fixture);h.in.managed_close=true;
++  h.start_hold();h.held(19);checkpoint::Request q;assert(checkpoint::decode(dequeue<1024>(h.query),q));
++  h.proof(gold,false);auto m=h.outgoing();m.kind=handoff::Kind::GRANTED;h.incoming(m);
++  for(unsigned i=0;i<10000 && state->phase!=executor::Phase::WAIT_RESULT_CONSUMED;++i)h.call(true);
++  assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED && state->runtime.tasks_retired==4 &&
++    state->runtime.last_task_id==8 && h.producers==4 && h.results.size()==4);
++  const auto r=dequeue<256>(h.results);program_wire::Result decoded;assert(program_wire::decode(r,decoded) && decoded.result);
++  finish_managed_close(h,fixture,r,"success");
+ }
+ void consecutive(const std::string& fixture,const checkpoint::Response& gold) {
+   static executor::State state;Harness h(state,fixture);
+@@ -380,7 +486,7 @@
+     program_pending::Record out;assert(!program_pending::decode(bad,out));
+   }
+ }
+-void cancel_drain_host(const std::string& fixture,const checkpoint::Response& gold) {
++void cancel_drain_host(const std::string& fixture,const checkpoint::Response& gold,bool managed=false) {
+   pending_wire(fixture);
+   unsigned successful=0,bad_frames=0,bad_keys=0;
+   // Same actor/actual explicit program logic; no stream reset or removal is
+@@ -388,7 +494,7 @@
+   // prove notification/state retention, not physical depth2 scheduling.
+   for(unsigned mode=0;mode<3;++mode) {
+     auto state=std::make_unique<executor::State>();Harness h(*state,fixture);
+-    program_hls::State graph;grant_only(h,gold);auto key=old_program_key(h);
++    program_hls::State graph;h.in.managed_close=managed;grant_only(h,gold);auto key=old_program_key(h);
+     auto program_call=[&]() {
+       program_hls::step(graph,state->revoked || h.in.cancel,state->program_result_consumed,
+         &key,h.commands,h.program_results,h.actions,h.completions);
+@@ -454,9 +560,13 @@
+       !(decoded.flags&program_wire::LOCAL_REJECT) && result==packet<256>(bytes(fixture+"/cancel_result.bin")));
+     // The actual Host-side last read is acknowledged. It is retained, but
+     // cannot substitute for the still-missing bound CLOSE/safe-release path.
+-    h.in.result_consumed=true;h.call();h.in.result_consumed=false;
++    if(managed) {
++      assert(graph.phase==program_hls::Phase::READ_COMMAND && !graph.bound_command);
++      finish_managed_close(h,fixture,result,"cancel"+std::to_string(mode));
++    }
++    else {h.in.result_consumed=true;h.call();h.in.result_consumed=false;}
+     assert(state->result_consumed_pending);
+-    for(unsigned i=0;i<24;++i) {program_call();h.call();assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED);}
++    for(unsigned i=0;i<24;++i) {program_call();h.call();assert(state->phase==(managed?executor::Phase::WAIT_NEW_ADMISSION:executor::Phase::WAIT_RESULT_CONSUMED));}
+     assert(std::equal(before.begin(),before.end(),reinterpret_cast<const uint8_t*>(&state->runtime)) &&
+       h.tx.transaction_request.empty() && h.tx.transaction_completion.empty() &&
+       !h.events && !h.producers && !state->runtime.tasks_retired &&
+@@ -506,7 +616,7 @@
+   // ordinal-zero local result, with no pending action or fabricated LAC1.
+   for(unsigned partial=0;partial<2;++partial) {
+     auto state=std::make_unique<executor::State>();Harness h(*state,fixture);
+-    program_hls::State graph;grant_only(h,gold);auto key=old_program_key(h);
++    program_hls::State graph;h.in.managed_close=managed;grant_only(h,gold);auto key=old_program_key(h);
+     if(partial)for(unsigned i=0;i<2;++i)program_hls::step(graph,false,false,&key,h.commands,h.program_results,h.actions,h.completions);
+     h.in.cancel=true;h.call();h.in.cancel=false;
+     for(unsigned i=0;i<100 && state->phase!=executor::Phase::WAIT_RESULT_CONSUMED;++i) {
+@@ -515,16 +625,22 @@
+     assert(state->phase==executor::Phase::WAIT_RESULT_CONSUMED && h.commands.empty() &&
+       h.actions.empty() && h.completions.empty() && h.results.size()==4 &&
+       !graph.graph.action_high_water && !state->port.machine.action_high_water && !state->runtime.tasks_retired);
+-    program_wire::Result r;assert(program_wire::decode(dequeue<256>(h.results),r) &&
++    const auto actual_result=dequeue<256>(h.results);
++    program_wire::Result r;assert(program_wire::decode(actual_result,r) &&
+       !r.result && !r.action_ordinal && (r.flags&program_wire::LOCAL_REJECT));
+-  }
+-  std::cout<<"FULL_CURRENT_EXECUTOR_CANCEL_DRAIN_PASS pending_literal_bytes=1024 pending_wire_rejects=14 "
++    if(managed) {
++      assert(graph.phase==program_hls::Phase::READ_COMMAND && !graph.bound_command);
++      finish_managed_close(h,fixture,actual_result,"no_action"+std::to_string(partial));
++    }
++  }
++  std::cout<<(managed?"FULL_CURRENT_EXECUTOR_CANCEL_DRAIN_CLOSE_COMPAT_PASS":"FULL_CURRENT_EXECUTOR_CANCEL_DRAIN_PASS")<<" pending_literal_bytes=1024 pending_wire_rejects=14 "
+     <<"actual_program_successful_cancel_cases="<<successful<<" bad_frame_cases="<<bad_frames
+     <<" bad_key_cases="<<bad_keys<<" real_program_no_action_cases=2 shared_action_highwater=1 "
+     <<"completion_literal=1 result_literal=1 first_read_owner_unique=1 runtime_byte_unchanged=1 "
+     <<"action_tail2_tail1_wait=1 completion_tail2_tail1_wait=1 zero_tasks_retired=1 zero_transactions=1 "
+-    <<"replay_no_second_completion=1 result_tail2_tail1_wait=1 host_result_consumed_retained_no_CLOSE_no_rearm=1 "
+-    <<"depth2_RTL_NOT_RUN=1 CLOSE_rearm_NOT_RUN=1\n";
++    <<"replay_no_second_completion=1 result_tail2_tail1_wait=1 "
++    <<(managed?"Host_tagged_close_cases=5 ":"host_result_consumed_retained_no_CLOSE_no_rearm=1 ")
++    <<"depth2_RTL_NOT_RUN=1 hardware_rearm_NOT_RUN=1\n";
+ }
+ void helper_shell_stimuli(const std::string& fixture,const checkpoint::Response& gold,
+                           const std::string& rtl_capture) {
+@@ -569,6 +685,15 @@
+   assert(argc==2 || argc==3 || argc==4);const std::string fixture=argv[1];wire(fixture);
+   auto p=packet<1024>(bytes(fixture+"/v2/checkpoint_request.bin"));checkpoint::Request r;assert(checkpoint::decode(p,r));
+   checkpoint::Response proof;assert(checkpoint::decode(packet<1024>(bytes(fixture+"/v2/checkpoint_response.bin")),r,proof));
++  if(argc>=3 && std::string(argv[2])=="--request-close") {
++    close_wire(fixture);
++    if(argc==4)actual_closed_capture(fixture,argv[3]);
++    managed_success_host(fixture,proof);cancel_drain_host(fixture,proof,true);
++    std::cout<<"FULL_CURRENT_EXECUTOR_REQUEST_CLOSE_PASS wire_literals=8 wire_mutants=156 real_success_cases=1 real_cancel_cases=3 real_no_action_cases=2 "
++      <<"host_full_result_required=1 real_program_action_completion_results=1 exact_closed_error_commit=1 old_live_changed_close=1 "
++      <<"closed_once_wait_new_admission=1 runtime_unchanged_close=1 actual_closed_rtl_capture_frames="<<(argc==4?4:0)
++      <<" no_LGP_error_NOT_RUN=1 same_hardware_consumer_NOT_RUN=1 hardware_rearm_NOT_RUN=1\n";return 0;
++  }
+   if(argc==3 && std::string(argv[2])=="--cancel-drain") {cancel_drain_host(fixture,proof);return 0;}
+   if(argc>=3) {
+     assert(std::string(argv[2])=="--shell-stimuli");helper_shell_stimuli(fixture,proof,argc==4?argv[3]:"");

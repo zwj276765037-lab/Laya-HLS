@@ -1,0 +1,82 @@
+--- before/source/design.md
++++ after/source/design.md
+@@ -11,9 +11,19 @@
+ | [D2-I synthesis/IR acceptance](../../../reviewer_d2_i_v3_synthesis_ir_review.json) | The frozen production wrapper, generated RTL and reachable producer/controller/task path. |
+ | [Bounded static endpoint acceptance](../../../reviewer_axi_bounded_static_v1_final_unit_review.json) | Finite AXI endpoint, adapter and protocol checker reused by exact source/hash. |
+ | [Original vector fixture report](../../tb/fixture_v2/fixture_report.json) | Frozen 832-byte request, 16-F32 candidate input and independent 16-F32 gold. |
++| [Static schedule/port prediction](../../../d2_i_vector_mode3_static_schedule_ports_budget_precheck.json) and [mandatory IO erratum](../../../d2_i_vector_mode3_static_schedule_ports_budget_precheck_io_scope_erratum.json) | Finite source worksheet and physical AXI predictions; DUT IO unique offsets are 0–831, while TB maps/checks all 32768 IO bytes. |
++| [Independent prediction review](../../../reviewer_d2_i_mode3_static_precheck_independent_review.json) | Validates the 102 binding origins, terminal response identities and first-done accounting as source predictions only. |
+ 
+ The later materializer will copy the exact request into a zero-filled 32768-byte IO image and patch only request ID at byte offset 24 from its frozen value to 305. It will map `src0_input` first 64 bytes to the frozen candidate, `aux` first 128 bytes to the original model header, and all other mapped source bytes to `A5`. The one mapped `state1` page is located at logical offset 16916480; raw and masked ranges within it are 16918976–16919040 and 16918592–16918656. `src1_input` and `state0` remain sentinel-only. `observed` is a 4 KiB page with all 32 final words checked and `A5` tail. Seven distinct high-32-bit physical bases and four other IO pages preserve the exact legal parser range without allocating the full logical state BO.
+ 
+ The source-only top will connect all seven actual 32-bit AXI bundles and both AXI-Lite banks from the generated port list. It will read back cold pointer/mode reset values, program mode 3 and all 64-bit pointers, then issue one AP start without auto-restart. The accepted bounded endpoint and passive two-sided monitors enforce INCR bursts, size/lane/strobe/ID/LAST/response, exact address windows and finite backpressure. First sampled `ap_done` and CSR done/idle must see all seven port and adapter queues drained. The numeric checker will compare all 16 masked F32 bit patterns, including signed zero, to frozen independent gold; raw 64 bytes must equal the input, all other state bytes remain `A5`, and all 32 observed words match the release. Source-only preparation does not produce these runtime results.
+ 
+ The first pilot excludes residual, ADD_TYPE, missing source recovery, full I-L/full graph, warm-reset metadata claims and physical timing. Later stages need separate source/bytes review and one-time execution gate.
++
++## Prepared source mapping (no runtime claim)
++
++`tb/generate_top.py` regenerates `tb/vector_mode3_top.sv` from the frozen 352-pin generated top. It checks the release and generated top SHA-256 before writing. Its `io` monitor allows physical reads only within the 832-byte frame; the endpoint still maps eight distinct 4 KiB IO pages. `tb/vector_mode3_control.svh` owns cold reset, both Lite readbacks, seven full 64-bit pointer writes/readbacks, mode3, one AP start, coherent `ap_start && state1` acceptance, first sampled terminal done, exact terminal raw R and masked B response holds, and all 14-page output/sentinel checks. It writes full state1/observed raw pages before first-done and later output assertions. The accepted external AXI endpoint and passive two-sided monitors remain bound by original source hashes; no testbench forces internal DUT state.
++
++`tb/check_cpu_gold.py` independently reapplies the frozen 16-element FP32 candidate-mask rule to the immutable input and mask, checking the existing CPU gold bit for bit. `tb/check_runtime_mode3.py` independently checks those 16 result bits, raw payload, all 32 observed words, mapped page tails, port/adapter totals and first-done log against the frozen sources. Both are source only here. `tb/build_static.sh`, `tb/run_mode3.sh`, `tb/seal_snapshot.py`, `tb/verify_binding.py` and `tb/make_source_packet.py` prepare exact future stage identities. The packet's static build, snapshot, prepared and runtime paths are separate authoritative fields; every executable shell entrance uses `/usr/bin/bash` explicitly.
++
++The static worksheet predicts 636 AR, 639 R, 132 AW, 179 W and 132 B; 3272 physical bus bytes and 1420 cumulative logical useful bytes. The TB reports actual per-side transfers for later comparison. The 131072-cycle DUT watchdog, 120 s/4 GiB runtime envelope and 64-cycle adapter work-unit allowance remain advice awaiting an exact source/snapshot and runtime gate. A PASS in one source checker alone cannot establish numerical RTL acceptance.
+--- before/source/results.md
++++ after/source/results.md
+@@ -3,3 +3,7 @@
+ State on 2026-10-09: source preparation only. No mode3 page materialization, CPU/CSim, RTL static compilation, XSim runtime, OOC, implementation, board test or 50 ms measurement has run.
+ 
+ The frozen generated closure has 226 Verilog, 73 DAT and eight FP simulation VHDL wrappers; seven 32-bit AXI ports and two Lite banks were read from the immutable generated top. The 14 mapped 4 KiB pages and single B1/S64 mode3 request are source-contract counts, not runtime observations. Physical beat counts, service cycles, simulator rate, RSS and wall allowances must be derived from the actual generated producer/read/write paths and independent source review before any execution gate. Existing D2-I CPU/CSim/synthesis success and the accepted bounded endpoint do not substitute for mode3 RTL evidence.
++
++Source continuation: the original seven local files were copied byte for byte into `source/history/before_source_completion_20261009/` with a SHA-256 manifest before changes. `source/source_delta.diff` records the small changes to those seven originals; the added controller, checkers and shell sources are individually hashed in the packet. The active generator, controller, checker and shell files are in `tb/`; the unchanged generated RTL remains in `../runs/v3/csynth_vector_work/hls/`. The packet `source/source_packet.json` records active source hashes, the original 102 precheck bindings, 226+73+8 generated inputs, accepted endpoint sources, installed simulation library provenance, and explicit planned build/snapshot/prepared/runtime roots. One original binding is the subsequently edited `mission/task.md` activity log: its old record remains unchanged, its current hash is noted as context, and the other 101 original references still match byte for byte. Packet creation and light syntax checks do not execute fixture materialization, CPU reference, Vivado, XSim or synthesis.
++
++The source worksheet predicts per-port/total physical transactions and a 20000-cycle rounded internal contribution, then proposes 131072 accepted-start-to-first-done cycles with a 31328-cycle margin under stated AXI and adapter allowances. These remain unmeasured and do not establish a proven worst-case bound. The installed library SHA list is inherited from the accepted Attention V5 source packet; this preparation checks current paths/sizes and defers a fresh large-library hash pass to a reviewed compiler gate. Functional RTL, CPU crosscheck, static compiler, XSim numerical result, OOC, timing and board validation for this mode3 packet all remain **not executed**.
+--- before/tb/generate_top.py
++++ after/tb/generate_top.py
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python3
+ """Generate literal seven-AXI/two-Lite mode3 wiring from frozen D2-I pins."""
+ from pathlib import Path
++import hashlib
+ import json
+ import re
+ 
+@@ -26,7 +27,9 @@
+     'aux':[0], 'state0':[0], 'state1':[16916480], 'observed':[0],
+ }
+ READ_WINDOWS = {
+-    'src0_input':[(0,64)], 'io':[(0,32768)], 'aux':[(0,128)],
++    # The eight IO pages are mapped and checked, but the DUT reads only
++    # frame offsets 0..831 (the accepted IO-scope erratum).
++    'src0_input':[(0,64)], 'io':[(0,832)], 'aux':[(0,128)],
+     'state1':[(16918976,64)],
+ }
+ WRITE_WINDOWS = {
+@@ -37,9 +40,15 @@
+     return '{' + ','.join(f"64'h{x:016x}" for x in reversed(values)) + '}'
+ 
+ def main():
+-    gate=json.loads(GATE.read_text())
++    gate_bytes=GATE.read_bytes()
++    assert hashlib.sha256(gate_bytes).hexdigest()==\
++        '853ff64b50b2fb1d879453e6aff8759222d5c949e94916cc0b26c8ac72882466'
++    gate=json.loads(gate_bytes)
+     assert gate['ports']['m_axi']['ports'] == PORT_NAMES
+-    text=RTL.read_text()
++    rtl_bytes=RTL.read_bytes()
++    assert hashlib.sha256(rtl_bytes).hexdigest()==\
++        gate['immutable_source_refs']['generated_top']['sha256']
++    text=rtl_bytes.decode('ascii')
+     param={}
+     for name,value in re.findall(r'^parameter\s+(C_\w+)\s*=\s*([^;]+);',text,re.M):
+         value=value.strip()
+--- before/tb/vector_mode3_top.sv
++++ after/tb/vector_mode3_top.sv
+@@ -893,7 +893,7 @@
+   att_axi_port #(.DATA_BITS(32),.PORT(2),.PAGE_COUNT(8),
+                  .PAGE_BASES({64'h0000003200007000,64'h0000003200006000,64'h0000003200005000,64'h0000003200004000,64'h0000003200003000,64'h0000003200002000,64'h0000003200001000,64'h0000003200000000})) u_port_io (
+     .clk(clk),.resetn(resetn),
+-    .read_lo({64'h0000000000000000,64'h0000000000000000,64'h0000000000000000,64'h0000003200000000}),.read_hi({64'h0000000000000000,64'h0000000000000000,64'h0000000000000000,64'h0000003200008000}),
++    .read_lo({64'h0000000000000000,64'h0000000000000000,64'h0000000000000000,64'h0000003200000000}),.read_hi({64'h0000000000000000,64'h0000000000000000,64'h0000000000000000,64'h0000003200000340}),
+     .write_lo({64'h0000000000000000,64'h0000000000000000,64'h0000000000000000,64'h0000000000000000}),.write_hi({64'h0000000000000000,64'h0000000000000000,64'h0000000000000000,64'h0000000000000000}),
+     .hold_final_r(hold_final_r[2]),.hold_final_b(hold_final_b[2]),
+     .r_hold_applied(r_hold_applied[2]),.b_hold_applied(b_hold_applied[2]),

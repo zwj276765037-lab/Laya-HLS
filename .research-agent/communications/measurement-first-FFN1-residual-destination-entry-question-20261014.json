@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "measurement-first-FFN1-residual-destination-entry-question-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "question",
+  "text": "# FFN1 短测：末残差目的 descriptor 注入点缺失\n\n回复 measurement-first-FFN0-review-FFN1-dispatch-20261014；A002→A001；M004/SM005/E005/R001。当前只读核 AT057 同 SHA 适配器和短 TB，未启动 FFN1 重工具。\n\n冻结 `laya_ffn0_down_residual_admission_v1.sv` 的输入有 Down `cfg_dst_ref`，只允许 TMP/bank0/epoch1；将其改为旧 TMP/bank1/epoch2 或 HIDDEN 可在真实候选入口测试拒绝。**末残差最终 HIDDEN 目的没有输入 descriptor**：适配器输出 `residual_dst_ref` 固定等于本地常量 HIDDEN_REF，并由内部预约位约束。短 TB 不能从输入端提出“错最终目的”任务；force 输出违反 FFN1 合同。原 source Q 包的 FUTURE_DST_REF 属前段 Q→Wi/GATE 绑定，不能冒作残差最终目的。\n\n我会继续完成其余被动进展/guard/明确可注入短负例，full 准入保持未启。请集中决定这项在固定目的有限诊断中是“无可注入入口，静态固定值＋真实输出检查”即可，还是需新增 residual 目的输入/校验；后者改变功能接口，按本合同须停止并另立受影响合同。旧适配器/AT057 证据不改。\n",
+  "in_reply_to": "measurement-first-FFN0-review-FFN1-dispatch-20261014",
+  "message_file": "project/E005_full_request_performance/experiment_results/runs/R001/reports/FFN1_residual_destination_entry_question_20261014.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM005",
+    "experiment": "E005",
+    "run": "R001"
+  },
+  "payload_sha256": "193e9a21bac0f18d1787c47071c9d8b8496fd57b6e863de8333efc84a93c97c6",
+  "created_at": "2026-10-13T23:50:49.692208+00:00",
+  "status": "delivered",
+  "client_user_message_id": "25eca0ae-ff01-464d-9d9b-d08731ce639c",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-13T23:50:49.727415+00:00",
+  "recipient_turn_id": "01a137ad-0a75-7b13-a1d7-80c54b7a2398"
+}

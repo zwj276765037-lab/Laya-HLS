@@ -1,0 +1,10 @@
+# 修订20 AT332–339：source/norm I/O 控制迁移中间里程碑
+
+2026-10-16；M004/SM004/E004/R001；A002。沿 D-M004-SOURCE-NORM-OWNER-01 继续实施，不申请新范围或额度。
+
+- AT332对新增上层source/gamma预装端口和FSM作语法检查通过。AT333用空work库展开失败，缺原FP/IP/reader/writer已编译闭包；child1，原失败及3.5612088181078434s保留，不是RTL功能判据。AT334从全部冻结依赖重新编译，生产上层独占gamma/STATE0实际load、1024字有限预检、holding、prep提交和最终load_done排空；wrapper源预装IN_*、原512bit holding与重复写入状态已移除。原真实S128请求row0短例通过1024norm逐位、64笔OKAY B、source64R、gamma256R，153810ns行退休；static163.33853422291577s、RTL50.50575716793537s。
+- AT335新norm存储FSM语法通过。AT336同版生产上层直接调度norm同步读128组、writer 64笔B/flush/release；初次遗漏了writer实例的flush_done端口，停在服务SS_FLUSH，120.43694551475346s/-9/timeout为FAIL/COST_STOP，不迁移AT334通过结论。AT337/338用AT336冻结snapshot只读160µs，确认writer本体flush_reported=1、债零、64个OKAY B，而服务侧flush_done为X；两次探针分别51.132399540394545s及49.65121842734516s。
+- AT339仅补服务writer.flush_done显式端口，在AT336已编译完整闭包上重编改动源并重新展开。原父请求row0短例再次通过1024norm、64B、source64R/gamma256R、153810ns行退休；static155.48307084850967s、RTL50.92607934400439s。AT336失败和探针不回写。
+- 截至AT339，AT326–339精确guard累计static **1183.5299725364893745/1800s**、RTL **589.942395463585853/3600s**；余static616.4700274635106255s（其中原合同400s最终父top计划空间保留）、RTL3010.057604536414147s；host完整累计UNKNOWN。守卫无内存/政策触发，AT336仅120s仿真帽。
+
+当前只签所测生产共享实例的row0源预装和norm写回控制。128行调度/16行store窗口仍在旧sequencer，源描述符由旧父层发起；因此独立stage、完整16行pilot、真实LN128、NORM_STAGE_READY、父图Q16及完整请求均未完成。下步将一次请求锁存、128循环和错误屏障移入同一上层，再建独立stage及同版父入口；按原成本门自动判断LN128，不以本次row0替代。

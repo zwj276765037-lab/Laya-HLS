@@ -1,0 +1,95 @@
+{
+  "actual_source_seal": {
+    "bytes": 12577,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/runs/source_seal_v1_control/actual_execution_packet.json",
+    "sha256": "5986be7902e5cd056e53b1d117be52124266d13aa13dfd853078c1087330b760"
+  },
+  "created_utc": "2026-10-09T05:08:17.309904+00:00",
+  "identity_review": {
+    "all_exact": true,
+    "exact_v2_original_archive_pairs": 30,
+    "full_inventory_set_exact": true,
+    "maintained_changed": [
+      "tb/README.md",
+      "tb/att_finite_base_h15_r63_top.sv",
+      "tb/att_finite_changed_h0_r0_top.sv",
+      "tb/verify_binding.py",
+      "tb/run_mode.sh",
+      "tb/generate_top.py",
+      "tb/att_axi_monitor.sv",
+      "tb/att_finite_control.svh",
+      "tb/att_axi_port.sv",
+      "tb/build_static.sh",
+      "rtl/README.md"
+    ],
+    "maintained_unchanged": [
+      "tb/make_source_packet.py",
+      "tb/phase_rss.c",
+      "tb/audit_source.py",
+      "tb/phase_rss.so",
+      "tb/seal_runtime.py",
+      "tb/check_prepared_pages.py",
+      "tb/att_axi_lite_master.sv",
+      "tb/materialize_cold_pages.py",
+      "tb/archive_attempt.py",
+      "tb/check_runtime_numeric.py",
+      "tb/att_static_axi_stall.sv"
+    ],
+    "output_inventory_files": 75,
+    "reference_occurrences": 729,
+    "unique_paths": 620
+  },
+  "limits": [
+    "This is source/identity and source-only seal acceptance, not successful record propagation in XSim.",
+    "No simulator-sensitivity or queue-race root cause is proven. Prior v2 runtime failure remains frozen.",
+    "No Head15 numerical seal/four-command PASS, static compiler result, new DUT/fixture, actual pin reset or physical timing claim."
+  ],
+  "reviewer": "GPT-6 Astra / xhigh",
+  "schema": "head15_monitor_v3_actual_source_and_source_seal_acceptance_v1",
+  "source_findings": [
+    "Whole 119-bit record has exactly reset and checked-R-handshake procedural writes; pack order and bit slices agree with design. Checked R record is formed before count and AR queue advance.",
+    "Owning monitor output is named to port-local record, one assign forwards it, and all seven top named connections match unique index. Both generated top diffs contain only the record declaration and seven connections.",
+    "selected qkv1 index4 uses the connected array; parent no longer reads ram_mon.r_accept internal scalars. Existing R association, hold/debt/fail and numerical tail is byte-identical.",
+    "Monitor reset diagnostic executes in real reset edge; port/top reset witnesses require prior reset posedge and inspect settled negedge. First RAM-R diagnostic is bounded once per port per reset, no fullbeat trace.",
+    "Accepted inline generator layout retained; design filename att_finite_ports.svh mapped to inherited inline generation rather than needless structural refactor.",
+    "216 DUT Verilog,35 DAT,6 FP wrappers, endpoint, prepared/gold/installed libraries all unchanged by record repair."
+  ],
+  "source_packet": {
+    "bytes": 228118,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v3/source/source_packet.json",
+    "sha256": "a8b2e43381e303c0fd751688b400ea17a62584dd176d0c17018b1dab04c4a1b5"
+  },
+  "source_seal_resources": {
+    "all_owned_processes_terminal": true,
+    "guard": {
+      "child_exit_code": 0,
+      "elapsed_seconds": 5.349709618836641,
+      "finished_at": "2026-10-09T04:57:26.482738+00:00",
+      "minimum_mem_available_kb": 448077084,
+      "peak_owned_rss_kb": 22764,
+      "rss_capture_count": 53,
+      "rss_captured": true,
+      "rss_sample_count": 53,
+      "trigger": null
+    },
+    "inner_auxiliary_sampled_max_rss_kib": 22904,
+    "inner_auxiliary_self_sample_seconds": 0.2,
+    "outer_guard_sample_seconds": 0.1,
+    "streamed_bytes": 2287223087,
+    "streamed_frozen_files": 573,
+    "worker_policy": [
+      {
+        "affinity": [
+          3
+        ],
+        "command": "python3",
+        "ionice": "idle",
+        "ionice_exit": 0,
+        "matches": true,
+        "nice": 19,
+        "pid": 134905
+      }
+    ]
+  },
+  "status": "SOURCE_AND_ONE_SOURCE_SEAL_ACCEPTED_NO_STATIC_RUNTIME_PASS"
+}

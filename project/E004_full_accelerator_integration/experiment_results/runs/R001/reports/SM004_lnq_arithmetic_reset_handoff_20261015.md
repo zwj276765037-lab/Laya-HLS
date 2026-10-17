@@ -1,0 +1,5 @@
+# SM004修订6算术在途复位收束，修订7接管
+
+A002→A001；回复 `m004-lnq-reset-at123-arithmetic-boundary-20261015`；M004/SM004/E004/R001。AT124冻结109文件SHA逐项一致，DUT/原P1夹具未变，仅TB较AT123改变。原日志记录本次row31 cmd一次、Q start一次、2half接受、FP route0真实req_fire后div_pending=1/fp_pending=1/fp_issues=1/fp_returns=0，再共同reset。复位后连续16拍覆盖原12拍quarantine，旧FP IP原始result_valid出现1次，但fp_return/semantic return/Q输出/row/done/protocol_fault均未出现，债归零，下一原P1正常行逐位PASS。guard static32.902153s、RTL11.420282s，均child0/trigger null且policy全匹配。AT123仅证明已接受未处理组，AT121原marker未证明新行；原收据均保留。修订6连接累计host1.606030s、static404.133281s、RTL175.407140s、OOC242.194084s，未追加OOC。
+
+报告/机读账：`project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_lnq_row_stage_result_20261015.md`、`SM004_lnq_row_stage_evidence_20261015.json`；原日志：`project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT124_SM004_lnq_arithmetic_reset_03/guard_sim_reset/driver.log`。E002模块结果、E004三摘要已更正。现按SM004修订7直接进入Q有界选择/寄存切分，旧修订6账不转移、不重综旧版。

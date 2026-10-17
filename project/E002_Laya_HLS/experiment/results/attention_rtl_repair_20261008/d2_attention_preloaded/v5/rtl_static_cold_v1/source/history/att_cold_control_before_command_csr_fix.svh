@@ -1,0 +1,401 @@
+  localparam int PAGE_BYTES=4096;
+  localparam int QKV_BYTES=96*PAGE_BYTES;
+  localparam int OUT_BYTES=64*PAGE_BYTES;
+  localparam int RUN_CLOCK_LIMIT=2000000;
+  localparam int OTHER_CLOCK_LIMIT=200000;
+  localparam int TOTAL_CLOCK_LIMIT=2700000;
+  logic [7:0] init_descriptor[0:PAGE_BYTES-1];
+  logic [7:0] descriptor_run[0:PAGE_BYTES-1];
+  logic [7:0] init_io[0:8*PAGE_BYTES-1];
+  logic [7:0] init_aux[0:PAGE_BYTES-1];
+  logic [7:0] init_qkv0[0:QKV_BYTES-1], init_qkv1[0:QKV_BYTES-1];
+  logic [7:0] run_qkv0[0:QKV_BYTES-1], run_qkv1[0:QKV_BYTES-1];
+  logic [7:0] init_att_out[0:OUT_BYTES-1];
+  logic [7:0] init_observed[0:PAGE_BYTES-1];
+  logic [7:0] saved_av[0:255];
+  logic [63:0] pointer_base[0:6];
+  logic [6:0] pointer_offset[0:6];
+  logic [63:0] before_read[0:6], before_useful[0:6];
+  logic [31:0] before_aw[0:6], before_ar[0:6], before_r[0:6], before_b[0:6];
+  integer total_cycles=0, command_cycles=0, reset_left=0, ptr_idx=0, cmd_idx=0;
+  integer obs_file, out_file;
+  logic running=0, seen_done=0, sampled_ap_done=0;
+  logic r_hold_reg=0, b_hold_reg=0;
+  logic [31:0] r_special_count=0, b_special_count=0;
+  logic [31:0] before_r_special=0, before_b_special=0;
+  logic [31:0] r_selected_index=0, b_selected_index=0;
+  typedef enum logic [4:0] {
+    BOOT, COLD_RESET, PTR_ZERO, PTR_ZERO_WAIT, PTR_WRITE, PTR_WRITE_WAIT,
+    PTR_READBACK, PTR_READBACK_WAIT, CMD_RESET_READ, CMD_RESET_WAIT,
+    CASE_LOAD, COMMAND_WRITE, COMMAND_WRITE_WAIT, CASE_START,
+    CASE_START_WAIT, CASE_WAIT_DONE, CSR_READ, CSR_READ_WAIT, CASE_CHECK,
+    FINISH
+  } test_state_t;
+  test_state_t test_state=BOOT;
+
+  initial begin
+    $readmemh("init_descriptor.memh",init_descriptor);
+    $readmemh("descriptor_run.memh",descriptor_run);
+    $readmemh("init_io.memh",init_io);
+    $readmemh("init_aux.memh",init_aux);
+    $readmemh("init_qkv0.memh",init_qkv0);
+    $readmemh("init_qkv1.memh",init_qkv1);
+    $readmemh("run_qkv0.memh",run_qkv0);
+    $readmemh("run_qkv1.memh",run_qkv1);
+    $readmemh("init_att_out.memh",init_att_out);
+    $readmemh("init_observed.memh",init_observed);
+    pointer_base[0]=64'h0000002000000000; pointer_offset[0]=7'h10;
+    pointer_base[1]=64'h0000002100000000; pointer_offset[1]=7'h1c;
+    pointer_base[2]=64'h0000002200000000; pointer_offset[2]=7'h28;
+    pointer_base[3]=64'h0000002300000000; pointer_offset[3]=7'h34;
+    pointer_base[4]=64'h0000002400000000; pointer_offset[4]=7'h40;
+    pointer_base[5]=64'h0000002500000000; pointer_offset[5]=7'h4c;
+    pointer_base[6]=64'h0000002600000000; pointer_offset[6]=7'h58;
+    lite_cmd_valid_0=0; lite_cmd_valid_1=0;
+    lite_cmd_write_0=0; lite_cmd_write_1=0;
+    lite_cmd_addr_0=0; lite_cmd_addr_1=0;
+    lite_cmd_wdata_0=0; lite_cmd_wdata_1=0;
+  end
+  for (genvar p=0;p<7;p++) begin : hold_controls
+    if (p==3) assign hold_final_r[p]=r_hold_reg;
+    else assign hold_final_r[p]=1'b0;
+    if (p==5) assign hold_final_b[p]=b_hold_reg;
+    else assign hold_final_b[p]=1'b0;
+  end
+  always @(posedge clk) begin
+    if (!resetn) begin
+      sampled_ap_done <= 0;
+      r_special_count <= 0;
+      b_special_count <= 0;
+    end else begin
+      sampled_ap_done <= dut.ap_done;
+      if (r_hold_applied[3]) begin
+        if (r_special_wait_cycles[3]<16)
+          $fatal(1,"ATT_COLD_R_HOLD_SHORT cycles=%0d",r_special_wait_cycles[3]);
+        r_special_count <= r_special_count+1;
+      end
+      if (b_hold_applied[5]) begin
+        if (b_special_wait_cycles[5]<16)
+          $fatal(1,"ATT_COLD_B_HOLD_SHORT cycles=%0d",b_special_wait_cycles[5]);
+        b_special_count <= b_special_count+1;
+      end
+    end
+  end
+  function automatic logic [31:0] obs_word(input int word_index);
+    int k;
+    k=word_index*4;
+    return {u_port_observed.u_mem.mem[k+3],u_port_observed.u_mem.mem[k+2],
+            u_port_observed.u_mem.mem[k+1],u_port_observed.u_mem.mem[k]};
+  endfunction
+  function automatic bit buses_drained();
+    for (int p=0;p<7;p++) begin
+      if (dut_write_pending[p] !== 1'b0 || dut_read_pending[p] !== 1'b0 ||
+          ram_write_pending[p] !== 1'b0 || ram_read_pending[p] !== 1'b0 ||
+          dut_aw_count[p] !== dut_b_count[p] ||
+          dut_ar_count[p] !== dut_rlast_count[p] ||
+          ram_aw_count[p] !== ram_b_count[p] ||
+          ram_ar_count[p] !== ram_rlast_count[p]) return 0;
+      for (int c=0;c<5;c++)
+        if (accepted[p][c] !== delivered[p][c]) return 0;
+    end
+    return 1;
+  endfunction
+  task automatic scan_input_and_outputs(input int command_index);
+    logic [7:0] expected;
+    logic [31:0] output_word;
+    for (int i=0;i<PAGE_BYTES;i++) begin
+      expected=(command_index<2) ? init_descriptor[i] : descriptor_run[i];
+      if (u_port_descriptor.u_mem.mem[i] !== expected ||
+          u_port_aux.u_mem.mem[i] !== init_aux[i])
+        $fatal(1,"ATT_COLD_DESCRIPTOR_OR_AUX_CHANGED cmd=%0d byte=%0d",command_index,i);
+    end
+    for (int i=0;i<8*PAGE_BYTES;i++)
+      if (u_port_io.u_mem.mem[i] !== init_io[i])
+        $fatal(1,"ATT_COLD_IO_CHANGED cmd=%0d byte=%0d",command_index,i);
+    for (int i=0;i<QKV_BYTES;i++) begin
+      expected=(command_index<2) ? init_qkv0[i] : run_qkv0[i];
+      if (u_port_qkv0.u_mem.mem[i] !== expected)
+        $fatal(1,"ATT_COLD_QKV0_CHANGED cmd=%0d mapped_byte=%0d",command_index,i);
+      expected=(command_index<2) ? init_qkv1[i] : run_qkv1[i];
+      if (u_port_qkv1.u_mem.mem[i] !== expected)
+        $fatal(1,"ATT_COLD_QKV1_CHANGED cmd=%0d mapped_byte=%0d",command_index,i);
+    end
+    for (int i=0;i<OUT_BYTES;i++) begin
+      if (command_index<2 || i>=256) expected=8'ha5;
+      else if (command_index==2) begin
+        output_word=obs_word(144+i/4);
+        expected=8'(output_word >> (8*(i%4)));
+      end
+      else expected=saved_av[i];
+      if (u_port_att_out.u_mem.mem[i] !== expected)
+        $fatal(1,"ATT_COLD_ATT_OUT_MISMATCH cmd=%0d byte=%0d",command_index,i);
+      if (command_index==2 && i<256)
+        saved_av[i]=u_port_att_out.u_mem.mem[i];
+    end
+    for (int i=1024;i<PAGE_BYTES;i++)
+      if (u_port_observed.u_mem.mem[i] !== 8'ha5)
+        $fatal(1,"ATT_COLD_OBSERVED_PAGE_TAIL cmd=%0d byte=%0d",command_index,i);
+    for (int w=208;w<224;w++)
+      if (obs_word(w) !== 32'hdeadbeef)
+        $fatal(1,"ATT_COLD_OBSERVED_NUMERIC_TAIL cmd=%0d word=%0d",command_index,w);
+    for (int w=238;w<256;w++)
+      if (obs_word(w) !== 32'hdeadbeef)
+        $fatal(1,"ATT_COLD_OBSERVED_RESERVED_TAIL cmd=%0d word=%0d",command_index,w);
+    if (command_index!=2)
+      for (int w=16;w<208;w++)
+        if (obs_word(w) !== 32'hdeadbeef)
+          $fatal(1,"ATT_COLD_UNEXPECTED_NUMERIC cmd=%0d word=%0d",command_index,w);
+    if (command_index==2)
+      for (int w=16;w<208;w++)
+        if ($isunknown(obs_word(w)))
+          $fatal(1,"ATT_COLD_UNKNOWN_NUMERIC word=%0d",w);
+    for (int p=0;p<7;p++) begin
+      if (dut_aw_count[p] !== ram_aw_count[p] ||
+          dut_w_count[p] !== ram_w_count[p] ||
+          dut_b_count[p] !== ram_b_count[p] ||
+          dut_ar_count[p] !== ram_ar_count[p] ||
+          dut_r_count[p] !== ram_r_count[p] ||
+          dut_rlast_count[p] !== ram_rlast_count[p] ||
+          dut_read_bus_bytes[p] !== ram_read_bus_bytes[p] ||
+          dut_write_bus_bytes[p] !== ram_write_bus_bytes[p] ||
+          dut_write_useful_bytes[p] !== ram_write_useful_bytes[p])
+        $fatal(1,"ATT_COLD_ADAPTER_MISMATCH cmd=%0d port=%0d",command_index,p);
+      if (p<=4 && dut_aw_count[p]!=before_aw[p])
+        $fatal(1,"ATT_COLD_INPUT_WRITE cmd=%0d port=%0d",command_index,p);
+      if (p>=5 && dut_ar_count[p]!=before_ar[p])
+        $fatal(1,"ATT_COLD_OUTPUT_READ cmd=%0d port=%0d",command_index,p);
+    end
+    if (command_index<2 || command_index==3)
+      for (int p=3;p<=5;p++) begin
+        if (p<=4 && dut_ar_count[p]!=before_ar[p])
+          $fatal(1,"ATT_COLD_REJECT_QKV_READ cmd=%0d port=%0d",command_index,p);
+        if (p==5 && dut_aw_count[p]!=before_aw[p])
+          $fatal(1,"ATT_COLD_REJECT_OUTPUT_WRITE cmd=%0d",command_index);
+      end
+  endtask
+  task automatic check_status(input int command_index);
+    if (command_index==0) begin
+      if (obs_word(0)!==0 || obs_word(2)!==1 || obs_word(3)!==0 ||
+          obs_word(4)!==1 || obs_word(5)!==1 || obs_word(9)!==0 ||
+          obs_word(11)!==2 || obs_word(12)!==5 || obs_word(13)!==0 ||
+          obs_word(14)!==5 || obs_word(15)!==1 ||
+          obs_word(224)!==1 || obs_word(225)!==0 ||
+          obs_word(226)!==301 || obs_word(227)!==1 ||
+          obs_word(228)!==1 || obs_word(229)!==1 ||
+          obs_word(230)!==0 || obs_word(231)!==0 || obs_word(232)!==0)
+        $fatal(1,"ATT_COLD_BEGIN_CONTRACT status=%h phase=%0d ticket=%0d",obs_word(0),obs_word(2),obs_word(224));
+    end else if (command_index==1) begin
+      if (obs_word(0)!==7 || obs_word(1)!==32'hd2000004 ||
+          obs_word(2)!==1 || obs_word(3)!==0 || obs_word(9)!==0 ||
+          obs_word(224)!==1 || obs_word(228)!==1 || obs_word(229)!==1 ||
+          obs_word(230)!==0)
+        $fatal(1,"ATT_COLD_PENDING_BEGIN_CONTRACT status=%h detail=%h",obs_word(0),obs_word(1));
+    end else if (command_index==2) begin
+      if (obs_word(0)!==0 || obs_word(1)!==0 || obs_word(2)!==13 ||
+          obs_word(3)!==4 || obs_word(6)!==32768 ||
+          obs_word(7)!==5 || obs_word(8)!==32'h04080009 ||
+          obs_word(9)!==4 || obs_word(10)!==0 || obs_word(11)<5 ||
+          obs_word(228)!==2 || obs_word(229)!==2 ||
+          obs_word(230)!==3072 || obs_word(231)!==1 || obs_word(232)!==1 ||
+          obs_word(233)!==0 || obs_word(235)!==64 ||
+          obs_word(236)!==64 || obs_word(237)!==64)
+        $fatal(1,"ATT_COLD_RUN_CONTRACT status=%h phase=%0d tasks=%0d",obs_word(0),obs_word(2),obs_word(3));
+      if (r_special_count-before_r_special!=1 ||
+          b_special_count-before_b_special!=1 ||
+          r_selected_index==0 || b_selected_index==0)
+        $fatal(1,"ATT_COLD_SPECIAL_HOLD_MISSING r=%0d b=%0d",r_special_count-before_r_special,b_special_count-before_b_special);
+      $display("ATT_COLD_SPECIAL_HOLD r_beat=%0d r_wait=%0d b_index=%0d b_wait=%0d",
+        r_selected_index,r_special_wait_cycles[3],b_selected_index,b_special_wait_cycles[5]);
+    end else begin
+      if (obs_word(0)!==7 || obs_word(1)!==32'hd2010005 ||
+          obs_word(2)!==3 || obs_word(3)!==4 || obs_word(9)!==4 ||
+          obs_word(230)!==3072 || obs_word(235)!==0 ||
+          obs_word(236)!==0 || obs_word(237)!==0)
+        $fatal(1,"ATT_COLD_REPLAY_CONTRACT status=%h detail=%h",obs_word(0),obs_word(1));
+    end
+  endtask
+  task automatic dump_bytes(input int command_index);
+    string path;
+    path=$sformatf("observed_%0d.hex",command_index);
+    obs_file=$fopen(path,"w");
+    if (obs_file==0) $fatal(1,"ATT_COLD_DUMP_OPEN %s",path);
+    for (int i=0;i<PAGE_BYTES;i++) $fwrite(obs_file,"%02x",u_port_observed.u_mem.mem[i]);
+    $fwrite(obs_file,"\n"); $fclose(obs_file);
+    if (command_index>=2) begin
+      path=$sformatf("att_out_%0d.hex",command_index);
+      out_file=$fopen(path,"w");
+      if (out_file==0) $fatal(1,"ATT_COLD_DUMP_OPEN %s",path);
+      for (int i=0;i<OUT_BYTES;i++) $fwrite(out_file,"%02x",u_port_att_out.u_mem.mem[i]);
+      $fwrite(out_file,"\n"); $fclose(out_file);
+    end
+  endtask
+  always @(negedge clk) begin : test_sequence
+    logic [31:0] expected_pointer_word;
+    total_cycles=total_cycles+1;
+    if (total_cycles>TOTAL_CLOCK_LIMIT)
+      $fatal(1,"ATT_COLD_TOTAL_WATCHDOG cmd=%0d state=%0d",cmd_idx,test_state);
+    if (!resetn) begin r_hold_reg<=0; b_hold_reg<=0; end
+    else begin
+      r_hold_reg <= cmd_idx==2 && running && r_special_count==before_r_special &&
+                    u_port_qkv0.e_rvalid && u_port_qkv0.e_rlast;
+      b_hold_reg <= cmd_idx==2 && running && b_special_count==before_b_special &&
+                    dut_write_useful_bytes[5]-before_useful[5]==64'd256 &&
+                    ram_aw_count[5]-ram_b_count[5]==1 && u_port_att_out.e_bvalid;
+      if (cmd_idx==2 && running && r_special_count==before_r_special &&
+          u_port_qkv0.e_rvalid && u_port_qkv0.e_rlast && r_selected_index==0)
+        r_selected_index=ram_r_count[3]-before_r[3]+1;
+      if (cmd_idx==2 && running && b_special_count==before_b_special &&
+          dut_write_useful_bytes[5]-before_useful[5]==64'd256 &&
+          ram_aw_count[5]-ram_b_count[5]==1 && u_port_att_out.e_bvalid && b_selected_index==0)
+        b_selected_index=ram_b_count[5]-before_b[5]+1;
+    end
+    if (running) begin
+      command_cycles=command_cycles+1;
+      if (command_cycles>(cmd_idx==2 ? RUN_CLOCK_LIMIT : OTHER_CLOCK_LIMIT))
+        $fatal(1,"ATT_COLD_COMMAND_WATCHDOG cmd=%0d cycles=%0d state=%0d",cmd_idx,command_cycles,test_state);
+      if ($isunknown(sampled_ap_done)) $fatal(1,"ATT_COLD_DONE_UNKNOWN cmd=%0d",cmd_idx);
+      if (sampled_ap_done && !seen_done) begin
+        if (!buses_drained())
+          $fatal(1,"ATT_COLD_EARLY_DONE_DEBT cmd=%0d",cmd_idx);
+        seen_done=1;
+        $display("ATT_COLD_AP_DONE cmd=%0d cycle=%0d",cmd_idx,command_cycles);
+      end
+    end
+    lite_cmd_valid_0<=0;
+    lite_cmd_valid_1<=0;
+    case (test_state)
+      BOOT: begin
+        for (int i=0;i<PAGE_BYTES;i++) begin
+          u_port_descriptor.u_mem.mem[i]=init_descriptor[i];
+          u_port_aux.u_mem.mem[i]=init_aux[i];
+          u_port_observed.u_mem.mem[i]=init_observed[i];
+        end
+        for (int i=0;i<8*PAGE_BYTES;i++) u_port_io.u_mem.mem[i]=init_io[i];
+        for (int i=0;i<QKV_BYTES;i++) begin
+          u_port_qkv0.u_mem.mem[i]=init_qkv0[i];
+          u_port_qkv1.u_mem.mem[i]=init_qkv1[i];
+        end
+        for (int i=0;i<OUT_BYTES;i++) u_port_att_out.u_mem.mem[i]=init_att_out[i];
+        reset_left=5;
+        $display("ATT_COLD_BOOT mapped_pages=267 qkv_initial=A5");
+        test_state<=COLD_RESET;
+      end
+      COLD_RESET: begin
+        if (reset_left==0) begin resetn<=1; ptr_idx=0; test_state<=PTR_ZERO; end
+        else reset_left=reset_left-1;
+      end
+      PTR_ZERO: if (lite_cmd_ready_1) begin
+        lite_cmd_write_1<=0;
+        lite_cmd_addr_1<=pointer_offset[ptr_idx/2]+7'((ptr_idx%2)*4);
+        lite_cmd_valid_1<=1;
+        test_state<=PTR_ZERO_WAIT;
+      end
+      PTR_ZERO_WAIT: if (lite_cmd_done_1) begin
+        if (lite_cmd_rdata_1 !== 0)
+          $fatal(1,"ATT_COLD_POINTER_RESET idx=%0d got=%h",ptr_idx,lite_cmd_rdata_1);
+        if (ptr_idx==13) begin ptr_idx=0; test_state<=PTR_WRITE; end
+        else begin ptr_idx=ptr_idx+1; test_state<=PTR_ZERO; end
+      end
+      PTR_WRITE: if (lite_cmd_ready_1) begin
+        expected_pointer_word=(ptr_idx%2)==0 ? pointer_base[ptr_idx/2][31:0] : pointer_base[ptr_idx/2][63:32];
+        lite_cmd_write_1<=1;
+        lite_cmd_addr_1<=pointer_offset[ptr_idx/2]+7'((ptr_idx%2)*4);
+        lite_cmd_wdata_1<=expected_pointer_word;
+        lite_cmd_valid_1<=1;
+        test_state<=PTR_WRITE_WAIT;
+      end
+      PTR_WRITE_WAIT: if (lite_cmd_done_1) begin
+        if (ptr_idx==13) begin ptr_idx=0; test_state<=PTR_READBACK; end
+        else begin ptr_idx=ptr_idx+1; test_state<=PTR_WRITE; end
+      end
+      PTR_READBACK: if (lite_cmd_ready_1) begin
+        lite_cmd_write_1<=0;
+        lite_cmd_addr_1<=pointer_offset[ptr_idx/2]+7'((ptr_idx%2)*4);
+        lite_cmd_valid_1<=1;
+        test_state<=PTR_READBACK_WAIT;
+      end
+      PTR_READBACK_WAIT: if (lite_cmd_done_1) begin
+        expected_pointer_word=(ptr_idx%2)==0 ? pointer_base[ptr_idx/2][31:0] : pointer_base[ptr_idx/2][63:32];
+        if (lite_cmd_rdata_1 !== expected_pointer_word)
+          $fatal(1,"ATT_COLD_POINTER_READBACK idx=%0d got=%h expected=%h",ptr_idx,lite_cmd_rdata_1,expected_pointer_word);
+        if (ptr_idx==13) test_state<=CMD_RESET_READ;
+        else begin ptr_idx=ptr_idx+1; test_state<=PTR_READBACK; end
+      end
+      CMD_RESET_READ: if (lite_cmd_ready_1) begin
+        lite_cmd_write_1<=0; lite_cmd_addr_1<=7'h00; lite_cmd_valid_1<=1;
+        test_state<=CMD_RESET_WAIT;
+      end
+      CMD_RESET_WAIT: if (lite_cmd_done_1) begin
+        if (lite_cmd_rdata_1!==0) $fatal(1,"ATT_COLD_COMMAND_RESET got=%h",lite_cmd_rdata_1);
+        $display("ATT_COLD_POINTERS_READY seven_64bit=7");
+        test_state<=CASE_LOAD;
+      end
+      CASE_LOAD: begin
+        if (!buses_drained()) $fatal(1,"ATT_COLD_MUTATE_WITH_AXI cmd=%0d",cmd_idx);
+        for (int i=0;i<PAGE_BYTES;i++) begin
+          u_port_descriptor.u_mem.mem[i]=(cmd_idx<2) ? init_descriptor[i] : descriptor_run[i];
+          u_port_observed.u_mem.mem[i]=init_observed[i];
+        end
+        if (cmd_idx==2) begin
+          for (int i=0;i<QKV_BYTES;i++) begin
+            if (u_port_qkv0.u_mem.mem[i] !== 8'ha5 ||
+                u_port_qkv1.u_mem.mem[i] !== 8'ha5)
+              $fatal(1,"ATT_COLD_PRE_RUN_QKV_NOT_A5 mapped_byte=%0d",i);
+            u_port_qkv0.u_mem.mem[i]=run_qkv0[i];
+            u_port_qkv1.u_mem.mem[i]=run_qkv1[i];
+          end
+          $display("ATT_COLD_HOST_FILL mapped_qkv_pages=192 verified_full_host_before_materialization=25165824");
+        end
+        for (int p=0;p<7;p++) begin
+          before_read[p]=dut_read_bus_bytes[p]; before_useful[p]=dut_write_useful_bytes[p];
+          before_aw[p]=dut_aw_count[p]; before_ar[p]=dut_ar_count[p];
+          before_r[p]=ram_r_count[p]; before_b[p]=ram_b_count[p];
+        end
+        before_r_special=r_special_count; before_b_special=b_special_count;
+        r_selected_index=0; b_selected_index=0;
+        command_cycles=0;
+        test_state<=COMMAND_WRITE;
+      end
+      COMMAND_WRITE: if (lite_cmd_ready_1) begin
+        lite_cmd_write_1<=1; lite_cmd_addr_1<=7'h00;
+        lite_cmd_wdata_1<=cmd_idx>=2 ? 32'd1 : 32'd0;
+        lite_cmd_valid_1<=1;
+        test_state<=COMMAND_WRITE_WAIT;
+      end
+      COMMAND_WRITE_WAIT: if (lite_cmd_done_1) test_state<=CASE_START;
+      CASE_START: if (lite_cmd_ready_0) begin
+        lite_cmd_write_0<=1; lite_cmd_addr_0<=5'h00; lite_cmd_wdata_0<=1;
+        lite_cmd_valid_0<=1;
+        running=1; seen_done=0;
+        $display("ATT_COLD_START cmd=%0d command=%0d",cmd_idx,cmd_idx>=2);
+        test_state<=CASE_START_WAIT;
+      end
+      CASE_START_WAIT: if (lite_cmd_done_0) test_state<=CASE_WAIT_DONE;
+      CASE_WAIT_DONE: if (seen_done) test_state<=CSR_READ;
+      CSR_READ: if (lite_cmd_ready_0) begin
+        lite_cmd_write_0<=0; lite_cmd_addr_0<=5'h00; lite_cmd_valid_0<=1;
+        test_state<=CSR_READ_WAIT;
+      end
+      CSR_READ_WAIT: if (lite_cmd_done_0) begin
+        if (lite_cmd_rdata_0[2:1] !== 2'b11)
+          $fatal(1,"ATT_COLD_CSR_DONE_IDLE cmd=%0d csr=%h",cmd_idx,lite_cmd_rdata_0);
+        if (!buses_drained()) $fatal(1,"ATT_COLD_CSR_DONE_DEBT cmd=%0d",cmd_idx);
+        test_state<=CASE_CHECK;
+      end
+      CASE_CHECK: begin
+        if (!buses_drained()) $fatal(1,"ATT_COLD_CHECK_WITH_AXI cmd=%0d",cmd_idx);
+        check_status(cmd_idx);
+        scan_input_and_outputs(cmd_idx);
+        dump_bytes(cmd_idx);
+        $display("ATT_COLD_COMMAND_PASS cmd=%0d cycles=%0d",cmd_idx,command_cycles);
+        running=0;
+        if (cmd_idx==3) test_state<=FINISH;
+        else begin cmd_idx=cmd_idx+1; test_state<=CASE_LOAD; end
+      end
+      FINISH: begin
+        $display("ATT_COLD_STATIC_BASE_H0_R0_PASS commands=4");
+        $finish;
+      end
+      default: $fatal(1,"ATT_COLD_BAD_TEST_STATE state=%0d",test_state);
+    endcase
+  end

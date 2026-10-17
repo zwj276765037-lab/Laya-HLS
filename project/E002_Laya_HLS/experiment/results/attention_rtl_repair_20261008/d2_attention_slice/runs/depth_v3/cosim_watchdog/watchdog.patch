@@ -1,0 +1,17 @@
+--- attention_slice.autotb.original.v
++++ attention_slice.autotb.patched.v
+@@ -901,6 +901,14 @@
+ reg [31:0] ap_ready_cnt;
+ reg [31:0] finish_timestamp [0:AUTOTB_TRANSACTION_NUM - 1];
+ reg [31:0] finish_cnt;
++// D2-R bounded RTL experiment: this generated testbench alone enforces the
++// 50,000,000-cycle limit. Production DUT and value comparisons are unchanged.
++initial begin : d2_r_cycle_watchdog
++    wait (AESL_reset == 1'b1);
++    repeat (50000000) @(posedge AESL_clock);
++    if (finish_cnt < AUTOTB_TRANSACTION_NUM)
++        $fatal(1, "D2_R_CYCLE_LIMIT_50000000");
++end
+ reg [31:0] lat_total;
+ event report_progress;
+ 

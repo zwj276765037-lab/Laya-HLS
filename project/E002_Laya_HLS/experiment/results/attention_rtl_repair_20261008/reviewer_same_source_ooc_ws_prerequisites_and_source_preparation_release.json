@@ -1,0 +1,107 @@
+{
+  "schema": "reviewer_same_source_ooc_prerequisites_ws_capacity_v1",
+  "created_utc": "2026-10-08T23:04:45.961790+00:00",
+  "reviewer": "GPT-6 Astra xhigh /root/q8_proto_design_astra_xhigh",
+  "status": "ACCEPTED_PREREQUISITES_SOURCE_PREPARATION_RELEASED_NO_EXECUTION",
+  "reviewed_report": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/same_source_ooc_prerequisites_and_ws_capacity_precheck_20261009.json",
+    "bytes": 638657,
+    "sha256": "d79b631b871ed6aa94bf04e9c7cdd35edf84735dd2ead7afb31a04e2582c639b"
+  },
+  "independent_identity": {
+    "recursive_unique_refs_rehashed": 1117,
+    "bytes_rehashed": 83555490,
+    "mismatches": 0,
+    "manifest_canonical_hash_verified": "39e75c2475e82a08ddb495bf3f622d1c1d144e413ca3e4011cfd2224aa9dc826",
+    "selected_manifest_entries_reconciled": 1086,
+    "all_3581_contents_rehashed": false
+  },
+  "independent_static_checks": {
+    "syn_file_counts": {
+      ".v": 230,
+      ".dat": 108,
+      ".tcl": 7
+    },
+    "readmemh_unique_names": 108,
+    "dat_exact_name_set": true,
+    "same_bytes_comparisons": [
+      {
+        "directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/runs/csynth_local_v1/work/hls/impl/verilog",
+        "same_files": 345
+      },
+      {
+        "directory": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/runs/csynth_local_v1/work/hls/impl/ip/hdl/verilog",
+        "same_files": 338
+      }
+    ],
+    "Ws_wrapper": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/runs/csynth_local_v1/work/hls/syn/verilog/q8_joint_tm4tn8_ws_RAM_2P_BRAM_1R1W.v",
+      "bytes": 1129,
+      "sha256": "c7724c3c9420f0c1b06b492d4f16a412336727e9012dbaf98f7fca19dce69de3"
+    },
+    "Ws_DAT_words": 20992,
+    "Ws_DAT_all_zero": true,
+    "Ws_top_instances_reparsed": [
+      "ws_U",
+      "ws_8_U",
+      "ws_9_U",
+      "ws_10_U",
+      "ws_11_U",
+      "ws_12_U",
+      "ws_13_U",
+      "ws_14_U"
+    ],
+    "capacity_and_address_recalculation": {
+      "banks": 8,
+      "words_per_bank": 20992,
+      "word_bits": 16,
+      "logical_total_bytes": 335872,
+      "BRAM18_64_capacity_bytes": 147456,
+      "shortfall_bytes": 188416,
+      "aggregate_capacity_floor_BRAM18": 146,
+      "independent_bank_capacity_floor_BRAM18": 152,
+      "illustrative_1024x18_RAMB18": 168,
+      "illustrative_2048x18_RAMB36": 88,
+      "Wi_T": 656,
+      "Wi_G": 32,
+      "Wi_max_address": 20991
+    },
+    "source_address_derivation": "LOAD writes each bank4*b+j, b<scale_span/64,j<4; scale_span=T*G*8*2 gives exactly0..T*G-1. Validation/compute read(n/8)*G+g and tile*G+g. WiK1024/N5248 givesT656/G32,max20991.",
+    "review_script_correction": "First checker mistakenly matched a whitespace-normalized report parameter string as an exact raw multi-line RTL substring. Corrected to independently parse each of8 instances and its3 parameters; no source discrepancy."
+  },
+  "conclusions": [
+    "230V/108DAT/7IPTcl are accepted exact v3 candidate inputs;243 synthesis compile files is a hypothesis until actual compile order/library/IP checks.",
+    "345 matching syn/impl entries includeV,DAT,Tcl, not345 Verilog files.",
+    "64BRAM18 capacity147456B conflicts with Ws335872B.152 is only independent-bank capacity floor;168/176 are illustrative mappings. Source shows full15-bit addresses and20992 depths, not proven mapped storage.",
+    "Ws has synchronous CE read and CE/WE write and no payload reset. Zero DAT does not make runtime-written storage constant.",
+    "ACTdepth8/Scorerdepth4096 do not cover Wi20991 or mapped high addresses.",
+    "Old full-top runner binds04934/679V/201DAT/13IP and old guard policy; no v3/C1/fe067 evidence follows from it.",
+    "Standalone part OOC does not establish shell fit, full kernel totals, physical Fmax or board performance."
+  ],
+  "source_preparation_contract": {
+    "released": true,
+    "owner": "GPT-6 Sol max when scheduled by root; Scorer retains priority",
+    "new_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1",
+    "required": [
+      "Create source/design.md,source/results.md,rtl/README.md and isolated preparation/synthesis/report source scripts.",
+      "Bind230V/108DAT/7Tcl plus exact7XCI and synthesis products without modifying accepted generated tree or old project.",
+      "Use xcu55c-fsvh2892-2L-e and ap_clk6.667ns; explain HLS uncertainty separately and external unconstrained scope.",
+      "Separate project/IP preparation from actual synthesis and verify actual compile order/libraries, IP status and exact DAT staging in synthesis cwd.",
+      "Report zero blackboxes, raw warnings/init/trim, DCP, full/hierarchical utilization, clocks/check_timing/unconstrained/timing_summary.",
+      "Per-Ws bank physical primitive/config/enable/address/net inventory and high address connectivity0..20991; do not treat wrapper-only result times8 as measured top.",
+      "Specify guardCPU0..3/nice19/idleIO/0.2s/MemAvailable strictly>192GiB/one heavy tool and propose independent preparation/synthesis budgets.",
+      "Submit concrete source package and budget for review before invoking Vivado."
+    ],
+    "not_released": [
+      "Vivado project/IP preparation",
+      "synthesis",
+      "wrapper probe",
+      "CPU/numerical execution",
+      "runtime",
+      "place/route",
+      "board"
+    ]
+  },
+  "resource_budget": "No execution budget selected; historical full-kernel38.891GiB is contextual, no old defaults inherited.",
+  "reviewer_execution": "Only read/hash/static parse/integer arithmetic and this report write."
+}

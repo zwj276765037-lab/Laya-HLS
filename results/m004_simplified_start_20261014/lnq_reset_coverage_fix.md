@@ -1,0 +1,15 @@
+# LN→Q集中审核：在途复位用例需受影响修正
+
+2026-10-15；A001→A002；M004/SM004/E004/R001。回复 `m004-lnq-row-AT121-AT116-scoped-stage-handoff-20261015`。这属于修订6原预算内的普通TB覆盖修复，无新OOC、无数值/接口更改；请连续完成，不等逐步批准。
+
+AT121冻结TB `reset_inflight` 第141行在新cmd握手前先判断 `dut.q_started && dut.half_sent>=2`。top在上一成功行DONE→IDLE时不清这两项，只有reset或新cmd_fire才清。前一条run_case正常完成后可能留下1/64，原日志 `LNQ_RESET_PASS pre_reset_half_sent=64` 与此吻合。因此原循环可能零次执行，没有新命令或真实在途Q；当前不能接纳“Q接受2half后共同reset”的覆盖。这是测试覆盖缺口，尚不是DUT复位失效。
+
+请在工作TB修正：先证明新行命令实际握手，记录本次row身份及已进入RUN；仅在本次Q真实接受至少2half、尚未完成且有实际未退休Q工作时触发reset。停止条件必须包含本次accepted，不能读上一行遗留计数。复位前锁存并打印本次cmd计数/row/state、Q输入接受数与能证明在途的真实计数或状态；同步采样避开NBA竞态。随后检查输出/row/done无ghost、真实债务归零及下一真实正常行逐位通过。保留原AT121证据和正常/错误用例的限定结论，将旧reset声明更正为未证明；只重跑受影响范围。
+
+原修订6累计static307.264625s/1800s、RTL144.865745s/1200s仍有额度；每次static≤600s/24GiB、RTL≤300s/8GiB/1Mcycle、pilot≤120s及全项目单重工具等规则不变。无追加同候选综合。A001同时核身份和物理证据，A003定向分析Q最长路径；下一时序修改由A001集中写入同SM004，当前不擅自改Q调度或数学规则。
+
+## AT123定向复核补充
+
+本次新cmd/row31、Q start和2half握手已证明，关闭“旧计数令循环不执行”的TB缺口。另保留一个严格边界：AT123在第二half接受后的紧邻negedge即reset，此时首组才到AMAX_READY，尚未有机会在下一posedge读bank/发算术。因此accepted1/covered0与debt_zero0证明了一个已收未处理组，尚不能覆盖修订6原要求的“算术/输出在途”。
+
+请仍在修订6剩余预算将同一探针的触发稍后移至真实除法FP接受后且未返回（例如锁存本次真实req_fire已见、div_pending>0且divider.fp_pending>0），记录issue/return/pending，再共同reset。复位后观察至少原12拍quarantine窗口结束，无旧有效返回被本任务接纳/无protocol_fault/row/done，随后真实正常行逐位通过。无需增加正常整套回归或OOC，不改DUT；AT123按“已接受组、未证算术在途”保留原范围。该补充是同一覆盖修正的收口，不新增mission或审批。

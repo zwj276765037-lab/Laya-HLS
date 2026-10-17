@@ -1,0 +1,81 @@
+{
+  "issued_at_utc": "2026-10-07T11:12:50.903247+00:00",
+  "reviewer": "gpt-6-astra xhigh",
+  "decision": "ACCEPT_TB_ONLY_LIFETIME_CHANGE_AND_AUTHORIZE_ONE_CSIM_RETRY_AFTER_HOST_RECHECK; ONE_FOCUSED_CSYNTH_REMAINS_CONDITIONAL_ON_CSIM_PASS",
+  "original_gate_sha256": "ea56672c61beded13a3b59ce16cd90edca79b4422a19f6f3bba4641bcb8100b8",
+  "failure": {
+    "manifest_sha256": "05b945665baf12732a256065dd81d5ec0249db5d2b4b817d3226a5d1470eb36d",
+    "independently_verified_artifacts": [
+      {
+        "bytes": 27554,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_vitis/csim_guard/driver.log",
+        "sha256": "4a6dddb64aa95cafefa6e0a49826c19ea16dd8dd0ed280858d064ca96cc5339a"
+      },
+      {
+        "bytes": 290,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_vitis/csim_guard/guard_result.json",
+        "sha256": "d4d4602977a6fd1a349d373025390d8b9bfa5460ad1f74b1b396c2c918b1cea8"
+      },
+      {
+        "bytes": 15361,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_vitis/input_manifest.json",
+        "sha256": "52ca5a07623fa0fb43065885b204d259ad2a6899f515c73b364cca7a4061eeb1"
+      },
+      {
+        "bytes": 2607424,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_vitis/csim_clang_repro/full_pointer_control_pilot_tb-8a2175.cpp",
+        "sha256": "3c500792ca82039aea564ba2cba0d4a3f6660a4c190d933ee6f86ff9b75e61b0"
+      },
+      {
+        "bytes": 7980,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/results/synthesis_memory_fix_20261007/followon_r1/pilot_vitis/csim_clang_repro/full_pointer_control_pilot_tb-8a2175.sh",
+        "sha256": "f096b83e0473b84d669576aa09d3aa160b3251859fbbb0409b4ae5607a1b9ad9"
+      }
+    ],
+    "stage": "First testbench compilation, LLVM GlobalOpt EvaluateStaticConstructor -> ComputeLoadResult, clang16 frontend139. No testbench execution and no focused csynth attempt.",
+    "guard_result": {
+      "child_exit_code": 1,
+      "elapsed_seconds": 10.579037053510547,
+      "finished_at": "2026-10-07T11:08:49.117759+00:00",
+      "minimum_mem_available_kb": 439365848,
+      "peak_owned_rss_kb": 1264100,
+      "rss_capture_count": 53,
+      "rss_captured": true,
+      "rss_sample_count": 53,
+      "trigger": null
+    },
+    "peak_owned_rss_GiB": 1.2055397033691406,
+    "hypothesis": "The TB global std::vector<uint8_t> dynamic constructor is evaluated by compiler GlobalOpt; moving its identical allocation/zero-initialization into main avoids this static-constructor path. This is a narrow hypothesis, not a proven compiler root cause before retry."
+  },
+  "reviewed_only_change": {
+    "file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-repair-20261007/tests/full_pointer_control_pilot_tb.cpp",
+    "before_sha256": "9f7bab9ae3ab0b2d0acead3684dc726f6ad6fe9c167d2d3a27c5fae1fb378f82",
+    "after_sha256": "af73fa18c644b2aa411bc9a066c8f7e42124645cf68f7a03f1c8983f19076fe3",
+    "description": "Move same 12 MiB zero-initialized vector from global scope to main automatic object, pass that same vector by reference through three existing helpers and callsites. All assertions, numeric stimuli, order and buffer lifetime throughout all calls preserved.",
+    "proof": "Independent inverse transformation restores entire previous testbench byte-for-byte.",
+    "production_wrapper_config_unchanged": true,
+    "test_numeric_acceptance_unchanged": true,
+    "no_compiler_option_or_tool_change": true
+  },
+  "retry_conditions": [
+    "Rebuild and run ordinary and __SYNTHESIS__ host focused TB; both must pass same 49 assertions. Preserve stdout/exits and current TB/source input hashes. No need to rerun unchanged 632-lookup/11-QK differential drivers solely for this TB-only object lifetime change.",
+    "Use fresh r2 build/result directories, preserve failed r1 logs and preprocessed reproducer; do not overwrite historical input manifest or source preimage.",
+    "Run exactly one revised real Vitis CSim under original 8 GiB/192 GiB/1 hour/nice19/4CPU/idleIO guard. Same strict-O2 flags/config/prod/wrapper.",
+    "Only after CSim passes, consume the original gate remaining allowance of one focused csynth; unchanged production synthesis input. Capture actual IR, inspect all pointer comparisons and three path liveness.",
+    "On new failure stop for focused review, no automatic retry."
+  ],
+  "resource_guard": {
+    "maximum_owned_RSS_KiB": 8388608,
+    "minimum_MemAvailable_KiB": 201326592,
+    "maximum_seconds_per_stage": 3600,
+    "nice": 19,
+    "CPU_count": 4,
+    "IO_priority": "idle",
+    "nominal_sample_seconds": 0.2,
+    "guard_sha256": "6f9eea7076c154489c054ede97fdfffd5e9dd04d423778896d38dd8739c8f9d7",
+    "helper_sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98",
+    "one_heavy_task_at_a_time": true,
+    "ownership": "Only verified owned session/process tree with matching PID start times may be stopped/killed. No other project modification, resource setting or process impact."
+  },
+  "scope_limit": "Testbench compatibility only. Full-top synthesis, new final export/regressions and baseline promotion remain separately gated."
+}

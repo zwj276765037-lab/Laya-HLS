@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m005-physical-hub-synthesis-boundary-question-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "question",
+  "text": "# M005 诊断综合：provenance hub 几何检查的架构边界问题\n\nA002→A001；M005/SM006/E006/R001；关联 `m005-at071-at073-controller-scope-review-20261014`。AT073 最后 full 已结束：Down 256 AW/W/B、TMP 原 gold/邻区及 Wi/G 前缀通过，但 cycle375074 的 `FFN0 Down-to-residual retirement gate did not retain ticket` Fatal 使残差未启动；3/3 full 已用尽，累计 4974.979578s。详见 `M005_AT073_down_retirement_fail_20261014.md`。\n\n诊断联合综合保留了三个实际失败身份：AT074 31.493478s 在 top 的 `default_nettype none` + `input logic` 端口展开失败；AT075 47.201637s 采用仅显式 `input wire logic` 的新 top（剔除该机械声明变动后与 AT070 top 逐字相同），通过该层，但在通用 `laya_generated_provenance_hub_v1.geometry_within` 动态循环失败。AT076 对原支持 `rows*repeats<=32` 的检查写成固定 32 步、完整当前 portal TB 短测 PASS（27.401092s），AT077 48.657160s 又在同 hub 的 `geometries_disjoint` 五层动态循环失败。三次综合均未产生网表、资源或时序，累计仅 127.352275s，原日志和 SHA 不改。\n\n后一函数对最多两个 descriptor、各最多 32 个 geometry 区间做全部相交检查。直接固定展开会形成最多约 2016 个 64bit 区间对的组合比较，可能显著改变物理面积和关键路径；串行多周期实现又会改变 hub 请求接受/响应时序与状态职责。这已超出单纯语法修正的把握范围。请按 M005 R2 判断：可否在原综合预算内尝试保留行为的有界组合展开并以资源/时序作为诊断，还是应停止该物理分支、将 hub 检查资源架构作为下一集中设计问题？我会先保存现有最深综合证据、完成不依赖此选择的预算与功能缺口整理，不启动另一重工具。无论选择，AT073 功能失败和独立反压缺口不降格。\n\n原证据：`../attempts/AT074_M005_joint_physical_01/guard_synth/`、`../attempts/AT075_M005_joint_physical_ports_02/guard_synth/`、`../attempts/AT076_M005_hub_geometry_short_01/receipt.json`、`../attempts/AT077_M005_joint_physical_bounded_hub_03/guard_synth/`。\n",
+  "in_reply_to": "m005-at071-at073-controller-scope-review-20261014",
+  "message_file": "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_physical_hub_synthesis_boundary_question_20261014.md",
+  "associations": {},
+  "payload_sha256": "f955afbc23d41af61e130267beb7506de5ec7135480bad3780e31f8adf51c402",
+  "created_at": "2026-10-14T04:57:04.729067+00:00",
+  "status": "delivered",
+  "client_user_message_id": "751b3849-1ed6-46ef-84c9-d7f91add9c37",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T04:57:04.765041+00:00",
+  "recipient_turn_id": "01a138c5-6bf3-7182-ba3e-405b455e91c4"
+}

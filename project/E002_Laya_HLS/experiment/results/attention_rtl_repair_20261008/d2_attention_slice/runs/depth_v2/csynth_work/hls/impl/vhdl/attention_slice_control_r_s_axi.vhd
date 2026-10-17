@@ -1,0 +1,487 @@
+-- ==============================================================
+-- Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2025.2 (64-bit)
+-- Tool Version Limit: 2025.11
+-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+-- Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+-- 
+-- ==============================================================
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.all;
+
+entity attention_slice_control_r_s_axi is
+generic (
+    C_S_AXI_ADDR_WIDTH    : INTEGER := 7;
+    C_S_AXI_DATA_WIDTH    : INTEGER := 32);
+port (
+    ACLK                  :in   STD_LOGIC;
+    ARESET                :in   STD_LOGIC;
+    ACLK_EN               :in   STD_LOGIC;
+    AWADDR                :in   STD_LOGIC_VECTOR(C_S_AXI_ADDR_WIDTH-1 downto 0);
+    AWVALID               :in   STD_LOGIC;
+    AWREADY               :out  STD_LOGIC;
+    WDATA                 :in   STD_LOGIC_VECTOR(C_S_AXI_DATA_WIDTH-1 downto 0);
+    WSTRB                 :in   STD_LOGIC_VECTOR(C_S_AXI_DATA_WIDTH/8-1 downto 0);
+    WVALID                :in   STD_LOGIC;
+    WREADY                :out  STD_LOGIC;
+    BRESP                 :out  STD_LOGIC_VECTOR(1 downto 0);
+    BVALID                :out  STD_LOGIC;
+    BREADY                :in   STD_LOGIC;
+    ARADDR                :in   STD_LOGIC_VECTOR(C_S_AXI_ADDR_WIDTH-1 downto 0);
+    ARVALID               :in   STD_LOGIC;
+    ARREADY               :out  STD_LOGIC;
+    RDATA                 :out  STD_LOGIC_VECTOR(C_S_AXI_DATA_WIDTH-1 downto 0);
+    RRESP                 :out  STD_LOGIC_VECTOR(1 downto 0);
+    RVALID                :out  STD_LOGIC;
+    RREADY                :in   STD_LOGIC;
+    fixture_r             :out  STD_LOGIC_VECTOR(63 downto 0);
+    io_r                  :out  STD_LOGIC_VECTOR(63 downto 0);
+    aux_r                 :out  STD_LOGIC_VECTOR(63 downto 0);
+    qkv0_r                :out  STD_LOGIC_VECTOR(63 downto 0);
+    qkv1_r                :out  STD_LOGIC_VECTOR(63 downto 0);
+    att_out_r             :out  STD_LOGIC_VECTOR(63 downto 0);
+    observed_r            :out  STD_LOGIC_VECTOR(63 downto 0)
+);
+end entity attention_slice_control_r_s_axi;
+
+-- ------------------------Address Info-------------------
+-- Protocol Used: ap_ctrl_none
+--
+-- 0x00 : reserved
+-- 0x04 : reserved
+-- 0x08 : reserved
+-- 0x0c : reserved
+-- 0x10 : Data signal of fixture_r
+--        bit 31~0 - fixture_r[31:0] (Read/Write)
+-- 0x14 : Data signal of fixture_r
+--        bit 31~0 - fixture_r[63:32] (Read/Write)
+-- 0x18 : reserved
+-- 0x1c : Data signal of io_r
+--        bit 31~0 - io_r[31:0] (Read/Write)
+-- 0x20 : Data signal of io_r
+--        bit 31~0 - io_r[63:32] (Read/Write)
+-- 0x24 : reserved
+-- 0x28 : Data signal of aux_r
+--        bit 31~0 - aux_r[31:0] (Read/Write)
+-- 0x2c : Data signal of aux_r
+--        bit 31~0 - aux_r[63:32] (Read/Write)
+-- 0x30 : reserved
+-- 0x34 : Data signal of qkv0_r
+--        bit 31~0 - qkv0_r[31:0] (Read/Write)
+-- 0x38 : Data signal of qkv0_r
+--        bit 31~0 - qkv0_r[63:32] (Read/Write)
+-- 0x3c : reserved
+-- 0x40 : Data signal of qkv1_r
+--        bit 31~0 - qkv1_r[31:0] (Read/Write)
+-- 0x44 : Data signal of qkv1_r
+--        bit 31~0 - qkv1_r[63:32] (Read/Write)
+-- 0x48 : reserved
+-- 0x4c : Data signal of att_out_r
+--        bit 31~0 - att_out_r[31:0] (Read/Write)
+-- 0x50 : Data signal of att_out_r
+--        bit 31~0 - att_out_r[63:32] (Read/Write)
+-- 0x54 : reserved
+-- 0x58 : Data signal of observed_r
+--        bit 31~0 - observed_r[31:0] (Read/Write)
+-- 0x5c : Data signal of observed_r
+--        bit 31~0 - observed_r[63:32] (Read/Write)
+-- 0x60 : reserved
+-- (SC = Self Clear, COR = Clear on Read, TOW = Toggle on Write, COH = Clear on Handshake)
+
+architecture behave of attention_slice_control_r_s_axi is
+attribute DowngradeIPIdentifiedWarnings : STRING;
+attribute DowngradeIPIdentifiedWarnings of behave : architecture is "yes";
+    type states is (wridle, wrdata, wrresp, wrreset, rdidle, rddata, rdreset);  -- read and write fsm states
+    signal wstate  : states := wrreset;
+    signal rstate  : states := rdreset;
+    signal wnext, rnext: states;
+    constant ADDR_FIXTURE_R_DATA_0  : INTEGER := 16#10#;
+    constant ADDR_FIXTURE_R_DATA_1  : INTEGER := 16#14#;
+    constant ADDR_FIXTURE_R_CTRL    : INTEGER := 16#18#;
+    constant ADDR_IO_R_DATA_0       : INTEGER := 16#1c#;
+    constant ADDR_IO_R_DATA_1       : INTEGER := 16#20#;
+    constant ADDR_IO_R_CTRL         : INTEGER := 16#24#;
+    constant ADDR_AUX_R_DATA_0      : INTEGER := 16#28#;
+    constant ADDR_AUX_R_DATA_1      : INTEGER := 16#2c#;
+    constant ADDR_AUX_R_CTRL        : INTEGER := 16#30#;
+    constant ADDR_QKV0_R_DATA_0     : INTEGER := 16#34#;
+    constant ADDR_QKV0_R_DATA_1     : INTEGER := 16#38#;
+    constant ADDR_QKV0_R_CTRL       : INTEGER := 16#3c#;
+    constant ADDR_QKV1_R_DATA_0     : INTEGER := 16#40#;
+    constant ADDR_QKV1_R_DATA_1     : INTEGER := 16#44#;
+    constant ADDR_QKV1_R_CTRL       : INTEGER := 16#48#;
+    constant ADDR_ATT_OUT_R_DATA_0  : INTEGER := 16#4c#;
+    constant ADDR_ATT_OUT_R_DATA_1  : INTEGER := 16#50#;
+    constant ADDR_ATT_OUT_R_CTRL    : INTEGER := 16#54#;
+    constant ADDR_OBSERVED_R_DATA_0 : INTEGER := 16#58#;
+    constant ADDR_OBSERVED_R_DATA_1 : INTEGER := 16#5c#;
+    constant ADDR_OBSERVED_R_CTRL   : INTEGER := 16#60#;
+    constant ADDR_BITS         : INTEGER := 7;
+
+    signal AWREADY_t           : STD_LOGIC;
+    signal WREADY_t            : STD_LOGIC;
+    signal ARREADY_t           : STD_LOGIC;
+    signal RVALID_t            : STD_LOGIC;
+    signal BVALID_t            : STD_LOGIC;
+    signal waddr               : UNSIGNED(ADDR_BITS-1 downto 0);
+    signal wmask               : UNSIGNED(C_S_AXI_DATA_WIDTH-1 downto 0);
+    signal aw_hs               : STD_LOGIC;
+    signal w_hs                : STD_LOGIC;
+    signal rdata_data          : UNSIGNED(C_S_AXI_DATA_WIDTH-1 downto 0);
+    signal ar_hs               : STD_LOGIC;
+    signal raddr               : UNSIGNED(ADDR_BITS-1 downto 0);
+    -- internal registers
+    signal int_fixture_r       : UNSIGNED(63 downto 0) := (others => '0');
+    signal int_io_r            : UNSIGNED(63 downto 0) := (others => '0');
+    signal int_aux_r           : UNSIGNED(63 downto 0) := (others => '0');
+    signal int_qkv0_r          : UNSIGNED(63 downto 0) := (others => '0');
+    signal int_qkv1_r          : UNSIGNED(63 downto 0) := (others => '0');
+    signal int_att_out_r       : UNSIGNED(63 downto 0) := (others => '0');
+    signal int_observed_r      : UNSIGNED(63 downto 0) := (others => '0');
+
+
+begin
+-- ----------------------- Instantiation------------------
+
+
+-- ----------------------- AXI WRITE ---------------------
+    AWREADY_t <=  '1' when wstate = wridle else '0';
+    AWREADY   <=  AWREADY_t;
+    WREADY_t  <=  '1' when wstate = wrdata else '0';
+    WREADY    <=  WREADY_t;
+    BVALID_t  <=  '1' when wstate = wrresp else '0';
+    BVALID    <=  BVALID_t;
+    BRESP     <=  "00";  -- OKAY
+    wmask     <=  (31 downto 24 => WSTRB(3), 23 downto 16 => WSTRB(2), 15 downto 8 => WSTRB(1), 7 downto 0 => WSTRB(0));
+    aw_hs     <=  AWVALID and AWREADY_t;
+    w_hs      <=  WVALID and WREADY_t;
+
+    -- write FSM
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                wstate <= wrreset;
+            elsif (ACLK_EN = '1') then
+                wstate <= wnext;
+            end if;
+        end if;
+    end process;
+
+    process (wstate, AWVALID, WVALID, BREADY, BVALID_t)
+    begin
+        case (wstate) is
+        when wridle =>
+            if (AWVALID = '1') then
+                wnext <= wrdata;
+            else
+                wnext <= wridle;
+            end if;
+        when wrdata =>
+            if (WVALID = '1') then
+                wnext <= wrresp;
+            else
+                wnext <= wrdata;
+            end if;
+        when wrresp =>
+            if (BREADY = '1' and BVALID_t = '1') then
+                wnext <= wridle;
+            else
+                wnext <= wrresp;
+            end if;
+        when others =>
+            wnext <= wridle;
+        end case;
+    end process;
+
+    waddr_proc : process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ACLK_EN = '1') then
+                if (aw_hs = '1') then
+                    waddr <= UNSIGNED(AWADDR(ADDR_BITS-1 downto 2) & (1 downto 0 => '0'));
+                end if;
+            end if;
+        end if;
+    end process;
+
+-- ----------------------- AXI READ ----------------------
+    ARREADY_t <= '1' when (rstate = rdidle) else '0';
+    ARREADY <= ARREADY_t;
+    RDATA   <= STD_LOGIC_VECTOR(rdata_data);
+    RRESP   <= "00";  -- OKAY
+    RVALID_t  <= '1' when (rstate = rddata) else '0';
+    RVALID    <= RVALID_t;
+    ar_hs   <= ARVALID and ARREADY_t;
+    raddr   <= UNSIGNED(ARADDR(ADDR_BITS-1 downto 0));
+
+    -- read FSM
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                rstate <= rdreset;
+            elsif (ACLK_EN = '1') then
+                rstate <= rnext;
+            end if;
+        end if;
+    end process;
+
+    process (rstate, ARVALID, RREADY, RVALID_t)
+    begin
+        case (rstate) is
+        when rdidle =>
+            if (ARVALID = '1') then
+                rnext <= rddata;
+            else
+                rnext <= rdidle;
+            end if;
+        when rddata =>
+            if (RREADY = '1' and RVALID_t = '1') then
+                rnext <= rdidle;
+            else
+                rnext <= rddata;
+            end if;
+        when others =>
+            rnext <= rdidle;
+        end case;
+    end process;
+
+    rdata_proc : process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ACLK_EN = '1') then
+                if (ar_hs = '1') then
+                    rdata_data <= (others => '0');
+                    case (TO_INTEGER(raddr)) is
+                    when ADDR_FIXTURE_R_DATA_0 =>
+                        rdata_data <= RESIZE(int_fixture_r(31 downto 0), 32);
+                    when ADDR_FIXTURE_R_DATA_1 =>
+                        rdata_data <= RESIZE(int_fixture_r(63 downto 32), 32);
+                    when ADDR_IO_R_DATA_0 =>
+                        rdata_data <= RESIZE(int_io_r(31 downto 0), 32);
+                    when ADDR_IO_R_DATA_1 =>
+                        rdata_data <= RESIZE(int_io_r(63 downto 32), 32);
+                    when ADDR_AUX_R_DATA_0 =>
+                        rdata_data <= RESIZE(int_aux_r(31 downto 0), 32);
+                    when ADDR_AUX_R_DATA_1 =>
+                        rdata_data <= RESIZE(int_aux_r(63 downto 32), 32);
+                    when ADDR_QKV0_R_DATA_0 =>
+                        rdata_data <= RESIZE(int_qkv0_r(31 downto 0), 32);
+                    when ADDR_QKV0_R_DATA_1 =>
+                        rdata_data <= RESIZE(int_qkv0_r(63 downto 32), 32);
+                    when ADDR_QKV1_R_DATA_0 =>
+                        rdata_data <= RESIZE(int_qkv1_r(31 downto 0), 32);
+                    when ADDR_QKV1_R_DATA_1 =>
+                        rdata_data <= RESIZE(int_qkv1_r(63 downto 32), 32);
+                    when ADDR_ATT_OUT_R_DATA_0 =>
+                        rdata_data <= RESIZE(int_att_out_r(31 downto 0), 32);
+                    when ADDR_ATT_OUT_R_DATA_1 =>
+                        rdata_data <= RESIZE(int_att_out_r(63 downto 32), 32);
+                    when ADDR_OBSERVED_R_DATA_0 =>
+                        rdata_data <= RESIZE(int_observed_r(31 downto 0), 32);
+                    when ADDR_OBSERVED_R_DATA_1 =>
+                        rdata_data <= RESIZE(int_observed_r(63 downto 32), 32);
+                    when others =>
+                        NULL;
+                    end case;
+                end if;
+            end if;
+        end if;
+    end process;
+
+-- ----------------------- Register logic ----------------
+    fixture_r            <= STD_LOGIC_VECTOR(int_fixture_r);
+    io_r                 <= STD_LOGIC_VECTOR(int_io_r);
+    aux_r                <= STD_LOGIC_VECTOR(int_aux_r);
+    qkv0_r               <= STD_LOGIC_VECTOR(int_qkv0_r);
+    qkv1_r               <= STD_LOGIC_VECTOR(int_qkv1_r);
+    att_out_r            <= STD_LOGIC_VECTOR(int_att_out_r);
+    observed_r           <= STD_LOGIC_VECTOR(int_observed_r);
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_fixture_r(31 downto 0) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_FIXTURE_R_DATA_0) then
+                    int_fixture_r(31 downto 0) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_fixture_r(31 downto 0));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_fixture_r(63 downto 32) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_FIXTURE_R_DATA_1) then
+                    int_fixture_r(63 downto 32) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_fixture_r(63 downto 32));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_io_r(31 downto 0) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_IO_R_DATA_0) then
+                    int_io_r(31 downto 0) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_io_r(31 downto 0));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_io_r(63 downto 32) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_IO_R_DATA_1) then
+                    int_io_r(63 downto 32) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_io_r(63 downto 32));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_aux_r(31 downto 0) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_AUX_R_DATA_0) then
+                    int_aux_r(31 downto 0) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_aux_r(31 downto 0));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_aux_r(63 downto 32) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_AUX_R_DATA_1) then
+                    int_aux_r(63 downto 32) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_aux_r(63 downto 32));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_qkv0_r(31 downto 0) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_QKV0_R_DATA_0) then
+                    int_qkv0_r(31 downto 0) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_qkv0_r(31 downto 0));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_qkv0_r(63 downto 32) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_QKV0_R_DATA_1) then
+                    int_qkv0_r(63 downto 32) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_qkv0_r(63 downto 32));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_qkv1_r(31 downto 0) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_QKV1_R_DATA_0) then
+                    int_qkv1_r(31 downto 0) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_qkv1_r(31 downto 0));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_qkv1_r(63 downto 32) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_QKV1_R_DATA_1) then
+                    int_qkv1_r(63 downto 32) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_qkv1_r(63 downto 32));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_att_out_r(31 downto 0) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_ATT_OUT_R_DATA_0) then
+                    int_att_out_r(31 downto 0) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_att_out_r(31 downto 0));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_att_out_r(63 downto 32) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_ATT_OUT_R_DATA_1) then
+                    int_att_out_r(63 downto 32) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_att_out_r(63 downto 32));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_observed_r(31 downto 0) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_OBSERVED_R_DATA_0) then
+                    int_observed_r(31 downto 0) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_observed_r(31 downto 0));
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process (ACLK)
+    begin
+        if (ACLK'event and ACLK = '1') then
+            if (ARESET = '1') then
+                int_observed_r(63 downto 32) <= (others => '0');
+            elsif (ACLK_EN = '1') then
+                if (w_hs = '1' and waddr = ADDR_OBSERVED_R_DATA_1) then
+                    int_observed_r(63 downto 32) <= (UNSIGNED(WDATA(31 downto 0)) and wmask(31 downto 0)) or ((not wmask(31 downto 0)) and int_observed_r(63 downto 32));
+                end if;
+            end if;
+        end if;
+    end process;
+
+
+-- ----------------------- Memory logic ------------------
+
+end architecture behave;

@@ -1,0 +1,54 @@
+--- executor_checkpoint_rtl_02/laya_executor_checkpoint_tb_v2.sv
++++ executor_checkpoint_rtl_03/laya_executor_checkpoint_tb_v2.sv
+@@ -293,51 +293,6 @@
+     s_axi_awlen=0;s_axi_wstrb='1;s_axi_wlast=1;
+   endtask
+ 
+-  task automatic drive_burst(input logic [63:0] address,input integer beats,
+-      input logic w_before_aw,input logic [1:0] expected_bresp,
+-      input logic hold_response);
+-    logic aw_done,w_done,aw_accept,w_accept;
+-    integer first_beat;
+-    aw_done=0;w_done=0;s_axi_bready=0;first_beat=0;
+-    s_axi_awaddr=address;s_axi_awlen=beats-1;s_axi_awsize=6;s_axi_awburst=1;
+-    if(w_before_aw)begin
+-      s_axi_wdata={8{address}};s_axi_wstrb='1;
+-      s_axi_wlast=beats==1;s_axi_wvalid=1;
+-      while(!w_done)begin
+-        @(posedge clk);w_accept=s_axi_wvalid && s_axi_wready;#1;
+-        if(w_accept)begin s_axi_wvalid=0;w_done=1;end
+-        @(negedge clk);
+-      end
+-      repeat(2)begin
+-        if(m_axi_wvalid)$fatal(1,"burst W escaped before an authorized AW");
+-        tick();
+-      end
+-      first_beat=1;
+-    end
+-    s_axi_awvalid=1;
+-    while(!aw_done)begin
+-      @(posedge clk);aw_accept=s_axi_awvalid && s_axi_awready;#1;
+-      if(aw_accept)begin s_axi_awvalid=0;aw_done=1;end
+-      @(negedge clk);
+-    end
+-    for(int beat=first_beat;beat<beats;beat++)begin
+-      s_axi_wdata={8{address+64'(beat)*64}};s_axi_wstrb='1;
+-      s_axi_wlast=beat==beats-1;s_axi_wvalid=1;w_done=0;
+-      while(!w_done)begin
+-        @(posedge clk);w_accept=s_axi_wvalid && s_axi_wready;#1;
+-        if(w_accept)begin s_axi_wvalid=0;w_done=1;end
+-        @(negedge clk);
+-      end
+-    end
+-    while(!s_axi_bvalid)tick();
+-    if(s_axi_bresp!=expected_bresp)
+-      $fatal(1,"burst B response mismatch phase=%0d",phase);
+-    if(!hold_response)begin
+-      s_axi_bready=1;tick();s_axi_bready=0;tick();
+-    end
+-    s_axi_awlen=0;s_axi_wlast=1;
+-  endtask
+-
+   logic [8191:0] query,checkpoint_received,checkpoint_gold,held_reply;
+   integer handoffs=0,total_handoffs=0,mode=0,capture;
+   always @(posedge clk)if(rst_n && checkpoint_handoff_pulse)begin

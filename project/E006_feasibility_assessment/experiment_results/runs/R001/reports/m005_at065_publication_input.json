@@ -1,0 +1,13 @@
+{
+  "source": "# E006 实验依据摘要\n\n权威合同为 `mission/M005_代表通路与整模性能可行性评估/contract.md`。问题是同一真实FFN代表通路能否在正常与不同合法反压下逐位算对，联合综合/布线资源与频率能否支持U55C，以及完整模型的流水性能是否值得继续投入。\n\n代表样本为B1/S128、request3/generation1、四个不同token row的外部attention residual→LN_FFN→单Q/Wi/G/Q/Down→末F32 residual；保留原GGUF/ABI、独立gold、A/W/PS容量、真实AXI及局部655360B保护。part为`xcu55c-fsvh2892-2L-e`，Vivado 2025.2；6.667ns只是首约束。外部sequencer、DDR/HBM响应模型、PCIe shell及Attention上游单列，不能混入可综合top。\n\nAT063是E005旧帽下的停止事实；E006新AT064短测和AT065第一次诊断full承接其Down边界。AT065只增强被动时钟/入口打印及四态断言，冻结功能DUT、正常激励、ROM和gold保留；本次只签实际受影响边界。M005累计预算与单重工具规则见合同。\n",
+  "results": "# E006 关键结果摘要\n\nAT064在同身份adapter＋真实ledger、受控Wi退休和tied-idle matrix ready下于13cycle通过局部入口，guard25.378452s；不代签联合链。AT065 static111.926796s、真实LN前缀23.505724s通过，第一次新冷full运行2080.617893s后在cycle358880/3588801ns于Down受理前四态断言Fatal，判`FAIL_SEMANTIC_DOWN_ADMISSION_UNKNOWN`。实际时钟、negedge和TB语句均推进，`cfg_ready/ledger_ready/ledger_admitted/candidate_ready=1`，`static_ok=x`、`matrix_valid=x`；Down cfg、TMP写、末残差、完整gold/保护终扫均未达。guard child0不覆盖Fatal，runner为FAIL；不是DUT数值FAIL或已证死锁。\n\nAT065冻结TB的`g_cfg_K`只在handoff gate_k连接处出现，无声明/驱动；handoff静态准入要求K=2624，是X的明确来源候选，修后动态回归仍必需。AT065 342条源身份、262文件来源及两个隔离运行副本、7冻结文件/9工具/80库均逐bytes/SHA核对一致；7 ROM/63 fixture/11根preflight记录有效。三段policy共40条采样匹配。报告：`project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT065_down_admission_unknown_20261014.md`。\n\n候选十实例可综合top仅已生成源码连接清单，未编译或动态验证；同top正常/不同反压full、联合综合、place/route均NOT_RUN，物理LUT/FF/DSP/BRAM/URAM、关键路径、布线频率UNKNOWN。A003首版150MHz/10GBps条件整模6.919–8.133s并非实测，AT065没有完整链周期可校准。\n",
+  "status": "# E006 实验状态摘要\n\n- execution_state: running；verdict: unassessed。AT065第一新诊断full已结束为`FAIL_SEMANTIC_DOWN_ADMISSION_UNKNOWN`，不是正在运行。M005新full已用1/3次、2080.617893/10800s；短测48.884175/600s，static111.926796/5400s。当前无owned重工具。\n- 先修冻结联合TB的未驱动G K并做受影响短测/static；完成真实LN shell与其它九实例的可综合top连接，量化内部债/外部Q AXI读债必须在硬件侧形成LN→Q release判据，外部存储/fixture留TB。代表top源码当前只是候选，未验。\n- 剩余最多两次新full优先同一冻结top正常及确定合法反压；每次先实际≤120s前缀和新成本准入。同版联合综合与place/route仍NOT_RUN。保持原数值、gold、单重工具与全部累计帽，AT063/AT065原冻结证据不改写。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "M005阶段A：AT065 Down受理前X诊断FAIL；同top全链/物理测量未完成",
+  "evidence": [
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT065_down_admission_unknown_20261014.md",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT065_M005_down_boundary_observe_01/result_full.json",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT065_M005_down_boundary_observe_01/source_manifest.json"
+  ]
+}

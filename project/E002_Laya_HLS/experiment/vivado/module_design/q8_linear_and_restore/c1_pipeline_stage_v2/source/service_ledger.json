@@ -1,0 +1,450 @@
+{
+  "all_depth_one_operand_boundaries_bits": 62626,
+  "bank_port_schedule_source_intent": [
+    {
+      "collision": "no quant writes during linear; A slot parity separation",
+      "read": "Aq/As one address per each of 4 row banks only at tile0; A slot tag/data write",
+      "step": "issue",
+      "write": "Q64/D4 metadata reservation, pending request, tile busy"
+    },
+    {
+      "collision": "ordered commit may write one different tile in each PS/lane_bad bank in same arbitration step; same-tile issue blocked through commit+1",
+      "read": "one Wq and Ws per each of 8 column banks; one lane_bad per each of 32 banks; at most one active g>0 PS per each of 32 banks; one prepared A slot",
+      "step": "pending bank return",
+      "write": "one BankReturn FIFO item if credit"
+    },
+    {
+      "collision": "return-slot write and oldest-slot read require independent paths; new return cannot commit in same arbitration step",
+      "read": "one final FIFO item and at most one oldest Q64 payload; one READY D4 payload for writer command",
+      "step": "result return/commit",
+      "write": "one reserved Q64 payload, optional reserved D4 payload; up to 32 PS/lane_bad bank commits"
+    }
+  ],
+  "bank_return_boundary_bits": 4406,
+  "final_return_boundary_bits": 1557,
+  "instance_intent_not_mapping_evidence": {
+    "five_level_adders": [
+      512,
+      256,
+      128,
+      64,
+      32
+    ],
+    "half_decodes": 12,
+    "i32_to_f32": 32,
+    "restore_ps_fadd": 32,
+    "restore_scale_fmul": 32,
+    "restore_term_fmul": 32,
+    "signed_int8_multipliers": 1024,
+    "three_burst_maxi_writers": 3,
+    "total_tree_adders": 992,
+    "tree_value_bits_in_fifos": 17696
+  },
+  "internal_depth_one_fifos_bits": 56663,
+  "operations": [
+    {
+      "consumed_fields": "scheduler, pre-edge credits, same-tile guard",
+      "observation_point": "pending_request / pending_valid",
+      "output_type": "BankRequest",
+      "packed_width_bits": 153,
+      "producer": "control/Q64-D4",
+      "retained_fields": "tag118, W/A/PS addresses35",
+      "service_instances_or_operations": 1,
+      "stage": "accepted_issue",
+      "valid_ce_contract": "Q64 result + optional D4 trace reservation"
+    },
+    {
+      "consumed_fields": "BankRequest, A slot, 8 Wq/Ws, 4 Aq/As-prepared rows, 32 lane_bad, active g>0 PS",
+      "observation_point": "bank_returns.write_nb",
+      "output_type": "BankReturn",
+      "packed_width_bits": 4406,
+      "producer": "run_c1_m0_control",
+      "retained_fields": "tag118 + operands4288",
+      "service_instances_or_operations": 1,
+      "stage": "bank_service",
+      "valid_ce_contract": "one source request/return interface, physical edge/II UNMEASURED"
+    },
+    {
+      "consumed_fields": "BankReturn",
+      "observation_point": "dot_bank / scale_bank FIFOs",
+      "output_type": "DotBank+ScaleBank",
+      "packed_width_bits": null,
+      "producer": "split_actor",
+      "retained_fields": "all dot and scale operands",
+      "service_instances_or_operations": 1,
+      "stage": "split",
+      "valid_ce_contract": "single fork; depth-one outputs; PIPELINE II=1 requested"
+    },
+    {
+      "consumed_fields": "DotBank A/W and old PS/tag",
+      "observation_point": "product FIFO",
+      "output_type": "Products",
+      "packed_width_bits": 17526,
+      "producer": "products_actor",
+      "retained_fields": "1024 signed 16-bit products + context1142",
+      "service_instances_or_operations": 1024,
+      "stage": "signed_products",
+      "valid_ce_contract": "1024 distinct signed 8x8 DSP target, not mapped evidence"
+    },
+    {
+      "consumed_fields": "Products",
+      "observation_point": "tree1 FIFO",
+      "output_type": "Tree1",
+      "packed_width_bits": 9846,
+      "producer": "tree1_actor",
+      "retained_fields": "32x16 signed17 + context1142",
+      "service_instances_or_operations": 512,
+      "stage": "tree_level_1",
+      "valid_ce_contract": "512 signed17 adders; II=1 requested"
+    },
+    {
+      "consumed_fields": "Tree1",
+      "observation_point": "tree2 FIFO",
+      "output_type": "Tree2",
+      "packed_width_bits": 5750,
+      "producer": "tree_actor<17,16>",
+      "retained_fields": "32x8 signed18 + context1142",
+      "service_instances_or_operations": 256,
+      "stage": "tree_level_2",
+      "valid_ce_contract": "256 signed18 adders; II=1 requested"
+    },
+    {
+      "consumed_fields": "Tree2",
+      "observation_point": "tree3 FIFO",
+      "output_type": "Tree3",
+      "packed_width_bits": 3574,
+      "producer": "tree_actor<18,8>",
+      "retained_fields": "32x4 signed19 + context1142",
+      "service_instances_or_operations": 128,
+      "stage": "tree_level_3",
+      "valid_ce_contract": "128 signed19 adders; II=1 requested"
+    },
+    {
+      "consumed_fields": "Tree3",
+      "observation_point": "tree4 FIFO",
+      "output_type": "Tree4",
+      "packed_width_bits": 2422,
+      "producer": "tree_actor<19,4>",
+      "retained_fields": "32x2 signed20 + context1142",
+      "service_instances_or_operations": 64,
+      "stage": "tree_level_4",
+      "valid_ce_contract": "64 signed20 adders; II=1 requested"
+    },
+    {
+      "consumed_fields": "Tree4",
+      "observation_point": "tree5 FIFO",
+      "output_type": "Tree5",
+      "packed_width_bits": 1814,
+      "producer": "tree_actor<20,2>",
+      "retained_fields": "32x1 signed21 + context1142",
+      "service_instances_or_operations": 32,
+      "stage": "tree_level_5",
+      "valid_ce_contract": "32 signed21 adders; II=1 requested"
+    },
+    {
+      "consumed_fields": "Tree5 signed dots + selected trace",
+      "observation_point": "dot_converted FIFO",
+      "output_type": "DotConverted",
+      "packed_width_bits": 2198,
+      "producer": "convert_actor",
+      "retained_fields": "32 binary32 dot values, selected raw dot + context1142",
+      "service_instances_or_operations": 32,
+      "stage": "dot_conversion",
+      "valid_ce_contract": "32 independent signed-I32-to-F32 services; latency/II UNMEASURED"
+    },
+    {
+      "consumed_fields": "ScaleBank half operands + tag",
+      "observation_point": "decoded FIFO",
+      "output_type": "ScaleDecoded",
+      "packed_width_bits": 502,
+      "producer": "decode_actor",
+      "retained_fields": "4 As + 8 Ws exact binary32 + tag",
+      "service_instances_or_operations": 12,
+      "stage": "half_decode",
+      "valid_ce_contract": "12 decode operations; latency/II UNMEASURED"
+    },
+    {
+      "consumed_fields": "ScaleDecoded",
+      "observation_point": "scale_product FIFO",
+      "output_type": "ScaleProducts",
+      "packed_width_bits": 1270,
+      "producer": "scale_actor",
+      "retained_fields": "32 separately rounded binary32 products, phase0/1 masks, selected SA/SW + tag",
+      "service_instances_or_operations": 32,
+      "stage": "scale_product",
+      "valid_ce_contract": "32 independent FMUL services; latency/II UNMEASURED"
+    },
+    {
+      "consumed_fields": "DotConverted + ScaleProducts",
+      "observation_point": "term_input FIFO",
+      "output_type": "TermInput",
+      "packed_width_bits": 3351,
+      "producer": "join_actor",
+      "retained_fields": "tag equality, PS, dot F32, scale product, masks, selected trace",
+      "service_instances_or_operations": 1,
+      "stage": "dot_scale_join",
+      "valid_ce_contract": "ordered stream join; alignment fault terminal at control"
+    },
+    {
+      "consumed_fields": "TermInput",
+      "observation_point": "term_output FIFO",
+      "output_type": "TermOutput",
+      "packed_width_bits": 2423,
+      "producer": "term_actor",
+      "retained_fields": "32 separately rounded dot_f32*product, phase masks, PS, trace",
+      "service_instances_or_operations": 32,
+      "stage": "term_product",
+      "valid_ce_contract": "32 independent FMUL services; latency/II UNMEASURED"
+    },
+    {
+      "consumed_fields": "TermOutput",
+      "observation_point": "add_output FIFO",
+      "output_type": "AddOutput",
+      "packed_width_bits": 1463,
+      "producer": "add_actor",
+      "retained_fields": "32 real old_PS+term additions including g0 +0, phase masks, trace",
+      "service_instances_or_operations": 32,
+      "stage": "ps_add",
+      "valid_ce_contract": "32 independent FADD services; latency/II UNMEASURED"
+    },
+    {
+      "consumed_fields": "AddOutput",
+      "observation_point": "final_returns FIFO",
+      "output_type": "FinalReturn",
+      "packed_width_bits": 1557,
+      "producer": "classify_actor",
+      "retained_fields": "one 1299-bit result, selected 256-bit trace, valid/fault",
+      "service_instances_or_operations": 1,
+      "stage": "classification",
+      "valid_ce_contract": "one final full-vector boundary; service latency/II UNMEASURED"
+    },
+    {
+      "consumed_fields": "FinalReturn + pre-reserved slot",
+      "observation_point": "return_result / return_payload",
+      "output_type": "ResultRing+TraceRing",
+      "packed_width_bits": null,
+      "producer": "run_c1_m0_control",
+      "retained_fields": "one full-vector Q64 write and optional D4 trace write",
+      "service_instances_or_operations": 1,
+      "stage": "reserved_return",
+      "valid_ce_contract": "read_nb; no AXI response call; depth-one final stream backpressure proof HELD"
+    },
+    {
+      "consumed_fields": "oldest RETURNED slot",
+      "observation_point": "commit_oldest",
+      "output_type": "PS+lane_bad+metadata",
+      "packed_width_bits": null,
+      "producer": "run_c1_m0_control",
+      "retained_fields": "32 conditional PS/lane_bad writes, rank/counters/trace publication",
+      "service_instances_or_operations": 1,
+      "stage": "ordered_commit",
+      "valid_ce_contract": "one ordered oldest commit per arbitration step; physical RAM ports HELD"
+    }
+  ],
+  "schema": "q8_c1_stage_v2_service_ledger_v1",
+  "stage_width_bits": {
+    "AddOutput": 1463,
+    "BankRequest": 153,
+    "BankReturn": 4406,
+    "DotBank": 4214,
+    "DotConverted": 2198,
+    "FinalReturn": 1557,
+    "Products": 17526,
+    "ScaleBank": 310,
+    "ScaleDecoded": 502,
+    "ScaleProducts": 1270,
+    "TermInput": 3351,
+    "TermOutput": 2423,
+    "Tree1": 9846,
+    "Tree2": 5750,
+    "Tree3": 3574,
+    "Tree4": 2422,
+    "Tree5": 1814
+  },
+  "status": "SOURCE_CANDIDATE_UNMEASURED",
+  "storage_ledger": {
+    "accounting_scope": "Source-declared retained arrays, queues, and metadata in this candidate. Physical registers/RAMs and transient HLS scheduling storage are UNMEASURED.",
+    "candidate_declared_retained_subtotal_bits": 49350435,
+    "double_count_policy": "Stage FIFO totals include each named interstage payload once. Q64 and D4 are separate from FinalReturn and writer queues. No physical register/BRAM/URAM sum is claimed.",
+    "operand_boundary_bits_including_current_held_final": 62626,
+    "source_declared_items": [
+      {
+        "bits": 42991616,
+        "first_use": "LOAD_W writes every T*G address from both q shards before w_valid; linear reads only after successful LOAD_W",
+        "formula": "8 x 20992 x 256",
+        "implementation_intent": "requested 8 column URAM banks; ports/collision UNMEASURED",
+        "name": "wq"
+      },
+      {
+        "bits": 2686976,
+        "first_use": "LOAD_W writes every T*G address before scale validation or linear; w_valid gates linear",
+        "formula": "8 x 20992 x 16",
+        "implementation_intent": "requested 8 column BRAM banks; ports UNMEASURED",
+        "name": "ws"
+      },
+      {
+        "bits": 167936,
+        "first_use": "LOAD_W writes n<N, including explicit zero when bias_kind=0; final output reads only n<N after w_valid",
+        "formula": "8 x 656 x 32",
+        "implementation_intent": "requested BRAM banks",
+        "name": "bias_bits"
+      },
+      {
+        "bits": 2097152,
+        "first_use": "RUN_TILE loads all r<rows,k<K values before quant_group reads",
+        "formula": "8 x 8192 x 32",
+        "implementation_intent": "requested 8 lane BRAM banks",
+        "name": "fp"
+      },
+      {
+        "bits": 524288,
+        "first_use": "quant_group writes each r<rows,g<G only on success; linear starts only after all quant groups succeed",
+        "formula": "4 x 512 x 256",
+        "implementation_intent": "requested 4 row BRAM banks",
+        "name": "aq"
+      },
+      {
+        "bits": 32768,
+        "first_use": "written atomically with Aq after successful quant_group; A preparation reads only after full quant retirement",
+        "formula": "4 x 512 x 16",
+        "implementation_intent": "requested 4 row BRAM banks",
+        "name": "as"
+      },
+      {
+        "bits": 671744,
+        "first_use": "g0 emits canonical +0 and does not read PS; later g reads only shape-active and nonfailed lanes after prior same-tile physical commit; final bias reads only nonfailed in-shape lanes",
+        "formula": "32 x 656 x 32",
+        "implementation_intent": "requested 32 lane BRAM banks; read/write collision behavior HELD",
+        "name": "ps"
+      },
+      {
+        "bits": 20992,
+        "first_use": "cleared for tile<T before each m0; every bank read and final-output check is tile<T; failed lanes set on physical commit",
+        "formula": "32 x 656 x 1",
+        "implementation_intent": "requested 32 lane BRAM banks",
+        "name": "lane_bad"
+      },
+      {
+        "bits": 2328,
+        "first_use": "valid cleared at m0 entry; prepare zeroes payload and writes tag before valid=true; bank service checks valid and matching tag",
+        "formula": "2 x (1152 data + 4 m0 + 7 g + 1 valid)",
+        "implementation_intent": "two preparation slots, no load/compute overlap",
+        "name": "a_slots"
+      },
+      {
+        "bits": 83304,
+        "first_use": "metadata reset marks every slot FREE; reserve marks RESERVED before return_result writes payload; commit reads only RETURNED; free_at_edge blocks same-step reuse",
+        "formula": "64 x (1299 payload + 2 state) + 2 x 6 heads + 4 x 7 counters",
+        "implementation_intent": "payload unreset; Q64 reserved-index full-vector write; physical dual access HELD",
+        "name": "result_ring"
+      },
+      {
+        "bits": 1114,
+        "first_use": "metadata reset marks FREE; reserve writes seq before payload; returned payload precedes publish READY; start_send reads only READY; cancel never reads payload",
+        "formula": "4 x 256 payload + 4 x 3 state + 4 x 17 seq + 2 x 2 heads + 2 x 3 counters",
+        "implementation_intent": "payload unreset; D4 ACK retirement",
+        "name": "trace_ring"
+      },
+      {
+        "bits": 678,
+        "first_use": "metadata reset clears all busy/valid; issue sets busy; physical commit clears and guard delays same-tile reuse",
+        "formula": "656 busy + 2 valid + 2 x 10 tile",
+        "implementation_intent": "source arbitration-step guard, physical edge UNMEASURED",
+        "name": "tile_hazards"
+      },
+      {
+        "bits": 154,
+        "first_use": "issue fills request before valid=true; bank service reads only when valid; tag/address held until bank_returns.write_nb succeeds",
+        "formula": "153 BankRequest + 1 valid",
+        "implementation_intent": "one pending request register",
+        "name": "pending_bank_request"
+      },
+      {
+        "bits": 4406,
+        "first_use": "bank service writes before split reads; includes 118 tag and 4288 operands",
+        "formula": "1 x BankReturn",
+        "implementation_intent": "depth one; actual HLS register count UNMEASURED",
+        "name": "bank_return_fifo"
+      },
+      {
+        "bits": 56663,
+        "first_use": "each actor writes a complete item before downstream read; only unfinished operands/tags retained",
+        "formula": "sum of 14 depth-one named stage boundaries",
+        "implementation_intent": "requested depth one; generated buffers UNMEASURED",
+        "name": "internal_operand_fifos"
+      },
+      {
+        "bits": 1557,
+        "first_use": "classify_actor currently blocks on write; control reads_nb then writes reserved Q64/D4; no-ready proof FAILED pending redesign",
+        "formula": "1 x FinalReturn",
+        "implementation_intent": "source candidate boundary only; not accepted",
+        "name": "final_return_fifo_current_held"
+      },
+      {
+        "bits": 3819,
+        "first_use": "writer reads command before packet register use; ACK written after write_response; core matches ACK before credit release",
+        "formula": "3 x (618 command FIFO + 618 packet register + 37 ack FIFO)",
+        "implementation_intent": "3 independent burst_maxi writers; physical B aggregation UNMEASURED",
+        "name": "writer_packets"
+      },
+      {
+        "bits": 217,
+        "first_use": "reset_quiescent initializes flags/sequence; expected ACK is read only when unsettled after submit writes it",
+        "formula": "3 x (3 flags + 32 next_sequence + 37 expected ACK) + 1 invalid",
+        "implementation_intent": "metadata separate from writer_packets",
+        "name": "router_credit"
+      },
+      {
+        "bits": 1218,
+        "first_use": "static zero initialization; bind_session writes identity before reuse; LOAD_W updates cache/epoch fields before w_valid",
+        "formula": "State fields at declared source widths",
+        "implementation_intent": "HLS reset on metadata State; implementation bits UNMEASURED",
+        "name": "session_state"
+      },
+      {
+        "bits": 1505,
+        "first_use": "local value construction initializes counters each command; updated before build_report reads",
+        "formula": "Counts fields at declared source widths",
+        "implementation_intent": "control/report metadata",
+        "name": "command_counts"
+      }
+    ],
+    "static_bank_payload_bits": 49193472,
+    "transient_declarations_not_physical_counts": [
+      {
+        "name": "descriptor_words",
+        "scope": "128 x uint32_t local input snapshot",
+        "source_bits": 4096
+      },
+      {
+        "name": "decoded_descriptor",
+        "scope": "local Descriptor fields; overlap with input snapshot is a source declaration, not measured netlist storage",
+        "source_bits": 1920
+      },
+      {
+        "name": "report_header",
+        "scope": "256 x uint32_t local report assembly; build_report also has an 8192-bit local h array",
+        "source_bits": 8192
+      },
+      {
+        "name": "load_header",
+        "scope": "32 x uint32_t LOAD_W header local",
+        "source_bits": 1024
+      },
+      {
+        "name": "quant_token",
+        "scope": "one loop-local QuantToken; HLS retention unknown",
+        "source_bits": 1737
+      }
+    ],
+    "writer_packet_bits_excluding_router_credit": 3819
+  },
+  "tag_bits": 118,
+  "unresolved": [
+    "bank read edge, PS/lane_bad physical port mapping and collision mode",
+    "actual integer, half, FP and selected-route service latency/II/CE",
+    "generated DATAFLOW feedback cycle and depth-one final-return backpressure",
+    "fixed return deadline, Q minimum and F reuse schedule",
+    "actual DSP/register/BRAM/URAM/netlist mapping and physical timing"
+  ]
+}

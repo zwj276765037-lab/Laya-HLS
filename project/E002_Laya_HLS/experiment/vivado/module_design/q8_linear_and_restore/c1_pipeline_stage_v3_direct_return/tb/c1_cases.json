@@ -1,0 +1,297 @@
+{
+  "act_full_k256_n2_files": [
+    {
+      "bytes": 1024,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/act_fc2_n2_b0.source_f32.bin",
+      "sha256": "4435df977879caabe57a53694866b4185dfa66874abca686cf5065bc28fa8fd6"
+    },
+    {
+      "bytes": 544,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/act_fc2_n2_b0.weight_source_q8.bin",
+      "sha256": "49c170198928aa057dc1d6e8bb629abc53fe56db7b876c5b9125b5ee4edc49ae"
+    },
+    {
+      "bytes": 8,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/act_fc2_n2_b0.bias_f32.bin",
+      "sha256": "0a2e362129bcdc03f1af86f1645a6772a0d20d5f689aa34ba5875d310e9a3bee"
+    },
+    {
+      "bytes": 272,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/act_fc2_n2_b0.activation_q8.bin",
+      "sha256": "2f0a54901c872906cc683e546553a303bc047069a681686bc10cd3d70c43981d"
+    },
+    {
+      "bytes": 8,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/act_fc2_n2_b0.expected_f32.bin",
+      "sha256": "89ffcce60613f9c3025002a4fc630b80a66c265d9ea312dc33ec3e6d0e1ed4d2"
+    }
+  ],
+  "boundary_examples": [
+    {
+      "amax_bits": "037e0000",
+      "d_bits": "00400000",
+      "quant_q": 127,
+      "reciprocal_bits": "7f000000",
+      "saved_half": "0000"
+    },
+    {
+      "amax_bits": "00800000",
+      "expected": "reciprocal overflow rejects group before commit"
+    },
+    {
+      "amax_bits": "00000001",
+      "expected": "d=0, reciprocal=0, q=0 allowed"
+    },
+    {
+      "bias_bits": "00000001",
+      "final_bits": "00000001",
+      "ps_bits": "00000000"
+    }
+  ],
+  "flow_cases": [
+    "credit_conservation",
+    "same_edge_issue_return_commit",
+    "ring_wrap",
+    "all_masked_return",
+    "failure_return",
+    "trace_cancel",
+    "trace_long_b_pause",
+    "busy_clear_on_physical_commit",
+    "same_tile_c_plus_2",
+    "rank_reverse_arrival_tile_m0_bias",
+    "result_full_vector_single_write",
+    "metadata_reset_after_drain"
+  ],
+  "future_coverage_held": [
+    "rows1_3_4_5_15_16",
+    "G128",
+    "K2624_G82",
+    "N5248",
+    "QKV_scatter",
+    "wrong_identity_epoch",
+    "cross_column_first_error"
+  ],
+  "half_all_patterns": {
+    "expected": "independent exact binary16-to-binary32 conversion with NaN sign/payload preservation",
+    "range_inclusive": [
+      0,
+      65535
+    ]
+  },
+  "int8_extremes": {
+    "all_minus128_dot_expected": 524288,
+    "lane_values": [
+      -128,
+      -127,
+      -1,
+      0,
+      1,
+      127
+    ],
+    "reference": "signed 64-bit sum of 32 independent 8x8 products"
+  },
+  "r0_accepted_result": {
+    "bytes": 9036,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_r0_finite_adapter_actual_numerical_acceptance.json",
+    "sha256": "20597cb607ea0be3c583b0d0c95fcdd7b54a65d790b959b416da9eb4da088c25"
+  },
+  "r0_finite_table": {
+    "bytes": 193385,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/r0_numeric_adapter_v1/runs/finite_v2_vectors/case_table.json",
+    "sha256": "82c09217d084f1ccff0e1c399e1884aacff6af1f25297c8f57294f2e21420996"
+  },
+  "schema": "q8_c1_isolated_dormant_case_bindings_v1",
+  "scorer_distinct_valid_rows3": {
+    "fixture_packet": {
+      "bytes": 25879,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1_control/fixture_execution_packet.json",
+      "sha256": "f6379df78387f2805572da6b6cdaeddb4314ff4ff96a4bc3eff418bdd51b2699"
+    },
+    "fixture_records": [
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/load_w/descriptor_page.bin",
+        "sha256": "02795601d71681e30bf24c8e1d6ac86ffd71b9bf2b65b2a24174d935f4f58f19"
+      },
+      {
+        "bytes": 1024,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/load_w/expected_header_1024.bin",
+        "sha256": "60ad038f4a29638e033d0253dfe40871b53193ed9965ec6df628d183e8a1beb8"
+      },
+      {
+        "bytes": 131072,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/load_w/expected_observed_131072.bin",
+        "sha256": "cba1a0362267c803297a7bf886a1d5be8a7b55c6794bfb6b94ada2fb10222747"
+      },
+      {
+        "bytes": 65536,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/load_w/expected_out0_65536.bin",
+        "sha256": "77007cd74a06dc54e5114d01a41d2721679d5668a0c20022fe102c87ad4d65b8"
+      },
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/load_w/expected_out1_4096.bin",
+        "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+      },
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_off/descriptor_page.bin",
+        "sha256": "e468aaf972c394719cdafecf9b180dce903285644617d4fa8fdec240466bb219"
+      },
+      {
+        "bytes": 1024,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_off/expected_header_1024.bin",
+        "sha256": "603d2255fa738c29e2d17ab91031a9dc4b2cbe34dca179709116cb239dc37ea3"
+      },
+      {
+        "bytes": 131072,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_off/expected_observed_131072.bin",
+        "sha256": "28f90fbe8aab5123cf83d0c59255dbf55682624c59889dce91c1baf442a69be5"
+      },
+      {
+        "bytes": 65536,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_off/expected_out0_65536.bin",
+        "sha256": "563ef5ad435df75d877fce6e52837d71535570f200432ea8fd42330e10c626f2"
+      },
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_off/expected_out1_4096.bin",
+        "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+      },
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_on/descriptor_page.bin",
+        "sha256": "65f61e3fe2f00f49f312bc3eb756395bb1726223c9dd5556f2fc1eb2d22f5bfa"
+      },
+      {
+        "bytes": 1024,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_on/expected_header_1024.bin",
+        "sha256": "8d2d33b7aa0f40470e58efc7ceae29b2bf2730bb183a0dc105422c9af81f55f1"
+      },
+      {
+        "bytes": 131072,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_on/expected_observed_131072.bin",
+        "sha256": "b1072a6f7289a278b36897104ccf0771f305b89a4661b0c61839503bd6f081fa"
+      },
+      {
+        "bytes": 65536,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_on/expected_out0_65536.bin",
+        "sha256": "563ef5ad435df75d877fce6e52837d71535570f200432ea8fd42330e10c626f2"
+      },
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/commands/run_trace_on/expected_out1_4096.bin",
+        "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+      },
+      {
+        "bytes": 3072,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/gold/a8_q_3072.bin",
+        "sha256": "75716a40bf46f845ec870a210cf545498a1bef3c62b6cf171b026eb7d7dbf516"
+      },
+      {
+        "bytes": 192,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/gold/a8_scale_192.bin",
+        "sha256": "156cdf2eab1794fbfdddffef4bb05c605b2d048d98ce22f644b83d6a26e78e08"
+      },
+      {
+        "bytes": 12288,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/gold/input_distinct_rows3_12288.bin",
+        "sha256": "7da75eb57fbf2cf07f3c604d9752bebcbc656534139669ede74b310f80ba7a15"
+      },
+      {
+        "bytes": 1024,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/gold/row2_column8_groups_1024.bin",
+        "sha256": "56848e4edc1859df3ca28812c091dcbcf2b12acc773ec28160fcf736f8cd0c5b"
+      },
+      {
+        "bytes": 12288,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/gold/scorer_distinct_rows3_12288.bin",
+        "sha256": "059786c5addc03945b3e8dfb1dcdca89f5efdb4856a31bcedebe0ee077042f85"
+      },
+      {
+        "bytes": 65536,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/activation.bin",
+        "sha256": "8107fc855009f3c1942965302029004806fbdbb5ee2f7ac2990a89b956f61ae4"
+      },
+      {
+        "bytes": 12288,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/aux.bin",
+        "sha256": "44f58f8bb68b30651a82ae257e19573712ce9cc7e2251721b918ca86aecbcf23"
+      },
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/descriptor.bin",
+        "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+      },
+      {
+        "bytes": 131072,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/observed.bin",
+        "sha256": "3f2d4db28a65f20104b452d76d08e6bb4fcb8626487add9210e55162d62c37f4"
+      },
+      {
+        "bytes": 65536,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/out0.bin",
+        "sha256": "77007cd74a06dc54e5114d01a41d2721679d5668a0c20022fe102c87ad4d65b8"
+      },
+      {
+        "bytes": 4096,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/out1.bin",
+        "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+      },
+      {
+        "bytes": 524288,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/w_q0.bin",
+        "sha256": "060a9c0c44787e783d17055e3f0dfcb8d162026fa54c6c6a296047cac1e5e254"
+      },
+      {
+        "bytes": 524288,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/w_q1.bin",
+        "sha256": "9e9745fe94c400052053d88f3de5b68e7b5b75605c023d9acd35d5a9792d96da"
+      },
+      {
+        "bytes": 65536,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/pages/w_scale.bin",
+        "sha256": "1af6d3081ccde732d61711d292e73903038af32445ba438cd751b10778e26bf7"
+      },
+      {
+        "bytes": 55247,
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/fixture_v1/fixture_report.json",
+        "sha256": "a0c72ce9fdbe5cc5658cc58b875bce1cedbd4bee0a44d7884b2e8859e914482f"
+      }
+    ],
+    "independent_acceptance": {
+      "bytes": 3335,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_distinct_valid_rows3_actual_fixture_independent_check.json",
+      "sha256": "5a4f874bea6a593e6b014f456a48c3d965114d3c995a03a623afd2ecca59823a"
+    },
+    "new_c1_cpu_status": "NOT_EXECUTED"
+  },
+  "scorer_full_k1024_n1024_source_files": [
+    {
+      "bytes": 65536,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/scorer_fc1_full_b1.source_f32.bin",
+      "sha256": "035b32b1be60858d0e56d373b7dcaa9987fb74c90d425dd88ccd08354eb67dc4"
+    },
+    {
+      "bytes": 1114112,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/scorer_fc1_full_b1.weight_source_q8.bin",
+      "sha256": "2fd2136718981ac6b3adaf1170a45150281d0c2b64020de254648f3e9d665ab3"
+    },
+    {
+      "bytes": 4096,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/scorer_fc1_full_b1.bias_f32.bin",
+      "sha256": "2615612d43775396feade02dbe2cec6d6a11b9c8710605b1924234058922b6cc"
+    },
+    {
+      "bytes": 17408,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/scorer_fc1_full_b1.activation_q8.bin",
+      "sha256": "8aff2014f9a8efa8479e67b0072ebaa15b10c73ddb5a67c903f65da0ebc39d4b"
+    },
+    {
+      "bytes": 65536,
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/scorer_fc1_full_b1.expected_f32.bin",
+      "sha256": "22162fbecf9505d550ca85f4d6553085513e011365596a016d33f76674ab4066"
+    }
+  ],
+  "status": "CASE_DEFINITIONS_ONLY_NO_CPU_OR_EDA_EXECUTION"
+}

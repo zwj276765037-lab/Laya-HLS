@@ -1,0 +1,659 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Tue Oct 13 19:54:30 2026
+# Process ID         : 949332
+# Current directory  : /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment
+# Command line       : vivado -mode batch -notrace -source /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT025_GQD0_chain_03/postprocess_help3.tcl
+# Log file           : /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado.log
+# Journal file       : /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado.jou
+# Running On         : user
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.4 LTS
+# Processor Detail   : Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz
+# CPU Frequency      : 1200.427 MHz
+# CPU Physical cores : 48
+# CPU Logical cores  : 96
+# Host memory        : 540587 MB
+# Swap memory        : 8589 MB
+# Total Virtual      : 549177 MB
+# Available Virtual  : 438709 MB
+#-----------------------------------------------------------
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+vivado-mcp server ready on port 10000
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT025_GQD0_chain_03/postprocess_help3.tcl -notrace
+GQD_HELP_BEGIN current_time
+current_time
+
+Description: 
+Report current simulation time
+
+Syntax: 
+current_time  [-s] [-quiet] [-verbose]
+
+Returns: 
+Prints the current simulation time on the console in textual format
+
+Usage: 
+  Name        Description
+  -----------------------
+  [-s]        Short -- suppress the space between numeric part and unit part
+  [-quiet]    Ignore command errors
+  [-verbose]  Suspend message limits during command execution
+
+Categories: 
+Simulation
+
+Description:
+
+  Returns the current simulation time to the Tcl Console or Vivado Design
+  Suite Tcl shell.
+
+Arguments:
+
+  -s - (Optional) Suppress the space between the numeric portion of the time
+  and the unit portion of the time to make it easier to parse.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example returns the current time of the current simulation:
+
+    current_time 
+    
+
+See Also:
+
+   *  restart
+   *  run
+   *  stop
+
+GQD_HELP_BEGIN set_property
+set_property
+
+Description: 
+Set property on object(s)
+
+Syntax: 
+set_property  [-dict <args>] [-quiet] [-verbose] <name> <value> <objects>...
+
+Usage: 
+  Name        Description
+  -----------------------
+  [-dict]     list of name/value pairs of properties to set
+  [-quiet]    Ignore command errors
+  [-verbose]  Suspend message limits during command execution
+  <name>      Name of property to set. Not valid with -dict option
+  <value>     Value of property to set. Not valid with -dict option
+  <objects>   Objects to set properties on
+
+Categories: 
+Object, PropertyAndParameter, XDC
+
+Description:
+
+  Assigns the defined property <name> and <value> to the specified <objects>.
+
+  This command can be used to define any property on an object in the design.
+  Each object has a set of predefined properties that have expected values,
+  or a range of values. The set_property command can be used to define the
+  values for these properties. To determine the defined set of properties on
+  an object, use report_property, list_property, or list_property_values.
+
+  You can also define custom properties for an object, by specifying a unique
+  <name> and <value> pair for the object. If an object has custom properties,
+  these will also be reported by the report_property and list_property
+  commands.
+
+  This command returns nothing if successful, and an error if it fails.
+
+  Tip: You can use the get_property command to validate any properties that
+  have been set on an object.
+
+Arguments:
+
+  -dict - (Optional) Use this option to specify a dictionary of multiple
+  properties (<name> <value> pairs) on an object with a single set_property
+  command. Multiple <name> <value> pairs must be enclosed in quotes, "", or
+  braces, {}.
+
+    -dict "name1 value1 name2 value2 ... nameN valueN"
+
+  Important: When writing the constraints for a design using either
+  save_constraints, save_constraints_as, or write_xdc, the properties
+  specified using the -dict option will be written as separate set_property
+  commands for each name/value pair. If you don`t want the XDC constraints to
+  be expanded in this manner, you can either use the Tcl script driven
+  approach in a non-project design, or use a Tcl script as a design source in
+  your constraint set. Refer to Vivado Design Suite User Guide: Design Flows
+  Overview (UG892) for more information on non-project based design, or refer
+  to Vivado Design Suite User Guide: Using Constraints (UG903) for more
+  information on using Tcl scripts in constraint sets.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+  <name> - (Required) Specifies the name of the property to be assigned to
+  the object or objects. The <name> argument is case sensitive and should be
+  specified appropriately.
+
+  <value> - (Required) Specifies the value to assign to the <name> on the
+  specified object or objects. The value is checked against the property type
+  to ensure that the value is valid. If the value is not appropriate for the
+  property an error will be returned.
+
+  Important: In some cases, the value of a property includes special
+  characters, such as the dash character (`-`), which can cause the tool to
+  interpret the value as a new argument to the command. In this case, you
+  must use the explicit arguments (-name, -value, -objects) instead of the
+  implied positional arguments (name, value, objects) as described here. This
+  is shown in the Examples section below.
+
+  <objects> - (Required) One or more objects to assign the property to.
+
+Examples:
+
+  Create a user-defined boolean property, TRUTH, for cell objects, and set
+  the property on a cell:
+
+    create_property -type bool truth cell
+    set_property truth false [lindex [get_cells] 1]
+
+  Use the -dict option to specify multiple properties at one time on the
+  current design:
+
+    set_property -dict "POST_CRC enable POST_CRC_ACTION correct_and_continue" \
+    [current_design]
+
+  The following example sets the TOP property of the current fileset to
+  define the top module of the project:
+
+    set_property top fftTop [current_fileset]
+    set_property top_file {C:/Data/sources/fftTop.v} [current_fileset]
+
+  Note: Defining the top module requires the TOP property to be set to the
+  desired hierarchical block in the source fileset of the current project. In
+  the preceding example TOP is the property name, fftTop is the value, and
+  current_fileset is the object. In addition, the TOP_FILE property should be
+  defined to point to the data source for the top module.
+
+  This example shows how to set a property value that includes the dash
+  character, `-`. The dash can cause the tool to interpret the value as a new
+  command argument, rather than part of the value being specified, and will
+  cause an error as shown. In this case, you must use the explicit form of
+  the positional arguments in the set_property command:
+
+    set_property {XELAB.MORE_OPTIONS} {-pulse_e_style ondetect} \
+       [get_filesets sim_1]
+    ERROR: [Common 17-170] Unknown option `-pulse_e_style ondetect`,
+     please type `set_property -help` for usage info.
+    set_property -name {XELAB.MORE_OPTIONS} -value {-pulse_e_style ondetect}\
+       -objects [get_filesets sim_1]
+
+  The following example sets the internal VREF property value for the
+  specified IO Bank:
+
+    set_property internal_vref {0.75} [get_iobanks 0]
+
+  The following example defines a DCI Cascade by setting the DCI_CASCADE
+  property for the specified IO Bank:
+
+    set_property DCI_CASCADE {14} [get_iobanks 0 ]
+
+  The following example configures the synth_1 run, setting options for AMD
+  Vivado Synthesis 2013, and then launches the synthesis run:
+
+    set_property flow {Vivado Synthesis 2016} \
+       [get_runs synth_1]
+    set_property STEPS.SYNTH_DESIGN.ARGS.GATED_CLOCK_CONVERSION on \
+       [get_runs synth_1]
+    set_property STEPS.SYNTH_DESIGN.ARGS.FSM_EXTRACTION one_hot \
+       [get_runs synth_1]
+    launch_runs synth_1
+
+  This example is the same as the prior example, except that it uses the
+  -dict option to set all the properties on the synthesis run in a single
+  set_property command:
+
+    set_property -dict [ list flow {Vivado Synthesis 2016} \
+       STEPS.SYNTH_DESIGN.ARGS.GATED_CLOCK_CONVERSION on \
+       STEPS.SYNTH_DESIGN.ARGS.FSM_EXTRACTION \
+       one_hot ] [get_runs synth_1]
+    launch_runs synth_1
+
+See Also:
+
+   *  current_fileset
+   *  create_property
+   *  create_run
+   *  get_cells
+   *  get_property
+   *  get_runs
+   *  launch_runs
+   *  list_property
+   *  list_property_value
+   *  report_property
+   *  reset_property
+
+GQD_HELP_BEGIN get_property
+get_property
+
+Description: 
+Get properties of object
+
+Syntax: 
+get_property  [-min] [-max] [-quiet] [-verbose] <name> <object>
+
+Returns: 
+property value
+
+Usage: 
+  Name        Description
+  -----------------------
+  [-min]      Return only the minimum value
+  [-max]      Return only the maximum value
+  [-quiet]    Ignore command errors
+  [-verbose]  Suspend message limits during command execution
+  <name>      Name of property whose value is to be retrieved
+  <object>    Object to query for properties
+
+Categories: 
+Object, PropertyAndParameter, XDC
+
+Description:
+
+  Gets the current value of the named property from the specified object or
+  objects. If multiple objects are specified, a list of values is returned.
+
+  If the property is not currently assigned to the object, or is assigned
+  without a value, then the get_property command returns nothing, or the null
+  string. If multiple objects are queried, the null string is added to the
+  list of values returned.
+
+  If multiple objects are passed to the get_property command, you can use the
+  -min or -max options to return the smallest or greatest value of the
+  property specified by name. This feature can be useful when setting timing
+  constraints.
+
+  Note: For numeric properties, the min/max determination is based on numeric
+  values. For all other properties, the determination is based on string
+  sorting.
+
+  This command returns a value, or list of values, or returns an error if it
+  fails.
+
+Arguments:
+
+  -min - (Optional) When multiple <objects> are specified, this option
+  examines the values of the property specified by <name>, and returns the
+  smallest value from the list of objects. Numeric properties are sorted by
+  value. All other properties are sorted as strings.
+
+  -max - (Optional) When multiple <objects> are specified, this option
+  examines the values of the property specified by <name>, and returns the
+  largest value from the list of objects. Numeric properties are sorted by
+  value. All other properties are sorted as strings.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+  <name> - (Required) The name of the property to be returned. The name is
+  not case sensitive.
+
+  <objects> - (Required) One or more objects to examine for the specified
+  property.
+
+Examples:
+
+  The following example gets the NAME property from the specified cell:
+
+    get_property NAME [lindex [get_cells] 3] 
+    
+
+  The following example returns the smallest PERIOD property from the
+  specified clock objects:
+
+    get_property -min PERIOD [get_clocks] 
+    
+
+  This example demonstrates the string based sorting of the SITE property for
+  the specified ports:
+
+    get_property SITE [get_ports]  
+    IOB_X1Y75 IOB_X1Y76 IOB_X1Y98 IOB_X1Y125 IOB_X0Y94 IOB_X1Y95 IOB_X1Y96  
+    IOB_X1Y93 IOB_X1Y94  
+     
+    get_property -min SITE [get_ports]  
+    IOB_X0Y94  
+     
+    get_property -max SITE [get_ports]  
+    IOB_X1Y98 
+    
+
+  Note: While IOB_X1Y125 is the largest site value on the port objects, the
+  property value IOB_X1Y98 is returned because of the sorting of the property
+  values as strings.
+
+See Also:
+
+   *  create_property
+   *  get_cells
+   *  get_ports
+   *  list_property
+   *  list_property_value
+   *  report_property
+   *  reset_property
+   *  set_property
+
+GQD_HELP_BEGIN get_objects
+get_objects
+
+Description: 
+Get a list of HDL objects in one or more HDL scopes as per the specified pattern
+
+Syntax: 
+get_objects  [-filter <arg>] [-r] [-local] [-regexp] [-nocase] [-quiet]
+             [-verbose] [<patterns>...]
+
+Returns: 
+Returns all the objects found given the specified pattern
+
+Usage: 
+  Name          Description
+  -------------------------
+  [-filter]     filters <patterns> according to the specified property-matching
+                expressions
+  [-r]          Searches recursively for objects
+  [-local]      Searches objects in the subprogram frame selected for the 
+                current scope
+  [-regexp]     Search using regular expressions, search design objects from 
+                which to create wave objects by design object name. The 
+                application supplying the design objects determines how the 
+                match is to be performed. Items must be strings.
+  [-nocase]     Perform a case insensitive match (only used with regexp)
+  [-quiet]      Ignore command errors
+  [-verbose]    Suspend message limits during command execution
+  [<patterns>]  Patterns to search for.  Default is * where all HDL objects are
+                returned
+
+Categories: 
+Simulation
+
+Description:
+
+  Returns a list of HDL objects matching the specified search pattern in one
+  or more HDL scopes.
+
+  HDL objects include HDL signals, variables, or constants as defined in the
+  Verilog or VHDL test bench and source files. An HDL signal includes Verilog
+  wire or reg entities, and VHDL signals. Examples of HDL variables include
+  Verilog real, realtime, time, and event. HDL constants include Verilog
+  parameters and localparams, and VHDL generic and constants.
+
+  The HDL scope, or scope, is defined by a declarative region in the HDL code
+  such as a module, function, task, process, or begin-end blocks in Verilog.
+  VHDL scopes include entity/architecture definitions, block, function,
+  procedure, and process blocks.
+
+Arguments:
+
+  -r - (Optional) Apply the command to the current scope, and all sub-scopes
+  of the current scope.
+
+  -regexp - (Optional) Specifies that the search <patterns> are written as
+  regular expressions. Both search <patterns> and -filter expressions must be
+  written as regular expressions when this argument is used. AMD regular
+  expression Tcl commands are always anchored to the start of the search
+  string. You can add ".*" to the beginning or end of a search string to
+  widen the search to include a substring. See
+  http://perldoc.perl.org/perlre.html for help with regular expression
+  syntax.
+
+  Note: The Tcl built-in command regexp is not anchored, and works as a
+  standard Tcl command. For more information refer to
+  http://www.tcl.tk/man/tcl8.5/TclCmd/regexp.htm.
+
+  -nocase - (Optional) Perform case-insensitive matching when a pattern has
+  been specified. This argument applies to the use of -regexp only.
+
+  -filter <args> - (Optional) Filter the results list with the specified
+  expression. The -filter argument filters the list of objects returned by
+  get_objects based on property values on the objects. You can find the
+  properties on an object with the report_property or list_property commands.
+  In the case of the HDL object, "NAME", "SCOPE" and "TYPE" are some of the
+  properties that can be used to filter results.
+
+  The filter search pattern should be quoted to avoid having to escape
+  special characters that may be found in net, pin, or cell names, or other
+  properties. String matching is case-sensitive and is always anchored to the
+  start and to the end of the search string. The wildcard "*" character can
+  be used at the beginning or at the end of a search string to widen the
+  search to include a substring of the property value.
+
+  Note: The filter returns an object if a specified property exists on the
+  object, and the specified pattern matches the property value on the object.
+  In the case of the "*" wildcard character, this will match a property with
+  a defined value of "".
+
+  For string comparison, the specific operators that can be used in filter
+  expressions are "equal" (==), "not-equal" (!=), "match" (=~), and
+  "not-match" (!~). Numeric comparison operators <, >, <=, and >= can also be
+  used. Multiple filter expressions can be joined by AND and OR (&& and ||).
+  The following gets input pins that do NOT contain the "RESET" substring
+  within their name:
+
+    get_pins * -filter {DIRECTION == IN && NAME !~ "*RESET*"} 
+    
+
+  Boolean (bool) type properties can be directly evaluated in filter
+  expressions as true or not true:
+
+    -filter {IS_PRIMITIVE && !IS_LOC_FIXED} 
+    
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+  <patterns> - (Optional) Match HDL objects against the specified patterns.
+  The default pattern is the wildcard `*` which returns all the children in
+  the current scope. The search pattern can be defined in two ways:
+
+   *  <patterns> - Specifies only the search pattern for the objects to get.
+      This method returns all objects in the current scope (and any
+      sub-scopes when -recursive is used).
+
+   *  <scope>/<pattern> - Specifies the scope of interest, relative to the
+      current scope, and the pattern for objects to locate. In this case, the
+      specified <scope>, and any sub-scopes of it if -recursive is used, are
+      identified starting from the current scope. Then all objects matching
+      the search <pattern> are identified and returned.
+
+Examples:
+
+  The following example specifies the current_scope, then gets all HDL
+  objects in that scope:
+
+    current_scope ./cpuEngine  
+    get_objects 
+    
+
+  The following example returns the count of all objects in the current
+  scope, and then returns the count of all objects in the current scope, and
+  all sub-scopes of it:
+
+    llength [get_objects]  
+       182  
+    llength [get_objects -recursive ]  
+       2182 
+    
+
+  The following example specifies the <scope>/<pattern> search pattern as
+  discussed above. Notice that the cpuEngine scope and various sub-scopes of
+  it are identified, then objects matching the cl* pattern in those scopes
+  are returned:
+
+    get_objects -recursive -filter {type == internal_signal} cpuEngine/cl*   
+       /top/cpuEngine/clk_i  
+       /top/cpuEngine/iwb_biu/clk   
+       /top/cpuEngine/iwb_biu/clmode   
+       /top/cpuEngine/or1200_cpu/clk   
+       ...        
+       /top/cpuEngine/or1200_immu_top/or1200_immu_tlb/itlb_mr_ram/clk 
+    
+
+  Search the current scope, and all sub-scopes, for any internal signals
+  whose names start with cl or ma:
+
+    get_objects -recursive -filter {type == internal_signal} ma* cl* 
+    
+
+See Also:
+
+   *  current_scope
+   *  list_property
+   *  report_objects
+   *  report_property
+
+GQD_HELP_BEGIN report_values
+report_values
+
+Description: 
+Print current simulated value of given HDL objects (variable, signal, wire, or reg)
+
+Syntax: 
+report_values  [-radix <arg>] [-print_type] [-quiet] [-verbose]
+               [<hdl_objects>...]
+
+Returns: 
+Print name and value of HDL objects on the console in textual format
+
+Usage: 
+  Name             Description
+  ----------------------------
+  [-radix]         The radix specifies the radix to use for printing the values
+                   of the hdl_objects. Allowed values are: default, dec, bin, 
+                   oct, hex, unsigned, ascii, smag.
+  [-print_type]    Print type information for the object.
+  [-quiet]         Ignore command errors
+  [-verbose]       Suspend message limits during command execution
+  [<hdl_objects>]  The hdl_objects to report.  Default is report_objects 
+                   [get_objects *]
+
+Categories: 
+Simulation
+
+Description:
+
+  Report the values of the specified HDL objects at the current simulation
+  run time.
+
+  HDL objects include HDL signals, variables, or constants as defined in the
+  Verilog or VHDL test bench and source files. An HDL signal includes Verilog
+  wire or reg entities, and VHDL signals. Examples of HDL variables include
+  Verilog real, realtime, time, and event.
+
+  HDL constants include Verilog parameters and localparams, and VHDL generic
+  and constants. The HDL scope, or scope, is defined by a declarative region
+  in the HDL code such as a module, function, task, process, or begin-end
+  blocks in Verilog. VHDL scopes include entity/architecture definitions,
+  block, function, procedure, and process blocks.
+
+Arguments:
+
+  -radix <arg> - (Optional) Specifies the radix to use when returning the
+  value of the specified objects. Allowed values are: default, dec, bin, oct,
+  hex, unsigned, ascii, or smag.
+
+  Note: The radix dec indicates a signed decimal. Specify the radix unsigned
+  when dealing with unsigned data.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -print_type - (Optional) Print type information for the object along with value(s).
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+  <hdl_objects> - (Required) Specifies one or more HDL objects to return the
+  values of. The object can be specified by name, or can be returned as an
+  object from the get_objects command.
+
+Examples:
+
+  The following example reports the value of all objects at the current time:
+
+    report_values [get_objects] 
+    
+
+  This example shows the difference between the bin, dec, and unsigned radix
+  on the value returned from the specified bus:
+
+    report_values -radix bin /test/bench_VStatus_pad_0_i[7:0]  
+      Declared: {/test/bench_VStatus_pad_0_i[7:0]} Verilog 10100101  
+    report_values -radix unsigned /test/bench_VStatus_pad_0_i[7:0]  
+      Declared: {/test/bench_VStatus_pad_0_i[7:0]} Verilog 165  
+    report_values -radix dec /test/bench_VStatus_pad_0_i[7:0]  
+      Declared: {/test/bench_VStatus_pad_0_i[7:0]} Verilog -91 
+    report_values r -print_type
+                  Variable: {r}    Verilog Type: Logic    1
+
+See Also:
+
+   *  current_time
+   *  get_objects
+   *  get_value
+   *  set_value
+
+INFO: [Common 17-206] Exiting Vivado at Tue Oct 13 19:54:34 2026...

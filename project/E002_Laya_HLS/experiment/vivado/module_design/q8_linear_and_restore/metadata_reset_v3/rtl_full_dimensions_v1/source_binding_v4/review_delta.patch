@@ -1,0 +1,375 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v4/preimages/materialize_scorer_pilot.py
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/materialize_scorer_pilot.py
+@@ -220,6 +220,17 @@
+          tensors["linear_120_baked_bias"]["source_sha256"], "baked bias GGUF")
+     need(raw_bias == bo["aux"][weight["bias_base"]:weight["bias_base"] + PAGE],
+          "baked bias BO/GGUF")
++    aux_end = len(bo["aux"])
++    bias_end = weight["bias_base"] + weight["bias_span"]
++    need(aux_end == bias_end == 1671872 and weight["bias_base"] == 1667776,
++         "original AUX bias reaches exact BO end")
++    need(128 <= aux_end and weight["bias_span"] == PAGE,
++         "original AUX header/bias bounds")
++    final_aux_page = 1671168
++    final_aux_prefix = 704
++    need(final_aux_page == (bias_end - 1) // PAGE * PAGE and
++         aux_end - final_aux_page == final_aux_prefix,
++         "original AUX final page layout")
+     for n in range(N):
+         tile, cc = divmod(n, 8)
+         shard = tile % 2
+@@ -259,6 +270,7 @@
+                 "a8_scale": save(out, "gold/a8_scale_64.bin", scales),
+                 "trace": save(out, "gold/column7_groups_1024.bin", groups)}
+     pages = {}
++    partial_model_pages = []
+     for port in PORTS:
+         offsets = ([0] if port == "descriptor" else
+                    [weight["q_base"][0] + i * PAGE for i in range(128)] if port == "w_q0" else
+@@ -272,7 +284,19 @@
+         for slot, offset in enumerate(offsets):
+             if port in bo:
+                 page = bo[port][offset:offset + PAGE]
+-                need(len(page) == PAGE, f"BO page bounds {port} {offset}")
++                if port == "aux" and slot == 2:
++                    need(offset == final_aux_page and len(page) == final_aux_prefix,
++                         "AUX final page source bounds")
++                    partial_model_pages.append({
++                        "port": port, "slot": slot, "bo_offset": offset,
++                        "source_prefix_interval": [offset, aux_end],
++                        "source_prefix_bytes": final_aux_prefix,
++                        "forbidden_suffix_interval": [aux_end, offset + PAGE],
++                        "forbidden_suffix_bytes": PAGE - final_aux_prefix,
++                        "sentinel": GUARD})
++                    page = guarded(page)
++                else:
++                    need(len(page) == PAGE, f"BO page bounds {port} {offset}")
+             elif port == "activation" and slot == 0:
+                 page = activation
+             else:
+@@ -284,6 +308,7 @@
+                        "absolute_bases": [PORT_POINTERS[port] + x for x in offsets],
+                        "page_sha256": [digest(x) for x in data]}
+     need(sum(len(p["offsets"]) for p in pages.values()) == 341, "static page count")
++    need(len(partial_model_pages) == 1, "only the known AUX final page may be partial")
+     commands = []
+     for name, cmd, task, quant, ps_epoch, trace, reuse in (
+         ("load_w", 0, 1, 0, 0, False, 0),
+@@ -326,6 +351,7 @@
+                    "bytes": len(raw_bias), "sha256": digest(raw_bias)}],
+               "source_records": source_records, "products": products,
+               "pages": pages, "page_count": 341,
++              "partial_model_pages": partial_model_pages,
+               "commands": commands, "trace_column": COLUMN,
+               "logical_work_per_run": {"quant_groups": 32, "quant_inputs": 1024,
+                                        "issued": 4096, "retired": 4096,
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v4/preimages/test_q8_full_scorer.cpp
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/test_q8_full_scorer.cpp
+@@ -82,7 +82,7 @@
+   need(q0.size >= 184156160 + q0_page.size() &&
+        q1.size >= 184156160 + q1_page.size() &&
+        scale.size >= 23019520 + scale_page.size() &&
+-       aux.size >= 1671168 + kPage, "original BO bounds");
++       aux.size == 1671872, "original BO bounds");
+   compare(q0.data + 184156160, q0_page, "original q0");
+   compare(q1.data + 184156160, q1_page, "original q1");
+   compare(scale.data + 23019520, scale_page, "original scales");
+@@ -91,9 +91,13 @@
+   compare(aux.data + 1667072,
+           std::vector<uint8_t>(aux_page.begin() + kPage, aux_page.begin() + 2 * kPage),
+           "original AUX bias first page");
++  constexpr size_t kAuxFinalPrefix = 704;
+   compare(aux.data + 1671168,
+-          std::vector<uint8_t>(aux_page.begin() + 2 * kPage, aux_page.end()),
+-          "original AUX bias second page");
++          std::vector<uint8_t>(aux_page.begin() + 2 * kPage,
++                               aux_page.begin() + 2 * kPage + kAuxFinalPrefix),
++          "original AUX bias second page prefix");
++  for (size_t i = 2 * kPage + kAuxFinalPrefix; i < aux_page.size(); ++i)
++    need(aux_page[i] == 0xa5, "AUX forbidden suffix sentinel");
+ }
+ 
+ std::vector<uint32_t> descriptor(const std::string& fixture,
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v4/preimages/make_source_packet.py
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/make_source_packet.py
+@@ -24,7 +24,10 @@
+ ACT_TB = MODULE / "rtl_act_static_v1/tb"
+ G16 = REVIEW / "d2_controller_reachable/source/guard_16g.py"
+ G4 = REVIEW / "d2_axi_allocation_diagnostic/guard_trace_v5/tb/guard_runtime_4g.py"
+-OUT = ISOLATED / "source_binding_v3/source_packet.json"
++OUT = ISOLATED / "source_binding_v4/source_packet.json"
++PREIMAGE_MANIFEST = ISOLATED / "source_binding_v4/preimage_manifest.json"
++REPAIR_RELEASE = REVIEW / "reviewer_q8_full_scorer_aux_eof_first_failure_source_repair_release.json"
++FIRST_FAILURE = ISOLATED / "runs/first_pilot_v1/first_failure_evidence.json"
+ PRIOR_CSIM_D = MODULE.parent / "runs/csim_legal_v1/work/hls/csim/build/obj"
+ HLS_DEPENDENCY_CLOSURE = MODULE / "runs/csynth_local_v1/preprocessed_dependency_closure.json"
+ CPU_INCLUDE_ROOTS = (VITIS / "include", BASE / "include", MODEL, MODULE / "source")
+@@ -97,6 +100,42 @@
+ 
+ 
+ def main() -> int:
++    previous = ISOLATED / "source_binding_v3/source_packet.json"
++    prior_packet = json.loads(previous.read_text())
++    prior_files = {item["path"]: item for item in prior_packet["immutable_files"]}
++    preimages = json.loads(PREIMAGE_MANIFEST.read_text())
++    changed_names = {"materialize_scorer_pilot.py", "test_q8_full_scorer.cpp",
++                     "make_source_packet.py", "verify_source_binding.py",
++                     "first_pilot_budget.json", "results.md"}
++    if (preimages["schema"] != "q8_full_scorer_v4_source_preimages_v1" or
++        preimages["v3_source_packet_sha256"] != sha(previous) or
++        {Path(item["preimage"]).name for item in preimages["entries"]} != changed_names):
++        raise ValueError("complete V3 source preimages required")
++    for item in preimages["entries"]:
++        old = prior_files[item["source"]["path"]]
++        archived = record(Path(item["preimage"]))
++        if (item["source"] != old or
++            (archived["bytes"], archived["mode"], archived["sha256"]) !=
++                (old["bytes"], old["mode"], old["sha256"]) or
++            item["preimage_sha256"] != old["sha256"]):
++            raise ValueError(f"V3 preimage mismatch {item['preimage']}")
++    first_failure = json.loads(FIRST_FAILURE.read_text())
++    repair_review = json.loads(REPAIR_RELEASE.read_text())
++    if (first_failure["schema"] !=
++            "q8_full_scorer_first_pilot_materialization_first_failure_evidence_v1" or
++        repair_review["first_failure_evidence"]["sha256"] != sha(FIRST_FAILURE) or
++        repair_review["source_packet"]["sha256"] != sha(previous)):
++        raise ValueError("first-failure repair review lineage")
++    preserved = [dict(relative_path=item["relative_path"], bytes=item["bytes"],
++                      sha256=item["sha256"])
++                 for item in first_failure["partial_files"]
++                 if item["relative_path"].startswith(("fixture/gold/", "fixture/pages/"))]
++    if len(preserved) != 9:
++        raise ValueError("first-attempt fixture product count")
++    for item in preserved:
++        path = ISOLATED / "runs/first_pilot_v1" / item["relative_path"]
++        if path.stat().st_size != item["bytes"] or sha(path) != item["sha256"]:
++            raise ValueError(f"first-attempt fixture product changed: {path}")
+     verilog = sorted(RTL.glob("*.v"))
+     dat = sorted(RTL.glob("*.dat"))
+     wrappers = sorted(IP.glob("*/sim/*_ip.vhd"))
+@@ -177,6 +216,10 @@
+         "reviewer_q8_full_dimensions_observer_numeric_boundary_preparation_addendum.json",
+         "reviewer_q8_act_static_v1_full_functional_acceptance.json",
+         "reviewer_q8_full_scorer_static_schedule_precheck.json")]
++    gates += [REPAIR_RELEASE, FIRST_FAILURE, previous, PREIMAGE_MANIFEST]
++    gates += [Path(item["preimage"]) for item in preimages["entries"]]
++    gates += [ISOLATED / "runs/first_pilot_v1" / item["relative_path"]
++              for item in first_failure["partial_files"]]
+     schedule = [REPORT / name for name in (
+         "q8_joint_tm4tn8_csynth.rpt",
+         "q8_joint_tm4tn8_Pipeline_VITIS_LOOP_583_21_VITIS_LOOP_584_22_VITIS_LOOP_587_23_csynth.rpt",
+@@ -223,13 +266,13 @@
+             if (actual["bytes"], actual["sha256"]) != (
+                 frozen["bytes"], frozen["sha256"]):
+                 raise ValueError(f"accepted checkpoint identity {pair['name']}/{side}")
+-    build = ISOLATED / "runs/static_build_v1"
+-    fixture = ISOLATED / "runs/first_pilot_v1/fixture"
+-    cpu = ISOLATED / "runs/first_pilot_v1/cpu"
+-    runtime = ISOLATED / "runs/first_pilot_v1/runtime"
+-    audit = ISOLATED / "runs/first_pilot_v1/log_audit.json"
++    build = ISOLATED / "runs/static_build_v2"
++    fixture = ISOLATED / "runs/first_pilot_v2/fixture"
++    cpu = ISOLATED / "runs/first_pilot_v2/cpu"
++    runtime = ISOLATED / "runs/first_pilot_v2/runtime"
++    audit = ISOLATED / "runs/first_pilot_v2/log_audit.json"
+     verifier = ["python3", str(HERE / "verify_source_binding.py"), str(OUT)]
+-    phase = ISOLATED / "runs/first_pilot_v1"
++    phase = ISOLATED / "runs/first_pilot_v2"
+     fixture_post = phase / "fixture_binding_post.json"
+     cpu_build_post = phase / "cpu_build_binding_post.json"
+     static_post = phase / "static_binding_post.json"
+@@ -264,9 +307,9 @@
+                                               "--out", str(phase / "rtl_binding_post.json")]},
+     ]
+     packet = {
+-        "schema": "q8_full_scorer_first_pilot_source_packet_v3",
++        "schema": "q8_full_scorer_first_pilot_source_packet_v4",
+         "created_utc": datetime.now(timezone.utc).isoformat(),
+-        "status": "SOURCE_ONLY_UNCOMPILED_NO_FIXTURE_OR_CPU_OR_EDA_EXECUTED",
++        "status": "SOURCE_REPAIR_PREPARED_FIRST_ATTEMPT_FAILED_V2_RUN_NOT_EXECUTED",
+         "counts": {"generated_verilog": 230, "generated_dat": 108,
+                    "fp_sim_vhdl": 7, "physical_pages": 341,
+                    "immutable_files": len(immutable)},
+@@ -276,16 +319,26 @@
+         "checkpoint_slices": checkpoint_slices,
+         "model_tags": model["tags"],
+         "physical_weight": weight,
+-        "source_gate": str(gates[0]),
++        "model_aux_bo": record(MODEL / model["bo"]["aux"]["file"]),
++        "source_gate": str(REPAIR_RELEASE),
+         "supersedes_source_preview": record(ISOLATED / "source_binding_v1/source_packet.json"),
+         "supersedes_source_packet_v2": record(ISOLATED / "source_binding_v2/source_packet.json"),
++        "supersedes_source_packet_v3": record(previous),
++        "first_failure_evidence": record(FIRST_FAILURE),
++        "source_repair_release": record(REPAIR_RELEASE),
++        "source_preimage_manifest": record(PREIMAGE_MANIFEST),
++        "first_attempt_preserved_fixture_products": preserved,
++        "aux_final_page_contract": {
++            "bo_bytes": 1671872, "bias_base": 1667776, "bias_span": 4096,
++            "page_base": 1671168, "source_prefix_bytes": 704,
++            "forbidden_suffix_bytes": 3392, "sentinel": 165},
+         "cpu_dependency_contract": {
+             "method": "Read-only recursive literal-include scan plus existing CSim .d and HLS preprocessor evidence; future two-TU -MMD files must name only immutable inputs",
+             "include_roots": [str(p.resolve()) for p in CPU_INCLUDE_ROOTS],
+             "literal_include_closure": {name: [str(p) for p in paths]
+                                         for name, paths in cpu_scan.items()},
+             "prior_csim_dependency_files": [record(p) for p in prior_d],
+-            "prior_csim_non_system_paths_mapped_to_v3": [str(p) for p in sorted(prior_cpu_headers)],
++            "prior_csim_non_system_paths_mapped_to_v4": [str(p) for p in sorted(prior_cpu_headers)],
+             "prior_hls_preprocessed_dependency_closure": record(HLS_DEPENDENCY_CLOSURE),
+             "future_dependency_files": ["q8_joint_tm4tn8.d", "test_q8_full_scorer.d"],
+         },
+@@ -302,27 +355,27 @@
+         "planned_binding_commands": bindings,
+         "guarded_stage_commands": [
+             {"stage": "materialize_fixture", "cwd": str(ISOLATED),
+-             "argv": ["python3", str(G4), "--out", str(ISOLATED / "runs/first_pilot_v1/fixture_guard"),
++             "argv": ["python3", str(G4), "--out", str(phase / "fixture_guard"),
+                       "--cwd", str(ISOLATED), "--rss-gib", "4", "--timeout-seconds", "900",
+                       "--", "python3", str(HERE / "materialize_scorer_pilot.py"), str(fixture)]},
+             {"stage": "build_cpu_leaf", "cwd": str(ISOLATED),
+-             "argv": ["python3", str(G4), "--out", str(ISOLATED / "runs/first_pilot_v1/cpu_build_guard"),
++             "argv": ["python3", str(G4), "--out", str(phase / "cpu_build_guard"),
+                       "--cwd", str(ISOLATED), "--rss-gib", "4", "--timeout-seconds", "900",
+                       "--", str(HERE / "build_cpu_leaf.sh"), str(cpu)]},
+             {"stage": "run_cpu_leaf", "cwd": str(ISOLATED),
+-             "argv": ["python3", str(G4), "--out", str(ISOLATED / "runs/first_pilot_v1/cpu_run_guard"),
++             "argv": ["python3", str(G4), "--out", str(phase / "cpu_run_guard"),
+                       "--cwd", str(ISOLATED), "--rss-gib", "4", "--timeout-seconds", "900",
+                       "--", str(HERE / "run_cpu_leaf.sh"), str(cpu), str(fixture)]},
+             {"stage": "static_compile", "cwd": str(build),
+-             "argv": ["python3", str(G16), "--out", str(ISOLATED / "runs/first_pilot_v1/static_guard"),
++             "argv": ["python3", str(G16), "--out", str(phase / "static_guard"),
+                       "--cwd", str(build), "--rss-gib", "16", "--timeout-seconds", "900",
+                       "--", str(HERE / "build_static.sh"), str(build)]},
+             {"stage": "prepare_runtime", "cwd": str(ISOLATED),
+-             "argv": ["python3", str(G4), "--out", str(ISOLATED / "runs/first_pilot_v1/runtime_prepare_guard"),
++             "argv": ["python3", str(G4), "--out", str(phase / "runtime_prepare_guard"),
+                       "--cwd", str(ISOLATED), "--rss-gib", "4", "--timeout-seconds", "900",
+                       "--", "python3", str(HERE / "prepare_runtime.py"), str(fixture), str(build), str(runtime)]},
+             {"stage": "rtl_first_three_commands", "cwd": str(runtime),
+-             "argv": ["python3", str(G16), "--out", str(ISOLATED / "runs/first_pilot_v1/rtl_guard"),
++             "argv": ["python3", str(G16), "--out", str(phase / "rtl_guard"),
+                       "--cwd", str(runtime), "--rss-gib", "16", "--timeout-seconds", "36000",
+                       "--", str(HERE / "run_pilot.sh"), str(build), str(runtime)]}],
+         "compile_flags": ["-std=c++17", "-O2", "-ffp-contract=off", "-fno-fast-math",
+@@ -332,7 +385,7 @@
+              "object": "q8_joint_tm4tn8.o", "dependencies": "q8_joint_tm4tn8.d"},
+             {"source": str(HERE / "test_q8_full_scorer.cpp"),
+              "object": "test_q8_full_scorer.o", "dependencies": "test_q8_full_scorer.d"}],
+-        "xsim_snapshot_lookup": "runtime/xsim.dir is an absolute symlink to static_build_v1/xsim.dir; 108 absolute DAT symlinks are installed by run_pilot.sh",
++        "xsim_snapshot_lookup": "runtime/xsim.dir is an absolute symlink to static_build_v2/xsim.dir; 108 absolute DAT symlinks are installed by run_pilot.sh",
+         "snapshot_runtime_mutable_allowlist": [
+             "q8_full_scorer/xsim_script.tcl",
+             "q8_full_scorer/xsimSettings.ini",
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v4/preimages/verify_source_binding.py
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/tb/verify_source_binding.py
+@@ -78,7 +78,7 @@
+             "dependency_files": dependency_files, "objects": objects}
+ 
+ 
+-def verify_fixture(root: Path) -> dict:
++def verify_fixture(root: Path, packet: dict) -> dict:
+     report_path = root / "fixture_report.json"
+     report = json.loads(report_path.read_text())
+     if (report["schema"] != "q8_full_scorer_first_pilot_fixture_v1" or
+@@ -95,6 +95,37 @@
+         if (not path.is_file() or path.is_symlink() or
+             digest(path) != (entry["bytes"], entry["sha256"])):
+             raise ValueError(f"fixture product changed: {path}")
++    preserved = packet["first_attempt_preserved_fixture_products"]
++    if len(preserved) != 9:
++        raise ValueError("first-attempt fixture product contract")
++    for entry in preserved:
++        relative = entry["relative_path"]
++        if not relative.startswith("fixture/"):
++            raise ValueError(f"first-attempt fixture path: {relative}")
++        path = root / relative.removeprefix("fixture/")
++        if digest(path) != (entry["bytes"], entry["sha256"]):
++            raise ValueError(f"first-attempt fixture product changed: {path}")
++    contract = packet["aux_final_page_contract"]
++    if contract != {"bo_bytes": 1671872, "bias_base": 1667776,
++                    "bias_span": 4096, "page_base": 1671168,
++                    "source_prefix_bytes": 704, "forbidden_suffix_bytes": 3392,
++                    "sentinel": 165}:
++        raise ValueError("AUX final page contract")
++    expected_partial = {"port": "aux", "slot": 2, "bo_offset": 1671168,
++                        "source_prefix_interval": [1671168, 1671872],
++                        "source_prefix_bytes": 704,
++                        "forbidden_suffix_interval": [1671872, 1675264],
++                        "forbidden_suffix_bytes": 3392, "sentinel": 165}
++    if report.get("partial_model_pages") != [expected_partial]:
++        raise ValueError("AUX partial page metadata")
++    aux_page = (root / "pages/aux.bin").read_bytes()
++    aux_bo = Path(packet["model_aux_bo"]["path"]).read_bytes()
++    if (len(aux_page) != 3 * 4096 or len(aux_bo) != 1671872 or
++        aux_page[:4096] != aux_bo[:4096] or
++        aux_page[4096:8192] != aux_bo[1667072:1671168] or
++        aux_page[8192:8192 + 704] != aux_bo[1671168:] or
++        aux_page[8192 + 704:] != bytes([165]) * 3392):
++        raise ValueError("AUX original source and forbidden suffix")
+     return {"path": str(report_path.resolve()), "bytes": report_path.stat().st_size,
+             "sha256": digest(report_path)[1], "product_count": len(entries)}
+ 
+@@ -105,7 +136,7 @@
+     if (metadata["schema"] != "q8_full_scorer_first_pilot_runtime_input_v1" or
+         metadata["commands"] != ["load_w", "run_trace_on", "run_trace_off"]):
+         raise ValueError("prepared runtime contract")
+-    fixture = verify_fixture(Path(metadata["fixture_root"]))
++    fixture = verify_fixture(Path(metadata["fixture_root"]), packet)
+     if fixture["sha256"] != metadata["fixture_report_sha256"]:
+         raise ValueError("prepared fixture changed")
+     files = []
+@@ -187,11 +218,13 @@
+     if args.archive_runtime_artifacts and not args.snapshot:
+         parser.error("--archive-runtime-artifacts requires --snapshot")
+     packet = json.loads(args.packet.read_text())
+-    if packet["schema"] != "q8_full_scorer_first_pilot_source_packet_v3":
++    if packet["schema"] != "q8_full_scorer_first_pilot_source_packet_v4":
+         raise ValueError("source packet schema")
+     if set(packet["snapshot_runtime_mutable_allowlist"]) != RUNTIME_ARTIFACTS:
+         raise ValueError("packet and verifier XSim mutable-path mismatch")
+-    for key in ("supersedes_source_preview", "supersedes_source_packet_v2"):
++    for key in ("supersedes_source_preview", "supersedes_source_packet_v2",
++                "supersedes_source_packet_v3", "first_failure_evidence",
++                "source_repair_release", "source_preimage_manifest", "model_aux_bo"):
+         item = packet[key]
+         path = Path(item["path"])
+         if (digest(path) != (item["bytes"], item["sha256"]) or
+@@ -215,7 +248,7 @@
+             raw = stream.read(item["bytes"])
+         if len(raw) != item["bytes"] or hashlib.sha256(raw).hexdigest() != item["sha256"]:
+             raise ValueError(f"checkpoint slice changed: {item['name']}")
+-    fixture = verify_fixture(args.fixture) if args.fixture else None
++    fixture = verify_fixture(args.fixture, packet) if args.fixture else None
+     if args.expected_fixture_report:
+         baseline = json.loads(args.expected_fixture_report.read_text())
+         if fixture != baseline["fixture"]:
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v4/preimages/first_pilot_budget.json
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source/first_pilot_budget.json
+@@ -48,7 +48,7 @@
+     "report_loop_708_per_tile_cycles":"23..1294 per legal tile/g iteration; 4096 concrete iterations gives at most 5300224 serialized schedule cycles before any external stalls, using this per-iteration ceiling only, not the report's unconstrained dynamic whole-loop maximum",
+     "independent_static_precheck":"../../../../../../../results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_static_schedule_precheck.json; SHA256 eecc2f4624125827d83e46fb0c2a9ed54934fa41e57add8d68b3639fb46cb55a",
+     "conditional_unstalled_core":"135 selected FSM states plus eight 42-cycle dot child calls imply 471 cycles between adjacent same-g tile issue edges; 4096 vectors contribute 1929216 core cycles. Trace-on adds 32*12=384 non-wait state samples. This omits between-g work, LOAD, quant, output/report, AXI wait and control overhead; it is neither a measured issue interval nor a full-run cycle forecast.",
+-    "report_loop_705_group_control":"66 cycles per group in report, 32 groups = 2112 nominal cycles plus entry/exit",
++    "report_loop_705_tile_clear":"C++ loop 705 iterates T=128 tiles and loop 706 clears 32 lane_bad entries per tile; report 66 cycles per tile gives 128*66=8448 nominal cycles for one m0 block, plus entry/exit. The g-loop is 707 and its actual boundary overhead remains unmeasured.",
+     "report_loop_762_output":"at most 463 cycles per tile in report, 128 tiles = 59264 nominal cycles plus entry/exit",
+     "scalar_validation":"32768 scale elements then 1024 bias elements; FSM state116/160 first/last and visit counts are measured, with no ACT MAC-ratio scaling",
+     "load_transport":"16384 q beats, 1024 scale beats, 1056 aux 32-bit beats, plus descriptor128 and observed256; bounded legal adapter delays and response drain are measured separately"
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source_binding_v4/preimages/results.md
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/source/results.md
+@@ -1,11 +1,11 @@
+ # Q8 full-dimension RTL fixture results
+ 
+-State on 2026-10-09: first three-command full-dimension pilot source prepared, with v3 binding revision in progress. No new materialization, CPU compile/execution, CSim, synthesis, RTL compile, simulation, implementation or board test has run. The source-only top generator and static Python/shell syntax checks have run; these are not functional validation. The v2 packet's 637 immutable records and source slices passed Astra's independent hash check; its CPU include and XSim mutable-path review items led to v3 source changes.
++State on 2026-10-09: the v3 source packet bound 666 immutable files and passed its pre-run source check. Its single released fixture-materialization attempt failed at `materialize_scorer_pilot.py:275` because the final AUX physical page has only 704 original BO bytes; the other 3392 bytes lie beyond the original BO and require the existing `0xA5` sentinel in the static page. The [sealed first-failure evidence](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_v1/runs/first_pilot_v1/first_failure_evidence.json) records 4.547 seconds and 864552 KiB peak owned RSS, with no resource guard trigger. The required post-binding attempt failed because `fixture_report.json` did not exist. Five gold products and four static pages from this incomplete attempt remain preserved. CPU build/run and all EDA stages were not attempted. The consumed v3 release is not reused; v4 is source preparation only pending independent review and a new stage gate.
+ 
+-The accepted prior ACT static suite covered 36 commands on the same `metadata_reset_v3` identity. Its legal/fault/identity groups used 38,302/15,951/79,971 testbench clocks and 14.376505/9.473611/21.229002 wall seconds. Those small ACT measurements do not establish full K/N throughput. The immutable generated closure for this module is 230 Verilog, 108 `.dat` and seven FP simulation wrappers; their exact hashes and installed library closure will be bound in a later source packet.
++The accepted prior ACT static suite covered 36 commands on the same `metadata_reset_v3` identity. Its legal/fault/identity groups used 38,302/15,951/79,971 testbench clocks and 14.376505/9.473611/21.229002 wall seconds. Those small ACT measurements do not establish full K/N throughput. The immutable generated closure for this module is 230 Verilog, 108 `.dat` and seven FP simulation wrappers; their exact hashes and installed library closure are bound in the source packet.
+ 
+ For the first Scorer RUN, one row × K1024 × N1024 requires 1,048,576 logical integer MACs, 32 activation quant groups, 4096 issued/retired (tile,group) operations, 1024 final F32 values and 4096 output bytes. A trace-on selected column has 32 group records. LOAD must read q0/q1 524,288 bytes each, scales 65,536 bytes and AUX 4,224 bytes. Including descriptor/report, the three commands account for 1,141,440 useful AXI bytes and 22,320 exact data beats. These are source operation/traffic counts, not measurements.
+ 
+ The independent [static schedule precheck](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_full_scorer_static_schedule_precheck.json) traced 135 selected generated FSM states and the dot child. For the finite, successful, unstalled one-row path, it derived a conditional 471-cycle interval between adjacent same-group tile issues and 1,929,216 core vector cycles for 4096 issues; trace-on has 384 additional non-wait state samples. Group transitions, full LOAD and validation, quantization, output/report and actual AXI waits remain outside this core estimate. The proposed seven-million-clock per-command and sixteen-million-clock total limits are fail-stop watchdogs, not predicted or guaranteed runtime. The proposed 36,000-second wall and 16 GiB runtime RSS allowances remain subject to Astra's source-packet review.
+ 
+-The v3 source adds a read-only recursive CPU vendor/project include scan, existing CSim/HLS dependency evidence, separate `-MMD` files for the two future CPU translation units, and a fail-stop binding check for their active dependencies. It also adds a flushed progress trace at command start and every 131,072 command clocks. None of these records is a measured first-pilot result. The first conditional run order is source/hash review → separately released fixture and independent CPU leaf → static compile → three-command numerical RTL → seal and review. Tail rows, other families, faults and F32 boundary stimuli remain source-only until their later gates. The previously accepted ACT 36 commands are not repeated.
++The v3 source added a read-only recursive CPU vendor/project include scan, existing CSim/HLS dependency evidence, separate `-MMD` files for the two future CPU translation units, and a fail-stop binding check for their active dependencies. It also added a flushed progress trace at command start and every 131,072 command clocks. V4 preserves those contracts while correcting only the final AUX page construction and CPU comparison against the exact 1671872-byte BO end; its fixture binding must also match the nine products preserved from the failed attempt. The source budget corrects HLS loop 705 to 128 tile iterations × 66 nominal cycles = 8448 per one-row m0 block; this is not a measured full-run cost. The conditional run order remains source/hash review → separately released fixture and independent CPU leaf → static compile → three-command numerical RTL → seal and review. Tail rows, other families, faults and F32 boundary stimuli remain source-only until their later gates. The previously accepted ACT 36 commands are not repeated.

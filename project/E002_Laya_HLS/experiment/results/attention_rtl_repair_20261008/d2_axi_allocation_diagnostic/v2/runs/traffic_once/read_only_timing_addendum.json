@@ -1,0 +1,57 @@
+{
+  "schema": "axi_stable_sampling_v2_read_only_fatal_timing_addendum_v1",
+  "at_utc": "2026-10-08T13:46:45.879058+00:00",
+  "status": "CAUSE_UNISOLATED_NO_NEW_RUN_RELEASED",
+  "fatal": {
+    "sim_ps": 66726541,
+    "line": "Fatal: DIAG_INVALID write response item=0 resp=xx id=x",
+    "top_source_line": 147
+  },
+  "last_sample": {
+    "mode": "traffic",
+    "label": "clock_10000",
+    "sim_ps": 66716551,
+    "qkv0_reported_aw": 0,
+    "qkv0_reported_w_beats": 0,
+    "qkv0_reported_b": 0,
+    "pairs": 0,
+    "constructs": 28
+  },
+  "gap_ps": 9990,
+  "observability": {
+    "first_b_sample_log_count": 0,
+    "first_r_sample_log_count": 0,
+    "post_10000_axi_counter_dumps": 0,
+    "actual_b_count_at_fatal": "unknown_from_retained_log",
+    "actual_bus_BID_BRESP_at_fatal": "unknown_from_retained_log",
+    "last_b_id_and_resp": "printed_x_by_top_at_fatal"
+  },
+  "source_logic": {
+    "top_wait": "axi_allocation_diag_top.sv:143 waits for mon_qkv0.b_count >= i+1; line 144 delays #0.001; lines 145-148 check last_b_resp/id",
+    "monitor": "phase_axi_monitor.sv:136-145: if sampled BVALID&&BREADY, it assigns last_b_id/resp, prints DIAG_FIRST_B_SAMPLE when first_b_seen is false, then increments b_count",
+    "static_statement": "The missing first-B marker is inconsistent with a simple claim that the source monitor definitely sampled an unknown first B tuple. Exact runtime state at fatal needs a new observation design."
+  },
+  "files": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/runs/traffic_once/driver.log",
+      "bytes": 42589,
+      "sha256": "24d26411b0aa93f4818a1ad907aa2a6970b2c9090172e0d1bed614f8b6fc75d7"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/tb/axi_allocation_diag_top.sv",
+      "bytes": 10737,
+      "sha256": "e8991dccef7cb508e9bae90d12b7837b6d6bd93e01f6265846f83d4acffca674"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/tb/phase_axi_monitor.sv",
+      "bytes": 7428,
+      "sha256": "911507e4c1bfb5bc3cf12e81a7552989c99a48b0f4ad1691b1eda01213dd4ee9"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/v2/runs/traffic_once/failure_evidence.json",
+      "bytes": 5418,
+      "sha256": "dc98b77d7ec7f9a8d7abb10b0020d425adde79e223f5a1d41d9c1170db7f0a40"
+    }
+  ],
+  "no_source_change_or_rerun": true
+}

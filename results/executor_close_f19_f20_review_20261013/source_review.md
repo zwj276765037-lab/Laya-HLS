@@ -1,0 +1,29 @@
+# F19/F20源码与冻结证据审核
+
+审核ID：R-SM003-EXECUTOR-CLOSE-F19-F20-20261013。仅静态审阅与原始证据核查，无主控DUT执行。
+
+## F19：限定主机关闭
+
+审核`executor_request_close_host_06/frozen`中的actor、header和测试，与已审核host_05逐文件比较。actor SHA256为`7cec0198844d5041e1445b737bbd476783b115654a3acbe473b579048178ce34`，header为`64fd53eed1f32fdef3971f4ffbd8f2689c46d552f462aea5c32bde21b6826426`，测试为`5db5676f854831660d486d1f766a98ba5555e91e9dd73dd57fcd6a35a41e54b7`。
+
+`observe_host_result`核完整codec和result_packet逐字相等，唯一置位独立managed消费事实；真实准入初始化该事实。WRITE_RESULT末拍不再用legacy bool置managed资格，WAIT_RESULT_CONSUMED只读独立事实，并保留本地工作/结果流空等原关闭条件。六项`managed_result_boundary`测试在真实显式program产生本地错误结果后推进到beat3，再注入末拍脉冲/持续bool、合法错identity/PC、同过渡正确record及尾read后正确record；实际读取四拍，尾2/尾1分别等12次调用，旧输入恢复也不能绕过完整记录。重复CLOSED不再关闭第二次，runtime逐字节和S/H/action下界保持。
+
+case4提前呈现正确完整record，在抽象接口上证明过渡锁存；results尚未读空时仍等待。这不是硬件Host实际消费的同拍证明。host软件流没有depth2容量限制，shell确认受控，硬件rearm仍NOT_RUN。原六结果分支、156wire拒绝和四份实际CLOSED离线decode范围保持。
+
+## F20：限定RTL关闭
+
+审核`executor_request_close_shell_rtl_04/frozen`的shell/TB/runner。shell SHA256为`63708dae5d78a856767cae1793621f16b6933eaafc14ef4bed9ae3333741c88b`，TB为`cebb522357892d6680e0f111d3d15e05e45ca63e31970e869cf54e9957418784`。相对shell_03仅shell、TB和runner范围声明改变。
+
+终态接受脱离control仲裁；ready完整核键/状态/commit，accepted=valid&&ready。observed_committed来自已保存提交及与实际消费共用的IMPORT/ABORT谓词；foreign/early消息不能提供见证。同拍终态立即进入启动门，并允许同拍work/Host匹配后持久保存；CLOSE可使用刚接受的终态。已呈现GRANT不变字节，消费后保留旧route但不计新grant；ABORT_REPLY不能在终态已存在时回IDLE。旧query照常消费至末拍，不能被终态强清。
+
+22新增例为三phase×五控制组合15例，加实际IMPORT、foreignIMPORT、earlyIMPORT、实际commit1ABORT、已呈现GRANT、terminal/newquery、旧query末read7例。与原19F18+17close合计58例，原始行首marker为4901cycles，runner仍6000帽；没有扩大周期预算。记录/物理事实受控，8192bit原子consumer不能代签真实16拍控制transport。
+
+portal_13→15、14→16的wrapper差异仅接新增ready/accepted为空端口，原close事实tie0和默认禁用保持；其查询兼容不签请求关闭。actor_08重跑旧45F17及两软件请求8退休，不据此扩大硬件准入生命周期结论。
+
+## 身份、资源与历史
+
+[verification.json](verification.json)逐项记录28交付SHA、295冻结pair、880递归引用、10guard、118policy、四capture与八literal、历史差异和旧20不可变交付。所有冻结与声明相符；shell短oracle无子进程观测，资源完整性为false，历史FAIL及host5/actor45遗留警告按原范围保留。
+
+主控核验时live已有后续actor/source-list/header/TB/fixture/runner修改，各在两个host闭包出现，总12项，加原8catalog为20项。因此本次observed current275/295、引用860/880；工程交付时287/872保留为历史报告。新live实现未被本审核验收。早期核验脚本将工作区差异数固定为8、再固定为14，遇到并行实施变化而中止；另有history新增/移除条目格式适配错误，均只涉及只读审核脚本，未运行DUT。最终核验计算并保存实际live观测，不弱化冻结/原始日志检查。
+
+结论：F19 PASS_SCOPED_HOST_F19_RESULT_CONSUMER；F20 PASS_SCOPED_RTL_F20_TERMINAL_ARBITRATION。无新增静态阻塞发现。真实wrapper、活动LPV、no-LGP/committed ABORT完整错误收束、新准入/rearm及整链仍未验收。

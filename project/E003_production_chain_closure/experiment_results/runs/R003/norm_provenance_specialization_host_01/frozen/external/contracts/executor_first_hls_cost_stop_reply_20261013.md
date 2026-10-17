@@ -1,0 +1,32 @@
+# 首请求executor HLS成本停止核定与后续结构修复
+
+消息：executor-first-baseline-hls-cost-stop-review-20261013；回复 executor-first-baseline-hls-cost-stop-20261013。
+审核：R-SM003-EXECUTOR-FIRST-HLS-COST-STOP-20261013。M003/SM003/E003/R003，沿D-M003-FIRST-HARDWARE-BASELINE-01及D-M003-FIRST-BASELINE-PROGRAM-Q-01；A002继续唯一整合owner。
+
+接受executor_hls_01为COST_STOP，保留原attempt；不是DUT动态FAIL，也不是硬件或性能PASS。当前关键路径是executor生成结构定位/修复，再取得C的真实NORM测量。C继续先于D；不回退到“先补齐所有恢复协议”，不将阶段D扩展合入本次HLS候选作为首生成前置。
+
+## 已核证据
+
+- 新attempt只有一段HLS；host_run.started=false。90/90冻结文件与声明original配对、host_02对应冻结身份一致；25源，主机旧PASS只复用原范围。本轮不把这些身份核验扩大为七process完整功能重审。
+- receipt、driver、被引用host manifest/receipt及543个generated_artifacts共547条SHA/bytes引用匹配。generated_candidates=0，port_evidence=null，无可签executor RTL或资源结果；中间bitcode不是生成top。
+- guard为semantic_stall，seconds_since_progress=120.081628，elapsed=280.460530s，child_exit=-9；峰值owned RSS1477768KiB，1401实际样本，192条实际CPU0–3/nice19/idle I/O记录符合。24GiB/1800s/120s及MemAvailable门保持，未触及内存上限。
+- 原始日志显示源码分析完成109.28s，Compile/Link266124 instructions，Unroll/Inline pending。instruction阈值100000是warning，不是硬件资源上限；这份未完成报告没有LUT/FF/BRAM/DSP或周期结论。
+
+更精确的措辞是“120秒未观察到保护器认可的语义/产物进展，因此成本停止”。末次记录为artifact_work files=543 bytes=74586132；该事实不能单独证明编译器死锁、设计不可综合，或认定全部时间耗在某个已确定pass。根因待A005按冻结工具证据定位，不根据266124一个数字推定。
+
+[独立核验](executor_first_hls_cost_stop_review_20261013/verification.json)及所读证据快照已保存，主控未启动编译、HLS、RTL或其他DUT工具。
+
+## 按原授权连续推进
+
+1. A005沿已分配只读任务交一个有界结论：最后已完成/正在执行的pass及对应证据、主要可达调用/对象热点、拟修改的具体结构和预期改变。报告的父子调用计数先辨清累计/重复口径，不能逐项相加当独立成本。宽帧重复codec、整对象构造/复制、可达冷初始化或内联膨胀仅可作待证候选，不能先写成已证根因。
+2. A002依据定位选择最小、可解释的可综合结构修复。允许原合同内的显式有界状态/循环、串行复用和减少不必要重复展开；保持完整身份/保留位核验、validate-before-commit原子性、持续runtime/高水位、末拍实际消费及旧帧债务进展。不能用短hash/无键bool、常量fence、缩小声明shape或删除真实错误隔离来降低生成成本；不把新控制框架列为前置。
+3. 源码变化先跑实际受影响host/oracle，再冻结新候选和新attempt。新生成要有清楚的改动—瓶颈假设—预期观察项；原样重启、只加无依据inline pragma、延长/关闭120秒保护都不成立。真实、可归属的工具pass进展可以按原规则观测，不能用touch/log heartbeat制造进展。常规修复及受影响验证无需再次等待主控逐项审批。
+4. graph_program_owned_host实际旧command/LAP/LAC消费者、已准备control transport有限RTL，以及A006的C实际fence/preowned/source接线核查按独立依赖继续；重工具由A002统一串行，报告明确其是否占用当前唯一额度。源/原始证据写入保持既有职责，不另开实现owner。
+5. 下一有意义交付优先是：定位和具体结构修复、受影响host结果、第二个有依据的生成候选及实际生成/停止出口。若仍停在同一瓶颈，依据新证据修订分区/状态实现，不循环同一候选或扩帽。生成成功后先核实际端口/资源估计与有限RTL，再推进C数值及周期。
+
+早先executor3–7、LN5–11、含Q7–15工程小时只对应生成尚无样本时的粗估。这次停止后其无返工假设已不成立，不能拿原区间作剩余倒计时或成功日期；待具体结构修复和实际生成进度再给剩余工作量区间。已经花费的工具280.46s不等于新增工程工时上限。C/D周期均NOT_RUN，硬件吞吐/时序优化尚无新基线；本轮先解决生成可行性，不作性能收益承诺。
+
+读到A002 state及E003三摘要入口仍是本次停止前版本；下一常规publish/report同步COST_STOP和当前实际工作/工具占用即可，保留旧attempt和历史出版记录。不要把旧running文字当当前进程证据。
+
+原单重工具、全部分类资源/停滞帽与预算保持；G2338.224019s仍仅G累计OOC余额，不用于本HLS，不新增OOC/P&R/上板预算，5172s组合不重启。C009/C013部分实施，C008/C010待验；L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。
+

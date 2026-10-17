@@ -1,0 +1,16 @@
+# SM004 修订20 AT340–343：上层单一循环与真实 LN128 阶段里程碑
+
+2026-10-16；A002；M004/SM004/E002/E004/R001。按 D-M004-SOURCE-NORM-OWNER-01 连续实施；本报告是阶段证据，M004/SM004 未验收收束。
+
+生产上层 `laya_source_norm_service_v1` 现锁存一次 staged 请求的 id/epoch/model/numeric、STATE0/AUX/STATE1 base/span，验证范围与 source/destination 全域隔离，单一 FSM 顺序完成 gamma 预检、128 行 raw 预装、LN_ONLY、同步 norm 读、单 writer 64B 写回、flush/release/done 与 16 行 store 错误屏障。下层仍唯一拥有 LNQ/8×656×32bit bank、prep/token、回放和视图；父 wrapper 的 staged 分支只启动一次上层请求并代理 Check，父 sequencer 不再逐行命令或合并 store 错误。legacy 分支仍走原 core。没有新增 bank、LNQ、reader/writer 或算术叶子。
+
+**最终冻结身份**：[AT343 manifest](../attempts/AT343_SM004_rev20_final_shared_stage_parent_build_01/source_manifest.json) 为 130 个 frozen 文件及 5 个实际 fixture；上层 `58086436d06c285e1653ce10e06233f19557a318b7b9335f3006140e2b7ed919`、下层 `f63e25e243ccd1bc264971fcbe5a1cd17b13eff472773722d001b503c287e043`、core `452deb9cea5630bec1cb922365a4f6615a9635d93e86dce26f24b298ecc1a94a`、wrapper `b1b73970625200556514bd04d14a3b19411dbfe6921a81cf46ac01969699275a`、sequencer `8b9261e03f58b088c9ace10be4ac7206c009c02c62529a21c741415186d0a9f1`。编译库沿 AT336→AT340→AT341→AT342→AT343，AT343 重新编译全部受影响生产源和两 TB、实际分别展开独立 stage 与完整父请求 top；原 FP/IP、reader、writer、gold 字节未改。
+
+- [AT343 static](../attempts/AT343_SM004_rev20_final_shared_stage_parent_build_01/guard_static/guard_result.json) child0/null，191.1815157365054s；两份 snapshot 均成功展开。
+- [AT343 独立16行 pilot](../attempts/AT343_SM004_rev20_final_shared_stage_parent_build_01/guard_rtl_16/guard_result.json) child0/null，36.70097006671131s，16384 norm 逐位、1024 source R/1024 OKAY B、gamma256 R、16 唯一退休，前缀最终内存复扫通过。保守 LN128 估计 36.70097006671131×8×2.5＝734.0194013342262s，满足≤1440s及1800s单次/剩余总额条件。
+- [AT343 独立真实 LN128](../attempts/AT343_SM004_rev20_final_shared_stage_parent_build_01/guard_rtl_full128/guard_result.json) child0/null，252.2839319705963s；原TB终标 `STAGED_LN128_REAL_PASS`。8192 source R、8192 OKAY B、gamma256 R；128位覆盖、131072个 norm 在真实 W 和最终内存逐位，末笔 B 后实际退休与 `NORM_STAGE_READY` 成立。独立 TB 只实例化同版上层＋唯一下层及 AXI peer，未以保存 norm 替换生产计算。
+- [AT343 同版真实父请求 row0](../attempts/AT343_SM004_rev20_final_shared_stage_parent_build_01/guard_rtl_parent_row0/guard_result.json) child0/null，49.062415182590485s；一次 S128 请求由上层自动完成 row0，1024 norm 逐位、64 OKAY B、source64 R、gamma256 R，仅 row0 覆盖。前缀终标前 request_done/RAW/FINAL/stage ready 均未提前发布；这是完整父 top 的**单行前缀**，不签父 top 的完整128行同 runtime。
+
+AT340 首次语法编译因 `stage_store_discard_q` 声明次序失败，1.8286761827766895s/child1；AT341 修正声明后语法通过，1.8709861636161804s。AT342 旧于最终地址隔离修复的独立16/128 PASS（36.19439060240984s/249.0825647599995s）按旧 SHA 保留，不迁移；AT343 同版重新完成。自 AT339 至本里程碑，修订20精确原guard账 static **1413.8123060390353384/1800s**、RTL **1213.266668045893288/3600s**，余额 386.1876939609646616s/2386.733331954106712s；host完整累计 UNKNOWN。费用含失败、旧版复验及构建，原guard不回写。
+
+**仍待受影响验证：** 当前上层的 source晚RRESP/gamma load_done 错、末B错后原16行窗口继续/discard与无reset新epoch恢复；有限 AR/R/AW/W/B 停顿、4KiB页界、pending/rsp及末B持有切相位、在途共同reset后510拍隔离；AT330本地拒绝错误done消费→合法后继。独立 LN128 PASS 不证明父 top 完整128行、Q16父图、STEP16/matrix、全RoPE/FINAL→Attention、完整Encoder/模型、全请求首错等价或Host/HBM/联合资源/Fmax。下一最小可执行边界是同一生产stage的定向错误/复位短例及父层受影响恢复；普通修复继续原预算。

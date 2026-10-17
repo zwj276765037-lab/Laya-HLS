@@ -1,0 +1,7 @@
+# Ws v4 semantic-property batch source results
+
+Status: **source preparation only**. The v4 extractor has not opened the DCP or run in Vivado. No v4 graph, structural pass, numerical mapping proof, synthesis, routed timing or board result is claimed.
+
+The v3 single extraction terminated at its 900-second guard: child exit `-9`, peak owned RSS 3,945,996 KiB. It left 139 cells, 135 primitives and 14,266 pins, but no finalized net or boundary rows; the offline structural audit failed with 8,626 errors. Its immutable actual packet is `../../runs/ws_dcp_connectivity_v1_control/ws_dcp_v3_extraction_actual_result_evidence.json` (SHA256 `a004f4b1c4cb3948525b1a4f232003280337fa7c7574d206b2f0271859ed004c`), independently characterized by `../../../../../../../results/attention_rtl_repair_20261008/reviewer_q8_ws_v3_timeout_and_partial_graph_characterization_acceptance.json` (SHA256 `63ae5f2843428f9a26753aad39a092876387e2662330b45aa406d898862c6355`). The old graph, source and checkpoint are unchanged.
+
+This source candidate replaces the per-cell all-property sweep with exact REF_NAME groups and the 348 reviewed required parameters across 22 primitive definitions. It preserves the eleven graph-table schemas and adds a phase ledger. Static source and synthetic parser checks are recorded in `source_packet.json`; they are not DCP or functional validation. Effective Ws capacity and read/write mapping remain held for all 8 × 20,992 × 16 bits, including addresses 16,384–20,991. The 6.667 ns input clock constraint does not establish 150 MHz timing.

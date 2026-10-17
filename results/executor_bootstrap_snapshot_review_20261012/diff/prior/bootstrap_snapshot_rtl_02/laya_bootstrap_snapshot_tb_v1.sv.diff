@@ -1,0 +1,19 @@
+--- project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_snapshot_rtl_01/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/laya_bootstrap_snapshot_tb_v1.sv
++++ project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_snapshot_rtl_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/tb/laya_bootstrap_snapshot_tb_v1.sv
+@@ -15,6 +15,7 @@
+   logic [15:0] monitor_status;
+   logic [31:0] monitor_error_detail;
+   logic [63:0] monitor_bad_element,monitor_observed0,monitor_observed1;
++  assign monitor_protocol_error=monitor_status!=0;
+   logic adapter_pending_zero=1,begin_block;
+   logic begin_valid,end_commit;
+   logic physical_observation_ready;
+@@ -73,7 +74,7 @@
+     .physical_drained(monitor_drained),.coverage_complete(monitor_coverage_complete),
+     .physical_status(monitor_status),.physical_error_detail(monitor_error_detail),
+     .physical_bad_element(monitor_bad_element),.observed_store_bytes0(monitor_observed0),
+-    .observed_store_bytes1(monitor_observed1),.protocol_error(monitor_protocol_error),
++    .observed_store_bytes1(monitor_observed1),
+     .forwarded_aw,.forwarded_w,.retired_b,.rejected_transactions,
+     .s_axi_awaddr,.s_axi_awlen,.s_axi_awsize,.s_axi_awburst,.s_axi_awvalid,.s_axi_awready,
+     .s_axi_wdata,.s_axi_wstrb,.s_axi_wlast,.s_axi_wvalid,.s_axi_wready,.s_axi_bresp,.s_axi_bvalid,.s_axi_bready,

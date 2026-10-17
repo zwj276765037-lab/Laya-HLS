@@ -1,0 +1,194 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT057_FFN0_single_runtime_03/frozen_new/ffn0_chain_tb_v1.sv
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT059_FFN1_progress_replay_02/frozen_new/ffn0_chain_tb_v1.sv
+@@ -1111,38 +1111,163 @@
+   string afixture,wfixture,streams,gfixture,wi_afixture,wi_wfixture,wi_streams;integer pilot;
+   integer cycle=0,q_index[0:2],q_left[0:2],q_bytes[0:2],q_beats[0:2],q_bursts[0:2];
+   logic prefix=0;
+-  integer ffn0_semantic_work=0,ffn0_printed_work=0;
+-  integer ffn0_prev_ln_iteration=0,ffn0_prev_ln_r=0,ffn0_prev_q_r=0;
+-  integer ffn0_prev_wi_r=0,ffn0_prev_g_r=0,ffn0_prev_stripes=0;
+-  integer ffn0_prev_add_done=0,ffn0_prev_res_b=0;
+-  always @(posedge clk) if(rst_n)begin : ffn0_progress_observer
+-    integer advances;
+-    advances=0;
+-    if(ln_source.semantic_progress_count>ffn0_prev_ln_iteration)advances++;
+-    if(ln_source.source_r_count>ffn0_prev_ln_r)advances++;
+-    if(source_r_beats>ffn0_prev_q_r)advances++;
+-    if(wi_r_count>ffn0_prev_wi_r)advances++;
+-    if(g_source_r_count>ffn0_prev_g_r)advances++;
+-    if(actual_stripes>ffn0_prev_stripes)advances++;
+-    if(ffn_add_done_count>ffn0_prev_add_done)advances++;
+-    if(ffn_res_b_count>ffn0_prev_res_b)advances++;
+-    ffn0_semantic_work+=advances;
+-    ffn0_prev_ln_iteration=ln_source.semantic_progress_count;
+-    ffn0_prev_ln_r=ln_source.source_r_count;
+-    ffn0_prev_q_r=source_r_beats;
+-    ffn0_prev_wi_r=wi_r_count;
+-    ffn0_prev_g_r=g_source_r_count;
+-    ffn0_prev_stripes=actual_stripes;
+-    ffn0_prev_add_done=ffn_add_done_count;
+-    ffn0_prev_res_b=ffn_res_b_count;
+-    if(cycle%2048==0 && ffn0_semantic_work>ffn0_printed_work)begin
+-      ffn0_printed_work=ffn0_semantic_work;
+-      $display("FFN0_PROGRESS work=%0d",ffn0_semantic_work);
++  // FFN1: passive pre-NBA handshake/retirement counters. No DUT input uses them.
++  localparam integer FFN1_FAMILIES=35;
++  logic [FFN1_FAMILIES-1:0][2:0] ffn1_event_inc;
++  logic [FFN1_FAMILIES-1:0][63:0] ffn1_counts;
++  logic [63:0] ffn1_work,ffn1_printed_work=0;
++  integer ffn1_prev_ln_iter=0;
++  logic [2:0] ffn1_ln_delta=0;
++  logic ffn1_prev_a_pub=0,ffn1_prev_wload_done=0;
++  logic ffn1_prev_dst_pub=0,ffn1_prev_source_lock=0;
++  ffn1_progress_observer_v1 #(.FAMILIES(FFN1_FAMILIES))
++    ffn1_observer(.clk,.rst_n,.event_inc(ffn1_event_inc),
++                  .counts(ffn1_counts),.work(ffn1_work));
++  // The generated LN cursor monitor updates on posedge with blocking
++  // assignments. Sample its cumulative value on negedge to avoid a race
++  // between simulator active processes; retire the delta next posedge.
++  always @(negedge clk) if(rst_n)begin : ffn1_ln_progress_sample
++    integer delta;
++    delta=ln_source.semantic_progress_count-ffn1_prev_ln_iter;
++    if(delta<0 || delta>7)
++      $fatal(1,"FFN1 LN iteration counter invalid delta=%0d",delta);
++    ffn1_ln_delta<=delta[2:0];
++    ffn1_prev_ln_iter<=ln_source.semantic_progress_count;
++  end
++  always_comb begin
++    ffn1_event_inc='0;
++    ffn1_event_inc[0] = {2'b00, (ln_source.source_axi_arvalid && ln_source.source_axi_arready)};
++    ffn1_event_inc[1] = {2'b00, (ln_source.source_axi_rvalid && ln_source.source_axi_rready)};
++    ffn1_event_inc[2] = ffn1_ln_delta[2:0];
++    ffn1_event_inc[3] = {2'b00, (ln_source.destination_axi_awvalid && ln_source.destination_axi_awready)} +
++      {2'b00, (ln_source.destination_axi_wvalid && ln_source.destination_axi_wready)} +
++      {2'b00, (ln_source.destination_axi_bvalid && ln_source.destination_axi_bready)};
++    ffn1_event_inc[4] = {2'b00, (ln_source.producer_completion_write && ln_source.producer_completion_full_n)} +
++      {2'b00, (ln_source.provenance_rsp_read && ln_source.provenance_rsp_empty_n)};
++    ffn1_event_inc[5] = {2'b00, (ln_query_valid && ln_query_ready && ln_query_granted)} +
++      {2'b00, (ln_source_release_valid && ln_source_release_ready && ln_source_release_drained)};
++    ffn1_event_inc[6] = {2'b00, (stage==0 && g_m_axi_arvalid && g_m_axi_arready)} +
++      {2'b00, (stage==0 && g_m_axi_rvalid && g_m_axi_rready)};
++    ffn1_event_inc[7] = {2'b00, (producer.quant_task.q_out_valid && producer.quant_task.q_out_ready)} +
++      {2'b00, (producer.quant_task.q_done_valid && producer.quant_task.q_done_ready)};
++    ffn1_event_inc[8] = {2'b00, (fa_commit_valid && fa_commit_ready)} +
++      {2'b00, (producer.quant_task.a_publish && !ffn1_prev_a_pub)};
++    ffn1_event_inc[9] = {2'b00, (wc_arvalid[0] && wc_arready[0])};
++    ffn1_event_inc[10] = {2'b00, (wc_rvalid[0] && wc_rready[0])};
++    ffn1_event_inc[11] = {2'b00, (wc_arvalid[1] && wc_arready[1])};
++    ffn1_event_inc[12] = {2'b00, (wc_rvalid[1] && wc_rready[1])};
++    ffn1_event_inc[13] = {2'b00, (wc_arvalid[2] && wc_arready[2])};
++    ffn1_event_inc[14] = {2'b00, (wc_rvalid[2] && wc_rready[2])};
++    ffn1_event_inc[15] = {2'b00, (wc_aux_arvalid && wc_aux_arready)} +
++      {2'b00, (wc_aux_rvalid && wc_aux_rready)};
++    ffn1_event_inc[16] = {2'b00, (wc_load_valid && wc_load_ready)} +
++      {2'b00, (wc_load_done && !ffn1_prev_wload_done)} +
++      {2'b00, (w_lease_valid && w_lease_ready)} +
++      {2'b00, (w_release_valid && w_release_ready)};
++    ffn1_event_inc[17] = {2'b00, (a_read_valid && a_read_ready)} +
++      {2'b00, (a_ret_valid && a_ret_ready)};
++    ffn1_event_inc[18] = {2'b00, (w_read_valid && w_read_ready)} +
++      {2'b00, (w_ret_valid && w_ret_ready)};
++    ffn1_event_inc[19] = {2'b00, (dut.front_issue_valid && dut.front_issue_ready)} +
++      {2'b00, (|(dut.commit_valid & dut.commit_ready))};
++    ffn1_event_inc[20] = {2'b00, (m_axi_awvalid[0] && m_axi_awready[0])} +
++      {2'b00, (m_axi_wvalid[0] && m_axi_wready[0])} +
++      {2'b00, (m_axi_bvalid[0] && m_axi_bready[0])};
++    ffn1_event_inc[21] = {2'b00, (owner_retire_valid && owner_retire_ready)} +
++      {2'b00, (done_valid && done_ready)};
++    ffn1_event_inc[22] = {2'b00, (wi_arvalid && wi_arready)} +
++      {2'b00, (wi_rvalid && wi_rready)};
++    ffn1_event_inc[23] = {2'b00, (g_wi_valid && g_wi_ready)} +
++      {2'b00, (g_wi_row_done_valid && g_wi_row_done_ready)};
++    ffn1_event_inc[24] = {2'b00, (producer.vector_row.arithmetic_accept)};
++    ffn1_event_inc[25] = {2'b00, (producer.vector_row.core_commit && producer.vector_row.core_return_legal)};
++    ffn1_event_inc[26] = {2'b00, (producer.v_valid && producer.v_ready)};
++    ffn1_event_inc[27] = {2'b00, (g_m_axi_awvalid && g_m_axi_awready)} +
++      {2'b00, (g_m_axi_wvalid && g_m_axi_wready)} +
++      {2'b00, (g_m_axi_bvalid && g_m_axi_bready)};
++    ffn1_event_inc[28] = {2'b00, (stage==1 && g_m_axi_arvalid && g_m_axi_arready)} +
++      {2'b00, (stage==1 && g_m_axi_rvalid && g_m_axi_rready)};
++    ffn1_event_inc[29] = {2'b00, (stage==1 && producer.quant_task.q_out_valid && producer.quant_task.q_out_ready)} +
++      {2'b00, (stage==1 && producer.quant_task.q_done_valid && producer.quant_task.q_done_ready)};
++    ffn1_event_inc[30] = {2'b00, (ffn_res_cfg_valid && ffn_res_cfg_ready)};
++    ffn1_event_inc[31] = {2'b00, (ffn_skip_arvalid && ffn_skip_arready)} +
++      {2'b00, (ffn_skip_rvalid && ffn_skip_rready)} +
++      {2'b00, (ffn_down_arvalid && ffn_down_arready)} +
++      {2'b00, (ffn_down_rvalid && ffn_down_rready)};
++    ffn1_event_inc[32] = {2'b00, (ffn_residual.slot_accepted)} +
++      {2'b00, (ffn_residual.slot_returned)} +
++      {2'b00, (ffn_residual.slot_consumed)};
++    ffn1_event_inc[33] = {2'b00, (ffn_res_awvalid && ffn_res_awready)} +
++      {2'b00, (ffn_res_wvalid && ffn_res_wready)} +
++      {2'b00, (ffn_res_bvalid && ffn_res_bready)};
++    ffn1_event_inc[34] = {2'b00, (ffn_res_rsp_valid && ffn_res_rsp_ready)} +
++      {2'b00, (ffn_dst_published && !ffn1_prev_dst_pub)} +
++      {2'b00, (!ffn_source_locked && ffn1_prev_source_lock)};
++  end
++  always @(posedge clk) if(rst_n)begin : ffn1_progress_print
++    if(ffn_res_cfg_valid)begin
++      if(ffn_res_dst_ref!==64'h0000010100000002 ||
++         ffn_res_local_context[224+:64]!==ffn_res_dst_ref ||
++         ffn_residual.cfg_dst_role!==8'd1 ||
++         ffn_residual.cfg_dst_bank!==8'd1 ||
++         ffn_residual.cfg_dst_epoch!==32'd2 ||
++         ffn_residual.cfg_dst_base!==STATE1_BASE ||
++         ffn_residual.cfg_dst_capacity!==32'd16919104 ||
++         ffn_residual.cfg_dst_bytes!==32'd16384)
++        $fatal(1,"FFN1 fixed HIDDEN destination wiring mismatch");
++      if(ffn_res_cfg_ready)
++        $display("FFN1_FIXED_DST_ACCEPT cycle=%0d ref=%h base=%h capacity=%0d bytes=%0d",
++          cycle,ffn_res_dst_ref,ffn_residual.cfg_dst_base,
++          ffn_residual.cfg_dst_capacity,ffn_residual.cfg_dst_bytes);
++    end
++    ffn1_prev_a_pub<=producer.quant_task.a_publish;
++    ffn1_prev_wload_done<=wc_load_done;
++    ffn1_prev_dst_pub<=ffn_dst_published;
++    ffn1_prev_source_lock<=ffn_source_locked;
++    if(cycle%2048==0 && ffn1_work>ffn1_printed_work)begin
++      ffn1_printed_work=ffn1_work;
++      $display("FFN1_PROGRESS work=%0d lnar=%0d lnr=%0d lnit=%0d lnwr=%0d lnport=%0d qowner=%0d qread=%0d qmath=%0d afill=%0d w0ar=%0d w0r=%0d w1ar=%0d w1r=%0d wsar=%0d wsr=%0d aux=%0d wpub=%0d ma=%0d mw=%0d mps=%0d mwr=%0d mret=%0d wiread=%0d wicons=%0d giss=%0d gret=%0d gemit=%0d gwr=%0d gqread=%0d gqmath=%0d rcfg=%0d rsrc=%0d radd=%0d rwr=%0d rdone=%0d",
++        ffn1_work,
++        ffn1_counts[0],
++        ffn1_counts[1],
++        ffn1_counts[2],
++        ffn1_counts[3],
++        ffn1_counts[4],
++        ffn1_counts[5],
++        ffn1_counts[6],
++        ffn1_counts[7],
++        ffn1_counts[8],
++        ffn1_counts[9],
++        ffn1_counts[10],
++        ffn1_counts[11],
++        ffn1_counts[12],
++        ffn1_counts[13],
++        ffn1_counts[14],
++        ffn1_counts[15],
++        ffn1_counts[16],
++        ffn1_counts[17],
++        ffn1_counts[18],
++        ffn1_counts[19],
++        ffn1_counts[20],
++        ffn1_counts[21],
++        ffn1_counts[22],
++        ffn1_counts[23],
++        ffn1_counts[24],
++        ffn1_counts[25],
++        ffn1_counts[26],
++        ffn1_counts[27],
++        ffn1_counts[28],
++        ffn1_counts[29],
++        ffn1_counts[30],
++        ffn1_counts[31],
++        ffn1_counts[32],
++        ffn1_counts[33],
++        ffn1_counts[34]);
+     end
+     if(prefix && ln_source.source_ar_count>=1 &&
+        ln_source.source_r_count>=64)begin
+       $display("FFN0_PREFIX_PILOT_PASS cycle=%0d source_AR=%0d source_R=%0d work=%0d",
+-        cycle,ln_source.source_ar_count,ln_source.source_r_count,ffn0_semantic_work);
++        cycle,ln_source.source_ar_count,ln_source.source_r_count,ffn1_work);
+       $finish;
+     end
+   end

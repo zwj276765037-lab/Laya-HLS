@@ -1,0 +1,30 @@
+--- mission_task.md.before
++++ mission_task.md.after
+@@ -38,9 +38,9 @@
+ 
+ [该 Q8 原型的实际 OOC 资源](../results/attention_rtl_repair_20261008/reviewer_q8_actual_top_ooc_synthesis_and_partial_characterization_acceptance.json)为 LUT 156148、FF 108098、DSP 41、RAMB36E2 219＋RAMB18E2 41（239.5 BRAM tiles）、URAM 192。独立层级复核发现 1024 个 signed INT8×INT8 乘法器，每个 61 LUT、0 DSP，共 62464 LUT；41 个 DSP 的完整归属仍待紧凑清单确认，不能把条件性的 DSP packing 预算当作此原型实测映射。资源仅属该联合原型，不能外推为完整模型或带平台 shell 的适配结论。
+ 
+-[Attention v6 metadata-reset 严格 CPU 实际验收](../results/attention_rtl_repair_20261008/reviewer_attention_v6_metadata_reset_actual_strict_cpu_acceptance.json)通过原 3 个合法数值、17 个负例及顺序执行的 3 个暖恢复场景；构建 8.154 s、运行 9.978 s，保护未触发、源码及二进制身份一致。这只覆盖 CPU reset hook，真实硬件复位脚、CSR 重绑与 payload RAM reset cone 尚待生成 RTL 验证。[一次 CSim 门](../results/attention_rtl_repair_20261008/reviewer_attention_v6_metadata_reset_post_cpu_single_csim_release.json)已放行，不能写成 CSim/HLS 已通过。
+-
+-[真实 Type producer 的 qtype1 期望数据](../results/attention_rtl_repair_20261008/reviewer_d2_type_producer_qtype1_actual_materialization_acceptance.json)已独立接受：832 B request 只变 request_id/qtype 所需两处字节、3264 B Type 权重与包/GGUF 一致，1024 行值及 65536 次 F32 加法用独立精确整数舍入复核，且不同于 qtype2 基线；后继 DUT CPU/RTL 仍待验收。[隔离 C1 源码准备](../results/attention_rtl_repair_20261008/reviewer_q8_c1_post_r0_isolated_pipeline_source_preparation_release.json)采用 32 restore 通道、8 quant lanes、1024 独立整数 DSP 的首候选目标，Q64/Dtrace4；L_return18/F21 及 83264-bit 结果槽是新设计请求，尚无实现/资源/流式集成通过声明。
++[Attention v6 严格 CPU](../results/attention_rtl_repair_20261008/reviewer_attention_v6_metadata_reset_actual_strict_cpu_acceptance.json) 与 [实际 CSim](../results/attention_rtl_repair_20261008/reviewer_attention_v6_metadata_reset_actual_csim_acceptance.json) 已独立接受：同一套 3 个合法数值、17 个负例和 3 个暖恢复场景通过，仍只覆盖软件 reset hook。[v6 首次 HLS 失败](../results/attention_rtl_repair_20261008/reviewer_attention_v6_metadata_reset_actual_hls_first_failure_acceptance.json) 在 70.724 s 后停于名字解析：复位 pragma 在 `using namespace laya::full` 之前，无法解析 `metadata_initialized`；未生成 RTL、调度或复位结构证据。[v7 作用域修复源码验收](../results/attention_rtl_repair_20261008/reviewer_attention_v7_metadata_reset_scope_actual_source_acceptance.json) 确认仅移动这条 using 指令、配置只改本地路径；继承 v6 未变执行体的数值语义，不称为新 CPU/CSim 执行。[一次 v7 HLS 门](../results/attention_rtl_repair_20261008/reviewer_attention_v7_metadata_reset_scope_single_hls_release.json) 已放行；截至本补记尚未执行，真实 pin reset、CSR 重绑、初始化支配关系与 payload reset cone 均待实际生成结果。
++
++[真实 Type producer 的 qtype1 期望数据](../results/attention_rtl_repair_20261008/reviewer_d2_type_producer_qtype1_actual_materialization_acceptance.json) 已独立接受，保留与 qtype2 不同的请求、Type 行和 65536 个 F32 gold。[MDv2 实际构建](../results/attention_rtl_repair_20261008/reviewer_d2_type_producer_md_v2_actual_build_acceptance.json) 及 [两个冷启动 CPU 用例](../results/attention_rtl_repair_20261008/reviewer_d2_type_producer_md_v2_actual_two_cold_cpu_acceptance.json) 已独立验收：qtype2、qtype1 各执行真实 Controller 的 1 个 EMB_TYPE 和 4 个 binary ADD_TYPE，均为 5 tasks/65536 words；固定二进制内的完整字节比较覆盖输出、TYPE_ROWS、STATE0/STATE1、IO 与哨兵。程序未导出原始状态数组，证据限于已核验来源的二进制、内嵌完整比较与原始 PASS 日志；不声称独立 dump 复算、暖会话或 RTL 通过。[一次 Type HLS 门](../results/attention_rtl_repair_20261008/reviewer_d2_type_producer_post_two_cold_cpu_single_hls_release.json) 已分配执行，实际结果尚待归档独审；[已知项目依赖补充绑定](../results/attention_rtl_repair_20261008/reviewer_d2_type_producer_hls_known_project_dependency_binding_addendum.json) 明确 40 项 CPU MD 项目依赖与实际 HLS 依赖的比对及真实核查时序。
+ 
+ 正式修复包身份以 [fe067 manifest](../build/model-attention-rtl-repair-20261008/manifest.json)为准。目标器件为 `xcu55c-fsvh2892-2L-e`，150 MHz 是请求值。实际平台、shell 余量、HBM 连接、XRT 编译链接与板上频率仍未验证；旧 04934 资源不能与新功能证据拼接。
+ 
+@@ -227,3 +227,14 @@
+ ## 2026-10-09：有效 fixture、v6 CPU 与紧凑 DCP 终态补记
+ 
+ 本轮接受有效不同三行和 Type qtype1 期望数据、v6 有限 CPU hook 恢复，以及 Ws 900 s 超时的部分证据；没有新增 DUT RTL、CSim、HLS、映射或板上通过声明。更新前全文与 README 见[精确前像清单](../results/attention_rtl_repair_20261008/document_history/valid_fixtures_v6_cpu_ws_timeout_before_20261009_v1/manifest.json)。唯一重工具槽位继续逐项分配，已接受数值不重跑。
++
++
++## 2026-10-09：Type 冷启动 CPU、Head15 首错与 v7/C1 源码补记
++
++[Head15/query63 首次运行失败复核](../results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_first_failure_and_partial_bytes_diagnosis.json) 确认 cmd2 因 `ATT_FINITE_SPECIAL_HOLD_MISSING r=1 b=1` 停止：R 地址/beat 的被动观察为未知，cmd3/replay 未执行，缺最终数值 seal。已有 cmd2 的 64 QK、64 probability、64 AV、256 B 输出与所见哨兵部分已独立对照，但不构成四命令或协议通过。[被动 R-accept 监测修复源码验收](../results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_actual_source_acceptance.json) 改为由 owning monitor 保存已核查握手的固定标量，在 tagged adapter 满时核对绝对 ordinal；DUT、端点、延迟、原 hold 生成与金值不变。[一次新静态编译门](../results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_single_static_release.json) 已放行，截至本补记静态编译及后继 runtime 均未执行；不重跑已接受的 head0。
++
++[Scorer 有效不同三行 MDv2 首次失败](../results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v2_actual_first_failure_acceptance.json) 发生在首个 TU 编译成功之后：原始依赖文件有 303 项/301 个唯一名字，gmp.h、mpfr.h 各合法出现两次，记录解析器误拒绝重复项，尚未链接或运行 DUT。[v3 最小解析器修复门](../results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v3_duplicate_prerequisite_source_preparation_release.json) 仅放行源码准备，保留原始有序重复边、只对身份哈希缓存去重；未放行编译重试。
++
++[隔离 C1 源码合同](../results/attention_rtl_repair_20261008/reviewer_q8_c1_post_r0_isolated_pipeline_source_preparation_release.json) 保持 32 restore 通道、8 quant lanes、1024 独立整数 DSP 的候选目标与 Q64/Dtrace4；L_return18/F21、83264-bit 结果槽仍是未测设计请求。接手时草稿还是顺序计算和直接写出，result/trace ring 尚未接入；正在按原合同完成流水核心。[显式写响应补充合同](../results/attention_rtl_repair_20261008/reviewer_q8_c1_explicit_write_response_source_preparation_release.json) 仅放行源码集成：三个独立有限 writer 使用 `hls::burst_maxi<uint32_t>::write_response()` 后才产生匹配 ack，算术 return 不得被 B 等待阻塞。接口没有返回 BRESP 错误码；九 AXI/双 Lite 一致性、真实 B 退休、4 KiB 分拆聚合和并发进程均待实际生成证据。没有 C1 流水、资源、性能或 RTL PASS。
++
++本次只协调当前状态文档；[README/mission 精确前像](../results/attention_rtl_repair_20261008/document_history/type_cpu_head15_failure_v7_scope_before_20261009_v1/manifest.json) 保留更新前全文。历史阶段记录按原时间保留，已接受数值、冻结源码及工具首错不改写。

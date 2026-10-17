@@ -1,0 +1,800 @@
+{
+  "schema": "laya-independent-attention-v2-ir-comparison-advice-v1",
+  "created_utc": "2026-10-08T14:42:13.333690+00:00",
+  "reviewer": {
+    "agent": "/root/q8_proto_design_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "verdict": "A real reflow transformation difference is identified; root cause is not established. Existing evidence supports one-factor source-shape experiments for the main reviewer to assess, not another unchanged synthesis or an acceptance claim.",
+  "scope": {
+    "only_new_file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v2_ir_comparison_advice.json",
+    "source_or_specification_edits": false,
+    "builds_tests_eda_gpu_ir_conversion_executed": false,
+    "work_performed": "Read existing source, logs, YAML, JSON and decoded IR; lightweight text extraction/hash only. Sol-provided existing decoded IR reused.",
+    "execution_authority": "No tool/implementation release is issued. Final design and execution decision remains with /root/resource_explain_astra_xhigh.",
+    "software_passes": "Previously accepted v2 strict CPU/standard-libm CSim 3 positive + 17 negative cases are inherited evidence only; no new simulation was run."
+  },
+  "main_findings": [
+    {
+      "id": "A1",
+      "finding": "The FullMemory constructor is handled by different actual passes.",
+      "evidence": "Both successful D2-I v3 slices record FullMemory::FullMemory() Inline in reflow-disaggr. Both failed Attention old/v2 packages record it only in reflow-inliner. Exact YAML records are embedded below.",
+      "limit": "The missing early-disaggregation record does not alone prove why disaggregation did not succeed or whether a pass was skipped. The late constructor inlining itself is visible, so claiming that the constructor never inlined would also be false."
+    },
+    {
+      "id": "A2",
+      "finding": "Successful LTO exposes flattened device-port arguments; failed Attention has no corresponding retained LTO or post-check IR.",
+      "evidence": "Successful parse definitions take io and aux addrspace(1) pointers plus scalar offsets, rather than FullMemory*. Both successful a.g.lto.ll and a.o.3.ll contain zero i8** text occurrences. Attention v2 stops in the reflow command reading a.g.ld.5.gdce.bc and intending to write a.g.lto.bc. Neither that output nor a.g.2.prechk.bc/a.g.2.bc exists in the checked database.",
+      "limit": "Linked-stage pointer syntax is not post-check syntax. Text counts are structural observations, not numerical reachability, alias proofs, or RTL equivalence."
+    },
+    {
+      "id": "A3",
+      "finding": "The remaining 50 failures cover whole member-pointer access chains, not only one numeric task.",
+      "evidence": "reflow-syncheck YAML identifies model-header AUX pointer load (1), parser IO pointer load (1), full_read clone/original with all 13 pointer fields (13+13) plus a W_SCALE-only clone (1), full_write variant with eight writable fields (8), and top initialization of all 13 pointer fields (13). Top errors comprise eight default-null fields and five bound port fields.",
+      "limit": "The 27 full_read diagnostics are three transformed function variants, not 27 independent root causes. UnsupportedPtrToPtr records provide empty variable names and no checked SSA instruction; they do not isolate the exact failed alias-analysis edge."
+    },
+    {
+      "id": "A4",
+      "finding": "The old fail(Controller&) edit removed that boundary but did not fix synthesis; four task wrappers already inline.",
+      "evidence": "v2 linked top has no fail calls and direct cleanup. Actual reflow logs inline run_task<LoadTask/QKTask/SoftmaxTask/AVTask> before syncheck; this is later than linked gdce.",
+      "limit": "Deleting another already-inlined wrapper is not an evidence-based standalone correction. Removal being insufficient does not prove fail was irrelevant in the old variant."
+    },
+    {
+      "id": "A5",
+      "finding": "Controller-before-parse is an observed source/control-flow difference, not a proven blocker.",
+      "evidence": "Attention linked top stores FullMemory* into Controller at line 28095 before parse at 28167; successful I-L at 33460 after parse 33409; successful I-V at 43865 after parse 43814. All three retain the same aggregate type and this nested-address shape in linked gdce.",
+      "limit": "Successful slices show that merely containing a pointer-bearing aggregate or passing FullMemory& is not sufficient to fail. Moving construction changes early cleanup paths in the two-command Attention protocol unless explicitly preserved."
+    }
+  ],
+  "actual_address_and_alias_boundary": {
+    "source_type": "FullMemory has 13 pointer/uint64 capacity pairs, 208 B in retained IR; no new production type is proposed.",
+    "linked_chain": [
+      "top formal i8* port -> top FullMemory pointer field via i8** GEP/store",
+      "top &FullMemory -> Controller.memory via FullMemory** store",
+      "full_parse_request reads memory.io; full_check_model_header reads memory.aux",
+      "full_read/full_write load a selected pointer field then perform data access; read/write clone families are visible in check diagnostics"
+    ],
+    "attention_bound_fields": [
+      "io",
+      "aux",
+      "qkv0",
+      "qkv1",
+      "att_out"
+    ],
+    "attention_default_null_fields": [
+      "embedding",
+      "w_q0",
+      "w_q1",
+      "w_scale",
+      "state0",
+      "state1",
+      "ff0",
+      "ff1"
+    ],
+    "controller_memory_usage": "The preloaded wrapper calls production Controller.fresh/context/invalidate_incomplete, which use runtime ownership/context and do not dereference Controller.memory; its four actual tasks receive memory directly. I-L/I-V call production numeric Controller methods that do use that member. This call-graph difference is a distinct factor from constructor ordering.",
+    "forbidden_inference": "Do not add restrict/noalias or replace data pointers based on these observations. No runtime alias counterexample or legal non-alias contract has been established; HLS-generated noalias in successful LTO is a lowering result, not permission to impose new source semantics.",
+    "available_checkpoint_limit": "The aggregate JSON lists function-level counts/calls, not instruction use-def chains. At its recorded frontend snapshot, Attention full_read variants retain 39 local loads versus 13 in corresponding successful broad variants; parser/header also retain extra loads. This corroborates incomplete member-pointer simplification, but counts alone cannot prove which pass should have eliminated them."
+  },
+  "narrow_next_decision_advice": {
+    "preferred_review_candidate": "If the main reviewer chooses a new source identity, isolate explicit aggregate initialization of the wrapper-local FullMemory: initialize all 26 existing pointer/capacity fields in declaration order to exactly their existing final values instead of invoking the default constructor then assigning five bindings. Keep Controller placement, helper bodies/calls, BEGIN/RUN branches, cleanup and task sequence unchanged. C++17 is already selected and FullMemory is an aggregate with only public fields/default member initializers. This is a proposal only; no source was edited or compiled.",
+    "why_this_factor": "It directly targets the observed difference between constructor treatment in reflow-disaggr and late reflow-inliner without simultaneously changing protocol control flow or run_task wrappers. The prediction is about removing the constructor-call boundary in frontend/linked IR, not a claim that this will fix HLS.",
+    "necessary_before_any_new_synthesis": [
+      "Review the exact diff and all 26 values against current defaults/bindings, especially eight null/zero pairs and five nonnull capacities. Preserve non-synthesis rt.memory assignment.",
+      "Under whatever preparation the main reviewer later authorizes, confirm actual frontend/linked IR has direct field initialization and no FullMemory constructor call; do not assume source brace syntax proves lowering.",
+      "Preserve the same independent positive/negative CPU and CSim fixtures, first-error->cleanup->report->pending-close order, owner epoch monotonicity, static pending/ticket/session state and numeric task order. A prior source identity PASS does not automatically validate the candidate."
+    ],
+    "discriminating_outcomes": [
+      "Constructor call removed but the same reflow-syncheck member-pointer failures remain: the constructor boundary is insufficient; do not iterate initialization syntax without a new distinction.",
+      "Member pointers flatten into individual port/offset parameters and syncheck succeeds: this supports a source-shape effect for that variant only; generated QK/Softmax/AV reachability and RTL numerical behavior still require separate evidence.",
+      "Constructor boundary persists in actual early IR: the proposed factor was not changed, so the experiment cannot adjudicate the hypothesis."
+    ],
+    "secondary_candidate_only_separately": "Controller lifetime/control-flow placement may be tested later as a separate factor. BEGIN pending rejection must still perform no cleanup; parse-failure cleanup must retain current first-error/cleanup/report behavior; RUN and invalid-command paths must retain pending handling. Simply moving one declaration after parse is not valid because RUN does not parse again. Do not combine this with initialization and helper rewrites in one attempt.",
+    "better_evidence_if_available_later": "A retained IR snapshot immediately before reflow-syncheck or after aggregate disaggregation, including member-pointer load/store operands and FullMemory address escapes, would distinguish true pointer alias obstruction from missed simplification. It is absent from the inspected Attention database. Capturing/replaying compiler passes would be a new tool action outside this review; successful I-L/I-V later IR cannot substitute for the failed check-stage snapshot.",
+    "not_recommended": [
+      "An unchanged retry.",
+      "Removing run_task solely because calls survive linked gdce.",
+      "Globally editing FullMemory/Controller or production memory access helpers before a wrapper-local factor is isolated.",
+      "Changing AXI depth, nullptr policy, numeric task ordering, or alias promises to suppress diagnostics without separate evidence."
+    ]
+  },
+  "observations_by_existing_run": {
+    "attention_old": {
+      "fullmemory_constructor_inline": [
+        {
+          "yaml_line": 22123,
+          "pass": "reflow-inliner",
+          "record": "--- !Passed\nPass:            reflow-inliner\nName:            Inline\nDebugLoc:        { File: source/attention_preloaded_slice.cpp, Line: 160, \n                   Column: 0 }\nFunction:        attention_preloaded_slice\nArgs:            \n  - String:          'Inlining function '''\n  - Callee:          'laya::full::FullMemory::FullMemory()'\n    DebugLoc:        { File: include/laya_full_runtime.h, Line: 11, Column: 0 }\n  - String:          ''' into '''\n  - Caller:          attention_preloaded_slice\n    DebugLoc:        { File: source/attention_preloaded_slice.cpp, Line: 160, \n                       Column: 0 }\n  - String:          ''''\n..."
+        }
+      ],
+      "unsupported_ptr_to_ptr_by_function": {
+        "_ZN4laya4full23full_check_model_headerERKNS0_10FullMemoryERKNS_15NumericIdentityE": 1,
+        "_ZN4laya4full18full_parse_requestERNS0_11FullRuntimeERNS0_10FullMemoryE": 1,
+        "_ZN4laya4full9full_readERKNS0_10FullMemoryENS_2BoEmPhj.clone": 13,
+        "_ZN4laya4full9full_readERKNS0_10FullMemoryENS_2BoEmPhj.clone.clone": 1,
+        "_ZN4laya4full9full_readERKNS0_10FullMemoryENS_2BoEmPhj": 13,
+        "_ZN4laya4full10full_writeERNS0_10FullMemoryENS_2BoEmPKhj.577": 8,
+        "attention_preloaded_slice": 13
+      },
+      "stage_files": {
+        "a.g.ld.5.gdce.bc": true,
+        "a.g.lto.bc": false,
+        "a.g.2.prechk.bc": false,
+        "a.g.2.bc": false
+      },
+      "aggregate_report_common_functions": [
+        {
+          "id": "11",
+          "name": "full_parse_request",
+          "file": "laya_full_io.cpp",
+          "fileloc": 68,
+          "instructions": 13606,
+          "loads": {
+            "G": 7,
+            "L": 4316
+          },
+          "stores": {
+            "G": 4258,
+            "L": 43
+          }
+        },
+        {
+          "id": "19",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 193,
+          "loads": {
+            "L": 39
+          },
+          "stores": {
+            "G": 13,
+            "L": 3
+          }
+        },
+        {
+          "id": "24",
+          "name": "full_write",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 149,
+          "instructions": 137,
+          "loads": {
+            "L": 24
+          },
+          "stores": {
+            "L": 20
+          }
+        },
+        {
+          "id": "37",
+          "name": "full_check_model_header",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 215,
+          "instructions": 251,
+          "loads": {
+            "G": 4,
+            "L": 35
+          },
+          "stores": {
+            "L": 18
+          }
+        },
+        {
+          "id": "46",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 180,
+          "loads": {
+            "L": 39
+          },
+          "stores": {
+            "L": 16
+          }
+        },
+        {
+          "id": "61",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 36,
+          "loads": {
+            "L": 3
+          },
+          "stores": {
+            "L": 4
+          }
+        }
+      ]
+    },
+    "attention_v2": {
+      "fullmemory_constructor_inline": [
+        {
+          "yaml_line": 22159,
+          "pass": "reflow-inliner",
+          "record": "--- !Passed\nPass:            reflow-inliner\nName:            Inline\nDebugLoc:        { File: source/attention_preloaded_slice.cpp, Line: 168, \n                   Column: 0 }\nFunction:        attention_preloaded_slice\nArgs:            \n  - String:          'Inlining function '''\n  - Callee:          'laya::full::FullMemory::FullMemory()'\n    DebugLoc:        { File: include/laya_full_runtime.h, Line: 11, Column: 0 }\n  - String:          ''' into '''\n  - Caller:          attention_preloaded_slice\n    DebugLoc:        { File: source/attention_preloaded_slice.cpp, Line: 168, \n                       Column: 0 }\n  - String:          ''''\n..."
+        }
+      ],
+      "unsupported_ptr_to_ptr_by_function": {
+        "_ZN4laya4full23full_check_model_headerERKNS0_10FullMemoryERKNS_15NumericIdentityE": 1,
+        "_ZN4laya4full18full_parse_requestERNS0_11FullRuntimeERNS0_10FullMemoryE": 1,
+        "_ZN4laya4full9full_readERKNS0_10FullMemoryENS_2BoEmPhj.clone": 13,
+        "_ZN4laya4full9full_readERKNS0_10FullMemoryENS_2BoEmPhj.clone.clone": 1,
+        "_ZN4laya4full9full_readERKNS0_10FullMemoryENS_2BoEmPhj": 13,
+        "_ZN4laya4full10full_writeERNS0_10FullMemoryENS_2BoEmPKhj.570": 8,
+        "attention_preloaded_slice": 13
+      },
+      "stage_files": {
+        "a.g.ld.5.gdce.bc": true,
+        "a.g.lto.bc": false,
+        "a.g.2.prechk.bc": false,
+        "a.g.2.bc": false
+      },
+      "aggregate_report_common_functions": [
+        {
+          "id": "23",
+          "name": "full_parse_request",
+          "file": "laya_full_io.cpp",
+          "fileloc": 68,
+          "instructions": 13606,
+          "loads": {
+            "G": 7,
+            "L": 4316
+          },
+          "stores": {
+            "G": 4258,
+            "L": 43
+          }
+        },
+        {
+          "id": "31",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 193,
+          "loads": {
+            "L": 39
+          },
+          "stores": {
+            "G": 13,
+            "L": 3
+          }
+        },
+        {
+          "id": "34",
+          "name": "full_write",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 149,
+          "instructions": 137,
+          "loads": {
+            "L": 24
+          },
+          "stores": {
+            "L": 20
+          }
+        },
+        {
+          "id": "45",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 36,
+          "loads": {
+            "L": 3
+          },
+          "stores": {
+            "L": 4
+          }
+        },
+        {
+          "id": "50",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 180,
+          "loads": {
+            "L": 39
+          },
+          "stores": {
+            "L": 16
+          }
+        },
+        {
+          "id": "71",
+          "name": "full_check_model_header",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 215,
+          "instructions": 251,
+          "loads": {
+            "G": 4,
+            "L": 35
+          },
+          "stores": {
+            "L": 18
+          }
+        }
+      ],
+      "linked_top": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/ir_audit/a.g.ld.5.gdce.ll",
+        "start_line": 27738,
+        "end_line": 31238,
+        "controller_memory_stores": [
+          28095
+        ],
+        "parse_calls": [
+          28167
+        ],
+        "fullmemory_constructor_calls": [
+          27995
+        ],
+        "i8_double_pointer_text_occurrences": 213
+      }
+    },
+    "linear_v3": {
+      "fullmemory_constructor_inline": [
+        {
+          "yaml_line": 8216,
+          "pass": "reflow-disaggr",
+          "record": "--- !Passed\nPass:            reflow-disaggr\nName:            Inline\nDebugLoc:        { File: source/linear_controller_slice.cpp, Line: 66, \n                   Column: 0 }\nFunction:        linear_controller_slice\nArgs:            \n  - String:          'Inlining function '''\n  - Callee:          'laya::full::FullMemory::FullMemory()'\n    DebugLoc:        { File: include/laya_full_runtime.h, Line: 11, Column: 0 }\n  - String:          ''' into '''\n  - Caller:          linear_controller_slice\n    DebugLoc:        { File: source/linear_controller_slice.cpp, Line: 66, \n                       Column: 0 }\n  - String:          ''''\n..."
+        }
+      ],
+      "unsupported_ptr_to_ptr_by_function": {},
+      "stage_files": {
+        "a.g.ld.5.gdce.bc": true,
+        "a.g.lto.bc": true,
+        "a.g.2.prechk.bc": true,
+        "a.g.2.bc": true
+      },
+      "aggregate_report_common_functions": [
+        {
+          "id": "18",
+          "name": "full_check_model_header",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 215,
+          "instructions": 233,
+          "loads": {
+            "G": 4,
+            "L": 33
+          },
+          "stores": {
+            "L": 15
+          }
+        },
+        {
+          "id": "23",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 30,
+          "loads": {
+            "L": 1
+          },
+          "stores": {
+            "L": 4
+          }
+        },
+        {
+          "id": "29",
+          "name": "full_write",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 149,
+          "instructions": 93,
+          "loads": {
+            "L": 4
+          },
+          "stores": {
+            "L": 20
+          }
+        },
+        {
+          "id": "37",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 136,
+          "loads": {
+            "L": 13
+          },
+          "stores": {
+            "G": 13,
+            "L": 3
+          }
+        },
+        {
+          "id": "60",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 123,
+          "loads": {
+            "L": 13
+          },
+          "stores": {
+            "L": 16
+          }
+        },
+        {
+          "id": "61",
+          "name": "full_write",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 149,
+          "instructions": 97,
+          "loads": {
+            "L": 4
+          },
+          "stores": {
+            "L": 20
+          }
+        },
+        {
+          "id": "76",
+          "name": "full_parse_request",
+          "file": "laya_full_io.cpp",
+          "fileloc": 68,
+          "instructions": 13595,
+          "loads": {
+            "G": 7,
+            "L": 4314
+          },
+          "stores": {
+            "G": 4258,
+            "L": 43
+          }
+        }
+      ],
+      "linked_top": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.g.ld.5.gdce.ll",
+        "start_line": 33218,
+        "end_line": 33748,
+        "controller_memory_stores": [
+          33460
+        ],
+        "parse_calls": [
+          33409
+        ],
+        "fullmemory_constructor_calls": [
+          33309
+        ],
+        "i8_double_pointer_text_occurrences": 223
+      },
+      "a.g.lto.ll": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.g.lto.ll",
+        "i8_double_pointer_text_occurrences": 0,
+        "parse_definition": [
+          {
+            "line": 15133,
+            "text": "define internal fastcc void @\"laya::full::full_parse_request\"(i16* noalias align 512 %agg.result.01, i32* noalias align 512 %agg.result.12, i64* noalias align 512 %agg.result.23, i8 addrspace(1)* noalias %io, i64 %memory_io, i8 addrspace(1)* noalias nocapture %aux, i64 %memory_aux) unnamed_addr #0 {"
+          }
+        ]
+      },
+      "a.o.3.ll": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.o.3.ll",
+        "i8_double_pointer_text_occurrences": 0,
+        "parse_definition": []
+      }
+    },
+    "vector_v3": {
+      "fullmemory_constructor_inline": [
+        {
+          "yaml_line": 5570,
+          "pass": "reflow-disaggr",
+          "record": "--- !Passed\nPass:            reflow-disaggr\nName:            Inline\nDebugLoc:        { File: source/vector_controller_slice.cpp, Line: 69, \n                   Column: 0 }\nFunction:        vector_controller_slice\nArgs:            \n  - String:          'Inlining function '''\n  - Callee:          'laya::full::FullMemory::FullMemory()'\n    DebugLoc:        { File: include/laya_full_runtime.h, Line: 11, Column: 0 }\n  - String:          ''' into '''\n  - Caller:          vector_controller_slice\n    DebugLoc:        { File: source/vector_controller_slice.cpp, Line: 69, \n                       Column: 0 }\n  - String:          ''''\n..."
+        }
+      ],
+      "unsupported_ptr_to_ptr_by_function": {},
+      "stage_files": {
+        "a.g.ld.5.gdce.bc": true,
+        "a.g.lto.bc": true,
+        "a.g.2.prechk.bc": true,
+        "a.g.2.bc": true
+      },
+      "aggregate_report_common_functions": [
+        {
+          "id": "11",
+          "name": "full_write",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 149,
+          "instructions": 90,
+          "loads": {
+            "L": 3
+          },
+          "stores": {
+            "L": 20
+          }
+        },
+        {
+          "id": "12",
+          "name": "full_check_model_header",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 215,
+          "instructions": 233,
+          "loads": {
+            "G": 4,
+            "L": 33
+          },
+          "stores": {
+            "L": 15
+          }
+        },
+        {
+          "id": "14",
+          "name": "full_read",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 123,
+          "instructions": 119,
+          "loads": {
+            "L": 13
+          },
+          "stores": {
+            "L": 16
+          }
+        },
+        {
+          "id": "3",
+          "name": "full_parse_request",
+          "file": "laya_full_io.cpp",
+          "fileloc": 68,
+          "instructions": 13595,
+          "loads": {
+            "G": 7,
+            "L": 4314
+          },
+          "stores": {
+            "G": 4258,
+            "L": 43
+          }
+        },
+        {
+          "id": "38",
+          "name": "full_write",
+          "file": "laya_full_memory.cpp",
+          "fileloc": 149,
+          "instructions": 98,
+          "loads": {
+            "L": 3
+          },
+          "stores": {
+            "L": 20
+          }
+        }
+      ],
+      "linked_top": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.g.ld.5.gdce.ll",
+        "start_line": 43671,
+        "end_line": 44235,
+        "controller_memory_stores": [
+          43865
+        ],
+        "parse_calls": [
+          43814
+        ],
+        "fullmemory_constructor_calls": [
+          43752
+        ],
+        "i8_double_pointer_text_occurrences": 236
+      },
+      "a.g.lto.ll": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.g.lto.ll",
+        "i8_double_pointer_text_occurrences": 0,
+        "parse_definition": [
+          {
+            "line": 9375,
+            "text": "define internal fastcc void @\"laya::full::full_parse_request\"(i16* noalias align 512 %agg.result.01, i32* noalias align 512 %agg.result.12, i64* noalias align 512 %agg.result.23, i8 addrspace(1)* noalias %io, i64 %memory_io, i8 addrspace(1)* noalias nocapture %aux, i64 %memory_aux) unnamed_addr #0 {"
+          }
+        ]
+      },
+      "a.o.3.ll": {
+        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.o.3.ll",
+        "i8_double_pointer_text_occurrences": 0,
+        "parse_definition": []
+      }
+    }
+  },
+  "source_and_evidence_hashes": {
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml",
+      "bytes": 1378413,
+      "sha256": "c8061902417d5f7987af3658323786a41b5efe0ed6551eb7e53efc5eb278b2de"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log",
+      "bytes": 486666,
+      "sha256": "d49c9376af3fed8f1ad5950b5fe067bf347dbb43b8e322c8ed5b0c69325b38c2"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/autopilot.flow.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/autopilot.flow.log",
+      "bytes": 1129742,
+      "sha256": "d11946431b23c7b94f1126fc953e10419690733b72c61f21b774dea0b2027c87"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/runs/local_csynth_v2/work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json",
+      "bytes": 26125,
+      "sha256": "7ff7e08723e4e389cc5b924f472c5e333b5861ad10dc7e7e9b17ac7092369c3a"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml",
+      "bytes": 1439650,
+      "sha256": "2323dab72d35223eeb640d3daac5f740375f20d379c6f3199ed7fa4578f9ad19"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log",
+      "bytes": 500068,
+      "sha256": "3774d1d231eb015cabd43b695cd8ad816180dc21c9e09fce4063bf4072ecf17a"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/autopilot.flow.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/autopilot.flow.log",
+      "bytes": 1147538,
+      "sha256": "c47136d771a95f45e0034ba39c2df1edb53c125c46b108ba42fb3e6317a31dc5"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json",
+      "bytes": 26531,
+      "sha256": "fcbaf87ed53acf38c0e3b1981a1bf99c90400548b93d01901866757c3292df8d"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml",
+      "bytes": 2113004,
+      "sha256": "aadedc187b84074a2d4d796da2c449f66f3f7b1814204e6364d7a86156df45ee"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log",
+      "bytes": 1008457,
+      "sha256": "0096f6273810baa58bb2a86a959fe6099beb961e09dcdffc5c64ad876755cd64"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/autopilot.flow.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/autopilot.flow.log",
+      "bytes": 3006946,
+      "sha256": "8e08113909b74916aeb075f37a1bd7af03e93319a0cd5cc43261ed4f7465377f"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_linear_work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json",
+      "bytes": 29088,
+      "sha256": "2007977a64871c3e590d2165d7a203b08944f7c75a31a9794981427f9f51d5d9"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.diag.yml",
+      "bytes": 1402342,
+      "sha256": "e74a937c83229fb9adcfdbcb150efee57d553ed7799e628f970ee40b14a28c46"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/a.g.ld.0.bc.clang.reflow.err.log",
+      "bytes": 729045,
+      "sha256": "d3aa6c269b1470dbe5cae4b2e65f9c94abe344ad63555da5dbbc7f07d7d34ba5"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/autopilot.flow.log": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/autopilot.flow.log",
+      "bytes": 2189564,
+      "sha256": "5706ebdec907592e23e9a69d3d6e4f028bf10578249d4df5d7fc773529af501d"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/runs/v3/csynth_vector_work/hls/.autopilot/db/cmplx.3.007.fe.aggregate.json",
+      "bytes": 17969,
+      "sha256": "d274eee427cdeafaab339121416c131006d6a3663b274a0f703ec8980c6a7b57"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/ir_audit/a.g.ld.5.gdce.ll": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/ir_audit/a.g.ld.5.gdce.ll",
+      "bytes": 3905173,
+      "sha256": "cb569fd29627b226d4b34d607b7e6012657052a49b910588797559ecbaebb0dc"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.g.ld.5.gdce.ll": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.g.ld.5.gdce.ll",
+      "bytes": 4771371,
+      "sha256": "fafae8bd206408e688cd4f54a75feae221c2d87b91281e495fed8d830efef60d"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.g.lto.ll": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.g.lto.ll",
+      "bytes": 3686396,
+      "sha256": "f4f1baef6f914fa035835fb44b31c85a6c4dca12757926ec44b7d2c6ac673e46"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.o.3.ll": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/linear/a.o.3.ll",
+      "bytes": 3151018,
+      "sha256": "521ebfb3e82db0335765c5ec262deb0a74026fe0a771e73929201c013c62ce40"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.g.ld.5.gdce.ll": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.g.ld.5.gdce.ll",
+      "bytes": 5721936,
+      "sha256": "1f573588176ab0142dc574df225408651d170bf49581934b1d34feb38465c801"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.g.lto.ll": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.g.lto.ll",
+      "bytes": 2831275,
+      "sha256": "3001312bbe16050ba0ee4daadb9f65a9223727cbb01334e9784638f1a42cfbc3"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.o.3.ll": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/vector/a.o.3.ll",
+      "bytes": 1873561,
+      "sha256": "2273e665c5ae93486dfcec9670af7aad0342e26ae510c37a5d2847567100f719"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/synthesis_evidence.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/synthesis_evidence.json",
+      "bytes": 10208,
+      "sha256": "0c2251a91ef5ab6186dbb21b77597e6bbbb96040faf5d44d33fee6f38c244222"
+    },
+    "results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_synthesis_failure_review.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_synthesis_failure_review.json",
+      "bytes": 2979,
+      "sha256": "18089d5c6b498c4d628010c1a2452c7b46fd4937a1709d4c5ef48a8aedba0694"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/source/ir_trace/trace_evidence.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/ir_trace/trace_evidence.json",
+      "bytes": 4845,
+      "sha256": "aaec72a9c8ea18f339ca63bfb5e5eaf8faf479e70b887e51260c4e7748d022dd"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/source/ir_trace/trace.md": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/ir_trace/trace.md",
+      "bytes": 5033,
+      "sha256": "1a922b666e2d04b085e7e16a1b3d8479a7ebd2af2b893c3d7430f63d352e221d"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/synthesis_evidence.json": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/ir_audit_v3/synthesis_evidence.json",
+      "bytes": 38570,
+      "sha256": "b975935d24021a3b57ad6333850b05170f91c81c6b43afde0b554473b3129806"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/attention_preloaded_slice.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/source/attention_preloaded_slice.cpp",
+      "bytes": 15509,
+      "sha256": "843df3247473ae2a3e908eac3bab295ed968ee105c0afca83674cb124090f252"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/source/attention_preloaded_slice.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/attention_preloaded_slice.cpp",
+      "bytes": 15111,
+      "sha256": "3dadfe0db7ca2e8b6dff09f27efaad7f930d0778dfeb49563d508b4f5d05e61e"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/source/vector_controller_slice.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/vector_controller_slice.cpp",
+      "bytes": 6754,
+      "sha256": "3d60549eec473009f9aac35211ed54e0543cf04949016f7439fc5885ae8e9582"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/source/linear_controller_slice.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/linear_controller_slice.cpp",
+      "bytes": 6313,
+      "sha256": "2fa0bc43c981aec1f536f221438456eeaf45df828db80c0380a41e984c82ad99"
+    },
+    "results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/config.cfg": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/config.cfg",
+      "bytes": 4959,
+      "sha256": "598b811ee3c853ac898ccfd935d8f7a8fe94faed8bf5ba8b02338b4b501697c2"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/config_vector.cfg": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/config_vector.cfg",
+      "bytes": 4089,
+      "sha256": "0d5c77c6f7b37a958eed22d1e81d33a3ed2a287301b437c1d7a7001c41dd3cff"
+    },
+    "results/attention_rtl_repair_20261008/d2_controller_reachable/config_linear.cfg": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/config_linear.cfg",
+      "bytes": 4089,
+      "sha256": "045f8342fd21442e5549627e3e1efb0dba4de7ea1ac38c2c23fb07d8f1f4cafa"
+    },
+    "include/laya_full_runtime.h": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/include/laya_full_runtime.h",
+      "bytes": 14258,
+      "sha256": "9f518fd26db66bf0a2e865e6ba8a1150d6c2d70486856663f1e3368fa3c16621"
+    },
+    "hls/common/laya_full_memory.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_memory.cpp",
+      "bytes": 13466,
+      "sha256": "a838cb4910ee824b42d9cd14bae009ec59c1b0b2f9df4ac5e26dda67e950ffca"
+    },
+    "hls/common/laya_full_io.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/common/laya_full_io.cpp",
+      "bytes": 9080,
+      "sha256": "c9d7b9f985f819e926bc68aede5d1acb1bff907c05dc9b7f1af8ac393961ae46"
+    },
+    "hls/control/full_forward_controller.cpp": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hls/control/full_forward_controller.cpp",
+      "bytes": 32405,
+      "sha256": "23e428c81c7a4c40c7014db15e34c561958d88d53e40ac71abef8be0d4804623"
+    }
+  },
+  "not_claimed": [
+    "root cause proved",
+    "new source validity",
+    "new CPU/CSim PASS",
+    "source-synthesis success",
+    "scheduled numerical path",
+    "generated RTL success",
+    "resource/timing/Fmax results",
+    "permission to run or modify"
+  ]
+}

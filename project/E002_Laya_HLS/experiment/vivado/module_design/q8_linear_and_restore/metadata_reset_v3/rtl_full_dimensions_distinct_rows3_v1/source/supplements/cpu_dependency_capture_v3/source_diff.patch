@@ -1,0 +1,446 @@
+--- a/prior_v2/capture_future.py
++++ b/capture_future.py
+@@ -104,8 +104,13 @@
+             manifest["frozen_source_packet"] == source_packet["frozen_source_packet"],
+             "source packet relationship")
+     require(manifest["dpkg_query"] == source_packet["dpkg_query"] and
+-            manifest["prior_v1_archive"] == source_packet["prior_v1_archive"],
+-            "v2 tool and preimage archive relationship")
++            manifest["prior_v1_archive"] == source_packet["prior_v1_archive"] and
++            manifest["prior_v2_archive"] == source_packet["prior_v2_archive"] and
++            manifest["source_release"] == source_packet["source_release"] and
++            manifest["accepted_first_failure"] == source_packet["accepted_first_failure"] and
++            manifest["preserved_raw_depfile"] == source_packet["preserved_raw_depfile"] and
++            manifest["parser_verification"] == source_packet["parser_verification"],
++            "v3 tool and source-history binding relationship")
+     archive = json.loads(Path(manifest["prior_v1_archive"]["path"]).read_text())
+     require(archive["schema"] == "cpu_dependency_capture_v1_exact_preimage_archive_v1" and
+             archive["all_copies_identical"] and len(archive["files"]) == 5,
+@@ -114,6 +119,23 @@
+         original, copied = checked(prior["original"]), checked(prior["archived_copy"])
+         require(original["sha256"] == copied["sha256"] and
+                 original["bytes"] == copied["bytes"], "v1 archive copy changed")
++    archive_v2 = json.loads(Path(manifest["prior_v2_archive"]["path"]).read_text())
++    require(archive_v2["schema"] == "cpu_dependency_capture_v2_exact_preimage_archive_v1" and
++            archive_v2["all_copies_identical"] and len(archive_v2["files"]) == 5 and
++            archive_v2["source_release"] == manifest["source_release"],
++            "exact v2 preimage archive")
++    for prior in archive_v2["files"]:
++        original, copied = checked(prior["original"]), checked(prior["archived_copy"])
++        require(original["sha256"] == copied["sha256"] and
++                original["bytes"] == copied["bytes"], "v2 archive copy changed")
++    parser_audit = json.loads(Path(manifest["parser_verification"]["path"]).read_text())
++    require(parser_audit["schema"] == "cpu_depfile_duplicate_parser_verification_v1" and
++            parser_audit["status"] == "READ_ONLY_PARSER_VERIFICATION_PASS" and
++            parser_audit["raw_depfile"] == manifest["preserved_raw_depfile"] and
++            parser_audit["ordered_occurrences"] == 303 and
++            parser_audit["unique_emitted_names"] == 301 and
++            parser_audit["repeated_basenames"] == {"gmp.h": 2, "mpfr.h": 2},
++            "preserved raw v2 depfile parser audit")
+     require(manifest["strict_flags"] in
+             (["-std=c++17", "-O2", "-fno-fast-math", "-ffp-contract=off"],
+              ["-std=c++17", "-O2", "-ffp-contract=off", "-fno-fast-math"]),
+@@ -131,7 +153,9 @@
+     for key in ("authority", "frozen_source_packet", "fixture_acceptance",
+                 "fixture_execution_packet", "host_chain_manifest", "driver", "guard",
+                 "guard_helper", "readelf", "loader", "dpkg_query",
+-                "prior_v1_archive"):
++                "prior_v1_archive", "prior_v2_archive", "source_release",
++                "accepted_first_failure", "preserved_raw_depfile",
++                "parser_verification"):
+         checked(manifest[key])
+     checked_groups = ("host_chain_files", "translation_units", "lexical_local_headers")
+     if deep:
+@@ -194,8 +218,7 @@
+     targets = _split_tokens(text[:separator], target=True)
+     require(targets == [expected_target], "depfile target differs from -MT")
+     dependencies = _split_tokens(text[separator + 1:], target=False)
+-    require(dependencies and len(dependencies) == len(set(dependencies)),
+-            "empty or repeated depfile prerequisite")
++    require(dependencies, "empty depfile prerequisite")
+     return dependencies
+ 
+ 
+@@ -203,8 +226,11 @@
+     raw = b"/tmp/target\\ file.o: /tmp/source.cpp /tmp/a\\ b.h \\\n /tmp/hash\\#x.h /tmp/colon\\:x.h\n"
+     assert parse_depfile(raw, "/tmp/target file.o") == [
+         "/tmp/source.cpp", "/tmp/a b.h", "/tmp/hash#x.h", "/tmp/colon:x.h"]
++    assert parse_depfile(b"a.o: x.h y\\ z.h x.h y\\ z.h\n", "a.o") == [
++        "x.h", "y z.h", "x.h", "y z.h"]
+     for bad in (b"a.o: x.h\ny.o: z.h\n", b"a.o: x.h $bad\n",
+-                b"a.o: x.h #comment\n", b"a.o: x.h \\"):
++                b"a.o: x.h #comment\n", b"a.o: x.h \\",
++                b"a.o:\n", b"a.o: \t\n"):
+         try:
+             parse_depfile(bad, "a.o")
+         except (RuntimeError, ValueError):
+--- a/prior_v2/command_manifest.json
++++ b/command_manifest.json
+@@ -1,12 +1,18 @@
+ {
++  "accepted_first_failure": {
++    "bytes": 4520,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v2_actual_first_failure_acceptance.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v2_actual_first_failure_acceptance.json",
++    "sha256": "cf42de1f0b2a20a087e6590b1a004f58a3cf8f17aa6983fd2169d2b6ad3fb1ef"
++  },
+   "authority": {
+     "bytes": 2860,
+     "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_distinct_valid_rows3_fixture_acceptance_and_cpu_capture_source_preparation_release.json",
+     "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_distinct_valid_rows3_fixture_acceptance_and_cpu_capture_source_preparation_release.json",
+     "sha256": "b776c9f8c814dbcd249a4ac48b2c9a8282aaa9ce9070648584667ad5cac63847"
+   },
+-  "build_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2",
+-  "build_sequence": "Two sequential -MD compiles and one same-order -Wl,-t link under one aggregate guard; actual local/vendor/system headers, objects, ELF and linker trace bound after execution.",
++  "build_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3",
++  "build_sequence": "Fresh v3 roots; both original translation units recompiled once in sequence with -MD; same-order -Wl,-t link under one separately released aggregate guard. Every raw prerequisite occurrence and ordered TU edge is preserved; canonical file hashing is cached.",
+   "candidate_budget": {
+     "rss_gib": 8,
+     "wall_seconds": 600
+@@ -18,16 +24,16 @@
+     "/usr/bin/python3",
+     "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_controller_reachable/source/guard_16g.py",
+     "--out",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2_control/guard",
++    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3_control/guard",
+     "--cwd",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2_control",
++    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3_control",
+     "--rss-gib",
+     "8",
+     "--timeout-seconds",
+     "600",
+     "--",
+     "/usr/bin/python3",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/capture_future.py",
++    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/capture_future.py",
+     "--guard-child",
+     "--release",
+     "<release_path>"
+@@ -46,18 +52,18 @@
+         "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source",
+         "-MD",
+         "-MF",
+-        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/q8_joint_tm4tn8.d",
++        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/deps/q8_joint_tm4tn8.d",
+         "-MT",
+-        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/q8_joint_tm4tn8.o",
++        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/q8_joint_tm4tn8.o",
+         "-c",
+         "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_tm4tn8.cpp",
+         "-o",
+-        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/q8_joint_tm4tn8.o"
++        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/q8_joint_tm4tn8.o"
+       ],
+-      "argv_sha256": "7a8c7724b91bebfb045b28feafd45ea07a3ea28c510baa13025e1e637f6d1bab",
+-      "depfile": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/q8_joint_tm4tn8.d",
++      "argv_sha256": "6aacc6a4447d61fb78ba5221563a526a1fd932e47f57c2398dedb5850d64f074",
++      "depfile": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/deps/q8_joint_tm4tn8.d",
+       "index": 0,
+-      "object": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/q8_joint_tm4tn8.o",
++      "object": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/q8_joint_tm4tn8.o",
+       "source": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_tm4tn8.cpp"
+     },
+     {
+@@ -73,23 +79,23 @@
+         "-I/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source",
+         "-MD",
+         "-MF",
+-        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/test_q8_scorer_distinct_rows3.d",
++        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/deps/test_q8_scorer_distinct_rows3.d",
+         "-MT",
+-        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/test_q8_scorer_distinct_rows3.o",
++        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/test_q8_scorer_distinct_rows3.o",
+         "-c",
+         "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/tb/test_q8_scorer_distinct_rows3.cpp",
+         "-o",
+-        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/test_q8_scorer_distinct_rows3.o"
++        "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/test_q8_scorer_distinct_rows3.o"
+       ],
+-      "argv_sha256": "6d9c2367c82659363349ae71d1e4efa2f536ea02fe1926b0a7f616cda057b119",
+-      "depfile": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/test_q8_scorer_distinct_rows3.d",
++      "argv_sha256": "ce82cd2ec928000b7655e1488459f222a47a25d8155bdc6520b8567c0e8add1e",
++      "depfile": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/deps/test_q8_scorer_distinct_rows3.d",
+       "index": 1,
+-      "object": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/test_q8_scorer_distinct_rows3.o",
++      "object": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/test_q8_scorer_distinct_rows3.o",
+       "source": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/tb/test_q8_scorer_distinct_rows3.cpp"
+     }
+   ],
+-  "control_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2_control",
+-  "created_utc": "2026-10-09T03:25:07.748758+00:00",
++  "control_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3_control",
++  "created_utc": "2026-10-09T04:16:33.112178+00:00",
+   "declared_environment": {
+     "LANG": "C",
+     "LC_ALL": "C",
+@@ -102,10 +108,10 @@
+     "sha256": "cc2a19017c37132e4ad46c1fbddea6472262d0a62a0b8585c383706c20005ea1"
+   },
+   "driver": {
+-    "bytes": 27215,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/capture_future.py",
+-    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/capture_future.py",
+-    "sha256": "6dc7361573db336fde6050edb48b4ab876ae57a3ae04df682b543af53bbf30c0"
++    "bytes": 29108,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/capture_future.py",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/capture_future.py",
++    "sha256": "39f152898acb7342d918542c0d87f26a460801c29ea477ec24eaae54800505bd"
+   },
+   "executable_name": "test_q8_scorer_distinct_rows3",
+   "fixture_acceptance": {
+@@ -1590,14 +1596,14 @@
+       "-ffp-contract=off",
+       "-fno-fast-math",
+       "-Wl,-t",
+-      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/q8_joint_tm4tn8.o",
+-      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/obj/test_q8_scorer_distinct_rows3.o",
++      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/q8_joint_tm4tn8.o",
++      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/obj/test_q8_scorer_distinct_rows3.o",
+       "-lm",
+       "-o",
+-      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/test_q8_scorer_distinct_rows3"
++      "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/test_q8_scorer_distinct_rows3"
+     ],
+-    "argv_sha256": "9fc4b39edffd839dd7064f2b2e06d4906c3ed8cc4f7b81da9938203805af1dda",
+-    "output": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/test_q8_scorer_distinct_rows3"
++    "argv_sha256": "33fb84b8e4ff2eb8fe644666053f8a8cea29445937433a2c9e816aae2d8d9956",
++    "output": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v3/test_q8_scorer_distinct_rows3"
+   },
+   "loader": {
+     "bytes": 236616,
+@@ -1672,6 +1678,12 @@
+     "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/tb/build_cpu_leaf.sh",
+     "sha256": "4bf1c7f138fb76966c8c98c21371796a72ed86fa2d9be4cad1b02dd7c8cc2945"
+   },
++  "parser_verification": {
++    "bytes": 150936,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/parser_verification.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/parser_verification.json",
++    "sha256": "921c530818353873d33562606eaddceea455f7df83275d3673994b5d1d951aa0"
++  },
+   "presealed_inputs": [
+     {
+       "bytes": 17627,
+@@ -4458,11 +4470,23 @@
+       "sha256": "6d97f9164322f50f9733d1d4b0452c9f49cfda937d5ec250c53eb9783890f9b4"
+     }
+   ],
++  "preserved_raw_depfile": {
++    "bytes": 14912,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/q8_joint_tm4tn8.d",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/q8_joint_tm4tn8.d",
++    "sha256": "8ce95b9b8a446d8fde776480e20bc11832d9a3e23993c3ec16f196a4d7697966"
++  },
+   "prior_v1_archive": {
+     "bytes": 6955,
+     "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/prior_v1/archive_manifest.json",
+     "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/prior_v1/archive_manifest.json",
+     "sha256": "90c9d5897f92b06d2af5a892f81e0227c134954a16db8f450d05571c2b64556a"
++  },
++  "prior_v2_archive": {
++    "bytes": 7961,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/prior_v2/archive_manifest.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/prior_v2/archive_manifest.json",
++    "sha256": "a540f15981e10e15fdc931062f88a83b2c772eedcb8a5d3f49d82f352e1073ab"
+   },
+   "project_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline",
+   "readelf": {
+@@ -4473,10 +4497,16 @@
+   },
+   "schema": "cpu_actual_dependency_capture_command_manifest_v1",
+   "source_preparation_design": {
+-    "bytes": 6167,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/design.md",
+-    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/design.md",
+-    "sha256": "48760387e6c3a6e5f501c2e4049f796bd25e6225eb94fba06e593bd2bfa17f69"
++    "bytes": 7175,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/design.md",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/design.md",
++    "sha256": "cf0b6b6a102e3011b87427e04c85bed59832f4d3ac8d71fe81a1355e2f3cc151"
++  },
++  "source_release": {
++    "bytes": 3158,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v3_duplicate_prerequisite_source_preparation_release.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v3_duplicate_prerequisite_source_preparation_release.json",
++    "sha256": "e8d078f679e98aabf7a2bce2edfe40486b6842f52fd34073d2a8dcc0b84cada5"
+   },
+   "status": "SOURCE_ONLY_CANDIDATE_COMMANDS_BUILD_HELD",
+   "strict_flags": [
+@@ -4503,7 +4533,7 @@
+     "q8_joint_tm4tn8",
+     "test_q8_scorer_distinct_rows3"
+   ],
+-  "variant": "q8_scorer_distinct_rows3_v1",
++  "variant": "q8_scorer_distinct_rows3_v1_cpu_dependency_capture_v3",
+   "vendor_roots": [
+     "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/include"
+   ]
+--- a/prior_v2/design.md
++++ b/design.md
+@@ -31,3 +31,19 @@
+ Prepare source/results status, driver, dependency/ELF auditor, exact candidate argv, fresh paths, explicit compiler/link stages and a sealed source packet. Read-only hash, AST and shell-syntax checks are allowed. The independent reviewer must inspect actual source before one finite build gate; root assigns the single heavy Laya slot. Proposed ceilings are up to 8 GiB owned RSS and 600 seconds aggregate for two compiles, one link and closure observations, to be finalized in that gate. CPU0–3, nice19, idle I/O, owned process RSS sampled every0.2s and MemAvailable strictly above192GiB remain required. Any failure stops and preserves all outputs; no retries or quota reset.
+ 
+ A successful build establishes only this executable identity and its observed compilation/link closure. It does not accept CPU numerical output, RTL, HLS, C1 integration, full-model hardware,150MHz,50ms or board behavior. Runtime remains held until actual build/snapshot evidence is independently reviewed.
++
++## v3 duplicate-prerequisite source repair
++
++The accepted v2 first attempt stopped after the first compile because its parser
++rejected a valid repeated prerequisite. The v2 source files remain unchanged;
++`prior_v2/archive_manifest.json` binds exact copies before this adaptation.
++This v3 driver requires a nonempty prerequisite list and preserves every
++emitted name and ordered TU edge, including repeats. `observed_dependencies`
++continues to hash each canonical file once while retaining every occurrence.
++Malformed Make syntax, target mismatch, missing files, lexical coverage,
++package-version checks, ELF inspection, source bindings and first-failure
++behavior remain required. The preserved raw v2 depfile is bound for read-only
++parser verification. A later separately released build must create fresh v3
++control/output roots and recompile both original TUs from scratch with the
++unchanged flags, include order and link order. No compiler, linker or DUT
++invocation is released in this source preparation.
+--- a/prior_v2/results.md
++++ b/results.md
+@@ -8,7 +8,9 @@
+ inspection. The glibc loader's `--list` is separately gated.
+ 
+ No compiler, preprocessor, CPU DUT, XSim, HLS, synthesis, implementation,
+-timing, or board operation has run under this source preparation. The command
++timing, or board operation is authorized under this v3 source preparation.
++A separate v2 build attempt already ran once and stopped at the parser after
++its first compile; that first failure is preserved and accepted. The command
+ manifest and source packet describe a proposed finite build for independent
+ review; they do not release it.
+ 
+@@ -27,3 +29,13 @@
+ version or query failure is a recorded first failure. No compiler,
+ preprocessor, linker, CPU DUT, or EDA operation has run for this v2 source
+ candidate; its build still requires a separate exact release and root slot.
++
++## v3 parser repair (source only)
++
++The v2 raw depfile has SHA-256 `8ce95b9b8a446d8fde776480e20bc11832d9a3e23993c3ec16f196a4d7697966`.
++Read-only parsing must preserve 303 ordered prerequisites and 301 unique names;
++`gmp.h` and `mpfr.h` occur twice each. The v3 self-test covers duplicate
++prerequisites, empty prerequisites, continuations, escapes, and malformed
++syntax. The default source checker must pass without running a compiler.
++The future build remains held behind a separate release and 8 GiB/600-second
++aggregate guard. No v3 CPU numerical or EDA result is claimed.
+--- a/prior_v2/source_packet.json
++++ b/source_packet.json
+@@ -1,6 +1,12 @@
+ {
+   "CPU_runtime": "NOT_RUN",
+   "ELF_inspection": "NOT_RUN",
++  "accepted_first_failure": {
++    "bytes": 4520,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v2_actual_first_failure_acceptance.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v2_actual_first_failure_acceptance.json",
++    "sha256": "cf42de1f0b2a20a087e6590b1a004f58a3cf8f17aa6983fd2169d2b6ad3fb1ef"
++  },
+   "authority": {
+     "bytes": 2860,
+     "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_distinct_valid_rows3_fixture_acceptance_and_cpu_capture_source_preparation_release.json",
+@@ -8,14 +14,14 @@
+     "sha256": "b776c9f8c814dbcd249a4ac48b2c9a8282aaa9ce9070648584667ad5cac63847"
+   },
+   "command_manifest": {
+-    "bytes": 360870,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/command_manifest.json",
+-    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/command_manifest.json",
+-    "sha256": "64975b6ad27454f3a7913a4c5cf024d7a0670f753e58d25fc980b15db87762ae"
++    "bytes": 363940,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/command_manifest.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/command_manifest.json",
++    "sha256": "ea3eba0acdf2d9c48e692d6573f43da9e07cd51450010ee4e894c2f2cf9f98e1"
+   },
+   "compilation": "NOT_RUN",
+   "compiler_command_count": 2,
+-  "created_utc": "2026-10-09T03:25:07.754142+00:00",
++  "created_utc": "2026-10-09T04:17:49.944376+00:00",
+   "dpkg_query": {
+     "bytes": 137792,
+     "path": "/usr/bin/dpkg-query",
+@@ -23,10 +29,10 @@
+     "sha256": "cc2a19017c37132e4ad46c1fbddea6472262d0a62a0b8585c383706c20005ea1"
+   },
+   "driver": {
+-    "bytes": 27215,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/capture_future.py",
+-    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/capture_future.py",
+-    "sha256": "6dc7361573db336fde6050edb48b4ab876ae57a3ae04df682b543af53bbf30c0"
++    "bytes": 29108,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/capture_future.py",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/capture_future.py",
++    "sha256": "39f152898acb7342d918542c0d87f26a460801c29ea477ec24eaae54800505bd"
+   },
+   "driver_AST_parse": "PASS",
+   "fixture_acceptance": {
+@@ -66,32 +72,57 @@
+     "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/tb/build_cpu_leaf.sh",
+     "sha256": "4bf1c7f138fb76966c8c98c21371796a72ed86fa2d9be4cad1b02dd7c8cc2945"
+   },
++  "parser_raw_depfile_read_only": "PASS: 303 ordered prerequisite occurrences, 301 unique emitted names/canonical identities; gmp.h and mpfr.h repeat twice each; no compiler or linker invoked.",
+   "parser_self_test": "PASS",
++  "parser_verification": {
++    "bytes": 150936,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/parser_verification.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/parser_verification.json",
++    "sha256": "921c530818353873d33562606eaddceea455f7df83275d3673994b5d1d951aa0"
++  },
+   "preprocessing": "NOT_RUN",
+-  "presealed_identity_basis": "Inherited from accepted frozen source packet; 430-plus broad refs are deferred to the future deep pre/post build check to avoid competing with current heavy slot. Key gate, fixture, units, lexical headers and selected host files rehashed now.",
++  "presealed_identity_basis": "All bound files are checked by the default read-only source checker; prior v2 exact preimages, accepted first failure, and preserved raw depfile are separately bound. The future build must independently rehash inputs before and after execution.",
+   "presealed_input_count": 464,
++  "preserved_raw_depfile": {
++    "bytes": 14912,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/q8_joint_tm4tn8.d",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/runs/cpu_dep_capture_v2/deps/q8_joint_tm4tn8.d",
++    "sha256": "8ce95b9b8a446d8fde776480e20bc11832d9a3e23993c3ec16f196a4d7697966"
++  },
+   "prior_v1_archive": {
+     "bytes": 6955,
+     "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/prior_v1/archive_manifest.json",
+     "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/prior_v1/archive_manifest.json",
+     "sha256": "90c9d5897f92b06d2af5a892f81e0227c134954a16db8f450d05571c2b64556a"
+   },
++  "prior_v2_archive": {
++    "bytes": 7961,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/prior_v2/archive_manifest.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/prior_v2/archive_manifest.json",
++    "sha256": "a540f15981e10e15fdc931062f88a83b2c772eedcb8a5d3f49d82f352e1073ab"
++  },
+   "results": {
+-    "bytes": 1665,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/results.md",
+-    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/results.md",
+-    "sha256": "d4cccc19378e5ac79859a86cfacf58353213245fb3d28cc18bbae83ab4e8e6e9"
++    "bytes": 2391,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/results.md",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/results.md",
++    "sha256": "9369363f9f68e2c390a0748c1313775100666e98d7159444f14da4555d5ffffb"
+   },
+-  "revision_scope": "v2 review corrections only: bound dpkg-query exact accepted package versions pre/post; shared-library INTERP cardinality 0/1 with bound loader check; final executable INTERP remains exactly one.",
++  "revision_scope": "v3 source-only parser repair after accepted v2 first failure: require nonempty prerequisites, preserve every ordered duplicate edge and canonical hash-cache deduplication; retain v2 checks and fresh v3 roots.",
+   "schema": "cpu_actual_dependency_capture_source_packet_v1",
+   "scope_limit": "Actual -MD depfiles and linker/ELF records are future invocation observations, not a presealed OS closure.",
+   "source_preparation_design": {
+-    "bytes": 6167,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/design.md",
+-    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v2/design.md",
+-    "sha256": "48760387e6c3a6e5f501c2e4049f796bd25e6225eb94fba06e593bd2bfa17f69"
++    "bytes": 7175,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/design.md",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/rtl_full_dimensions_distinct_rows3_v1/source/supplements/cpu_dependency_capture_v3/design.md",
++    "sha256": "cf0b6b6a102e3011b87427e04c85bed59832f4d3ac8d71fe81a1355e2f3cc151"
++  },
++  "source_release": {
++    "bytes": 3158,
++    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v3_duplicate_prerequisite_source_preparation_release.json",
++    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_scorer_md_v3_duplicate_prerequisite_source_preparation_release.json",
++    "sha256": "e8d078f679e98aabf7a2bce2edfe40486b6842f52fd34073d2a8dcc0b84cada5"
+   },
+   "status": "SOURCE_ONLY_NO_COMPILER_OR_DUT_EXECUTION",
+   "translation_unit_count": 2,
+-  "variant": "q8_scorer_distinct_rows3_v1"
++  "variant": "q8_scorer_distinct_rows3_v1_cpu_dependency_capture_v3"
+ }

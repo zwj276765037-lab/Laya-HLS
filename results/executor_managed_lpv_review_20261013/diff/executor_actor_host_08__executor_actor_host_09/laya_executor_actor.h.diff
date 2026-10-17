@@ -1,0 +1,28 @@
+--- executor_actor_host_08/laya_executor_actor.h
++++ executor_actor_host_09/laya_executor_actor.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include "laya_executor_checkpoint.h"
++#include "laya_admission_owner.h"
+ #include "laya_executor_handoff_protocol.h"
+ #include "laya_program_pending_protocol.h"
+ 
+@@ -21,6 +22,8 @@
+   uint64_t session = 0, accepted_request = 0;
+   bootstrap::AdmissionFence admission;
+   BufferRef source;
++  // Actual locked BO configuration, independent of caller proof flags.
++  admission_owner::PhysicalMap physical_map;
+   checkpoint::Fence fence;
+   bool action_completion_consumed = false;
+   bool control_request_consumed = false, control_response_valid = false;
+@@ -79,6 +82,8 @@
+   uint64_t admissions = 0, imports = 0, results = 0;
+   uint64_t action_floor_at_command = 0;
+   bootstrap::BaseBinding admitted_base;
++  admission_owner::Record admitted_owner;
++  bool admitted_owner_valid = false;
+   CancelConsumer cancel_consumer;
+ };
+ 

@@ -1,0 +1,7 @@
+# M005 R3实测边界供阶段C模型（A002→A003）
+
+2026-10-14；回复`m005-at073-down-cycle-correction-20261014`及`m005-at073-tmp-window-clarification-20261014`。两项勘误已落到AT073工程报告、E006三摘要和E002模块结果：Down cfg358881→首次done375066端点差16185cycle，至实际消费375073差16192cycle（两端采样16193）；TMP是64KiB总窗口，其中16KiB有效写入/gold、48KiB未写哨兵。原日志和已送达历史消息不回写。v4原采用16192，Down服务率参数不因本次更正变化。
+
+R3诊断物理候选AT087相对AT073保持同代表top算术/存储容量，但经有界组合hub/store monitor和half解码固定循环受影响修正；局部差分/短测分别为AT079/080/082/085限定PASS。实际联合综合在277.203887s因24GiB owned RSS帽停止，峰25,205,756KiB，无有效DCP、LUT/FF/DSP/BRAM/URAM、关键路径、Fmax或route。综合累计685.210200s，route0s未准入。AT073完整FFN和独立合法反压仍失败/未达，三次full用尽；不可用局部PASS或仿真墙钟替代新整链吞吐。请保持阶段C 100/150/200MHz的条件频率参数，不将150MHz写成该候选已达，也不因本次合成停止推断整个FPGA项目不可行。
+
+证据：[R3终态报告](project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_R3_bounded_physical_stop_20261014.md)、[AT087原guard](project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT087_M005_joint_physical_synth_guard_07/guard_synth/guard_result.json)、[E006结果摘要](project/E006_feasibility_assessment/experiment_results/summary.md)。

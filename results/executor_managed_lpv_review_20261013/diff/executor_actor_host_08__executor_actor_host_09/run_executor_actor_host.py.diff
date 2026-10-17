@@ -1,0 +1,31 @@
+--- executor_actor_host_08/run_executor_actor_host.py
++++ executor_actor_host_09/run_executor_actor_host.py
+@@ -59,7 +59,9 @@
+     fixed=[config,Path('config/full_module_registry.json'),
+         Path('config/production_hls_partitions.json'),Path('config/graph_action_registry.json'),
+         MODEL/'manifest.json',MODEL/'aux.bin',Path('tests/executor_handoff_fixture.py'),
+-        Path('tests/program_pending_fixture.py'),M/'rtl/laya_program_pending_layout_v1.sv',
++        Path('tests/program_pending_fixture.py'),Path('tests/admission_owner_fixture.py'),
++        M/'rtl/laya_admission_owner_layout_v1.sv',M/'rtl/laya_generated_provenance_layout_v1.sv',
++        M/'rtl/laya_model_identity_13bo_generated_v1.sv',M/'rtl/laya_program_pending_layout_v1.sv',
+         Path('tests/executor_bootstrap_fixture.py'),Path('tests/executor_checkpoint_fixture.py'),M/'rtl/laya_executor_handoff_layout_v1.sv',M/'rtl/laya_executor_checkpoint_layout_v2.sv',
+         M/'rtl/laya_bootstrap_snapshot_layout_v1.sv',M/'rtl/laya_graph_action_layout_v1.sv',
+         M/'tb/production_guard.py',Path('tools/hls_guard_helpers.py'),
+@@ -73,7 +75,8 @@
+     for name in ['production_hls_partition_contract_20261012.md',
+         'executor_bootstrap_source_contract_20261012.md','executor_checkpoint_high_water_contract_20261012.md',
+         'executor_checkpoint_import_handshake_contract_20261013.md',
+-        'executor_revoke_unaccepted_action_contract_20261013.md','executor_close_rearm_contract_20261013.md']:
++        'executor_revoke_unaccepted_action_contract_20261013.md','executor_close_rearm_contract_20261013.md',
++        'executor_managed_lpv_owner_contract_20261013.md']:
+         copy(PROJECT/'results'/name,Path('external/contracts')/name)
+     if args.shell_rtl_capture:
+         if not args.shell_stimuli: raise RuntimeError('capture requires helper-only mode')
+@@ -154,6 +157,7 @@
+           'physical safety/RTL depth2/CLOSE transport/new accepted-request rearm or production chain signed.')
+         if args.closed_rtl_attempt:
+             scope+=' Four actual shell CLOSED captures completely decode/roundtrip and match independent fixed H1 literal; offline codec evidence does not sign same-hardware actual closure consumers.'
++    scope+=' Complete LAD1 admission A capture after actual LYRQ/LYMP, before HOLD; 22 wire and7 capture refusals; only controlled STATE0 physical map, no same-hardware admission or full13BO scope.'
+     mp=attempt/'input_manifest.json'
+     mp.write_text(json.dumps({'schema':'laya-executor-actor-host-input-v1','scope':scope,
+         'files':records,'production_sources':[str(p) for p in production],

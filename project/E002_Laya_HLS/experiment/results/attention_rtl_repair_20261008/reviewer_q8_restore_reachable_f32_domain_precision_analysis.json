@@ -1,0 +1,80 @@
+{
+  "schema": "reviewer_q8_restore_reachable_f32_domain_precision_analysis_v1",
+  "created_utc": "2026-10-08T23:23:24.043098+00:00",
+  "reviewer": "GPT-6 Astra xhigh",
+  "status": "STATIC_MATHEMATICAL_DOMAIN_ANALYSIS_NO_IMPLEMENTATION_OR_CONTRACT_RELAXATION",
+  "authority": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_c1_detailed_arithmetic_pipeline_design_review.json",
+      "bytes": 11622,
+      "sha256": "e7a0ee81696e3a75b53f33a4613947ee65e369aa8c33692abb44d1e6d9bc47ea"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_actual_fp_boundary_source_preparation_release.json",
+      "bytes": 29369,
+      "sha256": "89b847de5851a6a8a836a70fba31bac78c468e8a847f3f110b19c3aa77c2830d"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/source/q8_joint_tm4tn8.cpp",
+      "bytes": 36278,
+      "sha256": "cad329dbb9a57e49ec8fb3b99ef53f41b6662538dac0df3090b4677260b2e17d"
+    }
+  ],
+  "assumptions": [
+    "R0 separate correctly rounded binary32 operations using round-to-nearest-even; no FMA or reassociation. This is the required reference behavior, not yet a claim about every actual vendor primitive.",
+    "Aq/Wq entries are signed8. Every active restore scale has passed original finite/nonnegative checks; finite half includes signed zero and half subnormal. Nonfinite or invalid negative scales retain original error handling outside the successful-domain proof.",
+    "g0 old is literal positive zero; groups accumulate in original increasing g order without splitting the accumulator. Supported K<=4096 and GS32 imply G<=128.",
+    "Bias is an arbitrary finite binary32 after original LOAD validation; all nonfinite failure contracts remain unchanged."
+  ],
+  "proof": [
+    {
+      "claim": "Scale product is exactly representable binary32 and cannot be subnormal.",
+      "reason": "Every finite half value is an integer multiple of 2^-24, each has at most 11 significant binary digits, and magnitude<=65504. A nonzero product has at most 22 significant digits, magnitude>=2^-48 and <2^32. Both its precision and exponent fit binary32 exactly. Signed-zero products retain IEEE sign rules."
+    },
+    {
+      "claim": "Dot conversion is exact and each rounded term remains on the 2^-48 grid.",
+      "reason": "For 32 signed8 products, -520192<=dot<=524288, so |dot|<=2^19 and binary32 conversion is exact. The exact real dot*scale_product is an integer multiple of 2^-48 and has magnitude<2^51. Binary32 RNE preserves this grid: coefficients of magnitude<2^24 are exactly representable; larger coefficients round to multiples of a power-of-two integer in grid units. A nonzero term therefore has magnitude>=2^-48."
+    },
+    {
+      "claim": "PS remains on the same grid; it is normal or zero.",
+      "reason": "Induction starts at +0. Each addition of PS and term is an integer multiple of 2^-48 before rounding, and the same grid-preservation argument applies. With at most128 terms and each magnitude<2^51, the accumulated rounded magnitude remains <=2^58 (coarse inductive bound suffices). It cannot approach binary32 overflow or nonzero subnormal range. This does not authorize removal of original phase checks."
+    },
+    {
+      "claim": "A zero PS has positive-zero bits in this successful domain.",
+      "reason": "The initial old is +0. Addition of +0 and a signed-zero term gives +0 under RNE. Exact cancellation of finite opposite-sign terms gives +0; a nonzero exact sum cannot underflow to zero because of the 2^-48 grid. Inductively no -0 PS is produced. A separate invalid-input/error path is not covered."
+    },
+    {
+      "claim": "Adding arbitrary finite bias to a nonzero PS cannot produce a nonzero binary32 subnormal.",
+      "reason": "|PS|>=2^-48. Without close opposite-sign cancellation the magnitude is obviously normal. For close cancellation, bias must lie near PS; the smallest binary32 spacing on the relevant lower binade [2^-49,2^-48) is 2^-72. Since PS is on the coarser 2^-48 grid, a nonzero difference is at least2^-72, far above minimum normal2^-126. A subnormal bias added to nonzero PS is below half an ULP and leaves PS unchanged."
+    },
+    {
+      "claim": "The only final nonzero subnormal case in the successful restore+bias domain is zero PS plus a subnormal bias.",
+      "reason": "With PS=+0, R0 returns the exact nonzero bias bits, including sign. For bias=-0, R0(+0 + -0)=+0, so unconditional raw-bit bias bypass would be wrong. Any future bounded adapter must special-case zero signs correctly and retain every original classification/counter/trace/output rule."
+    }
+  ],
+  "primitive_vs_domain": {
+    "general_tests": "The existing finite wrapper test table deliberately contains general subnormal mul/add/compare inputs. A mismatch means that general primitive is not conformant for that table; do not rename it PASS because the case is outside restore domain.",
+    "reachable_tests": "For C1 acceptance, also assess the actual reachable input domain, including half min product, dot bounds, group order, signed zero, quantization and arbitrary finite bias. General FTZ behavior does not by itself force every restore lane to use general softfloat.",
+    "no_automatic_adaptation": "A small bit-domain adapter may be sufficient for specific bias or quant boundaries, but this report does not implement or authorize one. Actual primitive results, exact rounding/signed-zero proof and source review must precede a concrete adaptation."
+  },
+  "quantization_is_separate": [
+    "Activation inputs are arbitrary finite binary32. C1 finite abs-bit max selection avoids relying on subnormal floating compare behavior, but the required d_full=RNE(amax/127) and reciprocal still have their original mathematical semantics.",
+    "The required amax037e0000 yields d_full00400000 and inverse7f000000; saved half zero does not permit zeroing q.",
+    "Tiny amax00000001 gives d_full0, inv0 and q0 under original rules; amax00800000 produces positive tiny d_full whose inverse overflows and must reject. These cannot be merged into a generic all-tiny-values-zero behavior.",
+    "If d_full is a nonzero subnormal n*2^-149, reciprocal behavior depends on n and must preserve RNE, overflow rejection and downstream quantization; no new integer or rescaled division architecture is selected here."
+  ],
+  "future_conformance_cases": [
+    "All mandatory existing wrapper vectors remain frozen.",
+    "C1 CPU/RTL must include zero PS with both +/- minimum subnormal bias, +/- zero bias, and nonzero PS with tiny positive/negative bias.",
+    "Test cancellation near PS=2^-48, including the adjacent bias value below -2^-48 in magnitude, to exercise the normal2^-72 result boundary.",
+    "Keep 65536 half decode equivalence, signed8 dot extrema, strict group R0 and failure/rank/trace checks unchanged."
+  ],
+  "not_claimed": [
+    "Actual seven-wrapper behavior",
+    "C1 implementation correctness",
+    "General IEEE754 compliance",
+    "Permission to change gold/tolerance or skip any frozen boundary",
+    "Full-graph/board/performance success"
+  ],
+  "execution": "Only static source reading and mathematical reasoning; no CPU numerical oracle, compiler or simulator."
+}

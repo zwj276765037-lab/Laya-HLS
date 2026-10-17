@@ -1,0 +1,1 @@
+New C1 RTL and generated-instance mapping are not available. This root is isolated from frozen v3 RTL/IP. Dormant streaming probe sources belong in tb; any future generated or hand-maintained RTL needs a separate reviewed identity and execution gate.

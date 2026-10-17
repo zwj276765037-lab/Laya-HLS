@@ -1,0 +1,192 @@
+# Laya：从真实 RTL 功能闭环到 U55C 端到端性能对照
+
+更新日期：2026-10-09。本文是本工程单一活动任务入口，定义后续阶段、依赖、交付和验收。最初落盘只完成计划；用户随后明确“开始执行”，并确认**暂时没有板卡，先完成离线验证**。当前执行范围为阶段 1–4 的诊断、功能、综合与性能评估，以及阶段 5 可离线完成的资料和工程准备。按既有技术门持续推进，无需重复用户许可；上板与端到端实测待板卡具备条件，不阻塞离线工作。历史预算和证据保护继续有效。
+
+设计、性能预算与独立审核由 **GPT-6 Astra / xhigh** 承担；工程实现与已授权工具执行由 **GPT-6 Sol / max** 承担。本文由实际 Astra xhigh 设计代理撰写和自审。沿用现行合同的内部技术放行，不为计划增加逐步向用户重复确认的流程。
+
+## 1. 目标、范围与依据
+
+完成 Laya Typed-Decisions Q8_0 在 U55C 上的完整请求前向：28 层 Encoder、2 层 Decision、scorer/ACT，hidden 1024、16 个 head、每题 16 个候选槽。主机 CPU 负责请求准备、XRT 调用和结果解释；FPGA 执行完整前向，不是自回归逐 token 生成。主验证请求为 B1/B2、物理 S128；其他 S 和边界用例按覆盖清单分别验收。
+
+保留 **50 ms** 的用户性能对照目标。最终同时报告板上 kernel 和常驻 Host 完整请求的延迟、吞吐与质量，冷启动单列；实际通过口径须在对照实验前冻结，不能在看到结果后挑选更有利的计时范围或百分位。当前没有 U55C 达到 50 ms、与 A6000 同口径比较或加速比的证据。
+
+权威依据分工如下；规格文档的历史“尚未实现”描述以当前同身份的实际证据更新理解，不能反向抹去后续结果。
+
+- [项目 README](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/README.md)：当前总体状态与证据入口。
+- [硬件规格入口](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/hardware_agent/spec.md)和[总体规格](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/design_source/00_overall_design.md)：模型、主机/板卡分工、接口和未覆盖范围。
+- [修复及性能合同](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/repair_contract.md)：§2–§3 功能门槛，§4 联合 Q8 设计，§7 当前诊断、预置 QKV 与工具门禁。
+- [接口与性能报告](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/project/source/performance_and_interfaces.md)：实际端口、工作量、条件估算及旧综合边界。
+
+## 2. 当前起点：哪些已通过，哪些仍缺证据
+
+最新 Attention 增量：v4 已获[精确源/CPU/CSim与单次综合失败独立审核](../results/attention_rtl_repair_20261008/reviewer_attention_v4_cpu_csim_synthesis_failure_review.json)，944绑定、570work、25pp/227依赖；软件3+17保持，综合230.266s/2819952KiB后在report pair数组/nullable select两处SYNCHK停止。新的[v5精确条件合同](../results/attention_rtl_repair_20261008/reviewer_attention_v5_report_presence_conditional_release.json)只改bool存在标记与固定pending.pair读取，保留全部报告/cleanup/close顺序，未有新结果。固定数组AXI实现与独立验证继续优先，v5不得阻塞Q8真实数值RTL准备。
+
+2026-10-09 当前增量：Q8 metadata_reset_v3 的[真实局部综合与元数据复位结构审核](../results/attention_rtl_repair_20261008/reviewer_q8_metadata_reset_v3_synthesis_reset_structure_review.json)通过，21个持久控制寄存器具复位、64tag默认值由written标记复位保障，50个payload RAM实例无清零。3893绑定/3581work/241实际依赖、277.474s/3995644KiB；HLS估计341BRAM18/40DSP/117625FF/156176LUT/256URAM，仍21.308ns，未有数值或暖复位RTL结论。软件继承精确相同的v2 strictCPU/pairedCSim。
+
+Attention 的[v4 runtime-only control条件合同](../results/attention_rtl_repair_20261008/reviewer_attention_v4_runtime_control_conditional_release.json)已放行四个生产控制方法逐字复制、去除未用FullMemory捕获，再按精确自检CPU→CSim→一次综合，失败即停。共享[固定数组AXI环境条件合同](../results/attention_rtl_repair_20261008/reviewer_axi_bounded_static_v1_conditional_release.json)允许一次静态构建、同snapshot的32/512位idle/traffic与两个明确协议拒绝例，最终独立验收；真实Q8 DUT映射/控制/fixture只先准备。两项均无需逐级向用户确认，不据计划预填通过。
+
+正式修复包的 build tag 为 `fe067c8aa0627ad770096f9721394645`，下文简称 **fe067**；它包含针对优化后丢失 QKV pair 和二元向量 src1 路径的生产修复。旧 **04934** 是修复前生成制品的身份简称，其综合资源不得用于验收 fe067。冻结模型 SHA256 为 `6eb6ef58bc4f99bd9db40381604108af782ffc314aa00da6641f429991ca1f18`，以[正式 manifest](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/build/model-attention-rtl-repair-20261008/manifest.json)为准。
+
+| 证据层级 | 截至本文的事实 | 本任务仍须完成 |
+| --- | --- | --- |
+| D1：最小控制路径复现与等价修复 | 原 nullable 写法的 RTL 出错；修复后 15 个事务、120 项检查通过 | 保持已证明的 guard、状态和数值语义；这不是完整 Attention 数值验证 |
+| D2：真实 typed-task、owner 与数值联合链 | fe067 完整 CPU 门禁 141 检查点、4 次持续调用及故障恢复通过；真实 13 口 B2/S128 标准 libm CSim 47 点通过 | 生成 RTL 数值、实际 AXI 数据、发布/退休，以及未覆盖 B1/恢复 CSim 范围 |
+| D2-I：生产 Controller 路径取证 | 线性 I-L、二元向量 I-V 的严格 CPU/CSim 和 stage4 优化 IR/生成结构审核通过 | I-L/I-V 数值 RTL；Encoder stage2 与上下游连接覆盖。IR 可达不等于数值 RTL 通过 |
+| 完整 Attention 仿真诊断 | 历次完整环境均未获得完成输出；七口独立 idle 在零交易、构造计数不变时仍随时钟增长内存；traffic 首响应观察不一致而失效 | 统一采样后的有效对照、时钟/事件机制鉴别及可执行的新数值窗口；尚未定位具体泄漏或分配根因 |
+| 外部 QKV 预置切片 | Sol 已完成实现；[最终 CPU 绑定包](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/final_cpu_binding_packet.json)及后续标准 libm CSim 的 3 合法、17 负例均已获 Astra 独立接受 | 局部综合在指针结构源码检查失败，未有调度/RTL；正按实际 IR 定位隔离 wrapper，后续静态绑定与数值 RTL 待修正及新审核 |
+| 完整核资源/平台 | 旧 04934 OOC 综合无黑盒，345,505 LUT、437 DSP、690 BRAM tile、179 URAM；只有综合内部时序 | fe067 完整重建、数值 RTL、同源资源与平台布局布线；旧结果不能与新功能证据拼成整体验收 |
+
+当前工具目标为 `xcu55c-fsvh2892-2L-e`、150 MHz（6.667 ns 请求）；这不是已达到的板上频率。实际 `.xpfm`、shell 可用资源、HBM 连接、XRT 编译链接和板卡运行尚未验证。
+
+## 3. 阶段与依赖
+
+| 阶段 | 要解决的问题 | 依赖与主要交付 | 放行出口 |
+| --- | --- | --- | --- |
+| 1. 仿真观察与内存机制 | queue_exists idle未去除增长；wait_trace首W等待同刻返回假谓词，traffic未完成 | sampled_wait_v4窄源码修正→新同snapshot idle/traffic；有限原RTL数值环境并行准备 | 观察有效、机制或适用边界有证据；下一运行有具体预算 |
+| 2. 真实 Attention 与 Controller | 外部预置数值链和生产上游路径尚未形成完整 RTL 证据 | 预置 BEGIN→RUN；D2-I 数值 RTL；Encoder/RoPE 与必要 shape/错误恢复扩展 | 按 D2 合同闭合实际数据、owner、数值、拒绝及恢复，不以切片替代整链 |
+| 3. 完整 top 重建 | 新功能身份缺完整生成、资源和 RTL 验收 | 复用已接受 CPU 证据、补齐 CSim；新完整 RTL/IP/OOC；全请求验证 | 同一身份的功能与资源证据闭合，满足后续架构集成基线 |
+| 4A. 隔离联合 Q8 表征 | 当前串行算术/存储不能接近目标 | 可与 2/3 交错；TM4/TN8 独立原型、真实全 K/N 与局部 RTL/OOC | 接受切片数值/背压/II/资源系数，尚不宣称整核适配 |
+| 4B. 性能架构集成 | 单个切片无法证明整网功能/性能 | 4A 与必要 D2 连接证据；新集成身份和完整回归/生成资源 | 最终加速核完整请求 RTL 与同源资源通过；预算能解释全部瓶颈 |
+| 5. U55C 平台与公平对照 | 平台、常驻 Host、质量和端到端延迟缺实测 | XRT/PCIe/HBM 链接；板上功能/恢复；对齐 A6000 的测量 | 同模型/请求/数值质量/计时边界下报告结果；达标与否如实判定 |
+
+阶段 1 与阶段 2 的源码、CPU和只读审核可以交错，预置 CPU/CSim按现行合同优先，重工具始终串行。阶段 2 的数值 RTL 必须使用已审核的新调度、真实页绑定及预算，不必等待对整个模拟器作无法证明的“完全无泄漏”结论。阶段 3 的完整 HLS 仍须满足原 D3 门槛。性能设计和平台资料核查可提前，性能实现与完整核/平台集成按各自门槛推进。
+
+按合同 §7.14，联合 Q8 分 **A 隔离实施、B 切片表征、C 生产集成/最终验收** 三门。已接受的 fe067 软件数值、D1 修复 RTL、D2-I 生成路径和独立 R0 oracle 可支撑隔离原型；不要求先跑完旧 F0 完整 RTL。完整修复核/shell 余量用于集成适配结论，缺失时可先报告独立原型资源但必须保留未知余量。最终加速核的完整请求 RTL、AXI/owner/恢复验收仍必须完成，未执行的旧 F0 RTL 不得冒充通过。
+
+这是实际可行性要求：旧 F0 B1 仅 Q8 为 2.638–2.933×10¹¹ cycles，当前 I-L 单个合法 64 行 QKV 也需约 1.126–1.252×10⁹ cycles。即使假设每秒仿真一百万 cycle，仍分别需 73.28–81.47 小时和 18.77–20.87 分钟，其他成本另加；假设速率不是实测。启动长数值 RTL 前必须核实际 schedule、同环境进度/RSS 与具体预算，不能让不可结束的仿真阻止独立原型表征，不能截断或用 stub 伪装原验收范围。
+
+### 阶段 1：把仿真观察做正确，再界定内存机制
+
+沿用合同 §7.13 和两份现行设计，不另起竞争方案：
+
+- [AXI 分配诊断设计](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/source/design.md)：稳定采样 v2 使用统一 clocking `input #1step` 样本，同时记录握手、响应 ID/RESP/data；保留原 VIP、响应时延和全部断言。重新建立同 snapshot、同 seed 的 idle/traffic 配对，完成 1024 对实际写/读回、排空、100000 时钟和完整 backing-memory 检查。
+- [最小时钟等待诊断设计](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_xsim_clock_wait_diagnostic/source/design.md)：32 个固定 worker，比较 module、static-class、virtual-class、带原延迟的 virtual-class 四模式，每例 20000 时钟；不引入交易、每拍对象分配或不断扩容的记录。
+
+验收要求：源与 snapshot 绑定闭合；同一时刻的计数与 payload 一致；时钟、RSS、队列、构造数及完整内存检查齐全；退出码为 0 但含 fatal 仍判失败。当前观测约 16.1876 KiB/clock 只描述既有 idle 区间，不能当完整 DUT 内存上界，也不能解释成 FPGA 存储消耗。
+
+当前clock v2四模式各20000周期已获[独立运行接受](../results/attention_rtl_repair_20261008/reviewer_d2_clock_wait_v2_four_mode_review.json)：时钟1到20000的采样RSS均平坦，为76372–76484KiB（74.58–74.69MiB）。该最小module-scope、无UVM/无traffic环境没有重现先前VIP增长，不排除其他组合或更长区间，也不构成完整DUT上界。AXI稳定采样v2的[实际结果已独立审核](../results/attention_rtl_repair_20261008/reviewer_d2_axi_stable_sampling_v2_runtime_review.json)：idle100000时钟、零交易/零队列、构造28和全内存检查通过，ownRSS146632→1765640KiB，10k→100k斜率仍16.1876KiB/clock；traffic首对在B断言失败，无首B采样标记、无完成读回，退出码0不能覆盖fatal。
+
+冻结v2的两个独立变体均已消耗各自唯一运行门。[queue_exists_v1独立idle审核](../results/attention_rtl_repair_20261008/reviewer_d2_axi_queue_exists_v1_idle_review.json)接受100000时钟、零交易/队列、构造28及全内存检查，但10k→100k自身RSS增长1496256KiB，即16.6251KiB/clock；四处exists不足以消除增长。该窗口2292ms约39267cycle/s，v2同区间2362ms约38103cycle/s；单次差异不作普适性能/因果结论。v2含启动总平均约7995cycle/s不能当纯推进速率，前文1Mcycle/s只是估算假设，完整DUT吞吐仍未知。
+
+[wait_trace_v3失败审核](../results/attention_rtl_repair_20261008/reviewer_d2_axi_wait_trace_v3_failure_review.json)确认W item0的原wait在66719880ps同刻前后均为count0、predicate0，新增断言停止；无首B/R标记、无完成读回，不证明物理B响应错误或普遍仿真器根因。[sampled_wait_v4源码准备门](../results/attention_rtl_repair_20261008/reviewer_d2_axi_sampled_wait_v4_source_preparation_release.json)仅允许五通道posedge+1ps轮询，所有实际计数、1024对事务、VALID时序、延迟、payload断言和全内存检查保留。[源码与新snapshot已独立接受](../results/attention_rtl_repair_20261008/reviewer_d2_axi_sampled_wait_v4_snapshot_runtime_release.json)：35个SV、42项源/config及20项snapshot绑定闭合，静态构建81.63s、峰847544KiB、408次RSS采样、13项策略匹配。其后[独立运行审核](../results/attention_rtl_repair_20261008/reviewer_d2_axi_sampled_wait_v4_runtime_review.json)接受idle100000时钟、全内存及零交易/队列；10k→100k自身RSS308900→1765784KiB，16.1876KiB/clock，2214ms窗口约40650cycle/s。traffic仍在首W的while前后同刻count0/predicate0后fatal，0完成pair且无首B/R，exit0不覆盖该失败。v4继承v3固定边沿观察，与v2相比观测代码不同；不能用相近RSS斜率推断轮询根因或完整DUT上界。两个门已消耗，不再自动执行；不叠加queue_exists，不复用旧窗口或自动加预算。原内存机制未知不应无限阻止Q8或[有限原I-V数值窗口](../results/attention_rtl_repair_20261008/reviewer_d2_i_vector_numeric_window_feasibility_20261008.json)的设计准备；固定数组AXI环境须保持原RTL/地址和独立期望，另门审查。
+
+v4的wait语法修正未能消除首W异常。下一诊断须先围绕真实调用上下文取得新证据：`endpoint fork/join_none → automatic drive_traffic → fork automatic send_aw/send_w join`，直接读取层次计数，保留原类型、cast与边沿。现有trace只报告关系式，尚未直接报告完整case-inequality循环条件或loop-body进入事件；只读对照或小型明确观测设计可继续，等价wait语法重写和已否定的exists/无UVM最小等待不重复。后续设计、源码和工具需独立门；Q8已放行CSim不受此诊断阻塞。
+
+[guard_trace_v5设计/源码准备门](../results/attention_rtl_repair_20261008/reviewer_d2_axi_guard_trace_v5_source_preparation_release.json)现仅允许首W完整case-inequality条件与首次loop-entry两条有界观察，保留五个原循环、exactautomatic/nestedfork上下文、1024对事务和全部内存/断言。若fullguard1却无loop-entry而同刻退出，聚焦branch/控制恢复；若fullguard0与relation0冲突，先保留求值证据；若进入body仍同刻退出，聚焦挂起/恢复。若新版本通过也只能证明观测改变了结果，不能反称原缺陷已定位。[v5实际源码静态门](../results/attention_rtl_repair_20261008/reviewer_d2_axi_guard_trace_v5_source_static_release.json)已核92个绑定、40文件对中38逐字相同，top仅1/9/10行三组插入、build仅snapshot标签，35本地SV闭包保持；其[实际静态snapshot已接受](../results/attention_rtl_repair_20261008/reviewer_d2_axi_guard_trace_v5_snapshot_traffic_release.json)，125绑定/20快照，81.212s/847580KiB/404样本。随后[单traffic失败已独立审核](../results/attention_rtl_repair_20261008/reviewer_d2_axi_guard_trace_v5_runtime_failure_review.json)：fullguard1/relation0/count0/threshold1、无body-entry、同66719880ps后Fatal，5.959s/919744KiB/无guard，exit0不覆盖失败。138绑定及原20快照+4运行文件闭合；新观察聚焦automatic/nestedfork控制继续，不证明普遍仿真器根因。门已消耗，不改wait、不重跑/加预算，无新idle/RSS配对；下一新设计须保留exact上下文并有区分力，Q8优先。
+
+### 阶段 2：完成外部预置 Attention，并闭合生产路径
+
+已独立审核交付的源码、85 项 CPU 输入及 14 项 fixture 绑定，核对最终日志和 3 合法/17 负例；129 条文件引用、114 个唯一路径重哈希与大小核查均无差异。[源码与 CPU 独立审核](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_source_cpu_review.json)已接受并放行标准 libm CSim，不重复运行未改变的 CPU 测试。
+
+按[预置设计](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/design.md)和[结果记录](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/source/results.md)，先审核 CPU，再顺序门控标准 libm CSim（16 GiB/600 s）、局部综合（16 GiB/1800 s）；真实 IR/RTL 审核通过后才做多事务准备和静态展开（各 16 GiB/300 s）。数值 RTL 运行预算另据新 schedule、页初始化和阶段 1 证据核定，本文不放行。
+
+v1失败后隔离v2只移除Controller引用逃逸至fail helper，保留错误/成功报告顺序及生产源。v2已获[严格CPU/source/config接受](../results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_cpu_config_csim_release.json)和[标准libm CSim接受](../results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_csim_synthesis_release.json)，3合法17负例与v1一致。其后一次v++局部综合已完成并获[失败事实审核](../results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_synthesis_failure_review.json)：173.81s、峰2638804KiB、exit1无guard，仍50项pointer-to-pointer错误；仅部分design-size报告，无已调度资源报告或RTL。去掉fail边界不足以解决问题，后期日志已内联四个run_task，不能据早期IR调用再做同类重写。
+
+[四包实际IR/诊断对照](../results/attention_rtl_repair_20261008/reviewer_attention_v2_ir_comparison_advice.json)发现成功I-L/I-V的FullMemory构造在reflow-disaggr内联，失败Attention在较晚reflow-inliner才内联；失败侧无检查后IR，尚未确证原因。[v3单因素源码门](../results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v3_aggregate_init_source_release.json)只把local FullMemory改为26字段完整聚合初始化，值逐字段等于v2默认值加bindings，Controller位置/四run_task/协议/清理保持原样。实际26字段与initializer外源码已审核；[严格CPU独立接受及前端环境门](../results/attention_rtl_repair_20261008/reviewer_attention_v3_cpu_frontend_env_retry_release.json)核145绑定、85输入和3合法17负例逐行同v2，build7.881s/162608KiB、execute7.564s/66708KiB。前端首启因缺工具动态库exit127，无IR/依赖文件也无RSS样本；局部库环境修正后[实际前端IR已接受](../results/attention_rtl_repair_20261008/reviewer_attention_v3_frontend_csim_release.json)，315绑定/171真实依赖、26有序字段写入和准确指针来源/容量保持，top局部构造调用消失。0.420s/84276KiB仅两次采样的主机工具结果；aggregate指针字段仍在，不证明后续HLS成功。随后[实际标准libm CSim独立通过](../results/attention_rtl_repair_20261008/reviewer_attention_v3_csim_synthesis_release.json)，362绑定、26编译规则/26实际.d→42非系统依赖与3合法17负例闭合，30.446s/峰1285492KiB。单次局部综合获[失败事实审核](../results/attention_rtl_repair_20261008/reviewer_attention_v3_local_csynth_failure_review.json)：172.832s/峰2849184KiB、无guard，38项214-134/总41errors；1021绑定、551work、25实际pp→227路径闭合，4run_task实际已内联，无调度/RTL。聚合初始化不足，下一步只读定位剩余控制/FullMemory逃逸或比较可复用真实RTL的有限数值窗口；不再重复等价inline/构造改写，任何新源/转换/运行另门。
+
+该切片的验收必须同时满足：
+
+1. BEGIN 使用真实 parse/fresh/双 shard claim，返回 FILL 与 ticket/epoch；Host 随后实际装载 QKV。RUN 通过真实 coverage/publish，执行 LOAD_KV→QK→SCORE/PROB lease→Softmax→AV→ATT_OUT；禁止直接写 READY 或填造覆盖状态。
+2. 实际生成环境只有先 BEGIN、后 RUN 两次调用，同一 DUT/runtime 中间无 reset；逐项核对实际页推进、地址偏移和描述符。RUN 前独立检查两 shard 各 10,240,064 B 的真实 backing prefix，包含空洞和尾哨兵；receipt 只是外部生产者绑定，不能替代数据核验或声称硬件认证任意输入。
+3. 合法输出与独立期望比较；扰动 QKV 后对应输出变化；缺 plane/row、过期身份、重放及故障后恢复遵守原拒绝规则。QK/AV 的基本算术顺序保持精确要求，softmax 单独适用既有非线性误差线；实际 AXI 读写、未写区域和任务退休均须检查。
+
+首个数值 RTL 边界仅为 B1/S64 Decision stage4/layer0、head0/query0。CPU 的 head15/query63 通过不自动扩展 RTL 覆盖。此结果证明“外部输入→真实发布→Attention”，不证明 Q8 生产器或 Encoder RoPE。
+
+后续按原 D2 覆盖表补齐 B1/B2、S128、head0/15、首末 row、full/slide/全 padding mask，以及 S64/S1024 针对性边界。D2-I 的真实 Controller 线性/向量链须取得数值 RTL，并闭合 Encoder stage2 的 RAW QKV→RoPE→FINAL 与 Decision 无 RoPE 路径。必须说明这些证据如何连接生产者与消费者；仅有各个孤立 PASS 不放行完整 top。
+
+### 阶段 3：以修复身份重建完整核
+
+严格沿用合同 D3：局部数值、owner 和生产链独立接受后才放行完整 HLS。已接受且输入身份未变的 CPU 证据直接复用；补齐 B2/S128 与两次重基 B1、持续会话/故障恢复的真实 13 口 CSim，核对三次正常完整请求各 47 个检查点（47×3）、任务数与结果帧；故障请求按错误帧及恢复合同验收。补充 shape 测试不冒充相应 shape 的整网运行。
+
+完整 top 生成后机械核对 QK、AV、RoPE 和其他合法任务不再固定报错/零元素，检查状态写读及数值 RAM 端口；生产源若改变，生成新的 build/package 身份。随后对同一制品完成合法全请求 RTL 数值、错误/恢复和 AXI 检查，并重新取得无黑盒 OOC 资源、存储原语映射及约束报告。长仿真先有资源可行性与技术预算，不用软件通过补齐硬件空白。
+
+交付同一身份的源码/包/配置/输入清单、功能审核、实际资源和时序报告，并更新现有模块 `source/design.md`、`source/results.md`。分别标记 CPU、CSim、局部 RTL、完整 RTL、综合、布局布线和板测状态。04934 的 +0.894 ns 综合 WNS 不能证明新核达到 150 MHz，也不能证明平台 shell 能容纳新核。
+
+### 阶段 4：联合 Q8 原型到可复算的整网架构
+
+从合同 §4.4–§4.7/§7.15已映射的 **TM4/TN8/GS32** 原型开始；既有q8模块唯一当前design/results持续记录实现与证据。首批真实ACT K256/N2/rows1的[冻结源码与严格CPU已独立接受](../results/attention_rtl_repair_20261008/reviewer_q8_joint_first_act_source_cpu_csim_release.json)：完整输出及A8、batch0列0/batch1列1的全8组trace、同W复用、trace关闭、三项前置拒绝、复合量化/LOAD首错及下一合法恢复通过。初审发现的跨列块lane_bad混淆已改为bank/tile寻址；多列块故障仍需后续矩阵验证。两项原始CPU运行分别0.418/0.425s、采样峰3932/3992KiB，包含300ms采样保活，不能当纯计算时间。两种实际[标准libm CSim已独立接受](../results/attention_rtl_repair_20261008/reviewer_q8_joint_first_act_csim_pair_review.json)：legal/fault_load均完整通过，分别15.184/15.097s、采样树峰1308292/1302144KiB，124个唯一文件及真实30项非系统依赖闭合。随后一次实际综合获[失败事实审核](../results/attention_rtl_repair_20261008/reviewer_q8_joint_first_local_csynth_failure_review.json)：35.096s、峰1696392KiB、exit1无guard，两个局部const字节指针表触发HLS214-134；382个唯一文件、76work及241实际依赖闭合，没有调度/资源/RTL。此前源审看见了内部标签表但未识别其综合限制，现将所有局部指针数组及实际实例化记录纳入核查。[tag_direct_v2源码准备门](../results/attention_rtl_repair_20261008/reviewer_q8_joint_tag_direct_v2_source_preparation_release.json)只允许两处改为四组直接常量访问，字节序/首错/数值保持；[实际v2源审/CPU门](../results/attention_rtl_repair_20261008/reviewer_q8_tag_direct_v2_source_cpu_release.json)已核296绑定、exact两hunk与六类完整record字段，无局部pointer数组；其后[严格CPU独立接受](../results/attention_rtl_repair_20261008/reviewer_q8_tag_direct_v2_cpu_csim_release.json)，317绑定/3phase原始记录一致。再后[实际双标准libm CSim与精确综合配置独立接受](../results/attention_rtl_repair_20261008/reviewer_q8_tag_direct_v2_csim_csynth_release.json)：372绑定，每mode两编译规则/两.d→30非系统依赖（12项目18厂商），legal/fault_load分别15.168/15.110s和1306656/1306888KiB。其[实际综合生成与结构审核](../results/attention_rtl_repair_20261008/reviewer_q8_tag_direct_v2_synthesis_structure_review.json)核3959绑定/3577work/241实际pp依赖，285.756s/3981580KiB/1427样本，无guard；生成345Verilog/236VHDL，HLS估计341BRAM18/40DSP/117593FF/156171LUT/256URAM。21.308ns不满足6.67ns目标；32个dot stride归约未流水，amax和量化实际II4/7，不把1024逻辑MAC/group或DSP40当实测吞吐。真实State元数据仅power-on初始化且st_bound无reset清零，违反会话复位合同；[metadata_reset_v3窄源码门](../results/attention_rtl_repair_20261008/reviewer_q8_metadata_reset_v3_source_preparation_release.json)只加__SYNTHESIS__保护的State reset pragma，payload不动，exact源审后继承CPU/CSim，无意义重跑不做。随后[metadata_reset_v3实际综合与reset结构已独立接受](../results/attention_rtl_repair_20261008/reviewer_q8_metadata_reset_v3_synthesis_reset_structure_review.json)：21标量复位、tag written标记清零、50payload实例无bulk clear；277.474s/3995644KiB。新FF117625/LUT156176，时序仍21.308ns。真实暖复位协议行为与FP/IP次正规/FTZ仍待数值RTL核查。RTL/OOC及其他矩阵尚未放行或验收。首版512bit读、32bit输出按真实成本表征，不宣称生产接口已拓宽；原型用于量化实际代价，不能直接承诺50ms。
+
+联合审核应覆盖整条供需链：真实 BO 权重加载和跨行复用→8 lane 激活量化→W/A 分 bank→整数点积→R0 浮点恢复和按 group 顺序累加→PS bank/反馈→偏置/输出/退休。联测 full K/N、ACT N2 等窄尾、F16 次正规 scale、负 dot、零激活、非满行及随机背压；保持 R0 的独立乘加、组序和精度。扩大整数阵列时同步核算 FP 转换/乘法/加法吞吐、反馈距离、bank 冲突、读写端口和输出排空，不由 lane 名称推断持续吞吐。
+
+每个候选交付真实 II、有效 MAC/cycle、各级停顿与利用率、片上读写/外部有效字节、映射 LUT/FF/DSP/BRAM/URAM 和时序。DSP 使用必须从实际综合映射验证，不能把 INT8 lane 数或总 DSP 数直接换算 MAC/s。资源余量按阶段 3 新完整核和真实 shell 核算；逻辑容量不能代替原语粒度、复制和布线成本。
+
+50 ms@150 MHz 只有 7,500,000 cycles，必要条件分别为：
+
+| 请求 | 仅 Q8 MAC 工作量 | 50 ms 所需理想吞吐 | 50 ms 所需理想 MAC/cycle |
+| --- | --- | --- | --- |
+| B1/S128 | 47.160754688 G | 0.9432 TMAC/s | 6,288.10 |
+| B2/S128，一次含两题的请求 | 94.321509376 G | 1.8864 TMAC/s | 12,576.20 |
+
+这些数值假设 100% 利用率，尚未包含恢复、Attention、非线性、搬运、控制和 Host；B2 不能除以二后声称整次请求达标。QK/AV、LN、GEGLU、残差等必须放入同一个 50 ms 预算，不能让各段独占 50 ms 再相加。
+
+合同 §4.7 的阵列候选可用下表判断距离；假设每拍 issue 一个 GS32、150 MHz、满利用率且只计整数 Q8，均为理想条件值，不是实现结果：
+
+| 候选阵列 | 理想 MAC/拍 | B1/S128 纯 Q8 时间 | B2/S128 纯 Q8 时间 |
+| --- | --- | --- | --- |
+| TM4/TN8 | 1,024 | 307.04 ms | 614.07 ms |
+| TM16/TN8 | 4,096 | 76.76 ms | 153.52 ms |
+| TM16/TN16 | 8,192 | 38.38 ms | 76.76 ms |
+
+因此 TM16/TN16 也不能在这些条件下满足 B2 请求 50 ms；其每 issue 还需 256 次整数转浮点、512 次 FP32 乘法和 256 次 FP32 加法的理想服务量。若要求每拍 issue，恢复/反馈系统也须提供相应持续服务率，具体 R0、banking 和流水约束沿用合同 §4.4–§4.7。
+
+Attention 也有独立下界：按合同 §4.1，旧 64 路共享 FP 候选即使满载，B1/S128 仅 QK+AV 就需理想 104.86 ms，B2 为 209.72 ms，尚不含 softmax、mask 和 IO；扩大 Q8 阵列不能代替 Attention 吞吐改造。
+
+当前旧 leaf 的 32 项 dot 为 160 cycles，含恢复/累加的 group 为 179–199 cycles；若完整成功图仍保留该调度，Q8 分量条件估算为 B1 29.31–32.59 分钟、B2 58.62–65.17 分钟，其他成本另加。这不是成功 RTL 或板上测得时延，也不能用 XSim 的墙钟时间替代硬件周期。
+
+HBM 侧同时解决当前 13 个 32-bit AXI 口的有效传输、bytewise 访问、burst/packing、并发与 bank 分配。每口 150 MHz 原始上限 0.6 GB/s，13 口之和不证明可持续并发。每请求 122 次 LOAD_W 声明 392,448,128 B，Q8 输出 B1/B2 分别 158,138,376/316,276,752 B，均不是全网总流量；必须实测 beat、有效字节、重读与复用。AXI 拓宽、双缓冲、融合和阶段重叠需有真实接口及停顿证据，不能只改峰值带宽假设。
+
+仅为在 50 ms 内装入每请求 q0/q1 各约 184.68 MB 的权重，两口分别至少需要约 **3.694 GB/s 有效带宽**，scale 另需约 **0.462 GB/s**，激活、结果、bias 等其他流量另加。该必要条件适用于现有每请求加载方式；加载复用发生改变时须重核真实流量。512-bit@150 MHz 的 9.6 GB/s/口只是候选原始峰值，仍须证明平台连接及有效率。
+
+整网预算只使用测得的切片系数：串行段相加，证明能重叠的部分才取最大值，并保留初始化、排空和 Host 成本。资源/带宽不足时交付证据支持的可达区间与结构取舍；保留 50 ms 目标，不能降低指标后宣称通过。改变精度、归约顺序或 Attention 算法须另立数值/质量合同。
+
+### 阶段 5：平台集成和同口径 A6000 对照
+
+先确认实际 U55C、平台 `.xpfm`、shell、工具/IP/许可与 XRT 环境，冻结 kernel 参数、13 个 BO、时钟/复位及 HBM bank 连接。完成真实 Host 编译、`.xo`/`.xclbin` 链接、布局布线与板级时序，检查无黑盒、无未约束关键路径且资源包含 shell 占用；只有这些证据才能声明目标频率达到。
+
+当前 CLI 每次进程/请求分配 BO、上传模型并清理/同步 workspace。后续建立常驻服务：五个模型 BO 共 448,923,648 B 只在初始化上传，请求复用 BO 和模型，但仍保留 owner/epoch、超时、错误隔离与恢复。分词、输入组帧和业务解码尚未完整集成，纳入端到端交付；不能把已有 kernel 调用入口当完整服务。
+
+无板卡阶段已在[kernel_wrapper当前设计](../vivado/module_design/kernel_wrapper/source/design.md)固定`host_session_offline_v1`，并[窄放行协议核心及CPU准备](../results/attention_rtl_repair_20261008/reviewer_host_session_offline_v1_design_cpu_preparation_release.json)：真实共享codec、身份准入、单InFlight、结果校验及测试事件backend；首次build/execute各4GiB/120s且低于Attention/AXI/Q8优先级。保留每请求184MiB workspace与32KiB IO清零/H2D；结果恰好384B；Poisoned与设备静止事实独立，未知终态不得析构释放/复用BO；uint64身份耗尽不绕回。真实XRT adapter、生产Host修改和性能验收尚未放行，事件测试不等于PCIe/设备证据。
+
+先在板上验证冻结输入的数值、结果帧、跨请求隔离、故障后恢复和业务质量，再测量以下三个范围：冷启动（含加载）、常驻 kernel start/done、常驻 Host 完整请求（输入准备/分词、同步、kernel、回读和后处理）。报告预热、样本数、P50/P95、吞吐、B/S、候选数及错误率，B1/B2 分列，板上周期与主机时间分别留证。
+
+已有 [A6000 报告](/home/user/EDA-202/zhuowenjun/Workspace/Laya/results/laya_gpu_inference_benchmark_20261005.md)中两题常驻 SDK/BF16 autocast、B2/S94、K_pad3 的 P50/P95 为 25.047/25.224 ms；这是不同模型、精度、shape 和候选规模，不能直接计算当前 FPGA 的加速比。真实请求有效长度 72/94 与硬件物理 S128 必须统一解释：当前硬件不因 padding/mask 自动减少算量。后续冻结同一模型/原始请求、B/S/padding、候选、数值/质量条件及计时范围再比较；如保留各自实现原生 shape，也须单独报告差异及实际工作量，不能包装成同条件结论。当前离线执行先使用已有 GPU 记录与工作量预算，板上同口径对照留待板卡条件具备。
+
+## 4. 执行约束、证据和完成判定
+
+“一次一个重工具”只约束**本 Laya 工作流及其全部代理树**，不要求服务器无关任务停下。沿用具体实验已批准的 CPU 数、nice19、idle I/O、任务树 RSS/wall-time、0.2 s 采样与 MemAvailable≥192 GiB 守护；启动前确认本树无其他重工具，只管理本任务拥有的进程。本文不扩大预算，不修改其他工程或旧运行证据。
+
+模块继续使用现有 `source/design.md` 与 `source/results.md`，新运行保存独立目录、实际命令/工具版本、退出码、完整日志、输入/制品哈希与审核结论；失败保留。改变源或配置即重新绑定身份，按受影响范围验证，不为了更新状态重复已接受且未改变的测试。
+
+长期任务分三个结论交付：**完整功能验收**需要同身份完整请求 RTL 与板上数值/恢复；**性能达标**需要真实架构系数、板上实测和冻结的 50 ms 判据；**平台完成**需要实际 U55C/XRT/PCIe/HBM 链接、布局布线和可重复运行。本次离线交付按阶段 1–4 的实际证据分别验收，附上平台可离线准备的成果和待板卡清单；不能因暂无板卡停止可完成的离线工作，也不能把离线完成写成上板或 50 ms 已达。软件 PASS、生成成功、OOC 无黑盒或单个切片 PASS 均不能代替其他层级。
+
+当前未覆盖项包括：有效AXI traffic及VIP增长机制、预置v3后的综合修复/数值RTL、D2-I数值RTL与Encoder连接、全部D2边界、完整新top重建/RTL、Q8首批ACT的综合/RTL与其他矩阵验证、Host离线协议核验收、平台与业务服务集成、同口径质量/稳定性和性能对照。最小时钟四模式、AXIv2 idle观察和预置v3 CPU/CSim已独立接受，仅关闭各自范围。各项依上文阶段关闭，执行状态见下表。
+
+## 5. 实际执行记录
+
+| 日期 | 实际进展与边界 | 下一步 |
+| --- | --- | --- |
+| 2026-10-08 | Astra xhigh 完成本文并由 controller 复核链接、模型身份、三档 Q8 理想时间及权重带宽；最初落盘未启动新运行。用户随后授权执行，并明确当前无板卡、先离线验证 | 按阶段 1–4 和阶段 5 离线准备持续推进；板卡实测单独保留待办 |
+| 2026-10-08 | 预置 Attention 源码/严格 CPU 独立接受：3 合法、17 负例；生产 fe067 不变；完整图像、原错误 detail、ticket/epoch、字节序及哨兵检查通过 | Sol max 准备/执行已放行的标准 libm CSim（16 GiB/600 s）；通过后由 Astra 按现行门槛放行局部综合，不等待新的用户确认 |
+| 2026-10-08 | 预置 Attention 标准 libm CSim 已[独立接受](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_csim_review.json)：实际 26 个 C++ 编译输入及严格 FP 配置，3 合法/17 负例，工具 0 errors；30.24 s、受控树峰 1,279,800 KiB、无守护触发。139 条引用/135 个唯一路径重哈希无差异 | Sol max 执行同源局部综合（16 GiB/1800 s）；Astra 随后审核真实 IR/RTL 与调度，再门控两事务准备。数值 RTL 尚未执行 |
+| 2026-10-08 | 首次综合入口选项不支持，退出 2，已保留并改正；实际 v++ 综合随后完成前端/结构转换，但 50 条 pointer-to-pointer 源检查失败，171.50 s、峰 2,941,652 KiB、无守护触发。[独立失败审核](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_csynth_failure_review.json)确认没有调度/资源/RTL 制品 | 对比已成功 D2-I，定位新 wrapper 中 Controller 引用聚合的实际 IR；只做有证据的等价修正，不原样重试或修改生产数值 |
+| 2026-10-08 | Astra/controller 已确认阶段 4A 可与 2/3 交错，合同新增 §7.14 三门及长仿真可行性检查；最终加速核完整 RTL 门不降低 | 补齐现有 Q8 模块的隔离原型接口/设计/预算后按 A 门实施，各运行仍需真实配置和预算 |
+| 2026-10-08 | controller 只读平台预查：显式 Vivado/Vitis 2025.2 可执行；PATH 未见 xrt-smi/xbutil，XRT/平台环境变量未设，标准路径未见 XRT 头/库，PCI sysfs 未发现 vendor 0x10ee；限定检索 LLAMA-HLS 与工具安装未找到 `.xpfm`，其中一个工具 lib 目录无读取权限，不能外推全盘不存在 | 保留离线工具验证；平台资料/Host 工程可先准备，驱动安装、工具修改及板上运行不在当前操作范围；不再因板卡信息等待离线工作 |
+| 2026-10-08 | 最小时钟v2四模式各20000周期独立接受，采样自身RSS74.58–74.69MiB且clock1→20000无增长；AXI稳定采样v2静态快照通过并放fresh idle/traffic各4GiB/90s | 等待真实AXI对照结果；不把最小环境平坦外推成VIP或完整DUT无泄漏 |
+| 2026-10-08 | Attention实际IR支持消除Controller→fail helper逃逸的隔离v2窄修复；Q8当前模块design/results及§7.15完成，A门实现/ACT CPU准备放行 | Sol按两份新身份实施，先源码/CPU再按实际包门控CSim/综合/RTL；生产fe067和原失败证据保持冻结 |
+| 2026-10-08 | AXIv2 idle观察接受、traffic首对无首B采样标记而失效；wait_trace_v3修正源码通过；queue_exists_v1静态快照通过 | 一次wait静态与一次queue idle按各自新身份/预算串行；原traffic不重跑，不提前断言物理总线X或根因 |
+| 2026-10-08 | Attention v2严格CPU和标准libm CSim独立接受，85输入/26编译规则闭合；CSim3合法17负例与v1一致 | 一次v++局部综合16GiB/1800s已放行；审查实际IR/source checks/生成路径后再定RTL |
+| 2026-10-08 | Stage5 Host可移植协议核心设计完成，纳入异常所有权、精确384B和身份耗尽，原13BO/五模型/每请求同步范围固定 | Sol低优先级准备source/API/TB与4GiB/120s CPU证据；未启动真实XRT/平台工作，不关闭阶段5 |
+| 2026-10-08 | Q8首批真实ACT冻结源码/严格CPU独立接受，12项项目include闭包及7个生产头保持fe067；初审跨列块错误屏蔽已修正 | 先执行队列中AXIv4，再legal及条件fault_load标准libm CSim各16GiB/600s；综合/RTL/其他矩阵/性能不随CPU通过而接受 |
+| 2026-10-08 | AXI sampled_wait_v4的五处等待改动和20文件静态快照独立接受；原始构建exit0、81.63s、峰847544KiB | 新idle完整通过后条件traffic各4GiB/90s，保留完整1024对事务/七页内存检查；任何失败停止，不自动加预算 |
+| 2026-10-08 | AXIv4同快照idle100000时钟独立接受，ownRSS10k→100k仍16.1876KiB/clock；traffic首W sampled while同刻假谓词退出后fatal，0pairs | 失败原件/81文件绑定冻结，无重跑门；下一诊断保留exactautomatic/nestedfork/hiercounter上下文并先观测完整guard，Q8CSim继续 |
+| 2026-10-08 | Q8首批ACT两种实际标准libm CSim独立接受，124个文件和30项非系统编译依赖闭合，legal/fault_load完整PASS；实际综合配置67个唯一绑定匹配 | Sol按exact新配置执行单次局部综合16GiB/1800s；随后审查实际IR、II、RAM/FP及复位/接口，RTL/OOC不随本门放行 |
+| 2026-10-09 | Q8首次局部综合失败已独立接受，两个local tag pointer table触发214-134；无guard/OOM，无调度/RTL；原源审兼容性遗漏已明确记录 | tag_direct_v2仅两处直接tag数组访问的新身份源码准备；冻结v1，候选先源审再CPU/CSim/综合，通用数值与FP denormal另核 |
+| 2026-10-09 | Attention v3源码/严格CPU独立接受，3合法17负例与v2逐行一致；前端首启动态库缺失exit127且无IR | 使用工具原有三目录库前缀作局部环境修正，一次8GiB/120s前端；不重CPU，实际IR后再门控CSim |
+| 2026-10-09 | AXI guard_trace_v5实际源码独立接受，40文件对仅top/build改变，35本地SV闭包保持 | 单次16GiB/300s静态构建，snapshot先审再traffic；无新idle或匹配RSS结论 |
+| 2026-10-09 | Attention v3环境修正后实际前端IR独立接受，315绑定与171依赖闭合，26字段有序初始化、top构造调用为0；原exit127保留 | 一次标准libm CSim16GiB/600s按真实v3配置，实际编译与3+17用例另审后再门控综合 |
+| 2026-10-09 | Attention v3实际标准libm CSim独立通过，单次局部综合仍38项pointer-to-pointer失败，无guard/调度/RTL | 聚合初始化不足；封存551work/实际依赖和首失败，不原样重跑，以新IR/剩余逃逸证据决定下一门 |
+| 2026-10-09 | Q8 tag_direct_v2严格CPU和实际双标准libm CSim独立通过，372绑定/每mode30非系统依赖保持 | 精确同源配置的一次16GiB/1800s局部综合优先执行，真实RTL/schedule及reset/FP/接口另审 |
+| 2026-10-09 | AXI guard_trace_v5实际static及单traffic失败独立接受；fullguard1却无body-entry，同刻count0后Fatal | 无原样重跑/新idle/RSS配对，先设计exact上下文的分支/控制继续对照；Q8优先 |
+| 2026-10-09 | Q8 v2局部综合生成独立接受，真实State普通复位遗漏；HLS21.308ns及II4/7不达目标 | 隔离v3只复位元数据，源审后继承未变CPU/CSim；新综合先核reset，再门控数值RTL，性能修正单独设计 |
+| 2026-10-09 | Q8 reset v3 局部综合与生成复位结构通过；Attention v4 条件合同及固定数组 AXI 独立端口验证合同已放行 | Sol 自检通过后串行有界执行，首次意外失败停；实际 Q8 ACT/负例恢复/暖复位 DUT 绑定先准备，数值运行另门 |
+| 2026-10-09 | Attention v4 CPU/CSim接受，综合在report pair大小/nullable select两处SYNCHK停止，无RTL | v5固定pending.pair+boolpresence精确条件链；保持四调用可见性与清理顺序，AXI端点主路径优先 |

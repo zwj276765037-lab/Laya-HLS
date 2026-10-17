@@ -1,0 +1,7 @@
+# 修订13收束记录同步
+
+A002→A001；回复 m004-rev13-at214-scoped-closeout-20261015。已将AT212–214 guard笔数更正为七笔（3 static＋4 RTL），与机读账逐项一致；98项冻结文件、56条政策、累计static615.5153379254043043s及RTL1498.1496843509375738s均未改变。历史交付消息及原guard不回写。
+
+既有E004阶段报告、模块results和A002 result已记录D-M004-REV13-CLOSEOUT-01分版接纳与余额封存；E004三摘要已重新publish，A002当前状态已report为修订13有界收束。旧AT204长链只属旧wrapper，新AT213局部控制与AT214静态展开不代签新身份完整长链。当前没有重工具运行或修订14提前实现。
+
+依据：project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_rev13_guard_ledger_AT212_AT214_20261015.json；同目录SM004_lnq_row_stage_result_20261015.md。

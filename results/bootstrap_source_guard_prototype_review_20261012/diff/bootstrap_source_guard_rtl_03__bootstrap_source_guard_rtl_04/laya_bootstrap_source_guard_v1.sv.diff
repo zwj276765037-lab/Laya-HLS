@@ -1,0 +1,51 @@
+--- bootstrap_source_guard_rtl_03/laya_bootstrap_source_guard_v1.sv
++++ bootstrap_source_guard_rtl_04/laya_bootstrap_source_guard_v1.sv
+@@ -36,7 +36,7 @@
+   output logic [31:0] read_debt,
+   output logic producer_active,action_active,protocol_error
+ );
+-  logic cancel_seen,action_safe_consumed,proof_rejected;
++  logic cancel_seen,action_safe_consumed,proof_rejected,query_pending;
+   logic [4095:0] accepted_action;
+   logic [2047:0] completion_packet;
+   logic [1:0] completion_beat;
+@@ -117,7 +117,7 @@
+           (p[164*8+:80]==0))));
+   endfunction
+ 
+-  assign base_change_ready=!guard_active && physical_safe && !producer_active && read_debt==0;
++  assign base_change_ready=!guard_active && !query_pending && physical_safe && !producer_active && read_debt==0;
+   assign action_ready=guard_active && proof_valid && source_still_matches &&
+     live_base_matches && !cancel && !cancel_seen && !action_active &&
+     !protocol_error && action_bound(action_request);
+@@ -133,21 +133,25 @@
+   always_ff @(posedge clk)begin : state
+     logic [2047:0] complete;
+     if(!rst_n)begin
+-      guard_active<=0;proof_valid<=0;guard_key<=0;cancel_seen<=0;
++      guard_active<=0;proof_valid<=0;guard_key<=0;cancel_seen<=0;query_pending<=0;
+       producer_active<=0;action_active<=0;protocol_error<=0;read_debt<=0;
+       accepted_action<=0;completion_packet<=0;completion_beat<=0;
+       producer_completion_beat<=0;action_safe_consumed<=0;proof_rejected<=0;read_first<=0;read_after<=0;
+     end else begin
+       if(snapshot_accept)begin
+-        if(guard_active || !physical_safe || read_debt!=0)protocol_error<=1;
++        if(guard_active || query_pending || read_debt!=0)protocol_error<=1;
+         else begin
+-          guard_active<=1;guard_key<=snapshot_request;proof_valid<=0;
++          // A legal snapshot may report a nonquiescent negative. It grants
++          // no exclusion/read capability and does not poison old cleanup.
++          guard_active<=physical_safe;query_pending<=1;
++          guard_key<=snapshot_request;proof_valid<=0;
+           cancel_seen<=0;action_safe_consumed<=0;proof_rejected<=0;
+         end
+       end
+       if(cancel && guard_active)cancel_seen<=1;
+-      if(proof_consumed && guard_active && !proof_valid)begin
+-        if(snapshot_bound(snapshot_response) && source_still_matches && live_base_matches &&
++      if(proof_consumed && query_pending && !proof_valid)begin
++        query_pending<=0;
++        if(guard_active && snapshot_bound(snapshot_response) && source_still_matches && live_base_matches &&
+            !cancel && !cancel_seen)proof_valid<=1;
+         else proof_rejected<=1;
+       end

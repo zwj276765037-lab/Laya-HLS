@@ -1,0 +1,50 @@
+--- executor_handoff_shell_helper_host_01/executor_actor_test.cpp
++++ executor_handoff_shell_helper_host_02/executor_actor_test.cpp
+@@ -353,7 +353,8 @@
+         state->runtime.provenance_event_high_water==old_event && h.tx.transaction_request.empty());
+   }
+ }
+-void helper_shell_stimuli(const std::string& fixture,const checkpoint::Response& gold) {
++void helper_shell_stimuli(const std::string& fixture,const checkpoint::Response& gold,
++                          const std::string& rtl_capture) {
+   auto write=[&](const std::string& name,const auto& p) {
+     std::ofstream f(fixture+"/"+name,std::ios::binary);assert(f);
+     f.write(reinterpret_cast<const char*>(p.data()),p.size());assert(f);
+@@ -365,7 +366,17 @@
+     write("actual_helper_query.bin",request);
+     if(fail)assert(state->runtime.dispatch_reservations.raise_task_floor(2));
+     auto p=gold;p.binding=state->checkpoint.pending;
+-    write("helper_proof_stimulus.bin",checkpoint::encode(p));h.proof(gold,false);
++    if(!rtl_capture.empty()) {
++      std::ifstream f(rtl_capture);assert(f);checkpoint::Packet captured{};
++      for(unsigned beat=0;beat<16;++beat) {
++        std::string line;assert(bool(f>>line) && line.size()==128);
++        for(unsigned byte=0;byte<64;++byte)
++          captured[beat*64+byte]=uint8_t(std::stoul(line.substr(126-2*byte,2),nullptr,16));
++      }
++      assert(checkpoint::decode(captured,state->checkpoint.pending,p));
++      assert(checkpoint::encode(p)==captured && p.task_floor==7 && p.lpv_floor==179 && p.target_epoch_floor==8);
++    }
++    write("helper_proof_stimulus.bin",checkpoint::encode(p));h.proof(p,false);
+     const auto output=handoff::encode(state->control_request);
+     if(fail) {
+       assert(state->phase==executor::Phase::WAIT_ABORT && !state->control_request.local_committed &&
+@@ -382,13 +393,14 @@
+ }
+ } // namespace
+ int main(int argc,char** argv) {
+-  assert(argc==2 || argc==3);const std::string fixture=argv[1];wire(fixture);
++  assert(argc==2 || argc==3 || argc==4);const std::string fixture=argv[1];wire(fixture);
+   auto p=packet<1024>(bytes(fixture+"/v2/checkpoint_request.bin"));checkpoint::Request r;assert(checkpoint::decode(p,r));
+   checkpoint::Response proof;assert(checkpoint::decode(packet<1024>(bytes(fixture+"/v2/checkpoint_response.bin")),r,proof));
+-  if(argc==3) {
+-    assert(std::string(argv[2])=="--shell-stimuli");helper_shell_stimuli(fixture,proof);
++  if(argc>=3) {
++    assert(std::string(argv[2])=="--shell-stimuli");helper_shell_stimuli(fixture,proof,argc==4?argv[3]:"");
+     std::cout<<"FULL_CURRENT_EXECUTOR_SHELL_HELPER_PASS actual_success_import=1 actual_hole_reject_abort=1 "
+-      <<"import_stats_zero=1 matched_literal_import=1 H1_S1=1 shell_grant_controlled=1\n";return 0;
++      <<"import_stats_zero=1 matched_literal_import=1 H1_S1=1 shell_grant_controlled=1 "
++      <<"actual_rtl_capture="<<(argc==4)<<"\n";return 0;
+   }
+   helper_reservation(fixture,proof);failures(fixture,proof);consecutive(fixture,proof);
+   run_action_revocation(fixture,proof);

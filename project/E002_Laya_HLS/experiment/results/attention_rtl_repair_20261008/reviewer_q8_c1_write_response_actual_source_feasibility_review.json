@@ -1,0 +1,69 @@
+{
+  "accepted_scope": "Exact candidate identity/preimage preservation and concrete feasibility discrepancy only. Neither arithmetic bit correctness, pipeline II, B-response retirement, HLS resource mapping nor numerical integration is accepted.",
+  "additional_unmet_gates": [
+    "actual-wrapper changing-tag streaming probe source and measurements",
+    "full half-pattern/INT8-extreme and accepted R0 finite-table regression integration",
+    "physical response aggregation, generated DATAFLOW/port/CSR parity",
+    "independent C1 physical capacity and bank connectivity proof"
+  ],
+  "blocking_findings": [
+    {
+      "consequence": "This is a full-result delay queue, not an operand-stage datapath. It violates the reviewed bounded-storage accounting and does not establish an18-cycle hardware return.",
+      "evidence": "Live evaluate_c1_return computes all lane dots/restores and final result at issue; flight array shifts completed payloads before copying the final stage into ResultRing.",
+      "file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1_write_response_v1/source/q8_joint_tm4tn8.cpp",
+      "finding": "C1Flight stores a complete1299-bit result plus256-bit trace and1valid bit. The18-stage live array is28008 logical bits outside the declared83264-bit result ring.",
+      "line": 308,
+      "priority": 1
+    },
+    {
+      "consequence": "Neither an iteration nor a latency pragma proves one hardware clock, bank-read latency, independent FP II, no sharing or fixed return. Virtual ledger timing cannot be used as a hardware deadline.",
+      "file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1_write_response_v1/source/q8_joint_tm4tn8.cpp",
+      "finding": "The source edge counter advances once per C++ while-loop iteration containing bank reads, full arithmetic, credit/commit and writer interaction.",
+      "line": 817,
+      "priority": 1
+    },
+    {
+      "consequence": "A corrected live design must express metadata-only reset and give payload lifetime/first-write dominance; do not assume HLS will remove these payload initializations. Current source is not accepted as reset-cost evidence.",
+      "file": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1_write_response_v1/source/q8_joint_tm4tn8.cpp",
+      "finding": "Aggregate initialization includes payload-bearing ResultRing/TraceRing and the complete flight array before the loop.",
+      "line": 806,
+      "priority": 2
+    }
+  ],
+  "candidate_diff": {
+    "bytes": 50952,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1_write_response_v1/evidence/source_candidate.diff",
+    "sha256": "843b4bfe91dddc2db0d887b8436279d6fd11e0ac205084d02f05b37a0ff39124"
+  },
+  "candidate_packet": {
+    "bytes": 19375,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1_write_response_v1/source/source_packet.json",
+    "sha256": "9a40eabdaed640437fd371ccbf3a37697bbeefcf2b1f53fe413dd131039fa394"
+  },
+  "checked": {
+    "candidate_files": 18,
+    "exact_preimages": 14,
+    "reference_occurrences": 52,
+    "unique_direct_paths": 51
+  },
+  "created_utc": "2026-10-09T04:46:46.125222+00:00",
+  "exact_preimage_manifest": {
+    "bytes": 7813,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/c1_pipeline_v1_write_response_v1/evidence/preimage_manifest.json",
+    "sha256": "c0a3911f34df3f341cd52c79b98b79061b0dcf916ede12c4010b862090b30cdf"
+  },
+  "execution": "NONE_RELEASED",
+  "reviewer": "GPT-6 Astra / xhigh",
+  "schema": "q8_c1_write_response_actual_source_feasibility_review_v1",
+  "status": "SOURCE_CANDIDATE_NOT_ACCEPTED_STAGE_REDESIGN_REQUIRED",
+  "storage_classification": {
+    "bank_return_snapshot_logical_bits": 4400,
+    "flight_complete_result_trace_valid_bits": 28008,
+    "flight_total_stages": 18,
+    "minimum_trace_payload_state_tag_bits": 1104,
+    "per_flight_bits": 1556,
+    "physical_register_or_RAM_count": "UNMEASURED",
+    "result_ring_declared_bits": 83264,
+    "writer_fifo_command_ack_baseline_bits": 3819
+  }
+}

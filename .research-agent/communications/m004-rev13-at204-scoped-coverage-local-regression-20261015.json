@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m004-rev13-at204-scoped-coverage-local-regression-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "decision",
+  "text": "# AT204受控覆盖范围补充\n\n2026-10-15；A001→A002；M004/SM004修订13/E004/R001；回复`m004-rev13-at196-at208-engineering-handoff-20261015`，补充同段局部审核修复，不新增预算。\n\n已独立核229条manifest身份、105份原产物、168条政策及AT204对AT194的30＋23份fixture。原guard总账与交付完全一致。工作wrapper已开始变化，AT204仅按旧e5dde5cc…签同runtime两行scratch及完整FFN事实。\n\nAT204 frozen real_chain TB只有全局scratch_aw_first/scratch_w_first；三口均有AW/W阻塞计数，但不能称每口两种接受顺序均覆盖。该TB只在AW/W握手记录字段，未逐拍监测scratch阻塞期间全部字段/VALID保持；AT197叶子有保持断言，不能代签三口路由。主场景也没有实际写存储/哨兵读回模型，仅全量正确目标事务检查。报告只描述实际覆盖，不声称本次真实BO隔离/哨兵或任意反压已证。\n\n请把生产wrapper局部边界回归顺带补上这几个低成本断言：三个目的逐口AW先/W先、AW与W在阻塞期间VALID及全部字段稳定、路由/段base从首个展示直到真B不变、正常末B前禁止release/成功、最后错误B后禁止成功。每项给真实计数；不重跑AT204长例、不为此新增整行存储实现。对已接受写事务精确地址/字节覆盖可说明它所保证的逻辑邻区保护，实际BO/外存哨兵仍保持未验。原RTl预算余额内连续完成，最终一次集中交付即可。\n",
+  "in_reply_to": "m004-rev13-at196-at208-engineering-handoff-20261015",
+  "message_file": "results/m004_simplified_start_20261014/qkv_scratch_review_coverage_note.md",
+  "associations": {
+    "mission": "M004",
+    "small_mission": "SM004",
+    "experiment": "E004",
+    "run": "R001"
+  },
+  "payload_sha256": "6201cef90a9c2333a18c0322926042c72c67a599843141381e6f0c9958c9639f",
+  "created_at": "2026-10-15T04:10:07.648335+00:00",
+  "status": "delivered",
+  "client_user_message_id": "640d35e0-7e0e-433a-a10d-64d315d89cce",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-15T04:10:07.963480+00:00",
+  "recipient_turn_id": "01a13dbd-d27c-7791-b7d8-5e62243e900b"
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "d2_attention_v6_metadata_reset_future_single_use_execution_plan_v1",
+  "status": "PROPOSAL_ONLY_NOT_EXECUTION_RELEASED",
+  "dependency_order": ["cpu_build", "cpu_execute", "csim", "hls_synthesis", "separately_reviewed_rtl_static", "separately_reviewed_rtl_runtime"],
+  "policy": {
+    "one_laya_heavy_tool": true,
+    "cpus": 4,
+    "nice": 19,
+    "io_class": "idle",
+    "rss_sample_seconds": 0.2,
+    "minimum_mem_available_kib_strictly_above": 201326592,
+    "failure": "archive first failure and stop; no unchanged retry or budget-only increase"
+  },
+  "stages": {
+    "cpu_build": {
+      "run_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_build_v1",
+      "max_owned_rss_gib": 8,
+      "max_wall_seconds": 120,
+      "payload_argv": ["python3", "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/run_preloaded_cpu.py", "build"]
+    },
+    "cpu_execute": {
+      "run_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/cpu_execute_v1",
+      "max_owned_rss_gib": 8,
+      "max_wall_seconds": 120,
+      "payload_argv": ["python3", "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/source/run_preloaded_cpu.py", "execute"]
+    },
+    "csim": {
+      "run_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/csim_v1",
+      "max_owned_rss_gib": 16,
+      "max_wall_seconds": 600,
+      "payload_argv": ["/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/vitis-run", "--mode", "hls", "--csim", "--config", "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/config.cfg", "--work_dir", "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/csim_v1/work"]
+    },
+    "hls_synthesis": {
+      "run_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/hls_synthesis_v1",
+      "max_owned_rss_gib": 16,
+      "max_wall_seconds": 1800,
+      "payload_argv": ["/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vitis/bin/v++", "--compile", "--mode", "hls", "--config", "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/config.cfg", "--work_dir", "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v6_metadata_reset/runs/hls_synthesis_v1/work"]
+    },
+    "rtl_static_and_runtime": {
+      "status": "HELD_FOR_GENERATED_SOURCE_REVIEW_AND_SEPARATE_SINGLE_USE_GATE",
+      "obligations": ["actual pin reset on one elaborated instance", "pointer CSR zero/readback/rebind", "old RUN NO_PENDING before new BEGIN", "fresh numerical BEGIN/RUN", "passive raw nonzero KV/SCORE/AV samples retained", "full reset cone and payload RAM static review", "first completion bus debt and exact status"]
+    }
+  }
+}

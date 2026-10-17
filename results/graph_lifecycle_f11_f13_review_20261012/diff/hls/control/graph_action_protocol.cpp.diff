@@ -1,0 +1,50 @@
+--- host02/hls/control/graph_action_protocol.cpp
++++ host03/hls/control/graph_action_protocol.cpp
+@@ -128,8 +128,11 @@
+   constexpr uint32_t all = FRAME_COMPLETE | BINDING_OK | SAFE_TERMINAL |
+       REMOTE_DRAINED | SLOT_UPDATE_VALID | TYPED_RETIRED | LOCAL_REJECT;
+   if (!kind_valid(completion.kind) || !completion.ordinal ||
++      uint16_t(completion.result.code) > uint16_t(Status::E_INTERNAL) ||
+       !numeric_identity_valid(completion.identity) || completion.flags & ~all)
+     return protocol(9);
++  if ((completion.flags & LOCAL_REJECT) && completion.result)
++    return protocol(14);
+   if (completion.flags & SLOT_UPDATE_VALID) {
+     if (completion.slot_delta.slot >= 22 || !completion.slot_delta.version ||
+         !check_ref(completion.slot_delta.owner.ref,
+@@ -225,19 +228,22 @@
+       !zeros(p, 148 + 2, 152) || !zeros(p, 174, 176) ||
+       !zeros(p, 177, 184) || p[199] || !zeros(p, 211, kCompletionBytes))
+     return protocol();
+-  get_key(p, completion.kind, completion.pc, completion.op,
+-          completion.stage, completion.layer, completion.flags,
+-          completion.ordinal, completion.identity);
+-  completion.result.code = Status(portal::get(p, 148, 2));
+-  completion.result.detail = uint32_t(portal::get(p, 152, 4));
+-  completion.result.bad_element = portal::get(p, 156, 8);
+-  completion.first_task_id = uint32_t(portal::get(p, 164, 4));
+-  completion.last_task_id = uint32_t(portal::get(p, 168, 4));
+-  completion.retired_tasks = uint16_t(portal::get(p, 172, 2));
+-  completion.slot_delta.slot = p[176];
+-  completion.slot_delta.version = portal::get(p, 184, 8);
+-  completion.slot_delta.owner = get_owner(p + 192);
+-  return validate(completion);
++  Completion decoded;
++  get_key(p, decoded.kind, decoded.pc, decoded.op, decoded.stage,
++          decoded.layer, decoded.flags, decoded.ordinal, decoded.identity);
++  decoded.result.code = Status(portal::get(p, 148, 2));
++  decoded.result.detail = uint32_t(portal::get(p, 152, 4));
++  decoded.result.bad_element = portal::get(p, 156, 8);
++  decoded.first_task_id = uint32_t(portal::get(p, 164, 4));
++  decoded.last_task_id = uint32_t(portal::get(p, 168, 4));
++  decoded.retired_tasks = uint16_t(portal::get(p, 172, 2));
++  decoded.slot_delta.slot = p[176];
++  decoded.slot_delta.version = portal::get(p, 184, 8);
++  decoded.slot_delta.owner = get_owner(p + 192);
++  Check valid = validate(decoded);
++  if (!valid) return valid;
++  completion = decoded;
++  return ok();
+ }
+ 
+ } // namespace laya::action

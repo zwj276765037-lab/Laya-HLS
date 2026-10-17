@@ -1,0 +1,89 @@
+{
+  "acceptance_limits": [
+    "Acceptance of first-failure identity and evidence only, not runtime success.",
+    "No retry or further EDA is released."
+  ],
+  "actual_packet": {
+    "bytes": 80768,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v5/rtl_static_finite_monitor_v2/runs/rtl_base_h15_r63_monitor_v2_v1/actual_runtime_failure_packet.json",
+    "sha256": "47924d47aa0d2f1d44de2a3b0a19eb48558d9a0e55ded805e740ce0cf49839c3"
+  },
+  "checked": {
+    "actual_stage_argv_matches_new_commands": true,
+    "all_frozen_inputs_unchanged": true,
+    "allowed_runtime_artifacts_added": 4,
+    "archive_files": 104,
+    "prepared_files": 12,
+    "reference_occurrences": 650,
+    "runtime_symlinks": 46,
+    "source_records_pre_post": 568,
+    "unchanged_compiled_snapshot_files": 318,
+    "unique_direct_paths": 642
+  },
+  "created_utc": "2026-10-09T04:42:57.992817+00:00",
+  "diagnosis": {
+    "established": [
+      "The new monitor source is compiled in the accepted monitor-v2 snapshot; exact post-binding checks pass.",
+      "Source reset assigns every last-R-accept scalar to known zero. A checked R handshake assigns scalar ordinal=r_count+1 and remaining metadata, then increments the same monitor output r_count.",
+      "The parent observes the last-R scalar through hierarchical internal-variable references selected by a constant ternary; endpoint/adapter counters are known1 at the first selected held beat.",
+      "There is no emitted internal monitor snapshot proving whether scalar source storage or its parent observation is unknown. Therefore current artifacts cannot localize the X between record generation and observation."
+    ],
+    "next_source_candidate": "Make the passive accepted-R record an explicit named module output connected through att_axi_port to top-level arrays, with bounded reset/first-R internal and parent observations. Preserve original hold/check behavior and fail on any unknown; source review then separate static/runtime gates required.",
+    "not_established": [
+      "No proven queue-retirement race, simulator sensitivity bug, synthesis issue, arithmetic/DUT error or counter-order defect.",
+      "No current cmd2 numerical acceptance; old earlier failed-run partial cmd2 bytes do not apply to this run."
+    ]
+  },
+  "first_failure": {
+    "adapter_accepted_count": 1,
+    "command": 2,
+    "command2_numeric_dumps": "ABSENT",
+    "command3": "NOT_REACHED",
+    "commands_with_TB_PASS": [
+      0,
+      1
+    ],
+    "endpoint_count": 1,
+    "four_command_PASS": "ABSENT",
+    "monitor_ordinal": "x",
+    "raw_fatal": "Fatal: ATT_FINITE_R_ACCEPT_ASSOCIATION cmd=2 monitor=x endpoint=1 adapter=1",
+    "time_ps": 483298332
+  },
+  "guard": {
+    "child_exit_code": 1,
+    "elapsed_seconds": 18.2330301720649,
+    "finished_at": "2026-10-09T04:32:34.319331+00:00",
+    "minimum_mem_available_kb": 448246880,
+    "peak_owned_rss_kb": 847996,
+    "rss_capture_count": 91,
+    "rss_captured": true,
+    "rss_sample_count": 91,
+    "trigger": null
+  },
+  "release_schema_correction": {
+    "actual_result": "All actual stages exactly match new only_released_commands; historical ordered_commands were not invoked.",
+    "disposition": "Consumed gate remains immutable. Future gates must be built from scratch with exactly one commands field and no stale executable argv.",
+    "issue": "Reviewer copied the previous runtime gate and inadvertently retained its old ordered_commands beside the new only_released_commands."
+  },
+  "reviewer": "GPT-6 Astra / xhigh",
+  "runtime_gate": {
+    "bytes": 19506,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_single_runtime_release.json",
+    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_single_runtime_release.json",
+    "sha256": "f60cc3061affeaf463fd28215f93728128dc03933f534770e35c341d8849c2bb"
+  },
+  "schema": "attention_v5_head15_passive_monitor_v2_actual_first_failure_acceptance_v1",
+  "source_acceptance": {
+    "bytes": 4310,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_actual_source_acceptance.json",
+    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_actual_source_acceptance.json",
+    "sha256": "d8e6fdc8a5e971f1a29c5aca9baeb3fb040efeb970c35166a1201569ce33c2cd"
+  },
+  "static_acceptance": {
+    "bytes": 7174,
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_actual_static_acceptance.json",
+    "resolved_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_attention_v5_head15_passive_monitor_v2_actual_static_acceptance.json",
+    "sha256": "d3267b107f3c3801fe5db4f765bc705e7d87674ae5b8f8cba1db7dff8c67abd8"
+  },
+  "status": "ACTUAL_FIRST_FAILURE_ACCEPTED_ROOT_CAUSE_NOT_IDENTIFIED"
+}

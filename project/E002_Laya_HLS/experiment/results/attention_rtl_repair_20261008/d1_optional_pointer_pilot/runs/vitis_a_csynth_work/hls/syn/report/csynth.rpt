@@ -1,0 +1,243 @@
+
+
+================================================================
+== Synthesis Summary Report of 'optional_pointer_pilot'
+================================================================
++ General Information: 
+    * Date:           Thu Oct  8 14:16:26 2026
+    * Version:        2025.2 (Build 6295257 on Nov 14 2025)
+    * Project:        vitis_a_csynth_work
+    * Solution:       hls (Vivado IP Flow Target)
+    * Product family: virtexuplusHBM
+    * Target device:  xcu55c-fsvh2892-2L-e
+    
+
+* Performance & Resource Estimates: 
++----------------------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+----+------------+------------+-----+
+|                 Modules                | Issue|               | Iteration|         | Trip |          |      Latency      |      |      |    |            |            |     |
+|                 & Loops                | Type | Violation Type|  Latency | Interval| Count| Pipelined| (cycles)|   (ns)  | Slack| BRAM | DSP|     FF     |     LUT    | URAM|
++----------------------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+----+------------+------------+-----+
+|+ optional_pointer_pilot                |     -|              -|         -|       43|     -|        no|       42|  280.014|  0.00|     -|   -|  1089 (~0%)|  1973 (~0%)|    -|
+| + p_anonymous_namespace_vector_impl    |     -|              -|         -|        0|     -|        no|        0|    0.000|  4.55|     -|   -|           -|    29 (~0%)|    -|
+| + p_anonymous_namespace_vector_impl_2  |     -|              -|         -|        0|     -|        no|        0|    0.000|  4.87|     -|   -|           -|           -|    -|
+| + p_anonymous_namespace_linear_impl    |     -|              -|         -|        0|     -|        no|        0|    0.000|  3.69|     -|   -|           -|   130 (~0%)|    -|
+| + p_anonymous_namespace_linear_impl_1  |     -|              -|         -|        0|     -|        no|        0|    0.000|  3.84|     -|   -|           -|    95 (~0%)|    -|
++----------------------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+----+------------+------------+-----+
+    Name Prefix: '+' for module, 'o' for loop, '*' for dataflow
+
+
+================================================================
+== HW Interfaces
+================================================================
+* M_AXI
++------------+------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+
+| Interface  | Read/Write | Data Width | Address Width | Latency | Offset | Register | Max Widen | Max Read     | Max Write    | Num Read    | Num Write   |
+|            |            | (SW->HW)   |               |         |        |          | Bitwidth  | Burst Length | Burst Length | Outstanding | Outstanding |
++------------+------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+
+| m_axi_gmem | WRITE_ONLY | 32 -> 32   | 64            | 0       | slave  | 0        | 0         | 16           | 16           | 16          | 16          |
++------------+------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+
+
+* S_AXILITE Interfaces
++-----------------+------------+---------------+--------+----------+
+| Interface       | Data Width | Address Width | Offset | Register |
++-----------------+------------+---------------+--------+----------+
+| s_axi_control   | 32         | 7             | 16     | 0        |
+| s_axi_control_r | 32         | 5             | 16     | 0        |
++-----------------+------------+---------------+--------+----------+
+
+* S_AXILITE Registers
++-----------------+---------------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| Interface       | Register      | Offset | Width | Access | Description                      | Bit Fields                                                           |
++-----------------+---------------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| s_axi_control   | CTRL          | 0x00   | 32    | RW     | Control signals                  | 0=AP_START 1=AP_DONE 2=AP_IDLE 3=AP_READY 7=AUTO_RESTART 9=INTERRUPT |
+| s_axi_control   | GIER          | 0x04   | 32    | RW     | Global Interrupt Enable Register | 0=Enable                                                             |
+| s_axi_control   | IP_IER        | 0x08   | 32    | RW     | IP Interrupt Enable Register     | 0=CHAN0_INT_EN 1=CHAN1_INT_EN                                        |
+| s_axi_control   | IP_ISR        | 0x0c   | 32    | RW     | IP Interrupt Status Register     | 0=CHAN0_INT_ST 1=CHAN1_INT_ST                                        |
+| s_axi_control   | mode          | 0x10   | 32    | W      | Data signal of mode              |                                                                      |
+| s_axi_control   | layer         | 0x18   | 32    | W      | Data signal of layer             |                                                                      |
+| s_axi_control   | src_bank      | 0x20   | 32    | W      | Data signal of src_bank          |                                                                      |
+| s_axi_control   | epoch         | 0x28   | 32    | W      | Data signal of epoch             |                                                                      |
+| s_axi_control   | second_id     | 0x30   | 32    | W      | Data signal of second_id         |                                                                      |
+| s_axi_control   | second_bank   | 0x38   | 32    | W      | Data signal of second_bank       |                                                                      |
+| s_axi_control   | second_epoch  | 0x40   | 32    | W      | Data signal of second_epoch      |                                                                      |
+| s_axi_control   | second_region | 0x48   | 32    | W      | Data signal of second_region     |                                                                      |
+| s_axi_control   | load_ok       | 0x50   | 32    | W      | Data signal of load_ok           |                                                                      |
+| s_axi_control_r | out_r_1       | 0x10   | 32    | W      | Data signal of out_r             |                                                                      |
+| s_axi_control_r | out_r_2       | 0x14   | 32    | W      | Data signal of out_r             |                                                                      |
++-----------------+---------------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+
+* TOP LEVEL CONTROL
++-----------+------------+-----------+
+| Interface | Type       | Ports     |
++-----------+------------+-----------+
+| ap_clk    | clock      | ap_clk    |
+| ap_rst_n  | reset      | ap_rst_n  |
+| interrupt | interrupt  | interrupt |
+| ap_ctrl   | ap_ctrl_hs |           |
++-----------+------------+-----------+
+
+
+================================================================
+== SW I/O Information
+================================================================
+* Top Function Arguments
++---------------+-----------+---------------+
+| Argument      | Direction | Datatype      |
++---------------+-----------+---------------+
+| mode          | in        | unsigned char |
+| layer         | in        | unsigned char |
+| src_bank      | in        | unsigned char |
+| epoch         | in        | unsigned int  |
+| second_id     | in        | unsigned char |
+| second_bank   | in        | unsigned char |
+| second_epoch  | in        | unsigned int  |
+| second_region | in        | unsigned char |
+| load_ok       | in        | unsigned char |
+| out           | out       | unsigned int* |
++---------------+-----------+---------------+
+
+* SW-to-HW Mapping
++---------------+-----------------+-----------+----------+-----------------------------------------+
+| Argument      | HW Interface    | HW Type   | HW Usage | HW Info                                 |
++---------------+-----------------+-----------+----------+-----------------------------------------+
+| mode          | s_axi_control   | register  |          | name=mode offset=0x10 range=32          |
+| layer         | s_axi_control   | register  |          | name=layer offset=0x18 range=32         |
+| src_bank      | s_axi_control   | register  |          | name=src_bank offset=0x20 range=32      |
+| epoch         | s_axi_control   | register  |          | name=epoch offset=0x28 range=32         |
+| second_id     | s_axi_control   | register  |          | name=second_id offset=0x30 range=32     |
+| second_bank   | s_axi_control   | register  |          | name=second_bank offset=0x38 range=32   |
+| second_epoch  | s_axi_control   | register  |          | name=second_epoch offset=0x40 range=32  |
+| second_region | s_axi_control   | register  |          | name=second_region offset=0x48 range=32 |
+| load_ok       | s_axi_control   | register  |          | name=load_ok offset=0x50 range=32       |
+| out           | m_axi_gmem      | interface |          | channel=0                               |
+| out           | s_axi_control_r | register  | offset   | name=out_r_1 offset=0x10 range=32       |
+| out           | s_axi_control_r | register  | offset   | name=out_r_2 offset=0x14 range=32       |
++---------------+-----------------+-----------+----------+-----------------------------------------+
+
+
+================================================================
+== M_AXI Burst Information
+================================================================
+ Note: All burst requests might be further partitioned into multiple requests during RTL generation based on max_read_burst_length or max_write_burst_length settings.
+
+* Inferred Burst Summary
++--------------+-----------+--------+-------+
+| HW Interface | Direction | Length | Width |
++--------------+-----------+--------+-------+
+| m_axi_gmem   | write     | 36     | 32    |
++--------------+-----------+--------+-------+
+
+* All M_AXI Variable Accesses
++--------------+----------+---------------------------------------------+-----------+--------------+--------+------------+-------------------------------------------------------------------------------------------------------+
+| HW Interface | Variable | Access Location                             | Direction | Burst Status | Length | Resolution | Problem                                                                                               |
++--------------+----------+---------------------------------------------+-----------+--------------+--------+------------+-------------------------------------------------------------------------------------------------------+
+| m_axi_gmem   | out      | ...                                         | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ...                                         | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:293:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:293:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:294:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:294:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:295:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:295:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:296:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:296:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:297:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:297:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:298:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:298:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:299:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:299:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:300:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:300:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:301:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:301:10 | write     | Inferred     | 36     |            |                                                                                                       |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:302:10 | write     | Widen Fail   |        | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | out      | ../source/optional_pointer_pilot.cpp:302:10 | write     | Inferred     | 36     |            |                                                                                                       |
++--------------+----------+---------------------------------------------+-----------+--------------+--------+------------+-------------------------------------------------------------------------------------------------------+
+
+    * Resolution URL: docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=XXX-YYY.html (replace XXX-YYY with column value)
+
+================================================================
+== Bind Op Report
+================================================================
++--------------------------------------------------------------------------------------------+-----+--------+-------------------------------------+--------+----------+---------+
+| Name                                                                                       | DSP | Pragma | Variable                            | Op     | Impl     | Latency |
++--------------------------------------------------------------------------------------------+-----+--------+-------------------------------------+--------+----------+---------+
+| + optional_pointer_pilot                                                                   | 0   |        |                                     |        |          |         |
+|   icmp_ln286_fu_655_p2                                                                     |     |        | icmp_ln286                          | seteq  | auto     | 0       |
+|   icmp_ln286_1_fu_661_p2                                                                   |     |        | icmp_ln286_1                        | setne  | auto     | 0       |
+|   or_ln286_fu_667_p2                                                                       |     |        | or_ln286                            | or     | auto     | 0       |
+|   icmp_ln209_fu_673_p2                                                                     |     |        | icmp_ln209                          | setne  | auto     | 0       |
+|   probe_attention_source_ref_id_fu_679_p3                                                  |     |        | probe_attention_source_ref_id       | select | auto_sel | 0       |
+|   probe_attention_source_ref_bank_fu_687_p3                                                |     |        | probe_attention_source_ref_bank     | select | auto_sel | 0       |
+|   probe_attention_source_ref_epoch_fu_695_p3                                               |     |        | probe_attention_source_ref_epoch    | select | auto_sel | 0       |
+|   probe_attention_source_region_fu_703_p3                                                  |     |        | probe_attention_source_region       | select | auto_sel | 0       |
+|   icmp_ln267_fu_711_p2                                                                     |     |        | icmp_ln267                          | seteq  | auto     | 0       |
+|   probe_issued_ctx_op_p_anonymous_namespace_vector_impl_2_fu_532_probe_issued_ctx_op_write |     |        | op                                  | select | auto_sel | 0       |
+|   grp_fu_567_p2                                                                            |     |        | epoch_2                             | add    | fabric   | 0       |
+|   grp_fu_567_p2                                                                            |     |        | epoch_1                             | add    | fabric   | 0       |
+|   icmp_ln249_fu_734_p2                                                                     |     |        | icmp_ln249                          | seteq  | auto     | 0       |
+|   call_ret1_p_anonymous_namespace_linear_impl_1_fu_547_conv7                               |     |        | select_ln249                        | select | auto_sel | 0       |
+|   grp_fu_567_p2                                                                            |     |        | add_ln250                           | add    | fabric   | 0       |
+|  + p_anonymous_namespace_vector_impl                                                       | 0   |        |                                     |        |          |         |
+|    select_ln177_fu_40_p3                                                                   |     |        | select_ln177                        | select | auto_sel | 0       |
+|    select_ln177_1_fu_48_p3                                                                 |     |        | select_ln177_1                      | select | auto_sel | 0       |
+|  + p_anonymous_namespace_linear_impl                                                       | 0   |        |                                     |        |          |         |
+|    icmp_ln38_fu_56_p2                                                                      |     |        | icmp_ln38                           | seteq  | auto     | 0       |
+|    qkv_fu_62_p2                                                                            |     |        | qkv                                 | seteq  | auto     | 0       |
+|    probe_output_ref_epoch_write_assign_fu_68_p3                                            |     |        | probe_output_ref_epoch_write_assign | select | auto_sel | 0       |
+|    select_ln72_fu_76_p3                                                                    |     |        | select_ln72                         | select | auto_sel | 0       |
+|    empty_fu_84_p2                                                                          |     |        | empty                               | or     | auto     | 0       |
+|    probe_output_content_write_assign_fu_90_p3                                              |     |        | probe_output_content_write_assign   | select | auto_sel | 0       |
+|    select_ln76_fu_102_p3                                                                   |     |        | select_ln76                         | select | auto_sel | 0       |
+|    agg_result_01_0_fu_110_p3                                                               |     |        | agg_result_01_0                     | select | auto_sel | 0       |
+|    select_ln64_1_fu_122_p3                                                                 |     |        | select_ln64_1                       | select | auto_sel | 0       |
+|    select_ln64_fu_130_p3                                                                   |     |        | select_ln64                         | select | auto_sel | 0       |
+|  + p_anonymous_namespace_linear_impl_1                                                     | 0   |        |                                     |        |          |         |
+|    icmp_ln38_fu_52_p2                                                                      |     |        | icmp_ln38                           | setne  | auto     | 0       |
+|    icmp_ln72_fu_58_p2                                                                      |     |        | icmp_ln72                           | seteq  | auto     | 0       |
+|    select_ln72_fu_64_p3                                                                    |     |        | select_ln72                         | select | auto_sel | 0       |
+|    probe_output_ref_epoch_write_assign_fu_72_p3                                            |     |        | probe_output_ref_epoch_write_assign | select | auto_sel | 0       |
+|    probe_output_content_write_assign_fu_80_p3                                              |     |        | probe_output_content_write_assign   | select | auto_sel | 0       |
+|    select_ln64_fu_92_p3                                                                    |     |        | select_ln64                         | select | auto_sel | 0       |
+|    select_ln64_1_fu_100_p3                                                                 |     |        | select_ln64_1                       | select | auto_sel | 0       |
++--------------------------------------------------------------------------------------------+-----+--------+-------------------------------------+--------+----------+---------+
+
+
+================================================================
+== Storage Report
+================================================================
++--------------------------+-----------+-----------+------+------+--------+----------+------+---------+------------------+
+| Name                     | Usage     | Type      | BRAM | URAM | Pragma | Variable | Impl | Latency | Bitwidth, Depth, |
+|                          |           |           |      |      |        |          |      |         | Banks            |
++--------------------------+-----------+-----------+------+------+--------+----------+------+---------+------------------+
+| + optional_pointer_pilot |           |           | 0    | 0    |        |          |      |         |                  |
+|   control_s_axi_U        | interface | s_axilite |      |      |        |          |      |         |                  |
+|   control_r_s_axi_U      | interface | s_axilite |      |      |        |          |      |         |                  |
+|   gmem_m_axi_U           | interface | m_axi     |      |      |        |          |      |         |                  |
++--------------------------+-----------+-----------+------+------+--------+----------+------+---------+------------------+
+
+
+================================================================
+== Pragma Report
+================================================================
+* Valid Pragma Syntax
++-----------+--------------------------------------------------+----------------------------------------------------------------------+
+| Type      | Options                                          | Location                                                             |
++-----------+--------------------------------------------------+----------------------------------------------------------------------+
+| INLINE    | off                                              | in linear_impl (../source/optional_pointer_pilot.cpp:66)             |
+| INLINE    | off                                              | in vector_impl (../source/optional_pointer_pilot.cpp:144)            |
+| INTERFACE | m_axi port=out offset=slave bundle=gmem depth=36 | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:223) |
+| INTERFACE | s_axilite port=mode bundle=control               | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:224) |
+| INTERFACE | s_axilite port=layer bundle=control              | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:225) |
+| INTERFACE | s_axilite port=src_bank bundle=control           | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:226) |
+| INTERFACE | s_axilite port=epoch bundle=control              | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:227) |
+| INTERFACE | s_axilite port=second_id bundle=control          | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:228) |
+| INTERFACE | s_axilite port=second_bank bundle=control        | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:229) |
+| INTERFACE | s_axilite port=second_epoch bundle=control       | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:230) |
+| INTERFACE | s_axilite port=second_region bundle=control      | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:231) |
+| INTERFACE | s_axilite port=load_ok bundle=control            | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:232) |
+| INTERFACE | s_axilite port=return bundle=control             | in optional_pointer_pilot (../source/optional_pointer_pilot.cpp:233) |
++-----------+--------------------------------------------------+----------------------------------------------------------------------+
+
+

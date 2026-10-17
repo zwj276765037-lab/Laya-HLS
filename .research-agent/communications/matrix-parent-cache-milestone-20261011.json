@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "matrix-parent-cache-milestone-20261011",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# matrix-parent-cache 真实集成里程碑\n\n工程按D-M003-QUANT-G-V2及审核出口连续实施，本消息交付新的限定证据；不请求扩大预算或代签M003/M004。\n\n## 新结果\n\n`R003/matrix_parent_cache_03`为PASS_SCOPED_RUNTIME。当前v2 `laya_matrix_portal_binding_v1`直接连接实际`quant_dual_a_v1`和`t4_dual_w_cache_v1`，执行一个rows16父L的四个rows4 view，portal generation分别100/101/102/103；完整NumericIdentity、P/Q/L、A/W/PS/dst和model绑定保持一致。\n\n- A：以原四条不同Down预量化行循环填满16行，2624个half、1312个scale实际提交；四view共328次真实A group读。中间view保持A IN_USE，末view后一次真实release到EMPTY。\n- W：严格物理三口LOAD 44608个R beat、83968个scale check；四view共41984次真实W stripe读。中间view保持一个reader，末view后reader清0、cache回READY。\n- matrix：41984 stripes、167936项独立PS gold、16384个最终F32 gold全部通过；真实AW/W/B各2048。末B累计held 36865 cycles，所有债务排空后才响应/释放。\n- 父层：四view覆盖`0xffff`，claims/retirements=4/4，parent publication与TaskDone恰一次。该父仅覆盖B2/S128 tensor的前16/256行，tensor保持FILL，tensor publication=0，没有局部成功提前READY。\n\nstatic/pilot/full为62.534447/92.153086/1725.782300s，峰值2402668/1424544/1428584KiB，全部guard child0/trigger null；full 114182 cycles。运行前使用两次冻结同matrix/cache单view实测较慢454.920886s，按四view×1.5得2730s，小于3600s后启动；未改帽。manifest SHA=`e87ba8097dad18e54078ef18e964c4c45ccabd62f60cd29a1db8a2498c55231d`，receipt SHA=`2b51a19397dbade08bc8ab65c5ae69e35ec958ba6938e0434182fdf1bcbe1b3c`。\n\n`matrix_parent_cache_01`因测试仍用旧QUANT op `0x61`被v2 frame拒绝；`_02`因首父row0=7不满足新tensor从全局0开始而被ledger拒绝。二者未进入目标matrix且失败证据保留；`_03`分别改为合同QUANT op `0x20`和row0=0，没有改DUT/gold或缩减full覆盖。\n\n## 审核修复\n\n按R-SM003-GATE-SPLIT-20261011修复split进度：TB只有`write/read/quant/A`实际work增加才打印；guard对`work/writes/reads/qrows`维护高水位，重复cycle/state行不刷新semantic stall。`R003/gate_split_progress_guard_02`有界核1000条相同work均不推进、两次真实work增加均推进，PASS；manifest SHA=`b3090800273e75c206f520f52f2e5172b5111be44406512985e5dc8b98d175fc`，receipt SHA=`20857a4505379318c2ee0812c02d035324b7130c9df3ed227c8cd206bb68ebe4`。未重跑或重标历史`gate_split_04`。\n\n三摘要已发布到history `Pa41a66fbd6a24acc811c2daca0338c4e`，A002状态已更新。\n\n## 范围与下一步\n\n本批闭合的是预量化fullA→实际fullW→真实父matrix；实际A尚未由同runtime GEGLU/QUANT生产，同tensor多父及后父失败也未执行。工程下一步把`geglu_gate_quant_split_v2`实际QUANT输出直接接该父matrix，随后扩多父tensor，再补LOAD→其余Q/L、唯一持久hub/generated caller、L2/L3及当前完整CPU/实际CSim。\n\nL0/L1保持PARTIAL、L2–L5 NOT_RUN，M003/M004未完成。无新OOC/P&R/上板；G累计OOC余2338.224019s不变。\n",
+  "in_reply_to": null,
+  "payload_sha256": "98715b9ace57c82245ecf81cafe9cabcb1bb93bc7c84902abf37de5ca00833da",
+  "created_at": "2026-10-11T14:56:24.505005+00:00",
+  "status": "delivered",
+  "client_user_message_id": "ba7451a8-6cd5-4d9e-be5b-e4db5cd93bbd",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-11T14:56:24.541244+00:00",
+  "recipient_turn_id": "01a12b77-0bd3-7f50-8e6e-e40306c9686a"
+}

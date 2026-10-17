@@ -1,0 +1,15 @@
+--- 02/run_bootstrap_snapshot.py
++++ 03/run_bootstrap_snapshot.py
+@@ -114,7 +114,11 @@
+         'and held END-response exclusion, controlled shell read-debt/adapter/base '
+         'inputs, stale query keys and stable response backpressure; LPV1 mutation '
+         'blocked only while response is held, invalidation after snapshot consumption '
+-        'rejects later query. Queries do not mutate production task/event/owner counts. '
++        'rejects later query. Persistent-valid idle LPV/snapshot competition uses LPV priority; '
++        'old END progresses through real final-B and held response with snapshot continuously '
++        'pending; INVALIDATE and cancel preserve the old bound held response; snapshot and '
++        'invalid QUANT-query arbitration have single acceptance and bounded progress. '
++        'Queries do not mutate production task/event/owner counts. '
+         'No source protection lease/guard from snapshot through actual reading, no '
+         'generated producer or LN arithmetic, executor HLS top, full graph/request, '
+         'physical recovery, resource or timing claim.')

@@ -1,0 +1,34 @@
+# Managed LPV完整A与旧帧清理：有限审核答复
+
+消息：executor-managed-lpv-review-20261013；回复 executor-managed-lpv-milestone-20261013。
+审核：R-SM003-EXECUTOR-MANAGED-LPV-20261013。M003/SM003/E003/R003，A002唯一实现owner。
+
+接纳`executor_admission_owner_host_02`为PASS_SCOPED_HOST_ADMISSION_OWNER_CAPTURE，`executor_managed_lpv_rtl_04`为PASS_SCOPED_RTL_MANAGED_LPV_OWNER_CLEANUP。actor_09、monitor_17、portal_17/18、checkpoint_09保留各自原fixture兼容范围。本批未发现需追加通用控制框架的静态阻塞项；不将局部通过扩大为生产wrapper、完整关闭/rearm或整链通过。
+
+## 接纳的证据
+
+实际软件LYRQ/LYMP准入后、HOLD前保存完整LAD1 A。独立重建1024B与实际actor对象encode输出、literal及RTL输入逐字相同，raw SHA为`40df536794b2377bb4955c106ce1a3eef8ded0a4b5c92d57c7f4eac218c56d0f`。22wire拒绝与7capture拒绝保留清输出、FullRuntime不变。A含完整identity/L13M/session/request和已知STATE0映射，不伪造S/H；实际物理配置仍受控，未签全13BO。
+
+RTL七复位分隔case共1441cycles，低于原12000帽。真实depth2 16/8完整消费，尾2/尾1各反压12周期；首拍锁定完整旧A/route，错owner/route读不pop，持续取消/base变化不清帧/返回或撤销。普通半帧及完整受控preowned旧帧给绑定负返回，零hub业务事件。首次尚未发首拍的旧pending可收束，但其归属输入仍须后续由真实adapter提供。
+
+唯一hub成功CLAIM和active_begin保存对不可替换A的归属引用，完整A/identity/model与descriptor核定后才沿原路径处理。CLAIM-only INVALIDATE、错descriptor/Ref/epoch拒绝、未知role拒绝和重复cleanup拒绝保留正确owner。实际一AW/W/B的旧END等待真实末B和adapter fence各12周期，hub typed终态恰一次；这不是生成LN算术或唯一软件退休证据。损坏model/保留位保持隔离，不签自动坏帧恢复。
+
+managed取消已分别处理transport旧FIFO/返回保持与hub旧owner保持；撤销门禁止普通新业务，source候选同拍cancel关ready并保持。只签该候选门，无合法Q lease/读债消费结论。响应最后一拍仅结束本帧，A/撤销及各下界保持；case内无reset，case间复位，不拼成无复位请求生命周期。
+
+## 身份、历史与资源
+
+主控独立核33交付SHA、355/355 frozen及声明pair；本次观测343/355 current、1116/1128递归引用，12处差异均为两catalog登记。四份CLOSED capture仍与已审核raw SHA及当前host冻结输入一致；F19六边界/原六结果分支、F17原45例/两个软件请求8退休及默认兼容marker保留。
+
+12guard起止串行，child0/trigger null，152条实际policy符合原CPU0–3/nice19/idle I/O、MemAvailable和资源帽。managed oracle 0.177104s无owned-child RSS/policy，peak null、资源观测完整性=false；fixture/-MM不追认为owned-tree观测。host5/actor45条故意leftover保留。
+
+managed_01是Vivado已启动后因Tcl文件路径不存在退出，未执行DUT仿真；managed_02保留原运行FAIL，_02→03仅TB等待实际pending再检查末B债务；_03→04的DUT/fixture新增范围已逐项核对。host_01写出literal的旧身份不追认为actual输出，_02实际对象encode输出已确认。所有历史FAIL/PASS保持。
+
+主控未编译、模拟、HLS或重跑实验。依据：[源码审核](executor_managed_lpv_review_20261013/source_review.md)、[独立核验](executor_managed_lpv_review_20261013/verification.json)。
+
+## 下一工作出口
+
+生产wrapper的MANAGED_LPV_OWNER仍默认0，新hook tie0；whole-record安装、candidate lane、preowned、offline A输入没有证明同硬件runtime真实准入/全局HOLD切换。session/request持续绑定、源AR/F9/合法lease、完整物理映射、Host/CLOSED真实consumer、no-LGP与committed错误结果、新准入/rearm和整链继续待验。C009/C013保持部分实施/awaiting_implementation；C008/C010待验，F15–F20原关闭范围不扩大。
+
+用户已追问何时开始硬件优化。主控已发`executor-minimum-hardware-chain-priority-20261013`，要求以最小真实program→executor→adapter→LN/hub→Q计算链及周期/资源基线为近期可见出口，列出首次运行必需项、可后续恢复项和预算内阶段估时。本次局部验收不增添新前置框架；原必需安全门保持，不能用TB或常量替代实际consumer。请继续原授权内独立工作，并直接答复关键路径判断。
+
+L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成。原单owner/单重工具/全部帽/G2338.224019s不变，5172s不重启，无新agent/HLS/OOC/P&R/上板/预算由本审核产生。

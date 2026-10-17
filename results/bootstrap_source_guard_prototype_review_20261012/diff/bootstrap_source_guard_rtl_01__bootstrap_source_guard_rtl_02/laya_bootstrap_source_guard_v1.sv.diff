@@ -1,0 +1,59 @@
+--- bootstrap_source_guard_rtl_01/laya_bootstrap_source_guard_v1.sv
++++ bootstrap_source_guard_rtl_02/laya_bootstrap_source_guard_v1.sv
+@@ -20,6 +20,8 @@
+   input logic producer_valid,
+   input logic [8191:0] producer_request,
+   output logic producer_ready,
++  // These are the consumer of the F9-validated LPC1 FIFO, including the
++  // last physical pop; unverified engine completion must never reach it.
+   input logic producer_completion_empty_n,producer_completion_read,
+   input logic [511:0] action_completion_dout,
+   input logic action_completion_empty_n,action_completion_read,
+@@ -56,12 +58,18 @@
+   endfunction
+   function automatic logic action_bound(input logic [4095:0] p);
+     return p[0+:32]==32'h3158414c && p[4*8+:16]==1 && p[6*8+:16]==8 &&
+-      p[8*8+:8]==2 && p[24*8+:64]!=0 && p[16*8+:32]==0 &&
++      p[8*8+:8]==2 && p[10*8+:24]==24'h010211 &&
++      p[13*8+:24]==0 && p[20*8+:32]==0 && p[32*8+:256]==0 &&
++      p[24*8+:64]!=0 && p[16*8+:32]==0 && p[148*8+:96]==0 &&
++      p[160*8+:8]<22 && p[161*8+:56]==0 &&
++      p[224*8+:8]<22 && p[225*8+:24]==24'd2 && p[228*8+:32]==0 &&
++      p[232*8+:64]!=0 && p[240*8+:128]==0 &&
++      p[256*8+:8]==0 && p[257*8+:8]==255 && p[258*8+:254*8]==0 &&
+       p[64*8+:672]==guard_key[64*8+:672] &&
+       p[168*8+:64]==64'(guard_key[576*8+:32]) &&
+       p[176*8+:64]==guard_key[576*8+:64] &&
+       p[184*8+:32]==guard_key[592*8+:32] &&
+-      p[188*8+:56]==guard_key[596*8+:56] && p[195*8+:104]==0;
++      p[188*8+:56]==guard_key[596*8+:56] && p[195*8+:29*8]==0;
+   endfunction
+   function automatic logic producer_bound(input logic [8191:0] p);
+     logic [15:0] row,rows;
+@@ -88,9 +96,10 @@
+       p[8*8+:40]==accepted_action[8*8+:40] && p[13*8+:24]==0 &&
+       p[20*8+:32]==0 && p[24*8+:64]==accepted_action[24*8+:64] &&
+       p[32*8+:256]==0 && p[64*8+:672]==accepted_action[64*8+:672] &&
+-      p[148*8+:16]<=8 && p[150*8+:16]==0 && (flags & 32'hffffff80)==0 &&
++      p[148*8+:16]<=8 && p[150*8+:16]==0 && p[174*8+:16]==0 &&
++      p[177*8+:56]==0 && p[199*8+:8]==0 && p[211*8+:45*8]==0 && (flags & 32'hffffff80)==0 &&
+       (flags & 15)==15 && !(p[148*8+:16]==0 && flags[6]) &&
+-      (p[148*8+:16]!=0 ||
++      (p[148*8+:16]==0 ?
+         (flags[4] && flags[5] && p[176*8+:8]==accepted_action[224*8+:8] &&
+          p[184*8+:64]==accepted_action[232*8+:64] &&
+          p[192*8+:32]!=0 && p[196*8+:24]==accepted_action[225*8+:24] &&
+@@ -100,7 +109,12 @@
+          p[210*8+:8]==1 && p[211*8+:45*8]==0 &&
+          p[164*8+:32]!=0 && p[168*8+:32]>=p[164*8+:32] &&
+          p[168*8+:32]-p[164*8+:32]+1==p[172*8+:16] && p[172*8+:16]==
+-          guard_key[80*8+:16]*((guard_key[82*8+:16]+15)/16)));
++          guard_key[80*8+:16]*((guard_key[82*8+:16]+15)/16)) :
++        (!flags[4] && (flags[5] ?
++          (p[164*8+:32]!=0 && p[168*8+:32]>=p[164*8+:32] &&
++           p[168*8+:32]-p[164*8+:32]+1==p[172*8+:16] && p[172*8+:16]!=0 &&
++           p[172*8+:16]<=guard_key[80*8+:16]*((guard_key[82*8+:16]+15)/16)) :
++          (p[164*8+:80]==0))));
+   endfunction
+ 
+   assign base_change_ready=!guard_active && physical_safe && !producer_active && read_debt==0;

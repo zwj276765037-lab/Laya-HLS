@@ -1,0 +1,44 @@
+{
+  "schema": "laya_attention_preloaded_v2_synthesis_failure_review",
+  "created_utc": "2026-10-08T14:28:12.252246+00:00",
+  "reviewer": {
+    "agent": "/root/resource_explain_astra_xhigh",
+    "model": "GPT-6 Astra",
+    "reasoning": "xhigh"
+  },
+  "identity": "d2_attention_preloaded_v2_direct_cleanup",
+  "verdict": "ACCEPT_FAILURE_EVIDENCE_NO_SYNTHESIS_OR_RTL_ACCEPTANCE",
+  "evidence": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_attention_preloaded/v2/runs/local_csynth_v1/synthesis_evidence.json",
+    "bytes": 10208,
+    "sha256": "0c2251a91ef5ab6186dbb21b77597e6bbbb96040faf5d44d33fee6f38c244222"
+  },
+  "audit": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_d2_attention_preloaded_v2_synthesis_failure_hashcheck.json",
+    "bytes": 46130,
+    "sha256": "57d93e32b79fdc0156adcf0cae3e71169ba680f6b891dbcda5f44540107a1f5b"
+  },
+  "observations": [
+    "Correct v++ HLS command ran173.8085s,exit1,peak2638804KiB,no guard;85 source inputs and192 process policies match.",
+    "50 pointer-to-pointer214-134 diagnostics: model_header1,parse1,read27,write8,top13;3 concluding errors. Only partial design-size reports exist; no schedule/resource XML/RTL.",
+    "Linked IR removes old top fail(Controller&) calls; direct cleanup exists, but FullMemory* store into Controller28095 precedes parse28167.",
+    "Actual later reflow log605,606,608,609 inlines all four run_task<Load/QK/Softmax/AV> wrappers into top before source checks fail. Earlier linked helper calls do not prove a retained out-of-line boundary at failure.",
+    "QK/Softmax/AV linked calls show structural presence, not scheduled/generated legal numerical reachability."
+  ],
+  "hypothesis_update": "Deleting fail(Controller&) is not sufficient for synthesis. This does not prove the helper never contributed or identify the remaining aggregate/alias cause.",
+  "allowed_next_readonly": [
+    "Trace FullMemory address-taking/stores/uses and Controller lifetime in retained linked IR; bind later reflow flow/error/YAML/aggregate artifacts.",
+    "Compare matching stages of successful I-L/I-V; distinguish linked IR from post-inlining failure stage.",
+    "Inspect already-existing later transformed IR; if absent record absence. Sol owns bounded decoder/tool operations.",
+    "Propose minimal isolated equivalent source change only after design comparison identifies changed factor and preserves BEGIN/RUN,cleanup,first error,static session/epoch,numerics."
+  ],
+  "not_released": [
+    "same-source synthesis retry",
+    "new source mutation/tuning trial",
+    "new CPU/CSim for another variant",
+    "RTL/static/cosimulation",
+    "full top synthesis",
+    "production changes"
+  ],
+  "retained_acceptance": "v2 strict CPU and standard-libm CSim remain accepted within software scope; productionfe067 and all v1/v2 evidence remain frozen."
+}

@@ -1,0 +1,52 @@
+--- executor_handoff_portal_rtl_04/laya_executor_handoff_portal_tb_v1.sv
++++ executor_handoff_portal_rtl_05/laya_executor_handoff_portal_tb_v1.sv
+@@ -71,43 +71,22 @@
+   logic [31:0] shell_rejections,shell_grants,shell_closed;
+   logic [3:0] shell_phase;
+   logic portal_old_drained;
+-  assign portal_old_drained=bootstrap_physical_safe && !transport_busy &&
+-    command_fifo_occupancy==0 && response_fifo_occupancy==0 &&
+-    !provenance_cmd_write && !executor_provenance_cmd_write;
+-  assign provenance_cmd_full_n=portal_predecessor_ready && !shell_locks_owned;
+-  assign s_axi_awready=portal_awready && !shell_locks_owned;
+-  assign s_axi_wready=portal_wready && !shell_locks_owned;
+-  assign executor_provenance_cmd_full_n=portal_executor_ready && shell_owner;
+-  laya_executor_handoff_shell_v1 shell(
+-    .clk,.rst_n,.cancel,.current_session(shell_session),.current_request(shell_request),
+-    .current_identity(shell_identity),.base_valid(snapshot_base_valid),
+-    .base_epoch(snapshot_base_epoch),.base_address(snapshot_base_address),.base_capacity(snapshot_base_capacity),
++  laya_executor_handoff_portal_shell_v1 #(.MONITORED_ROLE(6)) dut(
++    .current_session(shell_session),.current_request(shell_request),.current_identity(shell_identity),
+     .control_valid(shell_control_valid),.control_ready(shell_control_ready),.control(shell_control),
+     .response_valid(shell_response_valid),.response_ready(shell_response_ready),.response(shell_response),
+     .stop_predecessor(shell_stop),.locks_owned(shell_locks_owned),.pending_key(shell_key),
+     .predecessor_done_valid(pred_done_valid),.predecessor_done_ready(pred_done_ready),.predecessor_done_key(pred_done_key),
+-    .old_channels_drained(portal_old_drained),.physical_safe(bootstrap_physical_safe),
+-    .protection_valid(shell_locks_owned),
+-    .query_accepted(dut.checkpoint_request_valid && dut.checkpoint_request_ready),
+-    .query_request(dut.checkpoint_request),
+-    .query_response_pop(checkpoint_response_empty_n && checkpoint_response_read),
+-    .query_response_word(checkpoint_response_dout),.query_permit(shell_query_permit),.import_pending(shell_import_pending),
++    .query_permit(shell_query_permit),.query_ingress_owned(),.import_pending(shell_import_pending),
+     .executor_owns_dispatch(shell_owner),.authority_valid(shell_authority),.revoked(shell_revoked),
+     .local_committed(shell_committed),.sequence_high_water(shell_S),.handoff_high_water(shell_H),
+-    .control_rejections(shell_rejections),.grants(shell_grants),.closed_aborts(shell_closed),.phase(shell_phase));
+-  laya_generated_provenance_axi_portal_v1 #(.MONITORED_ROLE(6),.ENABLE_EXECUTOR_CHECKPOINT(1),.MANAGED_EXECUTOR_HANDOFF(1)) dut(
++    .control_rejections(shell_rejections),.grants(shell_grants),.closed_aborts(shell_closed),.phase(shell_phase),
++    .checkpoint_ingress_started(),.checkpoint_query_accepted(),.checkpoint_query_drained(),.checkpoint_query_request(),
+     .snapshot_request_valid(1'b0),.snapshot_request_ready(),.snapshot_request(6144'd0),
+     .snapshot_response_valid(),.snapshot_response_ready(1'b0),.snapshot_response(),
+     .snapshot_base_valid,.snapshot_base_epoch,.snapshot_base_address,.snapshot_base_capacity,
+     .snapshot_sequence_high_water(),.bootstrap_source_guard_active(1'b0),
+-    .bootstrap_source_guard_key(6144'd0),.bootstrap_source_guard_match(),
+-     .bootstrap_physical_safe,
+-     .s_axi_awvalid(s_axi_awvalid && !shell_locks_owned),.s_axi_awready(portal_awready),
+-    .s_axi_wvalid(s_axi_wvalid && !shell_locks_owned),.s_axi_wready(portal_wready),
+-    .provenance_cmd_full_n(portal_predecessor_ready),
+-    .provenance_cmd_write(provenance_cmd_write && !shell_locks_owned),
+-    .executor_provenance_cmd_full_n(portal_executor_ready),
+-    .executor_provenance_cmd_write(executor_provenance_cmd_write && shell_owner),.*);
++    .bootstrap_source_guard_key(6144'd0),.bootstrap_source_guard_match(),.*);
+ 
+   logic peer_aw_seen=0;
+   int peer_aw=0,peer_w=0,peer_b=0,peer_w_in_burst=0;

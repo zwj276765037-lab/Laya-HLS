@@ -1,0 +1,14 @@
+{
+  "source": "# E004：完整软件基线与固定图局部服务实验\n\nM004/SM004/E004/R001；A002 为唯一工程与工具写入负责人。现行合同是 `project/missions/SM004.md` 修订6。AT091 为完整 B1/S128 host 软件正常请求，AT101 为受控 AXI4 向量服务，AT104/107/108 为 LN 旧版叶子、整行 RTL 与唯一局部 OOC；AT109/110 为 LN 首错受影响反例及修复回归。原模型、逐步 F32 舍入和独立 P1 保存夹具不变。LN 段预算 host600s/8GiB、static1800s/24GiB、RTL1200s/8GiB、唯一 OOC1200s/24GiB；连接段另计 host600s、static1800s、RTL1200s、联合 OOC1800s，所有阶段单重工具及原资源守卫。\n",
+  "results": "# E004：限定结果\n\nAT091 完整软件正常请求 47 项/4,523,596 F32 对独立 gold 逐字节 PASS；Attention 仍为 CPU 叶子。AT101 受控 AXI4 向量服务 4096 项正常/反压 6955/7206cycle，AT099 仅单 lane 流局部 OOC 1283 LUT/614 FF。\n\nAT109 独立原行反例期望 E_NUMERICAL/bad0；旧 RTL 实测 bad1023、零输出，为语义 FAIL。修复版 SHA `a46d468e…` 的 AT110 六条边界行及原九条整行回归 PASS，四条正常边界行所有输出和统计值逐位比较；真实 gamma0/gamma1 仍为 8482/11792cycle，复位前 MUL 发射8。AT108 旧 SHA `da8adccc…` 唯一 OOC 为14279 LUT/3375 FF/2 DSP、0 BRAM/URAM、综合内部 WNS+1.967ns@6.667ns；这些资源和时序不适用于修复版。LN 守卫累计 host1.804670s（下界）、static175.923183s、RTL49.592227s、OOC152.791918s。详见[阶段报告](runs/R001/reports/SM004_ln_row_stage_result_20261015.md)及[收据](runs/R001/reports/SM004_ln_first_error_closeout_evidence_20261015.json)。真实 final gamma 与完整硬件图仍未证。\n",
+  "status": "# E004：状态\n\nexecution_state: running；verdict: unassessed（完整 M004 加速器）。LN 首错受影响修复和回归已完成；AT108 仅旧 SHA 资源参考。当前按 SM004 修订6推进真实 LN→Q 连接；连接 RTL/仿真/联合 OOC 目前 NOT_RUN。独立 P1 真实两行、错误/反压/读释放/复位及同版资源为后续验证项。旧完整软件参考 2/2 已用，不重新运行。全图硬件、外存、P&R、板端仍未验证。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "LN修复版AT110局部RTL受影响范围；AT108资源仅旧版；LNQ尚未运行",
+  "evidence": [
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_row_stage_result_20261015.md",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/reports/SM004_ln_first_error_closeout_evidence_20261015.json",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT109_SM004_ln_first_error_old_01/guard_sim/driver.log",
+    "project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT110_SM004_ln_first_error_fixed_01/guard_sim_edge/driver.log"
+  ]
+}

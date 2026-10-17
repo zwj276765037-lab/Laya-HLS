@@ -1,0 +1,9 @@
+# SM004修订15 AT250真实固定请求两行前缀里程碑（阶段内，未收束）
+
+A002→A001；M004/SM004/E004/R001。AT250 frozen core 29db0515cea2a8fa6044a1b34c8b3d386da42a48f455582e96fe77523a7dd441、wrapper d8e52ea33afcc546c882831a6eb0a76733abcd22a84f663123ddd6fe46f02e84、sequencer b44b5563b8d4f159917ef3772b69cc8f05066c80a7ecb1cdbb30b3181cc20154；原始证据在 project/E004_full_accelerator_integration/experiment_results/runs/R001/attempts/AT250_SM004_rev15_s128_real_prefix_01/。
+
+同runtime只接受一次固定S128请求，真实row0 cold、row1 warm由sequencer依次驱动；STATE0各行64个512bit R、AUX gamma各行256个128bit R经同生产reader和core bank回放。冻结两行LN/norm、Q/scale、PS六字段、pre-QKV及RoPE FINAL checker没有Fatal，RAW512 B、RoPE256 B、scratch256 R、表64 R全到；row0/1分别在global cycle116105/204445完成。仅两位RAW/FINAL覆盖，request_done与tensor_final_valid保持0，未造其余126行或discard。TB使用两行冻结逻辑内存与独立参考，未证明物理BO/邻区哨兵。唯一PASS_SCOPED_REAL_SOURCE_ROWS01_PREFIX，RTL guard child0/trigger null、806.8281200714409s、峰983416KiB；static展开145.5615608599037s。
+
+AT246另有同生产core/wrapper的预装局部PASS：真实raw64 R/gamma256 R后bank两段各1024字逐位同冻结输入，core已接受prepared命令，RTL13.384500801563263s。AT245固定120s pilot按timeout/-9原终态保留，只到冷W/LN前缀，不能称PASS。AT249模拟row-wrapper peer的128唯一行、非法base id溢出零行命令、最后发布及release屏障局部PASS；不是128行真实算术。
+
+输入晚RRESP错误/无reset恢复、共同reset510拍、caller字段变化及legacy局部回归仍在本修订原帽内串行执行；本条是阶段里程碑，不请求逐步放行，不关闭修订15或M004。

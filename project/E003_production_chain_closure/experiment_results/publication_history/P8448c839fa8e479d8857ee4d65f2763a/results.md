@@ -1,0 +1,18 @@
+# E003当前结果
+
+已集中接纳的host08与actual adapter四case/11笔有限连接保持原范围：64B错误END与首LTX已接受后撤销，不签正常完整LN或撤销后新cleanup。
+
+新graph_program_owned_hls_06 PASS_SCOPED_GENERATION：实际8FIFO/24信号，411.028507s、peak5360976KiB；nested purpose/content及416B copy静态位置正确。owned_bootstrap_validator_rtl_01实际generated nested双512RAM正负15process PASS_SCOPED_RTL：purpose0/2/0x0101、content0/2/255、坏region及七model块首。只遮原独立ABI未知padding49B，语义719B与model416B完整比较；不签owner安装、外1024实际执行或padding invariance。
+
+executor_hls_host_06七process PASS；executor_hls_03 COST_STOP，285.634333s、peak1474268KiB，120s真实停滞保护，Compile/Link227441、0top。已证gdce无普通libc/indirect/memcmp调用，Inputs2464B aggregate load/store存在，未认定其为根因。live新增调用局部step_in_place，旧const wrapper保持，尚未验证，旧host06不能预签该改动。
+
+controller_transaction_adapter_managed_host_01 default兼容+managed88case PASS（60真实LOCAL_REJECT/28remote），精确END/INVALIDATE、首次外部write尝试前记录presented；hls_stream full恒false，真实depth2/未接受首呈现及wrapper绑定/HLS/RTL NOT_RUN。executor_transaction_pending_host_01 PASS_SCOPED_HOST：11独立2112B LTP1 literal、完整512B LAX/1536B LTX、62reject checks；无真实FSM exporter/collector/sidecar/退休证据。
+
+owned_rtl_04 static PASS但success于145ns因新增monitor误把idle done当真实完成而FAIL，余case NOT_RUN，旧attempt保留。live monitor已改真实start+state454才能接done，完整416/1024与原四case断言保留，owned_rtl_05当前真实运行。
+
+C/D数值和周期NOT_RUN，L0/L1 PARTIAL、L2–L5 NOT_RUN、组合NOT_RUN_COST，M003/M004未完成；无联合资源、物理时序或板端结论。
+
+
+---
+Published: 2026-10-13T04:31:57.219513+00:00
+Publication: P284bbf2a78614301842ebdbfa14ff9b4

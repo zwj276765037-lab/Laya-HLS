@@ -1,0 +1,140 @@
+
+
+================================================================
+== Synthesis Summary Report of 'laya_compute_portal_fifo_probe'
+================================================================
++ General Information: 
+    * Date:           Mon Oct 12 01:30:00 2026
+    * Version:        2025.2 (Build 6295257 on Nov 14 2025)
+    * Project:        hls
+    * Solution:       solution1 (Vivado IP Flow Target)
+    * Product family: virtexuplusHBM
+    * Target device:  xcu55c-fsvh2892-2L-e
+    
+
+* Performance & Resource Estimates: 
++------------------------------------------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+----+-----------+-----------+-----+
+|                           Modules                          | Issue|               | Iteration|         | Trip |          |      Latency      |      |      |    |           |           |     |
+|                           & Loops                          | Type | Violation Type|  Latency | Interval| Count| Pipelined| (cycles)|   (ns)  | Slack| BRAM | DSP|     FF    |    LUT    | URAM|
++------------------------------------------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+----+-----------+-----------+-----+
+|+ laya_compute_portal_fifo_probe                            |     -|              -|         -|       21|     -|        no|       20|  133.340|  2.84|     -|   -|  637 (~0%)|  325 (~0%)|    -|
+| + laya_compute_portal_fifo_probe_Pipeline_VITIS_LOOP_14_1  |     -|              -|         -|        -|     -|       yes|       18|  120.006|  3.39|     -|   -|  525 (~0%)|   85 (~0%)|    -|
+|  o VITIS_LOOP_14_1                                         |     -|              -|         2|        1|    16|       yes|       16|  106.672|  4.87|     -|   -|          -|          -|    -|
+| + laya_compute_portal_fifo_probe_Pipeline_VITIS_LOOP_19_2  |     -|              -|         -|        -|     -|       yes|       10|   66.670|  2.84|     -|   -|   39 (~0%)|  114 (~0%)|    -|
+|  o VITIS_LOOP_19_2                                         |     -|              -|         2|        1|     8|       yes|        8|   53.336|  4.87|     -|   -|          -|          -|    -|
++------------------------------------------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+----+-----------+-----------+-----+
+    Name Prefix: '+' for module, 'o' for loop, '*' for dataflow
+
+
+================================================================
+== HW Interfaces
+================================================================
+* S_AXILITE Interfaces
++---------------+------------+---------------+
+| Interface     | Data Width | Address Width |
++---------------+------------+---------------+
+| s_axi_control | 32         | 5             |
++---------------+------------+---------------+
+
+* S_AXILITE Registers
++---------------+-----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| Interface     | Register  | Offset | Width | Access | Description                      | Bit Fields                                                           |
++---------------+-----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| s_axi_control | CTRL      | 0x00   | 32    | RW     | Control signals                  | 0=AP_START 1=AP_DONE 2=AP_IDLE 3=AP_READY 7=AUTO_RESTART 9=INTERRUPT |
+| s_axi_control | GIER      | 0x04   | 32    | RW     | Global Interrupt Enable Register | 0=Enable                                                             |
+| s_axi_control | IP_IER    | 0x08   | 32    | RW     | IP Interrupt Enable Register     | 0=CHAN0_INT_EN 1=CHAN1_INT_EN                                        |
+| s_axi_control | IP_ISR    | 0x0c   | 32    | RW     | IP Interrupt Status Register     | 0=CHAN0_INT_ST 1=CHAN1_INT_ST                                        |
+| s_axi_control | ap_return | 0x10   | 32    | R      | Data signal of ap_return         |                                                                      |
++---------------+-----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+
+* AP_FIFO
++-------------+-----------+------------+
+| Interface   | Direction | Data Width |
++-------------+-----------+------------+
+| compute_cmd | out       | 512        |
+| compute_rsp | in        | 512        |
++-------------+-----------+------------+
+
+* TOP LEVEL CONTROL
++-----------+------------+-----------+
+| Interface | Type       | Ports     |
++-----------+------------+-----------+
+| ap_clk    | clock      | ap_clk    |
+| ap_rst_n  | reset      | ap_rst_n  |
+| interrupt | interrupt  | interrupt |
+| ap_ctrl   | ap_ctrl_hs |           |
++-----------+------------+-----------+
+
+
+================================================================
+== SW I/O Information
+================================================================
+* Top Function Arguments
++-------------+-----------+--------------------------+
+| Argument    | Direction | Datatype                 |
++-------------+-----------+--------------------------+
+| compute_cmd | out       | stream<ap_uint<512>, 0>& |
+| compute_rsp | in        | stream<ap_uint<512>, 0>& |
+| return      | out       | unsigned int             |
++-------------+-----------+--------------------------+
+
+* SW-to-HW Mapping
++-------------+---------------+-----------+-------------------------------------+
+| Argument    | HW Interface  | HW Type   | HW Info                             |
++-------------+---------------+-----------+-------------------------------------+
+| compute_cmd | compute_cmd   | interface |                                     |
+| compute_rsp | compute_rsp   | interface |                                     |
+| return      | s_axi_control | register  | name=ap_return offset=0x10 range=32 |
++-------------+---------------+-----------+-------------------------------------+
+
+
+================================================================
+== Bind Op Report
+================================================================
++------------------------------------------------------------+-----+--------+------------+-------+--------+---------+
+| Name                                                       | DSP | Pragma | Variable   | Op    | Impl   | Latency |
++------------------------------------------------------------+-----+--------+------------+-------+--------+---------+
+| + laya_compute_portal_fifo_probe                           | 0   |        |            |       |        |         |
+|  + laya_compute_portal_fifo_probe_Pipeline_VITIS_LOOP_14_1 | 0   |        |            |       |        |         |
+|    icmp_ln14_fu_66_p2                                      |     |        | icmp_ln14  | seteq | auto   | 0       |
+|    beat_4_fu_72_p2                                         |     |        | beat_4     | add   | fabric | 0       |
+|  + laya_compute_portal_fifo_probe_Pipeline_VITIS_LOOP_19_2 | 0   |        |            |       |        |         |
+|    icmp_ln19_fu_72_p2                                      |     |        | icmp_ln19  | seteq | auto   | 0       |
+|    beat_2_fu_78_p2                                         |     |        | beat_2     | add   | fabric | 0       |
+|    checksum_1_fu_96_p2                                     |     |        | checksum_1 | xor   | auto   | 0       |
++------------------------------------------------------------+-----+--------+------------+-------+--------+---------+
+
+
+================================================================
+== Storage Report
+================================================================
++----------------------------------+-----------+-----------+------+------+--------+----------+------+---------+------------------+
+| Name                             | Usage     | Type      | BRAM | URAM | Pragma | Variable | Impl | Latency | Bitwidth, Depth, |
+|                                  |           |           |      |      |        |          |      |         | Banks            |
++----------------------------------+-----------+-----------+------+------+--------+----------+------+---------+------------------+
+| + laya_compute_portal_fifo_probe |           |           | 0    | 0    |        |          |      |         |                  |
+|   control_s_axi_U                | interface | s_axilite |      |      |        |          |      |         |                  |
++----------------------------------+-----------+-----------+------+------+--------+----------+------+---------+------------------+
+
+
+================================================================
+== Pragma Report
+================================================================
+* Inferred Pragmas
++----------+---------+-----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------+
+| Type     | Options | Location                                                                                                                                | Inferred From                 |
++----------+---------+-----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------+
+| PIPELINE |         | loop VITIS_LOOP_14_1 (hls/compute_portal_fifo_probe.cpp:14:20) in laya_compute_portal_fifo_probe (hls/compute_portal_fifo_probe.cpp:14) | syn.compile.pipeline_loops=64 |
+| PIPELINE |         | loop VITIS_LOOP_19_2 (hls/compute_portal_fifo_probe.cpp:19:20) in laya_compute_portal_fifo_probe (hls/compute_portal_fifo_probe.cpp:19) | syn.compile.pipeline_loops=64 |
++----------+---------+-----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------+
+
+* Valid Pragma Syntax
++-----------+--------------------------------------+--------------------------------------------------------------------------+
+| Type      | Options                              | Location                                                                 |
++-----------+--------------------------------------+--------------------------------------------------------------------------+
+| INTERFACE | ap_fifo port=compute_cmd depth=2     | in laya_compute_portal_fifo_probe (hls/compute_portal_fifo_probe.cpp:10) |
+| INTERFACE | ap_fifo port=compute_rsp depth=2     | in laya_compute_portal_fifo_probe (hls/compute_portal_fifo_probe.cpp:11) |
+| INTERFACE | s_axilite port=return bundle=control | in laya_compute_portal_fifo_probe (hls/compute_portal_fifo_probe.cpp:12) |
++-----------+--------------------------------------+--------------------------------------------------------------------------+
+
+

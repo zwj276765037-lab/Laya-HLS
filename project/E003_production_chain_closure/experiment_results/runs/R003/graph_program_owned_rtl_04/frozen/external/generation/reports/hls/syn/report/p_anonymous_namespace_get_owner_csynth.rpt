@@ -1,0 +1,271 @@
+
+
+================================================================
+== Vitis HLS Report for 'p_anonymous_namespace_get_owner'
+================================================================
+* Date:           Tue Oct 13 12:00:26 2026
+
+* Version:        2025.2 (Build 6295257 on Nov 14 2025)
+* Project:        work
+* Solution:       hls (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  6.67 ns|  2.602 ns|     1.80 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+----------+----------+-----+-----+---------+
+    |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
+    |   min   |   max   |    min   |    max   | min | max |   Type  |
+    +---------+---------+----------+----------+-----+-----+---------+
+    |       97|      217|  0.647 us|  1.447 us|   97|  217|       no|
+    +---------+---------+----------+----------+-----+-----+---------+
+
+    + Detail: 
+        * Instance: 
+        +------------------+-------+---------+---------+-----------+----------+-----+-----+---------+
+        |                  |       |  Latency (cycles) |  Latency (absolute)  |  Interval | Pipeline|
+        |     Instance     | Module|   min   |   max   |    min    |    max   | min | max |   Type  |
+        +------------------+-------+---------+---------+-----------+----------+-----+-----+---------+
+        |grp_get_6_fu_250  |get_6  |        5|       17|  33.335 ns|  0.113 us|    5|   17|       no|
+        +------------------+-------+---------+---------+-----------+----------+-----+-----+---------+
+
+        * Loop: 
+        +-------------------+---------+---------+----------+-----------+-----------+------+----------+
+        |                   |  Latency (cycles) | Iteration|  Initiation Interval  | Trip |          |
+        |     Loop Name     |   min   |   max   |  Latency |  achieved |   target  | Count| Pipelined|
+        +-------------------+---------+---------+----------+-----------+-----------+------+----------+
+        |- VITIS_LOOP_95_1  |        8|        8|         2|          -|          -|     4|        no|
+        |- VITIS_LOOP_95_1  |        8|        8|         2|          -|          -|     4|        no|
+        +-------------------+---------+---------+----------+-----------+-----------+------+----------+
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|      292|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     -|       74|      339|    -|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|      603|    -|
+|Register             |        -|     -|     1405|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     0|     1479|     1234|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +------------------+-------+---------+----+----+-----+-----+
+    |     Instance     | Module| BRAM_18K| DSP| FF | LUT | URAM|
+    +------------------+-------+---------+----+----+-----+-----+
+    |grp_get_6_fu_250  |get_6  |        0|   0|  74|  339|    0|
+    +------------------+-------+---------+----+----+-----+-----+
+    |Total             |       |        0|   0|  74|  339|    0|
+    +------------------+-------+---------+----+----+-----+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +-----------------------+----------+----+---+----+------------+------------+
+    |     Variable Name     | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +-----------------------+----------+----+---+----+------------+------------+
+    |add_ln95_13_fu_404_p2  |         +|   0|  0|  10|           3|           1|
+    |add_ln95_fu_295_p2     |         +|   0|  0|  10|           3|           1|
+    |icmp_ln95_6_fu_398_p2  |      icmp|   0|  0|  12|           3|           4|
+    |icmp_ln95_fu_289_p2    |      icmp|   0|  0|  12|           3|           4|
+    |or_ln95_7_fu_473_p2    |        or|   0|  0|  32|          32|          32|
+    |or_ln95_fu_362_p2      |        or|   0|  0|  32|          32|          32|
+    |shl_ln95_7_fu_463_p2   |       shl|   0|  0|  92|          32|          32|
+    |shl_ln95_fu_352_p2     |       shl|   0|  0|  92|          32|          32|
+    +-----------------------+----------+----+---+----+------------+------------+
+    |Total                  |          |   0|  0| 292|         140|         138|
+    +-----------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +------------------------+-----+-----------+-----+-----------+
+    |          Name          | LUT | Input Size| Bits| Total Bits|
+    +------------------------+-----+-----------+-----+-----------+
+    |ap_NS_fsm               |  159|         35|    1|         35|
+    |ap_return_0             |    9|          2|    8|         16|
+    |ap_return_1             |    9|          2|    8|         16|
+    |ap_return_10            |    9|          2|    8|         16|
+    |ap_return_11            |    9|          2|    8|         16|
+    |ap_return_12            |    9|          2|   16|         32|
+    |ap_return_13            |    9|          2|   16|         32|
+    |ap_return_14            |    9|          2|   16|         32|
+    |ap_return_15            |    9|          2|    8|         16|
+    |ap_return_16            |    9|          2|    8|         16|
+    |ap_return_17            |    9|          2|    8|         16|
+    |ap_return_18            |    9|          2|   64|        128|
+    |ap_return_19            |    9|          2|   64|        128|
+    |ap_return_2             |    9|          2|   32|         64|
+    |ap_return_20            |    9|          2|   64|        128|
+    |ap_return_21            |    9|          2|   64|        128|
+    |ap_return_22            |    9|          2|   64|        128|
+    |ap_return_23            |    9|          2|   64|        128|
+    |ap_return_24            |    9|          2|   64|        128|
+    |ap_return_3             |    9|          2|    8|         16|
+    |ap_return_4             |    9|          2|    8|         16|
+    |ap_return_5             |    9|          2|    8|         16|
+    |ap_return_6             |    9|          2|   32|         64|
+    |ap_return_7             |    9|          2|    8|         16|
+    |ap_return_8             |    9|          2|    8|         16|
+    |ap_return_9             |    9|          2|    8|         16|
+    |grp_get_6_fu_250_bytes  |   14|          3|    4|         12|
+    |grp_get_6_fu_250_off    |   59|         11|    7|         77|
+    |i_111_fu_104            |    9|          2|    3|          6|
+    |i_fu_96                 |    9|          2|    3|          6|
+    |p_address0              |    9|          2|   10|         20|
+    |p_address0_local        |   49|          9|   10|         90|
+    |p_address1_local        |   43|          8|   10|         80|
+    |p_ce0                   |    9|          2|    1|          2|
+    |value_31_fu_100         |    9|          2|   64|        128|
+    |value_fu_92             |    9|          2|   64|        128|
+    +------------------------+-----+-----------+-----+-----------+
+    |Total                   |  603|        128|  841|       1912|
+    +------------------------+-----+-----------+-----+-----------+
+
+    * Register: 
+    +-------------------------------+----+----+-----+-----------+
+    |              Name             | FF | LUT| Bits| Const Bits|
+    +-------------------------------+----+----+-----+-----------+
+    |ap_CS_fsm                      |  34|   0|   34|          0|
+    |ap_return_0_preg               |   8|   0|    8|          0|
+    |ap_return_10_preg              |   8|   0|    8|          0|
+    |ap_return_11_preg              |   8|   0|    8|          0|
+    |ap_return_12_preg              |  16|   0|   16|          0|
+    |ap_return_13_preg              |  16|   0|   16|          0|
+    |ap_return_14_preg              |  16|   0|   16|          0|
+    |ap_return_15_preg              |   8|   0|    8|          0|
+    |ap_return_16_preg              |   8|   0|    8|          0|
+    |ap_return_17_preg              |   8|   0|    8|          0|
+    |ap_return_18_preg              |  64|   0|   64|          0|
+    |ap_return_19_preg              |  64|   0|   64|          0|
+    |ap_return_1_preg               |   8|   0|    8|          0|
+    |ap_return_20_preg              |  64|   0|   64|          0|
+    |ap_return_21_preg              |  64|   0|   64|          0|
+    |ap_return_22_preg              |  64|   0|   64|          0|
+    |ap_return_23_preg              |  64|   0|   64|          0|
+    |ap_return_24_preg              |  64|   0|   64|          0|
+    |ap_return_2_preg               |  32|   0|   32|          0|
+    |ap_return_3_preg               |   8|   0|    8|          0|
+    |ap_return_4_preg               |   8|   0|    8|          0|
+    |ap_return_5_preg               |   8|   0|    8|          0|
+    |ap_return_6_preg               |  32|   0|   32|          0|
+    |ap_return_7_preg               |   8|   0|    8|          0|
+    |ap_return_8_preg               |   8|   0|    8|          0|
+    |ap_return_9_preg               |   8|   0|    8|          0|
+    |d_batch_reg_794                |   8|   0|    8|          0|
+    |d_batch_stride_reg_864         |  64|   0|   64|          0|
+    |d_bo_span_reg_849              |  64|   0|   64|          0|
+    |d_content_reg_824              |   8|   0|    8|          0|
+    |d_head_stride_reg_874          |  64|   0|   64|          0|
+    |d_layer_reg_779                |   8|   0|    8|          0|
+    |d_layout_reg_839               |   8|   0|    8|          0|
+    |d_old_ref_bank_reg_736         |   8|   0|    8|          0|
+    |d_old_ref_id_reg_731           |   8|   0|    8|          0|
+    |d_old_region_reg_759           |   8|   0|    8|          0|
+    |d_owner_base_offset_reg_854    |  64|   0|   64|          0|
+    |d_owner_extent_span_reg_869    |  64|   0|   64|          0|
+    |d_role_reg_844                 |   8|   0|    8|          0|
+    |d_row0_reg_804                 |  16|   0|   16|          0|
+    |d_row_space_reg_799            |   8|   0|    8|          0|
+    |d_row_stride_reg_859           |  64|   0|   64|          0|
+    |d_rows_reg_809                 |  16|   0|   16|          0|
+    |d_stage_reg_774                |   8|   0|    8|          0|
+    |d_target_ref_bank_reg_674      |   8|   0|    8|          0|
+    |d_target_ref_epoch_reg_726     |  32|   0|   32|          0|
+    |d_target_ref_id_reg_669        |   8|   0|    8|          0|
+    |d_target_region_reg_711        |   8|   0|    8|          0|
+    |d_width_reg_814                |  16|   0|   16|          0|
+    |grp_get_6_fu_250_ap_start_reg  |   1|   0|    1|          0|
+    |i_111_fu_104                   |   3|   0|    3|          0|
+    |i_fu_96                        |   3|   0|    3|          0|
+    |trunc_ln95_32_reg_744          |   2|   0|    2|          0|
+    |trunc_ln95_reg_682             |   2|   0|    2|          0|
+    |value_31_fu_100                |  64|   0|   64|          0|
+    |value_fu_92                    |  64|   0|   64|          0|
+    +-------------------------------+----+----+-----+-----------+
+    |Total                          |1405|   0| 1405|          0|
+    +-------------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++--------------+-----+-----+------------+--------------------------------+--------------+
+|   RTL Ports  | Dir | Bits|  Protocol  |          Source Object         |    C Type    |
++--------------+-----+-----+------------+--------------------------------+--------------+
+|ap_clk        |   in|    1|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_rst        |   in|    1|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_start      |   in|    1|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_done       |  out|    1|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_idle       |  out|    1|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_ready      |  out|    1|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_0   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_1   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_2   |  out|   32|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_3   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_4   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_5   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_6   |  out|   32|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_7   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_8   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_9   |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_10  |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_11  |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_12  |  out|   16|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_13  |  out|   16|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_14  |  out|   16|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_15  |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_16  |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_17  |  out|    8|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_18  |  out|   64|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_19  |  out|   64|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_20  |  out|   64|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_21  |  out|   64|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_22  |  out|   64|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_23  |  out|   64|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|ap_return_24  |  out|   64|  ap_ctrl_hs|  (anonymous namespace)get_owner|  return value|
+|p_address0    |  out|   10|   ap_memory|                               p|         array|
+|p_ce0         |  out|    1|   ap_memory|                               p|         array|
+|p_q0          |   in|    8|   ap_memory|                               p|         array|
+|p_address1    |  out|   10|   ap_memory|                               p|         array|
+|p_ce1         |  out|    1|   ap_memory|                               p|         array|
+|p_q1          |   in|    8|   ap_memory|                               p|         array|
++--------------+-----+-----+------------+--------------------------------+--------------+
+

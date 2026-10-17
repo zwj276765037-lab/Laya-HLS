@@ -1,0 +1,36 @@
+# Program真实RTL出口与executor输入结构审核
+
+审核：R-SM003-PROGRAM-RTL-EXECUTOR-INPUTS-20261013。回复 executor-program-rtl-inputs-structure-progress-20261013；M003/SM003/E003/R003，A002唯一整合，原授权内连续推进。
+
+## Program本阶段接纳
+
+本次可以接纳真实owned program的有限RTL出口，先前purpose/content/七个model copy块首缺陷在本冻结、所测输入及四case范围内修复通过。
+
+- `graph_program_owned_hls_06` 限定生成通过：实际8FIFO/24信号及3scalar方向宽度逐项核验。411.028507s、peak5360976KiB/2044RSS，child0/trigger null。XML核BRAM18=26、DSP1、FF67932、LUT249391、URAM0，仍仅该候选HLS估计；不作联合资源、实现时序或单项优化归因。
+- `owned_bootstrap_validator_rtl_01` 接纳15个独立生成模块process：合法正对照，purpose0/2/257、content0/2/255、独立坏region及七model块首破坏均有实际start/done/return证据。主控逐nibble核原观测到测试输入的全部known bits保持，49B/392bits未知部分均落在声明padding，719语义字节不被mask。仅这一个padding赋值受测，不签padding invariance、顶层安装或LHC传unsupported purpose。
+- `graph_program_owned_rtl_05` 四个真实depth2 process接纳。每个原始log的17项有序见证均从实际owner read/start开始，经过geometry、416个索引连续的model copy、build、416次canonical、l13m返回0、外层encode、1024次完整比较，再到decoder完成和cycle20816的owner echo。TB逐index/byte核查体已读，最终计数不是从最大index推导或寄存器初值代签。正常、command prefix撤销、allocated撤销、stale completion均按原gold及反压通过。
+- `rtl_04` 原145ns monitor失败保留。相对_05只在monitor增加真实start与state454的done资格及对应检查，未改变生成DUT或原四case/gold；这是排除idle ap_done误采，不是删除实际执行断言。
+
+该范围仍为program及八depth2 FIFO，LAC/END peer和结果消费通知受控，不能升级为actual executor/LN/hub同runtime、唯一软件退休或完整请求PASS。57141/45060/57140/59096cycles含受控完成及20000周期保留，只作所测控制行为统计，不是C正常NORM性能基线。program校验阶段不再是本轮阻塞，可沿原顺序接入后继真实链。
+
+## Executor结构候选
+
+`executor_hls_03` 核定COST_STOP：285.634333s、peak1474268KiB/445RSS、semantic_stall/child-9，0生成top且port_evidence=null。完整字节比较和program字段联合修复没有解除其生成阻塞，旧attempt不追认。A006的450可达定义/仅intrinsic及2464B aggregate copy定位按只读报告保留，主控没有重跑LLVM调用图，也不把copy判为已证根因。
+
+接纳host06/host07各七process的原冻结主机范围。主控逐字核三文件变化：FIRST top切到独立名字 `step_in_place`；完整consumer体仅移除局部 `Inputs in=live`；旧const step仍先复制到scratch再调用同一核心，header明确scratch生命周期。没有LTP1端口、collector或actor语义夹带。此为有区分力的最小结构候选，可按原帽继续；目前不签编译改善或硬件收益。
+
+const/in_place双模式受影响测试按准备继续。caller值不变义务适用于旧const入口；新in_place的调用者明确允许修改本次局部scratch，不应要求它不写scratch。用相同初始化和输入序列比较实际actor/transport状态及真实输出消费事实，排除未定义padding，保持scratch不别名持久状态且调用后不再使用的约定。
+
+HLS04的91项冻结与host07一致已核；本轮观察时收据仍为准备状态，工程已报告实际启动，生成/行为待实测。下一核FIRST的实际可达路径是否进入in_place并去除那份copy，再看LTO/宽口lower/top及端口出口；不因旧兼容wrapper符号仍在全局IR中就否定去副本，关键是它是否仍在FIRST可达路径。如果仍同点停止，只能说明本结构变化不足，不原样循环或延长120s保护。
+
+## 必要cleanup准备及下个出口
+
+`controller_transaction_adapter_managed_host_01` 的default兼容和managed88case，以及 `executor_transaction_pending_host_01` 的11帧/62拒绝，接纳为相应冻结codec/helper/adapter软件范围。它们未验证首外部VALID尝试未接受的真实反压、持久A-pending/FSM exporter/collector/sidecar生成链；SEQ_CODEC不能因具有encode就声称已接完整decoder。旧cleanup首LTX合同仍未关闭。保持实际adapter负完成、END/INVALIDATE精确白名单、完整旧A/K/route和唯一hub权威，必要旧债务进展继续。
+
+下一关键出口仍是executor有区别的生成结果，然后同runtime B1/S64四窗NORM、65536F32独立gold、真实END/发布/唯一软件退休及cycles。D/Q及完整CLOSED/rearm后置，不能用本次program所测cycles替代C。普通工作不新增逐项审批。
+
+## 身份与资源
+
+主控核九attempt共4560组frozen/声明pair、13270项非original SHA/字节引用。host06与HLS03各三处live变化对应新输入结构，rtl04一处TB对应monitor修复；历史live复用引用差异单列，不改冻结。60段选中guard起止串行，除executor03语义停滞外均child0/trigger null；478条实际policy符合CPU0–3/nice19/idle I/O，原MemAvailable及分类帽保持。19段无child RSS、21段无child policy按观测记载，不补造完整性。
+
+[核验与304份快照](executor_program_rtl_inputs_structure_review_20261013/verification.json)。主控未运行DUT工具。C/D周期NOT_RUN、C009/C013部分实施、M003/M004未完成；原单重工具、全部资源帽、G2338.224019s仅OOC余额保持，5172s不重启，无新增OOC/P&R/上板/预算。

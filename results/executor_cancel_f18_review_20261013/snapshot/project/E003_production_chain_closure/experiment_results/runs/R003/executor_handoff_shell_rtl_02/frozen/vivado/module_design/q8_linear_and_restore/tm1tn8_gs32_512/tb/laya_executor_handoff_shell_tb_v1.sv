@@ -1,0 +1,193 @@
+`timescale 1ns/1ps
+module laya_executor_handoff_shell_tb_v1;
+  import laya_executor_handoff_layout_v1::*;
+  logic clk=0,rst_n=0,cancel=0;always #5 clk=~clk;
+  logic [63:0] current_session=29,current_request=101;
+  logic [767:0] current_identity;
+  logic base_valid=1;logic [63:0] base_epoch=7,base_address=64'h1200000000,base_capacity=16920576;
+  logic control_valid=0,control_ready,response_valid,response_ready=0;
+  logic [8191:0] control=0,response,pending_key;
+  logic stop_predecessor,locks_owned,predecessor_done_valid=0,predecessor_done_ready;
+  logic [8191:0] predecessor_done_key=0;
+  logic old_channels_drained=0,physical_safe=0,protection_valid=1;
+  logic query_accepted=0,query_response_pop=0;
+  logic [8191:0] query_request=0;logic [511:0] query_response_word=0;
+  logic query_permit,import_pending,executor_owns_dispatch,authority_valid,revoked,local_committed;
+  logic [63:0] sequence_high_water,handoff_high_water;
+  logic [31:0] control_rejections,grants,closed_aborts;
+  logic [3:0] phase;
+  logic [8191:0] hold_frame,query_frame,proof_frame,import_frame,abort_frame;
+  logic [8191:0] held_gold,grant_gold,abort_closed_gold;
+  logic [511:0] words[0:15];string fixture;
+  int cycles=0,cases=0;
+  laya_executor_handoff_shell_v1 dut(.*);
+  always @(posedge clk)begin
+    cycles<=cycles+1;
+    if(cycles>6000)$fatal(1,"cycle cap");
+    if(authority_valid && (revoked || cancel || !executor_owns_dispatch || !local_committed))
+      $fatal(1,"authority without owner/commit/live binding");
+  end
+  task automatic tick();@(posedge clk);#1;endtask
+  task automatic idle(input int n);repeat(n)tick();endtask
+  task automatic load(input string name,output logic [8191:0] p);
+    $readmemh({fixture,"/",name,".hex"},words);
+    for(int i=0;i<16;i++)p[i*512+:512]=words[i];
+  endtask
+  task automatic reset_case();
+    @(negedge clk);rst_n=0;cancel=0;control_valid=0;response_ready=0;
+    predecessor_done_valid=0;query_accepted=0;query_response_pop=0;
+    old_channels_drained=0;physical_safe=0;protection_valid=1;
+    base_epoch=7;base_address=64'h1200000000;base_capacity=16920576;
+    current_session=29;current_request=101;current_identity=hold_frame[64*8+:768];
+    idle(3);@(negedge clk);rst_n=1;tick();
+  endtask
+  task automatic send(input logic [8191:0] p);
+    @(negedge clk);control=p;control_valid=1;
+    while(!control_ready)tick();tick();@(negedge clk);control_valid=0;
+  endtask
+  task automatic hold_start();
+    send(hold_frame);
+    if(phase!=1 || handoff_high_water!=1 || sequence_high_water!=1 || locks_owned || query_permit)
+      $fatal(1,"hold did not allocate bounded H/S before query");
+    // A bound completion may arrive while old channels/physical debt still
+    // remain. This prototype uses controlled safety inputs, not a monitor.
+    @(negedge clk);predecessor_done_key=pending_key;predecessor_done_valid=1;
+    tick();@(negedge clk);predecessor_done_valid=0;
+    repeat(12)begin tick();if(response_valid || locks_owned || !stop_predecessor)$fatal(1,"early held");end
+  endtask
+  task automatic acquire_held();
+    @(negedge clk);old_channels_drained=1;physical_safe=1;tick();
+    if(!response_valid || response!==held_gold || !locks_owned || query_permit || authority_valid)
+      $fatal(1,"held response or lock wrong");
+    repeat(12)begin tick();if(response!==held_gold || query_permit || authority_valid)$fatal(1,"HELD backpressure");end
+    @(negedge clk);response_ready=1;tick();@(negedge clk);response_ready=0;
+    if(!query_permit || authority_valid)$fatal(1,"held consume boundary");
+  endtask
+  task automatic query_begin();
+    @(negedge clk);query_request=query_frame;query_accepted=1;tick();
+    @(negedge clk);query_accepted=0;
+    if(phase!=4 || query_permit)$fatal(1,"query ownership");
+  endtask
+  task automatic query_pop(input int beat);
+    @(negedge clk);query_response_word=proof_frame[beat*512+:512];query_response_pop=1;
+    tick();@(negedge clk);query_response_pop=0;
+  endtask
+  task automatic query_complete(input int mutation);
+    query_begin();
+    for(int i=0;i<14;i++)query_pop(i);
+    repeat(12)begin tick();if(import_pending || authority_valid)$fatal(1,"tail2 premature import");end
+    query_pop(14);
+    repeat(12)begin tick();if(import_pending || authority_valid)$fatal(1,"tail1 premature import");end
+    if(mutation==1)cancel=1;
+    if(mutation==2)base_epoch=8;
+    query_pop(15);cancel=0;base_epoch=7;
+    if(!import_pending || authority_valid || local_committed)$fatal(1,"last read granted");
+    repeat(12)begin tick();if(authority_valid || local_committed)$fatal(1,"delayed helper granted");end
+  endtask
+  task automatic confirm();
+    send(import_frame);
+    if(!response_valid || response!==grant_gold || authority_valid || !local_committed)
+      $fatal(1,"IMPORT response wrong or combinational authorization");
+    repeat(12)begin tick();if(response!==grant_gold || authority_valid)$fatal(1,"GRANT backpressure");end
+  endtask
+  task automatic consume_grant();
+    @(negedge clk);response_ready=1;tick();@(negedge clk);response_ready=0;
+  endtask
+  task automatic mutation(input int which);
+    if(which==0)cancel=1;
+    if(which==1)base_epoch=8;
+    if(which==2)current_session=30;
+    if(which==3)current_request=102;
+  endtask
+  task automatic restore();cancel=0;base_epoch=7;current_session=29;current_request=101;endtask
+  initial begin
+    if(!$value$plusargs("FIXTURE=%s",fixture))$fatal(1,"fixture missing");
+    load("hold",hold_frame);load("query",query_frame);load("proof",proof_frame);
+    load("import_ok",import_frame);load("abort",abort_frame);
+    load("held_gold",held_gold);load("grant_gold",grant_gold);load("abort_closed_gold",abort_closed_gold);
+    reset_case();hold_start();acquire_held();
+    // Early/wrong-key confirmations are consumed, not left blocking the right
+    // confirmation. They do not commit or unlock the pending transaction.
+    send(import_frame);if(local_committed || authority_valid)$fatal(1,"early import");
+    query_complete(0);
+    for(int i=0;i<7;i++)begin
+      logic [8191:0] wrong;wrong=import_frame;
+      case(i)
+        0:wrong[16*8+:64]=2;
+        1:wrong[680*8+:64]=2;
+        2:wrong[776*8+:64]=30;
+        3:wrong[784*8+:64]=102;
+        4:wrong[64*8+:64]=1102;
+        5:wrong[40*8+:64]=8;
+        6:wrong[1023*8+:8]=1;
+      endcase
+      send(wrong);if(local_committed || response_valid || authority_valid)$fatal(1,"wrong import key");
+    end
+    if(control_rejections!=8)$fatal(1,"bounded control reject count");
+    confirm();consume_grant();
+    if(!authority_valid || grants!=1 || !executor_owns_dispatch)$fatal(1,"unique grant failed");
+    send(import_frame);if(grants!=1 || !authority_valid)$fatal(1,"duplicate grant");
+    // Active debt cannot revoke its old owner. The immutable binding remains
+    // live while the owner must complete its existing physical work.
+    physical_safe=0;old_channels_drained=0;idle(12);
+    if(!authority_valid || revoked || !executor_owns_dispatch)$fatal(1,"normal debt revoked");
+    cases++;
+
+    // Actual C++ helper reservation-hole rejection drives this bound ABORT.
+    reset_case();hold_start();acquire_held();query_complete(0);
+    physical_safe=0;send(abort_frame);idle(12);
+    if(response_valid || authority_valid || local_committed || !locks_owned)$fatal(1,"abort before safe");
+    physical_safe=1;tick();
+    if(!response_valid || response!==abort_closed_gold || authority_valid)$fatal(1,"abort close binding");
+    idle(12);if(response!==abort_closed_gold || !locks_owned)$fatal(1,"abort response unstable");
+    @(negedge clk);response_ready=1;tick();@(negedge clk);response_ready=0;
+    if(phase!=0 || locks_owned || handoff_high_water!=1 || sequence_high_water!=1 || closed_aborts!=1)
+      $fatal(1,"abort cleared highwater or wrong retry state");
+    begin
+      logic [8191:0] next_hold;next_hold=hold_frame;next_hold[16*8+:64]=2;send(next_hold);
+      if(handoff_high_water!=2 || sequence_high_water!=2)$fatal(1,"no-reset retry reused keys");
+      send(import_frame);if(local_committed || authority_valid)$fatal(1,"old confirmation after retry");
+    end
+    cases++;
+
+    for(int mode=0;mode<14;mode++)begin
+      reset_case();hold_start();
+      if(mode<2)begin
+        @(negedge clk);mutation(mode);old_channels_drained=1;physical_safe=1;tick();restore();idle(12);
+        if(response_valid || locks_owned || query_permit || !revoked)$fatal(1,"hold acquire revoke race");
+      end else begin
+        acquire_held();query_complete(mode<4?mode-1:0);
+        if(mode<4)begin
+          send(import_frame);if(!local_committed || response_valid || !revoked)$fatal(1,"last read revoke race");
+        end else if(mode<6)begin
+          @(negedge clk);mutation(mode-4);send(import_frame);restore();idle(12);
+          if(!local_committed || response_valid || !revoked)$fatal(1,"import same-edge revoke race");
+        end else begin
+          confirm();
+          if(mode<8)begin
+            @(negedge clk);mutation(mode-6);tick();restore();idle(12);
+            if(response!==grant_gold || authority_valid || !revoked)$fatal(1,"grant stall revoke changed bytes");
+            consume_grant();
+          end else if(mode<10)begin
+            @(negedge clk);mutation(mode-8);consume_grant();restore();tick();
+          end else begin
+            consume_grant();if(!authority_valid)$fatal(1,"start authority missing");
+            @(negedge clk);mutation(mode-10);#1;
+            if(authority_valid)$fatal(1,"same-cycle new start after cancel/base/session/request");
+            tick();restore();idle(12);
+          end
+          if(authority_valid || !executor_owns_dispatch || !locks_owned || !revoked || !local_committed)
+            $fatal(1,"revoke lost owner/locks/commit or reopened authority");
+          // Never pretend a committed import was uncommitted to regain the
+          // predecessor. Old cleanup ownership is retained even in isolation.
+          send(abort_frame);if(phase==0 || !local_committed)$fatal(1,"commit0 abort reopened");
+          begin logic [8191:0] committed_abort;committed_abort=abort_frame;committed_abort[792*8+:8]=1;
+            send(committed_abort);if(phase!=10 || !executor_owns_dispatch || !locks_owned)$fatal(1,"committed abort lost cleanup");end
+        end
+      end
+      cases++;
+    end
+    $display("FULL_CURRENT_EXECUTOR_HANDOFF_SHELL_RTL_PASS cases=%0d cycles=%0d actual_helper_import_abort=1 held_query_import_grant=1 final_read_no_authority=1 tail2_tail1_stalls=1 unique_grant=1 no_reset_precommit_retry=1 cancel_base_same_edge=1 active_session_request_revoke=1 cleanup_owner_retained=1 controlled_safety_inputs=1 hardware_rearm_NOT_RUN=1",cases,cycles);
+    $finish;
+  end
+endmodule

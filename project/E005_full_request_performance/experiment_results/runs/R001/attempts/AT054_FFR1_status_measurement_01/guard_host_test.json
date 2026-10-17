@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "cases": [
+    {
+      "name": "cycle_heartbeat_after_first_r",
+      "samples": [
+        {
+          "logical_second": 1,
+          "line": "FFR1_PROGRESS cfg=1 sar=1 sr=1 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": true,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 40,
+          "line": "FFR1_SNAPSHOT cycle=40000",
+          "advanced": false,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 80,
+          "line": "FFR1_PROGRESS cycle=80000",
+          "advanced": false,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 121,
+          "line": "FFR1_SNAPSHOT cycle=121000",
+          "advanced": false,
+          "regression": false,
+          "stall": true
+        }
+      ],
+      "expected_stall_at": 121,
+      "observed_stall_at": 121,
+      "regression_seen": false,
+      "spawned": false,
+      "verdict": "PASS"
+    },
+    {
+      "name": "repeated_identical_progress",
+      "samples": [
+        {
+          "logical_second": 1,
+          "line": "FFR1_PROGRESS cfg=1 sar=1 sr=1 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": true,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 45,
+          "line": "FFR1_PROGRESS cfg=1 sar=1 sr=1 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": false,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 90,
+          "line": "FFR1_PROGRESS cfg=1 sar=1 sr=1 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": false,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 121,
+          "line": "FFR1_PROGRESS cfg=1 sar=1 sr=1 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": false,
+          "regression": false,
+          "stall": true
+        }
+      ],
+      "expected_stall_at": 121,
+      "observed_stall_at": 121,
+      "regression_seen": false,
+      "spawned": false,
+      "verdict": "PASS"
+    },
+    {
+      "name": "real_handshake_renews",
+      "samples": [
+        {
+          "logical_second": 1,
+          "line": "FFR1_PROGRESS cfg=1 sar=1 sr=1 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": true,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 60,
+          "line": "FFR1_PROGRESS cfg=1 sar=2 sr=2 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": true,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 150,
+          "line": "FFR1_SNAPSHOT cycle=150000",
+          "advanced": false,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 180,
+          "line": "FFR1_SNAPSHOT cycle=180000",
+          "advanced": false,
+          "regression": false,
+          "stall": true
+        }
+      ],
+      "expected_stall_at": 180,
+      "observed_stall_at": 180,
+      "regression_seen": false,
+      "spawned": false,
+      "verdict": "PASS"
+    },
+    {
+      "name": "regression_not_progress",
+      "samples": [
+        {
+          "logical_second": 1,
+          "line": "FFR1_PROGRESS cfg=1 sar=1 sr=1 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": true,
+          "regression": false,
+          "stall": false
+        },
+        {
+          "logical_second": 40,
+          "line": "FFR1_PROGRESS cfg=0 sar=0 sr=0 dar=0 dr=0 aa=0 ar=0 ac=0 aw=0 w=0 b=0 rsp=0",
+          "advanced": false,
+          "regression": true,
+          "stall": false
+        },
+        {
+          "logical_second": 121,
+          "line": "FFR1_SNAPSHOT",
+          "advanced": false,
+          "regression": false,
+          "stall": true
+        }
+      ],
+      "expected_stall_at": 121,
+      "observed_stall_at": 121,
+      "regression_seen": true,
+      "spawned": false,
+      "verdict": "PASS"
+    }
+  ],
+  "spawned": false,
+  "verdict": "PASS"
+}

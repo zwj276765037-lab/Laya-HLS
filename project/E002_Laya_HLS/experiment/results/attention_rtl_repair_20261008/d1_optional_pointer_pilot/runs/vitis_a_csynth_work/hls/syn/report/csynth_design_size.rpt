@@ -1,0 +1,96 @@
+================================================================
+== Design Size Report
+================================================================
+
+* Total Instructions per Compilation Phase
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Phase         | Step                       | Instructions | Description                                                                            |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Compile/Link  |                            | 2,693        | After all functions are compiled and linked into a single design                       |
+|               |                            |              |                                                                                        |
+| Unroll/Inline |                            |              | After user unroll and inline pragmas are applied                                       |
+|               | (1) unroll                 | 3,596        | user unroll pragmas are applied                                                        |
+|               | (2) simplification         | 2,999        | simplification of applied user unroll pragmas                                          |
+|               | (3) inline                 | 2,611        | user inline pragmas are applied                                                        |
+|               | (4) simplification         | 1,565        | simplification of applied user inline pragmas                                          |
+|               |                            |              |                                                                                        |
+| Array/Struct  |                            |              | After user array partition and struct aggregate/disaggregate pragmas are applied       |
+|               | (1) array partition        |   992        | user array partition pragmas are applied                                               |
+|               | (2) simplification         |   980        | simplification of applied user array partition & struct aggregate/disaggregate pragmas |
+|               | (3) aggregate/disaggregate |   980        | user struct aggregate/disaggregate pragmas are applied                                 |
+|               | (4) array reshape          |   980        | apply array reshape pragmas                                                            |
+|               | (5) access patterns        |   948        | array access pattern optmizations                                                      |
+|               |                            |              |                                                                                        |
+| Performance   |                            |              | After transformations are applied to meet performance pragma targets                   |
+|               | (1) loop simplification    |   892        | loop and instruction simplification                                                    |
+|               | (2) parallelization        |   884        | loops are unrolled or pipelined to meet performance targets                            |
+|               | (3) array partition        |   770        | arrays are partitioned to meet performance targets                                     |
+|               | (4) simplification         |   751        | simplification of design after performance transformations                             |
+|               |                            |              |                                                                                        |
+| HW Transforms |                            |              | After hardware transfomations                                                          |
+|               | (1) lowering               |   760        | initial conversion to HW specific instructions                                         |
+|               | (2) optimizations          |   693        | high level synthesis optimizations                                                     |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+
+* Instructions per Function for each Compilation Phase
++----------------------------+--------------------------------+-----------------+----------------+---------------+---------------+---------------+
+| Function                   | Location                       | Compile/Link    | Unroll/Inline  | Array/Struct  | Performance   | HW Transforms |
++----------------------------+--------------------------------+-----------------+----------------+---------------+---------------+---------------+
+| + optional_pointer_pilot   | optional_pointer_pilot.cpp:215 | 2,693           | 1,565          | 948           | 751           | 693           |
+|  + Probe                   | optional_pointer_pilot.cpp:10  |  171            |                |               |               |               |
+|   + FullOwnerSpec          | laya_full_runtime.h:80         |   84 (3 calls)  |                |               |               |               |
+|      BufferRef             | laya_types.h:19                |   21 (3 calls)  |                |               |               |               |
+|   + VectorTask             | laya_tasks.h:17                |   57            |                |               |               |               |
+|      TaskContext           | laya_tasks.h:7                 |   17            |                |               |               |               |
+|      BufferRef             | laya_types.h:19                |   21 (3 calls)  |                |               |               |               |
+|     BufferRef              | laya_types.h:19                |    7            |                |               |               |               |
+|  + spec                    | optional_pointer_pilot.cpp:20  |  124 (2 calls)  |                |               |               |               |
+|   + FullOwnerSpec          | laya_full_runtime.h:80         |   56 (2 calls)  |                |               |               |               |
+|      BufferRef             | laya_types.h:19                |   14 (2 calls)  |                |               |               |               |
+|  + FullOwnerSpec           | laya_full_runtime.h:80         |   56 (2 calls)  |                |               |               |               |
+|     BufferRef              | laya_types.h:19                |   14 (2 calls)  |                |               |               |               |
+|    ok                      | laya_types.h:10                |    7            |                |               |               |               |
+|    detail                  | laya_types.h:11                |   16 (2 calls)  |                |               |               |               |
+|    select_attention_source | optional_pointer_pilot.cpp:200 |    9            |                |               |               |               |
+|  + vector                  | optional_pointer_pilot.cpp:193 |  864 (3 calls)  |                |               |               |               |
+|   + vector_impl            | optional_pointer_pilot.cpp:140 |  858 (3 calls)  |                |               |               |               |
+|    + VectorTask            | laya_tasks.h:17                |  171 (3 calls)  |                |               |               |               |
+|       TaskContext          | laya_tasks.h:7                 |   51 (3 calls)  |                |               |               |               |
+|       BufferRef            | laya_types.h:19                |   63 (9 calls)  |                |               |               |               |
+|      none                  | laya_types.h:22                |   21 (3 calls)  |                |               |               |               |
+|    + probe_bind            | optional_pointer_pilot.cpp:123 |  186 (6 calls)  |                |               |               |               |
+|       ok                   | laya_types.h:10                |   42 (6 calls)  |                |               |               |               |
+|       detail               | laya_types.h:11                |   48 (6 calls)  |                |               |               |               |
+|      operator bool         | laya_types.h:9                 |   24 (6 calls)  |                |               |               |               |
+|    + probe_issue_vector    | optional_pointer_pilot.cpp:128 |  123 (3 calls)  |                |               |               |               |
+|       ok                   | laya_types.h:10                |   21 (3 calls)  |                |               |               |               |
+|       detail               | laya_types.h:11                |   24 (3 calls)  |                |               |               |               |
+|  + linear                  | optional_pointer_pilot.cpp:114 | 1,005 (3 calls) |                |               |               |               |
+|   + linear_impl            | optional_pointer_pilot.cpp:61  |  999 (3 calls)  |                |               |               |               |
+|    + probe_load            | optional_pointer_pilot.cpp:37  |   84 (3 calls)  |                |               |               |               |
+|       detail               | laya_types.h:11                |   24 (3 calls)  |                |               |               |               |
+|       ok                   | laya_types.h:10                |   21 (3 calls)  |                |               |               |               |
+|      operator bool         | laya_types.h:9                 |   36 (9 calls)  |                |               |               |               |
+|    + spec                  | optional_pointer_pilot.cpp:20  |  186 (3 calls)  |                |               |               |               |
+|     + FullOwnerSpec        | laya_full_runtime.h:80         |   84 (3 calls)  |                |               |               |               |
+|        BufferRef           | laya_types.h:19                |   21 (3 calls)  |                |               |               |               |
+|    + FullOwnerSpec         | laya_full_runtime.h:80         |   84 (3 calls)  |                |               |               |               |
+|       BufferRef            | laya_types.h:19                |   21 (3 calls)  |                |               |               |               |
+|      detail                | laya_types.h:11                |   24 (3 calls)  |                |               |               |               |
+|    + probe_claim           | optional_pointer_pilot.cpp:41  |  192 (3 calls)  |                |               |               |               |
+|       ok                   | laya_types.h:10                |   21 (3 calls)  |                |               |               |               |
+|       detail               | laya_types.h:11                |   24 (3 calls)  |                |               |               |               |
+|    + probe_publish         | optional_pointer_pilot.cpp:49  |   57 (3 calls)  |                |               |               |               |
+|       ok                   | laya_types.h:10                |   21 (3 calls)  |                |               |               |               |
+|    vector_impl             | optional_pointer_pilot.cpp:140 |                 |  279 (3 calls) | 273 (3 calls) | 132 (3 calls) |  90 (2 calls) |
+|    linear_impl             | optional_pointer_pilot.cpp:61  |                 |  618 (3 calls) | 137 (3 calls) | 143 (3 calls) |  78 (2 calls) |
++----------------------------+--------------------------------+-----------------+----------------+---------------+---------------+---------------+
+
+* Design Size Message Settings
++---------------------------------------------+--------+------------------------------------------------------------------+
+| Message Setting                             | Value  | Description                                                      |
++---------------------------------------------+--------+------------------------------------------------------------------+
+| config_compile -design_size_maximum_warning | 100000 | Show a warning when total design instructions exceeds this value |
++---------------------------------------------+--------+------------------------------------------------------------------+
+
+

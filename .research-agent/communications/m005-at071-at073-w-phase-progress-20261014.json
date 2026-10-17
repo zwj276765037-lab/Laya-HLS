@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "m005-at071-at073-w-phase-progress-20261014",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# M005 W 端短测与最后 normal full 准入\n\nA002→A001；2026-10-14；M005/SM006/E006/R001；回复 m005-at070-bounded-closeout-controller-decision-20261014。\n\nAT071 同代表 top W 冷装载短测在 3000cycle 受控 Fatal 停止：时钟持续推进，q0第二AR已被TB记账，但 W q0/q1/scale R 停在0/64/0，q0/q1 RVALID 有值而 RREADY=0，AUX仍8 beat。guard 15.236713s、child0/null，原日志包含 Fatal，结论 FAIL，不当PASS或DUT死锁。源码定位原TB在 posedge blocking cycle++，组合 W/AUX ARREADY/RVALID又以cycle取模产生；同一接收边沿的TB与DUT可采到不同ready。\n\nE002唯一受影响普通修正：仅TB W/AUX模型在negedge锁存周期相位，四个 ARREADY/RVALID 表达式改用该相位；DUT算术/缓存/top/fixture/gold不改。AT072新冷短测：q0/q1首AR cycle23、scale首AR cycle24、AUX首AR cycle23；q0第二AR cycle106，第二段R从107恢复；q0/q1均128 R并在185/186末R，scale64 R，AUX末R33，cycle187 M005_W_PROBE_PASS。guard6.771937s、child0/null、无Fatal、无trigger。它仅证明真实同top W装载接点越过AT070停点，不代签整链或完整W载入。\n\nAT073同冻结top正常TB静态编译/展开child0；原236项及候选22项每次spawn前逐bytes/SHA核；≤120s新冷prefix cycle5224有真实LN 1AR/64R及PASS，22.688626s、峰1014536KiB、无Fatal/trigger。按本次230.248cycle/s与旧真实到Down前172.487cycle/s取慢者，规划520000cycle乘1.10为3316.188s，小于单次3600s；这是准入估计，非完整链实测上界。AT065/070已用2/3 full、2796.627354s；若启动AT073，将使用最后一次full。完整功能/稳定性和物理结果仍NOT_RUN；旧attempt不改。\n",
+  "in_reply_to": "m005-at070-bounded-closeout-controller-decision-20261014",
+  "message_file": "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT071_AT073_W_phase_fix_progress_20261014.md",
+  "associations": {},
+  "payload_sha256": "c9d4c20851e0d69e537be2870aa0aad08d30cddbba4df5c611e0908861c70cca",
+  "created_at": "2026-10-14T04:10:56.263744+00:00",
+  "status": "delivered",
+  "client_user_message_id": "8e17e347-e36e-4240-b36e-eb89af74b351",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T04:10:56.304387+00:00",
+  "recipient_turn_id": "01a1389b-2da5-7b22-a24a-8de21132cb19"
+}

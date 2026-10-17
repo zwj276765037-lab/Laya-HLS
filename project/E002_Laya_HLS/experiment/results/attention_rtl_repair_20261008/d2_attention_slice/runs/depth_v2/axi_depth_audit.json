@@ -1,0 +1,56 @@
+{
+  "ports": {
+    "fixture": {
+      "element": "uint8",
+      "depth": 786432,
+      "testbench_elements": 786432,
+      "max_dut_exclusive": 786432
+    },
+    "io": {
+      "element": "uint8",
+      "depth": 32768,
+      "testbench_elements": 32768,
+      "max_dut_exclusive": 832
+    },
+    "aux": {
+      "element": "uint8",
+      "depth": 1671872,
+      "testbench_elements": 1671872,
+      "max_dut_exclusive": 128
+    },
+    "qkv0": {
+      "element": "uint8",
+      "depth": 12582912,
+      "testbench_elements": 12582912,
+      "max_dut_exclusive": 10240000
+    },
+    "qkv1": {
+      "element": "uint8",
+      "depth": 12582912,
+      "testbench_elements": 12582912,
+      "max_dut_exclusive": 10240000
+    },
+    "att_out": {
+      "element": "uint8",
+      "depth": 8388608,
+      "testbench_elements": 8388608,
+      "max_dut_exclusive": 256,
+      "max_tb_exclusive": 4100
+    },
+    "observed": {
+      "element": "uint32",
+      "depth": 256,
+      "testbench_elements": 256,
+      "max_dut_exclusive": 208,
+      "max_tb_exclusive": 209
+    }
+  },
+  "basis": {
+    "fixture": "3 planes * 16 heads * 64 rows * 256 bytes; row input_offset maps [0,786432)",
+    "io": "full_parse_request uses 832-byte frozen request and 32768-byte allocated IO BO",
+    "aux": "full_check_model_header reads first 128 bytes of 1671872-byte package aux",
+    "qkv0_qkv1": "qkv_address plane,batch,local_head,token,d with plane<=2,batch=0,local_head<=7,token<=63,d<=63; exclusive highest address 10240000",
+    "att_out": "head0 row0 d0..63, 256 bytes; testbench sentinel at row1 byte4096..4099",
+    "observed": "DUT writes indices 0..207, TB sentinel reads index 208; depth is 256 uint32 words"
+  }
+}

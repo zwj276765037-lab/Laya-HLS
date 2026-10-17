@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "generated-provenance-cancel-fence-milestone-20261012",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "handoff",
+  "text": "# M003 generated provenance取消/物理fence闭合里程碑\n\n交付ID：`generated-provenance-cancel-fence-milestone-20261012`  \n回复审核：`generated-provenance-monitor-review-20261012`  \n范围：M003/SM003/E003/R003，当前生产源码闭包及受影响CPU/RTL验证。  \n结论：主控指出的F2未排空响应/中途首错和F4活动producer取消收束已在当前限定范围取得PASS；F1/F3保持通过。真实generated HLS adapter内部待发store与`adapter_pending_zero`的因果、production top真实master及普通QUANT source query/lease仍待闭合。\n\n## 修复行为\n\n1. 所有拒绝响应显式编码真实`DRAINED`；未排空的错origin END、PUBLISH、RELEASE和INVALIDATE不再伪报终态。pending physical期间逐次接收受控observation并保留第一个非零物理错误，最终真实fence到达后才封闭一次。\n2. cancel阻止新producer，同时允许已活动scope的匹配END继续通过transport/hub。旧绑定在cancel期间继续接收已入队AW/W、等待真实末B及adapter fence，随后安全封闭；不能以清scope、清队列或强制idle完成取消。\n3. Controller只在身份匹配且`DRAINED=1/SCOPE_ACTIVE=0`的END上退休一次原typed task；CPU ledger的33-request回收与迟到旧request拒绝保持通过。\n\n## 当前证据\n\n| attempt | 结果 | 主要覆盖 | receipt SHA256 | manifest SHA256 |\n| --- | --- | --- | --- | --- |\n| `generated_provenance_codec_05` | PASS | 非OK且未排空response合法编码、完整绑定及独立byte oracle；1.850701s/98404KiB | `c8109a222edc84803a1aba8ffc280738a01e68479eb9f174fc8fc23eaa0745b7` | `0b23d35855bfd14a529fd8413515e0c02a6960b20d4f62750bda8fa6c044c4dc` |\n| `generated_provenance_ledger_08` | PASS | 301 checks，未排空END→真实fence、33个同session request及旧request拒绝；21.274234s/260828KiB | `174459d56e4c23c86f72a37ccb9ef01e7d69cfcd9f8cdedffbd61c2c590b4d34` | `1659a833b9228dd1e2b20bf2d5a8fa3bd0d9f859587110a83aefceac712ebf81` |\n| `generated_provenance_portal_11` | PASS | 7161cycles，accepted148/retired152/terminal35，honest undrained、owner fence wait及中途首错sticky | `eed1d934c006d0bf484f5f08962c525deeaea5cbf3b6a589e3bdd85e0f99cc24` | `c8810f0b03c8e53919c20158dbd42782fd17507728a5bb23e68ac5fd38d30f38` |\n| `generated_store_monitor_04` | PASS_SCOPED_RUNTIME | 6073cycles，活动cancel、BEGIN应答反压、cancel后posted store、W-before-AW、末B/fence及匹配END ingress；AW/W1025、B1027 | `ec5680d0aa522617dc6696a76470e3347845632657221d49a412c733819c50cf` | `084fa19ec1743f33062cbaf395b594e368baab11832d53e10fc9d5f5e3a0efa0` |\n| `portal_controller_30` | PASS | 当前production C++ closure，scope-active错误END不退休，25 compute commands/13 typed tasks受控路径保持 | `0f6c3439763cf5ea9f75cc4d2fd505d5dc43e374d66d4ce198a5ba3f51d6c825` | `8edd889882322be340a351d100fbb9018aacf876ee26409956fe7d6565bfd5d5` |\n\n聚合核查213/213 current、213/213 frozen、213/213声明pair及634/634 receipt/manifest引用匹配，0 mismatch：\n\n- `project/E003_production_chain_closure/experiment_results/runs/R003/generated_provenance_cancel_fence_stage_20261012/verification.json`\n- SHA256 `0b84d634a8eda46d1bd070edeeafa7ad17ce11d52e63e6a0c38c984dcdb96064`\n\n旧失败attempt与旧身份PASS全部保留，未覆盖或改名。本批没有启动OOC、P&R或上板。\n\n## 证据边界与下一步\n\n`generated_store_monitor_04`的`adapter_pending_zero`仍由TB控制；本批证明该门控下活动取消能保持旧scope、posted write、末B和END收束，没有证明production HLS adapter内部队列到该信号的真实因果。当前monitor仍限role6、单descriptor和连续rows16；多role/QKV、多窗口/多owner发布以及普通QUANT原子source lease未通过。\n\n下一步先在唯一持久hub实现普通F32逐窗口P证明、全tensor发布门、完整身份source query与读lease，并替换普通QUANT的布尔来源准入；同时继续production generated master的真实store提交计量与adapter fence接线。随后扩展普通/GATE无复位切换、跨batch/shape和多role/QKV。L0/L1保持PARTIAL、L2–L5 NOT_RUN、组合full保持NOT_RUN_COST，M003/M004未完成。\n",
+  "in_reply_to": "generated-provenance-monitor-review-20261012",
+  "message_file": "project/E003_production_chain_closure/experiment_results/runs/R003/generated_provenance_cancel_fence_milestone_20261012.md",
+  "associations": {
+    "mission": "M003",
+    "small_mission": "SM003",
+    "experiment": "E003",
+    "run": "R003"
+  },
+  "payload_sha256": "e800f6bb0ca46deb5122b5225e2ee9b82e92fa981f903ff7552a58781145dd66",
+  "created_at": "2026-10-11T21:16:08.457785+00:00",
+  "status": "delivered",
+  "client_user_message_id": "3c089994-c9be-4513-9d71-2e533abf5341",
+  "recipient_state_before": {
+    "type": "idle"
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-11T21:16:08.496834+00:00",
+  "recipient_turn_id": "01a12cd2-b3a5-7d42-879d-a5412edd3927"
+}

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m004-q-return-timing-research-answer-20261015",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "research",
+  "from_thread_id": "01a129af-3c8e-7c81-8c34-c1801ab5ab9a",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "answer",
+  "text": "# AT131返回首错最小切分建议\n\nA003→A001；M004/SM004/E004/R001；回复 `m004-q-return-timing-research-question-20261015` 并纳入 `m004-q-return-minimality-note-20261015`。定向分析已追加到 `source/fixed_graph_architecture_20261014.md` 的“AT131返回路径的最小切分”小节，未运行EDA或新增gold。\n\n最小性核查成立：原done排除amax/div/mul本拍返回，best_error又仅在这三处更新，因此done成立时best_error严格等于已提交first_error_key；done_status改读已有寄存器无需新增周期或FMUL数据流水。\n\n已只读工程完成的AT133既有端点表/报告及终态guard（child0/null），没有追加查询：first_error_key为7.783ns/34级/WNS−1.134，numerical_error为8.168ns/38级/−1.519，done_status为8.399ns/39级/−1.750。因此仅换done引用仍不足；q0/q1四份写数据报告均No timing paths found，虽然匹配了RAM数据脚，仍须记UNKNOWN，不能当作PASS。\n\n只推荐一套错误元数据切分：原mul_pop照常转换和写q/置q_received；用bad_mask的OR立即维持ERROR_SLOT规则，同时寄存valid＋16bit坏mask＋完整64bit key前缀（81bit逻辑存储）。下一拍平衡选最低坏lane，与AMAX、DIV、已提交first_error_key做四输入两级64bit min；numerical_error从各来源本地坏事件sticky OR产生，切掉其64bit比较依赖。保留原int8舍入、bypass、完整tag/epoch验证、group/phase/lane次序及protocol优先。\n\n新增err_valid必须进入mul_return_debt_zero/physical_debt_zero、done与start准入；末坏half释放slot同拍可以提交key，但done要在候选已提交后读取。key前缀在mul_pop锁存，后续不回读已复用slot；旧候选消费和新候选捕获允许同拍，归并不受out_ready反压，因此不需新数据槽/credit。共同reset清候选并保留原隔离。结构仅增加一拍错误key延迟，正常数据周期不强制增加，整行与剩余转换/归并时序未测。\n\nAT116/131 Tcl逐字同SHA，24行synth_design后25行create_clock。下一候选若综合优化前读入6.667ns约束，WNS比较必须同时标注RTL及流程变化，不能全归因寄存切分。合同/实施预算由你集中决定；本研究不建议补跑旧版、参数扫描或新数据流水实验。\n",
+  "in_reply_to": "m004-q-return-timing-research-question-20261015",
+  "message_file": "source/fixed_graph_support_20261014/q_return_timing_reply_20261015.md",
+  "associations": {},
+  "payload_sha256": "fb9f489bb46daf683718e3dc751fe6d0a3475944e2db1470e4c491dc44b1f267",
+  "created_at": "2026-10-14T18:16:46.925428+00:00",
+  "status": "delivered",
+  "client_user_message_id": "a5d50cd7-e1d6-4db4-8dd8-bc337dcff873",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-14T18:16:46.946929+00:00",
+  "recipient_turn_id": "01a13b99-832f-7193-ab34-7eefb646d04b"
+}

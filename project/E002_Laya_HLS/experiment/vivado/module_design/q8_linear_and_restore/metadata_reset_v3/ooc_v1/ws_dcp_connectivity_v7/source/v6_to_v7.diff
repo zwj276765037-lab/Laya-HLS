@@ -1,0 +1,2537 @@
+--- v6/source/design.md
++++ v7/source/design.md
+@@ -1,15 +1,29 @@
+-# Ws v6: strict structural parser correction (source only)
++# Ws v7 exact installed-glbl trailer contract
+ 
+-Preserve the complete v5 packet 213a2634cd447d32eed21140835b54b7eb7cd2a278d47d726d9c3e520453bd12 and all 14 maintained files. Archive their exact original bytes, SHA256 and copy locations before editing this fresh sibling. Preserve v4/v3, DCP c480c933, constraints, numerical fixtures and production. No Vivado, checkpoint open, actual exported-netlist parser/join, mapping evaluator, compiler or DUT is released.
++This is a fresh parser-only correction candidate. Reuse the frozen v6 eight functional exports and11graph tables from the accepted raw export run; no DCP reopen, re-export, compiler or synthesis is necessary or authorized. The v6 first actual join stopped at its unsupported ifndef directive. There is no join or mapping result.
+ 
+-Use the reviewed v5 design for the eight explicit funcsim exports and exact structural/parameter correspondence. Copy the implementation into this fresh sibling with only necessary local path/identity changes plus the following strict parser corrections. Do not change export flags, bank order, graph selection, raw-property provenance, installed primitive semantics or mapping claims. Keep the candidate 12 GiB/900 s tool budget unissued.
++## Observed exact scope
+ 
+-1. Classify DCP property status before substitution. ERROR, TRUNCATED and unknown status are terminal, whether raw text is empty or not. MISSING is acceptable as an unresolved actual value only when raw text is empty. OK with empty raw text may likewise remain missing. A nonempty OK actual value must parse without x/z and agree with every explicit export on value and applicable width/signedness. Never silently replace a malformed, contradictory or failed-read actual value by an export override. Preserve both raw sources and status in evidence. Keep all eight RAMB36E2 inversion overrides explicit, known, width one; missing never means zero.
++Each frozen export has one bank endmodule at line3442 followed by the same1642-byte suffix from `ifndef GLBL through final `endif. This suffix is byte-identical to installed Vivado2025.2 data/verilog/src/glbl.v after its120-byte comment header. Installed complete SHA6270251cf35e1fce3119fc79f8fb968912f7983027e43cf030409ba68f048936; exact suffix SHA4d98d1c9f6176e36539aad193fd1df028baed0d4bbbdd71791bef453e3bcb334. All eight prefix strings contain no GLBL/glbl reference in the current raw evidence. The structural parser must nevertheless prove that the selected root graph does not explicitly instantiate or hierarchically reference the excluded support module; this source observation is not an alternate parser.
+ 
+-2. Reject unsupported variable declarations/initializers. The accepted structural subset may keep continuous wire/tri aliases and named module/primitive connections. `reg x=1'b0` is a one-time variable initialization, not a continuous alias: it and corresponding reg/logic variable declarations or output-variable forms must fail before expansion unless a separately reviewed semantic implementation is provided. Do not broaden scope to behavioral elaboration. Keep standard net declaration assignments only if their continuous-net meaning is explicit.
++## Required implementation
+ 
+-3. Make parser bounds effective before allocation: cap literal bit width before shifts; cap selected ranges before list construction; cap total expanded hierarchy instances and depth as well as primitive/node/edge counts. Bound/validate relevant numeric tokens, module/instance names and source spans. Document cap rationale against frozen observed graph sizes plus finite margin; no silent truncation, cap growth or retry. A small empty shared-module hierarchy must hit a hierarchy cap even if it adds no primitives/nodes.
++Preserve exact v6 source/design/packet/test files first with enumerated original/archive hashes, bytes, modes and a literal diff. Use only freshv7source files. Preserve original19synthetic test groups and v6 safety caps, nonempty conflicting DCP checks, variable initialization rejection, all property classifications, all primitive/pin/net/hierarchy bijections and byte-offset literal evidence. No relaxation of unsupported structural syntax or macro expansion.
+ 
+-4. Preserve the original 11 finite synthetic tests and add meaningful refusal tests for nonempty MISSING, ERROR, TRUNCATED and unknown statuses, failed/unknown numeric raw values, variable initialization, oversized literal/range and total hierarchy expansion. Include positive empty actual plus explicit override, known agreeing actual, ordinary net aliases, escaped identifiers, shared-module instances and width/index matching. These are tiny source-only parser tests, never actual netlists or numerical model input. The default CLI must continue refusing actual parser/join/evaluator execution.
++Add a narrowly scoped export-envelope recognizer, separate from the structural lexer. It may recognize only a complete, exact trailing installed-glbl capsule, checked against BOTH the frozen installed full file identity and the explicitly bound1642-byte suffix bytes/hash. The suffix may occur only once at EOF, at a complete token/module boundary. The prefix must pass the existing strict structural parser as a complete source; all prefix directives remain subject to the existing whitelist. Do not implement a generic preprocessor, assume arbitrary macros undefined, execute includes, or silently strip ifdef/ifndef/define/endif lines. Do not parse or generalize behavioral modules. Do not accept approximate, whitespace-normalized, reordered or semantically similar capsule text. Missing capsule may be handled only as an explicit separate supported envelope state for existing synthetic tests; actual-v6-input mode requires the exact capsule in every one of the eight files.
+ 
+-Deliver new source packet, exact 15-file v5 preimage archive, literal diff, source-only AST/Tcl completeness and finite synthetic results, full original/new source separation and inherited installed-tool/DCP/XDC/manual/UNISIM identities. Candidate paths must be fresh and bound. Independent source review comes before any fresh export gate, and actual parsing requires another gate after actual exports/graph review. No mapping capacity, numerical, timing or board success claim.
++Keep raw export files unchanged. The structural prefix uses identical byte offsets from0to its end, so every primitive override start/end span must still match the original full raw bytes. Return an explicit excluded-support-module evidence record containing raw file identity, exact start/end bytes, exact capsule hash, installed-file identity and header skip offset, module name glbl, observed guard name GLBL, scope and reason. Record the entire capsule as source evidence or an exact immutable reference. Do not label it parsed functional logic.
++
++Prefix parsing and graph binding must reject root name glbl, duplicate glbl declarations, explicit glbl instance or hierarchical access, any prefix conditional/define/use of GLBL, nested/alternative capsule directives, trailing tokens, malformed prefix boundaries, and any capsule byte drift. Binding cannot source ordinary bank primitives/ports/parameters from the excluded capsule. Existing constant and declared variable semantics stay strict. The selected bank root and all reachable structural child instances must remain a bijection to the accepted DCP graph.
++
++## Global startup scope
++
++The exact support body is retained as evidence, with ROC_WIDTH100000ps, TOC_WIDTH0ps, GRES_START10000ps and GRES_WIDTH10000ps. It drives GSR and PRLD high initially then low at100000ps, GTS high then low after0ps, and GRESTORE high from10000to20000ps. JTAG declarations and initial values are retained in the bound body. UNISIM primitives may implicitly reference these globals; do not claim global irrelevance merely because there is no explicit glbl instance in the selected bank. The property/graph join is a static connectivity and explicit parameter correspondence assessment; it neither simulates these transients nor proves initialized memory contents, operating timing or startup behavior. Any later functional mapping evaluation must state that it analyzes settled operation after global startup and must separately justify how global reset/restore semantics enter its model. Do not convert this condition into a timing or board acceptance.
++
++## Source tests and remaining gates
++
++Retain every original synthetic test method. Add positive tests for a complete small synthetic structural prefix plus the exact installed capsule and for raw-literal span preservation against the original bytes. Add negative tests for one-byte capsule mutation, appended token, duplicate capsule, changed macro name, else/nested branch, early define/unknown conditional, an unterminated prefix comment/string, explicit glbl instance/reference, and a capsule-looking suffix inside a comment. Verify resource caps apply before allocating or slicing large source data. Do not loosen caps based on failure.
++
++Source-only tests use synthetic text plus the bound installed support body. Do not invoke read_export/bind on actual v6 exports, run actual graph audit/join/evaluator, or create candidate actual outputs under this release. Direct read-only byte/hash/line inspection of frozen exports is permitted. Produce a complete source packet binding all frozen raw inputs, installedglbl, prior accepted source/raw export/failure reviews, maintainedv7files and exactv6preimages. Explain the limited additional envelope logic and report all source-test results. Mark actual join and mapping UNEXECUTED.
++
++Only after independent source review may a separate one-attempt guarded parser/join gate reuse the frozenv6raw exports. Any first unsupported syntax/mismatch/timeout remains terminal with complete failure evidence. Mapping remains held even if this next join succeeds.
+--- v6/source/implementation_notes.md
++++ v7/source/implementation_notes.md
+@@ -1,9 +1,11 @@
+-# Ws v6 source implementation notes
++# Ws v7 exact installed-glbl envelope implementation
+ 
+-The authoritative [v6 design](design.md) applies the reviewed [v5 design](prior_v5/source/design.md) to a fresh sibling. [prior_v5/manifest.json](prior_v5/manifest.json) records SHA256 and byte-for-byte copies of the v5 packet plus all fourteen maintained files. [v5_to_v6.diff](v5_to_v6.diff) is the literal maintained-file diff. The v5 contract, generated required-property Tcl, installed UNISIM semantics, DCP and XDC identities are inherited without modification.
++The authoritative [v7 design](design.md) corrects only the first actual v6 join failure: the functional export contains the installed Vivado `glbl.v` support body after the bank's `endmodule`. [prior_v6_manifest.json](prior_v6_manifest.json) contains exact bytes, hashes, paths, and modes for all 15 listed v6 source preimages. The v6 sources, raw exports, graph tables, DCP and prior evidence remain unchanged. [v6_to_v7.diff](v6_to_v7.diff) is the literal maintained-source diff; the old v6 packet and retired packet generator remain in the archive.
+ 
+-The dormant extractor still opens the exact checkpoint once and exports ws_U, ws_8_U, ws_9_U, ws_10_U, ws_11_U, ws_12_U, ws_13_U, ws_14_U with the unchanged explicit funcsim flags and output caps. Its output root is rebound to fresh v6 paths. It retains raw DCP values and read statuses, including gaps, and treats structural extraction faults as terminal. The join first requires structural graph correspondence. It then rejects ERROR, TRUNCATED or unknown property status, and rejects MISSING with any nonempty raw text. Empty MISSING or empty OK is an unresolved DCP value that requires an explicit export for each required semantic setting. Nonempty OK must parse as a known literal and match every explicit export value and applicable width/signedness. All eight RAMB36E2 inversion fields still require explicit known one-bit overrides. Raw DCP and export values/spans remain separate evidence.
++`tb/export_envelope.py` checks the installed full `glbl.v` identity (1762 bytes, SHA-256 `6270251cf35e1fce3119fc79f8fb968912f7983027e43cf030409ba68f048936`) and its exact post-120-byte body (1642 bytes, SHA-256 `4d98d1c9f6176e36539aad193fd1df028baed0d4bbbdd71791bef453e3bcb334`). It accepts only one byte-identical body at EOF after a complete module and newline boundary. A capsule-free state exists only when explicitly requested by synthetic tests. A mutated, duplicated, reordered, appended, or alternate macro body is unsupported; the code never expands macros or parses `glbl` as bank logic. Input size is checked before slicing or decoding.
+ 
+-The structural parser accepts continuous wire/tri net aliases, named connections, finite concatenations and selections, escaped names and shared module definitions. It rejects reg/logic variable declarations and initializers, including ANSI and non-ANSI output variable forms. This avoids interpreting a one-time variable initialization as a continuous alias. Literal widths, digit counts, bus indexes and selected range sizes are checked before shifts or lists; source tokens, identifiers, hierarchy depth and total expansion also have explicit bounds. Unsupported syntax is terminal. The parser does not execute Verilog.
++`tb/funcsim_structure.py` preserves the v6 lexer, `parse_text`, semantic classes, bounded expressions, primitive expansion, and all numerical literal rules byte-for-byte through the production reader. Only `read_export` changes: it uses a bounded raw read, asks the separate envelope recognizer for strict prefix modules and exclusion evidence, then performs the same `Expanded` construction. The prefix retains offset zero, so parameter literal spans still index the original raw export bytes. The recognizer rejects prefix tokens or escaped hierarchical names that explicitly name `glbl`/`GLBL`; `Expanded` and the unchanged graph binder continue to require exact reachable bank hierarchy, primitive, pin and net correspondence. The join records each excluded capsule with raw-file hash, exact byte offsets, installed-file identity and header offset; it rechecks raw identity when validating literal spans. The join default CLI still refuses actual input without a later gate.
+ 
+-The default join CLI still refuses actual graph/export input. The 19 synthetic tests are tiny in-memory source checks. An actual export may reveal unsupported syntax or exceed these stop limits; such an event needs review, not automatic parser expansion. Source success does not establish Ws storage capacity, read selection, parity/cascade, reset/clock semantics, or routing.
++The excluded body is retained by immutable installed-file reference, not treated as parsed functional logic. Its ROC_WIDTH is 100000 ps, TOC_WIDTH 0 ps, GRES_START 10000 ps, and GRES_WIDTH 10000 ps. It initializes GSR and PRLD high then lowers them at 100000 ps, initializes GTS high then lowers it after zero delay, and drives GRESTORE high from 10000 to 20000 ps. JTAG declarations and initial values remain in the exact bound body. UNISIM can use these globals implicitly even with no explicit bank instance. This source join checks static connectivity and explicit parameter correspondence only; a later mapping model must separately justify settled operation after startup and global reset/restore semantics. No initialized-memory, operating-timing, or board claim follows from this exclusion.
++
++The original 19 synthetic v6 methods are retained. Eight new synthetic test groups cover exact capsule acceptance and raw literal spans, explicit capsule-free synthetic mode, byte drift, duplicate/changed macros, branch/directive rejection, malformed prefix boundaries, glbl references, and cap-before-split ordering. No test opens the eight raw exports through `read_export` or invokes actual `bind`.
+--- /dev/null
++++ v7/source/prior_v6_manifest.json
+@@ -0,0 +1,129 @@
++{
++  "archive_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6",
++  "created_utc": "2026-10-09T05:47:00.374904+00:00",
++  "file_count": 15,
++  "original_root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6",
++  "records": [
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/source/design.md",
++      "bytes": 3723,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/design.md",
++      "relative_path": "source/design.md",
++      "sha256": "050c840b789cbc04d98a72ffd7fb435041b4223ef2e972202596aeb3b9d577e6"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/source/implementation_notes.md",
++      "bytes": 2408,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/implementation_notes.md",
++      "relative_path": "source/implementation_notes.md",
++      "sha256": "ffae4b85f3e82d758468afff32ff2b74ed14e956981e3e1ad06b186c9d291a4c"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/source/required_properties.tcl",
++      "bytes": 18694,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/required_properties.tcl",
++      "relative_path": "source/required_properties.tcl",
++      "sha256": "80ab316f1742c351e9f8e9676e535af5ba555b54c8ae6bece271e566e8d9136a"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/source/results.md",
++      "bytes": 2551,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/results.md",
++      "relative_path": "source/results.md",
++      "sha256": "a2973683ca06c1ed1258e6388346f93d0cada500732331d5d372c81ccd597c7c"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/source/semantic_property_contract.json",
++      "bytes": 98839,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/semantic_property_contract.json",
++      "relative_path": "source/semantic_property_contract.json",
++      "sha256": "9d198c5fc5032771aadc9e97571a5acd631af517bb8e8fa666b82dcc6b7b4a77"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/source/source_packet.json",
++      "bytes": 43454,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/source_packet.json",
++      "relative_path": "source/source_packet.json",
++      "sha256": "0e62982e1677c7358de52535d06ac29397cacad13fcb783009a7e9858b662451"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/source/v5_to_v6.diff",
++      "bytes": 66073,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/v5_to_v6.diff",
++      "relative_path": "source/v5_to_v6.diff",
++      "sha256": "5166d88db27fa100d03d5be45e560f5ec60a2336bfd86a1a56d688c5fedc94c0"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/README.md",
++      "bytes": 707,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/README.md",
++      "relative_path": "tb/README.md",
++      "sha256": "3dafd2f17805a6a11c89670d767790bbaa94f32d826d1f004013e4819aa86ce6"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/audit_graph.py",
++      "bytes": 17352,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/audit_graph.py",
++      "relative_path": "tb/audit_graph.py",
++      "sha256": "7b2deebc8e605a7b8a577bd0072285c44ba9a9cdf9976ebb9a8fca633fc48f9d"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/extract_ws_graph.tcl",
++      "bytes": 24891,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/extract_ws_graph.tcl",
++      "relative_path": "tb/extract_ws_graph.tcl",
++      "sha256": "c92f10eea85e240310db9542e1693f24f5f301a21cfaf45da965f85cb6fea9ff"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/funcsim_structure.py",
++      "bytes": 25681,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/funcsim_structure.py",
++      "relative_path": "tb/funcsim_structure.py",
++      "sha256": "2a110e3bed3b0d5ea4832b626025d6cdb1a3a3cf32c0a09b8c4fe9ffa33e1d22"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/generate_contract_tcl.py",
++      "bytes": 3029,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/generate_contract_tcl.py",
++      "relative_path": "tb/generate_contract_tcl.py",
++      "sha256": "c4a64e9ee329613df9f274d26fb2253ddb90f88f58cce70fe19029ff94305be0"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/join_funcsim_graph.py",
++      "bytes": 23017,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/join_funcsim_graph.py",
++      "relative_path": "tb/join_funcsim_graph.py",
++      "sha256": "76bd5c8ce36c65913d876d15f3c1e97d0f1221c40f543d6817610fc2e75e95bb"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/make_source_packet.py",
++      "bytes": 18568,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/make_source_packet.py",
++      "relative_path": "tb/make_source_packet.py",
++      "sha256": "e7984be747b890dbb3746a279b43f63d362566ae4498d71ef3d188993ac7ee52"
++    },
++    {
++      "archive": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v7/source/prior_v6/tb/test_funcsim_synthetic.py",
++      "bytes": 11542,
++      "mode_octal": "0666",
++      "original": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/test_funcsim_synthetic.py",
++      "relative_path": "tb/test_funcsim_synthetic.py",
++      "sha256": "c0500952715b053907f512e4649e0188154f3457ff3ff4fbc9123a3e3e1cf185"
++    }
++  ],
++  "schema": "ws_v7_exact_v6_source_preimage_manifest_v1"
++}
+--- v6/source/results.md
++++ v7/source/results.md
+@@ -1,9 +1,11 @@
+-# Ws v6 strict parser correction: evidence status
++# Ws v7 source-only result
+ 
+-2026-10-09. **SOURCE ONLY; independent review pending.** The v5 packet and its fourteen maintained files were archived byte-for-byte in [prior_v5/manifest.json](prior_v5/manifest.json). The accepted v3/v4/v5 bytes, checkpoint, constraints, fixtures and production remain unchanged. No v6 DCP open, Vivado export, actual-netlist parse/join, mapping evaluation, compiler/DUT run, synthesis, implementation, timing or board run occurred.
++Status: **SOURCE_CANDIDATE_UNMEASURED**. The v6 actual structural/parameter join stopped at `funcsim_structure.Unsupported: unsupported preprocessor directive ifndef`; its terminal evidence was independently accepted. This v7 candidate changes only recognition of one exact installed Vivado `glbl` trailer. It does not establish a joined bank graph or mapping.
+ 
+-The v3 bounded attempt remains the only observed graph-size input: 139 cells, 135 primitives and 14,266 partial pins before its 900-second guard stopped; three completed partial bank groups had 46 cells each, about 4,755 pins per bank. The source caps are 64 MiB/export, 1,000,000 tokens, 128 module definitions, 256 primitive instances, 32,768 graph nodes and 65,536 alias edges. New preallocation caps are 4,096 literal bits, 8,192 bytes per token/source span, 1,024 identifier bytes, bus index 32,767, expression depth 64, 4,096 declarations/module, 1,024 total expanded instances and hierarchy depth 16. The primitive cap exceeds the observed roughly 45 primitives per completed partial bank by more than 5x; the node cap exceeds the observed approximate per-bank pin count by more than 6x; the hierarchy cap exceeds the 46-cell partial bank count by more than 22x. These are finite stop limits with margin, not evidence of the unseen full export. No cap may silently grow or truncate a result.
++The v7 release, [design.md](design.md), installed `glbl.v`, first-failure review and accepted v6 raw-export review matched their expected hashes before work. All 15 exact v6 preimages were copied into [prior_v6](prior_v6) and verified with original/archive bytes, SHA-256 and modes in [prior_v6_manifest.json](prior_v6_manifest.json). The original v6 lexer and `parse_text` implementation remain byte-identical before `read_export`; the existing graph and property binding functions are unchanged. The new envelope accepts one exact 1642-byte support body only at EOF, records its raw span and installed-file provenance, and preserves zero-based prefix literal offsets.
+ 
+-The original 11 synthetic checks and eight new refusal/positive groups pass as 19 tiny in-memory tests. They cover nonempty MISSING, ERROR/TRUNCATED/unknown statuses, malformed and unknown raw values, agreeing value/width, variable initializers and output variables, continuous net aliases, oversized literal/range, shared empty hierarchy expansion and depth/name limits. Source packet checks also parse Python AST, verify Tcl completeness and the unchanged 22-reference/348-property contract, and read only hash-bound installed UNISIM port declarations. They do not establish the actual Vivado funcsim grammar or graph correspondence.
++Read-only byte inspection of the eight frozen v6 functional exports found the same exact 1642-byte suffix once at EOF in every file, with start offsets 230609, 230679 or 230681 depending on bank. All prefix tails end in `endmodule\n`, and the raw prefixes contain no `glbl` byte sequence. This is input identity and boundary evidence only: **the v7 actual parser and join were not invoked**. The source packet hashes all eight exports and all twelve TSV files in the frozen report directory: eleven graph tables plus the phase ledger. The accepted export evidence, prior first-failure review and installed support body are independently hash-bound there.
+ 
+-The dormant eight-export command, bank order, raw property table, 12 GiB/900-second candidate budget, and 256 MiB aggregate output cap are unchanged from v5 except for fresh v6 paths. Independent source review must precede an export gate; actual parser/join and any mapping evaluator each remain separately held. The 8 × 20,992 × 16-bit Ws mapping, addresses 16,384–20,991, 150 MHz timing and board operation are unproved.
++The 19 original synthetic parser/join methods and eight new synthetic envelope methods passed together: **27 tests, zero failures**. The source contract Tcl check and AST parsing of all six v7 Python files also passed; exact command and output records are in [source_checks_v3](../runs/source_checks_v3/checks.json). The tests cover exact installed-body acceptance, original raw literal span preservation, missing capsule only in explicit synthetic mode, one-byte drift, appended token, duplicate body, changed guard, else/nested branch, early define/conditional, unterminated prefix comment/string, explicit `glbl` instance/root/hierarchical reference, a comment-hidden suffix, and cap checks before envelope allocation. These tests use synthetic structural text and the bound installed body; they do not exercise the frozen actual bank exports or generated netlists.
++
++The exact support body retains the startup waveform constants, JTAG declarations and initial values. The join excludes it only from the selected bank's static primitive/port/parameter graph. UNISIM may still depend on GSR, GTS, PRLD and GRESTORE during startup. Static correspondence cannot prove startup behavior, initialized RAM contents, physical capacity, timing or board operation. Any later mapping evaluation must state and justify settled operation after global startup. An independent source review and a separate one-attempt guarded actual join gate remain required; mapping is held even if that join succeeds.
+--- v6/source/source_packet.json
++++ /dev/null
+@@ -1,831 +0,0 @@
+-{
+-  "actual_parser_join_budget_and_argv": "SEPARATE_INDEPENDENT_GATE_REQUIRED",
+-  "actual_parser_join_execution_released": false,
+-  "archived_v5_preimages_rehashed": [
+-    {
+-      "copy": {
+-        "bytes": 32817,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/source/source_packet.json",
+-        "sha256": "213a2634cd447d32eed21140835b54b7eb7cd2a278d47d726d9c3e520453bd12"
+-      },
+-      "original": {
+-        "bytes": 32817,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/source_packet.json",
+-        "sha256": "213a2634cd447d32eed21140835b54b7eb7cd2a278d47d726d9c3e520453bd12"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 8508,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/source/design.md",
+-        "sha256": "d4dc8295fcd7dd81457c1dfa86ad7a348bc3b86db0ebef52e1e1a632868a9e4e"
+-      },
+-      "original": {
+-        "bytes": 8508,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/design.md",
+-        "sha256": "d4dc8295fcd7dd81457c1dfa86ad7a348bc3b86db0ebef52e1e1a632868a9e4e"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 3085,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/source/results.md",
+-        "sha256": "a3154a02f2f86f79ca0652c5c1f28a7ee5e5d1774362698ade57e84b4dcebaec"
+-      },
+-      "original": {
+-        "bytes": 3085,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/results.md",
+-        "sha256": "a3154a02f2f86f79ca0652c5c1f28a7ee5e5d1774362698ade57e84b4dcebaec"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 3605,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/source/implementation_notes.md",
+-        "sha256": "4210a78117a87ed15a85252a8334968c61d091b3984fa1594171e445c9b6eb37"
+-      },
+-      "original": {
+-        "bytes": 3605,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/implementation_notes.md",
+-        "sha256": "4210a78117a87ed15a85252a8334968c61d091b3984fa1594171e445c9b6eb37"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 98839,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/source/semantic_property_contract.json",
+-        "sha256": "9d198c5fc5032771aadc9e97571a5acd631af517bb8e8fa666b82dcc6b7b4a77"
+-      },
+-      "original": {
+-        "bytes": 98839,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/semantic_property_contract.json",
+-        "sha256": "9d198c5fc5032771aadc9e97571a5acd631af517bb8e8fa666b82dcc6b7b4a77"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 18694,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/source/required_properties.tcl",
+-        "sha256": "80ab316f1742c351e9f8e9676e535af5ba555b54c8ae6bece271e566e8d9136a"
+-      },
+-      "original": {
+-        "bytes": 18694,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/required_properties.tcl",
+-        "sha256": "80ab316f1742c351e9f8e9676e535af5ba555b54c8ae6bece271e566e8d9136a"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 101,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/rtl/README.md",
+-        "sha256": "043c9926bf8d9a4b8711a4ce3e2614a53f7f09c3cee4aaebfddf94841f6ed4ee"
+-      },
+-      "original": {
+-        "bytes": 101,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/rtl/README.md",
+-        "sha256": "043c9926bf8d9a4b8711a4ce3e2614a53f7f09c3cee4aaebfddf94841f6ed4ee"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 650,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/README.md",
+-        "sha256": "290d711b9b30e48d9cdd775b53df24d47d25297b63dba06f92474a9a86194c95"
+-      },
+-      "original": {
+-        "bytes": 650,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/README.md",
+-        "sha256": "290d711b9b30e48d9cdd775b53df24d47d25297b63dba06f92474a9a86194c95"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 24891,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/extract_ws_graph.tcl",
+-        "sha256": "7f20579abd92609b4e094335aefb5f5b693ff0ea746592eb94305b05dada7f93"
+-      },
+-      "original": {
+-        "bytes": 24891,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/extract_ws_graph.tcl",
+-        "sha256": "7f20579abd92609b4e094335aefb5f5b693ff0ea746592eb94305b05dada7f93"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 17173,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/audit_graph.py",
+-        "sha256": "bc8f002c31b361114b4be1126c24ee1edc7ad9caad4b57877a21d918a26fb83c"
+-      },
+-      "original": {
+-        "bytes": 17173,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/audit_graph.py",
+-        "sha256": "bc8f002c31b361114b4be1126c24ee1edc7ad9caad4b57877a21d918a26fb83c"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 3029,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/generate_contract_tcl.py",
+-        "sha256": "c4a64e9ee329613df9f274d26fb2253ddb90f88f58cce70fe19029ff94305be0"
+-      },
+-      "original": {
+-        "bytes": 3029,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/generate_contract_tcl.py",
+-        "sha256": "c4a64e9ee329613df9f274d26fb2253ddb90f88f58cce70fe19029ff94305be0"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 22283,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/funcsim_structure.py",
+-        "sha256": "4928bbe4db67913f17abcd5de5186b5d579e705400d95d2acfd560266073da17"
+-      },
+-      "original": {
+-        "bytes": 22283,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/funcsim_structure.py",
+-        "sha256": "4928bbe4db67913f17abcd5de5186b5d579e705400d95d2acfd560266073da17"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 22465,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/join_funcsim_graph.py",
+-        "sha256": "da416e91423823594373e79a3ea80fb209b885b694dec480dc868e212aa0ad4c"
+-      },
+-      "original": {
+-        "bytes": 22465,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/join_funcsim_graph.py",
+-        "sha256": "da416e91423823594373e79a3ea80fb209b885b694dec480dc868e212aa0ad4c"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 6840,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/test_funcsim_synthetic.py",
+-        "sha256": "2b34a62b39c8b5891419f05bc2a9245930a63986bcad8796af0e995e0522a681"
+-      },
+-      "original": {
+-        "bytes": 6840,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/test_funcsim_synthetic.py",
+-        "sha256": "2b34a62b39c8b5891419f05bc2a9245930a63986bcad8796af0e995e0522a681"
+-      }
+-    },
+-    {
+-      "copy": {
+-        "bytes": 15235,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/tb/make_source_packet.py",
+-        "sha256": "3eb778aded88263ab8a19da3450085c3767486e4ca3c80358f725e97387aaa0a"
+-      },
+-      "original": {
+-        "bytes": 15235,
+-        "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/make_source_packet.py",
+-        "sha256": "3eb778aded88263ab8a19da3450085c3767486e4ca3c80358f725e97387aaa0a"
+-      }
+-    }
+-  ],
+-  "candidate_argv_not_released": [
+-    "/usr/bin/taskset",
+-    "-c",
+-    "0-3",
+-    "/usr/bin/nice",
+-    "-n",
+-    "19",
+-    "/usr/bin/ionice",
+-    "-c",
+-    "3",
+-    "/usr/bin/python3",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+-    "--out",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/control/extraction_guard",
+-    "--cwd",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/control",
+-    "--rss-gib",
+-    "12",
+-    "--timeout-seconds",
+-    "900",
+-    "--",
+-    "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/vivado",
+-    "-mode",
+-    "batch",
+-    "-notrace",
+-    "-source",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/extract_ws_graph.tcl",
+-    "-log",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/control/vivado.log",
+-    "-journal",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/control/vivado.jou",
+-    "-tclargs",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_synth_v1_entry_a2_reports/q8_joint_tm4tn8_ooc_synth.dcp",
+-    "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/reports"
+-  ],
+-  "candidate_budget_not_released": {
+-    "aggregate_export_bytes": 268435456,
+-    "checkpoint_opens": 1,
+-    "cpu_ids": [
+-      0,
+-      1,
+-      2,
+-      3
+-    ],
+-    "functional_exports": 8,
+-    "ionice_class": 3,
+-    "minimum_mem_available_gib_strictly_above": 192,
+-    "nice": 19,
+-    "owned_rss_gib": 12,
+-    "per_bank_export_bytes": 67108864,
+-    "sampling_seconds": 0.2,
+-    "wall_seconds": 900
+-  },
+-  "candidate_control": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/control",
+-  "candidate_execution_tools": [
+-    {
+-      "bytes": 31104,
+-      "path": "/usr/bin/taskset",
+-      "sha256": "a9c851792e54e91fba7b827019380abee54e715b6817899c835e4f221354b260"
+-    },
+-    {
+-      "bytes": 35336,
+-      "path": "/usr/bin/nice",
+-      "sha256": "9ea49d9f296d15105b0bd2becac48e7084934a108dfe6325a34b2c785fad8eba"
+-    },
+-    {
+-      "bytes": 18816,
+-      "path": "/usr/bin/ionice",
+-      "sha256": "c4315c8f9cd5b5a3e6d40114966f04d22982a2d2d1955292ff2e2bdfaaab3507"
+-    },
+-    {
+-      "bytes": 8020928,
+-      "path": "/usr/bin/python3",
+-      "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118"
+-    },
+-    {
+-      "bytes": 39336,
+-      "path": "/usr/bin/sha256sum",
+-      "sha256": "e484c36c0613879fbd11058f7a2e194783bced59d4805d64c3d4b0d7f664094d"
+-    },
+-    {
+-      "bytes": 14488,
+-      "path": "/usr/bin/tclsh",
+-      "sha256": "08fc0602422887d601fd1a3c08d611b3c81d7c9e2817834f21e7f65a814fd299"
+-    }
+-  ],
+-  "candidate_guard": {
+-    "bytes": 10219,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+-    "sha256": "23f63b79d0bbb05d6a01612eb63914c7b46d9724693a4a52e348827a7a026d70"
+-  },
+-  "candidate_guard_helper": {
+-    "bytes": 7083,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/hls_guard_helpers.py",
+-    "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+-  },
+-  "candidate_paths_absent_at_seal": true,
+-  "candidate_postcheck": "DCP SHA256 unchanged; 8 exact export files and per-export ledger hashes; 11 graph tables; terminal extraction COMPLETE; archive partial outputs on first failure",
+-  "candidate_reports": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/reports",
+-  "created_utc": "2026-10-09T05:13:15.206789+00:00",
+-  "exact_v5_archive_manifest": {
+-    "bytes": 10811,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/prior_v5/manifest.json",
+-    "sha256": "c5ac33a8e17f9f225a0a96a70d696ebdc75d2a184f43a299c8fe06c26bd2eebd"
+-  },
+-  "execution_released": false,
+-  "inherited_v5_installed_bindings": {
+-    "candidate_execution_tools": [
+-      {
+-        "bytes": 31104,
+-        "path": "/usr/bin/taskset",
+-        "sha256": "a9c851792e54e91fba7b827019380abee54e715b6817899c835e4f221354b260"
+-      },
+-      {
+-        "bytes": 35336,
+-        "path": "/usr/bin/nice",
+-        "sha256": "9ea49d9f296d15105b0bd2becac48e7084934a108dfe6325a34b2c785fad8eba"
+-      },
+-      {
+-        "bytes": 18816,
+-        "path": "/usr/bin/ionice",
+-        "sha256": "c4315c8f9cd5b5a3e6d40114966f04d22982a2d2d1955292ff2e2bdfaaab3507"
+-      },
+-      {
+-        "bytes": 8020928,
+-        "path": "/usr/bin/python3",
+-        "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118"
+-      },
+-      {
+-        "bytes": 39336,
+-        "path": "/usr/bin/sha256sum",
+-        "sha256": "e484c36c0613879fbd11058f7a2e194783bced59d4805d64c3d4b0d7f664094d"
+-      },
+-      {
+-        "bytes": 14488,
+-        "path": "/usr/bin/tclsh",
+-        "sha256": "08fc0602422887d601fd1a3c08d611b3c81d7c9e2817834f21e7f65a814fd299"
+-      }
+-    ],
+-    "candidate_guard": {
+-      "bytes": 10219,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py",
+-      "sha256": "23f63b79d0bbb05d6a01612eb63914c7b46d9724693a4a52e348827a7a026d70"
+-    },
+-    "candidate_guard_helper": {
+-      "bytes": 7083,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/top_synth_v1/source/guard_48g_v1/hls_guard_helpers.py",
+-      "sha256": "fc0c1abf3f4e9104aa258bca4451989e948ceab1a5f394914dede8b96aa9ae98"
+-    },
+-    "installed_command_manuals": [
+-      {
+-        "bytes": 3194,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/doc/eng/man/common/get_property",
+-        "sha256": "37391a4e737ca65e659dcaf7fd04e88752c577405825076941c2363db92df8ac"
+-      },
+-      {
+-        "bytes": 2030,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/doc/eng/man/common/list_property",
+-        "sha256": "029153ccc083cb84c39b659e4eecb82d4bbda2a653aec6f2e47e1285b9f483f1"
+-      },
+-      {
+-        "bytes": 4475,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/doc/eng/man/common/report_property",
+-        "sha256": "62a7356343bce49f73cf3f00848d6e1c7ee54ff8e431e011a719d7b97d176091"
+-      }
+-    ],
+-    "installed_primitive_semantics": [
+-      {
+-        "bytes": 188935,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAMB36E2.v",
+-        "sha256": "de300b57debd3f31771fa1d7a343f12200658cea6317e4da2a8c3d2f8e61519d"
+-      },
+-      {
+-        "bytes": 145218,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAMB18E2.v",
+-        "sha256": "5b5824a9a33980c7019ca4ea18d272134da4e1e3b8a0ba6b576e485eedb27dc5"
+-      },
+-      {
+-        "bytes": 203045,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/URAM288.v",
+-        "sha256": "83e1c72147e97fad7ac401dbfd4de84f7bfb95bcfa880ea9fcf4d6c6ddfce935"
+-      },
+-      {
+-        "bytes": 1785,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT1.v",
+-        "sha256": "ec93df0e5faad049f3174ed9cdefa1b4eba97b7afa6101da857454225995fabb"
+-      },
+-      {
+-        "bytes": 2335,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT2.v",
+-        "sha256": "76b7d6bccf478a4d7a90d36853efcece3bd87e124da4e9cdb70ab5ab02451922"
+-      },
+-      {
+-        "bytes": 4837,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT3.v",
+-        "sha256": "eba87b032e85b6cd3f5edc4588b0c014e3370fcf10fac90f5d2eccb29e3035b7"
+-      },
+-      {
+-        "bytes": 2737,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT4.v",
+-        "sha256": "5ba0120322bd29831facf4a9c06fd7427f2ffa561915b466c6156341807e432a"
+-      },
+-      {
+-        "bytes": 4418,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT5.v",
+-        "sha256": "46bbd854c888b8b2a819923fb3f646a81015f868082ae5408a107f6f49726cf3"
+-      },
+-      {
+-        "bytes": 4249,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT6.v",
+-        "sha256": "ad30839aaf8d6b39df914aa3a3d24bbaabd1167bed8c6b6833cea680eebb202c"
+-      },
+-      {
+-        "bytes": 1611,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/MUXF7.v",
+-        "sha256": "2402b77b44aef7ab5993820dacbe843331f0134a33f37bfd9599b7680369b6db"
+-      },
+-      {
+-        "bytes": 1627,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/MUXF8.v",
+-        "sha256": "8c4093d10afcb70e0f6ed2b5b0ccaf5385e9eec6cb3d0e99957fc67a00d5c321"
+-      },
+-      {
+-        "bytes": 1210,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/MUXF9.v",
+-        "sha256": "f9a1024d5b91c9dc251405133cf7a8e2e08fa9b246cf43ad04503ab42ac0cb40"
+-      },
+-      {
+-        "bytes": 6097,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDRE.v",
+-        "sha256": "e2965e4b5174bd8de84b82e89a7b4ea5df36d8715c4f585580c16b8e6d9aa80d"
+-      },
+-      {
+-        "bytes": 6567,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDCE.v",
+-        "sha256": "74d30d7c788e7db47f12b92d5b4b57b707974a0962708b309e4cc081d5f98b04"
+-      },
+-      {
+-        "bytes": 6096,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDSE.v",
+-        "sha256": "055468fd8372bcf67f359ec4c496c966bae1fdd5e8a6aaa71dd658ae99c69c68"
+-      },
+-      {
+-        "bytes": 6568,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDPE.v",
+-        "sha256": "4ec91e1101288ae35ebda302ed5e31b670f5bb5b16cd48922d1cbf891407bcfc"
+-      },
+-      {
+-        "bytes": 919,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/VCC.v",
+-        "sha256": "ebe490fcb856151d8996d17c5d28086505d02e62cbcd2f16e0a5456a5867c6a2"
+-      },
+-      {
+-        "bytes": 835,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/GND.v",
+-        "sha256": "bd9c955d8e43d0f4653adee3d59020ec5e82869001aec02543d00f04e480e2d0"
+-      },
+-      {
+-        "bytes": 10154,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/CARRY8.v",
+-        "sha256": "4171d47f58a825cd244dedb76cbc864d0ec6ea4340285a8ade0177547c87c75d"
+-      },
+-      {
+-        "bytes": 7548,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAM128X1D.v",
+-        "sha256": "b3d5a842768b515e92813738e0f228e861bdcccab29dedeb4b5faa194e382a46"
+-      },
+-      {
+-        "bytes": 6594,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAM32X1D.v",
+-        "sha256": "7149b71042c1cb10a26c3f9519c341c92026f9fc545815286f8da1075206b8fb"
+-      },
+-      {
+-        "bytes": 7156,
+-        "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAM64X1D.v",
+-        "sha256": "afad78ed95071fe7547a546716decc268701aa6d78d8627de725485bcdb1b6e3"
+-      }
+-    ],
+-    "installed_vivado_launcher": {
+-      "bytes": 1196,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/vivado",
+-      "sha256": "3b15c02533ef5b5bab4a09617086bd431b14aa296e6ea5a29811fe269cf8deb5"
+-    }
+-  },
+-  "installed_command_manuals": [
+-    {
+-      "bytes": 3194,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/doc/eng/man/common/get_property",
+-      "sha256": "37391a4e737ca65e659dcaf7fd04e88752c577405825076941c2363db92df8ac"
+-    },
+-    {
+-      "bytes": 2030,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/doc/eng/man/common/list_property",
+-      "sha256": "029153ccc083cb84c39b659e4eecb82d4bbda2a653aec6f2e47e1285b9f483f1"
+-    },
+-    {
+-      "bytes": 4475,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/doc/eng/man/common/report_property",
+-      "sha256": "62a7356343bce49f73cf3f00848d6e1c7ee54ff8e431e011a719d7b97d176091"
+-    }
+-  ],
+-  "installed_primitive_semantics": [
+-    {
+-      "bytes": 188935,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAMB36E2.v",
+-      "sha256": "de300b57debd3f31771fa1d7a343f12200658cea6317e4da2a8c3d2f8e61519d"
+-    },
+-    {
+-      "bytes": 145218,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAMB18E2.v",
+-      "sha256": "5b5824a9a33980c7019ca4ea18d272134da4e1e3b8a0ba6b576e485eedb27dc5"
+-    },
+-    {
+-      "bytes": 203045,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/URAM288.v",
+-      "sha256": "83e1c72147e97fad7ac401dbfd4de84f7bfb95bcfa880ea9fcf4d6c6ddfce935"
+-    },
+-    {
+-      "bytes": 1785,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT1.v",
+-      "sha256": "ec93df0e5faad049f3174ed9cdefa1b4eba97b7afa6101da857454225995fabb"
+-    },
+-    {
+-      "bytes": 2335,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT2.v",
+-      "sha256": "76b7d6bccf478a4d7a90d36853efcece3bd87e124da4e9cdb70ab5ab02451922"
+-    },
+-    {
+-      "bytes": 4837,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT3.v",
+-      "sha256": "eba87b032e85b6cd3f5edc4588b0c014e3370fcf10fac90f5d2eccb29e3035b7"
+-    },
+-    {
+-      "bytes": 2737,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT4.v",
+-      "sha256": "5ba0120322bd29831facf4a9c06fd7427f2ffa561915b466c6156341807e432a"
+-    },
+-    {
+-      "bytes": 4418,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT5.v",
+-      "sha256": "46bbd854c888b8b2a819923fb3f646a81015f868082ae5408a107f6f49726cf3"
+-    },
+-    {
+-      "bytes": 4249,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/LUT6.v",
+-      "sha256": "ad30839aaf8d6b39df914aa3a3d24bbaabd1167bed8c6b6833cea680eebb202c"
+-    },
+-    {
+-      "bytes": 1611,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/MUXF7.v",
+-      "sha256": "2402b77b44aef7ab5993820dacbe843331f0134a33f37bfd9599b7680369b6db"
+-    },
+-    {
+-      "bytes": 1627,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/MUXF8.v",
+-      "sha256": "8c4093d10afcb70e0f6ed2b5b0ccaf5385e9eec6cb3d0e99957fc67a00d5c321"
+-    },
+-    {
+-      "bytes": 1210,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/MUXF9.v",
+-      "sha256": "f9a1024d5b91c9dc251405133cf7a8e2e08fa9b246cf43ad04503ab42ac0cb40"
+-    },
+-    {
+-      "bytes": 6097,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDRE.v",
+-      "sha256": "e2965e4b5174bd8de84b82e89a7b4ea5df36d8715c4f585580c16b8e6d9aa80d"
+-    },
+-    {
+-      "bytes": 6567,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDCE.v",
+-      "sha256": "74d30d7c788e7db47f12b92d5b4b57b707974a0962708b309e4cc081d5f98b04"
+-    },
+-    {
+-      "bytes": 6096,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDSE.v",
+-      "sha256": "055468fd8372bcf67f359ec4c496c966bae1fdd5e8a6aaa71dd658ae99c69c68"
+-    },
+-    {
+-      "bytes": 6568,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/FDPE.v",
+-      "sha256": "4ec91e1101288ae35ebda302ed5e31b670f5bb5b16cd48922d1cbf891407bcfc"
+-    },
+-    {
+-      "bytes": 919,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/VCC.v",
+-      "sha256": "ebe490fcb856151d8996d17c5d28086505d02e62cbcd2f16e0a5456a5867c6a2"
+-    },
+-    {
+-      "bytes": 835,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/GND.v",
+-      "sha256": "bd9c955d8e43d0f4653adee3d59020ec5e82869001aec02543d00f04e480e2d0"
+-    },
+-    {
+-      "bytes": 10154,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/CARRY8.v",
+-      "sha256": "4171d47f58a825cd244dedb76cbc864d0ec6ea4340285a8ade0177547c87c75d"
+-    },
+-    {
+-      "bytes": 7548,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAM128X1D.v",
+-      "sha256": "b3d5a842768b515e92813738e0f228e861bdcccab29dedeb4b5faa194e382a46"
+-    },
+-    {
+-      "bytes": 6594,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAM32X1D.v",
+-      "sha256": "7149b71042c1cb10a26c3f9519c341c92026f9fc545815286f8da1075206b8fb"
+-    },
+-    {
+-      "bytes": 7156,
+-      "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/unisims/RAM64X1D.v",
+-      "sha256": "afad78ed95071fe7547a546716decc268701aa6d78d8627de725485bcdb1b6e3"
+-    }
+-  ],
+-  "installed_vivado_launcher": {
+-    "bytes": 1196,
+-    "path": "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/bin/vivado",
+-    "sha256": "3b15c02533ef5b5bab4a09617086bd431b14aa296e6ea5a29811fe269cf8deb5"
+-  },
+-  "maintained_source": [
+-    {
+-      "bytes": 3723,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/design.md",
+-      "sha256": "050c840b789cbc04d98a72ffd7fb435041b4223ef2e972202596aeb3b9d577e6"
+-    },
+-    {
+-      "bytes": 2551,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/results.md",
+-      "sha256": "a2973683ca06c1ed1258e6388346f93d0cada500732331d5d372c81ccd597c7c"
+-    },
+-    {
+-      "bytes": 2408,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/implementation_notes.md",
+-      "sha256": "ffae4b85f3e82d758468afff32ff2b74ed14e956981e3e1ad06b186c9d291a4c"
+-    },
+-    {
+-      "bytes": 98839,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/semantic_property_contract.json",
+-      "sha256": "9d198c5fc5032771aadc9e97571a5acd631af517bb8e8fa666b82dcc6b7b4a77"
+-    },
+-    {
+-      "bytes": 18694,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/required_properties.tcl",
+-      "sha256": "80ab316f1742c351e9f8e9676e535af5ba555b54c8ae6bece271e566e8d9136a"
+-    },
+-    {
+-      "bytes": 101,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/rtl/README.md",
+-      "sha256": "043c9926bf8d9a4b8711a4ce3e2614a53f7f09c3cee4aaebfddf94841f6ed4ee"
+-    },
+-    {
+-      "bytes": 707,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/README.md",
+-      "sha256": "3dafd2f17805a6a11c89670d767790bbaa94f32d826d1f004013e4819aa86ce6"
+-    },
+-    {
+-      "bytes": 24891,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/extract_ws_graph.tcl",
+-      "sha256": "c92f10eea85e240310db9542e1693f24f5f301a21cfaf45da965f85cb6fea9ff"
+-    },
+-    {
+-      "bytes": 17352,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/audit_graph.py",
+-      "sha256": "7b2deebc8e605a7b8a577bd0072285c44ba9a9cdf9976ebb9a8fca633fc48f9d"
+-    },
+-    {
+-      "bytes": 3029,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/generate_contract_tcl.py",
+-      "sha256": "c4a64e9ee329613df9f274d26fb2253ddb90f88f58cce70fe19029ff94305be0"
+-    },
+-    {
+-      "bytes": 25681,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/funcsim_structure.py",
+-      "sha256": "2a110e3bed3b0d5ea4832b626025d6cdb1a3a3cf32c0a09b8c4fe9ffa33e1d22"
+-    },
+-    {
+-      "bytes": 23017,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/join_funcsim_graph.py",
+-      "sha256": "76bd5c8ce36c65913d876d15f3c1e97d0f1221c40f543d6817610fc2e75e95bb"
+-    },
+-    {
+-      "bytes": 11542,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/test_funcsim_synthetic.py",
+-      "sha256": "c0500952715b053907f512e4649e0188154f3457ff3ff4fbc9123a3e3e1cf185"
+-    },
+-    {
+-      "bytes": 18568,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/make_source_packet.py",
+-      "sha256": "e7984be747b890dbb3746a279b43f63d362566ae4498d71ef3d188993ac7ee52"
+-    },
+-    {
+-      "bytes": 66073,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/v5_to_v6.diff",
+-      "sha256": "5166d88db27fa100d03d5be45e560f5ec60a2336bfd86a1a56d688c5fedc94c0"
+-    }
+-  ],
+-  "mapping_evaluator_released": false,
+-  "prior_report_files_rehashed": [
+-    {
+-      "bytes": 9,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/blackboxes.tsv",
+-      "sha256": "13bd7b1cb8d4bcef21ecd8635fe590ab03e9d742c37a2ecace6846d97f14298c"
+-    },
+-    {
+-      "bytes": 88574,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/check_timing.rpt",
+-      "sha256": "63240837b84b45d86c3221710e52db2ae38aade2be0a1028a70b8745b3fea84f"
+-    },
+-    {
+-      "bytes": 1844,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/clocks.rpt",
+-      "sha256": "0e87da1a2d8bd5339109baf078127c7768e9605e148a829487d00f83e3101b46"
+-    },
+-    {
+-      "bytes": 34166,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/timing_summary.rpt",
+-      "sha256": "dde86782c5a6ed19a71f4f2711254dbb13563a1aded5740a03ec6cb27d97a4cc"
+-    },
+-    {
+-      "bytes": 3527323,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/timing_summary_including_unconstrained.rpt",
+-      "sha256": "d39f5060309dfe9570d1f03e21893d12a149b4d4ab4951bc1c4347e4d42905db"
+-    },
+-    {
+-      "bytes": 13669,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/utilization.rpt",
+-      "sha256": "8d14376c1322a908499b0af559254dfec9b49f66ab3753233afde1b79cdd89c7"
+-    },
+-    {
+-      "bytes": 368980,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/utilization_hierarchical.rpt",
+-      "sha256": "769c8c1c7d6b9f7a5ea75c209aa1570339fd89394035ca18602aed0a86d36258"
+-    },
+-    {
+-      "bytes": 0,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_address_reachability.tsv",
+-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+-    },
+-    {
+-      "bytes": 0,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_address_source_summary.tsv",
+-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+-    },
+-    {
+-      "bytes": 0,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_all_primitives.tsv",
+-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+-    },
+-    {
+-      "bytes": 8381,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_cells.tsv",
+-      "sha256": "0d58c7b3a72e5ac62d540cef076b44f3eb29fdbc169c60017a6793509c0e704c"
+-    },
+-    {
+-      "bytes": 0,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_full_primitive_summary.tsv",
+-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+-    },
+-    {
+-      "bytes": 54471,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_logical_address_pins.tsv",
+-      "sha256": "30f495f38e80d581ec4bcb650311e940415ebfe624bf320186b10d3e8e6f811f"
+-    },
+-    {
+-      "bytes": 864300953,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_pin_nets.tsv",
+-      "sha256": "95971a1052762f511c88225e9efb313f4ba26d9ffa56a78be2e8c84cf4e83419"
+-    },
+-    {
+-      "bytes": 0,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_primitive_ref_counts.tsv",
+-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+-    },
+-    {
+-      "bytes": 570,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_summary.tsv",
+-      "sha256": "7c5da42c185c2be058d437e128675159c57eddc73cfef7d5470cebd02352f768"
+-    },
+-    {
+-      "bytes": 25562,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_unmatched_memory_cells.tsv",
+-      "sha256": "021fcf1a13e9a35033348e32cdfd1ff371f57a8a96bd9d7d04705e79e2900c01"
+-    },
+-    {
+-      "bytes": 339968,
+-      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_dcp_report_recovery_v1_reports/ws_unmatched_primitives.tsv",
+-      "sha256": "0d0bc94a60c77c159a6efdaa5fd11e0580549fbdb82155e46f6393916cf6609d"
+-    }
+-  ],
+-  "resynthesis_released": false,
+-  "schema": "q8_ws_v6_strict_parser_source_packet_v1",
+-  "sealed_input_checkpoint": {
+-    "bytes": 42261013,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_synth_v1_entry_a2_reports/q8_joint_tm4tn8_ooc_synth.dcp",
+-    "sha256": "c480c9334ed20d775c5a768e077b15fa9ad1932cb6535ae639d9b9524c11f1ce"
+-  },
+-  "source_checks": {
+-    "contract_tcl_exact": true,
+-    "hash_bound_unisim_pin_signatures": {
+-      "bit_count": 1824,
+-      "port_count": 269,
+-      "reference_types": 22
+-    },
+-    "limits": {
+-      "maximum_alias_edges_per_bank": 65536,
+-      "maximum_bus_index": 32767,
+-      "maximum_expanded_hierarchy_depth": 16,
+-      "maximum_expanded_hierarchy_instances": 1024,
+-      "maximum_expanded_primitives_per_bank": 256,
+-      "maximum_expression_depth": 64,
+-      "maximum_file_bytes_per_bank": 67108864,
+-      "maximum_graph_nodes_per_bank": 32768,
+-      "maximum_identifier_bytes": 1024,
+-      "maximum_instance_declarations_per_module": 4096,
+-      "maximum_literal_bits": 4096,
+-      "maximum_module_definitions_per_bank": 128,
+-      "maximum_numeric_token_bytes": 8192,
+-      "maximum_tokens_per_bank": 1000000
+-    },
+-    "python_ast": "PASS",
+-    "synthetic_parser_join_tests": 19,
+-    "tcl_info_complete": true
+-  },
+-  "source_reviewer_gate": {
+-    "bytes": 2416,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_ws_v6_strict_parser_correction_source_preparation_release.json",
+-    "sha256": "6ff13c9a1356d48400a57dbb13454339fbf88050bda6d92b118135eb62175cdf"
+-  },
+-  "status": "SOURCE_ONLY_NO_DCP_VIVADO_EXPORT_OR_ACTUAL_JOIN_EXECUTION",
+-  "timing_150MHz_board_acceptance": "NOT_ESTABLISHED",
+-  "unchanged_ooc_constraint": {
+-    "bytes": 389,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_synth_v1/stage/constraints/q8_joint_tm4tn8_ooc.xdc",
+-    "sha256": "660a1b1d2fd32b9f4b72bbe6f7015fcb0e5983d20d39419207c836883f07ede0"
+-  },
+-  "v3_terminal_review": {
+-    "bytes": 4125,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_ws_v3_timeout_and_partial_graph_characterization_acceptance.json",
+-    "sha256": "63ae5f2843428f9a26753aad39a092876387e2662330b45aa406d898862c6355"
+-  },
+-  "v5_source_packet": {
+-    "bytes": 32817,
+-    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/source_packet.json",
+-    "sha256": "213a2634cd447d32eed21140835b54b7eb7cd2a278d47d726d9c3e520453bd12"
+-  },
+-  "ws_mapping_acceptance": "HELD_ALL_8x20992x16_BITS_INCLUDING_ADDRESSES_16384_TO_20991"
+-}
+--- v6/source/v5_to_v6.diff
++++ /dev/null
+@@ -1,807 +0,0 @@
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/design.md
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/design.md
+-@@ -1,35 +1,15 @@
+--# Ws v5: explicit functional-netlist parameters joined to the checkpoint graph
+-+# Ws v6: strict structural parser correction (source only)
+- 
+--2026-10-09. GPT-6 Astra / xhigh. This is a fresh SOURCE ONLY route. It authorizes no Vivado invocation, DCP open, export, synthesis, simulation, logical mapping evaluation or reuse of a consumed execution gate. Preserve all v3/v4 source and evidence. Before implementation, archive exact bytes and identities of the v4 source packet and all eleven maintained_source files into v5/source/prior_v4, with original/copy equality. Do not edit v4 in place.
+-+Preserve the complete v5 packet 213a2634cd447d32eed21140835b54b7eb7cd2a278d47d726d9c3e520453bd12 and all 14 maintained files. Archive their exact original bytes, SHA256 and copy locations before editing this fresh sibling. Preserve v4/v3, DCP c480c933, constraints, numerical fixtures and production. No Vivado, checkpoint open, actual exported-netlist parser/join, mapping evaluator, compiler or DUT is released.
+- 
+--## Documented evidence route
+-+Use the reviewed v5 design for the eight explicit funcsim exports and exact structural/parameter correspondence. Copy the implementation into this fresh sibling with only necessary local path/identity changes plus the following strict parser corrections. Do not change export flags, bank order, graph selection, raw-property provenance, installed primitive semantics or mapping claims. Keep the candidate 12 GiB/900 s tool budget unissued.
+- 
+--The installed write_verilog manual documents -mode funcsim as a functional simulation netlist, -cell as a single hierarchy export, -write_all_overrides true as writing primitive parameter overrides even when equal to the primitive default, and -keep_vcc_gnd as retaining constant primitives and their nets. The write_edif manual has no corresponding all-overrides option. Use these installed, hash-bound manuals and the installed UNISIM definitions; do not invent a logical-pin IS_INVERTED equivalence or infer actual values from primitive declaration defaults.
+-+1. Classify DCP property status before substitution. ERROR, TRUNCATED and unknown status are terminal, whether raw text is empty or not. MISSING is acceptable as an unresolved actual value only when raw text is empty. OK with empty raw text may likewise remain missing. A nonempty OK actual value must parse without x/z and agree with every explicit export on value and applicable width/signedness. Never silently replace a malformed, contradictory or failed-read actual value by an export override. Preserve both raw sources and status in evidence. Keep all eight RAMB36E2 inversion overrides explicit, known, width one; missing never means zero.
+- 
+--Prepare a dormant checkpoint-only Tcl route to open the accepted c480c9334ed20d775c5a768e077b15fa9ad1932cb6535ae639d9b9524c11f1ce DCP once, with unchanged constraints, and write exactly eight exports, in this order: ws_U, ws_8_U, ws_9_U, ws_10_U, ws_11_U, ws_12_U, ws_13_U, ws_14_U. Candidate command form is write_verilog -mode funcsim -write_all_overrides true -keep_vcc_gnd -cell $exact_bank $fresh_file. Require each exact bank object once. Do not use -quiet, -force, -logic_function_stripped, rename_top, additional synthesis, optimization, placement, implementation or design mutation. Do not strip INIT/INITP/LUT INIT, tie off ports, remove unknown cells, merge ports as capacity, or broaden this to an unbounded whole-chip export. Log command, bank NAME/REF_NAME, phase, output length, hash and completion. Any export error/timeout is terminal for that attempt.
+-+2. Reject unsupported variable declarations/initializers. The accepted structural subset may keep continuous wire/tri aliases and named module/primitive connections. `reg x=1'b0` is a one-time variable initialization, not a continuous alias: it and corresponding reg/logic variable declarations or output-variable forms must fail before expansion unless a separately reviewed semantic implementation is provided. Do not broaden scope to behavioral elaboration. Keep standard net declaration assignments only if their continuous-net meaning is explicit.
+- 
+--## Two independent representations
+-+3. Make parser bounds effective before allocation: cap literal bit width before shifts; cap selected ranges before list construction; cap total expanded hierarchy instances and depth as well as primitive/node/edge counts. Bound/validate relevant numeric tokens, module/instance names and source spans. Document cap rationale against frozen observed graph sizes plus finite margin; no silent truncation, cap growth or retry. A small empty shared-module hierarchy must hit a hierarchy cap even if it adds no primitives/nodes.
+- 
+--Retain v4's exact eight-bank cell/pin/boundary/net-component/alias/driver-owner graph extraction and its eleven normalized tables, UTF-8 hex encoding, explicit constants, both 15-bit addresses, both CE signals, WE, 16-bit input and output, reset and clock. All selected cells, primitive instances, boundaries, unique drivers and external cone gaps must survive. Unknown primitives, missing banks, pin/net mismatches, owner errors, ambiguous identities or unsupported state are hard failures. Optional global diagnostic reports remain outside this critical path; existing accepted reports are bound instead.
+-+4. Preserve the original 11 finite synthetic tests and add meaningful refusal tests for nonempty MISSING, ERROR, TRUNCATED and unknown statuses, failed/unknown numeric raw values, variable initialization, oversized literal/range and total hierarchy expansion. Include positive empty actual plus explicit override, known agreeing actual, ordinary net aliases, escaped identifiers, shared-module instances and width/index matching. These are tiny source-only parser tests, never actual netlists or numerical model input. The default CLI must continue refusing actual parser/join/evaluator execution.
+- 
+--Maintain a raw DCP property table including empty or unsupported values. Maintain a separate raw functional-netlist parameter table, with exact source file byte span, module/instance path, parameter name, original literal, width, signedness and decoded value. Do not fill DCP empties with fabricated zeroes. A semantic join table may resolve a required actual setting from an explicit export value only after exact instance and graph correspondence has passed; record provenance as EXPLICIT_FUNCSIM_OVERRIDE and preserve the original DCP gap. Every nonempty DCP value must agree after explicitly reviewed type/encoding normalization. Any conflict is terminal, even if one representation looks more plausible.
+--
+--The eight currently missing RAMB36E2 inversion settings must be present explicitly per affected primitive: IS_CLKARDCLK_INVERTED, IS_CLKBWRCLK_INVERTED, IS_ENARDEN_INVERTED, IS_ENBWREN_INVERTED, IS_RSTRAMARSTRAM_INVERTED, IS_RSTRAMB_INVERTED, IS_RSTREGARSTREG_INVERTED and IS_RSTREGB_INVERTED. Require known one-bit actual values; missing overrides, x/z, expressions not supported by the parser, empty strings or duplicate parameters remain held gaps. The option is a documented candidate route, not a guarantee that this checkpoint will export those parameters. No omission-to-default inference is allowed for any required setting.
+--
+--Preserve the full existing semantic_property_contract.json scope, including all functional RAM/URAM widths, modes, cascade/ECC, polarities, address enables, output registers, reset, sleep, initialization, LUT INIT, FF INIT/polarities, carry and distributed-memory parameters. Every required parameter must have actual export or actual DCP evidence, never a library default. The join records the evidence path for every required field. Parameters classified simulation-only retain their distinct status. An exported reference type differing from the DCP type requires a separately reviewed exact semantic transform; absent that transform, stop.
+--
+--## Parser and identity binding
+--
+--Implement a finite structural Verilog parser for the documented generated subset, not line-based parameter grep. Correctly tokenize comments, strings, escaped identifiers (terminated by whitespace), numeric literals, module definitions, parameterized instances, named ports, bus bit/part selects, concatenations and continuous aliases that actually occur. Preserve module hierarchy and expand shared module definitions with unique instance paths; detect recursion, duplicate instance/parameter/port declarations, unresolved references and black boxes. Unsupported constructs fail explicitly; do not guess around them. Do not execute the netlist or import behavioral expressions as Python/Tcl.
+--
+--Bind each expanded primitive to exactly one DCP instance using hierarchy/name evidence; preserve raw spellings and use only documented syntactic escaped-name decoding. Never use approximate string matching, positional matching between unrelated orders, same-REF_NAME inference, or assumed identical banks. Export top/module rewriting must be recorded and invertibly bound to the selected exact bank. Require a bijection over selected primitive instances and named primitive pins. Compare bit widths, pin direction, bit ordering, bank boundary connections, constant identity and canonical net connectivity up to explicitly parsed continuous alias relations. Internal wire spelling may differ, but component membership and endpoints must match, with a recorded mapping. Keep external boundary/cone dependencies explicit; exporting only the bank cannot prove an external read selection cone.
+--
+--Source preparation may run AST/Tcl syntax completeness, literal source/manifest checks and small synthetic parser cases only. Include cases for 0 versus empty, explicit default-valued override, missing override, x/z inversion, conflicting DCP/export value, escaped names, shared module definitions, swapped address bits, constant mismatch, duplicate instances and unknown syntax. Default entrypoints must be read-only and must not invoke Vivado or parse/evaluate actual generated evidence. Do not silently report synthetic parser success as actual-netlist correctness.
+--
+--## Finite future execution proposal
+--
+--Prepare exact fresh reports/control roots under ws_dcp_connectivity_v5/runs, exact argv, tool/launcher/guard/helpers, manual/UNISIM/contract/DCP/constraint bindings, full source inventory and pre/post identity checks. Candidate aggregate budget is 12 GiB / 900 seconds, one checkpoint open, eight exports and one graph extraction, CPUs 0-3, nice 19, idle I/O, 0.2-second owned-RSS sampling and MemAvailable strictly above 192 GiB. This is a candidate, not an execution release or quota extension. A new independent source review must decide its gate and root must assign the sole heavy slot. Export aggregate output cap 256 MiB and explicit parser expansion/node/edge caps must fail without truncation; source packet must derive the latter from known inventory plus justified bounds. A later actual parser/evaluator invocation needs an independently bounded command and gate; do not hide it in export success handling. Stop at the first failure, archive partial outputs, and require a new review before any repair/retry.
+--
+--## Acceptance limits
+--
+--Successful explicit parameter extraction and graph correspondence establish only a stronger semantic input to Ws analysis. They do not establish capacity or address mapping. Full proof remains all 8 x 20,992 x 16 logical mappings (2,686,976 bits), exactly one enabled physical write, same-storage read selection, data/parity and cascade correctness, CE/WE/clock/reset behavior, and all addresses 16,384 through 20,991. Count each physical RAM once, not once per port. Preserve unsupported external state/cones as held gaps. No C1 pipeline, numerical RTL, 150 MHz, physical implementation or board claim follows.
+-+Deliver new source packet, exact 15-file v5 preimage archive, literal diff, source-only AST/Tcl completeness and finite synthetic results, full original/new source separation and inherited installed-tool/DCP/XDC/manual/UNISIM identities. Candidate paths must be fresh and bound. Independent source review comes before any fresh export gate, and actual parsing requires another gate after actual exports/graph review. No mapping capacity, numerical, timing or board success claim.
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/results.md
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/results.md
+-@@ -1,11 +1,9 @@
+--# Ws v5 source preparation results
+-+# Ws v6 strict parser correction: evidence status
+- 
+--Status: **source only, pending independent review**. No v5 DCP open, Vivado invocation, functional export, actual graph parsing/join, numerical mapping evaluation, synthesis, physical implementation or board test has run. The v4 source/evidence and accepted checkpoint remain unchanged.
+-+2026-10-09. **SOURCE ONLY; independent review pending.** The v5 packet and its fourteen maintained files were archived byte-for-byte in [prior_v5/manifest.json](prior_v5/manifest.json). The accepted v3/v4/v5 bytes, checkpoint, constraints, fixtures and production remain unchanged. No v6 DCP open, Vivado export, actual-netlist parse/join, mapping evaluation, compiler/DUT run, synthesis, implementation, timing or board run occurred.
+- 
+--The accepted v3 extraction reached its 900-second guard (child exit `-9`, peak owned RSS 3,945,996 KiB). Its partial graph had 139 cells, 135 primitives and 14,266 pins, but zero finalized nets and boundary rows; the offline audit reported 8,626 errors. The independent [v3 review](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_ws_v3_timeout_and_partial_graph_characterization_acceptance.json) records this as a bounded incomplete attempt, not a mapping result. Three completed partial cell-bank groups each had 46 cells; across those three groups the partial pin table averages about 4,755 pins per bank. The earlier [DCP report review](/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/reviewer_q8_dcp_report_timeout_and_partial_timing_characterization_acceptance.json) reports 12 RAMB36E2 per bank and 96 across eight banks. These are *observed source-bounding inputs*, not acceptance of the other five banks.
+-+The v3 bounded attempt remains the only observed graph-size input: 139 cells, 135 primitives and 14,266 partial pins before its 900-second guard stopped; three completed partial bank groups had 46 cells each, about 4,755 pins per bank. The source caps are 64 MiB/export, 1,000,000 tokens, 128 module definitions, 256 primitive instances, 32,768 graph nodes and 65,536 alias edges. New preallocation caps are 4,096 literal bits, 8,192 bytes per token/source span, 1,024 identifier bytes, bus index 32,767, expression depth 64, 4,096 declarations/module, 1,024 total expanded instances and hierarchy depth 16. The primitive cap exceeds the observed roughly 45 primitives per completed partial bank by more than 5x; the node cap exceeds the observed approximate per-bank pin count by more than 6x; the hierarchy cap exceeds the 46-cell partial bank count by more than 22x. These are finite stop limits with margin, not evidence of the unseen full export. No cap may silently grow or truncate a result.
+- 
+--The dormant v5 extractor has a 256 MiB aggregate functional-export cap and a 64 MiB per-bank cap. The parser imposes per-export caps of 1,000,000 tokens, 128 module definitions, 256 expanded primitives, 32,768 graph nodes and 65,536 alias edges. The 256-primitive limit is more than five times the 45 primitives per completed partial v3 bank; the node limit is over six times the observed approximate per-bank pin count. These limits stop an unexpected export for review instead of truncating it or inferring unseen bank equivalence. Each export remains separately hash/length logged.
+-+The original 11 synthetic checks and eight new refusal/positive groups pass as 19 tiny in-memory tests. They cover nonempty MISSING, ERROR/TRUNCATED/unknown statuses, malformed and unknown raw values, agreeing value/width, variable initializers and output variables, continuous net aliases, oversized literal/range, shared empty hierarchy expansion and depth/name limits. Source packet checks also parse Python AST, verify Tcl completeness and the unchanged 22-reference/348-property contract, and read only hash-bound installed UNISIM port declarations. They do not establish the actual Vivado funcsim grammar or graph correspondence.
+- 
+--Source-only checks: Python AST parsing, `tclsh info complete`, exact generated contract check (22 primitive types, 348 required names), hash-bound UNISIM port declaration parsing for all 22 types, and 11 synthetic parser/join tests pass. The tests cover explicit zero versus empty DCP, omission, eight one-bit RAMB36E2 inversions, unknown `x`, width mismatch, DCP conflict, escaped names, shared definitions, swapped bits, constant mismatch, duplicate entries and unsupported syntax. This does not show that the actual Vivado functional export belongs to the supported grammar or matches the checkpoint graph.
+--
+--The only existing OOC clock constraint remains `create_clock -name ap_clk -period 6.667 [get_ports ap_clk]`. Neither that request nor source checks establish 150 MHz routed timing. Capacity and effective read/write mapping remain held for all 8 × 20,992 × 16 logical bits, including addresses 16,384–20,991. A source packet binds the exact files and describes candidate guarded extraction; execution needs a fresh independent gate and root scheduling. A later actual parser/join needs its own separate bounded gate.
+-+The dormant eight-export command, bank order, raw property table, 12 GiB/900-second candidate budget, and 256 MiB aggregate output cap are unchanged from v5 except for fresh v6 paths. Independent source review must precede an export gate; actual parser/join and any mapping evaluator each remain separately held. The 8 × 20,992 × 16-bit Ws mapping, addresses 16,384–20,991, 150 MHz timing and board operation are unproved.
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/source/implementation_notes.md
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/source/implementation_notes.md
+-@@ -1,13 +1,9 @@
+--# Ws v5 source implementation notes
+-+# Ws v6 source implementation notes
+- 
+--The Astra xhigh [design](design.md) and reviewed v4 [semantic contract](semantic_property_contract.json) define this source-only revision. [prior_v4/manifest.json](prior_v4/manifest.json) binds the exact v4 packet and eleven maintained files, each original and archive copy with equal bytes and SHA256. None of those files was edited in v4. The new source packet checks those identities again.
+-+The authoritative [v6 design](design.md) applies the reviewed [v5 design](prior_v5/source/design.md) to a fresh sibling. [prior_v5/manifest.json](prior_v5/manifest.json) records SHA256 and byte-for-byte copies of the v5 packet plus all fourteen maintained files. [v5_to_v6.diff](v5_to_v6.diff) is the literal maintained-file diff. The v5 contract, generated required-property Tcl, installed UNISIM semantics, DCP and XDC identities are inherited without modification.
+- 
+--`tb/extract_ws_graph.tcl` retains v4's exact-bank cell, pin, boundary, alias, net-component and driver-owner tables. In one dormant checkpoint open it selects the eight exact bank roots, rejects duplicate selected names, and issues one `write_verilog -mode funcsim -write_all_overrides true -keep_vcc_gnd -cell` command per bank in the specified order. It logs each begin/completion, exact bank NAME/REF_NAME, file length, SHA256 and aggregate bytes. The eight files are capped at 64 MiB each and 256 MiB total. Missing DCP required properties remain raw `properties.tsv` rows and `REQUIRED_PROPERTY_GAP` issues; only these gaps may pass the pre-join structural audit. Any other extraction issue, timeout or export error is terminal. No property is filled from a declaration default.
+-+The dormant extractor still opens the exact checkpoint once and exports ws_U, ws_8_U, ws_9_U, ws_10_U, ws_11_U, ws_12_U, ws_13_U, ws_14_U with the unchanged explicit funcsim flags and output caps. Its output root is rebound to fresh v6 paths. It retains raw DCP values and read statuses, including gaps, and treats structural extraction faults as terminal. The join first requires structural graph correspondence. It then rejects ERROR, TRUNCATED or unknown property status, and rejects MISSING with any nonempty raw text. Empty MISSING or empty OK is an unresolved DCP value that requires an explicit export for each required semantic setting. Nonempty OK must parse as a known literal and match every explicit export value and applicable width/signedness. All eight RAMB36E2 inversion fields still require explicit known one-bit overrides. Raw DCP and export values/spans remain separate evidence.
+- 
+--`tb/funcsim_structure.py` tokenizes a restricted structural Verilog subset and rejects unsupported syntax. It records exact ASCII byte spans for parameter literals, module definitions, expanded hierarchy and primitive paths, named ports, bus selections, concatenations, and continuous aliases. Its union graph is capped and rejects recursive modules, duplicate names, implicit nets, unknown primitives, conflicting constants and width mismatches. The exact actual Vivado output syntax is untested.
+-+The structural parser accepts continuous wire/tri net aliases, named connections, finite concatenations and selections, escaped names and shared module definitions. It rejects reg/logic variable declarations and initializers, including ANSI and non-ANSI output variable forms. This avoids interpreting a one-time variable initialization as a continuous alias. Literal widths, digit counts, bus indexes and selected range sizes are checked before shifts or lists; source tokens, identifiers, hierarchy depth and total expansion also have explicit bounds. Unsupported syntax is terminal. The parser does not execute Verilog.
+- 
+--`tb/join_funcsim_graph.py` has a default CLI that refuses actual evidence. Under a later gate, its imported join would first require a complete DCP graph structural audit, then independently read the hash-bound UNISIM port declarations for pin width/direction. It binds exact hierarchy and primitive names, REF_NAMEs, named pin sets, directions, indices, boundaries, constants and canonical net components. It retains separate raw DCP and raw functional parameter tables, literal spans and a net-component correspondence table. Required semantic values come only from a nonempty actual DCP property or an explicit export override; every nonempty pair must agree. The eight RAMB36E2 inversion settings require explicit known one-bit export values even if the DCP reports a value. Any missing, `x/z`, conflict, unsupported encoding, unbound hierarchy or external cone remains a failure or held gap. The root module rename is recorded with the exact bank binding; no approximate instance-name or same-type matching is allowed.
+--
+--The accepted checkpoint and OOC constraint are read only and hash-bound. A *candidate*, not released, extraction route uses the existing 0.2-second owned-RSS guard: 12 GiB, 900 seconds, four CPUs, low CPU/I/O priority and MemAvailable strictly above 192 GiB. The source packet binds the launcher, guard, helper, command tools, DCP, XDC, manuals, UNISIM files and source inventory, and specifies fresh control/report roots. It does not invoke that route. Actual parser/join invocation is separately held; it must receive its own bounded command and independent gate after the export and graph identities are reviewed.
+--
+--This is structural and parameter preparation only. Even a successful future join would not prove Ws capacity, address decode, write uniqueness, same-storage read selection, parity/cascade, reset/clock behavior, 150 MHz timing or board operation.
+-+The default join CLI still refuses actual graph/export input. The 19 synthetic tests are tiny in-memory source checks. An actual export may reveal unsupported syntax or exceed these stop limits; such an event needs review, not automatic parser expansion. Source success does not establish Ws storage capacity, read selection, parity/cascade, reset/clock semantics, or routing.
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/README.md
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/README.md
+-@@ -1 +1 @@
+--Ws v5 is source-only pending independent review and an execution gate. `test_funcsim_synthetic.py` checks a tiny in-memory parser/join graph; `generate_contract_tcl.py --check` validates the unchanged 22-type/348-property contract; `make_source_packet.py --check` rechecks the sealed source packet. `extract_ws_graph.tcl` is dormant and must not be run by those checks. `audit_graph.py` defaults to strict DCP coverage; the explicit-join mode is only called by the held `join_funcsim_graph.py` routine. That script's default CLI refuses actual evidence. Source checks do not establish actual export syntax, graph correspondence or numerical mapping.
+-+Ws v6 is source-only pending independent review. `test_funcsim_synthetic.py` runs 19 tiny in-memory parser/join checks; `generate_contract_tcl.py --check` verifies the unchanged 22-type/348-property contract; `make_source_packet.py --check` rechecks the sealed source and inherited identities. The packet check also parses Python AST and uses `tclsh info complete` without invoking Vivado. `extract_ws_graph.tcl` is dormant and must not be run by source checks. `audit_graph.py` rejects terminal property statuses even when explicit-join gaps are allowed. The default `join_funcsim_graph.py` CLI refuses actual evidence. Actual exports, graph joins and mapping evaluation each need later independent gates.
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/extract_ws_graph.tcl
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/extract_ws_graph.tcl
+-@@ -1,11 +1,11 @@
+--# Ws v5 checkpoint-only graph and functional-export extraction. Source preparation only until a new
+-+# Ws v6 checkpoint-only graph and functional-export extraction. Source preparation only until a new
+- # execution gate is approved. Arbitrary names/values are hex UTF-8.
+- if {[llength $argv] != 2} { error "usage: extract_ws_graph.tcl SEALED_DCP FRESH_REPORT_DIR" }
+- lassign $argv dcp outdir
+- set dcp [file normalize $dcp]
+- set outdir [file normalize $outdir]
+- set expected_dcp "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/runs/top_synth_v1_entry_a2_reports/q8_joint_tm4tn8_ooc_synth.dcp"
+--set expected_outdir "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/runs/export_graph_v1/reports"
+-+set expected_outdir "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/runs/export_graph_v1/reports"
+- set expected_sha c480c9334ed20d775c5a768e077b15fa9ad1932cb6535ae639d9b9524c11f1ce
+- if {$dcp ne $expected_dcp || $outdir ne $expected_outdir} { error "unreviewed DCP/output path" }
+- if {![file isfile $dcp] || ![catch {file lstat $outdir st}]} { error "missing DCP or report path not fresh" }
+-@@ -470,8 +470,8 @@
+- if {$structural_issue_count != 0} {
+-     phase extraction HELD $structural_issue_count "structural issues in issues.tsv; mapping proof remains held"
+-     close $ledger
+--    error "Ws v5 extraction has $structural_issue_count structural issue(s); see issues.tsv"
+-+    error "Ws v6 extraction has $structural_issue_count structural issue(s); see issues.tsv"
+- }
+- phase extraction COMPLETE 8 "graph ready for structural audit; property gaps=$property_gap_count require explicit join; mapping proof held"
+- close $ledger
+--puts "Q8_WS_V5_GRAPH_AND_FUNCSIM_EXTRACTED banks=8 cells=$next_cell pins=$next_pin nets=$next_net proof=REVIEW_REQUIRED"
+-+puts "Q8_WS_V6_GRAPH_AND_FUNCSIM_EXTRACTED banks=8 cells=$next_cell pins=$next_pin nets=$next_net proof=REVIEW_REQUIRED"
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/audit_graph.py
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/audit_graph.py
+-@@ -120,7 +120,10 @@
+-             errors.append(f"duplicate primitive property {cid}:{key}")
+-         seen_properties.add((cid, key))
+-         primitive_properties[cid].add(key)
+--        if row["read_status"] != "OK" or not value:
+-+        status = row["read_status"]
+-+        if status not in ("OK", "MISSING") or (status == "MISSING" and value):
+-+            errors.append(f"terminal property status {cid}:{key}:{status}")
+-+        if status != "OK" or not value:
+-             property_gap_count += 1
+-             if not allow_property_gaps_for_explicit_join:
+-                 errors.append(f"required property gap {cid}:{key}:{row['read_status']}")
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/funcsim_structure.py
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/funcsim_structure.py
+-@@ -69,13 +69,25 @@
+- MAX_PRIMITIVES = 256
+- MAX_NODES = 32768
+- MAX_EDGES = 65536
+-+MAX_LITERAL_BITS = 4096
+-+MAX_NUMERIC_TOKEN_BYTES = 8192
+-+MAX_IDENTIFIER_BYTES = 1024
+-+MAX_BUS_INDEX = 32767
+-+MAX_EXPRESSION_DEPTH = 64
+-+MAX_HIERARCHY_INSTANCES = 1024
+-+MAX_HIERARCHY_DEPTH = 16
+-+MAX_INSTANCE_DECLARATIONS = 4096
+- NUMBER = re.compile(r"(?:(\d+))?'([sS]?)([bBoOdDhH])([0-9a-fA-F_xXzZ?]+)\Z")
+- SIMPLE_NAME = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*\Z")
+- SIZED = re.compile(r"[0-9]+'[sS]?[bBoOdDhH][0-9a-fA-F_xXzZ?]+")
+- 
+- 
+- def decode_name(text: str) -> str:
+-+    if len(text) > MAX_IDENTIFIER_BYTES:
+-+        raise Unsupported("identifier byte cap exceeded")
+-     if text.startswith("\\"):
+-+        if len(text) == 1:
+-+            raise Unsupported("empty escaped identifier")
+-         return text[1:]  # Verilog escaped identifier ends at whitespace.
+-     if SIMPLE_NAME.fullmatch(text):
+-         return text
+-@@ -84,6 +96,10 @@
+- 
+- def parse_literal(token: Token, *, allow_bare_word: bool = False) -> Literal:
+-     raw = token.value
+-+    if token.start < 0 or token.end < token.start or token.end - token.start > MAX_NUMERIC_TOKEN_BYTES:
+-+        raise Unsupported("literal source span cap exceeded")
+-+    if len(raw) > MAX_NUMERIC_TOKEN_BYTES:
+-+        raise Unsupported("literal token byte cap exceeded")
+-     if raw.startswith('"') and raw.endswith('"'):
+-         # Numeric model parameters are not evaluated from strings.
+-         value = bytes(raw[1:-1], "ascii").decode("unicode_escape")
+-@@ -94,20 +110,38 @@
+-         if any(x in digits.lower() for x in "xz?"):
+-             raise Unsupported(f"unknown numeric literal {raw!r}")
+-         base = {"b": 2, "o": 8, "d": 10, "h": 16}[base_s.lower()]
+-+        if width_s is not None and (len(width_s) > 4 or int(width_s) > MAX_LITERAL_BITS):
+-+            raise Unsupported(f"literal bit width cap exceeded {raw!r}")
+-         width = int(width_s) if width_s else None
+--        value = int(digits.replace("_", ""), base)
+-+        cleaned = digits.replace("_", "")
+-+        if len(cleaned) > {2: 4096, 8: 1366, 10: 1234, 16: 1024}[base]:
+-+            raise Unsupported(f"literal digit cap exceeded {raw!r}")
+-+        value = int(cleaned, base)
+-+        if value.bit_length() > MAX_LITERAL_BITS:
+-+            raise Unsupported(f"literal value bit cap exceeded {raw!r}")
+-         if width is not None and (width <= 0 or value >= (1 << width)):
+-             raise Unsupported(f"literal width overflow {raw!r}")
+-         return Literal(raw, width, bool(sign), "integer", value, token.start, token.end)
+-     if re.fullmatch(r"\d[\d_]*", raw):
+--        return Literal(raw, None, False, "integer", int(raw.replace("_", "")), token.start, token.end)
+-+        cleaned = raw.replace("_", "")
+-+        if len(cleaned) > 1234:
+-+            raise Unsupported(f"literal digit cap exceeded {raw!r}")
+-+        value = int(cleaned)
+-+        if value.bit_length() > MAX_LITERAL_BITS:
+-+            raise Unsupported(f"literal value bit cap exceeded {raw!r}")
+-+        return Literal(raw, None, False, "integer", value, token.start, token.end)
+-     if allow_bare_word and SIMPLE_NAME.fullmatch(raw):
+-         return Literal(raw, None, False, "string", raw, token.start, token.end)
+-     raise Unsupported(f"unsupported literal {raw!r}")
+- 
+- 
+- def lex(source: str) -> list[Token]:
+--    source.encode("ascii")  # spans are byte spans by contract
+-+    try:
+-+        source.encode("ascii")  # spans are byte spans by contract
+-+    except UnicodeEncodeError as error:
+-+        raise Unsupported("non-ASCII structural source") from error
+-+    if len(source) > MAX_FILE_BYTES:
+-+        raise Unsupported("functional export byte cap exceeded")
+-     out: list[Token] = []
+-     i, n = 0, len(source)
+-     while i < n:
+-@@ -173,6 +207,8 @@
+-         else:
+-             raise Unsupported(f"unsupported lexical character {source[i]!r} at {i}")
+-         out.append(Token(source[start:i], start, i))
+-+        if i - start > MAX_NUMERIC_TOKEN_BYTES:
+-+            raise Unsupported("token source span cap exceeded")
+-         if len(out) > MAX_TOKENS:
+-             raise Unsupported("token cap exceeded")
+-     return out
+-@@ -205,6 +241,8 @@
+-         lit = parse_literal(self.take())
+-         if lit.kind != "integer" or lit.value < 0:
+-             raise Unsupported("nonconstant bus bound")
+-+        if lit.value > MAX_BUS_INDEX:
+-+            raise Unsupported("bus index cap exceeded")
+-         return int(lit.value)
+- 
+-     def balanced(self, open_token: str, close_token: str) -> list[Token]:
+-@@ -239,7 +277,9 @@
+-     return out
+- 
+- 
+--def parse_expr(tokens: list[Token]) -> object:
+-+def parse_expr(tokens: list[Token], depth: int = 0) -> object:
+-+    if depth > MAX_EXPRESSION_DEPTH:
+-+        raise Unsupported("expression depth cap exceeded")
+-     if not tokens:
+-         return ("open",)
+-     c = Cursor(tokens)
+-@@ -247,12 +287,12 @@
+-         parts = split_top(c.balanced("{", "}"), ",")
+-         if c.peek():
+-             raise Unsupported("tokens after concatenation")
+--        return ("concat", tuple(parse_expr(x) for x in parts))
+-+        return ("concat", tuple(parse_expr(x, depth + 1) for x in parts))
+-     if c.peek() == "(":
+-         inside = c.balanced("(", ")")
+-         if c.peek():
+-             raise Unsupported("tokens after parenthesized expression")
+--        return parse_expr(inside)
+-+        return parse_expr(inside, depth + 1)
+-     token = c.take()
+-     if token.value.startswith('"') or token.value[0].isdigit() or token.value[0] == "'":
+-         lit = parse_literal(token)
+-@@ -315,9 +355,13 @@
+- 
+- 
+- def declaration(c: Cursor, module: Module, first: str) -> None:
+-+    if first in ("reg", "logic"):
+-+        raise Unsupported("variable declaration unsupported")
+-     direction = first if first in ("input", "output", "inout") else None
+-     while c.peek() in ("wire", "reg", "tri", "signed", "logic"):
+--        c.take()
+-+        qualifier = c.take().value
+-+        if qualifier in ("reg", "logic"):
+-+            raise Unsupported("variable declaration unsupported")
+-     indices = parse_range(c)
+-     while True:
+-         name = c.name()
+-@@ -364,7 +408,9 @@
+-             inherited_direction = values[0]
+-             inherited_indices = None
+-             values = values[1:]
+--        values = [x for x in values if x not in ("wire", "reg", "tri", "signed", "logic")]
+-+        if "reg" in values or "logic" in values:
+-+            raise Unsupported("variable port declaration unsupported")
+-+        values = [x for x in values if x not in ("wire", "tri", "signed")]
+-         index = None
+-         if values and values[0] == "[":
+-             sub = Cursor([Token(x, 0, 0) for x in values])
+-@@ -413,6 +459,8 @@
+-                 ports = parse_named_list(c.balanced("(", ")"), parameters=False)
+-                 if any(x.name == name for x in module.instances):
+-                     raise Unsupported(f"duplicate instance {module.name}/{name}")
+-+                if len(module.instances) >= MAX_INSTANCE_DECLARATIONS:
+-+                    raise Unsupported("instance declaration cap exceeded")
+-                 module.instances.append(Instance(reference, name, parameters, ports))
+-                 if c.peek() != ",":
+-                     break
+-@@ -454,11 +502,16 @@
+-         return node
+- 
+-     def find(self, node: str) -> str:
+--        self.add(node) if node not in self.parent else None
+--        parent = self.parent[node]
+--        if parent != node:
+--            self.parent[node] = self.find(parent)
+--        return self.parent[node]
+-+        if node not in self.parent:
+-+            self.add(node)
+-+        path = []
+-+        root = node
+-+        while self.parent[root] != root:
+-+            path.append(root)
+-+            root = self.parent[root]
+-+        for child in path:
+-+            self.parent[child] = root
+-+        return root
+- 
+-     def union(self, left: str, right: str) -> None:
+-         self.edges += 1
+-@@ -486,6 +539,7 @@
+-         self.hierarchy: dict[str, str] = {}
+-         self.boundaries: dict[str, str] = {}
+-         self.top_module: str | None = None
+-+        self.expanded_instances = 0
+-         referenced = {inst.reference for mod in modules.values() for inst in mod.instances
+-                       if inst.reference in modules}
+-         roots = set(modules) - referenced
+-@@ -494,17 +548,22 @@
+-         self.top_module = next(iter(roots))
+-         self.expand(self.top_module, bank, ())
+- 
+--    def bits(self, mod: Module, path: str, expr: object) -> list[str] | None:
+-+    def bits(self, mod: Module, path: str, expr: object,
+-+             depth: int = 0) -> list[str] | None:
+-+        if depth > MAX_EXPRESSION_DEPTH:
+-+            raise Unsupported("expression expansion depth cap exceeded")
+-         kind = expr[0]
+-         if kind == "open":
+-             return None
+-         if kind == "concat":
+--            parts = [self.bits(mod, path, part) for part in expr[1]]
+-+            parts = [self.bits(mod, path, part, depth + 1) for part in expr[1]]
+-             if any(part is None for part in parts):
+-                 raise Unsupported("open net inside concatenation")
+-             return [bit for part in parts for bit in part]
+-         if kind == "constant":
+-             width, value = expr[1:]
+-+            if width <= 0 or width > MAX_LITERAL_BITS:
+-+                raise Unsupported("literal bit width cap exceeded before expansion")
+-             bits = []
+-             for index in range(width - 1, -1, -1):
+-                 node = f"{path}/$literal_{len(self.components.parent)}_{index}"
+-@@ -518,17 +577,23 @@
+-         indices = mod.ranges[name]
+-         if selection is not None:
+-             hi, lo = selection
+-+            if abs(hi - lo) + 1 > MAX_NODES:
+-+                raise Unsupported("selected range cap exceeded before expansion")
+-+            if hi not in indices or lo not in indices:
+-+                raise Unsupported(f"out-of-range select {path}/{name}{selection}")
+-             step = -1 if hi >= lo else 1
+-             indices = list(range(hi, lo + step, step))
+--            if any(index not in mod.ranges[name] for index in indices):
+--                raise Unsupported(f"out-of-range select {path}/{name}{selection}")
+-         return [self.components.add(f"{path}/{name}[{index}]") for index in indices]
+- 
+-     def expand(self, module_name: str, path: str, stack: tuple[str, ...]) -> None:
+-+        if len(stack) > MAX_HIERARCHY_DEPTH:
+-+            raise Unsupported("expanded hierarchy depth cap exceeded")
+-         if module_name in stack:
+-             raise Unsupported(f"recursive module hierarchy {stack + (module_name,)}")
+-         if path in self.hierarchy:
+-             raise Unsupported(f"duplicate expanded module path {path}")
+-+        if len(self.hierarchy) >= MAX_HIERARCHY_INSTANCES:
+-+            raise Unsupported("expanded hierarchy instance cap exceeded")
+-         self.hierarchy[path] = module_name
+-         mod = self.modules[module_name]
+-         for port in mod.header_ports:
+-@@ -545,6 +610,9 @@
+-             for a, b in zip(lhs, rhs):
+-                 self.components.union(a, b)
+-         for instance in mod.instances:
+-+            if self.expanded_instances >= MAX_HIERARCHY_INSTANCES:
+-+                raise Unsupported("expanded hierarchy instance cap exceeded")
+-+            self.expanded_instances += 1
+-             child_path = f"{path}/{instance.name}"
+-             if instance.reference in self.primitive_refs:
+-                 if child_path in self.primitives:
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/join_funcsim_graph.py
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/join_funcsim_graph.py
+-@@ -126,7 +126,13 @@
+- def dcp_literal(raw: str) -> Literal:
+-     if raw == "":
+-         raise Unsupported("empty DCP property")
+--    token = Token(raw, 0, len(raw.encode("ascii")))
+-+    try:
+-+        length = len(raw.encode("ascii"))
+-+    except UnicodeEncodeError as error:
+-+        raise Unsupported("non-ASCII DCP property") from error
+-+    if raw.lower() in ("x", "z", "?", "unknown"):
+-+        raise Unsupported(f"unknown DCP numeric value {raw!r}")
+-+    token = Token(raw, 0, length)
+-     if raw.startswith('"'):
+-         return parse_literal(token)
+-     if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", raw):
+-@@ -310,8 +316,13 @@
+-             exported = primitive.parameters.get(name)
+-             dcp_record = dcp_values[name]
+-             dcp_raw = dcp_record["raw"]
+-+            status = dcp_record["read_status"]
+-             dcp_value = None
+--            if dcp_record["read_status"] == "OK" and dcp_raw != "":
+-+            if status not in ("OK", "MISSING"):
+-+                raise Unsupported(f"terminal DCP property status {path}/{name}:{status}")
+-+            if status == "MISSING" and dcp_raw != "":
+-+                raise Unsupported(f"nonempty MISSING DCP property {path}/{name}")
+-+            if status == "OK" and dcp_raw != "":
+-                 dcp_value = dcp_literal(dcp_raw)
+-             if exported is not None and dcp_value is not None and comparable(exported) != comparable(dcp_value):
+-                 raise Unsupported(f"DCP/export parameter conflict {path}/{name}")
+-@@ -413,7 +424,7 @@
+-         exports.append(identity(path))
+-     if set(p.name for p in export_root.iterdir() if p.is_file()) != {f"{x}.v" for x in BANKS}:
+-         raise Unsupported("unexpected export file set")
+--    return {"schema": "q8_ws_v5_actual_funcsim_graph_semantic_join_v1",
+-+    return {"schema": "q8_ws_v6_actual_funcsim_graph_semantic_join_v1",
+-             "status": "STRUCTURAL_AND_PARAMETER_JOIN_ONLY_MAPPING_HELD",
+-             "graph_structural_audit": structure, "exports": exports,
+-             "contract": identity(CONTRACT), "per_bank": graphs,
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/test_funcsim_synthetic.py
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/test_funcsim_synthetic.py
+-@@ -4,7 +4,8 @@
+- from collections import defaultdict
+- import unittest
+- 
+--from funcsim_structure import Expanded, Unsupported, parse_text
+-+from funcsim_structure import (Expanded, Unsupported, parse_text,
+-+                               MAX_HIERARCHY_INSTANCES)
+- from join_funcsim_graph import REQUIRED_RAM_INVERSIONS, bind_bank
+- 
+- 
+-@@ -132,6 +133,92 @@
+-         with self.assertRaises(Unsupported):
+-             expanded(BASE.replace(".I0(a)", ".I0(~a)"))
+- 
+-+    def test_nonempty_missing_property_is_terminal(self):
+-+        graph = dcp(init="4'h1")
+-+        graph[5]["c1"]["INIT"]["read_status"] = "MISSING"
+-+        with self.assertRaisesRegex(Unsupported, "nonempty MISSING"):
+-+            bind_bank(BANK, expanded(), graph, CONTRACT)
+-+
+-+    def test_failed_or_unknown_property_status_is_terminal(self):
+-+        for status in ("ERROR", "TRUNCATED", "OTHER"):
+-+            for raw in ("", "4'h1"):
+-+                with self.subTest(status=status, raw=raw):
+-+                    graph = dcp(init=raw)
+-+                    graph[5]["c1"]["INIT"]["read_status"] = status
+-+                    with self.assertRaisesRegex(Unsupported, "terminal DCP property status"):
+-+                        bind_bank(BANK, expanded(), graph, CONTRACT)
+-+
+-+    def test_nonempty_ok_must_parse_and_agree(self):
+-+        for raw in ("4'hx", "4'hz", "x", "4'hg"):
+-+            with self.subTest(raw=raw):
+-+                with self.assertRaises(Unsupported):
+-+                    bind_bank(BANK, expanded(), dcp(init=raw), CONTRACT)
+-+        for raw, message in (("4'h1", "parameter conflict"),
+-+                             ("8'h0", "width or signedness conflict"),
+-+                             ("4'sh0", "width or signedness conflict")):
+-+            with self.subTest(raw=raw):
+-+                with self.assertRaisesRegex(Unsupported, message):
+-+                    bind_bank(BANK, expanded(), dcp(init=raw), CONTRACT)
+-+        joined, _ = bind_bank(BANK, expanded(), dcp(init="4'h0"), CONTRACT)
+-+        self.assertEqual(joined[0]["dcp_original"],
+-+                         {"raw": "4'h0", "read_status": "OK"})
+-+
+-+    def test_variable_declarations_and_initializers_refused(self):
+-+        for declaration in ("reg x=1'b0;", "logic x=1'b0;",
+-+                            "reg x;", "logic x;"):
+-+            with self.subTest(declaration=declaration):
+-+                source = ("module ws_U(output q); " + declaration +
+-+                          " assign q=x; endmodule")
+-+                with self.assertRaisesRegex(Unsupported, "variable declaration"):
+-+                    expanded(source)
+-+        for kind in ("reg", "logic"):
+-+            with self.subTest(port=kind):
+-+                with self.assertRaisesRegex(Unsupported, "variable port declaration"):
+-+                    expanded(f"module ws_U(output {kind} q); endmodule")
+-+        with self.assertRaisesRegex(Unsupported, "variable declaration"):
+-+            expanded("module ws_U(q); output reg q; endmodule")
+-+
+-+    def test_continuous_net_initializers_and_aliases_remain_supported(self):
+-+        source = BASE.replace(
+-+            "LUT2 #", "wire x=1'b0; wire aliased; assign aliased=a; LUT2 #"
+-+        ).replace(".I0(a)", ".I0(aliased)").replace(".I1(1'b0)", ".I1(x)")
+-+        joined, mapping = bind_bank(BANK, expanded(source), dcp(), CONTRACT)
+-+        self.assertEqual(joined[0]["decoded_value"], 0)
+-+        self.assertEqual(len(mapping), 3)
+-+
+-+    def test_literal_and_range_preallocation_caps(self):
+-+        with self.assertRaisesRegex(Unsupported, "literal bit width cap"):
+-+            expanded(BASE.replace("4'h0", "4097'h0"))
+-+        with self.assertRaisesRegex(Unsupported, "literal digit cap"):
+-+            expanded(BASE.replace("4'h0", "4'h" + "0" * 5000))
+-+        with self.assertRaisesRegex(Unsupported, "bus index cap"):
+-+            expanded("module ws_U(input [32768:0] a, output q); "
+-+                     "assign q=a[32768]; endmodule")
+-+        with self.assertRaisesRegex(Unsupported, "bus index cap"):
+-+            expanded("module ws_U(input a, output q); "
+-+                     "assign q=a[32768:0]; endmodule")
+-+
+-+    def test_expanded_empty_shared_hierarchy_cap(self):
+-+        instances = ",".join(
+-+            f"i{index}(.a(a))" for index in range(MAX_HIERARCHY_INSTANCES + 1))
+-+        source = ("module leaf(input a); endmodule "
+-+                  "module ws_U(input a); leaf " + instances + "; endmodule")
+-+        with self.assertRaisesRegex(Unsupported, "hierarchy instance cap"):
+-+            expanded(source)
+-+
+-+    def test_hierarchy_depth_and_identifier_caps(self):
+-+        count = 18
+-+        modules = ["module m0(input a); endmodule"]
+-+        for index in range(1, count):
+-+            modules.append(f"module m{index}(input a); "
+-+                           f"m{index-1} child(.a(a)); endmodule")
+-+        modules.append(f"module ws_U(input a); m{count-1} child(.a(a)); endmodule")
+-+        with self.assertRaisesRegex(Unsupported, "hierarchy depth cap"):
+-+            expanded(" ".join(modules))
+-+        long_name = "x" * 1025
+-+        with self.assertRaisesRegex(Unsupported, "identifier byte cap"):
+-+            expanded(f"module ws_U(input {long_name}); endmodule")
+-+
+- 
+- if __name__ == "__main__":
+-     unittest.main()
+---- /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v5/tb/make_source_packet.py
+-+++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/vivado/module_design/q8_linear_and_restore/metadata_reset_v3/ooc_v1/ws_dcp_connectivity_v6/tb/make_source_packet.py
+-@@ -1,11 +1,12 @@
+- #!/usr/bin/env python3
+--"""Seal or check the Ws v5 SOURCE-ONLY packet; never invoke Vivado."""
+-+"""Seal or check the Ws v6 SOURCE-ONLY packet; never invoke Vivado."""
+- 
+- from __future__ import annotations
+- 
+- import argparse
+- import ast
+- import datetime as dt
+-+import difflib
+- import hashlib
+- import json
+- import os
+-@@ -21,12 +22,13 @@
+- RESULTS = BASE / "results/attention_rtl_repair_20261008"
+- VIVADO = Path("/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado")
+- OUT = ROOT / "source/source_packet.json"
+--RELEASE = RESULTS / "reviewer_q8_ws_v5_explicit_funcsim_override_source_preparation_release.json"
+-+RELEASE = RESULTS / "reviewer_q8_ws_v6_strict_parser_correction_source_preparation_release.json"
+- V3_REVIEW = RESULTS / "reviewer_q8_ws_v3_timeout_and_partial_graph_characterization_acceptance.json"
+--V4_PACKET = OOC / "ws_dcp_connectivity_v4/source/source_packet.json"
+--MANIFEST = ROOT / "source/prior_v4/manifest.json"
+-+V5_PACKET = OOC / "ws_dcp_connectivity_v5/source/source_packet.json"
+-+MANIFEST = ROOT / "source/prior_v5/manifest.json"
+- DESIGN = ROOT / "source/design.md"
+- CONTRACT = ROOT / "source/semantic_property_contract.json"
+-+DIFF = ROOT / "source/v5_to_v6.diff"
+- DCP = OOC / "runs/top_synth_v1_entry_a2_reports/q8_joint_tm4tn8_ooc_synth.dcp"
+- XDC = OOC / "runs/top_synth_v1/stage/constraints/q8_joint_tm4tn8_ooc.xdc"
+- CONTROL = ROOT / "runs/export_graph_v1/control"
+-@@ -40,13 +42,14 @@
+-     "tb/audit_graph.py", "tb/generate_contract_tcl.py",
+-     "tb/funcsim_structure.py", "tb/join_funcsim_graph.py",
+-     "tb/test_funcsim_synthetic.py", "tb/make_source_packet.py",
+-+    "source/v5_to_v6.diff",
+- )
+- EXPECTED = {
+--    RELEASE: "f185c5bf02804b9657da5088e134b55e822899da2111620ed97840bdf52a421f",
+--    DESIGN: "d4dc8295fcd7dd81457c1dfa86ad7a348bc3b86db0ebef52e1e1a632868a9e4e",
+-+    RELEASE: "6ff13c9a1356d48400a57dbb13454339fbf88050bda6d92b118135eb62175cdf",
+-+    DESIGN: "050c840b789cbc04d98a72ffd7fb435041b4223ef2e972202596aeb3b9d577e6",
+-     CONTRACT: "9d198c5fc5032771aadc9e97571a5acd631af517bb8e8fa666b82dcc6b7b4a77",
+--    MANIFEST: "ee253bdef1a5cd497f7faeda182ea4ac0cf493576023bc39b0d694008f659c73",
+--    V4_PACKET: "021a5d3cb52d5e8f45bf0d1e54c8269311efcfd4aec682ac4101bbc361a02b41",
+-+    MANIFEST: "c5ac33a8e17f9f225a0a96a70d696ebdc75d2a184f43a299c8fe06c26bd2eebd",
+-+    V5_PACKET: "213a2634cd447d32eed21140835b54b7eb7cd2a278d47d726d9c3e520453bd12",
+-     DCP: "c480c9334ed20d775c5a768e077b15fa9ad1932cb6535ae639d9b9524c11f1ce",
+-     XDC: "660a1b1d2fd32b9f4b72bbe6f7015fcb0e5983d20d39419207c836883f07ede0",
+- }
+-@@ -71,30 +74,35 @@
+-         if record(path)["sha256"] != digest:
+-             raise RuntimeError(f"bound preimage drift: {path}")
+-     release = json.loads(RELEASE.read_text())
+--    if (release["status"] != "SOURCE_PREPARATION_ONLY_NO_VIVADO_OR_MAPPING_EXECUTION" or
+-+    if (release["status"] != "SOURCE_PREPARATION_ONLY_NO_EXPORT_OR_ACTUAL_PARSER_EXECUTION" or
+-             release["design"] != record(DESIGN) or
+--            release["semantic_property_contract"] != record(CONTRACT) and
+--            release["semantic_property_contract"] != record(OOC / "ws_dcp_connectivity_v4/source/semantic_property_contract.json") or
+--            release["v4_exact_source_packet"] != record(V4_PACKET) or
+--            release["input_checkpoint"] != record(DCP) or
+--            release["unchanged_ooc_constraint"] != record(XDC)):
+--        raise RuntimeError("v5 source release binding drift")
+-+            release["prior_packet"] != record(V5_PACKET) or
+-+            not same(release["independent_counterexamples"]) or
+-+            not same(release["actual_review"])):
+-+        raise RuntimeError("v6 source release binding drift")
+-     manifest = json.loads(MANIFEST.read_text())
+--    v4_packet = json.loads(V4_PACKET.read_text())
+--    if (manifest["schema"] != "q8_ws_v5_exact_v4_preimages_v1" or
+--            manifest["file_count"] != 12 or len(manifest["records"]) != 12 or
+--            len(v4_packet["maintained_source"]) != 11):
+--        raise RuntimeError("v4 archive inventory cardinality drift")
+-+    v5_packet = json.loads(V5_PACKET.read_text())
+-+    if (manifest["schema"] != "q8_ws_v6_exact_v5_preimages_v1" or
+-+            manifest["file_count"] != 15 or len(manifest["records"]) != 15 or
+-+            len(v5_packet["maintained_source"]) != 14 or
+-+            v5_packet["sealed_input_checkpoint"] != record(DCP) or
+-+            v5_packet["unchanged_ooc_constraint"] != record(XDC)):
+-+        raise RuntimeError("v5 archive inventory or inherited input drift")
+-     originals = {}
+-     for entry in manifest["records"]:
+-         original, copy = entry["original"], entry["copy"]
+-         if original["sha256"] != copy["sha256"] or original["bytes"] != copy["bytes"]:
+--            raise RuntimeError("v4 original/archive identity mismatch")
+-+            raise RuntimeError("v5 original/archive identity mismatch")
+-         if not same(original) or not same(copy):
+--            raise RuntimeError(f"v4 archived source drift: {original['path']}")
+-+            raise RuntimeError(f"v5 archived source drift: {original['path']}")
+-         originals[original["path"]] = original
+--    if set(originals) != {str(V4_PACKET)} | {item["path"] for item in v4_packet["maintained_source"]}:
+--        raise RuntimeError("v4 archive does not contain exact packet plus maintained files")
+-+    if set(originals) != {str(V5_PACKET)} | {item["path"] for item in v5_packet["maintained_source"]}:
+-+        raise RuntimeError("v5 archive does not contain exact packet plus maintained files")
+-+    original_contract = next(item for item in v5_packet["maintained_source"]
+-+                             if item["path"].endswith("/semantic_property_contract.json"))
+-+    if (record(CONTRACT)["bytes"], record(CONTRACT)["sha256"]) != (
+-+            original_contract["bytes"], original_contract["sha256"]):
+-+        raise RuntimeError("inherited semantic contract drift")
+-     review = json.loads(V3_REVIEW.read_text())
+-     if (review["status"] != "BOUNDED_TIMEOUT_AND_PARTIAL_EVIDENCE_ACCEPTED_MAPPING_HELD" or
+-             review["partial_graph"]["cells"] != 139 or
+-@@ -115,10 +123,20 @@
+-             raise RuntimeError("installed UNISIM semantics drift")
+-     if "create_clock -name ap_clk -period 6.667 [get_ports ap_clk]" not in XDC.read_text():
+-         raise RuntimeError("unchanged OOC clock constraint drift")
+--    for item in v4_packet["prior_report_files_rehashed"]:
+-+    for item in v5_packet["prior_report_files_rehashed"]:
+-         if not same(item):
+-             raise RuntimeError("accepted prior report drift")
+--    return release, manifest, v4_packet, contract
+-+    if (v5_packet["installed_command_manuals"] != contract["installed_command_manuals"] or
+-+            v5_packet["installed_primitive_semantics"] !=
+-+            [entry["semantics_file"] for entry in entries] or
+-+            v5_packet["installed_vivado_launcher"] != record(VIVADO / "bin/vivado") or
+-+            v5_packet["candidate_guard"] != record(GUARD) or
+-+            v5_packet["candidate_guard_helper"] != record(GUARD_HELPER)):
+-+        raise RuntimeError("inherited installed-tool identity drift")
+-+    for item in v5_packet["candidate_execution_tools"]:
+-+        if not same(item):
+-+            raise RuntimeError("inherited execution-tool identity drift")
+-+    return release, manifest, v5_packet, contract
+- 
+- 
+- def run_checked(argv: list[str], *, input_text: str | None = None) -> subprocess.CompletedProcess:
+-@@ -130,7 +148,22 @@
+-     return result
+- 
+- 
+--def source_checks(contract: dict) -> dict:
+-+def literal_diff(v5_packet: dict) -> str:
+-+    before_root = V5_PACKET.parents[1]
+-+    chunks = []
+-+    for item in v5_packet["maintained_source"]:
+-+        before = Path(item["path"])
+-+        after = ROOT / before.relative_to(before_root)
+-+        chunks.extend(difflib.unified_diff(
+-+            before.read_text().splitlines(keepends=True),
+-+            after.read_text().splitlines(keepends=True),
+-+            fromfile=str(before), tofile=str(after)))
+-+    return "".join(chunks)
+-+
+-+
+-+def source_checks(contract: dict, v5_packet: dict) -> dict:
+-+    if DIFF.read_text() != literal_diff(v5_packet):
+-+        raise RuntimeError("literal v5-to-v6 diff drift")
+-     generated = run_checked(["/usr/bin/python3", str(ROOT / "tb/generate_contract_tcl.py"), "--check"])
+-     if generated.stdout.strip() != "Q8_WS_V4_CONTRACT_TCL_PASS":
+-         raise RuntimeError("exact contract Tcl check failed")
+-@@ -149,7 +182,7 @@
+-             any(fragment not in script for fragment in required_fragments) or
+-             "list_property $cell" in script or
+-             "write_verilog -force" in script):
+--        raise RuntimeError("v5 extractor static contract drift")
+-+        raise RuntimeError("v6 extractor static contract drift")
+-     forbidden = re.compile(
+-         r"\b(open_project|launch_runs|synth_design|generate_target|opt_design|"
+-         r"place_design|route_design|write_checkpoint|read_xdc|create_clock|"
+-@@ -169,12 +202,16 @@
+-             path = ROOT / name
+-             ast.parse(path.read_text(), filename=str(path))
+-     test = run_checked(["/usr/bin/python3", str(ROOT / "tb/test_funcsim_synthetic.py")])
+--    if "Ran 11 tests" not in test.stderr or not test.stderr.rstrip().endswith("OK"):
+-+    if "Ran 19 tests" not in test.stderr or not test.stderr.rstrip().endswith("OK"):
+-         raise RuntimeError("synthetic parser/join test result changed")
+-     sys.path.insert(0, str(ROOT / "tb"))
+-     from join_funcsim_graph import unisim_port_signature
+--    from funcsim_structure import (MAX_EDGES, MAX_FILE_BYTES, MAX_MODULES,
+--                                   MAX_NODES, MAX_PRIMITIVES, MAX_TOKENS)
+-+    from funcsim_structure import (MAX_BUS_INDEX, MAX_EDGES, MAX_EXPRESSION_DEPTH,
+-+                                   MAX_FILE_BYTES, MAX_HIERARCHY_DEPTH,
+-+                                   MAX_HIERARCHY_INSTANCES, MAX_IDENTIFIER_BYTES,
+-+                                   MAX_INSTANCE_DECLARATIONS, MAX_LITERAL_BITS,
+-+                                   MAX_MODULES, MAX_NODES, MAX_NUMERIC_TOKEN_BYTES,
+-+                                   MAX_PRIMITIVES, MAX_TOKENS)
+-     signatures = {entry["reference"]: unisim_port_signature(entry)
+-                   for entry in contract["primitive_contracts"]}
+-     if len(signatures) != 22:
+-@@ -186,6 +223,14 @@
+-         "maximum_expanded_primitives_per_bank": MAX_PRIMITIVES,
+-         "maximum_graph_nodes_per_bank": MAX_NODES,
+-         "maximum_alias_edges_per_bank": MAX_EDGES,
+-+        "maximum_literal_bits": MAX_LITERAL_BITS,
+-+        "maximum_numeric_token_bytes": MAX_NUMERIC_TOKEN_BYTES,
+-+        "maximum_identifier_bytes": MAX_IDENTIFIER_BYTES,
+-+        "maximum_bus_index": MAX_BUS_INDEX,
+-+        "maximum_expression_depth": MAX_EXPRESSION_DEPTH,
+-+        "maximum_expanded_hierarchy_instances": MAX_HIERARCHY_INSTANCES,
+-+        "maximum_expanded_hierarchy_depth": MAX_HIERARCHY_DEPTH,
+-+        "maximum_instance_declarations_per_module": MAX_INSTANCE_DECLARATIONS,
+-     }
+-     if limits != {
+-         "maximum_file_bytes_per_bank": 67108864,
+-@@ -194,10 +239,18 @@
+-         "maximum_expanded_primitives_per_bank": 256,
+-         "maximum_graph_nodes_per_bank": 32768,
+-         "maximum_alias_edges_per_bank": 65536,
+-+        "maximum_literal_bits": 4096,
+-+        "maximum_numeric_token_bytes": 8192,
+-+        "maximum_identifier_bytes": 1024,
+-+        "maximum_bus_index": 32767,
+-+        "maximum_expression_depth": 64,
+-+        "maximum_expanded_hierarchy_instances": 1024,
+-+        "maximum_expanded_hierarchy_depth": 16,
+-+        "maximum_instance_declarations_per_module": 4096,
+-     }:
+-         raise RuntimeError("parser source limits drift")
+-     return {"python_ast": "PASS", "tcl_info_complete": True,
+--            "contract_tcl_exact": True, "synthetic_parser_join_tests": 11,
+-+            "contract_tcl_exact": True, "synthetic_parser_join_tests": 19,
+-             "hash_bound_unisim_pin_signatures": {
+-                 "reference_types": len(signatures),
+-                 "port_count": sum(map(len, signatures.values())),
+-@@ -207,31 +260,39 @@
+- 
+- 
+- def construct(created: str) -> dict:
+--    release, manifest, v4_packet, contract = bound_inputs()
+--    checks = source_checks(contract)
+-+    release, manifest, v5_packet, contract = bound_inputs()
+-+    checks = source_checks(contract, v5_packet)
+-     if CONTROL.exists() or REPORTS.exists():
+-         raise RuntimeError("candidate control/report root is not fresh")
+-     tools = [Path(name) for name in ("/usr/bin/taskset", "/usr/bin/nice",
+-              "/usr/bin/ionice", "/usr/bin/python3", "/usr/bin/sha256sum",
+-              "/usr/bin/tclsh")]
+-     return {
+--        "schema": "q8_ws_v5_explicit_funcsim_source_packet_v1",
+-+        "schema": "q8_ws_v6_strict_parser_source_packet_v1",
+-         "created_utc": created,
+-         "status": "SOURCE_ONLY_NO_DCP_VIVADO_EXPORT_OR_ACTUAL_JOIN_EXECUTION",
+-         "source_reviewer_gate": record(RELEASE),
+--        "exact_v4_archive_manifest": record(MANIFEST),
+--        "archived_v4_preimages_rehashed": manifest["records"],
+--        "v4_source_packet": record(V4_PACKET),
+-+        "exact_v5_archive_manifest": record(MANIFEST),
+-+        "archived_v5_preimages_rehashed": manifest["records"],
+-+        "v5_source_packet": record(V5_PACKET),
+-         "v3_terminal_review": record(V3_REVIEW),
+-         "sealed_input_checkpoint": record(DCP),
+-         "unchanged_ooc_constraint": record(XDC),
+--        "prior_report_files_rehashed": v4_packet["prior_report_files_rehashed"],
+-+        "prior_report_files_rehashed": v5_packet["prior_report_files_rehashed"],
+-         "installed_command_manuals": contract["installed_command_manuals"],
+-         "installed_primitive_semantics": [entry["semantics_file"] for entry in contract["primitive_contracts"]],
+-         "installed_vivado_launcher": record(VIVADO / "bin/vivado"),
+-         "candidate_guard": record(GUARD),
+-         "candidate_guard_helper": record(GUARD_HELPER),
+-         "candidate_execution_tools": [record(path) for path in tools],
+-+        "inherited_v5_installed_bindings": {
+-+            "installed_command_manuals": v5_packet["installed_command_manuals"],
+-+            "installed_primitive_semantics": v5_packet["installed_primitive_semantics"],
+-+            "installed_vivado_launcher": v5_packet["installed_vivado_launcher"],
+-+            "candidate_guard": v5_packet["candidate_guard"],
+-+            "candidate_guard_helper": v5_packet["candidate_guard_helper"],
+-+            "candidate_execution_tools": v5_packet["candidate_execution_tools"],
+-+        },
+-         "maintained_source": [record(ROOT / name) for name in SOURCE_NAMES],
+-         "source_checks": checks,
+-         "candidate_control": str(CONTROL),
+-@@ -281,12 +342,12 @@
+-         with OUT.open("x", encoding="utf-8") as stream:
+-             json.dump(packet, stream, indent=2, sort_keys=True)
+-             stream.write("\n")
+--        print(f"Q8_WS_V5_SOURCE_PACKET_CREATED sha256={record(OUT)['sha256']}")
+-+        print(f"Q8_WS_V6_SOURCE_PACKET_CREATED sha256={record(OUT)['sha256']}")
+-     else:
+-         packet = json.loads(OUT.read_text())
+-         if packet != construct(packet["created_utc"]):
+--            raise RuntimeError("v5 source packet or bound input drift")
+--        print(f"Q8_WS_V5_SOURCE_PACKET_PASS sha256={record(OUT)['sha256']}")
+-+            raise RuntimeError("v6 source packet or bound input drift")
+-+        print(f"Q8_WS_V6_SOURCE_PACKET_PASS sha256={record(OUT)['sha256']}")
+- 
+- 
+- if __name__ == "__main__":
+--- v6/tb/README.md
++++ v7/tb/README.md
+@@ -1 +1 @@
+-Ws v6 is source-only pending independent review. `test_funcsim_synthetic.py` runs 19 tiny in-memory parser/join checks; `generate_contract_tcl.py --check` verifies the unchanged 22-type/348-property contract; `make_source_packet.py --check` rechecks the sealed source and inherited identities. The packet check also parses Python AST and uses `tclsh info complete` without invoking Vivado. `extract_ws_graph.tcl` is dormant and must not be run by source checks. `audit_graph.py` rejects terminal property statuses even when explicit-join gaps are allowed. The default `join_funcsim_graph.py` CLI refuses actual evidence. Actual exports, graph joins and mapping evaluation each need later independent gates.
++Ws v7 is source-only. `export_envelope.py` recognizes only the exact installed Vivado `glbl.v` body at EOF and sends its untouched structural prefix to the unchanged strict parser. `test_funcsim_synthetic.py` retains the original 19 v6 methods and adds eight capsule tests using synthetic text plus the hash-bound installed body. Run it with `python3 -B test_funcsim_synthetic.py -v` on the source worker CPU; it does not parse the frozen actual exports. The default `join_funcsim_graph.py` CLI refuses actual evidence. `extract_ws_graph.tcl` remains dormant: no DCP reopen, re-export, actual join, mapping evaluator, simulator or numerical run is released. The v6 `make_source_packet.py` is preserved in `source/prior_v6/tb/` as a preimage and is not a v7 entrypoint.
+--- /dev/null
++++ v7/tb/export_envelope.py
+@@ -0,0 +1,112 @@
++#!/usr/bin/env python3
++"""Exact Vivado glbl trailer recognition; never preprocess or execute Verilog.
++
++The only accepted nonstructural text is the byte-identical installed glbl.v
++body at EOF. The preceding source is passed unchanged to the v6 strict parser.
++"""
++
++from __future__ import annotations
++
++import hashlib
++from pathlib import Path
++
++from funcsim_structure import MAX_FILE_BYTES, Unsupported, lex, parse_text
++
++
++INSTALLED_GLBL = Path(
++    "/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/data/verilog/src/glbl.v")
++INSTALLED_BYTES = 1762
++INSTALLED_SHA256 = "6270251cf35e1fce3119fc79f8fb968912f7983027e43cf030409ba68f048936"
++HEADER_SKIP_BYTES = 120
++CAPSULE_BYTES = 1642
++CAPSULE_SHA256 = "4d98d1c9f6176e36539aad193fd1df028baed0d4bbbdd71791bef453e3bcb334"
++
++
++def sha256(raw: bytes) -> str:
++    return hashlib.sha256(raw).hexdigest()
++
++
++def bound_capsule() -> bytes:
++    """Bind both the installed full file and the exact post-header capsule."""
++    if INSTALLED_GLBL.stat().st_size != INSTALLED_BYTES:
++        raise Unsupported("installed glbl full-file byte count drift")
++    with INSTALLED_GLBL.open("rb") as stream:
++        full = stream.read(INSTALLED_BYTES + 1)
++    if len(full) != INSTALLED_BYTES or sha256(full) != INSTALLED_SHA256:
++        raise Unsupported("installed glbl full-file identity drift")
++    capsule = full[HEADER_SKIP_BYTES:]
++    if len(capsule) != CAPSULE_BYTES or sha256(capsule) != CAPSULE_SHA256:
++        raise Unsupported("installed glbl capsule identity drift")
++    if not capsule.startswith(b"`ifndef GLBL\n`define GLBL\n") or not capsule.endswith(
++            b"endmodule\n`endif\n"):
++        raise Unsupported("installed glbl exact guard/body boundary drift")
++    return capsule
++
++
++def parse_enveloped_bytes(raw: bytes, source_path: str,
++                          *, allow_capsule_free_synthetic: bool = False) -> tuple[dict, dict]:
++    """Parse only a complete structural prefix and classify its exact EOF body.
++
++    The synthetic-only absent state is opt-in; production read_export never
++    enables it. All size checks precede capsule lookup, slicing or decoding.
++    """
++    if len(raw) > MAX_FILE_BYTES:
++        raise Unsupported("functional export byte cap exceeded before envelope split")
++    capsule = bound_capsule()
++    present = raw.endswith(capsule)
++    if not present and not allow_capsule_free_synthetic:
++        raise Unsupported("exact installed glbl capsule required at EOF")
++    if present and raw.count(capsule) != 1:
++        raise Unsupported("duplicate installed glbl capsule")
++    prefix = raw[:-CAPSULE_BYTES] if present else raw
++    try:
++        structural = prefix.decode("ascii")
++    except UnicodeDecodeError as error:
++        raise Unsupported("non-ASCII structural prefix") from error
++    at = structural.find("GLBL")
++    while at >= 0:
++        line_start = structural.rfind("\n", 0, at) + 1
++        if structural[line_start:at].lstrip().startswith("`"):
++            raise Unsupported("prefix directive references GLBL")
++        at = structural.find("GLBL", at + 4)
++    tokens = lex(structural)
++    # The strict parser remains authoritative for every prefix directive,
++    # module, declaration, instance, expression and source literal span.
++    modules = parse_text(structural)
++    for token in tokens:
++        name = token.value[1:] if token.value.startswith("\\") else token.value
++        if any(part in ("glbl", "GLBL") for part in name.split(".")):
++            raise Unsupported("explicit glbl/GLBL reference in structural prefix")
++    if "glbl" in modules:
++        raise Unsupported("glbl cannot be selected as a structural root")
++    if present:
++        if not tokens or tokens[-1].value != "endmodule":
++            raise Unsupported("glbl capsule is not after a complete module")
++        gap = structural[tokens[-1].end:]
++        if not gap or not gap.isspace() or "\n" not in gap:
++            raise Unsupported("glbl capsule is not at a complete line/module boundary")
++    raw_identity = {"path": source_path, "bytes": len(raw), "sha256": sha256(raw)}
++    if not present:
++        return modules, {"state": "ABSENT_SYNTHETIC_STRUCTURAL_SOURCE",
++                         "raw_source": raw_identity,
++                         "reason": "capsule-free mode is explicit for synthetic parser tests only"}
++    return modules, {
++        "state": "EXCLUDED_EXACT_INSTALLED_GLBL_CAPSULE",
++        "raw_source": raw_identity,
++        "start_byte": len(prefix), "end_byte": len(raw),
++        "capsule_bytes": CAPSULE_BYTES, "capsule_sha256": CAPSULE_SHA256,
++        "immutable_source_reference": {
++            "path": str(INSTALLED_GLBL), "bytes": INSTALLED_BYTES,
++            "sha256": INSTALLED_SHA256, "header_skip_bytes": HEADER_SKIP_BYTES,
++            "slice_start_byte": HEADER_SKIP_BYTES,
++            "slice_end_byte": INSTALLED_BYTES},
++        "module_name": "glbl", "guard_name": "GLBL",
++        "scope": "exact trailing installed Vivado simulation support body; excluded from bank structural graph",
++        "reason": "behavioral global startup/JTAG support is not a selected bank primitive, port or parameter source",
++        "global_startup_limit": {
++            "ROC_WIDTH_ps": 100000, "TOC_WIDTH_ps": 0,
++            "GRES_START_ps": 10000, "GRES_WIDTH_ps": 10000,
++            "static_join_scope": "connectivity and explicit parameter correspondence only",
++            "later_mapping_condition": "settled operation after global startup; reset/restore semantics require separate justification"
++        }
++    }
+--- v6/tb/funcsim_structure.py
++++ v7/tb/funcsim_structure.py
+@@ -650,4 +650,15 @@
+ def read_export(path: Path, primitive_refs: set[str], bank: str) -> Expanded:
+     if path.stat().st_size > MAX_FILE_BYTES:
+         raise Unsupported(f"functional export exceeds cap: {path}")
+-    return Expanded(parse_text(path.read_text(encoding="ascii")), primitive_refs, bank)
++    # Bound the read even if the file grows after stat. The envelope recognizer
++    # excludes only the exact installed glbl trailer; prefix offsets stay zero
++    # based in the original raw file for every explicit parameter literal.
++    with path.open("rb") as stream:
++        raw = stream.read(MAX_FILE_BYTES + 1)
++    if len(raw) > MAX_FILE_BYTES:
++        raise Unsupported(f"functional export exceeds cap: {path}")
++    from export_envelope import parse_enveloped_bytes
++    modules, exclusion = parse_enveloped_bytes(raw, str(path))
++    expanded = Expanded(modules, primitive_refs, bank)
++    expanded.support_exclusion = exclusion
++    return expanded
+--- v6/tb/join_funcsim_graph.py
++++ v7/tb/join_funcsim_graph.py
+@@ -15,6 +15,7 @@
+ 
+ from audit_graph import BANKS, audit, rows, unhex
+ from funcsim_structure import (Cursor, Expanded, Literal, Token, Unsupported,
++                               MAX_FILE_BYTES,
+                                lex, parse_literal, parse_range, read_export,
+                                split_top)
+ 
+@@ -374,7 +375,7 @@
+     for entry in contract.values():
+         entry["port_signature"] = unisim_port_signature(entry)
+     dcp = graph_tables(graph_root)
+-    semantic, graphs, exports = [], [], []
++    semantic, graphs, exports, support_exclusions = [], [], [], []
+     raw_funcsim_parameters, graph_correspondence = [], []
+     raw_dcp_properties = [
+         {"source_file": str(graph_root / "properties.tsv"),
+@@ -388,12 +389,21 @@
+         if not path.is_file():
+             raise Unsupported(f"missing exact functional export {bank}")
+         expanded = read_export(path, set(contract), bank)
++        exclusion = expanded.support_exclusion
++        if exclusion["state"] != "EXCLUDED_EXACT_INSTALLED_GLBL_CAPSULE":
++            raise Unsupported(f"missing exact support exclusion for {bank}")
+         joined, mapped = bind_bank(bank, expanded, dcp, contract)
+         for row in joined:
+             row["evidence_file"] = str(path if row["provenance"] == "EXPLICIT_FUNCSIM_OVERRIDE"
+                                        else graph_root / "properties.tsv")
+         semantic.extend(joined)
+-        source_bytes = path.read_bytes()
++        with path.open("rb") as stream:
++            source_bytes = stream.read(MAX_FILE_BYTES + 1)
++        if len(source_bytes) > MAX_FILE_BYTES:
++            raise Unsupported(f"functional export exceeds cap after envelope parse: {bank}")
++        if (len(source_bytes) != exclusion["raw_source"]["bytes"] or
++                hashlib.sha256(source_bytes).hexdigest() != exclusion["raw_source"]["sha256"]):
++            raise Unsupported(f"functional export changed after envelope parse: {bank}")
+         for primitive in expanded.primitives.values():
+             for name, literal in primitive.parameters.items():
+                 if source_bytes[literal.start:literal.end].decode("ascii") != literal.raw:
+@@ -421,12 +431,14 @@
+                        "node_count": len(expanded.components.parent),
+                        "alias_edge_count": expanded.components.edges,
+                        "mapped_net_components": len(mapped)})
+-        exports.append(identity(path))
++        exports.append(exclusion["raw_source"])
++        support_exclusions.append({"bank": bank, **exclusion})
+     if set(p.name for p in export_root.iterdir() if p.is_file()) != {f"{x}.v" for x in BANKS}:
+         raise Unsupported("unexpected export file set")
+-    return {"schema": "q8_ws_v6_actual_funcsim_graph_semantic_join_v1",
++    return {"schema": "q8_ws_v7_exact_glbl_envelope_structural_parameter_join_v1",
+             "status": "STRUCTURAL_AND_PARAMETER_JOIN_ONLY_MAPPING_HELD",
+             "graph_structural_audit": structure, "exports": exports,
++            "excluded_support_modules": support_exclusions,
+             "contract": identity(CONTRACT), "per_bank": graphs,
+             "raw_dcp_property_source": identity(graph_root / "properties.tsv"),
+             "raw_dcp_properties": raw_dcp_properties,
+@@ -435,6 +447,7 @@
+             "semantic_property_count": len(semantic),
+             "semantic_properties": semantic,
+             "capacity_address_mapping": "NOT_EVALUATED_HELD",
++            "global_startup_scope": "STATIC_ONLY; settled operation after global startup requires separate mapping justification",
+             "physical_timing_board": "NOT_ESTABLISHED"}
+ 
+ 
+--- v6/tb/make_source_packet.py
++++ /dev/null
+@@ -1,354 +0,0 @@
+-#!/usr/bin/env python3
+-"""Seal or check the Ws v6 SOURCE-ONLY packet; never invoke Vivado."""
+-
+-from __future__ import annotations
+-
+-import argparse
+-import ast
+-import datetime as dt
+-import difflib
+-import hashlib
+-import json
+-import os
+-from pathlib import Path
+-import re
+-import subprocess
+-import sys
+-
+-
+-ROOT = Path(__file__).resolve().parents[1]
+-OOC = ROOT.parent
+-BASE = OOC.parents[4]
+-RESULTS = BASE / "results/attention_rtl_repair_20261008"
+-VIVADO = Path("/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado")
+-OUT = ROOT / "source/source_packet.json"
+-RELEASE = RESULTS / "reviewer_q8_ws_v6_strict_parser_correction_source_preparation_release.json"
+-V3_REVIEW = RESULTS / "reviewer_q8_ws_v3_timeout_and_partial_graph_characterization_acceptance.json"
+-V5_PACKET = OOC / "ws_dcp_connectivity_v5/source/source_packet.json"
+-MANIFEST = ROOT / "source/prior_v5/manifest.json"
+-DESIGN = ROOT / "source/design.md"
+-CONTRACT = ROOT / "source/semantic_property_contract.json"
+-DIFF = ROOT / "source/v5_to_v6.diff"
+-DCP = OOC / "runs/top_synth_v1_entry_a2_reports/q8_joint_tm4tn8_ooc_synth.dcp"
+-XDC = OOC / "runs/top_synth_v1/stage/constraints/q8_joint_tm4tn8_ooc.xdc"
+-CONTROL = ROOT / "runs/export_graph_v1/control"
+-REPORTS = ROOT / "runs/export_graph_v1/reports"
+-GUARD = OOC / "top_synth_v1/source/guard_48g_v1/guard_runtime_48g.py"
+-GUARD_HELPER = OOC / "top_synth_v1/source/guard_48g_v1/hls_guard_helpers.py"
+-SOURCE_NAMES = (
+-    "source/design.md", "source/results.md", "source/implementation_notes.md",
+-    "source/semantic_property_contract.json", "source/required_properties.tcl",
+-    "rtl/README.md", "tb/README.md", "tb/extract_ws_graph.tcl",
+-    "tb/audit_graph.py", "tb/generate_contract_tcl.py",
+-    "tb/funcsim_structure.py", "tb/join_funcsim_graph.py",
+-    "tb/test_funcsim_synthetic.py", "tb/make_source_packet.py",
+-    "source/v5_to_v6.diff",
+-)
+-EXPECTED = {
+-    RELEASE: "6ff13c9a1356d48400a57dbb13454339fbf88050bda6d92b118135eb62175cdf",
+-    DESIGN: "050c840b789cbc04d98a72ffd7fb435041b4223ef2e972202596aeb3b9d577e6",
+-    CONTRACT: "9d198c5fc5032771aadc9e97571a5acd631af517bb8e8fa666b82dcc6b7b4a77",
+-    MANIFEST: "c5ac33a8e17f9f225a0a96a70d696ebdc75d2a184f43a299c8fe06c26bd2eebd",
+-    V5_PACKET: "213a2634cd447d32eed21140835b54b7eb7cd2a278d47d726d9c3e520453bd12",
+-    DCP: "c480c9334ed20d775c5a768e077b15fa9ad1932cb6535ae639d9b9524c11f1ce",
+-    XDC: "660a1b1d2fd32b9f4b72bbe6f7015fcb0e5983d20d39419207c836883f07ede0",
+-}
+-
+-
+-def record(path: Path) -> dict:
+-    digest = hashlib.sha256()
+-    count = 0
+-    with path.open("rb") as stream:
+-        while block := stream.read(8 * 1024 * 1024):
+-            digest.update(block)
+-            count += len(block)
+-    return {"path": str(path), "bytes": count, "sha256": digest.hexdigest()}
+-
+-
+-def same(item: dict) -> bool:
+-    return record(Path(item["path"])) == item
+-
+-
+-def bound_inputs() -> tuple[dict, dict, dict, dict]:
+-    for path, digest in EXPECTED.items():
+-        if record(path)["sha256"] != digest:
+-            raise RuntimeError(f"bound preimage drift: {path}")
+-    release = json.loads(RELEASE.read_text())
+-    if (release["status"] != "SOURCE_PREPARATION_ONLY_NO_EXPORT_OR_ACTUAL_PARSER_EXECUTION" or
+-            release["design"] != record(DESIGN) or
+-            release["prior_packet"] != record(V5_PACKET) or
+-            not same(release["independent_counterexamples"]) or
+-            not same(release["actual_review"])):
+-        raise RuntimeError("v6 source release binding drift")
+-    manifest = json.loads(MANIFEST.read_text())
+-    v5_packet = json.loads(V5_PACKET.read_text())
+-    if (manifest["schema"] != "q8_ws_v6_exact_v5_preimages_v1" or
+-            manifest["file_count"] != 15 or len(manifest["records"]) != 15 or
+-            len(v5_packet["maintained_source"]) != 14 or
+-            v5_packet["sealed_input_checkpoint"] != record(DCP) or
+-            v5_packet["unchanged_ooc_constraint"] != record(XDC)):
+-        raise RuntimeError("v5 archive inventory or inherited input drift")
+-    originals = {}
+-    for entry in manifest["records"]:
+-        original, copy = entry["original"], entry["copy"]
+-        if original["sha256"] != copy["sha256"] or original["bytes"] != copy["bytes"]:
+-            raise RuntimeError("v5 original/archive identity mismatch")
+-        if not same(original) or not same(copy):
+-            raise RuntimeError(f"v5 archived source drift: {original['path']}")
+-        originals[original["path"]] = original
+-    if set(originals) != {str(V5_PACKET)} | {item["path"] for item in v5_packet["maintained_source"]}:
+-        raise RuntimeError("v5 archive does not contain exact packet plus maintained files")
+-    original_contract = next(item for item in v5_packet["maintained_source"]
+-                             if item["path"].endswith("/semantic_property_contract.json"))
+-    if (record(CONTRACT)["bytes"], record(CONTRACT)["sha256"]) != (
+-            original_contract["bytes"], original_contract["sha256"]):
+-        raise RuntimeError("inherited semantic contract drift")
+-    review = json.loads(V3_REVIEW.read_text())
+-    if (review["status"] != "BOUNDED_TIMEOUT_AND_PARTIAL_EVIDENCE_ACCEPTED_MAPPING_HELD" or
+-            review["partial_graph"]["cells"] != 139 or
+-            review["partial_graph"]["primitives"] != 135 or
+-            review["partial_graph"]["pins"] != 14266 or
+-            review["partial_graph"]["partial_cell_bank_counts"] !=
+-            {"ws_10_U": 46, "ws_11_U": 46, "ws_12_U": 46, "ws_13_U": 1}):
+-        raise RuntimeError("source-limit observation drift")
+-    contract = json.loads(CONTRACT.read_text())
+-    entries = contract["primitive_contracts"]
+-    if len(entries) != 22 or sum(len(x["required_property_names"]) for x in entries) != 348:
+-        raise RuntimeError("semantic contract cardinality drift")
+-    for item in contract["installed_command_manuals"]:
+-        if not same(item):
+-            raise RuntimeError("installed Tcl manual drift")
+-    for entry in entries:
+-        if not same(entry["semantics_file"]):
+-            raise RuntimeError("installed UNISIM semantics drift")
+-    if "create_clock -name ap_clk -period 6.667 [get_ports ap_clk]" not in XDC.read_text():
+-        raise RuntimeError("unchanged OOC clock constraint drift")
+-    for item in v5_packet["prior_report_files_rehashed"]:
+-        if not same(item):
+-            raise RuntimeError("accepted prior report drift")
+-    if (v5_packet["installed_command_manuals"] != contract["installed_command_manuals"] or
+-            v5_packet["installed_primitive_semantics"] !=
+-            [entry["semantics_file"] for entry in entries] or
+-            v5_packet["installed_vivado_launcher"] != record(VIVADO / "bin/vivado") or
+-            v5_packet["candidate_guard"] != record(GUARD) or
+-            v5_packet["candidate_guard_helper"] != record(GUARD_HELPER)):
+-        raise RuntimeError("inherited installed-tool identity drift")
+-    for item in v5_packet["candidate_execution_tools"]:
+-        if not same(item):
+-            raise RuntimeError("inherited execution-tool identity drift")
+-    return release, manifest, v5_packet, contract
+-
+-
+-def run_checked(argv: list[str], *, input_text: str | None = None) -> subprocess.CompletedProcess:
+-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+-    result = subprocess.run(argv, input=input_text, text=True, capture_output=True,
+-                            timeout=30, env=env)
+-    if result.returncode:
+-        raise RuntimeError(f"source check failed {argv}: {result.stderr[-1000:]}")
+-    return result
+-
+-
+-def literal_diff(v5_packet: dict) -> str:
+-    before_root = V5_PACKET.parents[1]
+-    chunks = []
+-    for item in v5_packet["maintained_source"]:
+-        before = Path(item["path"])
+-        after = ROOT / before.relative_to(before_root)
+-        chunks.extend(difflib.unified_diff(
+-            before.read_text().splitlines(keepends=True),
+-            after.read_text().splitlines(keepends=True),
+-            fromfile=str(before), tofile=str(after)))
+-    return "".join(chunks)
+-
+-
+-def source_checks(contract: dict, v5_packet: dict) -> dict:
+-    if DIFF.read_text() != literal_diff(v5_packet):
+-        raise RuntimeError("literal v5-to-v6 diff drift")
+-    generated = run_checked(["/usr/bin/python3", str(ROOT / "tb/generate_contract_tcl.py"), "--check"])
+-    if generated.stdout.strip() != "Q8_WS_V4_CONTRACT_TCL_PASS":
+-        raise RuntimeError("exact contract Tcl check failed")
+-    script = (ROOT / "tb/extract_ws_graph.tcl").read_text()
+-    exact_export = "write_verilog -mode funcsim -write_all_overrides true -keep_vcc_gnd -cell $exact_cell $export_file"
+-    required_fragments = (
+-        str(DCP), str(REPORTS), "set banks {ws_U ws_8_U ws_9_U ws_10_U ws_11_U ws_12_U ws_13_U ws_14_U}",
+-        "set export_cap_bytes 268435456", "if {$length > 67108864}",
+-        "REQUIRED_PROPERTY_GAP", "UNKNOWN_PRIMITIVE_SEMANTICS",
+-        "UNDRIVEN_COMPONENT", "phase_ledger.tsv", "get_nets -quiet -segments -of_objects $pin",
+-        "set group_names [property_values NAME $objects property_group]",
+-    )
+-    if (script.count("open_checkpoint $dcp") != 1 or
+-            script.count("sha256_file $dcp") != 2 or
+-            script.count(exact_export) != 1 or
+-            any(fragment not in script for fragment in required_fragments) or
+-            "list_property $cell" in script or
+-            "write_verilog -force" in script):
+-        raise RuntimeError("v6 extractor static contract drift")
+-    forbidden = re.compile(
+-        r"\b(open_project|launch_runs|synth_design|generate_target|opt_design|"
+-        r"place_design|route_design|write_checkpoint|read_xdc|create_clock|"
+-        r"set_clock_uncertainty|set_property)\b")
+-    for number, line in enumerate(script.splitlines(), 1):
+-        if forbidden.search(line.split("#", 1)[0]):
+-            raise RuntimeError(f"forbidden Tcl command at {number}")
+-    for path in (ROOT / "tb/extract_ws_graph.tcl", ROOT / "source/required_properties.tcl"):
+-        tcl = f"set f [open {{{path}}} r]\nset s [read $f]\nclose $f\nputs [info complete $s]\n"
+-        if run_checked(["/usr/bin/tclsh"], input_text=tcl).stdout.strip() != "1":
+-            raise RuntimeError(f"Tcl completeness failed: {path}")
+-    tcl = f"source {{{ROOT / 'source/required_properties.tcl'}}}\nputs \"$required_ref_count $required_contract_count\"\n"
+-    if run_checked(["/usr/bin/tclsh"], input_text=tcl).stdout.strip() != "22 348":
+-        raise RuntimeError("literal Tcl contract load failed")
+-    for name in SOURCE_NAMES:
+-        if name.endswith(".py"):
+-            path = ROOT / name
+-            ast.parse(path.read_text(), filename=str(path))
+-    test = run_checked(["/usr/bin/python3", str(ROOT / "tb/test_funcsim_synthetic.py")])
+-    if "Ran 19 tests" not in test.stderr or not test.stderr.rstrip().endswith("OK"):
+-        raise RuntimeError("synthetic parser/join test result changed")
+-    sys.path.insert(0, str(ROOT / "tb"))
+-    from join_funcsim_graph import unisim_port_signature
+-    from funcsim_structure import (MAX_BUS_INDEX, MAX_EDGES, MAX_EXPRESSION_DEPTH,
+-                                   MAX_FILE_BYTES, MAX_HIERARCHY_DEPTH,
+-                                   MAX_HIERARCHY_INSTANCES, MAX_IDENTIFIER_BYTES,
+-                                   MAX_INSTANCE_DECLARATIONS, MAX_LITERAL_BITS,
+-                                   MAX_MODULES, MAX_NODES, MAX_NUMERIC_TOKEN_BYTES,
+-                                   MAX_PRIMITIVES, MAX_TOKENS)
+-    signatures = {entry["reference"]: unisim_port_signature(entry)
+-                  for entry in contract["primitive_contracts"]}
+-    if len(signatures) != 22:
+-        raise RuntimeError("UNISIM signature count changed")
+-    limits = {
+-        "maximum_file_bytes_per_bank": MAX_FILE_BYTES,
+-        "maximum_tokens_per_bank": MAX_TOKENS,
+-        "maximum_module_definitions_per_bank": MAX_MODULES,
+-        "maximum_expanded_primitives_per_bank": MAX_PRIMITIVES,
+-        "maximum_graph_nodes_per_bank": MAX_NODES,
+-        "maximum_alias_edges_per_bank": MAX_EDGES,
+-        "maximum_literal_bits": MAX_LITERAL_BITS,
+-        "maximum_numeric_token_bytes": MAX_NUMERIC_TOKEN_BYTES,
+-        "maximum_identifier_bytes": MAX_IDENTIFIER_BYTES,
+-        "maximum_bus_index": MAX_BUS_INDEX,
+-        "maximum_expression_depth": MAX_EXPRESSION_DEPTH,
+-        "maximum_expanded_hierarchy_instances": MAX_HIERARCHY_INSTANCES,
+-        "maximum_expanded_hierarchy_depth": MAX_HIERARCHY_DEPTH,
+-        "maximum_instance_declarations_per_module": MAX_INSTANCE_DECLARATIONS,
+-    }
+-    if limits != {
+-        "maximum_file_bytes_per_bank": 67108864,
+-        "maximum_tokens_per_bank": 1000000,
+-        "maximum_module_definitions_per_bank": 128,
+-        "maximum_expanded_primitives_per_bank": 256,
+-        "maximum_graph_nodes_per_bank": 32768,
+-        "maximum_alias_edges_per_bank": 65536,
+-        "maximum_literal_bits": 4096,
+-        "maximum_numeric_token_bytes": 8192,
+-        "maximum_identifier_bytes": 1024,
+-        "maximum_bus_index": 32767,
+-        "maximum_expression_depth": 64,
+-        "maximum_expanded_hierarchy_instances": 1024,
+-        "maximum_expanded_hierarchy_depth": 16,
+-        "maximum_instance_declarations_per_module": 4096,
+-    }:
+-        raise RuntimeError("parser source limits drift")
+-    return {"python_ast": "PASS", "tcl_info_complete": True,
+-            "contract_tcl_exact": True, "synthetic_parser_join_tests": 19,
+-            "hash_bound_unisim_pin_signatures": {
+-                "reference_types": len(signatures),
+-                "port_count": sum(map(len, signatures.values())),
+-                "bit_count": sum(len(port["indices"]) for signature in signatures.values()
+-                                 for port in signature.values())},
+-            "limits": limits}
+-
+-
+-def construct(created: str) -> dict:
+-    release, manifest, v5_packet, contract = bound_inputs()
+-    checks = source_checks(contract, v5_packet)
+-    if CONTROL.exists() or REPORTS.exists():
+-        raise RuntimeError("candidate control/report root is not fresh")
+-    tools = [Path(name) for name in ("/usr/bin/taskset", "/usr/bin/nice",
+-             "/usr/bin/ionice", "/usr/bin/python3", "/usr/bin/sha256sum",
+-             "/usr/bin/tclsh")]
+-    return {
+-        "schema": "q8_ws_v6_strict_parser_source_packet_v1",
+-        "created_utc": created,
+-        "status": "SOURCE_ONLY_NO_DCP_VIVADO_EXPORT_OR_ACTUAL_JOIN_EXECUTION",
+-        "source_reviewer_gate": record(RELEASE),
+-        "exact_v5_archive_manifest": record(MANIFEST),
+-        "archived_v5_preimages_rehashed": manifest["records"],
+-        "v5_source_packet": record(V5_PACKET),
+-        "v3_terminal_review": record(V3_REVIEW),
+-        "sealed_input_checkpoint": record(DCP),
+-        "unchanged_ooc_constraint": record(XDC),
+-        "prior_report_files_rehashed": v5_packet["prior_report_files_rehashed"],
+-        "installed_command_manuals": contract["installed_command_manuals"],
+-        "installed_primitive_semantics": [entry["semantics_file"] for entry in contract["primitive_contracts"]],
+-        "installed_vivado_launcher": record(VIVADO / "bin/vivado"),
+-        "candidate_guard": record(GUARD),
+-        "candidate_guard_helper": record(GUARD_HELPER),
+-        "candidate_execution_tools": [record(path) for path in tools],
+-        "inherited_v5_installed_bindings": {
+-            "installed_command_manuals": v5_packet["installed_command_manuals"],
+-            "installed_primitive_semantics": v5_packet["installed_primitive_semantics"],
+-            "installed_vivado_launcher": v5_packet["installed_vivado_launcher"],
+-            "candidate_guard": v5_packet["candidate_guard"],
+-            "candidate_guard_helper": v5_packet["candidate_guard_helper"],
+-            "candidate_execution_tools": v5_packet["candidate_execution_tools"],
+-        },
+-        "maintained_source": [record(ROOT / name) for name in SOURCE_NAMES],
+-        "source_checks": checks,
+-        "candidate_control": str(CONTROL),
+-        "candidate_reports": str(REPORTS),
+-        "candidate_paths_absent_at_seal": True,
+-        "candidate_budget_not_released": {
+-            "checkpoint_opens": 1, "functional_exports": 8,
+-            "aggregate_export_bytes": 268435456,
+-            "per_bank_export_bytes": 67108864,
+-            "owned_rss_gib": 12, "wall_seconds": 900,
+-            "cpu_ids": [0, 1, 2, 3], "nice": 19, "ionice_class": 3,
+-            "sampling_seconds": 0.2, "minimum_mem_available_gib_strictly_above": 192,
+-        },
+-        "candidate_argv_not_released": [
+-            "/usr/bin/taskset", "-c", "0-3", "/usr/bin/nice", "-n", "19",
+-            "/usr/bin/ionice", "-c", "3", "/usr/bin/python3", str(GUARD),
+-            "--out", str(CONTROL / "extraction_guard"), "--cwd", str(CONTROL),
+-            "--rss-gib", "12", "--timeout-seconds", "900", "--",
+-            str(VIVADO / "bin/vivado"), "-mode", "batch", "-notrace",
+-            "-source", str(ROOT / "tb/extract_ws_graph.tcl"),
+-            "-log", str(CONTROL / "vivado.log"),
+-            "-journal", str(CONTROL / "vivado.jou"),
+-            "-tclargs", str(DCP), str(REPORTS),
+-        ],
+-        "candidate_postcheck": "DCP SHA256 unchanged; 8 exact export files and per-export ledger hashes; 11 graph tables; terminal extraction COMPLETE; archive partial outputs on first failure",
+-        "actual_parser_join_execution_released": False,
+-        "actual_parser_join_budget_and_argv": "SEPARATE_INDEPENDENT_GATE_REQUIRED",
+-        "mapping_evaluator_released": False,
+-        "ws_mapping_acceptance": "HELD_ALL_8x20992x16_BITS_INCLUDING_ADDRESSES_16384_TO_20991",
+-        "timing_150MHz_board_acceptance": "NOT_ESTABLISHED",
+-        "execution_released": False,
+-        "resynthesis_released": False,
+-    }
+-
+-
+-def main() -> None:
+-    parser = argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument("--seal", action="store_true")
+-    parser.add_argument("--check", action="store_true")
+-    args = parser.parse_args()
+-    if args.seal == args.check:
+-        parser.error("choose exactly one of --seal or --check")
+-    if args.seal:
+-        if OUT.exists():
+-            raise RuntimeError("source packet already exists")
+-        packet = construct(dt.datetime.now(dt.timezone.utc).isoformat())
+-        with OUT.open("x", encoding="utf-8") as stream:
+-            json.dump(packet, stream, indent=2, sort_keys=True)
+-            stream.write("\n")
+-        print(f"Q8_WS_V6_SOURCE_PACKET_CREATED sha256={record(OUT)['sha256']}")
+-    else:
+-        packet = json.loads(OUT.read_text())
+-        if packet != construct(packet["created_utc"]):
+-            raise RuntimeError("v6 source packet or bound input drift")
+-        print(f"Q8_WS_V6_SOURCE_PACKET_PASS sha256={record(OUT)['sha256']}")
+-
+-
+-if __name__ == "__main__":
+-    main()
+--- v6/tb/test_funcsim_synthetic.py
++++ v7/tb/test_funcsim_synthetic.py
+@@ -2,9 +2,15 @@
+ """Tiny source-only parser and join failures; never opens the real checkpoint."""
+ 
+ from collections import defaultdict
++import hashlib
++from pathlib import Path
++import tempfile
+ import unittest
+-
+-from funcsim_structure import (Expanded, Unsupported, parse_text,
++from unittest import mock
++
++import export_envelope
++from export_envelope import bound_capsule, parse_enveloped_bytes
++from funcsim_structure import (Expanded, Unsupported, parse_text, read_export,
+                                MAX_HIERARCHY_INSTANCES)
+ from join_funcsim_graph import REQUIRED_RAM_INVERSIONS, bind_bank
+ 
+@@ -220,5 +226,99 @@
+             expanded(f"module ws_U(input {long_name}); endmodule")
+ 
+ 
++class ExactGlblEnvelopeChecks(unittest.TestCase):
++    """Synthetic structural text plus the exact bound installed support body."""
++
++    def source(self, prefix=BASE, capsule=None):
++        return (prefix + "\n").encode("ascii") + (
++            bound_capsule() if capsule is None else capsule)
++
++    def reject(self, raw):
++        with self.assertRaises(Unsupported):
++            parse_enveloped_bytes(raw, "<synthetic>")
++
++    def test_exact_capsule_keeps_raw_literal_byte_spans(self):
++        raw = self.source()
++        modules, exclusion = parse_enveloped_bytes(raw, "<synthetic>")
++        graph = Expanded(modules, {"LUT2"}, BANK)
++        literal = graph.primitives[BANK + "/u.alias"].parameters["INIT"]
++        self.assertEqual(raw[literal.start:literal.end].decode("ascii"), literal.raw)
++        self.assertEqual(literal.raw, "4'h0")
++        self.assertEqual(exclusion["state"], "EXCLUDED_EXACT_INSTALLED_GLBL_CAPSULE")
++        self.assertEqual(exclusion["start_byte"], len(raw) - 1642)
++        self.assertEqual(exclusion["end_byte"], len(raw))
++        self.assertEqual(exclusion["capsule_sha256"], hashlib.sha256(bound_capsule()).hexdigest())
++        self.assertEqual(exclusion["immutable_source_reference"]["header_skip_bytes"], 120)
++        joined, mapping = bind_bank(BANK, graph, dcp(), CONTRACT)
++        self.assertEqual(len(joined), 1)
++        self.assertEqual(len(mapping), 3)
++        with tempfile.TemporaryDirectory(prefix="ws_v7_synthetic_") as directory:
++            path = Path(directory) / "synthetic.v"
++            path.write_bytes(raw)
++            production_reader = read_export(path, {"LUT2"}, BANK)
++            self.assertEqual(production_reader.support_exclusion["start_byte"],
++                             exclusion["start_byte"])
++            self.assertEqual(production_reader.support_exclusion["raw_source"]["sha256"],
++                             hashlib.sha256(raw).hexdigest())
++            path.write_bytes(BASE.encode("ascii"))
++            with self.assertRaisesRegex(Unsupported, "capsule required"):
++                read_export(path, {"LUT2"}, BANK)
++
++    def test_capsule_free_state_is_explicit_synthetic_only(self):
++        raw = BASE.encode("ascii")
++        self.reject(raw)
++        modules, evidence = parse_enveloped_bytes(
++            raw, "<synthetic>", allow_capsule_free_synthetic=True)
++        self.assertEqual(set(modules), {BANK})
++        self.assertEqual(evidence["state"], "ABSENT_SYNTHETIC_STRUCTURAL_SOURCE")
++
++    def test_one_byte_capsule_drift_and_appended_token_fail(self):
++        capsule = bytearray(bound_capsule())
++        capsule[9] ^= 1
++        self.reject(self.source(capsule=bytes(capsule)))
++        self.reject(self.source() + b"wire extra;\n")
++
++    def test_duplicate_capsule_and_changed_guard_fail(self):
++        body = bound_capsule()
++        self.reject(self.source() + body)
++        self.reject(self.source(capsule=body.replace(b"GLBL", b"GLBx", 1)))
++
++    def test_else_nested_and_early_prefix_directives_fail(self):
++        body = bound_capsule()
++        self.reject(self.source(capsule=body.replace(b"`endif\n", b"`else\n`endif\n")))
++        self.reject(self.source(capsule=body.replace(
++            b"`define GLBL\n", b"`define GLBL\n`ifdef OTHER\n", 1)))
++        self.reject(self.source(prefix=BASE + "\n`define GLBL"))
++        self.reject(self.source(prefix=BASE + "\n`ifdef OTHER"))
++        self.reject(self.source(prefix=BASE + "\n`timescale GLBL"))
++        self.reject(self.source(prefix=BASE + "\nwire GLBL;"))
++
++    def test_unterminated_prefix_comment_string_and_comment_suffix_fail(self):
++        self.reject(self.source(prefix=BASE + "\n/* never closed"))
++        self.reject(self.source(prefix=BASE + '\n"never closed'))
++        self.reject(BASE.encode("ascii") + b"//" + bound_capsule())
++
++    def test_explicit_glbl_instance_root_duplicate_and_hierarchical_fail(self):
++        self.reject(self.source(prefix=BASE.replace(
++            "endmodule", "glbl support(); endmodule")))
++        self.reject(self.source(prefix="module glbl(input a); endmodule"))
++        self.reject(self.source(prefix=(
++            "module glbl(input a); endmodule\n"
++            "module glbl(input a); endmodule")))
++        self.reject(self.source(prefix=(
++            "module ws_U(input a, output q); wire \\glbl.GSR ; "
++            "assign q=a; endmodule")))
++        self.reject(self.source(prefix=(
++            "module ws_U(input a, output q); wire \\top.glbl.GSR ; "
++            "assign q=a; endmodule")))
++
++    def test_caps_apply_before_capsule_lookup_or_slicing(self):
++        with mock.patch.object(export_envelope, "MAX_FILE_BYTES", 3), \
++             mock.patch.object(export_envelope, "bound_capsule",
++                               side_effect=AssertionError("cap was too late")):
++            with self.assertRaisesRegex(Unsupported, "byte cap"):
++                parse_enveloped_bytes(b"1234", "<synthetic>")
++
++
+ if __name__ == "__main__":
+     unittest.main()

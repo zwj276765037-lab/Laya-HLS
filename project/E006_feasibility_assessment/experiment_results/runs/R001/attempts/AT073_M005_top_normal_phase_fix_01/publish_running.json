@@ -1,0 +1,15 @@
+{
+  "source": "# E006 实验依据摘要\n\nM005/SM006同一可综合代表top验证B1/S128四行FFN通路，目标part xcu55c-fsvh2892-2L-e、Vivado 2025.2。原GGUF、request3/generation1、独立LN/Down/末残差gold及655360B局部保护不改；真实LN shell、量化/G、唯一矩阵/W/PS、Wi reader、handoff及残差在一个top，外部DDR/fixture/sequencer留TB。AT070 W边沿模型竞争后仅TB W/AUX ready/valid相位锁到negedge，功能DUT/top/gold同SHA。合同R2允许短测定位、有据最后normal full与诊断物理测量。\n",
+  "results": "# E006 关键结果摘要\n\nAT065首full Down准入X FAIL 2080.617893s；AT070次full W装载语义停滞716.009461s，无完整链PASS。AT071同top短W探针在3000cycle FAIL：q0/q1/scale R=0/64/0，q0第二AR后RREADY=0，时钟仍运行；guard15.236713s，日志Fatal，child0非PASS。AT072只修TB W/AUX响应模型posedge竞争，真实同top短探针见q0第二AR106、第二段首R107，q0/q1/scale R=128/128/64、AUX末R33，cycle187 PASS，guard6.771937s。AT073正常TB静态编译/展开child0，新冷LN前缀cycle5224真1AR/64R通过，22.688626s；原236项及候选22项preflight ACCEPT。规划520000cycle按慢速172.487cycle/s和10%余量为3316.188s，小于3600s，只是成本准入。AT073最后一次正常full已真实启动，当前无终态；M005 full次数已3/3，最终整链gold与物理结果仍待测。详见 project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT071_AT073_W_phase_fix_progress_20261014.md。\n",
+  "status": "# E006 实验状态摘要\n\n- execution_state: running；verdict: unassessed。AT073最后一次正常full已在原3600s/8GiB/40M/120s真实semantic guard下启动，preflight原236加候选22项ACCEPT；不能把成本估计当性能。\n- AT065/AT070终态分别FAIL与COST_STOP；AT071短测FAIL、AT072受影响短测PASS、AT073静态与前缀PASS。旧full实际累计2796.627354s；AT073为第3/3次。\n- 正常四行gold、TMP/HIDDEN保护、响应消费、独立合法反压完整样本尚未证；阶段A稳定性两样本上限已无法闭合。阶段B综合/route仍NOT_RUN；阶段C条件模型不因局部前缀更新。\n",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "M005阶段A同top W接点短测PASS，AT073最后normal full运行中；整链/稳定性/物理未证",
+  "evidence": [
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/reports/M005_AT071_AT073_W_phase_fix_progress_20261014.md",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT071_M005_top_w_probe_01/guard_probe/driver.log",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT072_M005_top_w_phase_fix_01/guard_probe/driver.log",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT073_M005_top_normal_phase_fix_01/guard_pilot/driver.log",
+    "project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT073_M005_top_normal_phase_fix_01/guard_full/launch.json"
+  ]
+}

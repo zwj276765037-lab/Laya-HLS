@@ -1,0 +1,11 @@
+--- layernorm_guarded_source_01/laya_generated_provenance_hub_v1.sv
++++ layernorm_guarded_source_02/laya_generated_provenance_hub_v1.sv
+@@ -921,7 +921,7 @@
+         // head. Keep scope/owner/typed state so a following old END can run.
+         // Held exclusion is not a drain proof for the rejected mutation.
+         if(ENABLE_BOOTSTRAP_SOURCE_GUARD && guard_conflict(request))
+-          reject(E_BUFFER,32'h04000008,scope_active,0);
++          reject(E_BUFFER,32'h04000008,request_action==END_EVENT && scope_active,0);
+         else case(request_action)
+           CLAIM:begin
+             if(scope_active || !owner_descriptors_ok(request))

@@ -1,0 +1,78 @@
+--- executor_actor_host_02/production_hls_partitions.json
++++ actor_04/production_hls_partitions.json
+@@ -82,10 +82,10 @@
+     {
+       "name": "task_lifecycle_executor",
+       "top": "laya_task_lifecycle_executor",
+-      "state": "host_v2_checkpoint_and_shared_FSM_pass_real_hub_transport_handoff_executor_top_pending",
++      "state": "host_persistent_actor_handoff_prepared_real_control_shell_and_executor_HLS_pending",
+       "responsibility": "identity/task/ref reservations, owner/lease state, BEGIN/producer/END, fence and unique typed retirement",
+       "next_action_authority": false,
+-      "sources": "config/executor_checkpoint_sources.cmake",
++      "sources": "config/executor_actor_sources.cmake",
+       "supported_scope": "NORM via real LayerNorm producer over all BxS rows16 windows; remaining 16 action kinds reject before side effect",
+       "internal_fifos": [
+         "action_request",
+@@ -109,13 +109,16 @@
+         "checkpoint_header": "include/laya_executor_checkpoint.h",
+         "checkpoint_codec": "hls/control/executor_checkpoint_protocol.cpp",
+         "checkpoint_import": "hls/control/executor_checkpoint.cpp",
+-        "retirement_statistics": "actual tasks_retired delta; last_task_id only contiguous range consistency and external checkpoint predecessor"
++        "retirement_statistics": "actual tasks_retired delta; last_task_id only contiguous range consistency and external checkpoint predecessor",
++        "persistent_actor": "hls/control/executor_actor.cpp",
++        "query_prehold": "reserve_hold then prepare_held; no HELD prerequisite to immutable B/S construction",
++        "dispatch": "IMPORT_OK from actual accept; full-key GRANTED required before LGP1"
+       },
+       "evidence": {
+         "action_port": "project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_port_host_02",
+         "bootstrap": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_bootstrap_host_02",
+         "snapshot": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_snapshot_rtl_02",
+-        "scope": "PASS_SCOPED_HOST executor_checkpoint_host_04: 2048B independent oracle, 46 wire/36 import/4 prepare negatives, dynamic bases4/7/3 and LPV23/97/119, actual C++ program/port/FSM/adapter four retirements per action; controlled snapshot/fences/remote responses; NOT_RUN: actual hub/transport v2 authority, 16beat depth2 handshake, dispatch handoff/source-target protection and executor top pending",
++        "scope": "Scoped C++ persistent actor, v2 helper and F11-F16 prior fixtures retained. Actual hub/transport checkpoint proof remains _06 scoped; real control hold/grant/rearm, generated executor, complete source/action chain pending.",
+         "source_guard": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_source_guard_rtl_08",
+         "snapshot_arbitration": "project/E003_production_chain_closure/experiment_results/runs/R003/bootstrap_snapshot_rtl_05",
+         "guarded_generated_LN": "project/E003_production_chain_closure/experiment_results/runs/R003/layernorm_guarded_source_05",
+@@ -125,7 +128,9 @@
+         "shared_FSM_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/task_lifecycle_fsm_host_04",
+         "synchronous_F11_F13_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/graph_lifecycle_split_host_05",
+         "checkpoint_handoff_rtl": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_06",
+-        "checkpoint_actual_capture_import": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_decode_02"
++        "checkpoint_actual_capture_import": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_rtl_decode_02",
++        "handoff_actor_host": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_actor_host_02",
++        "checkpoint_host_compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_host_05"
+       }
+     },
+     {
+@@ -310,5 +315,32 @@
+     },
+     "dispatch": "predecessor fully drains then holds; hub response owned through actual 16th read; once-only successor selection on same LPV FIFO; base/cancel revoke authority. Diagnostic phase once per reset, not accepted-request restart.",
+     "base_authority": "live monitored BO base, snapshot configuration and historical base continuity all gate authority; snapshot epoch/base or actual monitored-base change revoke; _06 covers five reset-separated modes"
++  },
++  "executor_handoff_control_boundary": {
++    "state": "PASS_SCOPED_HOST_HANDOFF_ACTOR_PREPARATION",
++    "contract": "results/executor_checkpoint_import_handshake_contract_20261013.md",
++    "header": "include/laya_executor_actor.h",
++    "implementation": "hls/control/executor_actor.cpp",
++    "sources": "config/executor_actor_sources.cmake",
++    "control_header": "include/laya_executor_handoff_protocol.h",
++    "control_codec": "hls/control/executor_handoff_protocol.cpp",
++    "control_layout": "vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_executor_handoff_layout_v1.sv",
++    "bytes": 1024,
++    "beats": 16,
++    "wire_version": 1,
++    "magic": "LHC1",
++    "key": "full immutable B, hardware session, accepted request instance, snapshot S and shell H",
++    "sequence": "reserve S at hold creation; prepare_held uses same pending S and observes shell H without reuse",
++    "evidence": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_actor_host_02",
++    "compatibility": "project/E003_production_chain_closure/experiment_results/runs/R003/executor_checkpoint_host_05",
++    "scope": "actual C++ helper success/failure confirmation; same actor/runtime with two true LYRQ/LYMP software admissions, actual C++ program/port/FSM/adapter four windows each, controlled remote/fence/control handshakes",
++    "pending": [
++      "RTL hold/drain and control consumer",
++      "physical grant and abort closure",
++      "tagged hardware rearm",
++      "independent executor top/HLS",
++      "real action/F10 consumer and LN/hub/Q",
++      "complete source protection and 13BO"
++    ]
+   }
+ }

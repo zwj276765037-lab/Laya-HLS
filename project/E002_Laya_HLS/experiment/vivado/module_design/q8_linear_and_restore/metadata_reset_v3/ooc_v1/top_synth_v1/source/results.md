@@ -1,0 +1,9 @@
+# Top OOC source candidate status
+
+2026-10-09, GPT-6 Sol / max source preparation. The accepted a2 project preparation and 243-file compile closure are independently reviewed. This candidate has performed read-only a2 preflight and an in-memory exact XPR path-rebind check only. The new clone has not been created; no Vivado project open or top synthesis has run here.
+
+Target: `xcu55c-fsvh2892-2L-e`, top `q8_joint_tm4tn8`, existing 6.667 ns `ap_clk` source constraint. Requested 150 MHz, actual synthesis utilization, blackbox result, memory capacity, timing, II, routing, board behavior and 50 ms claims remain unmeasured. The existing report Tcl will inventory all eight Ws banks and their address source/primitive relationships; it does not itself prove full 20,992-word capacity or high-address decode/connectivity.
+
+Source map: `tb/project_identity.py` and `tb/verify_clone.py` are read-only accepted-source/clone identity checks; `tb/clone_project.py` is the dormant fresh byte-copy and one-field XPR rebind; `tb/verify_actual_compile.py` checks the actual prelaunch compile list after future project open; `tb/synth_ooc_top_v1.tcl` adds these gates before the unchanged synthesis/reporting commands. `source/guard_48g_v1/guard_runtime_48g.py` is the isolated one-line guard limit extension; its helper is unchanged. `source/a2_source_preflight.json` records the 438-file accepted source check. `source/source_packet.json` binds exact current file hashes for Astra review.
+
+Proposed future single-run ceiling is 48 GiB owned RSS and 14,400 s including reports, with the accepted CPU, I/O and host-memory policy. The source-only preparation does not allocate that budget or start the run. Any clone/prelaunch identity drift, IP generation, guard trigger or synthesis failure requires evidence and review; no automatic retry is specified.

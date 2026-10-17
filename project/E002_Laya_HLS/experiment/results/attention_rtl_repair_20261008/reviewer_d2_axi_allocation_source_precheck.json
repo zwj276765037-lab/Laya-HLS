@@ -1,0 +1,49 @@
+{
+  "schema": "allocation_source_consolidated_precheck_v1",
+  "at_utc": "2026-10-08T11:34:08.765411+00:00",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "decision": "SOURCE_LOGIC_ACCEPTED_PENDING_SINGLE_ENDPOINT_FLUSH_AND_FINAL_BINDING",
+  "inspected_source": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/tb/axi_allocation_diag_top.sv",
+      "sha256": "43b82de88bfcea2ed9848946e9068839d8580e8a46d4a8a9ad574d8c8d102f17"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/tb/axi_allocation_diag_test.sv",
+      "sha256": "9d27241a46b456eecd0a6c8f9402bd7491046c89d034319ec4c2b14bee03781c"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/tb/phase_axi_monitor.sv",
+      "sha256": "65c5dcb033a7295eb7c00803e87b4afc77b84442d8487681871df3719dfc96ae"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/tb/phase_rss.c",
+      "sha256": "72dcdedf1e58560f7b71ba43cd3e724423dd87f24aaa42458dc6a94e394831c4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/LLAMA-HLS/Laya-baseline/results/attention_rtl_repair_20261008/d2_axi_allocation_diagnostic/tb/build_static.sh",
+      "sha256": "8e0bd300c44e78e2b5e49048bb8378c2ad78f9ca4a87cbfbb556073aab03f988"
+    }
+  ],
+  "checks": {
+    "environment": "Seven actual axi_env#(64,4,8,3,1); original SLAVE, active-low reset, TRANSACTION_FIRST read/write cfg and NO_DELAY sequences retained.",
+    "driver": "AW and W run in independent forked tasks until passive actual-handshake counters advance; stable until next negedge. Each pair waits actual B with sampled BID0/BRESP OKAY, then aligned 32-bit AR and sampled R/ID0/RLAST/OKAY plus all 4 expected bytes.",
+    "memory": "7x65536 nonuniform initial bytes; independent expected array updated after accepted AW/W; actual original axi_state write callback to original mem_model.write_one_elem, original read callback to read_elems; full final 458752-byte equality and 1024 update count.",
+    "observers": "Original fixed read rings, metadata-only queue summary and own-process RSS/HWM DPI; only package scalar and constructor increment added among copied AXI/file-agent sources. No payload history or transaction handle retention by observer.",
+    "endpoint": "10000 clocks idle; 1024 pairs only qkv0; complete and queues empty at90000; zero other-port traffic; 100000-clock shared final endpoint and full backing-memory check.",
+    "seed": "Unsupported local urandom seeding removed; final actual runtime commands must both bind --sv_seed 1.",
+    "scope": "Harness and allocation observations only; no Attention DUT/numeric RTL or root-cause claim."
+  },
+  "only_remaining_code_requirement": "Place explicit $fflush() after final sample and PASS output and before request_finish(). No other new source changes requested in consolidated pre-review.",
+  "later_binding_requirements": [
+    "Final source/include/transitive-copy manifest and exact diffs",
+    "DPI shared-object identity and exported symbol",
+    "Successful final static build/snapshot identity and unchanged resource guard",
+    "Exactly two fresh runtime invocations idle then traffic, same snapshot and --sv_seed 1; each 4GiB/90s/100000cycles/4CPU/nice19/idleIO/192GiB floor/0.2s sampling"
+  ],
+  "acceptance_requires": "No UVM_ERROR/FATAL/INVALID in runtime logs plus complete final records and harness assertions. PASS marker alone is insufficient.",
+  "runtime_release": false
+}

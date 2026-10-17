@@ -1,0 +1,238 @@
+
+
+================================================================
+== Vitis HLS Report for 'laya_attention_service_Pipeline_VITIS_LOOP_134_4'
+================================================================
+* Date:           Sun Oct 11 10:03:41 2026
+
+* Version:        2025.2 (Build 6295257 on Nov 14 2025)
+* Project:        hls_project
+* Solution:       solution1 (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  6.67 ns|  2.739 ns|     1.80 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+-----------+----------+-----+-----+---------+
+    |  Latency (cycles) |  Latency (absolute)  |  Interval | Pipeline|
+    |   min   |   max   |    min    |    max   | min | max |   Type  |
+    +---------+---------+-----------+----------+-----+-----+---------+
+    |       10|      587|  66.667 ns|  3.913 us|   10|  587|       no|
+    +---------+---------+-----------+----------+-----+-----+---------+
+
+    + Detail: 
+        * Instance: 
+        +--------------------------+---------------+---------+---------+-----------+-----------+-----+-----+---------+
+        |                          |               |  Latency (cycles) |   Latency (absolute)  |  Interval | Pipeline|
+        |         Instance         |     Module    |   min   |   max   |    min    |    max    | min | max |   Type  |
+        +--------------------------+---------------+---------+---------+-----------+-----------+-----+-----+---------+
+        |grp_attention_mul_fu_798  |attention_mul  |        6|        6|  40.000 ns|  40.000 ns|    1|    1|      yes|
+        +--------------------------+---------------+---------+---------+-----------+-----------+-----+-----+---------+
+
+        * Loop: 
+        +--------------------+---------+---------+----------+-----------+-----------+--------+----------+
+        |                    |  Latency (cycles) | Iteration|  Initiation Interval  |  Trip  |          |
+        |      Loop Name     |   min   |   max   |  Latency |  achieved |   target  |  Count | Pipelined|
+        +--------------------+---------+---------+----------+-----------+-----------+--------+----------+
+        |- VITIS_LOOP_134_4  |        8|      584|         9|          9|          1|  0 ~ 64|       yes|
+        +--------------------+---------+---------+----------+-----------+-----------+--------+----------+
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|       67|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     -|        0|      273|    -|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|       92|    -|
+|Register             |        -|     -|       83|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     0|       83|      432|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +----------------------------+------------------------+---------+----+---+-----+-----+
+    |          Instance          |         Module         | BRAM_18K| DSP| FF| LUT | URAM|
+    +----------------------------+------------------------+---------+----+---+-----+-----+
+    |sparsemux_129_6_32_1_1_U59  |sparsemux_129_6_32_1_1  |        0|   0|  0|  273|    0|
+    +----------------------------+------------------------+---------+----+---+-----+-----+
+    |Total                       |                        |        0|   0|  0|  273|    0|
+    +----------------------------+------------------------+---------+----+---+-----+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +----------------------+----------+----+---+----+------------+------------+
+    |     Variable Name    | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +----------------------+----------+----+---+----+------------+------------+
+    |add_ln134_fu_821_p2   |         +|   0|  0|  14|           7|           1|
+    |icmp_ln134_fu_815_p2  |      icmp|   0|  0|  15|           7|           8|
+    |icmp_ln14_fu_1084_p2  |      icmp|   0|  0|  38|          31|          25|
+    +----------------------+----------+----+---+----+------------+------------+
+    |Total                 |          |   0|  0|  67|          45|          34|
+    +----------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +----------------------------------------+----+-----------+-----+-----------+
+    |                  Name                  | LUT| Input Size| Bits| Total Bits|
+    +----------------------------------------+----+-----------+-----+-----------+
+    |ap_NS_fsm                               |  65|         13|    1|         13|
+    |ap_phi_mux_UnifiedRetVal_phi_fu_790_p4  |   9|          2|    1|          2|
+    |ap_return                               |   9|          2|    1|          2|
+    |d_fu_338                                |   9|          2|    7|         14|
+    +----------------------------------------+----+-----------+-----+-----------+
+    |Total                                   |  92|         19|   10|         31|
+    +----------------------------------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +------------------------+----+----+-----+-----------+
+    |          Name          | FF | LUT| Bits| Const Bits|
+    +------------------------+----+----+-----+-----------+
+    |UnifiedRetVal_reg_786   |   1|   0|    1|          0|
+    |add_ln134_reg_1430      |   7|   0|    7|          0|
+    |add_ln_reg_1449         |  16|   0|   16|          0|
+    |ap_CS_fsm               |  12|   0|   12|          0|
+    |ap_return_preg          |   1|   0|    1|          0|
+    |d_fu_338                |   7|   0|    7|          0|
+    |icmp_ln134_reg_1426     |   1|   0|    1|          0|
+    |lshr_ln1_reg_1439       |   5|   0|    5|          0|
+    |tmp_reg_1444            |  32|   0|   32|          0|
+    |trunc_ln134_1_reg_1435  |   1|   0|    1|          0|
+    +------------------------+----+----+-----+-----------+
+    |Total                   |  83|   0|   83|          0|
+    +------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++-----------------------------------------------------------------------------------------------------------+-----+-----+------------+-----------------------------------------------------------------------------------------------------------+--------------+
+|                                                 RTL Ports                                                 | Dir | Bits|  Protocol  |                                               Source Object                                               |    C Type    |
++-----------------------------------------------------------------------------------------------------------+-----+-----+------------+-----------------------------------------------------------------------------------------------------------+--------------+
+|ap_clk                                                                                                     |   in|    1|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|ap_rst                                                                                                     |   in|    1|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|ap_start                                                                                                   |   in|    1|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|ap_done                                                                                                    |  out|    1|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|ap_idle                                                                                                    |  out|    1|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|ap_ready                                                                                                   |  out|    1|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|ap_return                                                                                                  |  out|    1|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|grp_attention_mul_fu_1125_p_din1                                                                           |  out|   32|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|grp_attention_mul_fu_1125_p_din2                                                                           |  out|   32|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|grp_attention_mul_fu_1125_p_dout0                                                                          |   in|   32|  ap_ctrl_hs|                                                           laya_attention_service_Pipeline_VITIS_LOOP_134_4|  return value|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_12                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_12|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_13                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_13|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_14                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_14|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_15                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_15|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_16                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_16|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_17                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_17|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_18                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_18|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_19                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_19|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_20                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_20|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_21                            |   in|   32|     ap_none|                            laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_21|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_10_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_10_load|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_55  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_55|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_56  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_56|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_57  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_57|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_58  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_58|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_59  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_59|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_16_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_16_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_17_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_17_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_18_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_18_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_19_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_19_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_20_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_20_load|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_60  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_60|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_61  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_61|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_62  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_62|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_63  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_63|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_64  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_64|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_26_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_26_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_27_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_27_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_28_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_28_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_29_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_29_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_30_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_30_load|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_65  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_65|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_66  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_66|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_67  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_67|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_68  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_68|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_69  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_69|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_36_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_36_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_37_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_37_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_38_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_38_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_39_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_39_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_40_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_40_load|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_70  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_70|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_71  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_71|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_72  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_72|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_73  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_73|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_74  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_74|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_46_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_46_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_47_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_47_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_48_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_48_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_49_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_49_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_50_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_50_load|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_75  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_75|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_76  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_76|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_77  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_77|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_78  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_78|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_79  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_79|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_56_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_56_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_57_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_57_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_58_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_58_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_59_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_59_load|        scalar|
+|p_ZZ22laya_attention_servicejjjjRjS_E1q_60_load                                                            |   in|   32|     ap_none|                                                            p_ZZ22laya_attention_servicejjjjRjS_E1q_60_load|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_80  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_80|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_81  |   in|   32|     ap_none|  laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q_81|        scalar|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q     |   in|   32|     ap_none|     laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_unsigned_int_q|        scalar|
+|empty                                                                                                      |   in|   10|     ap_none|                                                                                                      empty|        scalar|
+|add_ln_out                                                                                                 |  out|   16|      ap_vld|                                                                                                 add_ln_out|       pointer|
+|add_ln_out_ap_vld                                                                                          |  out|    1|      ap_vld|                                                                                                 add_ln_out|       pointer|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_address1                    |  out|    9|   ap_memory|                             laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_ce1                         |  out|    1|   ap_memory|                             laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_we1                         |  out|    1|   ap_memory|                             laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1_d1                          |  out|   32|   ap_memory|                             laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_1|         array|
+|k_address0                                                                                                 |  out|   16|   ap_memory|                                                                                                          k|         array|
+|k_ce0                                                                                                      |  out|    1|   ap_memory|                                                                                                          k|         array|
+|k_q0                                                                                                       |   in|   32|   ap_memory|                                                                                                          k|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_address1                      |  out|    9|   ap_memory|                               laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_ce1                           |  out|    1|   ap_memory|                               laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_we1                           |  out|    1|   ap_memory|                               laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
+|laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u_d1                            |  out|   32|   ap_memory|                               laya_attention_service_unsigned_int_unsigned_int_unsigned_int_unsigned_int_u|         array|
++-----------------------------------------------------------------------------------------------------------+-----+-----+------------+-----------------------------------------------------------------------------------------------------------+--------------+
+

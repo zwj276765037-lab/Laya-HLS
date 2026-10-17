@@ -1,0 +1,469 @@
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Wed Oct 14 12:51:19 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/Vivado/scripts/Vivado_init.tcl'
+vivado-mcp server ready on port 10000
+source /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT075_M005_joint_physical_ports_02/frozen/run_m005_joint_synth_v1.tcl
+# if {[llength $argv] != 4} {
+#   error "usage: WORK RTL_LIST IP_TCL_LIST ROM_DIR"
+# }
+# lassign $argv work rtl_list ip_tcl_list rom_dir
+# set part xcu55c-fsvh2892-2L-e
+# file mkdir $work
+# cd $work
+# set_param general.maxThreads 4
+# create_project m005_joint_top [file join $work vivado] -part $part
+# set_property target_language Verilog [current_project]
+# set stream [open $rtl_list r]
+# set rtl [split [read $stream] "\n"]
+# close $stream
+# set count 0
+# foreach path $rtl {
+#   if {$path eq ""} {continue}
+#   if {![file isfile $path]} {error "missing frozen RTL: $path"}
+#   add_files -norecurse $path
+#   incr count
+# }
+CRITICAL WARNING: [Vivado 12-3645] Please note that adding or importing multiple files, one at a time, can be performance intensive.  Both add_files and import_files commands accept multiple files as input, and passing a collection of multiple files to a single add_files or import_files commands can offer significant performance improvement.
+# if {$count < 100} {error "incomplete representative source closure: $count"}
+# set stream [open $ip_tcl_list r]
+# set scripts [split [read $stream] "\n"]
+# close $stream
+# set ip_count 0
+# foreach script $scripts {
+#   if {$script eq ""} {continue}
+#   if {![file isfile $script]} {error "missing frozen IP script: $script"}
+#   source $script
+#   incr ip_count
+# }
+## if {[get_property PART [current_project]] ne "xcu55c-fsvh2892-2L-e"} {
+##     error "TM1TN8 FP part mismatch"
+## }
+## foreach kind {sitofp fmul fadd} {
+##     set name tm1tn8_${kind}_ip
+##     if {[llength [get_ips -quiet $name]]} { error "FP IP already exists: $name" }
+##     create_ip -name floating_point -version 7.1 -vendor xilinx.com \
+##         -library ip -module_name $name
+##     set common [list CONFIG.c_rate 1 CONFIG.flow_control NonBlocking \
+##         CONFIG.c_optimization Speed_Optimized \
+##         CONFIG.c_result_exponent_width 8 CONFIG.c_result_fraction_width 24 \
+##         CONFIG.result_precision_type Single \
+##         CONFIG.has_a_tlast false CONFIG.has_a_tuser false \
+##         CONFIG.has_b_tlast false CONFIG.has_b_tuser false \
+##         CONFIG.has_result_tready false CONFIG.has_aresetn true \
+##         CONFIG.maximum_latency true]
+##     if {$kind eq "sitofp"} {
+##         set specific [list CONFIG.operation_type Fixed_to_Float \
+##             CONFIG.a_precision_type Custom \
+##             CONFIG.c_a_exponent_width 32 CONFIG.c_a_fraction_width 0 \
+##             CONFIG.c_mult_usage No_Usage \
+##             CONFIG.has_aclken false]
+##     } elseif {$kind eq "fmul"} {
+##         set specific [list CONFIG.operation_type Multiply \
+##             CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Max_Usage \
+##             CONFIG.has_aclken false]
+##     } else {
+##         set specific [list CONFIG.operation_type Add_Subtract \
+##             CONFIG.add_sub_value Add CONFIG.a_precision_type Single \
+##             CONFIG.c_a_exponent_width 8 CONFIG.c_a_fraction_width 24 \
+##             CONFIG.c_mult_usage Full_Usage \
+##             CONFIG.has_aclken true]
+##     }
+##     set_property -dict [concat $common $specific] [get_ips $name]
+##     set expected_latency [expr {$kind eq "fadd" ? 11 : 6}]
+##     set actual_latency [get_property CONFIG.C_LATENCY [get_ips $name]]
+##     if {$actual_latency != $expected_latency} {
+##         error "FP IP latency changed: $name actual=$actual_latency expected=$expected_latency"
+##     }
+##     set xci [get_files -quiet ${name}.xci]
+##     if {[llength $xci] != 1} { error "FP XCI missing: $name" }
+##     set_property generate_synth_checkpoint false $xci
+##     generate_target {synthesis simulation} $xci
+##     puts "TM1TN8_FP_IP_READY $name [get_property IP_FILE [get_ips $name]]"
+## }
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/user/EDA-202/vivado/vivado_2025.2/2025.2/data/ip'.
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_sitofp_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_sitofp_ip'...
+TM1TN8_FP_IP_READY tm1tn8_sitofp_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT075_M005_joint_physical_ports_02/work/vivado/m005_joint_top.srcs/sources_1/ip/tm1tn8_sitofp_ip/tm1tn8_sitofp_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fmul_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fmul_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fmul_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT075_M005_joint_physical_ports_02/work/vivado/m005_joint_top.srcs/sources_1/ip/tm1tn8_fmul_ip/tm1tn8_fmul_ip.xci
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'tm1tn8_fadd_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'tm1tn8_fadd_ip'...
+TM1TN8_FP_IP_READY tm1tn8_fadd_ip /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT075_M005_joint_physical_ports_02/work/vivado/m005_joint_top.srcs/sources_1/ip/tm1tn8_fadd_ip/tm1tn8_fadd_ip.xci
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 6 \
+##                           CONFIG.c_mult_usage No_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Divide \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_quant16_functional_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 1 \
+##                           CONFIG.c_mult_usage Max_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Multiply \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_quant16_functional_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_layernorm_producer_engine_faddfsub_32ns_32ns_32_4_full_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 2 \
+##                           CONFIG.c_mult_usage Full_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_layernorm_producer_engine_faddfsub_32ns_32ns_32_4_full_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Add_Subtract \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_layernorm_producer_engine_faddfsub_32ns_32ns_32_4_full_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_layernorm_producer_engine_faddfsub_32ns_32ns_32_4_full_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_layernorm_producer_engine_faddfsub_32ns_32ns_32_4_full_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_layernorm_producer_engine_faddfsub_32ns_32ns_32_4_full_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_layernorm_producer_engine_faddfsub_32ns_32ns_32_4_full_dsp_1_ip'...
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_layernorm_producer_engine_fcmp_32ns_32ns_1_2_no_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 0 \
+##                           CONFIG.c_mult_usage No_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 1 \
+##                           CONFIG.c_result_fraction_width 0 \
+##                           CONFIG.component_name laya_layernorm_producer_engine_fcmp_32ns_32ns_1_2_no_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken false \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Compare \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_layernorm_producer_engine_fcmp_32ns_32ns_1_2_no_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_layernorm_producer_engine_fcmp_32ns_32ns_1_2_no_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_layernorm_producer_engine_fcmp_32ns_32ns_1_2_no_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_layernorm_producer_engine_fcmp_32ns_32ns_1_2_no_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_layernorm_producer_engine_fcmp_32ns_32ns_1_2_no_dsp_1_ip'...
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_layernorm_producer_engine_fdiv_32ns_32ns_32_8_no_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 6 \
+##                           CONFIG.c_mult_usage No_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_layernorm_producer_engine_fdiv_32ns_32ns_32_8_no_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Divide \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_layernorm_producer_engine_fdiv_32ns_32ns_32_8_no_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_layernorm_producer_engine_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_layernorm_producer_engine_fdiv_32ns_32ns_32_8_no_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_layernorm_producer_engine_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_layernorm_producer_engine_fdiv_32ns_32ns_32_8_no_dsp_1_ip'...
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_layernorm_producer_engine_fmul_32ns_32ns_32_3_max_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 1 \
+##                           CONFIG.c_mult_usage Max_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_layernorm_producer_engine_fmul_32ns_32ns_32_3_max_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Multiply \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_layernorm_producer_engine_fmul_32ns_32ns_32_3_max_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_layernorm_producer_engine_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_layernorm_producer_engine_fmul_32ns_32ns_32_3_max_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_layernorm_producer_engine_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_layernorm_producer_engine_fmul_32ns_32ns_32_3_max_dsp_1_ip'...
+## set vivado_ver [version -short]
+## set fpo_ver 7.1
+## if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
+##     set fpo_ver 7.0
+## }
+## create_ip -name floating_point -version $fpo_ver -vendor xilinx.com -library ip -module_name laya_layernorm_producer_engine_fsqrt_32ns_32ns_32_7_no_dsp_1_ip
+## set_property -dict [list CONFIG.a_precision_type Single \
+##                           CONFIG.a_tuser_width 1 \
+##                           CONFIG.add_sub_value Both \
+##                           CONFIG.b_tuser_width 1 \
+##                           CONFIG.c_a_exponent_width 8 \
+##                           CONFIG.c_a_fraction_width 24 \
+##                           CONFIG.c_compare_operation Programmable \
+##                           CONFIG.c_has_divide_by_zero false \
+##                           CONFIG.c_has_invalid_op false \
+##                           CONFIG.c_has_overflow false \
+##                           CONFIG.c_has_underflow false \
+##                           CONFIG.c_latency 5 \
+##                           CONFIG.c_mult_usage No_Usage \
+##                           CONFIG.c_optimization Speed_Optimized \
+##                           CONFIG.c_rate 1 \
+##                           CONFIG.c_result_exponent_width 8 \
+##                           CONFIG.c_result_fraction_width 24 \
+##                           CONFIG.component_name laya_layernorm_producer_engine_fsqrt_32ns_32ns_32_7_no_dsp_1_ip \
+##                           CONFIG.flow_control NonBlocking \
+##                           CONFIG.has_a_tlast false \
+##                           CONFIG.has_a_tuser false \
+##                           CONFIG.has_aclken true \
+##                           CONFIG.has_aresetn false \
+##                           CONFIG.has_b_tlast false \
+##                           CONFIG.has_b_tuser false \
+##                           CONFIG.has_operation_tlast false \
+##                           CONFIG.has_operation_tuser false \
+##                           CONFIG.has_result_tready false \
+##                           CONFIG.maximum_latency false \
+##                           CONFIG.operation_tuser_width 1 \
+##                           CONFIG.operation_type Square_Root \
+##                           CONFIG.result_precision_type Single \
+##                           CONFIG.result_tlast_behv Null] -objects [get_ips laya_layernorm_producer_engine_fsqrt_32ns_32ns_32_7_no_dsp_1_ip] -quiet
+## set_property generate_synth_checkpoint false [get_files laya_layernorm_producer_engine_fsqrt_32ns_32ns_32_7_no_dsp_1_ip.xci]
+## generate_target {synthesis simulation} [get_files laya_layernorm_producer_engine_fsqrt_32ns_32ns_32_7_no_dsp_1_ip.xci]
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'laya_layernorm_producer_engine_fsqrt_32ns_32ns_32_7_no_dsp_1_ip'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'laya_layernorm_producer_engine_fsqrt_32ns_32ns_32_7_no_dsp_1_ip'...
+# if {$ip_count != 8} {error "unexpected IP script count: $ip_count"}
+# set rom_count 0
+# foreach rom [lsort [glob -nocomplain [file join $rom_dir *ROM_AUTO_1R.dat]]] {
+#   file copy -force -- $rom [file join $work [file tail $rom]]
+#   incr rom_count
+# }
+# if {$rom_count != 7} {error "unexpected LN ROM count: $rom_count"}
+# puts "M005_SYNTH_INPUTS RTL=$count IP=$ip_count ROM=$rom_count"
+M005_SYNTH_INPUTS RTL=139 IP=8 ROM=7
+# set xdc [file join $work m005_clock.xdc]
+# set stream [open $xdc w]
+# puts $stream {create_clock -period 6.667 -name core_clk [get_ports clk]}
+# puts $stream {set_clock_uncertainty 0.300 [get_clocks core_clk]}
+# close $stream
+# add_files -fileset constrs_1 $xdc
+# update_compile_order -fileset sources_1
+# synth_design -top laya_ffn_representative_top_v1 -part $part \
+#   -mode out_of_context -flatten_hierarchy none
+Command: synth_design -top laya_ffn_representative_top_v1 -part xcu55c-fsvh2892-2L-e -mode out_of_context -flatten_hierarchy none
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xcu55c'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xcu55c'
+INFO: [Device 21-403] Loading part xcu55c-fsvh2892-2L-e
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 1848888
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 3449.547 ; gain = 291.688 ; free physical = 38275 ; free virtual = 421304
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-6901] identifier 'bias_ready_for_ps' is used before its declaration [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT035_QAR0_shared_admission_01/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/tm4tn8_matrix_resident_v2.sv:256]
+INFO: [Synth 8-6157] synthesizing module 'laya_ffn_representative_top_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT075_M005_joint_physical_ports_02/frozen_source/laya_ffn_representative_top_v1.sv:4]
+INFO: [Synth 8-6157] synthesizing module 'laya_quant_axi_debt_monitor_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT070_M005_top_normal_candidate_01/frozen_source/laya_quant_axi_debt_monitor_v1.sv:4]
+INFO: [Synth 8-6155] done synthesizing module 'laya_quant_axi_debt_monitor_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT070_M005_top_normal_candidate_01/frozen_source/laya_quant_axi_debt_monitor_v1.sv:4]
+INFO: [Synth 8-6157] synthesizing module 'laya_layernorm_producer_portal_shell_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_layernorm_producer_portal_shell_v1.sv:7]
+INFO: [Synth 8-6157] synthesizing module 'laya_generated_provenance_axi_portal_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_axi_portal_v1.sv:5]
+	Parameter ENABLE_BOOTSTRAP_SNAPSHOT bound to: 1'b0 
+	Parameter ENABLE_BOOTSTRAP_SOURCE_GUARD bound to: 1'b0 
+INFO: [Synth 8-6157] synthesizing module 'laya_generated_provenance_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_v1.sv:4]
+	Parameter MANAGED_LPV_OWNER bound to: 1'b0 
+INFO: [Synth 8-6157] synthesizing module 'laya_private_fifo2_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 'laya_private_fifo2_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_private_fifo2_v1.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 'laya_generated_provenance_v1' (0#1) [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_v1.sv:4]
+INFO: [Synth 8-6157] synthesizing module 'laya_generated_provenance_hub_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv:5]
+	Parameter ENABLE_BOOTSTRAP_SNAPSHOT bound to: 1'b0 
+	Parameter ENABLE_BOOTSTRAP_SOURCE_GUARD bound to: 1'b0 
+	Parameter ENABLE_EXECUTOR_CHECKPOINT bound to: 1'b0 
+	Parameter MANAGED_EXECUTOR_CHECKPOINT bound to: 1'b0 
+	Parameter MANAGED_LPV_OWNER bound to: 1'b0 
+ERROR: [Synth 8-3380] loop condition does not converge after 2000 iterations [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv:287]
+ERROR: [Synth 8-6156] failed synthesizing module 'laya_generated_provenance_hub_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_hub_v1.sv:5]
+ERROR: [Synth 8-6156] failed synthesizing module 'laya_generated_provenance_axi_portal_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_generated_provenance_axi_portal_v1.sv:5]
+ERROR: [Synth 8-6156] failed synthesizing module 'laya_layernorm_producer_portal_shell_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E005_full_request_performance/experiment_results/runs/R001/attempts/AT040_LNF0_ffn4_02/frozen/vivado/module_design/q8_linear_and_restore/tm1tn8_gs32_512/rtl/laya_layernorm_producer_portal_shell_v1.sv:7]
+ERROR: [Synth 8-6156] failed synthesizing module 'laya_ffn_representative_top_v1' [/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E006_feasibility_assessment/experiment_results/runs/R001/attempts/AT075_M005_joint_physical_ports_02/frozen_source/laya_ffn_representative_top_v1.sv:4]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 5608.055 ; gain = 2450.195 ; free physical = 36130 ; free virtual = 419159
+---------------------------------------------------------------------------------
+RTL Elaboration failed
+INFO: [Common 17-83] Releasing license: Synthesis
+16 Infos, 1 Warnings, 0 Critical Warnings and 6 Errors encountered.
+synth_design failed
+synth_design: Time (s): cpu = 00:00:30 ; elapsed = 00:00:33 . Memory (MB): peak = 5608.062 ; gain = 3814.164 ; free physical = 36135 ; free virtual = 419164
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 5207.971; main = 4860.137; forked = 349.598
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 6603.805; main = 5608.059; forked = 995.746
+ERROR: [Common 17-69] Command failed: Synthesis failed - please see the console or run log file for details
+INFO: [Common 17-206] Exiting Vivado at Wed Oct 14 12:52:04 2026...

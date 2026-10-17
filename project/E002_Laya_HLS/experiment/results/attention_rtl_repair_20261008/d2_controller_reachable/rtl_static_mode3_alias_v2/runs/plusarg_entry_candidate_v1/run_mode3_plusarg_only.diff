@@ -1,0 +1,13 @@
+--- frozen_alias_v2/tb/run_mode3.sh
++++ candidate_v1/run_mode3.sh
+@@ -40,8 +40,8 @@
+ cd "$RUNTIME_ROOT"
+ sim_status=0
+ "$VIVADO_BIN/xsim" vector_mode3_static -runall -onerror quit -onfinish quit \
+-  -testplusarg "+MODE3_DUT_LIMIT=$DUT_CYCLE_LIMIT" \
+-  -testplusarg "+MODE3_TOTAL_LIMIT=$TOTAL_CYCLE_LIMIT" -log xsim.log || sim_status=$?
++  -testplusarg "MODE3_DUT_LIMIT=$DUT_CYCLE_LIMIT" \
++  -testplusarg "MODE3_TOTAL_LIMIT=$TOTAL_CYCLE_LIMIT" -log xsim.log || sim_status=$?
+ seal_status=0
+ python3 "$MODULE_ROOT/tb/seal_runtime.py" "$MODULE_ROOT/source/source_packet.json" \
+   "$STATIC_BUILD_ROOT" "$RUNTIME_ROOT" "$sim_status" || seal_status=$?

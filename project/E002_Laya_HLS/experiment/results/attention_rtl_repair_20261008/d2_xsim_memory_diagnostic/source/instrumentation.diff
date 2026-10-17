@@ -1,0 +1,110 @@
+--- original/file_agent_pkg.sv
++++ rtl/file_agent_pkg.sv
+@@ -16,6 +16,7 @@
+     package file_agent_pkg;
+         
+         import uvm_pkg::*;
++        import "DPI-C" function void diag_stage(input string label, input longint elements, input longint aux);
+         `include "uvm_macros.svh"
+         `include "file_read_agent.sv"
+         `include "file_write_agent.sv"
+--- original/file_read_agent.sv
++++ rtl/file_read_agent.sv
+@@ -35,6 +35,11 @@
+         int is_binary;
+         
+         DATA_QUEUE_TYPE TV_Queue[$];
++        longint diag_fread_bytes = 0;
++        longint diag_payload_bytes = 0;
++        longint diag_copy_elements = 0;
++        int diag_transactions = 0;
++        longint diag_last_ftell = 0;
+ 
+         string TV_FILE_COMPARE = "";
+         integer fp_compare;
+@@ -557,7 +562,14 @@
+         reg [63:0]  trans_depth;
+ 
+         TV_Queue.delete();
++        diag_fread_bytes = 0;
++        diag_payload_bytes = 0;
++        diag_copy_elements = 0;
++        diag_transactions = 0;
+         ret = $fread(trans_depth, fp);
++        if (ret != 8) `uvm_fatal(this.get_full_name(), "diagnostic: incomplete 8-byte header");
++        diag_fread_bytes += ret;
++        diag_stage("reader_header", trans_depth, ret);
+         while(trans_depth != 64'h5a5aa5a50f0ff0f0) begin
+             while(trans_depth != 0) begin
+                 ret = $fread(data, fp);
+@@ -565,12 +577,25 @@
+                     `uvm_fatal(this.get_full_name(), "ERROR: Simulation reading TVIN failed.");
+                 if(ret == 0)
+                     `uvm_fatal(this.get_full_name(), "ERROR: Simulation reading TVIN got no input data.");
++                if (ret != DATA_WIDTH/8) `uvm_fatal(this.get_full_name(), "diagnostic: incomplete payload element");
++                diag_fread_bytes += ret;
++                diag_payload_bytes += ret;
+                 TV.push_back(data);                
++                if (TV.size() >= 1024 && ((TV.size() & (TV.size()-1)) == 0))
++                    diag_stage("reader_queue_power2", TV.size(), diag_fread_bytes);
+                 trans_depth = trans_depth - 1;
+                 `uvm_info(this.get_full_name(), $sformatf("read data: %0d", data), UVM_DEBUG)
+             end
++            diag_stage("reader_before_2d_copy", TV.size(), TV_Queue.size());
+             TV_Queue.push_back(TV);
++            diag_copy_elements += TV.size();
++            diag_transactions++;
++            diag_stage("reader_after_2d_copy", TV_Queue[TV_Queue.size()-1].size(), TV_Queue.size());
+             ret = $fread(trans_depth, fp);
++            if (ret != 8) `uvm_fatal(this.get_full_name(), "diagnostic: incomplete 8-byte trailer/header");
++            diag_fread_bytes += ret;
++            diag_last_ftell = $ftell(fp);
++            diag_stage("reader_after_trailer", trans_depth, diag_fread_bytes);
+             `uvm_info(this.get_full_name(), $sformatf("transaction size: %0d", TV.size()), UVM_DEBUG)
+             TV.delete();
+         end
+--- original/mem_model.sv
++++ rtl/mem_model.sv
+@@ -33,8 +33,11 @@
+ 
+     function void init(int depth, int offset=0);
+         mem = new[depth];
++        diag_stage("mem_after_mem_alloc", depth, WIDTH);
+         IsWr = new[depth];
++        diag_stage("mem_after_iswr_alloc", depth, WIDTH);
+         for(int i=0; i<depth; i++) IsWr[i] = 0;
++        diag_stage("mem_after_iswr_clear", depth, WIDTH);
+         is_rd = 0;
+         this.depth = depth;
+         this.offset = offset;
+@@ -102,6 +105,7 @@
+     int wr_page_idx;
+     file_write_agent#(ceiling_bytes) FileWr;
+     int is_binary;
++    longint diag_copy_count = 0;
+ 
+     `uvm_object_param_utils_begin(mem_model_pages#(DATA_WIDTH,ELE_WIDTH))
+         `uvm_field_int(rd_page_idx, UVM_DEFAULT)
+@@ -168,9 +172,13 @@
+             blk.init(depth, offset);
+             pages.push_back(blk);
+             if(ispagechk) continue;
++            diag_stage("pages_before_copy", fr.TV_Queue[i].size(), elenum);
+             for(int j=0; j<fr.TV_Queue[i].size; j++)
+-                for(int k=0; k<elenum; k++) 
++                for(int k=0; k<elenum; k++) begin
+                     void'(blk.write_one_elem( (fr.TV_Queue[i][j]>>(k*ELE_WIDTH)) & (2**ELE_WIDTH-1), j*elenum+k+offset ));
++                    diag_copy_count++;
++                end
++            diag_stage("pages_after_copy", diag_copy_count, pages.size());
+         end
+     endfunction
+ 
+@@ -311,6 +319,7 @@
+                 frtmp.read_TVIN_file();
+                 maxi_bundlevar_offset[varname] = frtmp.TV_Queue[0][0];
+                 min_offset = (min_offset>frtmp.TV_Queue[0][0]) ? frtmp.TV_Queue[0][0] : min_offset;
++                diag_stage("offset_bound", frtmp.TV_Queue[0][0], maxi_bundlevar_offset.num());
+             end while(maxi_bundlevar_fpath.next(varname));
+     endfunction
+ 
