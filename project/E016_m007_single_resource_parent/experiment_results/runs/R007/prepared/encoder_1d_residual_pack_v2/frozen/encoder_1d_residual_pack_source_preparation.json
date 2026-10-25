@@ -1,0 +1,64 @@
+{
+  "schema": "m007-r007-encoder-1d-compat-source-v1",
+  "status": "SOURCE_PREPARED_NOT_COMPILED_NOT_RUN",
+  "source": "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_fullmodel_encoder_1d_tb.sv",
+  "sha256": "172d301937532841baaa938e45eb2f48913b7821b60bb6776671ba52f6d5d555",
+  "baseline": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT036_complete_Encoder_progress_alias_build/frozen/m007_fullmodel_encoder_tb.sv",
+  "baseline_sha256": "37e8c14793d66b990a9b65efa3fb7c5c3fc5991c189ccd4155ecc65aea6ed755",
+  "baseline_reconstructed_exactly": true,
+  "changes": [
+    {
+      "before": "$readmemh({rope_dir,\"/cos_full.mem\"},rope_mem[0]);",
+      "after": "$readmemh({rope_dir,\"/cos_full.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[0][j]=rope_load[j];"
+    },
+    {
+      "before": "$readmemh({rope_dir,\"/sin_full.mem\"},rope_mem[1]);",
+      "after": "$readmemh({rope_dir,\"/sin_full.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[1][j]=rope_load[j];"
+    },
+    {
+      "before": "$readmemh({rope_dir,\"/cos_slide.mem\"},rope_mem[2]);",
+      "after": "$readmemh({rope_dir,\"/cos_slide.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[2][j]=rope_load[j];"
+    },
+    {
+      "before": "$readmemh({rope_dir,\"/sin_slide.mem\"},rope_mem[3]);",
+      "after": "$readmemh({rope_dir,\"/sin_slide.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[3][j]=rope_load[j];"
+    }
+  ],
+  "additional_changes": [
+    "top module name",
+    "8192x32bit rope temporary array",
+    "131072x32bit residual scalar temporary plus zero-delay group32 pack"
+  ],
+  "clock_delay_or_fixture_or_assertion_or_W_peer_change": false,
+  "production_RTL_changed": false,
+  "new_model_or_gold": false,
+  "wall_s": 0.001326693978626281,
+  "revision": 2,
+  "residual_scalar_pack": {
+    "mapping": "residual_a[group][32*lane+:32]=original_GOLD_scalar[32*group+lane]",
+    "scalar_count": 131072,
+    "groups": 4096,
+    "lanes": 32,
+    "original_file_unchanged": true
+  },
+  "original_zero_extended_truncated_residual_loader_corrected": true,
+  "changes_before_residual_pack": [
+    {
+      "before": "$readmemh({rope_dir,\"/cos_full.mem\"},rope_mem[0]);",
+      "after": "$readmemh({rope_dir,\"/cos_full.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[0][j]=rope_load[j];"
+    },
+    {
+      "before": "$readmemh({rope_dir,\"/sin_full.mem\"},rope_mem[1]);",
+      "after": "$readmemh({rope_dir,\"/sin_full.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[1][j]=rope_load[j];"
+    },
+    {
+      "before": "$readmemh({rope_dir,\"/cos_slide.mem\"},rope_mem[2]);",
+      "after": "$readmemh({rope_dir,\"/cos_slide.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[2][j]=rope_load[j];"
+    },
+    {
+      "before": "$readmemh({rope_dir,\"/sin_slide.mem\"},rope_mem[3]);",
+      "after": "$readmemh({rope_dir,\"/sin_slide.mem\"},rope_load);for(int j=0;j<8192;j++)rope_mem[3][j]=rope_load[j];"
+    }
+  ],
+  "actual_clock_delay_or_assertions_or_W_peer_changed": false
+}

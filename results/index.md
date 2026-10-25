@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # 全项目报告索引
 
@@ -139,6 +139,7 @@
 - [program_generation_lifecycle_fsm_reply_20261012](program_generation_lifecycle_fsm_reply_20261012.md)
 - [quant_g_answer_message_20261011](quant_g_answer_message_20261011.md)
 - [quant_g_portal_contract_v2_20261011](quant_g_portal_contract_v2_20261011.md)
+- [software_experiments](software_experiments.md)
 - [v2_parent_stage_review_reply_20261011](v2_parent_stage_review_reply_20261011.md)
 - [work_focus_switch_immediate_20261013](work_focus_switch_immediate_20261013.md)
 

@@ -1,0 +1,158 @@
+--- old/suffix_tb
++++ new/suffix_tb
+@@ -1,5 +1,5 @@
+ `timescale 1ns/1ps
+-module m007_fullgraph_binary_tb;
++module m007_fullgraph_binary_tb #(parameter bit VERIFY_POST_ENCODER27_H=1'b0);
+  logic clk;
+  logic rst_n;
+  logic setup_valid;
+@@ -136,7 +136,7 @@
+  logic [3:0][1:0] rresp;
+  logic [3:0] rlast;
+  localparam logic[255:0] PLATFORM_SHA=256'hf0df35cc7013643161e135ae0949473a9b5c0f13d5a4e3aea3675c2cf607db18;
+- laya_m007_single_parent_v3 #(.ADDRESS_PROFILE(1),.HBM_PORT_BASE(0),.HBM_PORT_SPAN({4{64'h100000000}}),.PLATFORM_MANIFEST_SHA256(PLATFORM_SHA)) dut(.*);
++ laya_m007_single_parent_v3 #(.VERIFY_POST_ENCODER27_H(VERIFY_POST_ENCODER27_H),.ADDRESS_PROFILE(1),.HBM_PORT_BASE(0),.HBM_PORT_SPAN({4{64'h100000000}}),.PLATFORM_MANIFEST_SHA256(PLATFORM_SHA)) dut(.*);
+  always #1 clk=~clk;
+  // Original layer endpoints, never connected to an activation producer.
+  logic[1023:0]initial_h[0:4095],checkpoint_gold[0:131071],tail_gold[0:543];
+@@ -149,7 +149,9 @@
+  integer layer_H_count[0:29],layer_mcount[0:29],layer_mdone[0:29],layer_attention[0:29],fc1_Awrites[0:1],fc1_Aacks[0:1];
+  logic[4095:0]layer_H_seen[0:29];logic[4095:0]final_norm_seen=0,type_H_seen=0;logic[16383:0]fc1_Aseen[0:1];logic[29:0]layer_start_seen=0,layer_complete_seen=0;logic[119:0]catalog_seen=0;
+  logic[31:0]active_quant_K;logic active_quant_slot;logic full_active=0;
+- string data_dir,rope_dir,original_dir,export_path,meta_path;
++ string data_dir,rope_dir,original_dir,export_path,meta_path,post_encoder27_h_path;
++ integer suffix_entries=0,actual_head_successes=0,ln_accepted_commands=0,gamma_accepted_commands=0,ordinary_accepted_commands=0;
++ integer final_norm_fd=0,type_add_fd=0;
+  integer input_fd,output_fd,receipt_fd;integer tail_writes=0,tail_delay=0,tail_commits=0;logic tail_active=0;logic[63:0]accepted_tail_request=0;logic[31:0]accepted_tail_generation=0,accepted_tail_source_epoch=0;
+  logic holding=0;logic[1051:0]held_output;integer held_left=0;logic mid_hold_started=0,last_hold_started=0;
+  task automatic progress(input integer n,input string phase);
+@@ -201,6 +203,23 @@
+   if(model_word_valid&&model_word_ready)begin model_count++;progress(32,"MODEL");end
+   if(full_active)begin
+    integer gl;gl=int'(dut.layer_index);
++   if(VERIFY_POST_ENCODER27_H&&parent_state==33&&dut.h_load_success_valid&&dut.resident_retired)begin
++    if(suffix_entries!=0||kind_run!=7||h_count!=4096||dut.inputs_accepted!=4096||!model_committed||matrix_commands!=0||layers_completed!=0||ln_commands!=0||vector_commands!=0||catalog_runtime!=0)$fatal(1,"suffix entry without real setup/H/quiet qualification");
++    suffix_entries++;
++    $display("M007_SEGMENTED_SUFFIX_ENTRY input_groups=%0d resident_retired=%0d scratch_retired=%0d weight_idle=%0d source_qualified=%0d prefix_replayed=0 cycle=%0d",h_count,dut.resident_retired,dut.v2_scratch_retired,weight_idle,dut.v2_resident_ln_source_qualified,cycle);$fflush();
++   end
++   if(dut.resident.joint.layer.h_done_valid&&dut.resident.joint.layer.h_done_ready)begin
++    if(dut.resident.joint.layer.h_done_status!=0)$fatal(1,"actual head unsuccessful");
++    actual_head_successes++;
++   end
++   if(dut.resident.p_ln_cmd_valid&&dut.resident.p_ln_cmd_ready)begin
++    ln_accepted_commands++;
++    if(dut.resident.p_ln_cmd_gamma)gamma_accepted_commands++;else ordinary_accepted_commands++;
++    $display("M007_LN_COMMAND global=%0d state=%0d epoch=%0d gamma=%0d rows=%0d cycle=%0d",gl,parent_state,dut.resident.p_ln_cmd_epoch,dut.resident.p_ln_cmd_gamma,dut.resident.p_ln_cmd_rows,cycle);$fflush();
++   end
++   if(dut.v2_resident_ln_done_valid&&dut.v2_resident_ln_done_ready&&dut.v2_resident_ln_done_kind==0&&dut.v2_resident_ln_done_status==0&&dut.v2_resident_ln_issued_vectors==4096&&dut.v2_resident_ln_written_vectors==4096)begin
++    $display("M007_RESIDENT_LN_SUCCESS global=%0d state=%0d epoch=%0d issued=%0d written=%0d cycle=%0d",gl,parent_state,dut.operation_epoch,dut.v2_resident_ln_issued_vectors,dut.v2_resident_ln_written_vectors,cycle);$fflush();
++   end
+    // RTL_RETIRE_OBSERVER_BEGIN: accepted result/ACK events, not gold words or operations.
+    begin : rtl_retire_observation
+     integer completed;completed=0;
+@@ -228,7 +247,8 @@
+    if(dut.runtime_catalog&&dut.cat_rsp_valid&&dut.cat_rsp_ready)begin
+     integer ri;ri=int'(dut.cat_word)-4;
+     if(ri<0||ri>=120||catalog_seen[ri]||ri/4!=gl||dut.cat_fault||!dut.m_transport_idle||!weight_idle||!dut.q_cmd_ready||dut.q_done_valid)$fatal(1,"actual layer catalog identity/refill before true old retirement");
+-    if(kind_run==7&&ri!=catalog_runtime)$fatal(1,"once-BEGIN catalog order");catalog_seen[ri]=1;catalog_runtime++;
++    if(VERIFY_POST_ENCODER27_H)begin if(ri!=112+catalog_runtime)$fatal(1,"segmented suffix catalog order");end
++    else if(kind_run==7&&ri!=catalog_runtime)$fatal(1,"once-BEGIN catalog order");catalog_seen[ri]=1;catalog_runtime++;
+    end
+    if(dut.m_cmd_valid&&dut.m_cmd_ready)begin
+     integer ri;ri=4*gl+layer_mcount[gl];
+@@ -245,7 +265,7 @@
+    end
+    if(dut.l_prepare_valid&&dut.l_prepare_ready)begin
+     if(layer_start_seen[gl]||dut.l_prepare_kind!=(gl>=28?2:(gl%3==0?0:1))||dut.l_prepare_layer!=(gl>=28?gl-28:gl)||h_count!=4096)$fatal(1,"actual full/sliding/Decision layer identity/no repeat");
+-    if(kind_run==7&&gl>0&&!layer_complete_seen[gl-1])$fatal(1,"layer handoff before actual previous endpoint");if(kind_run==7&&gl==28&&(final_norm_count!=4096||type_count!=4096||type_H_seen!={4096{1'b1}}))$fatal(1,"Decision0 before actual final norm/type checkpoint");layer_start_seen[gl]=1;attention_layers++;
++    if(kind_run==7&&gl>0&&!layer_complete_seen[gl-1]&&!(VERIFY_POST_ENCODER27_H&&gl==28))$fatal(1,"layer handoff before actual previous endpoint");if(kind_run==7&&gl==28&&(final_norm_count!=4096||type_count!=4096||type_H_seen!={4096{1'b1}}))$fatal(1,"Decision0 before actual final norm/type checkpoint");layer_start_seen[gl]=1;attention_layers++;
+    end
+    if(dut.l_done_valid&&dut.l_done_ready)begin
+     if(dut.l_done_status!=0||layer_head_completed!=16'hffff||dut.l_head_context_valid!=16'hffff)$fatal(1,"all16 real head completions");layer_attention[gl]++;
+@@ -254,7 +274,17 @@
+    if(dut.v2_vector_start_valid&&dut.v2_vector_start_ready)vector_commands++;
+    if(dut.g_cmd_valid&&dut.g_cmd_ready)begin if(gl>=28)$fatal(1,"Decision must use ReLU not GEGLU");g_commands++;end
+    if(dut.resident.p_q_wr_commit&&parent_state==90)begin
+-    integer a;a=int'(dut.resident.p_q_wr_addr);if(kind_run!=7||final_norm_seen[a]||dut.active_epoch_offset!=448||dut.resident.p_q_wr_data!==checkpoint_gold[28*4096+a])$fatal(1,"original final gamma LN checkpoint");final_norm_seen[a]=1;final_norm_count++;progress(32,"FINAL_NORM");
++    integer a;a=int'(dut.resident.p_q_wr_addr);if(kind_run!=7||final_norm_seen[a]||dut.active_epoch_offset!=448||dut.resident.p_q_wr_data!==checkpoint_gold[28*4096+a])begin
++     integer first_bad_lane;first_bad_lane=-1;
++     for(int lane=0;lane<32;lane++)if(first_bad_lane<0&&dut.resident.p_q_wr_data[32*lane+:32]!==checkpoint_gold[28*4096+a][32*lane+:32])first_bad_lane=lane;
++     $display("M007_FINAL_GAMMA_DIAG addr=%0d kind_bad=%0d duplicate=%0d offset_bad=%0d data_bad=%0d kind=%0d offset=%0d first_bad_lane=%0d parent_gamma=%0d provider_gamma=%0d actual=%h expected=%h cycle=%0d",a,kind_run!=7,final_norm_seen[a],dut.active_epoch_offset!=448,dut.resident.p_q_wr_data!==checkpoint_gold[28*4096+a],kind_run,dut.active_epoch_offset,first_bad_lane,dut.v2_resident_ln_use_gamma,dut.resident.p_ln_cmd_gamma,dut.resident.p_q_wr_data,checkpoint_gold[28*4096+a],cycle);$fflush();
++     $fatal(1,"original final gamma LN checkpoint");
++    endfinal_norm_seen[a]=1;final_norm_count++;progress(32,"FINAL_NORM");
++    if(VERIFY_POST_ENCODER27_H)begin
++     if($fseek(final_norm_fd,128*a,0))$fatal(1,"actual final norm capture seek");
++     for(int j=0;j<128;j++)$fwrite(final_norm_fd,"%c",dut.resident.p_q_wr_data[j/4][8*(j%4)+:8]);
++     if(final_norm_count==4096)$fflush(final_norm_fd);
++    end
+    end
+    if(dut.resident.vector_h_wr_valid&&dut.resident.vector_h_wr_ready)begin
+     integer a;a=int'(dut.resident.vector_h_wr_addr);if(!dut.resident.vector_h_wr_commit)$fatal(1,"vector H accepted without commit");
+@@ -263,6 +293,11 @@
+      layer_H_seen[gl][a]=1;layer_H_count[gl]++;progress(32,"LAYER_H");
+     end else if(parent_state==95)begin
+      if(kind_run!=7||type_H_seen[a]||final_norm_count!=4096||final_norm_seen!={4096{1'b1}}||dut.resident.vector_h_wr_data!==checkpoint_gold[29*4096+a])$fatal(1,"original type-add H checkpoint");type_H_seen[a]=1;type_count++;progress(32,"TYPE_H");
++     if(VERIFY_POST_ENCODER27_H)begin
++      if($fseek(type_add_fd,128*a,0))$fatal(1,"actual type capture seek");
++      for(int j=0;j<128;j++)$fwrite(type_add_fd,"%c",dut.resident.vector_h_wr_data[j/4][8*(j%4)+:8]);
++      if(type_count==4096)$fflush(type_add_fd);
++     end
+     end
+    end
+    if(parent_state==97&&dut.resident_retired&&dut.v2_scratch_retired&&dut.ws_a_enable)begin
+@@ -272,13 +307,15 @@
+    if(holding&&(!out_valid||{out_data,out_row,out_col,out_slot}!==held_output))$fatal(1,"public output unstable while held");holding=out_valid&&!out_ready;held_output={out_data,out_row,out_col,out_slot};
+    if(out_valid&&out_ready)begin
+     if(exports>=output_limit()||out_col!=32*(exports%32)||out_slot!=(kind_run==7?exports/32:0))$fatal(1,"public output count/order/slot");
+-    if(kind_run==7)begin if(out_row!==original_marker_source_row(int'(out_slot)))$fatal(1,"original marker/CLS public source row");if(out_data!==tail_gold[exports]||layers_completed!=30||final_norm_count!=4096||type_count!=4096)$fatal(1,"original Decision1 gather/CLS and fullgraph prerequisites");end
++    if(kind_run==7)begin if(out_row!==original_marker_source_row(int'(out_slot)))$fatal(1,"original marker/CLS public source row");if(VERIFY_POST_ENCODER27_H)begin if(out_data!==tail_gold[exports]||layers_completed!=2||final_norm_count!=4096||type_count!=4096)$fatal(1,"original Decision1 gather/CLS and segmented suffix prerequisites");end
++    else if(out_data!==tail_gold[exports]||layers_completed!=30||final_norm_count!=4096||type_count!=4096)$fatal(1,"original Decision1 gather/CLS and fullgraph prerequisites");end
+     else begin if(out_row!=exports/32||out_data!==checkpoint_gold[checkpoint_index(28+decision_local)*4096+exports]||layers_completed!=1)$fatal(1,"original full Decision public output");for(int j=0;j<128;j++)$fwrite(output_fd,"%c",out_data[j/4][8*(j%4)+:8]);end
+     exports++;progress(32,"PUBLIC_OUTPUT");
+    end
+    if(done_valid)begin
+     if(done_op!=2||done_request!=cmd_request||done_generation!=cmd_generation||done_epoch!=cmd_epoch||done_status!=0||source_status!=0||error_domain!=0||error_tuple!=0||exports!=output_limit()||!weight_idle||!dut.m_transport_idle||!dut.global_idle)$fatal(1,"full parent identity/success/real idle receipt");
+-    if(kind_run==7&&(commands!=1||catalog_runtime!=120||catalog_seen!={120{1'b1}}||matrix_commands!=120||layers_completed!=30||attention_layers!=30||ln_commands!=60||vector_commands!=61||g_commands!=28||tail_commits!=1||tail_writes!=544))$fatal(1,"once-BEGIN original30 graph coverage and real tail commit");
++    if(!VERIFY_POST_ENCODER27_H)begin if(kind_run==7&&(commands!=1||catalog_runtime!=120||catalog_seen!={120{1'b1}}||matrix_commands!=120||layers_completed!=30||attention_layers!=30||ln_commands!=60||vector_commands!=61||g_commands!=28||tail_commits!=1||tail_writes!=544))$fatal(1,"once-BEGIN original30 graph coverage and real tail commit");end
++    else if(kind_run==7&&(suffix_entries!=1||commands!=1||h_count!=4096||catalog_runtime!=8||catalog_seen!==({120{1'b1}}<<112)||matrix_commands!=8||layers_completed!=2||layer_complete_seen!==30'h30000000||attention_layers!=2||actual_head_successes!=32||ln_commands!=5||ln_accepted_commands!=5||gamma_accepted_commands!=1||ordinary_accepted_commands!=4||vector_commands!=5||g_commands!=0||final_norm_count!=4096||final_norm_seen!={4096{1'b1}}||type_count!=4096||type_H_seen!={4096{1'b1}}||tail_commits!=1||tail_writes!=544))$fatal(1,"segmented suffix actual coverage and real tail commit");
+     if(kind_run==6&&(catalog_runtime!=4||matrix_commands!=4||layers_completed!=1||attention_layers!=1||ln_commands!=2||vector_commands!=2||g_commands!=0||tail_commits!=0))$fatal(1,"complete Decision component coverage");
+    end
+   end
+@@ -441,7 +478,11 @@
+   if(!$value$plusargs("KIND=%d",kind_run))kind_run=7;if(!$value$plusargs("LAYER=%d",decision_local))decision_local=0;
+   if(!(kind_run==6||kind_run==7)||decision_local<0||decision_local>1||kind_run==7&&decision_local!=0)$fatal(1,"true kind6/7 only; no prefix stop or repeated Encoder0");
+   $readmemh(meta_path,metadata);$readmemh({original_dir,"/tensor_ids.hex"},tensor_ids);$readmemh({original_dir,"/checkpoints.hex"},checkpoint_gold);$readmemh({original_dir,"/tail544.hex"},tail_gold);
+-  if(kind_run==7)$readmemh({original_dir,"/initial_H.hex"},initial_h);
++  if(VERIFY_POST_ENCODER27_H)begin
++   if(kind_run!=7||decision_local!=0||!$value$plusargs("POST_ENCODER27_H=%s",post_encoder27_h_path))$fatal(1,"segmented suffix requires kind7/local0 and saved actual H path");
++   $readmemh(post_encoder27_h_path,initial_h);
++   $display("M007_SEGMENTED_SUFFIX_INPUT source=actual_layer27 prefix_replayed=0 path=%s",post_encoder27_h_path);$fflush();
++  end else if(kind_run==7)$readmemh({original_dir,"/initial_H.hex"},initial_h);
+   else if(decision_local==0)$readmemh({original_dir,"/decision0_input.hex"},initial_h);else $readmemh({original_dir,"/decision1_input.hex"},initial_h);
+   $readmemh({data_dir,"/catalog.hex"},catalog_mem);$readmemh({data_dir,"/bias.words.hex"},bias_mem);$readmemh({data_dir,"/gamma.words.hex"},gamma_mem);$readmemh({data_dir,"/type.words.hex"},type_mem);
+   $readmemh({rope_dir,"/cos_full.mem"},rope_load);for(int j=0;j<8192;j++)rope_mem[0][j]=rope_load[j];
+@@ -463,6 +504,10 @@
+   for(int gl=0;gl<30;gl++)begin layer_H_count[gl]=0;layer_mcount[gl]=0;layer_mdone[gl]=0;layer_attention[gl]=0;layer_H_seen[gl]=0;end
+   for(int d=0;d<2;d++)begin fc1_Awrites[d]=0;fc1_Aacks[d]=0;fc1_Aseen[d]=0;end
+   input_fd=$fopen({export_path,".H0.bin"},"wb");output_fd=$fopen({export_path,".output.bin"},"wb");if(!input_fd||!output_fd)$fatal(1,"actual public capture open");
++  if(VERIFY_POST_ENCODER27_H)begin
++   final_norm_fd=$fopen({export_path,".final_norm.f32.bin"},"wb");type_add_fd=$fopen({export_path,".type_add.f32.bin"},"wb");
++   if(!final_norm_fd||!type_add_fd)$fatal(1,"actual suffix capture open");
++  end
+   repeat(4)step();@(negedge clk);rst_n=1;wait(cmd_ready);load_rope();send_setup();wait(parent_state==65);for(int j=0;j<576;j++)offer_word(0,j);
+   wait(parent_state==68);for(int j=0;j<32;j++)offer_word(1,j);wait(parent_state==70);for(int j=0;j<96;j++)offer_word(2,j);
+   consume_done(0,0,0,0);if(!model_committed||model_count!=704||ar_count!=124||r_count!=124)$fatal(1,"real complete model setup");
+@@ -472,8 +517,10 @@
+   end
+   @(negedge clk);in_valid=0;$fflush(input_fd);wait(done_valid);repeat(17)step();consume_done(2,0,0,0);
+   if(commands!=1||h_count!=4096||exports!=output_limit()||!weight_idle||!dut.global_idle)$fatal(1,"actual final heldDONE/retirement/one input chain");
++  if(VERIFY_POST_ENCODER27_H)begin $fflush(final_norm_fd);$fflush(type_add_fd);$fclose(final_norm_fd);$fclose(type_add_fd);end
+   $fflush(output_fd);$fclose(input_fd);$fclose(output_fd);receipt_fd=$fopen({export_path,".receipt.txt"},"w");if(!receipt_fd)$fatal(1,"actual success receipt open");
+-  $fdisplay(receipt_fd,"kind=%0d layer=%0d request=%0d generation=%0d source_epoch=%0d input_bytes=524288 output_bytes=%0d BEGIN=1 layers=%0d matrices=%0d LN=%0d vector=%0d GEGLU=%0d tail_commits=%0d done_consumed=1 cycles=%0d",kind_run,decision_local,cmd_request,cmd_generation,cmd_epoch,128*exports,layers_completed,matrix_commands,ln_commands,vector_commands,g_commands,tail_commits,cycle);$fclose(receipt_fd);
+-  $display("HARDWARE_AGENT_SIM_PASS M007_FULLGRAPH_BINARY kind=%0d layers=%0d matrix=%0d outputs=%0d actual_tail_commit=%0d",kind_run,layers_completed,matrix_commands,exports,tail_commits);$fflush();$finish;
++  $fdisplay(receipt_fd,"kind=%0d layer=%0d request=%0d generation=%0d source_epoch=%0d input_bytes=524288 output_bytes=%0d BEGIN=1 layers=%0d matrices=%0d LN=%0d vector=%0d GEGLU=%0d tail_commits=%0d done_consumed=1 cycles=%0d",kind_run,decision_local,cmd_request,cmd_generation,cmd_epoch,128*exports,layers_completed,matrix_commands,ln_commands,vector_commands,g_commands,tail_commits,cycle);if(VERIFY_POST_ENCODER27_H)$fdisplay(receipt_fd,"scope=SEGMENTED_SUFFIX original_prefix_replayed=0 actual_input=encoder27 actual_heads=%0d actual_gamma_commands=%0d",actual_head_successes,gamma_accepted_commands);$fclose(receipt_fd);
++  if(VERIFY_POST_ENCODER27_H)$display("HARDWARE_AGENT_SIM_PASS M007_SEGMENTED_SUFFIX layers=%0d matrix=%0d heads=%0d LN=%0d vector=%0d outputs=%0d actual_tail_commit=%0d",layers_completed,matrix_commands,actual_head_successes,ln_commands,vector_commands,exports,tail_commits);
++  else $display("HARDWARE_AGENT_SIM_PASS M007_FULLGRAPH_BINARY kind=%0d layers=%0d matrix=%0d outputs=%0d actual_tail_commit=%0d",kind_run,layers_completed,matrix_commands,exports,tail_commits);$fflush();$finish;
+  end
+ endmodule

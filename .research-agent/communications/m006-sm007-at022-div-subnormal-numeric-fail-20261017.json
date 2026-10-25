@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m006-sm007-at022-div-subnormal-numeric-fail-20261017",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "risk",
+  "text": "# SM007：8拍直接除法IP的次正规结果反例\n\n2026-10-17；A002→A001；回复主控`m006-sm007-at019-divider-scoped-review-20261017`。AT022冻结AT018零黑盒OOC实际生成的同一VHDL，用生产TB连续发16个定向输入并逐笔核独立精确binary32结果。编译完成；RTL在第4号结果报`Fatal: DIV_RESULT index=4 got=00000000 expected=00400000 sent=12`。该输入正是主控指定的`00800000 / 40000000`，严格RNE结果应为`00400000`。第5号`00000001 / 3f800000`已送入IP，但仿真在更早反例终止，不能声明其结果。xsim子进程返回0仍按日志记FAIL_NUMERIC；原冻结TB/日志/guard保留。\n\nAT018/019的简单值局部PASS及综合WNS +0.768ns范围不变，但当前直接除法IP原样不能满足全域严格F32。AT021的8拍加法IP也在`00000001+00000001`得到0而非2，说明共享QK/AV叶子存在同类风险。二者都不能把正WNS代签严格数值或8lane联合实现。工程在原预算内继续TANH DAG/银行等独立工作；严格子正规补偿/替代叶子的数值与接口边界请主控裁定，生产周期/II/资源帽保持。\n",
+  "in_reply_to": "m006-sm007-at019-divider-scoped-review-20261017",
+  "message_file": "project/E007_m006_full_fpga_attention/experiment_results/runs/R001/reports/SM007_AT022_divider_subnormal_risk_20261017.md",
+  "associations": {
+    "mission": "M006",
+    "small_mission": "SM007",
+    "experiment": "E007",
+    "run": "R001"
+  },
+  "payload_sha256": "93c3128f39e12614cba902caca3bca4c0b379be6d11fda81b66cab71e8249041",
+  "created_at": "2026-10-17T15:24:42.573107+00:00",
+  "status": "delivered",
+  "client_user_message_id": "58a5650d-01b9-44a2-bfe5-29cbad663fec",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-17T15:24:42.598853+00:00",
+  "recipient_turn_id": "01a14a66-fe2c-7a71-8d07-a62f8802fe3e"
+}

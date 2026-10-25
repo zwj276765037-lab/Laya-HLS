@@ -1,0 +1,117 @@
+{
+  "created_at": "2026-10-23T14:37:48.163172+00:00",
+  "status": "CONDITIONAL_ENGINEERING_PLANNING_ONLY_NOT_MEASURED_FULLGRAPH_E",
+  "current_formal_gate_E": "UNKNOWN",
+  "source_evidence": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_kind7_public_boundary_v2/frozen/laya_m007_single_parent_v3.sv",
+      "sha256": "7b0d0c6dbdf85c4e41db28fedc8f48edb763b6c21c3d668f2d3fa886c4cc3714"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_kind7_public_boundary_v2/frozen/laya_attention_qk_av_engine_v1.sv",
+      "sha256": "e8ad543f55080d5a813ffb089933ed6778d9ad38b35fa7614a1311ea94190ef4"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/source/m007_residual_encoder30_20261023.md",
+      "sha256": "949a13806371a1af5bd0afaf88116838a18085fc494aeafd15df167c8980ad74"
+    }
+  ],
+  "measured_samples": [
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E021_m007_compiled_rtl_validation/experiment_results/runs/R002/attempts/AT005_first_original_layer/receipt_rtl.json",
+      "sha256": "42570e3d5e0de3ada3897e295d473adc6c5b7344428c586f784bfb0039f3209e"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E021_m007_compiled_rtl_validation/experiment_results/runs/R002/attempts/AT010_kind6_public_abi/receipt_rtl.json",
+      "sha256": "7b474d05e5e746b19e0c5673f65da56ee564d680d5065bab76256bc07914c75f"
+    },
+    {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E021_m007_compiled_rtl_validation/experiment_results/runs/R002/attempts/AT011_kind6_decision1/receipt_rtl.json",
+      "sha256": "facd097356d14b7657db5d5b9cb5406ca3567c98c51e079fbd91d1a4ff5a1b93"
+    }
+  ],
+  "fixed_original_graph": {
+    "encoder_full_layers": [
+      0,
+      3,
+      6,
+      9,
+      12,
+      15,
+      18,
+      21,
+      24,
+      27
+    ],
+    "encoder_full_count": 10,
+    "encoder_sliding_count": 18,
+    "Decision_count": 2,
+    "attention_layers": 30,
+    "matrices": 120,
+    "LN_commands": 60,
+    "vector_commands": 61,
+    "GEGLU_layers": 28,
+    "kind7_once_BEGIN": 1,
+    "tail_commits": 1,
+    "original_public_output_groups32": 544
+  },
+  "sliding_not_shape_discount": {
+    "QK": "32 query groups x128 keys; sliding finite mask added after full products and adjacent sum tree",
+    "AV": "4096 root/partial commits;128 keys per group",
+    "scope": "source-fixed scheduling; wall/data costs can differ; no measured complete sliding layer"
+  },
+  "measured_wall_seconds": {
+    "setup_plus_public_H_once": 7.202530043956358,
+    "Encoder0_core_after_H_through_actual_layer_endpoint": 329.07503416604595,
+    "preLN_P_RUN85_to_P_RETIRE86": 11.511522090004291,
+    "Decision0_core_after_H_through_actual_layer_endpoint": 321.4349291159888,
+    "Decision1_core_or_proxy": 329.0722420819802,
+    "Decision1_independently_complete": true,
+    "vector_type_proxy_from_Decision_residualA": 2.6660979369771667
+  },
+  "formula": "setupH +28*Encoder0_core +27*preLN +Decision0_core +Decision1_core_or_proxy +finalLN_proxy +type_vector_proxy; tail/gather/terminal unmeasured",
+  "proxy_before_unmeasured_tail_seconds": 10196.79937434831,
+  "planning_range_seconds": [
+    9177.11943691348,
+    12865.999217935387
+  ],
+  "planning_range_hours": [
+    2.5491998435870777,
+    3.5738886716487186
+  ],
+  "planning_upper_rule": "1.25 * stage-weighted proxy +120s unmeasured tail/gather/terminal allowance; heuristic planning margin, not measured/proven conservative upper bound",
+  "assumptions_and_gaps": [
+    "same single-thread runtime/host policy; numeric data may vary CPU instruction costs",
+    "later Encoder preLN represented by one actual preLN; full/sliding common core represented by actual Encoder0 because mask does not prune QK/AV shape",
+    "Decision1 independently complete only when explicitly marked above",
+    "final gamma/type/gather/tail original kind7 paths not yet measured",
+    "continuous internal kind7 handoffs not proven by standalone public components",
+    "cannot authorize a run or replace formal measured E<=3600 gate"
+  ],
+  "budget_comparison": {
+    "single_run_current_limit_seconds": 3600,
+    "R002_total_RTL_seconds": 7200,
+    "actual_remaining_RTL_seconds": 5875.778230861004,
+    "actual_spendable_after600_reserve_seconds": 5275.778230861004,
+    "central_proxy_over3600_factor": 2.8324442706523083,
+    "planning_upper_over3600_factor": 3.5738886716487186,
+    "central_proxy_over7200_gap_seconds": 2996.7993743483094,
+    "central_proxy_over_actual_spendable_gap_seconds": 4921.021143487305,
+    "AT011_in_flight_cap_seconds": 0,
+    "formal_gate": "CLOSED"
+  },
+  "minimal_complete_run_proposal": {
+    "status": "REQUIRES_NEW_CONTROLLER_COST_CONTRACT; NOT_LAUNCHED",
+    "same_exact_model_executable_possible": true,
+    "new_math_translation_or_build_required": false,
+    "request": "original kind7/local0 once-BEGIN, no STOP, no intermediate fixture injection; same real120 W peer and original checkpoints/tail",
+    "original_checker_terminal_requirements": "30 original endpoints;120matrix/60LN/61vector/28GEGLU;544 original output groups and true tail commit; held successDONE consumed; true global/transport/weight idle; normal exit",
+    "capture": "reuse global-layer main actual0..29 independent artifacts; cannot replace original TB",
+    "suggested_hard_cap_seconds": 13000,
+    "suggested_independent_RTL_budget_with600_reserve_seconds": 13600,
+    "consecutive_real_phase_cap_seconds": 120,
+    "unchanged_resource_policy": "CPU0-3/nice19/idle IO;1thread;8GiB/40Mcycle;single heavy lock;MemAvailable>192GiB",
+    "real_cycles_order": "about13million from component cycle identities; fullgraph unmeasured",
+    "if3600_limit_must_remain": "requires measured about2.83x central or3.57x planning-bound acceleration; current no-op/PC evidence supplies no such gain"
+  }
+}

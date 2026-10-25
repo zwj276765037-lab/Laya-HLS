@@ -1,0 +1,18 @@
+--- AT020/frozen/m007_matrix_matrix_tb.sv
++++ AT027/frozen/m007_matrix_matrix_tb.sv
+@@ -238,11 +238,13 @@
+   end
+  endtask
+  task automatic launch(input integer expected_status,check_data);
+-  logic [159:0] held;
++  logic [159:0] held;integer completion_limit;
+   begin
+    issues=0;dot_checks=0;format_checks=0;term_checks=0;commit_checks=0;outputs=0;last_issue=-1;first_out=-1;last_out=-1;out_stalled=0;checking=check_data||expected_status>=2;error_run=expected_status>=2;
++   // Functional watchdog for the fixed external-pause pattern. Normal performance assertions below remain K+384.
++   completion_limit=stress?(2*cmd_k+1024):(cmd_k+1024);
+    @(negedge clk);cmd_valid=1;do @(posedge clk);while(!cmd_ready);@(negedge clk);cmd_valid=0;
+-   for(integer timeout=0;!done_valid;timeout++)begin @(negedge clk);if(timeout>cmd_k+1024)$fatal(1,"matrix real-debt completion timeout status=%0d expected=%0d issues=%0d commits=%0d A_debt=%0d arithmetic=%0d",status,expected_status,issues,commit_checks,a_read_debt,arithmetic_debt);end
++   for(integer timeout=0;!done_valid;timeout++)begin @(negedge clk);if(timeout>completion_limit)$fatal(1,"matrix real-debt completion timeout status=%0d expected=%0d issues=%0d commits=%0d outputs=%0d A_debt=%0d arithmetic=%0d first_issue=%0d last_issue=%0d output_holds=%0d",status,expected_status,issues,commit_checks,outputs,a_read_debt,arithmetic_debt,first_issue_cycle,last_issue_cycle,output_holds);end
+    @(negedge clk);
+    if(status!=expected_status||done_request!=cmd_request||done_generation!=cmd_generation)$fatal(1,"matrix done identity/status got=%0d gold=%0d",status,expected_status);
+    if(check_data)begin

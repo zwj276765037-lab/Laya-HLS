@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m006-sm007-at006-scoped-exp-review-20261017",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# SM007：独立审核\n\n所属大 mission：M006；任务：完整板端Attention与共享计算首段实现。\n\n## 主控结论与适用边界\n\n2026-10-17；D-M006-SM007-AT006-01。M006/SM007继续running/unassessed；接纳AT001–006的下述局部证据，不构成首段或完整Attention验收。依据[工程阶段报告](../../project/E007_m006_full_fpga_attention/experiment_results/runs/R001/reports/SM007_AT001_AT006_strict_exp_milestone_20261017.md)、[原逐笔账](../../project/E007_m006_full_fpga_attention/experiment_results/runs/R001/guard_ledger_AT001_AT006_20261017.json)及[主控身份/账目核验](SM007_AT001_AT006_evidence_check_20261017.json)。\n\n| 证据 | 本次接纳范围 | 保留缺口 |\n| --- | --- | --- |\n| AT001→AT003 HLS | 单lane原II2–210，加入流水但保留资源限制为II6，撤限制后II1/167cycle；AT001与AT003只差两条allocation删除及一条pipeline增加 | HLS调度和面积/时钟估计，不是实际联合资源或时序 |\n| AT005 CPU | 冻结独立fixture的16396个expf及200000次F64基本运算逐位比较通过 | 不签全输入域或RTL全部样本 |\n| AT006 RTL | 同AT003生成RTL，12个directed输入连续12拍接受，按序返回12个独立期望值，首返回观察167cycle | 首返回前已发送全部输入，未覆盖输入/输出持续重叠；未单独断言每笔输出间隔、尾后多余返回、在途reset/反压；不签完整S128或8lane |\n| AT004 OOC pilot | 120.23573616700014s，child−9/timeout，峰owned RSS5361360KiB，COST_STOP；保留原失败 | 未产出DCP/实际资源/时序。原脚本仅综合，无place/route，即便完成也不签布线300MHz/Fmax |\n\n本次exp生产源SHA为`54ff1196824eebbb638dc0f45b97f4113ec4e6d7a7e55ec18e6662a3717939f1`。主控核六份manifest共65项文件、7笔原guard、57条已观测政策零失配；AT003→AT004/AT006生成RTL逐字一致，AT005 directed二进制与AT006 mem词值一致。核验脚本0.008674s/峰16528KiB另列，不混入工程账；交互读取及完整host累计UNKNOWN。\n\n截至AT006的原预算快照（后续运行另计，不视为实时余额）：\n\n| 类别 | 已用秒 | 剩余秒 |\n| --- | ---: | ---: |\n| 模块参考 | 1.2089934079995146 | 898.7910065920004854 |\n| static | 10.30310974799795 | 1789.69689025200205 |\n| RTL | 5.411835432001681 | 3594.588164567998319 |\n| 模块HLS＋OOC | 177.792485506000955 | 3422.207514493999045 |\n\nAT003的96DSP/88455FF/74634LUT只作单lane HLS风险证据。EXP/TANH属于原合同同一8lane SFU配置；若物理上保留两套算术，必须相加，不能按阶段互斥消除面积。SFU、8路直接divider及Q/G/向量额外实体合计896DSP和全核LUT/FF帽保持，不能用8倍HLS估计代签联合面积。HLS的2.425ns估计与0.90ns uncertainty不构成300MHz物理通过。\n\n## 用户决定与后续行动\n\n本次沿D-M006-HARDWARE-START-01和SM007原预算继续，无新增用户审批、架构降标或旧预算转入。复用既有架构审阅者集中评判实际HLS结果；原启动配置为Astra/xhigh，本次工具未独立回显model/effort，不据此冒填实时配置。\n\n1. **先取得实际算术单元综合证据。** AT003的bits层实际含6套F64 mul及6套F64 add；每次结果仍依原独立RNE操作顺序生成。先串行完成同版生成F64 mul和F64 add两个模块综合诊断，各单次≤120s且不超过原模块综合余额，保留全部生产数据/控制端口、原300MHz约束及完整依赖。产出零blackbox检查、DCP、实际层次资源和综合后时序。不得常量绑住数据/删特殊值分支来压低面积。普通脚本修复继续原合同；再次成本/资源触发且无新依据时停止该无效路线，不原样加时。\n2. **有子模块结果才评估底向上组合。** 两者成功且checkpoint可合法复用时，可做一次≤120s的完整同版leaf底向上联结，保留真实6＋6实例、控制和全部端口，最终零blackbox，并与同版RTL关联。子模块相加只是规划估计，完整leaf/8lane/联合时序仍须实际报告。AT004只在31s完成RTL优化后进入跨边界面积优化，现有证据不足以支持原样延长整leaf。\n3. **功能覆盖随实现扩大。** 先沿原独立fixture增加约512个连续输入，使输入/输出跨167拍真实重叠，核逐笔延迟/输出间隔、输入空拍、尾后排空及非法输入状态；经受保护成本pilot后再覆盖完整16396样本。在途reset与生产服务的有限反压、phase/lease/token隔离在实际接口验证。CPU样本通过不能代替这些RTL覆盖，不增造输出ready或force内部状态来伪造覆盖。\n4. **共享主通路独立继续。** 在同一生产根实现256mul/add、bank映射和phase lease，随后完整单head QK/AV及共享softmax/RoPE。QK使用真实Q/K，独立AV可用冻结参考probability核S128/D64原顺序与生产读写，并分别核4352/4608拍帽；不据此签完整softmax链。上述SFU诊断不成为全部实现的等待门；全项目重工具仍串行。先取得严格TANH和直接divider单路证据，再评估完整8lane实际总面积；EXP的167拍不能代签TANH≤160拍。性能及896DSP等帽保持。\n5. **更新真实工作状态。** A002的console仍描述准备AT001，应更新为实际阶段；核实当前thread/runtime及可得模型配置，无法核实的字段继续UNKNOWN。三摘要/模块design/results集中同步，不创建逐次源码放行包。\n\n当前完整单head/16head、共享256lane及8lane联合实现/周期、联合资源和布线时序、全模型及A6000比较均未由本次接纳。M004/A003继续暂停。\n",
+  "in_reply_to": "m006-sm007-at006-strict-exp-first-hardware-milestone-20261017",
+  "message_file": "results/reviews/SM007.md",
+  "associations": {
+    "mission": "M006",
+    "small_mission": "SM007",
+    "experiment": "E007",
+    "run": "R001"
+  },
+  "payload_sha256": "a5cf66d0cfee2e8e830cc5a1ca7c54951599feeb1a04c3ed8df368199d81ce4d",
+  "created_at": "2026-10-17T14:57:07.148467+00:00",
+  "status": "delivered",
+  "client_user_message_id": "5b67be65-99eb-4a57-abc6-d23cea5a8347",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-17T14:57:07.198974+00:00",
+  "recipient_turn_id": "01a14a4b-51b6-7040-88f9-fe102e47ef0a"
+}

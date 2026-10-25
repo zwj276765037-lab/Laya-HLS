@@ -1,0 +1,246 @@
+ laya_m007_single_parent_v2 dut(.*);
+ m007_public_f32_capture_tb_v2 observed_output(.clk,.rst_n,.command_fire(cmd_valid&&cmd_ready),.request_id(cmd_request),.generation(cmd_generation),.source_epoch(cmd_epoch),.layer_index(cmd_layer),.kind(cmd_kind),.input_fire(in_valid&&in_ready),.input_row(in_row),.input_group(in_group),.input_data(in_data),.output_fire(out_valid&&out_ready),.row(out_row),.col(out_col),.data(out_data),.receipt_fire(done_valid&&done_ready),.receipt_status(done_status),.receipt_source_status(source_status),.receipt_domain(error_domain),.receipt_tuple(error_tuple),.all_resources_retired(dut.v2_shared_resources_idle&&dut.v2_resident_bank_idle&&dut.v2_scratch_retired&&dut.m_cmd_ready&&dut.q_cmd_ready&&dut.ws_a_enable&&!dut.ws_rearm));
+ always #1 clk=~clk;
+ logic [1023:0] original_qkv_input[0:4095],initial_h[0:4095],final_h[0:4095],residual_a[0:4095],norm_ff[0:4095];
+ logic [1023:0] qkv_gold[0:12287],wo_gold[0:4095],wi_gold[0:20991],down_gold[0:4095];
+ logic [271:0] initial_a[0:4095],context_a[0:4095],norm_a[0:4095],g_a[0:10495];
+ logic [1023:0] wo_inputs[0:4095];
+ logic [8191:0] qkv_prebias[0:1535],wo_prebias[0:511];
+ logic [511:0] qkv_mem[0:3][0:13823],wo_mem[0:3][0:4607],wi_mem[0:3][0:23615],down_mem[0:3][0:11807];
+ logic [383:0] vectors[0:335871];
+ logic [255:0] node_expected[0:8][0:41983],tanh_expected[0:41983],g_expected[0:41983];
+ logic [31:0] cf[0:8191],sf[0:8191],maskmem[0:127],qkvgold[0:393215];
+ logic [31:0] postgold[0:393215],scoregold[0:262143],maxgold[0:2047],probgold[0:262143],contextgold[0:131071];
+ logic [15:0] max_checked=0;
+ logic [3:0][3:0][63:0] fixture_base,fixture_span;
+ logic [7:0] live[0:3];logic [63:0] baddr[0:3][0:7],bbase[0:3][0:7];integer bphase[0:3][0:7];
+ integer bsize[0:3][0:7],bpos[0:3][0:7],eligible[0:3][0:7],rotate[0:3];logic [3:0] last_r_fire;
+ integer cycle=0,command_cycle=-1,old_state=-1,kind_run=4,packed_check=1,stop_qkv_blocks=0,stop_after_head=0,stop_ffn_blocks=0;
+ integer commands=0,mcommands=0,qcommands=0,matrix_phase=0,qphase=0,descriptors=0,input_count=0,export_count=0,parent_retired=0;
+ integer checked_words=0,last_checked=0,m_outputs[0:3],m_done_count[0:3],quant_returns[0:3],awrites[0:3],aacks[0:3],publications[0:3];
+ integer m_start_cycle[0:3],m_first_out[0:3],m_done_cycle[0:3],q_start_cycle[0:3];
+ integer issues[0:3][0:81],commits[0:3][0:81],outputs[0:3][0:81],first_issue[0:3][0:81],last_issue[0:3][0:81];
+ integer issue_time[0:63],issue_seq[0:63],ps_time[0:63],max_issue_ack=0,max_ps_feedback=0;logic [63:0] issue_owned,ps_owned;
+ logic [4351:0] expected_w,expected_a;logic [511:0] temp;logic [242:0] expected_done;
+ integer gcommands=0,g_cmd_cycle=-1,g_outputs=0,node_checks=0,g_writes=0,g_acks=0,g_reads=0,g_releases=0,g_done=0,g_tail_start=-1;
+ integer g_ready_cycle[0:81],g_eligible_cycle[0:81],g_first_read[0:81],g_last_read[0:81],g_first_consume[0:81],g_last_consume[0:81],g_read_count[0:81],g_output_count[0:81],g_release_cycle[0:81];
+ integer qkv_count=0,nrope=0,nscore=0,nprob=0,ncontext=0,nprob_ack=0,nheads=0,head_start_cycle=-1,layer_starts=0,layer_done_count=0;
+ integer head_score[0:15],head_prob[0:15],head_context[0:15],head_prob_ack[0:15],head_maximum[0:15];
+ integer ctx_reads=0,ctx_responses=0,ctx_inputs=0,ctx_pending=0;logic ctx_owned=0;
+ integer h_commits=0,wo_q_commits=0,down_q_commits=0,ln_q_commits=0,vector_h_commits[0:1],vector_done_count=0,ln_done_count=0;
+ integer last_h_commit=-1,last_export=-1,first_done=-1,mid_held=0,last_held=0,mid_hold_left=0,last_hold_left=0;logic mid_started=0,last_started=0,holding=0;logic [1046:0] held_out;
+ string original_fixture,matrix_fixture,input_fixture,attention_fixture,context_fixture,ffn_fixture,wi_weights,down_weights,g_fixture,residual_fixture;
+ task automatic step;begin @(posedge clk);#0.1;end endtask
+ task automatic checked(input int n,input string phase);
+  checked_words+=n;
+  if(checked_words-last_checked>=4096)begin $display("M007_PARENT_CHECKED checked=%0d phase=%s cycle=%0d",checked_words,phase,cycle);$fflush();last_checked=checked_words;end
+ endtask
+ function automatic logic [31:0] op_epoch(input int code);return cmd_epoch+(kind_run==4?code:0);endfunction
+ function automatic int blocks_at(input int ph);case(ph)0:return 48;1:return 16;2:return 82;default:return 16;endcase endfunction
+ function automatic int k_at(input int ph);return ph==3?2624:1024;endfunction
+ function automatic int n_at(input int ph);case(ph)0:return 3072;1:return 1024;2:return 5248;default:return 1024;endcase endfunction
+ function automatic int tensor_at(input int ph);case(ph)0:return 4;1:return 32;2:return 60;default:return 88;endcase endfunction
+ function automatic logic [511:0] word_at(input int ph,p,idx);case(ph)0:return qkv_mem[p][idx];1:return wo_mem[p][idx];2:return wi_mem[p][idx];default:return down_mem[p][idx];endcase endfunction
+ function automatic logic [271:0] a_at(input int ph,row,group_index);case(ph)0:return initial_a[row*32+group_index];1:return context_a[row*32+group_index];2:return norm_a[row*32+group_index];default:return g_a[row*82+group_index];endcase endfunction
+ function automatic logic [1023:0] m_at(input int ph,idx);case(ph)0:return qkv_gold[idx];1:return wo_gold[idx];2:return wi_gold[idx];default:return down_gold[idx];endcase endfunction
+ task automatic descriptor(input int ph);
+  begin
+   @(negedge clk);desc_valid=1;desc_request=cmd_request;desc_generation=cmd_generation;desc_source_epoch=cmd_epoch;desc_global_layer=0;desc_pair_kind=1;desc_slot=ph-2;desc_tensor=tensor_at(ph);desc_base=fixture_base[ph];desc_span=fixture_span[ph];
+   do @(posedge clk);while(!desc_ready);@(negedge clk);desc_valid=0;
+  end
+ endtask
+ always_comb arready=15;
+ always @(negedge clk)begin
+  if(!rst_n)begin rvalid=0;rid=0;rdata=0;rresp=0;rlast=0;end
+  else for(int p=0;p<4;p++)if(!rvalid[p]||last_r_fire[p])begin
+   int pick;pick=-1;for(int q=7;q>=0;q--)if(live[p][(rotate[p]+q)%8]&&cycle>=eligible[p][(rotate[p]+q)%8])pick=(rotate[p]+q)%8;
+   rvalid[p]=0;
+   if(pick>=0&&cycle%2==0)begin rvalid[p]=1;rid[p]=pick;rdata[p]=word_at(bphase[p][pick],p,((baddr[p][pick]-bbase[p][pick])>>6)+bpos[p][pick]);rlast[p]=bpos[p][pick]+1==bsize[p][pick];rresp[p]=0;end
+  end
+  if(rst_n)begin
+   out_ready=1;
+   if(out_valid&&export_count==100&&!mid_started)begin mid_started=1;mid_hold_left=8;end
+   if(out_valid&&export_count==4095&&!last_started)begin last_started=1;last_hold_left=17;end
+   if(mid_hold_left>0)begin out_ready=0;mid_hold_left--;mid_held++;end
+   if(last_hold_left>0)begin out_ready=0;last_hold_left--;last_held++;end
+  end
+ end
+ always @(posedge clk)begin
+  cycle++;last_r_fire<=rvalid&rready;
+  if(!rst_n)begin issue_owned=0;ps_owned=0;for(int p=0;p<4;p++)begin live[p]<=0;rotate[p]<=0;end end
+  else begin
+   if(parent_state!=old_state)begin $display("M007_ENCODER0_STATE state=%0d op_epoch=%0d cycle=%0d H=%0d QWO=%0d QLN=%0d QDown=%0d export=%0d",parent_state,dut.operation_epoch,cycle,h_commits,wo_q_commits,ln_q_commits,down_q_commits,export_count);$fflush();old_state=parent_state;end
+   if(cmd_valid&&cmd_ready)begin commands++;command_cycle=cycle;expected_done={8'd0,8'd0,3'd0,96'd0,cmd_request,cmd_generation,cmd_epoch};if(commands!=1)$fatal(1,"one public parent BEGIN");$display("M007_ENCODER0_BEGIN kind=%0d cycle=%0d",cmd_kind,cycle);$fflush();end
+   if(in_valid&&in_ready)input_count++;
+   if(dut.v2_h_wr_commit)begin
+    if(kind_run!=4||parent_state!=32||dut.v2_h_wr_addr!=h_commits||dut.v2_h_wr_data!==initial_h[h_commits]||dut.operation_epoch!=op_epoch(0))$fatal(1,"initial actual H commit/source");h_commits++;checked(32,"H_LOAD");
+    if(h_commits==4096)begin $display("M007_ENCODER0_H_LOAD_END cycle=%0d vectors=4096",cycle);$fflush();end
+   end
+   if(desc_valid&&desc_ready)begin
+    if(kind_run!=4||desc_slot!=descriptors||m_done_count[1]!=1||!dut.m_cmd_ready||!dut.q_cmd_ready||!dut.v2_shared_resources_idle||!dut.l_layer_idle||dut.v2_scratch_owner_active)$fatal(1,"refill before exact old matrix/context/lease retirement");descriptors++;$display("M007_ENCODER0_DESCRIPTOR slot=%0d tensor=%0d cycle=%0d",desc_slot,desc_tensor,cycle);$fflush();
+   end
+   if(dut.q_cmd_valid&&dut.q_cmd_ready)begin
+    qphase=(kind_run==4?0:2)+qcommands;qcommands++;q_start_cycle[qphase]=cycle;
+    if(qphase>3||dut.q_cmd_request!=cmd_request||dut.q_cmd_generation!=cmd_generation||dut.q_cmd_epoch!=op_epoch(qphase<2?1:4)||dut.q_cmd_slot!=(qphase==3)||dut.q_cmd_k!=(qphase==3?2624:1024))$fatal(1,"real quant command phase/identity/shape");
+    $display("M007_ENCODER0_QUANT_BEGIN phase=%0d cycle=%0d",qphase,cycle);$fflush();
+   end
+   if(dut.q_awr_valid&&dut.q_awr_ready)begin if(dut.q_awr_data!==a_at(qphase,dut.q_awr_row,dut.q_awr_group))$fatal(1,"independent real quant/A bits phase%0d row%0d group%0d",qphase,dut.q_awr_row,dut.q_awr_group);awrites[qphase]++;checked(32,"QUANT_A");end
+   if(dut.q_awr_rsp_valid&&dut.q_awr_rsp_ready)aacks[qphase]++;
+   if(dut.front.q_out_valid&&dut.front.q_out_ready)quant_returns[qphase]++;
+   if(dut.q_acfg_rsp_valid&&dut.q_acfg_rsp_ready)begin if(dut.q_acfg_status!=0||awrites[qphase]!=(qphase==3?10496:4096)||aacks[qphase]!=(qphase==3?10496:4096)||quant_returns[qphase]!=(qphase==3?10496:4096))$fatal(1,"complete real publication/writeACK/coverage");publications[qphase]++;$display("M007_ENCODER0_A_PUBLISH phase=%0d cycle=%0d",qphase,cycle);$fflush();end
+   if(dut.m_cmd_valid&&dut.m_cmd_ready)begin
+    matrix_phase=(kind_run==4?0:2)+mcommands;mcommands++;m_start_cycle[matrix_phase]=cycle;
+    if(matrix_phase>3||dut.m_cmd_tensor!=tensor_at(matrix_phase)||dut.m_cmd_k!=k_at(matrix_phase)||dut.m_cmd_n!=n_at(matrix_phase)||dut.m_cmd_a_slot!=(matrix_phase==3)||dut.m_cmd_bias||dut.m_cmd_request!=cmd_request||dut.m_cmd_generation!=cmd_generation||dut.m_cmd_epoch!=op_epoch(matrix_phase<2?1:4)||dut.m_cmd_base!==fixture_base[matrix_phase]||dut.m_cmd_span!==fixture_span[matrix_phase])$fatal(1,"exact actual four-matrix descriptor/identity");
+    if(input_count!=4096||publications[matrix_phase]!=1||dut.front.q_lease_active||dut.q_d_lease_active||dut.front.q_reservations!=0||dut.front.a_write_debt!=0||!dut.front.a_published||!dut.front.producer_closed||!dut.front.producer_success)$fatal(1,"matrix before actual quant/A publication and debt retirement");
+    if(matrix_phase==1&&(layer_done_count!=1||nheads!=16||ctx_reads!=4096||ctx_responses!=4096||ctx_inputs!=4096||ctx_owned||!dut.c_idle||!dut.c_complete||!dut.l_layer_idle||!dut.v2_scratch_owner_active))$fatal(1,"WO before real context/layer retirement and scratch acquire");
+    if(matrix_phase==2&&kind_run==4&&(descriptors!=2||vector_done_count!=1||ln_done_count!=1||ln_q_commits!=4096))$fatal(1,"Wi before actual residual/plainLN/descriptor success");
+    if(matrix_phase==3&&(m_done_count[2]!=1||g_done!=1||g_outputs!=41984||dut.pack_seq!=41984||dut.pack_full||!dut.g_engine_idle||dut.tanh_lease_active||!dut.r_res_st_idle||dut.r_res_fp_lease_active||dut.r_res_div_lease_active))$fatal(1,"Down before actual complete Wi/G/quant barrier");
+    $display("M007_ENCODER0_MATRIX_BEGIN phase=%0d tensor=%0d K=%0d N=%0d cycle=%0d",matrix_phase,dut.m_cmd_tensor,dut.m_cmd_k,dut.m_cmd_n,cycle);$fflush();
+   end
+   for(int p=0;p<4;p++)begin
+    if(arvalid[p]&&arready[p])begin
+     int ph;ph=-1;for(int h=0;h<4;h++)if(araddr[p]>=fixture_base[h][p]&&araddr[p]+64*(arlen[p]+1)<=fixture_base[h][p]+fixture_span[h][p])begin if(ph>=0)$fatal(1,"ambiguous original W source");ph=h;end
+     if(ph<0||ph!=matrix_phase||live[p][arid[p]]||arlen[p]>15||araddr[p][5:0]!=0||{1'b0,araddr[p][11:0]}+64*(arlen[p]+1)>4096)$fatal(1,"actual four-source AXI ID/page/span");
+     bphase[p][arid[p]]<=ph;bbase[p][arid[p]]<=fixture_base[ph][p];live[p][arid[p]]<=1;baddr[p][arid[p]]<=araddr[p];bsize[p][arid[p]]<=arlen[p]+1;bpos[p][arid[p]]<=0;eligible[p][arid[p]]<=cycle+40+2*(7-arid[p]);
+    end
+    if(rvalid[p]&&rready[p])begin if(bpos[p][rid[p]]+1==bsize[p][rid[p]])live[p][rid[p]]<=0;else bpos[p][rid[p]]<=bpos[p][rid[p]]+1;rotate[p]<=(rid[p]+1)%8;end
+   end
+   if(dut.matrix.core.trace_issue)begin
+    int ss,seq,idx,groups;ss=dut.matrix.core.trace_block_s;seq=dut.matrix.core.trace_issue_seq;groups=k_at(matrix_phase)/32;
+    if(ss>=blocks_at(matrix_phase)||seq!=issues[matrix_phase][ss])$fatal(1,"real four-matrix issue order");
+    if(last_issue[matrix_phase][ss]>=0&&cycle-last_issue[matrix_phase][ss]!=1)$fatal(1,"continuous K issue");
+    if(first_issue[matrix_phase][ss]<0)first_issue[matrix_phase][ss]=cycle;last_issue[matrix_phase][ss]=cycle;issues[matrix_phase][ss]++;
+    issue_time[seq%64]=cycle;issue_seq[seq%64]=seq;issue_owned[seq%64]=1;ps_owned[seq%64]=0;
+    if(seq%8==0)begin idx=9*(ss*groups+seq/32);for(int a=0;a<8;a++)expected_w[512*a+:512]=word_at(matrix_phase,(seq%32)/8,idx+a);temp=word_at(matrix_phase,(seq%32)/8,idx+8);expected_w[4096+:256]=temp[255:0];if({dut.matrix.core.trace_w_scale,dut.matrix.core.trace_w_q}!==expected_w)$fatal(1,"real W bytes/group mapping");end
+    if(ss==0&&seq%32<8)begin for(int a=0;a<16;a++)begin logic[271:0]av;av=a_at(matrix_phase,16*(seq%8)+a,seq/32);expected_a[256*a+:256]=av[255:0];expected_a[4096+16*a+:16]=av[271:256];end if({dut.matrix.core.trace_a_scale,dut.matrix.core.trace_a_q}!==expected_a)$fatal(1,"actual A mapping");end
+   end
+   if(dut.matrix.core.math_read_fire)begin ps_time[dut.matrix.core.ps_next[5:0]]=cycle;ps_owned[dut.matrix.core.ps_next[5:0]]=1;end
+   if(dut.matrix.core.state==2&&dut.matrix.core.normal_write_ack)begin int ix;ix=dut.matrix.core.ps_wr_rsp_tag[5:0];if(ps_owned[ix])begin if(cycle-ps_time[ix]>24)$fatal(1,"actual PS feedback24");if(cycle-ps_time[ix]>max_ps_feedback)max_ps_feedback=cycle-ps_time[ix];end end
+   if(dut.matrix.core.trace_commit)begin
+    int ss,seq,k;ss=dut.matrix.core.trace_block_s;seq=dut.matrix.core.trace_commit_seq;k=k_at(matrix_phase);
+    if(seq!=commits[matrix_phase][ss]||!issue_owned[seq%64]||issue_seq[seq%64]!=seq)$fatal(1,"real issue/commit ownership");
+    if(cycle-issue_time[seq%64]>max_issue_ack)max_issue_ack=cycle-issue_time[seq%64];if(cycle-issue_time[seq%64]>(matrix_phase<2?64:48))$fatal(1,"original per-island issueACK cap");commits[matrix_phase][ss]++;
+    if(seq>=k-32)begin
+     if(matrix_phase<2)begin if(dut.matrix.core.trace_commit_data!==(matrix_phase==0?qkv_prebias[32*ss+seq-992]:wo_prebias[32*ss+seq-992]))$fatal(1,"original QKV/WO prebias bits");end
+     else for(int m=0;m<16;m++)for(int n=0;n<16;n++)begin logic[1023:0]ev;int rr,pp;rr=16*(seq%8)+m;pp=(seq%32)/8;ev=m_at(matrix_phase,ss*256+2*rr+pp/2);if(dut.matrix.core.trace_commit_data[16*m+n]!==ev[32*(16*(pp%2)+n)+:32])$fatal(1,"original FFN final prebias bits");end
+    end
+   end
+   if(dut.m_out_valid&&dut.m_out_ready)begin
+    int count,column;logic [1023:0] ev;count=m_outputs[matrix_phase];ev=m_at(matrix_phase,count);column=matrix_phase==2?32*(count/256)+2624*(count%2):64*(count/256)+32*(count%2);
+    if(dut.m_out_data!==ev||dut.m_out_s!=count/256||dut.m_out_row!=(count%256)/2||dut.m_out_col!=column||dut.m_out_request!=cmd_request||dut.m_out_generation!=cmd_generation||dut.m_out_epoch!=op_epoch(matrix_phase<2?1:4))$fatal(1,"original full matrix bits/coords/identity phase%0d count%0d",matrix_phase,count);
+    if(m_first_out[matrix_phase]<0)m_first_out[matrix_phase]=cycle;outputs[matrix_phase][count/256]++;m_outputs[matrix_phase]++;checked(32,"MATRIX");
+    if(matrix_phase==2&&count==20991)begin g_tail_start=cycle;if(cycle-q_start_cycle[2]>92160)$fatal(1,"original quant acceptance through Wi last cap92160");end
+    if(matrix_phase==0&&count==12287&&cycle-q_start_cycle[0]>57344)$fatal(1,"original QKV quant acceptance through last cap57344");
+    if(count%256==255)begin $display("M007_ENCODER0_MATRIX_BLOCK phase=%0d block=%0d values=%0d cycle=%0d",matrix_phase,count/256,(count+1)*32,cycle);$fflush();end
+    if(matrix_phase==0)begin qkv_count++;for(int c=0;c<32;c++)if(dut.m_out_data[c]!==qkvgold[((count%256)/2)*3072+column+c])$fatal(1,"independent original Attention preQKV source");end
+    if(matrix_phase==0&&stop_qkv_blocks>0&&m_outputs[0]==stop_qkv_blocks*256)begin if(done_valid||mcommands!=1||layer_starts!=0||qkv_count!=stop_qkv_blocks*256)$fatal(1,"actual unfinished QKV prefix");observed_output.finish_capture(0);$display("M007_ENCODER0_QKV_PREFIX_PASS blocks=%0d values=%0d cycles=%0d unfinished=1",stop_qkv_blocks,qkv_count*32,cycle-command_cycle);$display("HARDWARE_AGENT_SIM_PASS M007_ENCODER0_QKV_PREFIX");$fflush();$finish;end
+   end
+   if(dut.v2_q_wr_commit)begin if(!dut.v2_scratch_owner_active||dut.v2_q_wr_addr!={dut.m_out_row,dut.m_out_col[9:5]}||dut.v2_q_wr_data!==dut.m_out_data)$fatal(1,"actual projection Q commit");if(matrix_phase==1)wo_q_commits++;else if(matrix_phase==3)down_q_commits++;else $fatal(1,"wrong projection Q producer");end
+   if(dut.m_done_valid&&dut.m_done_ready)begin
+    if(dut.m_status!=0||dut.m_done_request!=cmd_request||dut.m_done_generation!=cmd_generation||dut.m_done_epoch!=op_epoch(matrix_phase<2?1:4))$fatal(1,"actual real matrix terminal identity/status");m_done_count[matrix_phase]++;m_done_cycle[matrix_phase]=cycle;
+    for(int ss=0;ss<blocks_at(matrix_phase);ss++)if(issues[matrix_phase][ss]!=k_at(matrix_phase)||commits[matrix_phase][ss]!=k_at(matrix_phase)||outputs[matrix_phase][ss]!=256)$fatal(1,"full actual matrix issue/ACK/output shape");
+    if(matrix_phase==1&&kind_run==4&&wo_q_commits!=4096||matrix_phase==3&&kind_run==4&&down_q_commits!=4096)$fatal(1,"matrix done without4096 actual Q commits");
+    if(matrix_phase==3&&cycle-m_start_cycle[3]>56576)$fatal(1,"Down real service cap56576");
+    $display("M007_ENCODER0_MATRIX_END phase=%0d cycle=%0d",matrix_phase,cycle);$fflush();
+   end
+   if(dut.g_cmd_valid&&dut.g_cmd_ready)begin gcommands++;g_cmd_cycle=cycle;if(gcommands!=1||!dut.ws_g_enable||!dut.r_res_fp_lease_active)$fatal(1,"real G admission/unique arena");end
+__G_CHECKER__
+   if(dut.g_done_valid&&dut.g_done_ready)begin g_done++;if(cycle-g_tail_start>1280)$fatal(1,"original FFN unhidden tail1280");if(dut.g_done_status!=0||dut.g_done_cancelled||g_outputs!=41984||g_releases!=82||g_reads!=41984||g_writes!=20992||g_acks!=20992||node_checks!=3358720)$fatal(1,"actual complete G nodes/data/service/debt terminal");end
+   if(stop_ffn_blocks>0&&g_outputs>=stop_ffn_blocks*512&&m_outputs[2]>=stop_ffn_blocks*256)begin if(done_valid||publications[3]!=0||m_done_count[2]!=0||g_done!=0||m_outputs[3]!=0)$fatal(1,"FFN prefix must remain unfinished");observed_output.finish_capture(0);$display("M007_ENCODER0_FFN_PREFIX_PASS blocks=%0d Wi_values=%0d G_values=%0d nodes=%0d packed=%0d cycles=%0d unfinished=1",stop_ffn_blocks,m_outputs[2]*32,g_outputs*8,node_checks,packed_check,cycle-command_cycle);$display("HARDWARE_AGENT_SIM_PASS M007_ENCODER0_FFN_PREFIX");$fflush();$finish;end
+   if(dut.l_start_valid&&dut.l_start_ready)begin if(qkv_count!=12288||m_done_count[0]!=1)$fatal(1,"Attention before all actual QKV outputs and receipt");layer_starts++;end
+   if(dut.c_rd_valid&&dut.c_rd_ready)begin if(ctx_owned||dut.c_rd_tag!=ctx_reads||dut.c_rd_query!=ctx_reads/32||dut.c_rd_head!=(ctx_reads%32)/2||dut.c_rd_half!=ctx_reads%2||dut.c_rd_generation!=cmd_generation)$fatal(1,"actual public context read identity/order");ctx_pending=ctx_reads;ctx_owned=1;ctx_reads++;end
+   if(dut.c_rsp_valid&&dut.c_rsp_ready)begin int q,h,half;q=ctx_pending/32;h=(ctx_pending%32)/2;half=ctx_pending%2;if(!ctx_owned||dut.c_rsp_tag!=ctx_pending)$fatal(1,"actual context response debt/tag");for(int c=0;c<32;c++)if(dut.c_rsp_data[c]!==contextgold[(h*128+q)*64+half*32+c])$fatal(1,"original actual public context bits");ctx_owned=0;ctx_responses++;checked(32,"CONTEXT_PUBLIC");end
+   if(dut.c_out_valid&&dut.c_out_ready)begin if(dut.c_out_row!=ctx_inputs/32||dut.c_out_group!=ctx_inputs%32||dut.c_out_data!==wo_inputs[ctx_inputs])$fatal(1,"original context to quant stream");ctx_inputs++;end
+   if(dut.l_done_valid&&dut.l_done_ready)begin
+    if(dut.l_done_status!=0||dut.l_done_request_id!=cmd_request||dut.l_done_generation!=cmd_generation||nheads!=16||layer_head_completed!=16'hffff||dut.l_head_context_valid!=16'hffff||dut.l_error_valid||dut.l_done_cycles>188544)$fatal(1,"original full Attention layer terminal/coverage/cycle");
+    for(int st=0;st<26;st++)if((dut.l_check_completed[st]|dut.l_check_unreachable[st]|dut.l_check_dominated[st])!==16'hffff||((dut.l_check_completed[st]&dut.l_check_unreachable[st])|(dut.l_check_completed[st]&dut.l_check_dominated[st])|(dut.l_check_unreachable[st]&dut.l_check_dominated[st]))!=0)$fatal(1,"Attention Check classification/overlap");
+    if((dut.l_av_check_completed|dut.l_av_check_unreachable|dut.l_av_check_dominated)!=={2048{1'b1}}||((dut.l_av_check_completed&dut.l_av_check_unreachable)|(dut.l_av_check_completed&dut.l_av_check_dominated)|(dut.l_av_check_unreachable&dut.l_av_check_dominated))!=0)$fatal(1,"AV Check classification/overlap");
+    layer_done_count++;$display("M007_ENCODER0_ATTENTION_END heads=%0d cycle=%0d layer_cycles=%0d",nheads,cycle,dut.l_done_cycles);$fflush();
+   end
+   if(dut.v2_vector_start_valid&&dut.v2_vector_start_ready)begin if(!dut.v2_resident_inputs_ready||!dut.v2_scratch_owner_active||dut.operation_epoch!=op_epoch(vector_done_count==0?2:5))$fatal(1,"real residual context/epoch/source qualification");$display("M007_ENCODER0_VECTOR_BEGIN phase=%0d cycle=%0d",vector_done_count,cycle);$fflush();end
+   if(dut.resident.vector_h_wr_valid&&dut.resident.vector_h_wr_ready)begin int ph,addr;ph=vector_done_count;addr=dut.resident.vector_h_wr_addr;if(!dut.resident.vector_h_wr_commit||dut.resident.vector_h_wr_data!==(ph==0?residual_a[addr]:final_h[addr]))$fatal(1,"original real residual H write bits/commit phase%0d address%0d",ph,addr);vector_h_commits[ph]++;last_h_commit=cycle;checked(32,"RESIDUAL_H");if(vector_h_commits[ph]==4096)begin $display("M007_ENCODER0_VECTOR_LAST_H phase=%0d cycle=%0d",ph,cycle);$fflush();end end
+   if(dut.v2_vector_done_valid&&dut.v2_vector_done_ready)begin if(dut.v2_vector_done_status!=0||dut.v2_vector_issued_vectors!=4096||dut.v2_vector_retired_vectors!=4096||vector_h_commits[vector_done_count]!=4096||!dut.v2_h_bank_idle||dut.r_res_fp_lease_active)$fatal(1,"actual residual full finite H/debt/release terminal");$display("M007_ENCODER0_VECTOR_END phase=%0d cycle=%0d",vector_done_count,cycle);$fflush();vector_done_count++;end
+   if(dut.v2_resident_ln_start_valid&&dut.v2_resident_ln_start_ready)begin if(vector_done_count!=1||!dut.v2_resident_ln_source_qualified||dut.operation_epoch!=op_epoch(3))$fatal(1,"LN finite witness must come from real full successful residual");$display("M007_ENCODER0_LN_BEGIN cycle=%0d",cycle);$fflush();end
+   if(dut.resident.p_q_wr_commit)begin int addr;addr=dut.resident.p_q_wr_addr;if(dut.resident.p_q_wr_data!==norm_ff[addr]||dut.operation_epoch!=op_epoch(3))$fatal(1,"original full actual plainLN Q commit bits/epoch");ln_q_commits++;checked(32,"LN_Q");if(ln_q_commits==4096)begin $display("M007_ENCODER0_LN_LAST_Q cycle=%0d",cycle);$fflush();end end
+   if(dut.v2_resident_ln_done_valid&&dut.v2_resident_ln_done_ready)begin if(dut.v2_resident_ln_done_status!=0||dut.v2_resident_ln_done_kind!=0||dut.v2_resident_ln_issued_vectors!=4096||dut.v2_resident_ln_written_vectors!=4096||ln_q_commits!=4096||dut.r_res_fp_lease_active||dut.r_res_div_lease_active)$fatal(1,"actual LN full Q/native bank/FP/DIV terminal");ln_done_count++;$display("M007_ENCODER0_LN_END cycle=%0d",cycle);$fflush();end
+   if(holding&&(!out_valid||{out_data,out_row,out_col}!==held_out))$fatal(1,"public final H/Down stable under held ready");holding=out_valid&&!out_ready;held_out={out_data,out_row,out_col};
+   if(out_valid&&out_ready)begin
+    if(kind_run==4)begin if(parent_state!=56||export_count>=4096||out_row!=export_count/32||out_col!=32*(export_count%32)||out_data!==final_h[export_count]||vector_done_count!=2||ln_done_count!=1)$fatal(1,"original final actual H export/source/order");end
+    else if(parent_state!=12||out_data!==down_gold[export_count])$fatal(1,"actual standalone Down public output");
+    export_count++;last_export=cycle;checked(32,"FINAL_PUBLIC");if(export_count==4096)begin $display("M007_ENCODER0_EXPORT_LAST cycle=%0d values=131072",cycle);$fflush();end
+   end
+   if(done_valid)begin
+    if({done_status,source_status,error_domain,error_tuple,done_request,done_generation,done_epoch}!==expected_done||mcommands!=(kind_run==4?4:2)||qcommands!=(kind_run==4?4:2)||gcommands!=1||g_done!=1||export_count!=4096||m_done_count[3]!=1||!dut.ws_a_enable||dut.ws_rearm||!dut.v2_shared_resources_idle||!dut.v2_resident_bank_idle||!dut.v2_scratch_retired)$fatal(1,"complete independent parent success/debt/identity response");
+    if(first_done<0)begin first_done=cycle;$display("M007_ENCODER0_FIRST_DONE cycle=%0d last_H=%0d last_export=%0d",cycle,last_h_commit,last_export);$fflush();end
+   end
+   if(done_valid&&done_ready)parent_retired++;
+   if(dut.r_res_fp_protocol_fault||dut.r_res_div_protocol_fault||dut.l_check_coverage_fault)$fatal(1,"actual shared protocol/coverage fault");
+   if(cycle>40000000)$fatal(1,"40Mcycle cap");
+  end
+ end
+__ATTENTION_CHECKER__
+ initial begin
+__DEFAULTS__
+  desc_valid=0;desc_request=0;desc_generation=0;desc_source_epoch=0;desc_global_layer=0;desc_pair_kind=0;desc_slot=0;desc_tensor=0;desc_base=0;desc_span=0;
+  if(!$value$plusargs("ORIGINAL=%s",original_fixture))$fatal(1,"original embedding_norm/final checker fixture required");
+  if(!$value$plusargs("MATRIX=%s",matrix_fixture))$fatal(1,"original QKV matrix fixture required");
+  if(!$value$plusargs("INPUT=%s",input_fixture))$fatal(1,"original matrix input fixture required");
+  if(!$value$plusargs("ATTENTION=%s",attention_fixture))$fatal(1,"original Attention fixture required");
+  if(!$value$plusargs("CONTEXT=%s",context_fixture))$fatal(1,"original WO fixture required");
+  if(!$value$plusargs("FFN=%s",ffn_fixture))$fatal(1,"original FFN checker fixture required");
+  if(!$value$plusargs("WI=%s",wi_weights))$fatal(1,"original Wi weights required");
+  if(!$value$plusargs("DOWN=%s",down_weights))$fatal(1,"original Down weights required");
+  if(!$value$plusargs("G=%s",g_fixture))$fatal(1,"original G node record required");
+  if(!$value$plusargs("RESIDUAL=%s",residual_fixture))$fatal(1,"original residual checker required");
+  if(!$value$plusargs("KIND=%d",kind_run))kind_run=4;
+  if(!$value$plusargs("PACKED=%d",packed_check))packed_check=1;
+  if(!$value$plusargs("STOP_QKV_BLOCKS=%d",stop_qkv_blocks))stop_qkv_blocks=0;
+  if(!$value$plusargs("STOP_AFTER_HEAD=%d",stop_after_head))stop_after_head=0;
+  if(!$value$plusargs("STOP_FFN_BLOCKS=%d",stop_ffn_blocks))stop_ffn_blocks=0;
+  if(!(kind_run==3||kind_run==4)||!(packed_check==0||packed_check==1)||!(stop_qkv_blocks==0||stop_qkv_blocks==3)||!(stop_after_head==0||stop_after_head==1||stop_after_head==2)||!(stop_ffn_blocks==0||stop_ffn_blocks==3||stop_ffn_blocks==16))$fatal(1,"bounded approved checker modes");
+  $display("M007_ENCODER0_FIXTURE_BEGIN kind=%0d packed=%0d",kind_run,packed_check);$fflush();
+  $readmemh({input_fixture,"/qkv_0_weight/input.hex"},original_qkv_input);$readmemh({original_fixture,"/embedding_norm.groups1024.hex"},initial_h);for(int idx=0;idx<4096;idx++)if(initial_h[idx]!==original_qkv_input[idx])$fatal(1,"original embedding_norm source differs from independent QKV fixture input");$readmemh({original_fixture,"/encoder_00_out.groups1024.hex"},final_h);
+  $readmemh({residual_fixture,"/GOLD.hex"},residual_a);
+  $readmemh({matrix_fixture,"/qkv_0_weight/output.hex"},qkv_gold);$readmemh({matrix_fixture,"/qkv_0_weight/pre_bias.hex"},qkv_prebias);$readmemh({matrix_fixture,"/qkv_0_weight/a_write.hex"},initial_a);
+  $readmemh({context_fixture,"/wo_0_weight/output.hex"},wo_gold);$readmemh({context_fixture,"/wo_0_weight/input.hex"},wo_inputs);$readmemh({context_fixture,"/wo_0_weight/a_write.hex"},context_a);$readmemh({context_fixture,"/wo_0_weight/pre_bias.hex"},wo_prebias);
+  $readmemh({ffn_fixture,"/norm_ff_quant/source_f32_groups.hex"},norm_ff);$readmemh({ffn_fixture,"/norm_ff_quant/a_write_row_major.hex"},norm_a);$readmemh({ffn_fixture,"/g_quant/a_write_row_major.hex"},g_a);$readmemh({ffn_fixture,"/wi_native_output.hex"},wi_gold);$readmemh({ffn_fixture,"/down/output.hex"},down_gold);$readmemh(g_fixture,vectors);
+__WEIGHTS__
+  $readmemh({attention_fixture,"/cos_full.mem"},cf);$readmemh({attention_fixture,"/sin_full.mem"},sf);$readmemh({attention_fixture,"/mask.mem"},maskmem);$readmemh({attention_fixture,"/encoder0_pre_qkv.mem"},qkvgold);$readmemh({attention_fixture,"/encoder0_post_qkv.mem"},postgold);$readmemh({attention_fixture,"/encoder0_score.mem"},scoregold);$readmemh({attention_fixture,"/encoder0_maximum.mem"},maxgold);$readmemh({attention_fixture,"/encoder0_prob.mem"},probgold);$readmemh({attention_fixture,"/encoder0_context.mem"},contextgold);
+  $display("M007_ENCODER0_FIXTURE_END");$fflush();
+  if(packed_check)begin
+   $display("M007_ENCODER0_PREPACK_BEGIN bytes=14778368");$fflush();
+   for(int vi=0;vi<41984;vi++)for(int lane=0;lane<8;lane++)begin
+    int si;si=((vi%512)/4)*2624+(vi/512)*32+(vi%4)*8+lane;
+    for(int node=0;node<9;node++)begin int gw;gw=node==0?2:node==1?3:node==2?4:node==3?5:node==4?6:node==5?8:node==6?9:node==7?10:11;node_expected[node][vi][32*lane+:32]=vectors[si][383-gw*32-:32];end
+    tanh_expected[vi][32*lane+:32]=vectors[si][159:128];g_expected[vi][32*lane+:32]=vectors[si][31:0];
+   end
+   $display("M007_ENCODER0_PREPACK_END vectors=41984 unchanged_original_records=335872");$fflush();
+  end
+  for(int ph=0;ph<4;ph++)begin m_outputs[ph]=0;m_done_count[ph]=0;quant_returns[ph]=0;awrites[ph]=0;aacks[ph]=0;publications[ph]=0;m_start_cycle[ph]=-1;m_first_out[ph]=-1;m_done_cycle[ph]=-1;q_start_cycle[ph]=-1;for(int ss=0;ss<82;ss++)begin issues[ph][ss]=0;commits[ph][ss]=0;outputs[ph][ss]=0;first_issue[ph][ss]=-1;last_issue[ph][ss]=-1;end end
+  for(int ss=0;ss<82;ss++)begin g_ready_cycle[ss]=-1;g_eligible_cycle[ss]=-1;g_first_read[ss]=-1;g_last_read[ss]=-1;g_first_consume[ss]=-1;g_last_consume[ss]=-1;g_read_count[ss]=0;g_output_count[ss]=0;g_release_cycle[ss]=-1;end
+  for(int h=0;h<16;h++)begin head_score[h]=0;head_prob[h]=0;head_context[h]=0;head_prob_ack[h]=0;head_maximum[h]=0;end
+  vector_h_commits[0]=0;vector_h_commits[1]=0;
+  for(int ph=0;ph<4;ph++)for(int p=0;p<4;p++)begin fixture_base[ph][p]=64'h100000000*(ph+1)+64'h10000000*p;case(ph)0:fixture_span[ph][p]=884736;1:fixture_span[ph][p]=294912;2:fixture_span[ph][p]=1511424;3:fixture_span[ph][p]=755712;endcase end
+  cmd_request=77;cmd_generation=8;cmd_epoch=9;cmd_kind=kind_run;cmd_layer=0;
+  cmd_model_id=128'h6eb6ef58bc4f99bd9db40381604108af;cmd_numeric_id=128'haeb13e7937d29fe6a2c68c407249f294;cmd_table_key=128'hb1fdc9ca482c0210982c7245cc50c965;cmd_graph_id=128'hf33f7848434b73048f957dcd232e1bd4;cmd_layout_id=128'h2d848b5fb78236c795cb1d442f088393;cmd_build_id=kind_run==4?128'hd92a1f8e927c3051289016db36f20d27:128'h7209eb09c3f265363cfb274f7790a733;
+  for(int row=0;row<128;row++)cmd_mask[row]=maskmem[row][0];
+  for(int slot=0;slot<2;slot++)begin int ph;ph=(kind_run==4?0:2)+slot;cmd_tensor[slot]=tensor_at(ph);cmd_base[slot]=fixture_base[ph];cmd_span[slot]=fixture_span[ph];end
+  coeff_bind_model_id=cmd_model_id;coeff_bind_numeric_id=cmd_numeric_id;coeff_bind_table_key=cmd_table_key;coeff_wr_model_id=cmd_model_id;coeff_wr_numeric_id=cmd_numeric_id;coeff_wr_table_key=cmd_table_key;
+  bias_model_id=cmd_model_id;bias_numeric_id=cmd_numeric_id;out_ready=1;
+  repeat(4)step();@(negedge clk);rst_n=1;
+  if(kind_run==4)begin
+   coeff_bind_valid=1;do @(posedge clk);while(!coeff_bind_ready);@(negedge clk);coeff_bind_valid=0;
+   for(int t=0;t<2;t++)for(int r=0;r<128;r++)for(int half=0;half<2;half++)begin coeff_wr_valid=1;coeff_wr_table=t;coeff_wr_row=r;coeff_wr_half=half;for(int c=0;c<32;c++)coeff_wr_data[c]=t?sf[r*64+half*32+c]:cf[r*64+half*32+c];#0.1;if(!coeff_wr_ready||coeff_wr_reject_valid)$fatal(1,"original coefficient public load");@(posedge clk);@(negedge clk);end coeff_wr_valid=0;
+  end
+  @(negedge clk);cmd_valid=1;do @(posedge clk);while(!cmd_ready);@(negedge clk);cmd_valid=0;
+  fork begin if(kind_run==4)begin wait(parent_state==36);descriptor(2);descriptor(3);end end join_none
+  for(int index=0;index<4096;index++)begin in_valid=1;in_data=kind_run==4?initial_h[index]:norm_ff[index];in_request=cmd_request;in_generation=cmd_generation;in_epoch=cmd_epoch;in_row=index/32;in_group=index%32;do @(posedge clk);while(!in_ready);@(negedge clk);end in_valid=0;
+  wait(done_valid);@(negedge clk);repeat(5)begin step();if(!done_valid||{done_status,source_status,error_domain,error_tuple,done_request,done_generation,done_epoch}!==expected_done)$fatal(1,"original independent held243bit success");end
+  if(mid_held<8||last_held<17||!mid_started||!last_started)$fatal(1,"real public output hold coverage");
+  if(kind_run==4&&(h_commits!=4096||wo_q_commits!=4096||down_q_commits!=4096||ln_q_commits!=4096||vector_done_count!=2||ln_done_count!=1||descriptors!=2||vector_h_commits[0]!=4096||vector_h_commits[1]!=4096||!(last_h_commit<last_export&&last_export<first_done)))$fatal(1,"complete real Encoder0 resident/epoch/retirement boundaries");
+  for(int ph=kind_run==4?0:2;ph<4;ph++)if(m_done_count[ph]!=1||m_outputs[ph]!=blocks_at(ph)*256||publications[ph]!=1)$fatal(1,"complete original shape/phase coverage");
+  @(negedge clk);done_ready=1;step();@(negedge clk);done_ready=0;repeat(3)step();if(!cmd_ready||done_valid||parent_retired!=1)$fatal(1,"actual parent exactly once retired");
+  observed_output.finish_capture(1);
+  $display("M007_ENCODER0_COMPLETE_PASS kind=%0d matrices=%0d QKV_values=%0d WO_values=%0d Wi_values=%0d G_values=%0d G_nodes=%0d Down_values=%0d final_values=%0d heads=%0d residuals=%0d LN=%0d packed=%0d cycles=%0d last_H=%0d last_export=%0d first_done=%0d",kind_run,mcommands,m_outputs[0]*32,m_outputs[1]*32,m_outputs[2]*32,g_outputs*8,node_checks,m_outputs[3]*32,export_count*32,nheads,vector_done_count,ln_q_commits,packed_check,cycle-command_cycle,last_h_commit,last_export,first_done);$display("HARDWARE_AGENT_SIM_PASS M007_ENCODER0_COMPLETE");$fflush();$finish;
+ end
+endmodule

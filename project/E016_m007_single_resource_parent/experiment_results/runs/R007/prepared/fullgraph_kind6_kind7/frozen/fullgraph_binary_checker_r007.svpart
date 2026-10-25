@@ -1,0 +1,122 @@
+ // Original layer endpoints, never connected to an activation producer.
+ logic[1023:0]initial_h[0:4095],checkpoint_gold[0:131071],tail_gold[0:543];
+ logic[735:0]metadata[0:119];logic[31:0]tensor_ids[0:119],rope_load[0:8191];
+ logic[511:0]catalog_mem[0:127];logic[31:0]bias_mem[0:18431],gamma_mem[0:1023],type_mem[0:3071],rope_mem[0:3][0:8191];
+ integer cycle=0,checked=0,last_checked=0,mode=9,ar_count=0,r_count=0,model_count=0,h_count=0,catalog_runtime=0;
+ integer bus_word=0,held_word=0;logic pending=0,drain_pending=0,fault_injected=0,response_consumed=0;logic[63:0]held_addr;logic held_ar=0;
+ integer kind_run=7,decision_local=0,commands=0,exports=0,layers_completed=0,final_norm_count=0,type_count=0,matrix_commands=0,attention_layers=0,ln_commands=0,vector_commands=0,g_commands=0;
+ integer layer_H_count[0:29],layer_mcount[0:29],layer_mdone[0:29],layer_attention[0:29],fc1_Awrites[0:1],fc1_Aacks[0:1];
+ logic[4095:0]layer_H_seen[0:29];logic[4095:0]final_norm_seen=0,type_H_seen=0;logic[16383:0]fc1_Aseen[0:1];logic[29:0]layer_start_seen=0,layer_complete_seen=0;logic[119:0]catalog_seen=0;
+ logic[31:0]active_quant_K;logic active_quant_slot;logic full_active=0;
+ string data_dir,rope_dir,original_dir,export_path,meta_path;
+ integer input_fd,output_fd,receipt_fd;integer tail_writes=0,tail_delay=0,tail_commits=0;logic tail_active=0;
+ logic holding=0;logic[1051:0]held_output;integer held_left=0;logic mid_hold_started=0,last_hold_started=0;
+ task automatic progress(input integer n,input string phase);
+  begin checked+=n;if(checked-last_checked>=4096)begin $display("M007_PARENT_CHECKED checked=%0d phase=%s cycle=%0d",checked,phase,cycle);$fflush();last_checked=checked;end end
+ endtask
+ function automatic integer checkpoint_index(input integer global_layer);return global_layer<28?global_layer:global_layer+2;endfunction
+ function automatic integer output_limit;return kind_run==7?544:4096;endfunction
+ assign tail_begin_ready=!tail_active&&!tail_commit_valid;
+ assign tail_abort_ready=1;assign tail_owner_idle=!tail_active&&!tail_commit_valid;
+ always@(negedge clk)if(rst_n&&full_active)begin
+  out_ready=1;
+  if(out_valid&&exports==256&&!mid_hold_started)begin mid_hold_started=1;held_left=8;end
+  if(out_valid&&exports==output_limit()-1&&!last_hold_started)begin last_hold_started=1;held_left=17;end
+  if(held_left>0)begin out_ready=0;held_left--;end
+ end
+ always@(posedge clk)begin
+  if(!rst_n)begin tail_commit_valid<=0;tail_active<=0;tail_writes<=0;tail_delay<=0;end
+  else begin
+   if(tail_begin_valid&&tail_begin_ready)begin
+    if(kind_run!=7||tail_expected_bytes!=69632||commands!=1)$fatal(1,"real tail owner arm/one BEGIN");tail_active<=1;tail_writes<=0;
+   end
+   if(full_active&&out_valid&&out_ready&&kind_run==7)begin
+    if(!tail_active||tail_writes>=544)$fatal(1,"tail write without actual owner");
+    for(int byte_index=0;byte_index<128;byte_index++)$fwrite(output_fd,"%c",out_data[byte_index/4][8*(byte_index%4)+:8]);
+    tail_writes<=tail_writes+1;if(tail_writes==543)begin $fflush(output_fd);tail_delay<=7;end
+   end
+   if(tail_delay>0)tail_delay<=tail_delay-1;
+   if(tail_active&&tail_writes==544&&tail_delay==1)begin
+    tail_commit_valid<=1;tail_commit_request<=tail_request;tail_commit_generation<=tail_generation;tail_commit_source_epoch<=tail_source_epoch;tail_commit_bytes<=69632;tail_commit_status<=0;
+   end
+   if(tail_commit_valid&&tail_commit_ready)begin tail_commit_valid<=0;tail_active<=0;tail_commits++;end
+   if(tail_abort_valid)$fatal(1,"unexpected normal-graph tail abort");
+  end
+ end
+ always@(posedge clk)if(rst_n)begin
+  cycle++;
+  if(dut.catalog_owns&&arvalid!=0&&arvalid!=1)$fatal(1,"catalog only physical port0");
+  if(dut.catalog_owns&&arvalid[0]&&!arready[0])begin if(held_ar&&araddr[0]!==held_addr)$fatal(1,"catalog held address changed");held_addr=araddr[0];held_ar=1;end
+  if(dut.catalog_owns&&arvalid[0]&&arready[0])begin
+   if(arid[0]!=7||arlen[0]!=0||araddr[0]<65536||araddr[0]>=65536+7936||!dut.m_transport_idle||!weight_idle)$fatal(1,"catalog source/real W retirement");
+   pending=1;bus_word=(araddr[0]-65536)/64;ar_count++;held_ar=0;held_word=bus_word;
+  end
+  if(dut.catalog_owns&&rvalid[0]&&rready[0])begin if(!rlast[0])$fatal(1,"normal catalog actual last R");r_count++;response_consumed=1;end
+  if(model_word_valid&&model_word_ready)begin model_count++;progress(32,"MODEL");end
+  if(full_active)begin
+   integer gl;gl=int'(dut.layer_index);
+   if(reject_valid||done_status!=0||dut.r_res_fp_protocol_fault||dut.r_res_div_protocol_fault||dut.l_check_coverage_fault)$fatal(1,"normal graph error/check/reject protocol");
+   if(cmd_valid&&cmd_ready)begin commands++;if(commands!=1)$fatal(1,"one public BEGIN only");end
+   if(in_valid&&in_ready)begin
+    if(h_count>=4096||!dut.v2_h_wr_commit||in_data!==initial_h[h_count])$fatal(1,"only original public H input and real commit");
+    for(int j=0;j<128;j++)$fwrite(input_fd,"%c",in_data[j/4][8*(j%4)+:8]);h_count++;progress(32,"PUBLIC_H");
+   end
+   if(dut.runtime_catalog&&dut.cat_rsp_valid&&dut.cat_rsp_ready)begin
+    integer ri;ri=int'(dut.cat_word)-4;
+    if(ri<0||ri>=120||catalog_seen[ri]||ri/4!=gl||dut.cat_fault||!dut.m_transport_idle||!weight_idle||!dut.q_cmd_ready||dut.q_done_valid)$fatal(1,"actual layer catalog identity/refill before true old retirement");
+    if(kind_run==7&&ri!=catalog_runtime)$fatal(1,"once-BEGIN catalog order");catalog_seen[ri]=1;catalog_runtime++;
+   end
+   if(dut.m_cmd_valid&&dut.m_cmd_ready)begin
+    integer ri;ri=4*gl+layer_mcount[gl];
+    if(gl>=30||layer_mcount[gl]>=4||dut.m_cmd_tensor!=tensor_ids[ri]||dut.m_cmd_k!=metadata[ri][15:0]||dut.m_cmd_n!=metadata[ri][31:16]||dut.m_cmd_request!=cmd_request||dut.m_cmd_generation!=cmd_generation)$fatal(1,"actual global-layer matrix descriptor/shape/identity");
+    for(int p=0;p<4;p++)if(dut.m_cmd_base[p]!==metadata[ri][224+128*p+:64]||dut.m_cmd_span[p]!==metadata[ri][288+128*p+:64])$fatal(1,"actual matrix full catalog base/span");
+    if(gl>=28&&layer_mcount[gl]==3&&(fc1_Awrites[gl-28]!=16384||fc1_Aacks[gl-28]!=16384||fc1_Aseen[gl-28]!={16384{1'b1}}||!dut.front.producer_closed||!dut.front.producer_success||!dut.front.a_published||dut.front.a_write_debt!=0))$fatal(1,"FC2 before full actual FC1/ReLU/K4096 A1 retirement");
+    layer_mcount[gl]++;matrix_commands++;
+   end
+   if(dut.m_done_valid&&dut.m_done_ready)begin if(dut.m_status!=0)$fatal(1,"matrix mathematical failure");layer_mdone[gl]++;end
+   if(dut.q_cmd_valid&&dut.q_cmd_ready)begin active_quant_slot=dut.q_cmd_slot;active_quant_K=dut.q_cmd_k;end
+   if(gl>=28&&active_quant_slot&&active_quant_K==4096)begin
+    if(dut.q_awr_valid&&dut.q_awr_ready)begin integer ai;ai=128*int'(dut.q_awr_row)+int'(dut.q_awr_group);if(fc1_Aseen[gl-28][ai]||dut.q_awr_request!=cmd_request||dut.q_awr_generation!=cmd_generation)$fatal(1,"unique actual FC1 A1 group/identity");fc1_Aseen[gl-28][ai]=1;fc1_Awrites[gl-28]++;end
+    if(dut.q_awr_rsp_valid&&dut.q_awr_rsp_ready)fc1_Aacks[gl-28]++;
+   end
+   if(dut.l_prepare_valid&&dut.l_prepare_ready)begin
+    if(layer_start_seen[gl]||dut.l_prepare_kind!=(gl>=28?2:(gl%3==0?0:1))||dut.l_prepare_layer!=(gl>=28?gl-28:gl)||h_count!=4096)$fatal(1,"actual full/sliding/Decision layer identity/no repeat");
+    if(kind_run==7&&gl>0&&!layer_complete_seen[gl-1])$fatal(1,"layer handoff before actual previous endpoint");if(kind_run==7&&gl==28&&(final_norm_count!=4096||type_count!=4096||type_H_seen!={4096{1'b1}}))$fatal(1,"Decision0 before actual final norm/type checkpoint");layer_start_seen[gl]=1;attention_layers++;
+   end
+   if(dut.l_done_valid&&dut.l_done_ready)begin
+    if(dut.l_done_status!=0||layer_head_completed!=16'hffff||dut.l_head_context_valid!=16'hffff)$fatal(1,"all16 real head completions");layer_attention[gl]++;
+   end
+   if(dut.v2_resident_ln_start_valid&&dut.v2_resident_ln_start_ready)ln_commands++;
+   if(dut.v2_vector_start_valid&&dut.v2_vector_start_ready)vector_commands++;
+   if(dut.g_cmd_valid&&dut.g_cmd_ready)begin if(gl>=28)$fatal(1,"Decision must use ReLU not GEGLU");g_commands++;end
+   if(dut.resident.p_q_wr_commit&&parent_state==90)begin
+    integer a;a=int'(dut.resident.p_q_wr_addr);if(kind_run!=7||final_norm_seen[a]||dut.active_epoch_offset!=448||dut.resident.p_q_wr_data!==checkpoint_gold[28*4096+a])$fatal(1,"original final gamma LN checkpoint");final_norm_seen[a]=1;final_norm_count++;progress(32,"FINAL_NORM");
+   end
+   if(dut.resident.vector_h_wr_valid&&dut.resident.vector_h_wr_ready)begin
+    integer a;a=int'(dut.resident.vector_h_wr_addr);if(!dut.resident.vector_h_wr_commit)$fatal(1,"vector H accepted without commit");
+    if(parent_state==54)begin
+     if(layer_H_seen[gl][a]||dut.resident.vector_h_wr_data!==checkpoint_gold[4096*checkpoint_index(gl)+a])$fatal(1,"original per-layer actual residual H bits global=%0d address=%0d",gl,a);
+     layer_H_seen[gl][a]=1;layer_H_count[gl]++;progress(32,"LAYER_H");
+    end else if(parent_state==95)begin
+     if(kind_run!=7||type_H_seen[a]||final_norm_count!=4096||final_norm_seen!={4096{1'b1}}||dut.resident.vector_h_wr_data!==checkpoint_gold[29*4096+a])$fatal(1,"original type-add H checkpoint");type_H_seen[a]=1;type_count++;progress(32,"TYPE_H");
+    end
+   end
+   if(parent_state==97&&dut.resident_retired&&dut.v2_scratch_retired&&dut.ws_a_enable)begin
+    if(layer_complete_seen[gl]||layer_H_count[gl]!=4096||layer_H_seen[gl]!={4096{1'b1}}||layer_mcount[gl]!=4||layer_mdone[gl]!=4||layer_attention[gl]!=1)$fatal(1,"actual complete layer handoff/coverage/retirement");
+    layer_complete_seen[gl]=1;layers_completed++;$display("M007_FULLGRAPH_LAYER_END global=%0d checkpoint=%0d cycle=%0d",gl,checkpoint_index(gl),cycle);$fflush();
+   end
+   if(holding&&(!out_valid||{out_data,out_row,out_col,out_slot}!==held_output))$fatal(1,"public output unstable while held");holding=out_valid&&!out_ready;held_output={out_data,out_row,out_col,out_slot};
+   if(out_valid&&out_ready)begin
+    if(exports>=output_limit()||out_col!=32*(exports%32)||out_slot!=(kind_run==7?exports/32:0))$fatal(1,"public output count/order/slot");
+    if(kind_run==7)begin if(out_data!==tail_gold[exports]||layers_completed!=30||final_norm_count!=4096||type_count!=4096)$fatal(1,"original Decision1 gather/CLS and fullgraph prerequisites");end
+    else begin if(out_row!=exports/32||out_data!==checkpoint_gold[checkpoint_index(28+decision_local)*4096+exports]||layers_completed!=1)$fatal(1,"original full Decision public output");for(int j=0;j<128;j++)$fwrite(output_fd,"%c",out_data[j/4][8*(j%4)+:8]);end
+    exports++;progress(32,"PUBLIC_OUTPUT");
+   end
+   if(done_valid)begin
+    if(done_op!=2||done_request!=cmd_request||done_generation!=cmd_generation||done_epoch!=cmd_epoch||done_status!=0||source_status!=0||error_domain!=0||error_tuple!=0||exports!=output_limit()||!weight_idle||!dut.m_transport_idle||!dut.global_idle)$fatal(1,"full parent identity/success/real idle receipt");
+    if(kind_run==7&&(commands!=1||catalog_runtime!=120||catalog_seen!={120{1'b1}}||matrix_commands!=120||layers_completed!=30||attention_layers!=30||ln_commands!=60||vector_commands!=61||g_commands!=28||tail_commits!=1||tail_writes!=544))$fatal(1,"once-BEGIN original30 graph coverage and real tail commit");
+    if(kind_run==6&&(catalog_runtime!=4||matrix_commands!=4||layers_completed!=1||attention_layers!=1||ln_commands!=2||vector_commands!=2||g_commands!=0||tail_commits!=0))$fatal(1,"complete Decision component coverage");
+   end
+  end
+  if(cycle>40000000)$fatal(1,"40Mcycle fullgraph watchdog");
+ end

@@ -1,0 +1,27 @@
+--- old/verification_entry_old_parent
++++ new/verification_entry_old_parent
+@@ -9,6 +9,7 @@
+  parameter logic[127:0] TABLE_KEY=128'hb1fdc9ca482c0210982c7245cc50c965,
+  parameter logic[1:0]ADDRESS_PROFILE=0,
+  parameter logic[3:0][63:0]HBM_PORT_BASE=0,HBM_PORT_SPAN=0,
++ parameter bit VERIFY_POST_ENCODER27_H=1'b0,
+  parameter logic[255:0]PLATFORM_MANIFEST_SHA256=0
+ )(
+  input logic clk,rst_n,
+@@ -1704,9 +1705,13 @@
+      if(producer_fail_fire)begin producer_failed<=1;fail(8'h20,2,3,producer_fail_code,7,producer_fail_detail,E_ABORT);end
+     end
+     E_H_READY:if(h_load_success_valid&&resident_retired)begin
+-     active_epoch_offset<=layer_offset(layer_index,0);
+-     if(layer_index==0)begin active_epoch_offset<=layer_offset(layer_index,1);state<=C_A0_AR;end
+-     else state<=P_OWNER;
++     if(VERIFY_POST_ENCODER27_H&&kind==7)begin
++      layer_index<=27;active_epoch_offset<=448;state<=N_OWNER;
++     end else begin
++      active_epoch_offset<=layer_offset(layer_index,0);
++      if(layer_index==0)begin active_epoch_offset<=layer_offset(layer_index,1);state<=C_A0_AR;end
++      else state<=P_OWNER;
++     end
+     end
+     P_OWNER:if(v2_ln_enable)state<=P_LEASE;
+     N_OWNER:if(v2_ln_enable)state<=N_LEASE;

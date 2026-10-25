@@ -1,0 +1,70 @@
+--- project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_kind7_public_boundary_v2/frozen/m007_binary_weight_peer_tb.sv
++++ project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/binary_peer_posedge_unrolled_v2/frozen/m007_binary_weight_peer_tb.sv
+@@ -94,17 +94,56 @@
+    for(int p=0;p<4;p++)begin rotate[p]=0;for(int id=0;id<8;id++)begin active[p][id]<=0;cache_valid[p][id]=0;end end
+   end else begin
+    integer live;
+-   for(int p=0;p<4;p++)begin
+-    if(arvalid[p]&&arready[p])begin
+-     integer d,id,length;logic[64:0]finish;
+-     id=int'(arid[p]);length=int'(arlen[p])+1;finish={1'b0,araddr[p]}+65'(64*length);
+-     if(!enable||active[p][id]||araddr[p][5:0]!=0||arsize[p]!=6||arburst[p]!=1||length>16||finish[64]||int'(araddr[p][11:0])+64*length>4096)$fatal(1,"binary peer AR protocol");
+-     d=source_index(p,araddr[p],length);if(d<0)$fatal(1,"unregistered original tensor address");
+-     descriptor[p][id]<=d;origin[p][id]<=araddr[p]-metadata[d][224+128*p+:64];beats[p][id]<=length;position[p][id]<=0;eligible[p][id]<=cycle+3;active[p][id]<=1;accepted_ar++;
+-    end
+-    if(rvalid[p]&&rready[p])begin
+-     integer id;id=int'(rid[p]);if(!active[p][id]||rlast[p]!=(position[p][id]+1==beats[p][id]))$fatal(1,"binary peer actual R debt");
+-     returned_beats++;if(rlast[p])active[p][id]<=0;else position[p][id]<=position[p][id]+1;rotate[p]=(id+1)%8;
++   begin : m007_peer_posedge_port_0
++    if(arvalid[0]&&arready[0])begin
++     integer d,id,length;logic[64:0]finish;
++     id=int'(arid[0]);length=int'(arlen[0])+1;finish={1'b0,araddr[0]}+65'(64*length);
++     if(!enable||active[0][id]||araddr[0][5:0]!=0||arsize[0]!=6||arburst[0]!=1||length>16||finish[64]||int'(araddr[0][11:0])+64*length>4096)$fatal(1,"binary peer AR protocol");
++     d=source_index(0,araddr[0],length);if(d<0)$fatal(1,"unregistered original tensor address");
++     descriptor[0][id]<=d;origin[0][id]<=araddr[0]-metadata[d][224+128*0+:64];beats[0][id]<=length;position[0][id]<=0;eligible[0][id]<=cycle+3;active[0][id]<=1;accepted_ar++;
++    end
++    if(rvalid[0]&&rready[0])begin
++     integer id;id=int'(rid[0]);if(!active[0][id]||rlast[0]!=(position[0][id]+1==beats[0][id]))$fatal(1,"binary peer actual R debt");
++     returned_beats++;if(rlast[0])active[0][id]<=0;else position[0][id]<=position[0][id]+1;rotate[0]=(id+1)%8;
++    end
++   end
++   begin : m007_peer_posedge_port_1
++    if(arvalid[1]&&arready[1])begin
++     integer d,id,length;logic[64:0]finish;
++     id=int'(arid[1]);length=int'(arlen[1])+1;finish={1'b0,araddr[1]}+65'(64*length);
++     if(!enable||active[1][id]||araddr[1][5:0]!=0||arsize[1]!=6||arburst[1]!=1||length>16||finish[64]||int'(araddr[1][11:0])+64*length>4096)$fatal(1,"binary peer AR protocol");
++     d=source_index(1,araddr[1],length);if(d<0)$fatal(1,"unregistered original tensor address");
++     descriptor[1][id]<=d;origin[1][id]<=araddr[1]-metadata[d][224+128*1+:64];beats[1][id]<=length;position[1][id]<=0;eligible[1][id]<=cycle+3;active[1][id]<=1;accepted_ar++;
++    end
++    if(rvalid[1]&&rready[1])begin
++     integer id;id=int'(rid[1]);if(!active[1][id]||rlast[1]!=(position[1][id]+1==beats[1][id]))$fatal(1,"binary peer actual R debt");
++     returned_beats++;if(rlast[1])active[1][id]<=0;else position[1][id]<=position[1][id]+1;rotate[1]=(id+1)%8;
++    end
++   end
++   begin : m007_peer_posedge_port_2
++    if(arvalid[2]&&arready[2])begin
++     integer d,id,length;logic[64:0]finish;
++     id=int'(arid[2]);length=int'(arlen[2])+1;finish={1'b0,araddr[2]}+65'(64*length);
++     if(!enable||active[2][id]||araddr[2][5:0]!=0||arsize[2]!=6||arburst[2]!=1||length>16||finish[64]||int'(araddr[2][11:0])+64*length>4096)$fatal(1,"binary peer AR protocol");
++     d=source_index(2,araddr[2],length);if(d<0)$fatal(1,"unregistered original tensor address");
++     descriptor[2][id]<=d;origin[2][id]<=araddr[2]-metadata[d][224+128*2+:64];beats[2][id]<=length;position[2][id]<=0;eligible[2][id]<=cycle+3;active[2][id]<=1;accepted_ar++;
++    end
++    if(rvalid[2]&&rready[2])begin
++     integer id;id=int'(rid[2]);if(!active[2][id]||rlast[2]!=(position[2][id]+1==beats[2][id]))$fatal(1,"binary peer actual R debt");
++     returned_beats++;if(rlast[2])active[2][id]<=0;else position[2][id]<=position[2][id]+1;rotate[2]=(id+1)%8;
++    end
++   end
++   begin : m007_peer_posedge_port_3
++    if(arvalid[3]&&arready[3])begin
++     integer d,id,length;logic[64:0]finish;
++     id=int'(arid[3]);length=int'(arlen[3])+1;finish={1'b0,araddr[3]}+65'(64*length);
++     if(!enable||active[3][id]||araddr[3][5:0]!=0||arsize[3]!=6||arburst[3]!=1||length>16||finish[64]||int'(araddr[3][11:0])+64*length>4096)$fatal(1,"binary peer AR protocol");
++     d=source_index(3,araddr[3],length);if(d<0)$fatal(1,"unregistered original tensor address");
++     descriptor[3][id]<=d;origin[3][id]<=araddr[3]-metadata[d][224+128*3+:64];beats[3][id]<=length;position[3][id]<=0;eligible[3][id]<=cycle+3;active[3][id]<=1;accepted_ar++;
++    end
++    if(rvalid[3]&&rready[3])begin
++     integer id;id=int'(rid[3]);if(!active[3][id]||rlast[3]!=(position[3][id]+1==beats[3][id]))$fatal(1,"binary peer actual R debt");
++     returned_beats++;if(rlast[3])active[3][id]<=0;else position[3][id]<=position[3][id]+1;rotate[3]=(id+1)%8;
+     end
+    end
+    live=0;for(int p=0;p<4;p++)for(int id=0;id<8;id++)if(active[p][id])live++;if(live>peak_live)peak_live=live;

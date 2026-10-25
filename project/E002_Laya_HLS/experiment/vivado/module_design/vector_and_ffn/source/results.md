@@ -1,5 +1,102 @@
 # 向量运算、FFN与残差：平台、资源与性能记录
 
+## M007 TANH-IDLE-CE-26 / E015 R002（2026-10-23）
+
+独立原参考的v1/v2 forceCE1/v2 autoCE同runtime公开事件与有效data/status/tag/mask等价PASS。
+AT001 static/build18.348794788005762s覆盖2447core时序块/42leaf、reset及原credit逻辑，新增FF0；
+AT002 RTL19.33119475201238s检查6726标量、282812节点（含reset前部分已接受节点），
+覆盖全部原384corners、真实前缀、full256 credit、held/NF6+masked2、17实际inflight reset、
+idle reset与无reset新generation/bubbles。core152拍841次，公开首消费153拍/原II1；
+idle CE0=612、active CE1=2044、pending非0且pipe空303周期。
+
+2677次owned PID/start_ticks策略采样/0校正，两次cleanup为空；25原编译snapshot文件SHA不变，
+4新增runtime配置/日志单列；峰RSS641011712/841187328B。详见
+[独立交付](../../../../../../E015_m007_tanh_geglu8/experiment_results/runs/R002/ce26_independent_delivery_v1.json)。
+内部alignment/credit损坏无公开注入口，动态反例NOT_RUN；fault高必开CE静态核通过。
+未重跑未变完整数学suite，无joint加速/OOC/P&R/板测结论；独立余额封存，不转后继。
+
+## M007 E015 G-RING-TAG-15当前有界结果（2026-10-22）
+
+AT133源声明控制13661bit=1707.625B，其中math11343bit；仅256×16槽tag变256×8高位加实际槽地址恢复fullseq，省2048bit/256B、新增状态0。原291bit上下文全计，mask/debt/coverage/tail删除0；payload25600B/固定对齐736B不变，联合4KiB仍OPEN。生产mathSHA849917c06995c4208d7b94b530c1071cdf6b4b76b6b0685dd1e17fc19531bb2e，其它选中生产源同AT102。
+
+| 当前SHA实证 | 结果 |
+| --- | --- |
+| AT134 满环 | 256full、1280同地址同沿consume+accept、3held17、原12288输出/122880 FP9+H、255/256与511/512通过；首273含有意held，非生产无停顿指标 |
+| AT135–143 短例 | clear同seq0/held/empty、生产三块及末结果held17、seq512对伪256/旧gen/错epoch/reserved/额外FP记录不退真实债、matching status8及实际discard/newgen通过 |
+| AT144/145 成本pilot | 新同版32768正常/错误，18.059037896979135/17.855849508021493秒PASS |
+| AT146 全正常 | 335872输出/3358720 FP9+H，20992写ACK/41984读/82release；185/42171/697拍、gap1、overlap20735/独立release81，同AT118及AT072；child131.26044220704352秒 |
+| AT147 全rank0 | main335872/3358710节点、total348160/3481590，首错rank0,row127,col2623；child131.92600168200443秒 |
+| AT148 全inverse-row | main335872/3358720节点、total348160/3481600，首错rank7,row0,col32；child132.78237547597382秒 |
+
+两个完整错误例各2数值错误、done6 held17/错gen discard拒绝17/合法显式discard/实际lease释放/无reset新gen12288原结果与340真实事件。新gen是等待未供给s3的三块prefix，不称全命令完成。Rank2/5仅原AT121/122身份复用未改算术/首错逻辑，未在当前SHA重跑。冻结AT055/AT058/AT070及所有原checker/gold保持。
+
+AT129因测试台旧数组名观察导致elaboration FAIL，保留原fullseq512断言并重构观察后AT130及所有tag测试通过；生产RTL未因此更改。AT149最终审计PASS，23源归档/1383归档文件/170编译快照/91选中源码输入核查。最终147原累计收据、前123身份不变，无owned guard；剩reference893.77314188299351381/static1325.84147914862842348/RTL179.430961070029318/OOC1023.92452523694374秒。见E015 R001/g_ring15_handoff_20261022.md与g_ring15_final_budget_20261022.json。
+
+仅签本次G槽tag表示、源字段容量和受影响功能/周期阶段，无新OOC/P&R/物理300MHz、联合4KiB/父物理复用/SFU/896DSP/FFN/Decision/部署声明。以下为Compact14及更早历史结果。
+
+## 历史 M007 E015 G-COMPACT-14有界结果（2026-10-22）
+
+当前G控制声明15709bit=1963.625B≤2048B（AT106）；压缩前5867.25B，净省3903.625B。394条96位tag变完整seq16，新增上下文/有效位/次序291bit全部计入；mask、债、coverage或未读tail删除0。数值payload25600B、固定对齐736B、既有SFU/数值叶独立记账，联合4KiB保持OPEN。
+
+| 当前版本证据 | 结果与边界 |
+| --- | --- |
+| AT095 / AT107 输入域 | pool8案、9真实接受/返回、7拒绝；math7案、56原标量/560节点、6拒绝；混域、完整seq、held/empty17及clear后重复seq0通过 |
+| AT108 / AT111–114 公开返回反例 | seq512/伪256同ring、旧gen、错epoch、非零reserved、额外FP；坏记录不退债、真实返回随后到达、partial done8/discard/newgen12288通过 |
+| AT109 / AT110 / AT115 | 正常三块与末结果held17、原matching FP status8故障及真实恢复通过 |
+| AT118 完整正常 | 335872输出/3358720 FP9+H逐位；写/ACK20992、读41984、release82；首185、自然eligible→真实done42171、最大块697拍；读/输出gap1，与AT072完全一致；child128.6858779839822秒 |
+| AT120 完整rank0 | 主335872标量/3358710节点；child135.0427505680127秒 |
+| AT121 完整rank2 | 主335872标量/3358713节点；child130.32625765696866秒 |
+| AT122 完整rank5 | 主335872标量/3358715节点；child130.87936729897046秒 |
+| AT123 完整rank7逆row | 主335872标量/3358720节点；child131.77660471200943秒 |
+
+每个完整错误案均含2数值错误记录、done6 held17、错gen discard拒绝17、匹配显式discard、实际lease释放、无reset新gen12288原结果。总348160标量、340真实语义事件；原covered/evaluated域掩码独立核验。新gen是等待未供给s3的三块prefix，不能称全命令完成。
+
+AT092测试组合探针停滞120.09952738101128秒保留，改为寄存实际接受后未改DUT的AT099及最终AT108/111–114通过；AT096/100重复seq0 clear后零高64tag真实缺陷保留，显式context函数参数修复后AT107通过；AT119 exact argv不符而COST_GATE_STOP/child0，无source archive或虚构cleanup，AT120按原计划命令重提通过。当前选中build为AT090及AT101–105，旧build/旧PASS不升级。冻结AT055及未变数值叶suite只复用。
+
+AT125最终静态审计PASS：41份source archive、2254归档文件、364编译快照文件、169选中源码/输入检查；AT124工作目录解析FAIL保留，child0.20950022799661383秒，AT125项目根目录重提child0.9255045960308053秒。最终123笔receipt原账为reference剩893.77314188299351381/static1423.02549084179918504/RTL725.332723504077894/OOC1023.92452523694374秒；无非终态receipt/owned guard。入口E015 R001/g_compact14_handoff_20261022.md及g_compact14_final_budget_20261022.json。
+
+当前仅签G控制容量与功能/周期阶段；没有新OOC/P&R、联合4KiB/896DSP/父物理复用、联合SFU/FFN/Decision/部署闭合声明。原始证据在E015 R001，源码边界见g_compact14_source_delta_v2.json。下方5867.25B及旧next-step为压缩前历史记录。
+
+## 历史 M007 E015实测增量（2026-10-21至压缩前2026-10-22）
+
+恢复G最新实证：AT072完整335872正常GEGLU/3358720外FP9+H比较PASS，实际首输出185拍、自然eligible至真实done42171拍、最大block服务697拍、连续跨s II1；真实32宽写及ACK20992、同步读41984、release82，held done17/lease释放通过。AT068另验末G held17阻同slot复用。AT075–078全域错误rank/discard无reset恢复、AT080协议partial恢复已通过，正常PASS不代签父FFN/联合SFU/物理。AT071精确新增G控制5867.25B（46938bit）超4KiB；bounded数值payload25600B/固定对齐736B另列，固定FP叶/SFU不重复混算，不扣未实现压缩。详见E015 R001/attempts/AT071与AT072。
+
+当前execution_state=completed（本次有界功能/周期阶段）：用户2026-10-22恢复后，AT072完整G正常、AT075–078全域首错/错误退休/显式discard/无reset新gen、AT080协议partial恢复均完成，AT081归档/源/snapshot核查通过；G控制5867.25B超4KiB，主控后继集中定义紧凑字段，当前RTL保持。冻结AT055复用不重跑，最终入口E015 R001/g_stage_handoff_20261022.md及g_stage_final_budget_20261022.json。
+
+只适用SM011/TANH-G8-08，历史384拍TANH/OOC不转为当前300MHz证据。
+
+恢复阶段早期历史（后继状态以上方最终交付为准）：AT057实际1025笔32F32写/1537同步读向量/24592独立位比较/128读写重叠沿，slot0→1→0、末ACK/读held/第三块/client屏障各17拍、真实写债discard和新gen重装通过，仅组件范围。AT058原335872×12字段位保持fixture完成，无新算术gold。AT062 FAIL的packed诊断为期望向量重复lane0、DUT各lane不同且status零，直接索引原fixture修复待AT064实证；没有删checker、改gold或先签DUT通过。生产壳/TB已记录自然eligible计时与实际slot债，但无当前集成PASS。原G/联合/物理未验边界仍保持；下表AT002–055为冻结历史范围。
+
+
+| AT | 实测结果 | 边界 |
+| --- | --- | --- |
+| AT002 | fast leaf XSim build完成4.962948s | AT001 SV保留字/lexer失败1.830159s保留 |
+| AT003 | add3原独立191904向量逐位；3拍/II1，RTL13.089168s | CE保持36拍、真实2项inflight reset、45新paired返回 |
+| AT004 | mul4原独立217304向量逐位；4拍/II1，RTL13.454699s | 同协议覆盖 |
+| AT005 | direct-div12原独立191792向量逐位；12拍/II1 | 独立native SSE参考，含次正规，非全域穷尽 |
+| AT006 | add3小OOC综合+opt：470LUT/201FF/0DSP/0latch/0blackbox | xcu55c-fsvh2892-2L-e，有效3.333ns/uncertainty0.1/全部IOdelay0.5；setup WNS−0.956/TNS−31.674ns/54违例，hold WHS−0.027/THS−0.833ns/51违例；完整约束覆盖零缺失。时序FAIL，无P&R |
+| AT007 | 原真实Encoder0全部128行局部参考完成1.998655s；335872 G值，384边界+6非finite TANH | 原WO/残差/LN/Wi及全部u/v/w/t/z/h/r/s/y/gate/G保存，重组GELU等原gelu_array；只是参考生成，未代签RTL |
+| AT010 mul4 OOC | 442LUT/120FF/2DSP；setup+0.332ns/0失败 | hold−0.018ns/24，综合+opt，无P&R |
+| AT019/021 radix4 div12 | 原191792向量逐位/12拍II1 PASS；2266LUT/828FF/0DSP | setup+0.182ns/0失败，hold−0.031ns/419；同有效3.333ns/uncertainty0.1/全IOdelay0.5 |
+| AT020/022 add3_z | 原191904逐位PASS；479LUT/207FF/0DSP | setup−0.325ns/75失败；hold−0.043ns/81 |
+| AT029/030 add3_o | 原191904与独立定向3888逐位PASS，3拍/II1 | 含maxfinite半ULP邻位、双大数、正负溢出、相消/符号零/tiny |
+| AT031 add3_o OOC | 462LUT/208FF/0DSP；setup−0.161ns/TNS−2.637ns/19 | hold−0.043ns/THS−1.498ns/80；仍时序FAIL |
+| AT018 native42节点 | 全336262最终等独立host libm | 独立volatile SSE逐次F32，FMA禁用/RNE/FTZ0/DAZ0，仅host参考 |
+| AT027/032 单lane旧TB | 512及16384主输入、153拍/II1；42节点、256信用/held/reset/错误退休PASS | add3_z/mul4/radix4div12，同AT024编译；不代签add3_o |
+| AT036/037 新观察链 | 14项host解析/注入时间检查PASS；新TB编译8.507010s | v3冻结SHA c6e61e709cab196edc9386fc3c0e64dcc61fd612bcd33fabd99a53e31453e294，AT034从未启动 |
+| AT038 新同版pilot | 16384主/16710总消费、688128主/701860总节点、153拍II1 PASS，child11.893155s | 7条真实消费事件，最大guard观测gap8.171398s；不是完整336262输入 |
+| AT039/040 完整单lane | 实测成本界278.502067s≤300s；336262主输入/14123004主节点、336588总消费/14136736总节点PASS | child103.284948s/RSS839704576B；153拍II1、原信用/held/reset/错误；86真实事件最大gap8.377783s；owned清理零残留 |
+| AT042/043 add3_e | 原191904与定向3888逐位PASS，3拍II1/CE/reset/paired-valid不变 | selected SHA703bf5eb2ccbcf0444d521cfa6d4d5da6b7ac21fc6c4c4d530c37d498ee3d627 |
+| AT044 add3_e小OOC | 527LUT/208FF/0DSP；setup+0.098ns/TNS0/0失败 | hold−0.043ns/THS−1.466ns/78；同完整IO约束，零latch/blackbox/缺约束，无P&R |
+| AT045–047 新leaf单lane | 原DAG仍152edge；新编译8.401841s，同版16384主/688128主节点PASS | 实际153拍II1；AT048完整成本界281.252076s≤300s，AT049全336262主输入/14123004主节点PASS，child106.910094s，153拍II1 |
+| AT050/051 八lane首例 | 编译完成；AT051最终计数FAIL保留 | TB组合ready旧值导致额外真实接受，未改RTL/gold或删断言 |
+| AT052/053 修复中样 | 新TB编译，32768主输入/1376256主节点严格计数PASS | 153拍II1、256信用/held/6拒绝/17向量reset→64/错误与release实际债屏障 |
+| AT054/055 八lane全样 | 同版实测成本界212.764061s≤300s；336262主输入/42033向量/14123004主节点PASS | 338828总标量消费/14231096总节点、153拍II1、86真实事件maxgap8.414037s、child107.642218s/RSS839737344B、owned零残留 |
+
+所有当前小OOC均零latch/blackbox、完整约束覆盖零缺失；全部hold违例保留，未做P&R/物理300MHz。AT031最差输入s_axis_a_tdata[1]→small1_reg[*]/D，data2.904ns=logic0.757+估计route2.147，12级；add3_e拆开完整fraction比较和对阶串联后，AT044同约束setup转正，仅能签小综合+opt setup结果。原AT006/012/011/022/031时序FAIL原样保留。
+
+原始证据统一位于project/E015_m007_tanh_geglu8/experiment_results/runs/R001/attempts/。AT033旧成本门因v2缺独立120秒停滞而未启动AT034；AT040为add3_z完整单lane，AT049与AT055为add3_e/radix4版本，逐版保持。8lane及G当前功能/周期通过；G控制容量不合规，联合SFU/FFN、整体资源、8lane OOC及物理300MHz仍未闭合。历史AT008–013 exact loaded guard self-SHA UNKNOWN，生命周期/实际费用与子输入身份另有证据，不追改旧收据。2026-10-21暂停段之后，2026-10-22用户明确恢复；后继G运行按本页最终交付另记，不改变原暂停收据。
+
 ## 当前修复身份与本模块已验收范围（2026-10-09）
 
 当前正式生产包为 build tag `fe067c8aa0627ad770096f9721394645`，以[当前 manifest](../../../../build/model-attention-rtl-repair-20261008/manifest.json)、[项目状态](../../../../README.md)及[活动任务](../../../../mission/task.md)为入口。当前完整 CPU/真实 13 口 B2 CSim 证据与以下局部 RTL 证据分阶段记录；完整新核数值 RTL、同源完整物理资源、平台及板上性能尚未验收。

@@ -1,0 +1,208 @@
+  localparam logic [127:0] ENCODER0_BUILD_ID=128'hd92a1f8e927c3051289016db36f20d27;
+  localparam logic [5:0]
+    E_H_LOAD=32,E_H_READY=33,E_WO_LEASE=34,E_WO_POST=35,
+    E_REFILL0=36,E_REFILL1=37,E_RA_LEASE=38,E_RA_OWNER=39,
+    E_RA_SUB=40,E_RA_RUN=41,E_RA_RELEASE=42,E_LN_LEASE=43,
+    E_LN_OWNER=44,E_LN_SUB=45,E_LN_RUN=46,E_LN_RELEASE=47,
+    E_FF_LEASE=48,E_FF_OWNER=49,E_FF_POST=50,E_RF_LEASE=51,
+    E_RF_OWNER=52,E_RF_SUB=53,E_RF_RUN=54,E_RF_RELEASE=55,
+    E_EXPORT=56,E_EXPORT_DRAIN=57,E_ABORT=58,E_FINAL_A=59;
+  logic [12:0] resident_issue,resident_sink;
+  logic [2:0] operation_code;
+  wire [31:0] operation_epoch=encoder0_mode?epoch+{23'b0,layer_index,4'b0}+{29'b0,operation_code}:epoch;
+  wire resident_source_phase=state==QRUN||state==F_NQRUN;
+  wire resident_source_q=state==F_NQRUN;
+  wire resident_source_valid=resident_source_q?v2_q_rsp_valid:v2_h_rsp_valid;
+  wire [31:0][31:0] resident_source_data=resident_source_q?v2_q_rsp_data:v2_h_rsp_data;
+  wire [11:0] resident_source_addr=resident_source_q?v2_q_rsp_addr:v2_h_rsp_addr;
+  wire internal_source_fire=resident_source_phase&&q_in_valid&&q_in_ready;
+  wire [5:0] input_bad=encoder0_first_nonfinite(in_data);
+  wire projection_identity_ok=m_out_request==request_id&&m_out_generation==generation&&m_out_epoch==operation_epoch&&encoder0_projection_coordinate_ok(m_out_row,m_out_col);
+  wire desc_window=encoder0_mode&&(state==E_REFILL0||state==E_REFILL1);
+  wire desc_identity_ok=desc_request==request_id&&desc_generation==generation&&desc_source_epoch==epoch&&desc_global_layer==0&&desc_pair_kind==1&&desc_slot==(state==E_REFILL1);
+  wire desc_record_ok=encoder0_ffn_descriptor_ok(desc_slot,desc_tensor,desc_base,desc_span);
+  wire resident_retired=m_cmd_ready&&q_cmd_ready&&!m_done_valid&&!q_done_valid&&v2_shared_resources_idle&&v2_resident_bank_idle&&v2_ln_provider_idle;
+  wire h_load_fire=encoder0_mode&&state==E_H_LOAD&&in_valid&&in_ready;
+  wire vector_done_fire=v2_vector_done_valid&&v2_vector_done_ready;
+  wire resident_ln_done_fire=v2_resident_ln_done_valid&&v2_resident_ln_done_ready;
+  wire ln_reject_fire=v2_ln_reject_valid&&v2_ln_reject_ready;
+  function automatic logic [95:0] encoder0_error_envelope(
+    input logic [7:0] stage_id,input logic [6:0] row_id,
+    input logic [1:0] class_id,input logic [3:0] check_id,sub_id,
+    input logic [9:0] element_id,input logic [3:0] protocol_code_id,
+    input logic [7:0] protocol_location_id
+  );
+    return {stage_id,row_id[6:4],class_id,row_id[3:0],check_id,sub_id,
+            element_id,protocol_code_id,protocol_location_id,49'b0};
+  endfunction
+  // Sourceepoch never changes. Error cleanup keeps the failed operationepoch
+  // until all real responses, held terminal and leases retire.
+  always_comb begin
+    operation_code=ffn_mode?3'd4:3'd1;
+    case(state)
+      E_H_LOAD,E_H_READY:operation_code=0;
+      E_WO_LEASE,E_WO_POST,E_REFILL0,E_REFILL1:operation_code=1;
+      E_RA_LEASE,E_RA_OWNER,E_RA_SUB,E_RA_RUN,E_RA_RELEASE:operation_code=2;
+      E_LN_LEASE,E_LN_OWNER,E_LN_SUB,E_LN_RUN,E_LN_RELEASE:operation_code=3;
+      E_FF_LEASE,E_FF_OWNER,E_FF_POST:operation_code=4;
+      E_RF_LEASE,E_RF_OWNER,E_RF_SUB,E_RF_RUN,E_RF_RELEASE:operation_code=5;
+      E_EXPORT,E_EXPORT_DRAIN,E_FINAL_A:operation_code=6;
+      default:begin end
+    endcase
+    if((state==E_ABORT||state==E_FINAL_A)&&done_status!=0)begin
+      if(error_domain==7)case(error_tuple[95:88])
+        8'h80:operation_code=0;
+        8'h81:operation_code=2;
+        8'h82:operation_code=3;
+        8'h83:operation_code=5;
+        default:operation_code=ffn_mode?4:1;
+      endcase
+      else operation_code=producer_failed?0:ffn_mode?4:1;
+    end
+  end
+  assign v2_owner_req=state==F_ARENA||state==E_FF_OWNER?2'd1:
+                      state==E_LN_OWNER?2'd2:
+                      state==E_RA_OWNER||state==E_RF_OWNER?2'd3:2'd0;
+  assign v2_ext_fp_select=matrix_owner;
+  assign v2_ext_div_select=front_owner;
+  assign v2_ext_bind_select=matrix_owner;
+  assign v2_ext_ps_select=matrix_owner;
+  assign v2_ext_context_select=1'b0;
+  assign v2_resident_owner_valid=encoder0_mode&&state!=IDLE&&state!=FINISH;
+  assign v2_resident_owner_request_id=request_id;
+  assign v2_resident_owner_generation=generation;
+  assign v2_resident_owner_epoch=operation_epoch;
+  assign v2_resident_access_request_id=request_id;
+  assign v2_resident_access_generation=generation;
+  assign v2_resident_access_epoch=operation_epoch;
+  assign v2_resident_inputs_ready=encoder0_mode&&done_status==0&&(state==E_RA_SUB||state==E_RA_RUN||state==E_RF_SUB||state==E_RF_RUN);
+  assign v2_parent_matrix_retired=m_cmd_ready&&!m_done_valid;
+  assign v2_parent_quant_retired=q_cmd_ready&&!q_done_valid;
+  assign v2_h_wr_valid=encoder0_mode&&state==E_H_LOAD&&in_valid&&legal_input;
+  assign v2_h_wr_addr={in_row[6:0],in_group[4:0]};
+  assign v2_h_wr_data=in_data;
+  assign v2_h_rd_valid=encoder0_mode&&resident_issue<4096&&((state==QRUN&&!producer_failed)||state==E_EXPORT);
+  assign v2_h_rd_addr=resident_issue[11:0];
+  assign v2_h_rsp_ready=state==E_ABORT?1'b1:encoder0_mode&&state==QRUN?q_in_ready:encoder0_mode&&state==E_EXPORT?out_ready:1'b0;
+  assign v2_q_wr_valid=encoder0_mode&&state==WMRUN&&m_out_valid&&projection_identity_ok;
+  assign v2_q_wr_addr={m_out_row,m_out_col[9:5]};
+  assign v2_q_wr_data=m_out_data;
+  assign v2_q_rd_valid=encoder0_mode&&state==F_NQRUN&&resident_issue<4096&&!producer_failed;
+  assign v2_q_rd_addr=resident_issue[11:0];
+  assign v2_q_rsp_ready=state==E_ABORT?1'b1:encoder0_mode&&state==F_NQRUN&&q_in_ready;
+  assign v2_scratch_lease_valid=encoder0_mode&&(state==E_WO_LEASE||state==E_RA_LEASE||state==E_LN_LEASE||state==E_FF_LEASE||state==E_RF_LEASE)&&resident_retired;
+  assign v2_scratch_release_valid=encoder0_mode&&(state==E_WO_POST||state==E_RA_RELEASE||state==E_LN_RELEASE||state==E_FF_POST||state==E_RF_RELEASE||state==E_ABORT)&&resident_retired&&v2_scratch_owner_active;
+  assign desc_ready=rst_n&&desc_window&&desc_identity_ok;
+  assign desc_reject_valid=rst_n&&desc_valid&&(!desc_window||!desc_identity_ok);
+  assign desc_reject_code=!desc_window?4'd1:desc_request!=request_id?4'd2:desc_generation!=generation?4'd3:desc_source_epoch!=epoch?4'd4:desc_global_layer!=0||desc_pair_kind!=1?4'd5:4'd6;
+  assign v2_vector_start_valid=state==E_RA_SUB||state==E_RF_SUB;
+  assign v2_vector_start_op=2'b0;
+  assign v2_vector_start_request_id=request_id;
+  assign v2_vector_start_generation=generation;
+  assign v2_vector_start_epoch=operation_epoch;
+  assign v2_vector_done_ready=state==E_RA_RUN||state==E_RF_RUN;
+  assign v2_resident_ln_start_valid=state==E_LN_SUB;
+  assign v2_resident_ln_rows=8'd128;
+  assign v2_resident_ln_use_gamma=1'b0;
+  assign v2_resident_ln_model=MODEL_ID[63:0];
+  assign v2_resident_ln_key=32'b0;
+  assign v2_resident_ln_done_ready=state==E_LN_RUN||state==E_ABORT;
+  assign v2_ln_reject_ready=state==E_LN_RUN;
+  assign v2_ln_cancel_valid=state==E_ABORT&&v2_ln_active&&!g_cancel_sent;
+  assign v2_ln_cancel_request_id=request_id;
+  assign v2_ln_cancel_generation=generation;
+  assign v2_ln_cancel_epoch=operation_epoch;
+  // PlainLN in this ABI has no gamma producer. The persistent gamma public
+  // interface stays entirely within its resource owner, unused by this parent.
+  assign v2_ln_gamma_begin_valid=1'b0;
+  assign v2_ln_gamma_model=64'b0;
+  assign v2_ln_gamma_key=32'b0;
+  assign v2_ln_gamma_valid=1'b0;
+  assign v2_ln_gamma_chunk=5'b0;
+  assign v2_ln_gamma_data='0;
+  assign v2_ln_gamma_done_ready=1'b1;
+  assign v2_g_tanh_lease_valid=state==F_GQSUB&&!tanh_lease_active&&ws_g_enable;
+  assign v2_g_tanh_lease_request_id=request_id;
+  assign v2_g_tanh_lease_generation=generation;
+  assign v2_g_tanh_lease_epoch=operation_epoch;
+  assign v2_g_tanh_lease_phase=3'd1;
+  assign v2_g_tanh_release_valid=state==F_RELEASE&&tanh_lease_active&&g_engine_idle&&r_res_st_idle&&tanh_pending==0&&tanh_flight==0;
+  assign v2_g_tanh_release_phase=3'd1;
+  assign v2_g_tanh_release_epoch=operation_epoch;
+  assign v2_g_tanh_phase_debt_clear=g_engine_idle&&r_res_st_idle;
+  // Two actual resident counters are reused only at debt-free stage boundaries.
+  always_ff @(posedge clk)begin
+    if(!rst_n)begin resident_issue<=0;resident_sink<=0;end
+    else begin
+      if(cmd_valid&&cmd_ready||state==E_H_READY||state==F_NQSUB&&q_cmd_valid&&q_cmd_ready||state==WMSUB&&m_cmd_valid&&m_cmd_ready||state==E_RF_RELEASE&&v2_scratch_release_valid&&v2_scratch_release_ready)begin resident_issue<=0;resident_sink<=0;end
+      else begin
+        if(v2_h_rd_valid&&v2_h_rd_ready||v2_q_rd_valid&&v2_q_rd_ready)resident_issue<=resident_issue+1'b1;
+        if(v2_q_wr_commit||encoder0_mode&&state==E_EXPORT&&out_valid&&out_ready)resident_sink<=resident_sink+1'b1;
+      end
+    end
+  end
+// === SEQUENTIAL STAGES ===
+    if(encoder0_mode)begin
+      if(h_load_fire&&!producer_failure)begin
+        if(!v2_h_wr_commit)begin
+          done_status<=2;source_status<=8;error_domain<=7;
+          error_tuple<=encoder0_error_envelope(8'h80,0,3,0,0,0,0,0);state<=E_ABORT;
+        end else if(input_bad[5])begin
+          done_status<=1;source_status<=6;error_domain<=7;
+          error_tuple<=encoder0_error_envelope(8'h80,in_row[6:0],0,0,0,{in_group[4:0],input_bad[4:0]},0,0);state<=E_ABORT;
+        end else if(inputs_accepted==4095)state<=E_H_READY;
+      end
+      if(state==E_H_LOAD&&producer_fail_fire)state<=E_ABORT;
+      if(state==E_H_READY&&v2_h_bank_idle)begin state<=PREP;inputs_accepted<=0;end
+      if(state==E_WO_LEASE&&v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=WMSUB;
+      if(state==E_WO_POST&&resident_sink==4096&&v2_scratch_release_valid&&v2_scratch_release_ready)state<=E_REFILL0;
+      if(desc_valid&&desc_ready)begin
+        if(!desc_record_ok)begin state<=E_ABORT;done_status<=5;source_status<=1;error_domain<=1;end
+        else begin tensor_id[desc_slot]<=desc_tensor;base[desc_slot]<=desc_base;span[desc_slot]<=desc_span;state<=state==E_REFILL0?E_REFILL1:E_RA_LEASE;end
+      end
+      if(state==E_RA_LEASE&&v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_RA_OWNER;
+      if(state==E_RA_OWNER&&v2_vector_enable)state<=E_RA_SUB;
+      if(state==E_RA_SUB&&v2_vector_start_valid&&v2_vector_start_ready)state<=E_RA_RUN;
+      if(state==E_RF_LEASE&&v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_RF_OWNER;
+      if(state==E_RF_OWNER&&v2_vector_enable)state<=E_RF_SUB;
+      if(state==E_RF_SUB&&v2_vector_start_valid&&v2_vector_start_ready)state<=E_RF_RUN;
+      if(vector_done_fire)begin
+        if(v2_vector_done_status==0&&v2_vector_issued_vectors==4096&&v2_vector_retired_vectors==4096&&v2_h_bank_idle)state<=state==E_RA_RUN?E_RA_RELEASE:E_RF_RELEASE;
+        else begin
+          state<=E_ABORT;error_domain<=7;
+          done_status<=v2_vector_done_status==6?8'd1:8'd2;
+          source_status<=v2_vector_done_status==6?8'd6:8'd8;
+          if(v2_vector_done_status==6)error_tuple<=encoder0_error_envelope(state==E_RA_RUN?8'h81:8'h83,v2_vector_done_error_row,0,0,0,v2_vector_done_error_column,0,0);
+          else error_tuple<=encoder0_error_envelope(state==E_RA_RUN?8'h81:8'h83,0,3,0,0,0,0,0);
+        end
+      end
+      if(state==E_RA_RELEASE&&v2_scratch_release_valid&&v2_scratch_release_ready)state<=E_LN_LEASE;
+      if(state==E_LN_LEASE&&v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_LN_OWNER;
+      if(state==E_LN_OWNER&&v2_ln_enable)state<=E_LN_SUB;
+      if(state==E_LN_SUB&&v2_resident_ln_start_valid&&v2_resident_ln_start_ready)state<=E_LN_RUN;
+      if(ln_reject_fire&&done_status==0)begin
+        state<=E_ABORT;done_status<=2;source_status<=8;error_domain<=7;
+        error_tuple<=encoder0_error_envelope(8'h82,0,3,0,0,0,v2_ln_reject_code,0);
+      end
+      if(state==E_LN_RUN&&resident_ln_done_fire&&!ln_reject_fire)begin
+        if(v2_resident_ln_done_kind==0&&v2_resident_ln_done_status==0&&v2_resident_ln_issued_vectors==4096&&v2_resident_ln_written_vectors==4096)state<=E_LN_RELEASE;
+        else begin
+          state<=E_ABORT;error_domain<=7;
+          done_status<=v2_resident_ln_done_kind==1?8'd1:8'd2;
+          source_status<={6'b0,v2_resident_ln_done_kind};
+          if(v2_resident_ln_done_kind==1)error_tuple<=encoder0_error_envelope(8'h82,v2_ln_error_row,v2_ln_error_class,v2_ln_error_check,v2_ln_error_level,v2_ln_error_node,0,0);
+          else if(v2_resident_ln_done_kind==2)error_tuple<=encoder0_error_envelope(8'h82,0,3,0,0,0,v2_ln_protocol_code,v2_ln_protocol_location);
+          else error_tuple<=encoder0_error_envelope(8'h82,0,3,0,0,0,0,0);
+        end
+      end
+      if(state==E_LN_RELEASE&&v2_scratch_release_valid&&v2_scratch_release_ready)state<=E_FF_LEASE;
+      if(state==E_FF_LEASE&&v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_FF_OWNER;
+      if(state==E_FF_OWNER&&ws_g_enable)state<=F_NQSUB;
+      if(state==F_NQSUB&&q_cmd_valid&&q_cmd_ready)inputs_accepted<=0;
+      if(state==E_FF_POST&&resident_sink==4096&&v2_scratch_release_valid&&v2_scratch_release_ready)state<=E_RF_LEASE;
+      if(state==E_RF_RELEASE&&v2_scratch_release_valid&&v2_scratch_release_ready)state<=E_EXPORT;
+      if(state==E_EXPORT&&out_valid&&out_ready&&resident_sink==4095)state<=E_EXPORT_DRAIN;
+      if(state==E_EXPORT_DRAIN&&resident_issue==4096&&resident_sink==4096&&resident_retired&&v2_scratch_retired)state<=E_FINAL_A;
+      if(state==E_ABORT&&resident_retired&&v2_scratch_retired)state<=E_FINAL_A;
+      if(state==E_FINAL_A&&ws_a_enable&&resident_retired&&v2_scratch_retired)state<=FINISH;
+    end

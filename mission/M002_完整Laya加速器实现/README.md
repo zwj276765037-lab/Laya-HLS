@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # M002 · 完整Laya加速器实现
 
@@ -33,7 +33,6 @@ M002/SM002原合同不改、不复用ID；其生产连接和当前身份回归�
 
 - [controller_replanning_20261011](../../results/controller_replanning_20261011.md)
 - [mission_scope_revision_20261011](../../results/mission_scope_revision_20261011.md)
-- [review_queue](../../results/review_queue.md)
 - [C022 · M005立即并行：独立整模流水性能与可行性预算](../../communication/C022_M005%E7%AB%8B%E5%8D%B3%E5%B9%B6%E8%A1%8C%EF%BC%9A%E7%8B%AC%E7%AB%8B%E6%95%B4%E6%A8%A1%E6%B5%81%E6%B0%B4%E6%80%A7%E8%83%BD%E4%B8%8E%E5%8F%AF%E8%A1%8C%E6%80%A7%E9%A2%84%E7%AE%97/thread.md)
 
 本页是原记录的导航投影；登记、送达及局部结果不代表整体验收。

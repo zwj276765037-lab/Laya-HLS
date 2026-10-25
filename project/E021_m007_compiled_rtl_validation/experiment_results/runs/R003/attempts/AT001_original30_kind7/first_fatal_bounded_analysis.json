@@ -1,0 +1,115 @@
+{
+  "verdict": "ORIGINAL_ASSERTION_FAILURE_NOT_COST_STOP",
+  "fullgraph_complete": false,
+  "first_fatal_exact": "[24285143000] %Fatal: m007_fullgraph_binary_tb.sv:257: Assertion failed in TOP.m007_fullgraph_binary_tb.unnamedblk2.unnamedblk8: original final gamma LN checkpoint",
+  "following_error_exact": "%Error: /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_public_abi_v4/frozen/m007_fullgraph_binary_tb.sv:257: Verilog $stop",
+  "fatal_source": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_public_abi_v4/frozen/m007_fullgraph_binary_tb.sv",
+    "sha256": "86629840d80ea5867957489def3040fcd116a2cb3b15c1f9e4f75ac7dafd99b8",
+    "line": 257
+  },
+  "exact_source_predicate": "if(kind_run!=7 || final_norm_seen[a] || dut.active_epoch_offset!=448 || dut.resident.p_q_wr_data!==checkpoint_gold[28*4096+a]) $fatal(1,\"original final gamma LN checkpoint\")",
+  "address_source": "a=int'(dut.resident.p_q_wr_addr)",
+  "observed_subcondition_values_at_fatal": "UNKNOWN; original log does not print address, duplicate bit, active offset, actual words or expected words",
+  "last_actual_parent_state": "N_RUN90 c12142243; final gamma LN admitted, success N_RETIRE91 not reached",
+  "completed_original_layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27
+  ],
+  "actual_layer27_endpoint_cycle": 12142238,
+  "actual_layer27_endpoint_wall_s": 9084.95904364402,
+  "last_observed_counts": {
+    "commands": 1,
+    "catalog_runtime": 112,
+    "matrix_commands": 112,
+    "layers_completed": 28,
+    "ln_commands": 56,
+    "vector_commands": 56,
+    "g_commands": 28,
+    "exports": 0,
+    "tail_commits": 0,
+    "tail_writes": 0,
+    "final_norm_count": 0,
+    "type_count": 0,
+    "global_layer": 27
+  },
+  "counts_scope": "snapshot atN_RUNentry, not a dump of values at exact Fatal",
+  "completed_real_head_successes": 448,
+  "completed_stage_count": 727,
+  "final_gamma_success_type_Decision_tail": "NOT_REACHED_OR_NOT_COMPLETED_IN_THIS_RUN",
+  "primary_outer_guard": {
+    "trigger": null,
+    "child_exit_code": 1,
+    "elapsed_seconds": 9085.828054456972
+  },
+  "inner_model_exit": {
+    "raw_child_return_code": -9,
+    "driver_return_exit_code": 1,
+    "classification": "original Fatal precedes cleanup; raw-9 is not a substitute for semantic cause",
+    "cleanup_source": "original frozen driver on Fatal terminates live child, waits0.5s, then kills if still live; no separate signal-sender log, keep raw distinction"
+  },
+  "additional_composite_guard": {
+    "verdict": "NOT_REACHED",
+    "anchor_reached": true,
+    "completed_handoff": false,
+    "verified_owned_leader_terminated": false,
+    "triggered_cost_stop": false
+  },
+  "bounded_static_candidate": {
+    "status": "SOURCE_LEVEL_INTERFACE_HOLD_RISK; NOT_CONFIRMED_OBSERVED_FATAL_SUBCONDITION",
+    "parent": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_kind7_public_boundary_v2/frozen/laya_m007_single_parent_v3.sv",
+      "sha256": "7b0d0c6dbdf85c4e41db28fedc8f48edb763b6c21c3d668f2d3fa886c4cc3714",
+      "line": 1475,
+      "fact": "use_gamma=(state==N_START); parent leaves N_START on resident start handshake"
+    },
+    "resident": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_kind7_public_boundary_v2/frozen/laya_m007_resident_joint_v3.sv",
+      "sha256": "ac9a92fc995f9b40b1bf0284fd2490679492bba65eba6065390703873b79e229",
+      "line": 1468,
+      "fact": "p_use_gamma directly follows resident_ln_use_gamma"
+    },
+    "provider": {
+      "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_kind7_public_boundary_v2/frozen/laya_m007_resident_ln32_v1.sv",
+      "sha256": "c19305bae4e6064416dc511d54ccd5df1eb1c10e9ebfbaf425975cf4fcb014bf",
+      "line": 70,
+      "fact": "ln_cmd_gamma directly follows use_gamma; start goes IDLE->LEASE->CMD without gamma latch (89..91)"
+    },
+    "inference": "later actual provider CMD during parent N_RUN would see use_gamma0, so gamma command may be omitted; separate from missing actual Fatal address/data evidence",
+    "not_performed": [
+      "no RTL/TB edit",
+      "no new simulation/reference/build",
+      "no fullgraph retry",
+      "no numeric reconstruction of missing actual words"
+    ]
+  },
+  "current_exact_root_cause": "UNKNOWN beyond frozen composite final gamma checkpoint assertion",
+  "user_pause_boundary": "finish this read-only audit, merge, cleanup and archive then A012 paused; no successor work",
+  "recorded_at": "2026-10-23T17:37:20.528737+00:00"
+}

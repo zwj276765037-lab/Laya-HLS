@@ -1,0 +1,16 @@
+# CANCEL-END-19 / E018 R003 engineering handoff
+
+execution_state: completed
+verdict: supported for corrected full successful-terminal cancellation lifecycle
+
+AT003 uses the unchanged production engine6b8b0114 and current corrected AT021 build/TB dfc753df. It passes the original335872 outputs and3358720 node checks,20992 real native writes/ACKs,41984 reads and82 slot releases in125.51343772700056s guarded child wall. Actual full cancelled DONE is42172 cycles; first185 and read/output gaps1. Original normal42171 is reused only as R002/AT018 evidence, not relabeled as a new run. [Actual full report](attempts/AT003_corrected_full_terminal_cancel/work/report.json).
+
+The missing lifecycle now passes: a matching producer cancel is presented at the genuine full successful-normal terminal candidate, before any normal DONE; the qualified cancelled DONE/status0 and response identity remain stable17 cycles; one actual DONE consumption leaves needs_discard set and retirement barred; actual matching pair discard permits engine idle/resource release; actual workspace G-to-A rearm and layer PREP reload2 coverage locations complete. DONE uniqueness is supported by the sole active-clearing production publication branch plus held/consume/retirement and inactive-G assertions. No separate runtime DONE publication counter is claimed. The printed held_final17=0 is the output-stall counter, distinct from the independently asserted DONE held17.
+
+The only selected-source change from the old AT002 build to corrected AT021 is FINAL_REAL_DEBT permitting expected needs_discard in mode2. All other numerical/debt/qualification assertions remain. R003 changes no production RTL, numeric/layout/storage/fixture, adds0 FF, and retains the R0023-bit cancellation cost: joint4036.375B, ceil4037B/59B rounded margin. No physical-fit claim.
+
+AT001 preflight passes22 selected source and39 snapshot identities. AT002 is retained COST_GATE_STOP before any child launch/0s: the new guard's prior-evidence path incorrectly pointed into R003. Only that path was fixed; fresh AT003 is this batch's sole actual full RTL child under the unchanged200s cap. No full retry or timeout extension occurred. R002 AT020 remains FAIL; its raw unprinted debt vector is not reinterpreted.
+
+AT004 final audit passes: all34 R001 and25 R002 receipt hashes unchanged, current source/build/snapshot/fixture identities bound, prior source archives verified, actual full lifecycle markers unique and all launched owned cleanup empty. [Audit](attempts/AT004_final_release_audit/work/report.json). Independent guarded child costs reference/static/RTL/OOC are0/0.36799949401756748/125.51343772700056/0s against0/120/300/0s;60s reserve retained. Four terminal receipts:3 EXIT_ZERO and1 COST_GATE_STOP before child launch. No E018 child is live or queued. [Budget](final_budget.json), [machine handoff](final_delivery.json).
+
+A001 may now continue the authorized FFN/residual/LN/Encoder/30-layer dependency chain. This delivery only closes the named G cancellation functional lifecycle; it does not sign those downstream stages, timing, resource fit, P&R or board behavior. Desired gpt-6.1-sol/xhigh, actual model/effort unverified; runtime/root/m007_strict_fp_engineering, thread_id null.

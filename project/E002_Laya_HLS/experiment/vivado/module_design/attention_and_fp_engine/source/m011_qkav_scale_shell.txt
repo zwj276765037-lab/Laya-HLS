@@ -1,0 +1,4 @@
+ laya_fp_return_credit_v1 #(.WIDTH(128),.LATENCY(8),.DEPTH(16)) scale_credit(.clk,.rst_n,.bypass_enable(1'b0),.req_valid(scale_valid&&scale_ready),.req_ready(scale_ready),.req_tag(scale_tag),.result_valid(scale_leaf_valid[0]),.result_data(scale_output),.rsp_valid(scale_rsp_valid),.rsp_ready(scale_rsp_ready),.rsp_tag(scale_rsp_tag),.rsp_data(scale_data),.pending(scale_pending),.in_flight(scale_inflight),.fault(scale_fault));
+ for(genvar s=0;s<4;s++)begin:constant_scale
+  laya_fmul_rne_v1 lane(.aclk(clk),.aclken(1'b1),.aresetn(rst_n),.s_axis_a_tvalid(scale_valid&&scale_ready),.s_axis_a_tdata(scale_input[s]),.s_axis_b_tvalid(scale_valid&&scale_ready),.s_axis_b_tdata(32'h3e000000),.m_axis_result_tvalid(scale_leaf_valid[s]),.m_axis_result_tdata(scale_output[s]));
+ end

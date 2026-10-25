@@ -1,0 +1,116 @@
+`timescale 1ns/1ps
+// Autonomous single M128xN64. A/W remain the one real public slot services.
+// The only physical256mul/add and PS/G/context set are instantiated below.
+module laya_m007_matrix_superblock_v1 #(parameter bit PROFILE_ENABLE=1)(
+ input logic clk,rst_n,
+ input logic cmd_valid,output logic cmd_ready,
+ input logic [63:0] cmd_request,cmd_model,input logic [31:0] cmd_generation,cmd_epoch,cmd_tensor,
+ input logic [15:0] cmd_k,cmd_n,cmd_s,input logic cmd_a_slot,cmd_w_slot,cmd_ctx,cmd_bias,
+ input logic [63:0][31:0] cmd_bias_data,input logic run_enable,
+ output logic done_valid,input logic done_ready,output logic [2:0] status,
+ output logic [63:0] done_request,output logic [31:0] done_generation,
+ output logic [6:0] error_row,output logic [15:0] error_col,output logic [7:0] error_group,
+ output logic [31:0] elapsed_cycles,output logic [31:0] first_issue_cycle,last_issue_cycle,last_output_cycle,max_issue_commit,max_ps_feedback,output_bubbles,
+ output logic out_valid,input logic out_ready,output logic [31:0][31:0] out_data,
+ output logic [6:0] out_row,output logic out_half,
+ // Metadata taps are wired only to actual consumed completion handshakes.
+ input logic a_complete,input logic a_complete_slot,input logic [1:0] a_complete_status,input logic [15:0] a_complete_k,
+ input logic [63:0] a_complete_request,input logic [31:0] a_complete_generation,a_complete_epoch,
+ input logic w_complete,input logic w_complete_slot,input logic [2:0] w_complete_status,input logic [15:0] w_complete_k,w_complete_n,w_complete_s,
+ input logic [63:0] w_complete_request,w_complete_model,input logic [31:0] w_complete_generation,w_complete_tensor,
+ // A synchronous II1 record service with separate bounded return debts.
+ output logic a_lease_valid,input logic a_lease_ready,output logic a_lease_slot,
+ output logic [63:0] a_lease_request,output logic [31:0] a_lease_generation,a_lease_epoch,
+ output logic a_rd_valid,input logic a_rd_ready,output logic a_rd_slot,output logic [2:0] a_rd_m,output logic [6:0] a_rd_group,
+ output logic [95:0] a_rd_tag,output logic [63:0] a_rd_request,output logic [31:0] a_rd_generation,a_rd_epoch,
+ input logic a_rsp_valid,output logic a_rsp_ready,input logic [4351:0] a_rsp_data,input logic [95:0] a_rsp_tag,input logic a_rsp_slot,
+ output logic a_ret_valid,input logic a_ret_ready,output logic a_ret_slot,output logic [95:0] a_ret_tag,
+ output logic [63:0] a_ret_request,output logic [31:0] a_ret_generation,a_ret_epoch,
+ output logic a_release_valid,input logic a_release_ready,output logic a_release_slot,
+ output logic [63:0] a_release_request,output logic [31:0] a_release_generation,a_release_epoch,
+ // W public read/copy/ret has the measured4cycle acceptance interval.
+ output logic w_lease_valid,input logic w_lease_ready,output logic w_lease_slot,
+ output logic [63:0] w_lease_request,w_lease_model,output logic [31:0] w_lease_generation,w_lease_tensor,
+ output logic w_rd_valid,input logic w_rd_ready,output logic w_rd_slot,output logic [8:0] w_rd_addr,output logic [63:0] w_rd_tag,
+ output logic [63:0] w_rd_request,w_rd_model,output logic [31:0] w_rd_generation,w_rd_tensor,
+ input logic w_rsp_valid,output logic w_rsp_ready,input logic [4351:0] w_rsp_data,input logic [63:0] w_rsp_tag,input logic w_rsp_slot,
+ output logic w_ret_valid,input logic w_ret_ready,output logic w_ret_slot,output logic [63:0] w_ret_tag,w_ret_request,output logic [31:0] w_ret_generation,
+ output logic w_release_valid,input logic w_release_ready,output logic w_release_slot,
+ output logic [63:0] w_release_request,output logic [31:0] w_release_generation,
+ // Read-only verification taps; no fixture can commit storage through these.
+ output logic trace_issue,output logic [12:0] trace_issue_seq,output logic [4095:0] trace_a_q,trace_w_q,output logic [255:0] trace_a_scale,trace_w_scale,
+ output logic trace_dot,output logic [12:0] trace_dot_seq,output logic [255:0][20:0] trace_dot_data,
+ output logic trace_format,output logic [12:0] trace_format_seq,output logic [255:0][31:0] trace_scale_product,trace_converted,
+ output logic trace_term,output logic [12:0] trace_term_seq,output logic [255:0][31:0] trace_term_data,
+ output logic trace_commit,output logic [12:0] trace_commit_seq,output logic [255:0][31:0] trace_commit_data,
+ output logic [6:0] arithmetic_debt,output logic [7:0] peak_return_reservations,
+ input logic cmd_first,cmd_last,
+ input logic cancel_valid,input logic [2:0] cancel_status,input logic [6:0] cancel_row,input logic [15:0] cancel_col,input logic [7:0] cancel_group,input logic [3:0] cancel_stage,
+ output logic block_done_valid,input logic block_done_ready,output logic block_done_ctx,output logic [15:0] block_done_s,
+ output logic [15:0] trace_block_s,output logic trace_compute_ctx,
+ output logic [15:0] out_block_s,out_col,
+ output logic [31:0] ps_merged_reads,ps_response_holds,bias_add_conflicts,compute_output_overlap,
+ output logic [1:0][6:0] ctx_bias_reads,ctx_bias_adds,ctx_bias_acks,
+ output logic [1:0] ctx_busy_debug,output logic [6:0] peak_arithmetic_reservations,
+ output logic [3:0] error_stage
+);
+// Thin compatibility shell: exactly one common pure numerical implementation.
+ logic [63:0] fp_owner_request;
+ logic [31:0] fp_owner_generation;
+ logic [31:0] fp_owner_epoch;
+ logic bind_new_lease;
+ logic fp_release_valid;
+ logic fp_phase_debt_clear;
+ logic fp_lease_ready;
+ logic fp_release_ready;
+ logic fp_lease_active;
+ logic fp_draining;
+ logic fp_fault;
+ logic storage_bind_ready;
+ logic storage_idle;
+ logic mul_req_valid;
+ logic mul_rsp_ready;
+ logic mul_req_ready;
+ logic mul_rsp_valid;
+ logic [95:0] mul_req_tag;
+ logic [95:0] mul_rsp_tag;
+ logic [255:0][31:0] mul_a;
+ logic [255:0][31:0] mul_b;
+ logic [255:0][31:0] mul_rsp_data;
+ logic [6:0] mul_pending;
+ logic [6:0] add_req_valid;
+ logic [6:0] add_req_is_root;
+ logic [6:0] add_rsp_ready;
+ logic [6:0] add_req_ready;
+ logic [6:0] add_rsp_valid;
+ logic [6:0][2:0] add_req_phase;
+ logic [6:0][31:0] add_req_epoch;
+ logic [6:0][95:0] add_req_tag;
+ logic [6:0][95:0] add_rsp_tag;
+ logic [255:0][31:0] add_a;
+ logic [255:0][31:0] add_b;
+ logic [255:0][31:0] add_rsp_data;
+ logic [6:0][6:0] add_pending;
+ logic ps_wr_valid;
+ logic ps_wr_rsp_ready;
+ logic ps_rd_valid;
+ logic ps_rd_rsp_ready;
+ logic ps_wr_ready;
+ logic ps_wr_rsp_valid;
+ logic ps_rd_ready;
+ logic ps_rd_rsp_valid;
+ logic [1023:0] ps_wr_mask;
+ logic [1023:0] ps_rd_mask;
+ logic [1023:0] ps_rd_rsp_mask;
+ logic [1023:0][3:0] ps_wr_addr;
+ logic [1023:0][3:0] ps_rd_addr;
+ logic [1023:0][31:0] ps_wr_data;
+ logic [1023:0][31:0] ps_rd_rsp_data;
+ logic [95:0] ps_wr_tag;
+ logic [95:0] ps_rd_tag;
+ logic [95:0] ps_wr_rsp_tag;
+ logic [95:0] ps_rd_rsp_tag;
+ logic profile_valid;
+ laya_m007_matrix_engine_v1 #(.PROFILE_ENABLE(PROFILE_ENABLE)) engine(.*);
+ laya_m007_matrix_resources_v1 resources(.*);
+endmodule

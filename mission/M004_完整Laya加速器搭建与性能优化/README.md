@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # M004 · 完整Laya加速器搭建与性能优化
 
@@ -21,25 +21,20 @@
 
 ## 任务总结原文摘录
 
-# M004 当前状态：修订21成本收束，修订22唯一矩阵服务/首TN8推进
+# M004：旧主线暂停，保留未完成范围
 
-## 修订21成本收束与修订22矩阵合同（2026-10-16）
+updated: 2026-10-17
+execution_state: paused
+verdict: unassessed
+review_state: historical_evidence_preserved
 
-2026-10-16；M004/SM004 running/unassessed。[修订21成本出口](../../results/m004_simplified_start_20261014/ln128_wprep_q16_rev21_at383_closeout_decision.md)已定：AT368独立真实LN128→W→首A16和受影响局部错误/恢复按原SHA/断言范围接纳，AT379补上层stage done未消费屏障。AT382当前父top实际O3展开及真实row0通过；AT383固定120s只退休两行，COST_STOP，父动态W/Q/A16和完整父同runtime仍OPEN。
+用户此前“先暂停，等我通知”仍有效。新 [当前Goal](../../goal/goal.md) 与 [M006 合同](../M006_CPU_FPGA%E5%8D%8F%E5%90%8C%E9%AB%98%E6%80%A7%E8%83%BD%E6%8E%A8%E7%90%86%E5%AE%9E%E7%8E%B0/contract.md)已完成文档并成为当前方向，M004 不再是当前实施主线，也没有因此验收完成。
 
-905项增量核验，744冻结/7guard/46政策通过；最终60guard/398政策，static1194.49134845845400532/1800s、RTL3276.6153784599155065/3600s。余static605.50865154154599468s/RTL323.3846215400844935s封存，不转后继；host完整与AT361未观测policy/RSS仍UNKNOWN，旧FAIL/COST_STOP保持。另核父TB只是LN阶段：W响应关闭、STATE1绑零、LN128即结束；延长原TB不能验证W/Q，后继父链须补真实peer与相位checker。
+[本次转换前总结原文](../../results/missions/M004_summary_before_codesign_20261017.md)保存全部历史判断。旧独立 LN128→W→A16、矩阵局部与父请求前缀结果仅在原身份/断言范围有效，完整旧父图和模型/Host-HBM/联合物理仍未闭合。
 
-[修订22正式合同](../../results/m004_simplified_start_20261014/a16_matrix16_rev22_decision.md)采用已审核唯一matrix服务、A16 claim/SL_MATRIX、同步A/PS单口及完整rows16/K1024/N3072 STEP16。独立真实主例从LN128→W冷载→Q16→首TN8，核128stripe/512行组/128final/16笔B及ps_retire；前4行独立gold、后12行传递/覆盖分开。首TN8不发父完成/RAW/FINAL。父完整链欠账继续保留，不作为所有矩阵推进前置。
+AT404 审核待续；工程暂停回报称 AT405–408 源码、日志和费用已保留。本轮不审核或升级这些结果，不新封修订22费用总账。旧 FAIL/COST_STOP、未测项和预算余额原样保留，不能转入 M006。
 
-新独立host300s/static1800s/RTL3600s预算，未知路径先≤120s；新组合真实LN16与同版W/Q16/首TN8局部完整样本支持合同2.5倍计划式≤1440s且余RTL≥1800s时，自动一次≤1800s主例。全项目单重工具/CPU0–3/nice19/idle/内存及语义停滞保护不变。普通修复连续执行，不原样续跑AT383、不启动HLS/OOC/P&R或新gold，不新建agent。修订22实现/动态结果待工程交付，完整模型/Host-HBM/联合物理未验。
-
-以下为历史审核时点，当前范围以上段及正式合同为准。
-
-## 修订21 AT378独立stage错误恢复限定接纳（2026-10-16）
-
-2026-10-16；M004/SM004 running/unassessed。[AT378审核](../../results/m004_simplified_start_20261014/ln128_wprep_q16_rev21_at378_milestone_decision.md)接纳同AT368生产SHA的真实W错误后独立stage显式discard→无reset真实LN row0恢复。一次运行先LN128/W末q0 SLVERR、零STATE1/Q和norm保持，再以id300/source epoch2刺激恢复gamma256R/source64R/1024norm逐W握手gold/64B，生产退休1；RTL286.085076s。直接stage_release_fire不
-
-（摘录截断；完整记录见链接。）
+恢复后的复用由新架构依赖决定，不要求先完成旧控制测试全集。工程与研究仍暂停；当前没有新实现派发。
 
 ## 相关决定、变更与讨论
 
@@ -216,6 +211,8 @@
 - [C056 · 首A16保持之后：现生产接口上的MATRIX16最小增量](../../communication/C056_%E9%A6%96A16%E4%BF%9D%E6%8C%81%E4%B9%8B%E5%90%8E%EF%BC%9A%E7%8E%B0%E7%94%9F%E4%BA%A7%E6%8E%A5%E5%8F%A3%E4%B8%8A%E7%9A%84MATRIX16%E6%9C%80%E5%B0%8F%E5%A2%9E%E9%87%8F/thread.md)
 - [C057 · 用户暂停指令（2026-10-16）](../../communication/C057_%E7%94%A8%E6%88%B7%E6%9A%82%E5%81%9C%E6%8C%87%E4%BB%A4%EF%BC%882026-10-16%EF%BC%89/thread.md)
 - [C058 · 用户暂停指令（2026-10-16）](../../communication/C058_%E7%94%A8%E6%88%B7%E6%9A%82%E5%81%9C%E6%8C%87%E4%BB%A4%EF%BC%882026-10-16%EF%BC%89/thread.md)
+- [C059 · M006硬件恢复派发：完整板端Attention首段](../../communication/C059_M006%E7%A1%AC%E4%BB%B6%E6%81%A2%E5%A4%8D%E6%B4%BE%E5%8F%91%EF%BC%9A%E5%AE%8C%E6%95%B4%E6%9D%BF%E7%AB%AFAttention%E9%A6%96%E6%AE%B5/thread.md)
+- [C064 · 用户暂停M006工程](../../communication/C064_%E7%94%A8%E6%88%B7%E6%9A%82%E5%81%9CM006%E5%B7%A5%E7%A8%8B/thread.md)
 
 本页是原记录的导航投影；登记、送达及局部结果不代表整体验收。
 

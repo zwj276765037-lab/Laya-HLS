@@ -209,3 +209,180 @@ caller 与 engine 之间仅允许层级内部的固定宽度 request/completion 
 
 production caller 的 HLS 编译闭包必须切断 `full_run_task` 的算术实现；CPU/reference 路径继续保留原直接调用。未实现的 engine family 必须明确拒绝或保持未接，不得用空函数、常量 ACK 或 Host fallback 伪装完成。
 
+## M007 E016 SINGLE-PARENT-11 current bounded implementation (2026-10-22)
+
+M007/SM012，D-M007-SM012-SINGLE-PARENT-11；工程负责人 A010。真实实现位于 forward_controller/rtl/laya_m007_single_parent_v1.sv 与 laya_m007_context_quant_adapter_v1.sv。父包含一份纯 layer、matrix facade、quant/A front、context adapter、原系数 cache 和 attention_resources；FP/PS/storage 与 DIV 分束路由。QKV 始终通过 layer 公开窄写口，context adapter 仅用实际公共响应保持，不复制整张 context。Profile=0。
+
+完整128bit原始 source tags：model6eb6ef58bc4f99bd9db40381604108af、numeric aeb13e7937d29fe6a2c68c407249f294、table b1fdc9ca482c0210982c7245cc50c965、graph f33f7848434b73048f957dcd232e1bd4、layout2d848b5fb78236c795cb1d442f088393、build7209eb09c3f265363cfb274f7790a733。这些是原部署来源身份，当前布局 M007-W576-v1 与每次实际编译 manifest 分开；不是当前 bitstream 身份。tensor_catalog.json 从原 manifest ordinal+1 导出60项，按 kind/layer 选择 QKV/WO key；shape不能替代 tensor 身份。Bias配置检查完整 model/numeric 及 request/gen/epoch/tensor。
+
+共享源只读：FP f4508add0e4fccd60314359a2a5fc0a8fa29530d209b92901e9bef5d413232d0；DIV8bbd14630885f50817e1055da0bec2449f055021b462fbc02bb531389ea05a79；纯 layer c3e80307f5a941c1d599eb579d8bc787021d428ea42453b81d7b80e037c7a9db；resource shell484f94579c1abe80b21e8080f32e52aefb30133b12502d42408556721c4c3a09（仅9个真实DIV输出引出）。完整依赖逐次冻结并由AT024核对。
+
+当前 parent SHA `e35424a62457ca08f1b5e707ad7b8a1556b1f578e8ced9e16adbe076592b4cb8`；AT013/15–17 parent SHA `c29e9376dcaa29c45738c4576886376686b6a0fda5259af4fe1171e2d5632a22`。唯一改变是 producer_close_success 仅在 CRUN 采用 c_fault，避免上一次 context fault 的空闲粘滞位污染新请求初始 QKV close；producer_failed仍全局有效，无新增寄存器。首head证据不改标当前版本；AT022/23仅补当前版编译及复位/QKV3。实际 context-fault→新generation父链仍未执行。
+
+新增 parent+adapter控制1561bit、按模块取整196B；原保守3550B合计3746B，余350B。452个实际输入源=444显式赋值+8个cache直接驱动。固定算术metadata/共享队列在原物理账保留；这是声明/连接/展开证据，无物理fit结论。地址base/span由可信fixture/未来Host注册提供；RTL检查对齐、span与溢出，不能从任意合法BO地址推断tensor SHA。每次实际原W/输入及公共QKV数据独立逐位比对，但通用Host注册服务尚未实现。
+
+方法与命令、资源限制、参考源见 [protocol.md](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_source/protocol.md)。实验原始证据在R001/attempts，最终版本边界见 [current_version_evidence.json](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R001/current_version_evidence.json)。
+
+## M007 E016 R002 simulator-cost comparison (2026-10-22)
+
+SM012 D-M007-SM012-SIM-COST-13；A010。R001原首head/故障/消费者/共同reset证据与成本出口冻结，见[原有界交付](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/runs/R001/final_delivery.md)。本段无生产RTL变更，parent SHA e35424a62457ca08f1b5e707ad7b8a1556b1f578e8ced9e16adbe076592b4cb8，Profile0，原sharedFP/DIV/layer/resource依赖与原模型fixture保持。
+
+两组逐文件冻结源码完全相同，xelab命令均为work.m007_single_parent_tb --relax -debug VALUE -mt4 --O3 -s m007_parent_sim；唯一选项差VALUE=typical/off。off直接复制typical冻结closure。两个snapshot保留实际生产模块、原独立数值gold、内部协议/排债/身份/连续issue/PS反馈断言及原checker频度。相同R002 TB统一仅增加一个被动quant-return计数、4096终点断言和既有input/quant/A/W/QKV握手打印；AT005去掉这些插入后逐字节恢复原TB SHA，确认未删改任何原checker/驱动。
+
+原fixture复用R001 AT012记录的28个文件，全部逐SHA核对。每组相同原Encoder0 QKV3，不跳实际parent相位，不发布父成功，不跑16head/WO。全部实际tool子进程串行持m007_heavy.lock，CPU0–3/nice19/idle，MemAvailable>192GiB，static24GiB/RTL8GiB、120s单次帽、strict numerical progress120s与40Mcycle不变。新独立reference0/static300/RTL300/OOC0s，无R001余额转移。
+
+协议：[r002_sim_cost_protocol.md](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_source/r002_sim_cost_protocol.md)。实际源码/命令/产品/fixture/日志/guard与receipt分别在R002/attempts。debug off的Tcl结果只用自己的query，不继承typical层次；观察到的scope可见性不作为物理实例/资源比较。
+
+## M007 E016 完整父链后继准备（2026-10-22，只读规划）
+
+本节是主控要求的有界准备，不是完整验证合同或运行放行。生产RTL/TB/runner未改，EDA未运行；R001/R002原attempt、最终交付和封账预算不变。当前parent SHA `e35424a62457ca08f1b5e707ad7b8a1556b1f578e8ced9e16adbe076592b4cb8`。证据与单独只读账：[planning](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/planning/full_parent_successor_20261022/planning_ledger.json)、[冻结gold布局核对](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E016_m007_single_resource_parent/experiment_results/planning/full_parent_successor_20261022/frozen_gold_layout_consistency.json)。
+
+### 当前实际入口与不能直接运行完整链的原因
+
+生产parent在[控制段](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/rtl/laya_m007_single_parent_v1.sv:1142)已写出 `LRUN→CSUB→CRUN→CDRAIN→WMSUB→WMRUN→FINISH`：真实layer成功DONE后启动同一quant/A和context adapter，等待c_complete/c_idle及layer_idle，再发K1024/N1024的WO命令；WO真实matrix DONE被消费后才进入父FINISH。这是源码行为，未被当前完整链动态签署，未发现仅据源码即可认定必须先修改RTL的缺陷。
+
+现[m007_single_parent_tb.sv](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_single_parent_tb.sv:211)没有full模式。PREFIX>0只结束QKV前缀；PREFIX=0在首个实际h_done握手就打印FIRST_HEAD并$finish。head计数是首head总数，max_checked只置一次，未按16head退休重置；仅去掉$finish会在head1统计断言失效。虽然score/prob/context/max数组已加载全16head参考，当前终点仍只核head0，且未要求max_checked成为终点条件。
+
+当前W peer只装QKV p0..p3，AR地址仅允许cmd_base[0]/cmd_span[0]，Rdata也固定按QKV基址读。当前A/write和W/prebias/core trace checker同样固定QKV数据与48块计数；后续context A和WO从s0重起会误用旧gold/旧计数。out_ready恒1，尚无父WO数据/正常成功DONE检查。
+
+现[runner](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_parent_run.py:34)也无full模式：prefix0要求QKV3 pilot，成本门只投影完整QKV+首head71168周期，成功marker固定FIRST_HEAD；没有完整父成功marker、全链fixture身份、完整阶段wall事件或独立后继账。因此不能直接调用旧runner加timeout获得完整链。R002 runner同样固定PREFIX=3，仅供已关闭的debug选项对照；普通runner保留O3/debug typical，不继续扫旗标。
+
+### 新TB应新增的检查与合法驱动
+
+| 边界 | 应新增或按相位扩展的实际检查 | 驱动限制 |
+| --- | --- | --- |
+| 一次父命令/QKV | 原8身份拒绝与所有原QKV检查保留；正常命令只接受一次；4096原输入→4096quant/Awrite/Aack，48块、12288QKV32/393216值；matrix QKV命令与layer.start各恰一次 | 通过原cmd/F32/coeff口，正常链不reset、不逐块发命令 |
+| 16head | 每个head独立score16384/prob16384/context8192/prob ack2048、maximum128比较且终点必须已核maximum；每head真实h_done/status/identity/head index、唯一start/retire及周期帽；总head16、score/prob各262144、context131072、prob ack32768、maximum2048、RoPE2048commit；layer head_completed/context_valid在交接前应FFFF | 只被动观察实际内部握手；全局strict checked counter单调不重置，局部per-head计数可分组；保持全部原checker频度 |
+| layer成功回执 | 核实际l_done_valid&&l_done_ready，status0、request/gen与原命令完全一致，16head已完成；按冻结layer Check合同核completed/unreachable/dominated/coverage/error，不用“全置1”替代合同 | 不TB伪造layer DONE/context_valid；layer成功DONE不代表context已释放 |
+| 公共context4096组 | 对每个真实rd/rsp握手记录一笔实际credit，tag/代际/顺序及32F32逐位比较；读序i=32*query+2*head+half，参考lane=context[(head*128+query)*64+32*half+c]；4096实际响应→4096quant/Awrite/Aack、一次A发布，compare两套QKV/context A gold分相位 | 必须消费实际layer输出；原context文件仅作期望。公共响应保持依实际信用；禁止强制c_*或layer状态 |
+| context所有权退休 | 核layer公开消费覆盖4096、public_read_owned=0、无未退storage响应、c_idle/c_complete/c_consumed=4096、quant/DIV/A debt已清并实际发布，最后才接受WO matrix命令 | layer[退休逻辑](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_layer_engine_v1.sv:1169)在响应真正握手时记覆盖，L_RELEASE等全部覆盖与real_idle才回IDLE；应观察实际条件，不能用TB换相位 |
+| W重绑定/复用唯一cache | 用实际AR地址在已登记的QKV/WO基址范围选择原packed数据；每个已接受ID保存其所属源，R响应按接受时源返回；核QKV旧W/A/FP/PS lease和peer AR/R debt全退，WO实际K1024/N1024、tensor32、base[1]/span[1]、同request/gen/epoch，16块冷W装载及原W/prebias/A映射 | peer扩展为两套只读fixture，不复制生产W服务。不能用全局phase给旧在途ID改数据，不能预填W完成或force cache |
+| WO131072原值 | 按actual out_valid&&out_ready计4096个32F32响应；输出s=i/256、row=(i%256)/2、col=64*s+32*(i%2)，每lane对原WO[row*1024+col+c]；16块每块1024连续issue/commit，记录反馈、W/A协议和最后输出/资源释放 | 原out_ready口有限反压可合法保持中间/末WO响应；held时valid/data/row/col稳定，不提前接受WO DONE/父成功 |
+| 首次父成功/held DONE | 正常例逐拍禁止在“16head、4096实际context、A发布、4096WO响应及真实WO matrix DONE/债释放”前出现任何父DONE；首次成功须status/source_status/error_domain/error_tuple全0，done_request/gen/epoch精确等于接受命令；并核来源m_done身份。done_ready=0保持至少5拍，完整243bit字段既等于独立期望又稳定、cmd_ready=0、无新工作；真正ready后只退休一次，回IDLE可合法接下一命令 | 仅驱动原done_ready/out_ready；稳定性与期望值分别断言，不能只拍下DUT值再自比 |
+| 事件与成本 | 在实际command、QKV accept/end、layer start、每head begin/end、layer done、context首/末响应/发布/释放、WO accept/首末输出/matrix done、父done/retire记cycle与主机monotonic wall；generic日志不续strict numerical progress | 原40Mcycle、资源策略、单独账不改；新full终标只有所有检查完成且实际父成功退休才发 |
+
+上述断言属于TB/runner扩展，不应先改生产接口。完整同构建TB可设置observer-only的STOP_AFTER_HEAD=1：在真实head0完成后结束pilot；full设置0继续观察至父DONE。两者不改变DUT命令、参考、相位、驱动或检查频度，full phase checker也必须编入同一snapshot；不是以pilot签全链。两个mode同样在初始化时绑定WO原fixture，避免pilot漏计加载/observer开销。
+
+末context响应在独立consumer中曾合法保持12拍，但当前生产parent没有run_enable/独立result_rsp_ready的外部控制口，out_ready仅影响WO。完整parent若自然发生context反压可被动核稳定；无法通过合法顶层口指定“第4095响应保持12拍”时应标该定向保持NOT_RUN，不能force内部ready或借独立peer结果冒充。正常WO out和父DONE保持均有现成合法顶层口，可随一次完整正常例完成。
+
+### 独立参考已具备，仍未知的生产行为
+
+只读布局核对本次已比较全部131072 context位型：E010 encoder0_context.mem按上述query/head/half重排后与E012/R004 AT005 input.hex完全一致。WO output.hex的4096组按上述s/row/half顺序与E015 AT007原wo.bin/expected_f32.bin的131072位型完全一致。原WO gold SHA `1527544ebbc58548cacd152ba0a98fe679332fc83d651f3c2ffed15b4eca19dc`，原WO weight SHA `6be3b4e35057b15055db95ef5ab1d572ce202ac89200abc51479a1bfdd31c288`，均来自已有fixture.json；未重算gold。新完整模式仍须把所有WO p0..p3、input/Awrite/output/prebias/源manifest身份纳入snapshot，期望文件不能被当成真实context输入。
+
+目前“已证TB缺口”不等于“生产RTL有缺陷”。以下组合行为仍未知：全部16head及layer Check退休；真实layer result读与同storage phase4/DIV phase5并行路由；QKV A释放后同request/gen/epoch重新真实填槽是否正确失效旧内容并发布新context A；layer4096覆盖到real_idle与quant/A完成的联合排债；唯一W/A/cache/FP/PS由QKV→layer→WO的重绑定与迟到响应隔离；WO输出保持、最终成功状态/tuple/identity与held父DONE。当前源码有相应调用路径但未完整实测；必须由新正常链暴露问题，再在授权内定位修复，不预先宣称PASS或FAIL。
+
+现e354的c_fault相位修复通过当前短QKV/reset scope，仍未动态覆盖“真实父context fault→无reset新generation”链；这是独立错误恢复后继，不应拿正常完整例当作该故障覆盖。Encoder0无bias完整链也不能签Decision/bias、全图原首错/Check、30层、HBM注册/CDC/物理时序/板卡。
+
+正常成功tuple零有具体源码依据：facade[每次实际cmd清状态/坐标](/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_facade_v1.sv:240)，parent在WMRUN消费实际m_done后映射成功状态/域并返回该坐标；新TB仍必须把预期0与原命令身份逐项核对，不能用来源稳定性代替独立期望。
+
+### 建议集中制定的新预算与一次完整运行上限
+
+建议新独立批次（名称由主控决定）reference0/static300/RTL7200/OOC0秒，不转R001/R002余额。static每次≤120秒；同一当前RTL/全检查TB构建后先真实完整QKV→首head pilot≤1200秒，再由主控基于该pilot决定一次full≤5400秒（90分钟）；其余600秒仅供有新诊断依据的短恢复/受影响回归，不自动再跑整条长前缀。全部真实语义停滞120秒、CPU0–3/nice19/idle、MemAvailable>192GiB、static≤24GiB/RTL≤8GiB、40Mcycle及项目锁不变。budget是建议而非本次已获执行额度。
+
+旧3494.951523668秒只说明旧parent/旧首head observer下的attention-only费用，不能为e354或新全检查TB放行。旧E012/R004完整WO203.558494425秒来自独立context-file runtime；R001本地consumer6.426384921秒也不是当前完整父的phase样本。它们仅帮助给新5400秒一次性cap留工程容量，不能拼接成当前完整链实测。
+
+新pilot必须给P=当前同snapshot命令至首head退出wall、H=该实际head0 begin→end wall，并保留阶段/数值证据。建议供主控决策的工程估计 `E=1.35*(P+15*H+C_allow+W_allow)+10`；第一次完整链尚无同runtime C/W样本，可在新集中合同中明确选择C_allow=60秒、W_allow=600秒作为收费/停止占位（不是测量、不是性能保证），而不要求先做完16head才能给第一个完整例放行。若E≤5400且当前pilot数值/所有权/strict进度通过，可由新合同明确授权一次完整例，在这次运行里直接测得所有head/context/WO真实成本与完整成功；若超cap或pilot失败，交主控集中调整scope/预算，不在runner自动加帽或反复重放。当前没有执行/放行任何pilot或full。
+
+完整验证同时记录原QKV≤57344、Encoder layer≤188544、WO≤22528、每满足前提dispatch≤16且父调度合计≤128，以及Encoder整块≤268416拍；新合同应精确定义原QKV_ACCEPT/WO_RETIRE事件，并同时记录父cmd accept与QKV matrix cmd accept，避免把不同边界混写。外部held停顿单列，不能自行从原总帽扣除或把独立周期相加写成实测。FPGA吞吐/300MHz/物理fit仍不属于仿真wall预算结论。
+
+## M007 E016 R003 FULL-PARENT-15 actual delivery (2026-10-22)
+
+# E016/R003 完整Attention父链实现与实际输入
+
+SM012 D-M007-SM012-FULL-PARENT-15。当前parent e35424a62457ca08f1b5e707ad7b8a1556b1f578e8ced9e16adbe076592b4cb8及原FP/DIV/layer/resource closure冻结在AT004；生产RTL未改。实际完整TB保留全部原QKV/W/A/prebias/RoPE/score/prob/context/连续issue/PS反馈/8身份拒绝checker，并按head和两次matrix操作分开计数，新增每head128maximum终断言、真实公共context4096、同quant/A发布和WO131072原gold，以及首次正常父成功的独立243bit期望与保持/退休。
+
+实际AR接受时按已注册QKV/WO地址锁存来源和base，每ID返回使用锁存字段。原out_ready合法中间/末WO反压，done_ready保持5拍；不强制内部state/ready，不用原context文件代驱动真实layer输出，不复制生产服务。所有模式使用同一完整snapshot并在初始化加载相同完整fixture。原model/numeric/table/graph/layout/build128bit source tags与kind/layer keys沿用e354校验；当前W576/RTL/compiled身份另外记录，不当作当前bitstream。
+
+新增parent+adapter控制1561bit/196B，原保守3550B合计3746B；452实际输入源，实际唯一服务层次由最终审计核。声明和功能展开不签物理fit。原地址描述符仍来自可信fixture，未实现任意Host/HBM源注册。参考复用E010全16head与E012/R004 AT005原context/WO/packed W文件，复制冻结并逐SHA登记，未生成新gold。
+## M007 CONTROL-ARENA-16 FFN interface preparation (2026-10-22, A010)
+
+本段只读准备已完成，无生产RTL修改/EDA/新数值gold；R003完整Attention父链completed/frozen不变。独立设计与原始字节证据见 [FFN planning](../../../../../../E016_m007_single_resource_parent/experiment_results/planning/ffn_control_arena_20261022/planning.md)、[mapping_byte_checks.json](../../../../../../E016_m007_single_resource_parent/experiment_results/planning/ffn_control_arena_20261022/mapping_byte_checks.json) 与 [source_versions.json](../../../../../../E016_m007_single_resource_parent/experiment_results/planning/ffn_control_arena_20261022/source_versions.json)。
+
+唯一后继为公开norm_ff F32输入的Encoder0 FFN island：同quant/A K1024→同matrix Wi K1024/N5248→native双槽G→4×8拼32→同quant/A另一槽K2624→全成功与真实债屏障→同matrix Down K2624/N1024→公开Down输出。它尚不签R003后的真实residual/LN或完整Encoder。Wi每物理块s已含原列32s..32s+31和2624+32s..2655+32s；原0..81调度已经配对，0/41重排不成立。W cache slot、PS context、G slot虽均s[0]，但分别按真实W release、matrix第256拍输出消费及G的512向量/真实债清释放，禁止合并退休。
+
+独立字节核对PASS：原Wi→x/gate671744值、原AT058全12字段4030464字、G41984向量地址、E012 Wi20992拍/671744值、167936个原Q8权重record/5709824B。G输出s→row→chunk，4笔8lane拼一组32F32以(row,group=s)直接量化；front/A支持此group-major顺序，无整G重排RAM。只需一份128B数值holding；17bit seq/full及新增cancel/owner等控制须实计入当前余482bit，4035.75B仍是投影。
+
+Wi使用shared256/PS，G原56mul/16add池与TANH8独立，quant使用原32mul及phase5 DIV8；不能把G固定3/4拍通道接到8拍shared256。storage PS/G独立bankset且同真实phase1身份允许分束同时服务，不能用全局owner屏蔽合法束。现资源壳只有EXP8专用tag接口，G原96bit TANH/pool接线尚未加入父；validation_shell自带storage不得进入父。EXP/TANH联合物理共享、896DSP/300MHz仍未签。
+
+确定接口缺口是G上游取消：现discard要求!active/needs_discard，Wi中途失败将使G等待缺失输入。后继须由当前G单一owner增加身份匹配producer_cancel、仅排已接受实际工作、保持取消回执并经真实discard/release恢复；不虚构全覆盖。front已有producer_close失败与partial/published未leased A取消。父按Wi→G(rank,row,col)→Q8(G)→Down原图顺序选择源错误，保留G32bit 0/6/8与matrix/front状态的显式适配；Down仅在Wi/G成功、成功close后的quant/A完整发布与全部真实债/lease退休后准入。
+
+原生产出处：Encoder0 skip=embedding_norm；attention_residual=skip+WO；norm_ff=无gamma LN(attention_residual)；Wi→G→Down后回加同一attention_residual。当前R003未接skip保存/真实残差/LN/Down残差生产者，不能将WO直接喂Wi。原E012 Wi source与AT007 norm_ff、E012 Down source与AT007 geglu逐行完全相同数均0/128，旧矩阵gold不能签当前全链；独立原Q8(G)/Down同输入期望尚缺，本准备未生成。A007 live external-control源只作静态依据，不继承E015 AT146旧SHA PASS。完整验收和独立预算由主控集中下达。
+
+## M007 FFN-REFERENCE-18 R004 local reference exit (2026-10-23)
+
+A010：原G row0独立Q8(2624 codes/82 half scales)、norm_ff32组及Down1024 F32参考生成并审计PASS；完整128行成本式127.26535248011352s>120s，严格COST_STOP/NOT_RUN，无RTL/EDA/整模gold。原参考/运行库/完整输出SHA与真实收据见[局部参考交付](../../../../../../E016_m007_single_resource_parent/experiment_results/runs/R004/final_delivery.md)。[逐束连线表](../../../../../../E016_m007_single_resource_parent/experiment_results/runs/R004/reports/ffn_connections.md)固定norm_ff→Wi native0..81→双槽G→1024bit拼接→同quant/A槽1→完整成功屏障→Down；新父计划20bit，复用2套descriptor和原5bit state。A007取消实际声明3bit但最终正常回归待交，联合设计投影4038.875B/向上4039B，非实现fit。若另存两套Wi/Down descriptor将增1024bit超帽。完整Encoder真实skip/residual/LN和本输入128行Down参考仍未就绪；不继承旧e354 PASS。
+
+## M007 FFN-CHAIN-20 kind3 implementation (2026-10-23)
+
+Current contract: `mission/M007_完整Attention高性能主干与部署闭合/tasks/SM012.md`, D-M007-SM012-FFN-CHAIN-20; original quantified limits in that mission's `performance_requirements.json` (Wi92160, Down56576, GEGLU eligible latency256/pair768, FFN150016, unhidden tail1280cycles). Public kind3/layer0 is an FFN service from original norm_ff; complete Encoder input/residual/LN is a subsequent integration boundary.
+
+Two existing descriptors bind original manifest ordinal+1 Wi60 and Down88. One public4096-beat input fills A0; native Wi82 blocks supply actual dual G slots, four8-F32 outputs form one32-F32 quant input into A1. Held Wi/G success plus all41984 G vectors and10496 quant acceptances authorize successful producer_close. Real quant/A full publication, all leases/debts and G/TANH retirement precede Down. The original5bit state is reused with12 added encodings; assembler16bit sequence plus4 one-bit flags add20control bits, one1024bit numerical payload. Prior joint4036.375B plus20/8=4038.875B/ceil4039. This accounting excludes unimplemented later Encoder/LN controls and is not physical utilization evidence.
+
+Pure `laya_m007_control_workspace_joint_v1` owns one external state store for layer coverage and G math. F_ARENA/F_RETURN route actual old-owner resource idle to the layer for safe owner switching; the remaining FFN states select matrix/quant resource bundles, with independent PS/G bundles. Actual Wi shared-FP ownership and original storage identity qualify G admission, alongside a real TANH8 lease. Original G pool and TANH8 are instantiated once; existing EXP remains separate. No validation shell/private resource or saved G production driver is used.
+
+Wi/G errors close the quant producer as failed, cancel actual G accepted work, drain matrix/quant/bank/numeric debts, consume cancelled DONE then discard actual G slots before owner return. Parent first-error status/tuple storage is reused; unknown32bit G statuses are preserved in the96bit error tuple. Kind0/1/2 expressions retain their original branch. Exact code/build/fixture identities and run-specific PASS/FAIL/COST_STOP are in E016/R005; R003 e354 complete Attention evidence remains frozen.
+
+## 2026-10-23 D32 canonical parent_v3（源码阶段）
+
+权威合同为source/m007_residual_encoder30_20261023.md §12/14与SM012 D32，记录在E016/R007。独立v3 ABI cedb4c13…b985只接受kind5/6/7；旧v2/R006冻结不改。SETUP/INVALIDATE/BEGIN共用held DONE，模型commit只在成功SETUP_DONE实际消费后发布。两descriptor槽由120-record catalog真实读返回装入；CRC含最后实际word。source_epoch保留，新增active_epoch_offset9在旧岛退休后切换。preLN写Q后先完成Q量化并release scratch，才prepare正常Attention；中间图不导入gold。正常后段含postLN、原Wi/G/Down或Decision FC1/ReLU/quant A1/FC2、residual与层推进，final gamma/type及544向量gather。
+
+公开tail owner在H_LOAD前arm，成功只接受真实外部写完成commit；abort接受后还等owner_idle。TB SIM peer将真实公开输出写自身target，再按字节/身份发commit，checker独立。生产DMA/Host地址前端仍未绑定。本阶段源码/TB/runner已写，实际编译、census、完整setup和正常数学图均NOT_RUN；详见E016三摘要及R007源身份。
+
+## D32/R007 actual version update 2026-10-23
+
+Canonical production parent7b0d0c6d is compiled with current owner joint/TANHv3 in AT012 and successor affected snapshots. Actual setup124catalog words/704model chunks/twoRoPE families, public ABI/recovery, catalog lateRLAST drain and32342bit logical census passed; this supersedes the earlier source-only status, which remains historical. Actual parentQKV1 checks8192original values after real4096H/quant/A; it is unfinished. Current B1 normal-chain cost checker compiles in AT026, runtime cost work continues.
+
+AT025 same-production joint G/twofullresidual/LN128 component passed183.031842316s,8192residual+4096LN vectors/394760F32 checks and15440G nodes. Observer-only residual_total increment separates AT024 from AT022; AT023 raw0 reporting defect remains immutable. Final A is Attention owner return, not actual LN→quant/A chain. Exact sources/receipts/limits in E016/R007/actual_joint_LN128_evidence.json and current three summaries. Full Encoder/30layer, canonical bias readback, actual Decision16384FC1/K4096→FC2, physical timing/fit/DMA remain unverified.
+
+AT027 originalB1 QKV3 actual PASS89.599573990s,24576F32/16461commandcycles. Current completeQKV estimate1518.477961845s exceeds1200componentcap; completeEncoder costUNKNOWN, latermathsegments remain unmeasured. AT029 realquant/DIV/A maximumK4096 A1 16384write+ACK and realpartialcancel/newgeneration passed; this does not sign actualFC1producer/FC2 or parentACANCEL. AT030 finalrecord CRC passed. No in-flight EDA at staged handoff; authoritative versions/cleanup/cost/budget in E016/R007/staged_delivery.json and three summaries.
+
+## D32 current AT031–037 boundary
+
+Canonical93productionfiles remain identical to AT026. AT031 realfullQKV48retirement/393216originalF32 and2048RoPE plus occurredQK/SM checks are accepted; postQKV120scap COST_STOP1403.258719394s, nofullhead/EncoderPASS. SameAT026typical/off QKV1 pair passes equal106events/8192values/14343cycles,49.153994803/40.763996112s; singlepair17.07%wallreduction only.
+
+Newindependent m007_fullmodel_encoder_tb37e8c147 compilesAT036off and actualQKV3 passesAT03780.903062850s/24576F32/12461cycles, actual4096H inputbinary matchesoriginal47checkpoint. Fullfourmatrix/Attention/G/resLN/FFN/finalH/heldDONE originalchecks are retained in source but onlyQKV3hasrun. AT035unusedobservercompilefailure is immutable. NewQKV48E1390.687966983s exceedsordinary1200/component and remaining-minus400reserve; fullEncoder/30layerEUNKNOWN. AT036policy16/19,3transientcompileridentitiesUNKNOWN; allrecordedowned/groups empty. Authoritative evidence: E016/R007/AT031_037_staged_delivery.json and three summaries.
+
+
+## §17 binary simulation weight peer
+
+The owned TB peer m007_binary_weight_peer reads original TN8 Q0/Q1/scale binary files on demand using immutable120 metadata and per-(port,ID) AR-frozen descriptor/origin/length. Explicit byte slices preserve Q and F16 bit patterns. Independent per-port handles avoid seek interference; fixed source cache payload2048B and held R payload256B are simulation input storage, separate from 11040B metadata and test oracle arrays. No production resources or arithmetic change. Independent expected bytes come directly from original GGUF Q8_0 offsets. Binding and source hashes are in E016/R007/binary_peer_actual_evidence.json. Integration into complete checker and current production W-reader parser retirement is a subsequent test boundary.
+
+
+## Source-only real kind6/7 original-checkpoint checker
+
+New m007_fullgraph_binary_tb uses one public input/BEGIN and original all120 descriptor-addressed binary source. Global0..27 residual-final H commits map one-to-one to encoder00..27; global28/29 map Decision00/01. Unique4096 addresses plus actual state97 resident/scratch/resource retirement qualify layer handoff. State90/offset448 Q commits map final_norm, state95 H commits map type_add. Original marker_gather512 groups + Decision1 CLS32 groups supply tail544 expected bytes. Only actual public handshake bytes are written/flushed before delayed identity-bound commit and final heldDONE. The47 source inventory has34 FPGA/input/gather comparison points and13 identity-only CPU/etc points; intermediate score/QKV/G gold is not added. Kind6 uses a legal original public component input; kind7 only H0, no intermediate preload. Source-only frozen manifests and exact evidence are under E016/R007/prepared and fullgraph_checkpoint_mapping.json, not compilation/runtime proof.
+
+
+Fullgraph checker public-boundary revision2 source677e5bc9 adds per-handshake original marker/CLS out_row checks, full tail_begin request/generation/source_epoch/69632B qualification, and independent SIM tail accepted-identity latches used/asserted during held commit. Prior87cca31b prepared source/metadata, gold and production are untouched; exact SVpart reversal reconstructs old top. New source-only snapshot and minimal patch: E016/R007/fullgraph_public_boundary_v2_delivery.json. No compile or RTL launch for this change.
+
+
+Residual reference loading repair (source-only): pending1D TB172d3019 and binary-kind5 TB246c2d6a now read all131072 original32bit GOLD words and pack every4096x32lane vector without changing values, simulation delay or assertions. Prior packed-array direct load was invalid; original XSim QKV prefixes had not reached that checker. AT045 independently reconstructed524288B/131072lane against original attention_residual.bin bac04c09…482d8; other49 reference loads remain exact. Oldfrozen/failed versions preserved; fullgraph677e5bc9 and production/gold unchanged. No A010 EDA; same-top source/diff/evidence handed A012. See E016/R007/residual_loader_repair_delivery.json.
+
+
+## AT047/048 read-only compatibility evidence
+
+Fullgraph677e5bc9/peer4d9265c2/production parent7b0d0c6d are unchanged. AT046 wrong tool-runtime path failed before review and remains recorded; AT047 corrected bootstrap path source audit passed3.795146179s, including15 exact one-dimensional readmemh shapes and inspected unsigned byte FREAD/binary FWRITE/immutable source metadata semantics. No frontend/runtime PASS follows.
+
+AT048 read-only audit1.241986789s found no concrete result-changing risk in exactly3 SIDEEFFECT+2 MODDUP warnings from E021 AT013. Pure input-only automatic tr/tv and3 generated blocks preserve8 sequential dfp increments each. Legacy tile_bank module bodies are identical; service_v1 bodies differ but neither has a current-top instance or generated cpp/h identity. Other513 warnings are unassessed, and the two unused service bodies must not be assumed interchangeable for a future active top. No production/TB edits, EDA or physical result. Evidence: E016/R007/readonly_compatibility_delivery.json and attempts/AT047_fullgraph_fileio_source_review_fixed_path/work/audit/source_review.json plus AT048_selected_verilator_warning_source_review/work/audit/warning_source_review.json.
+
+
+Context single-credit observer correction: current1D505e0b93 and binary-kind58a4a3956 swap only the original response/read observer blocks to verify old data/tag/credit before installing a same-edge replacement read, matching unchanged production adapter. All identity/order/data/debt predicates and original gold remain. AT051 static exact-reversal/protocol-token audit passed; corrected runtime remains separate A012 work. Old172d/246c and AT033 failure preserved. See E016/R007/context_credit_observer_repair_delivery.json. Fullgraph677e5bc9 is unchanged and has a checked-progress gap before the first final-H endpoint; source/fixture handoff and proposed distinct retirement observer are in fullgraph_progress_source_handoff.json, not implemented.
+
+
+Fullgraph retirement observation successor8b556ca2 (same top): adds only two64bit simulation counters and real-edge7domain result/ACK observations; each accepted interface event counts1 and every128new events prints M007_RTL_RETIRE_PROGRESS retired=N cycle=C. No clock/state/AR credit, no layer reset, no print without new events. It is separate from original checked-gold words and is not an operation count. Exact observer removal reconstructs677e5bc9;505e mainline/peer/production/gold unchanged. AT052 static source/counter audit passed, no HDL/RTL evidence. Frozen source/event list/source manifest in E016/R007/fullgraph_retire_progress_delivery.json; A012 alone adds future guard strict-marker support, current Encoder driver unchanged.
+
+
+## D36 final gamma hold and saved actual suffix (2026-10-24)
+
+SM012 D36 uses the frozen actual Encoder27 H, not a new reference. The parent now keeps `v2_resident_ln_use_gamma` asserted in both `N_START` and `N_RUN`; the real resident provider issues its lower LN command after the parent start handshake. Ordinary pre/post LN states keep gamma disabled. No numerical leaf, public kind5/6/7 ABI, shape, or independent gold is changed.
+
+`VERIFY_POST_ENCODER27_H` defaults to zero in the parent and common TB. When enabled for kind7, real SETUP, BEGIN, TAIL_ARM and 4096 public H loads still run; only the existing `E_H_READY` success/retirement branch enters `N_OWNER` with layer27/offset448. The unchanged production suffix then runs final LN/type and both Decision layers. This verifies a segmented suffix and does not replay the original prefix handoff or establish a repaired whole once-BEGIN30 run.
+
+The immutable rev2 source manifests and source-only audit are in `project/E016_m007_single_resource_parent/experiment_results/runs/R007/d36_final_gamma_suffix_source/rev2/`. Rev1 is preserved with its known TB separator/lane diagnostic errors. Rev2 fixes both, retains the exact original composite final-LN predicate, and captures actual committed final-LN/type vectors by address. A012 alone owns compilation, runtime evidence and D36 accounting. D36 validation is now complete: the old gamma0 data failure was reproduced, and A012 AT006 passed the complete same-runtime segmented suffix with gamma sequence 1/0/0/0/0, both Decision endpoints and real tail/DONE/idle. Each of the final-LN, type and two Decision endpoint captures contains 131072 actual F32 words equal to original gold. The original R003 failure and old 28-Encoder evidence remain unchanged; the repaired complete once-BEGIN30 run was not executed. See the D36 results below and the [root review](../../../../../../../results/reviews/m007_final_ln_suffix_review_20261024.json).
+
+
+## D37 repaired original30 normal-path validation (2026-10-25)
+
+The unchanged fixed parent `9d877217...` and common TB `2bd73c51...` have now passed the complete original kind7 graph in one runtime with `VERIFY_POST_ENCODER27_H=0`, original `initial_H`, and one public BEGIN. This exercises the production path from original input through all 28 Encoder layers, actual Encoder27 retirement-to-final-LN/type handoff, both Decision layers and real tail/DONE/idle; the D36 saved-H entry is disabled. No RTL, TB, numerical rule or ABI change accompanies this result.
+
+[A012 E021/R005 AT002 actual receipt](../../../../../../E021_m007_compiled_rtl_validation/experiment_results/runs/R005/attempts/AT002_fixed_original30_kind7/receipt_rtl.json) records 30 completed layers, 120 matrices, 480 heads, 60 LN, 61 VECTOR, 28 GEGLU and 544 output groups with one actual tail commit, held DONE consumed and normal idle/rc0. The controller independently checked all30 actual H captures and unique traces plus final-LN/type against original gold. D35's original FAIL and D36's segmented-suffix identities/results remain historical evidence. D37 establishes the tested complete normal-path functional case; physical timing/fit, board operation and exhaustive abnormal-path coverage are not established. A010 only updates documentation and returns to paused.

@@ -1,0 +1,34 @@
+# E010 R003 source summary
+
+Authority: SM011 HEAD16-06. One pure head engine and one physical laya_attention_resources_v1 shell contain the unique QKV/FP256/PS-G-context/LNexp/EXP8/DIV8 and four original scale lanes. Layer drives atomic Q64+K64 RoPE and autonomous heads0..15; legacy head and QKV signatures remain thin wrappers. Shared FP/storage/DIV public contracts are unchanged.
+
+Original AT001 B1 local reference binds128 real rows×16heads for Encoder0/full, Encoder1/sliding and Decision0/no-RoPE, original72-token mask, original reference SHA and eight GGUF windows. No DUT-derived gold or whole-model regeneration. Current AT017 uses complete original128-bit model/numeric tags and actual four-prefix table key;136 original runtime binaries have exact size/SHA/tail0 checks plus runtime fread byte/EOF assertions.
+
+Layer enforces12288 public QKV32 writes, valid original kind/index, internal resident head identities, separate executed/unreachable/dominated Check maps and AV2048 key/head coverage. Native32-word context reads retain ownership after DONE and count unique4096 actual output responses; explicit discard stays distinct. Producer and complete output/release cycles are separate and the original complete-output caps remain asserted. Current conservative control declaration3754B includes512B consumption map; future parent increments must share the same4KiB cap.
+
+[Current protocol](../../E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/source/m011_r003_protocol.md), [identity](../experiment_results/runs/R003/layer_identity_binding.json), [metadata](../experiment_results/runs/R003/metadata_accounting_current.json). R002 remains frozen at its original accepted single-head identities.
+
+Current controller-approved sharedDIV8 wrapper adds idle-only leaf CE, requiring no lease and all token/good/bad/raw-valid/debts known zero. Reset and active lease keep CE enabled; metadata/credit stay clocked. No new DFF/public-signature/numerical-leaf change. AT023 actual wrapper and AT024-027 production build/prep/complete one-two-head measurements PASS. AT029 full16 runs only after the actual1650.883306442s gate passed. [Version boundary](../experiment_results/runs/R003/div8_idle_ce_change.json).
+
+Current follow-up after AT029: sharedFP transaction-empty mul/add-group leaf CE is a distinct production identity, pending actual RTL regression. No newDFF; raw8cycles/phase1dependency9/phase3-6dependency8 and full non-QK broadcast remain required. New layer TB reports only real public writes, QK commits, SM bank ack, AV return and context consumption; all prior independent comparisons remain. [FP version boundary](../experiment_results/runs/R003/shared_fp_channel_ce_change.json).
+
+
+### 2026-10-21 sharedFP CE scoped completion and actual layer cost boundary
+
+AT031–034 affected RTL all PASS with original independent vectors, raw8-cycle returns, phase1 dependency9, phase3/6 dependency8, all seven broadcast groups, full credit/held/reset. Actual RTL seconds5.373252787/5.923538033/5.428519886/5.370893058; immutable compiled products unchanged. See R003 shared_fp_channel_ce_change.json and each raw receipt. AT035 current production build static PASS30.645322663s. AT036 Encoder0 one-head pilot COST_STOP total timeout120.257040224s, noFatal, compiled unchanged; QK16384 scores and SM2048 bank ack completed, AV1024 actual accumulators retired and still progressing. No complete-head or layer PASS and no measured speedup. AT037 same-build Decision0 one-head120s pilot launched; result pending. All old attempts/gates remain immutable.
+
+
+### R004 actual implementation, pending affected regressions
+
+Pure production implementation is rtl/laya_attention_layer_engine_v1.sv with262 resource and25 coefficient signals; rtl/laya_attention_layer_v1.sv is sole-resource/cache compatibility shell. PREP matching cancel holds identity/status in L_CANCEL, suppresses same-edge new QKV/start, invalidates only layer coverage and returns after response; public narrow writes commit on their actual accept edge. layer_idle requires real IDLE and real resource/response idle. Same12288bit coverage low4096 becomes context response bitmap after valid full start, with a new complete flag. Resident-only head uses one actual accepted-resident bit; independent compatibility retains old arrays. Packed Check planes retain exact legal maps,32bit first-conflict, no final_ready on current/sticky conflict; layer fault branch requests actual abort and waits real debt before protocol DONE.
+
+Declaration ledger20690bit=2586.25B; A001 increment33 verified A010 profile-off side963B, so joint3549.25B/ceil3550 before any parent additions. This is source accounting, no synthesis/physical fit. AT001 pre-current-fault-edge-guard Check peer static/RTL PASS; AT002 declaration compile FAIL preserved, AT003 revised shell compile is queued behind project lock. Normal completehead/context lifecycle and layer coverage_fault drain remain NOT_RUN pending actual evidence.
+
+
+### R004 original numeric and actual recovery milestones
+
+AT009 Decision0 complete1head PASS107.852036051s and AT013 Encoder0 complete1head PASS106.647546459s use identical AT008 compiled SV/TB:11038 cycles=QK4187+SM2333+AV4508+10,16384scores/16384prob/8192context and original intermediate gold. AT011 Encoder preparation PASS32.841030504s,12288 public QKV writes and2048 atomic RoPE commits. No complete16/output lifecycle claim. All-known complete-head conservative estimate1896.541045959s exceeds R004 ordinary1200s, so full16 is not launched.
+
+AT006 public cancellation PASS14.417050504s,24595 actual writes and5 cancel generations; AT007 resident prepared abort PASS5.514809139s, real storage binds2/resident1/wrong identity4, held abort DONE, no FP lease/release; AT010 real other-owner FP lease and256mul held credit debt while PREP cancel PASS5.497680891s, actual peer response/release and newgen recovery. AT014 QK inflight abort11.175851013s, AT015 SM inflight reset42.803005922s, AT016/017 RoPE inflight abort/reset10.710341118/11.108343676s all PASS with true debt trigger, terminal debt0 and newgen partial-coverage isolation. Complete post-control one-head recovery remains queued.
+
+Current narrow source is engine c3e80307f5a941c1d599eb579d8bc787021d428ea42453b81d7b80e037c7a9db: only cache_owner_valid changed tostate!=L_IDLE versus tested AT008/012805e3de9… . Restoring that expression gives exact prior source bytes; interface/arithmetic/state bits unchanged. It protects coefficients throughout PREP and held cancellation; AT019 staticPASS, public rebind/load guard RTL queued. Existing frozen fullhead/recovery runs retain prior identity; no current-guard fullhead claimed. Actual interface/sha metadata and exact boundary are in R004/pure_engine_interface_current.json and coefficient_PREP_owner_guard_change.json.

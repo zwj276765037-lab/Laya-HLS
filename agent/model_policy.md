@@ -18,6 +18,11 @@ Precedence: built-in role fallback → project → explicit role → small missi
 | role | controller | gpt-6-astra | xhigh |
 | role | engineering | gpt-6.1-sol | xhigh |
 | role | research | gpt-6-astra | xhigh |
+| agent | A007 | gpt-6.1-sol | xhigh |
+| agent | A008 | gpt-6.1-sol | xhigh |
+| agent | A011 | gpt-6-astra | xhigh |
+| agent | A012 | gpt-6.1-sol | xhigh |
+| agent | A013 | gpt-6.1-sol | xhigh |
 
 Normalize each new user instruction into configuration and update conflicting specific overrides when needed. Files do not change already-running sessions.
 <!-- research-agent:desired-models:end -->

@@ -1,0 +1,96 @@
+{
+  "category": "static",
+  "driver_receipt": {
+    "FC1_BEGIN_counters_and_retirement_do_not_reset_phase": true,
+    "consecutive_seconds": 120,
+    "final_requires_original_PASS_and_normal_exit": true,
+    "global_seconds": 600,
+    "reject_cases": [
+      {
+        "case": "QKV_before_preLN",
+        "reason": "missing_duplicate_or_out_of_order:QKV_success expected:preLN_success",
+        "verdict": "FAIL"
+      },
+      {
+        "case": "skipped_head",
+        "reason": "invalid_or_skipped_head_mask",
+        "verdict": "FAIL"
+      },
+      {
+        "case": "early_PASS",
+        "reason": "original_PASS_before_complete_Decision_endpoints",
+        "verdict": "FAIL"
+      },
+      {
+        "case": "FC2_short_ACK",
+        "reason": "FC2_full_actual_write_ACK_publish_barrier",
+        "verdict": "FAIL"
+      },
+      {
+        "case": "FC2_missing_publication",
+        "reason": "FC2_full_actual_write_ACK_publish_barrier",
+        "verdict": "FAIL"
+      },
+      {
+        "case": "FC2_before_real_state102",
+        "reason": "FC2_full_actual_write_ACK_publish_barrier",
+        "verdict": "FAIL"
+      },
+      {
+        "case": "duplicate_preLN",
+        "reason": "missing_duplicate_or_out_of_order:preLN_success expected:QKV_success",
+        "verdict": "FAIL"
+      },
+      {
+        "case": "heartbeat_does_not_reset",
+        "reason": "continuous120s_cap:preLN_success",
+        "verdict": "COST_STOP"
+      },
+      {
+        "case": "FC1_BEGIN_does_not_reset",
+        "reason": "continuous120s_cap:FC2_admitted_after_full_FC1_ReLU_quant",
+        "verdict": "COST_STOP"
+      },
+      {
+        "case": "wrong_global_no_credit",
+        "reason": "continuous120s_cap:preLN_success",
+        "verdict": "COST_STOP"
+      },
+      {
+        "case": "overall600",
+        "reason": "global600s_cap",
+        "verdict": "COST_STOP"
+      }
+    ],
+    "synthetic_source_predicate_ordered_phases": 26,
+    "verdict": "PASS"
+  },
+  "fullgraph_complete": false,
+  "guard": {
+    "artifact_progress_enabled": true,
+    "checked_highwater": null,
+    "child_exit_code": 0,
+    "elapsed_seconds": 0.1784068740089424,
+    "finished_at": "2026-10-23T14:17:21.781967+00:00",
+    "last_progress_line": "artifact_work files=774 bytes=343074426",
+    "minimum_mem_available_kb": 510008144,
+    "observed_owned_identities": [
+      {
+        "pid": 1035605,
+        "start_time_ticks": 45467536
+      }
+    ],
+    "peak_owned_rss_kb": 16668,
+    "policy_checked_identities": [],
+    "policy_identity_basis": "repeated actual syscall checks of observed owned pid/start_ticks; no leader inheritance inference",
+    "retired_highwater": null,
+    "rss_capture_count": 1,
+    "rss_captured": true,
+    "rss_sample_count": 1,
+    "semantic_phase": "static",
+    "trigger": null
+  },
+  "guard_wrapper_exit": 0,
+  "public_kind6_complete": false,
+  "verdict": "PASS"
+}

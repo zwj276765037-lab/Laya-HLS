@@ -1,0 +1,33 @@
+{
+  "created_at": "2026-10-23T10:06:32.704072+00:00",
+  "production_RTL_or_gold_changes_by_A012": false,
+  "failed_intermediate_CXX_accepted": false,
+  "attempts": [
+    {
+      "attempt": "AT007_parent_encoder_QKV3",
+      "verdict": "FAIL",
+      "cause": "Runner source closure omitted original m007_public_f32_capture_tb_v2 helper",
+      "repair": "AT008 restores original frozen helper, no source mutation"
+    },
+    {
+      "attempt": "AT008_parent_complete_closure",
+      "verdict": "FAIL",
+      "cause": "Verilator BLKLOOPINIT for original nonblocking state[128] reset loop in laya_m007_quant_group32_v1.sv:127",
+      "repair": "AT009 adds --unroll-count 128 per installed Verilator warning docs; original SV unchanged"
+    },
+    {
+      "attempt": "AT009_parent_unroll128",
+      "verdict": "FAIL",
+      "cause": "Verilator $readmemh loading non-variable for four original rope_mem[0..3] multidimensional slices in m007_fullmodel_encoder_tb.sv:663",
+      "repair_status": "A010 original TB owner preparing equivalent one-dimensional load adaptation plus new same-source XSim QKV1 baseline",
+      "intermediate_cpp_files": 743,
+      "intermediate_cpp_bytes": 272104052,
+      "compiled_or_numeric_parent_verification": false
+    }
+  ],
+  "spent_guard_seconds": {
+    "static": 107.92190419702092,
+    "rtl": 8.280437914014328
+  },
+  "next": "Await A010 frozen compatibility-only TB and original full-checker QKV1 XSim baseline; then new Verilator translation and compile-unit pilot"
+}

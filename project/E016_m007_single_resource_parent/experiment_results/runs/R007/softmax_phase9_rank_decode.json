@@ -1,0 +1,57 @@
+{
+  "schema": "m007-r007-softmax-phase9-rank-decode-v1",
+  "status": "READONLY_DECODE_COMPLETE_BRANCH_NOT_DISAMBIGUATED",
+  "source": {
+    "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT042_encoder_1d_compatibility_build/frozen/laya_attention_softmax_engine_v1.sv",
+    "sha256": "2171eda3e9ee73f32fd276931a1df94956ef65b0bdd4b6d309508b9b7312d670"
+  },
+  "actual_log": {
+    "path": "project/E021_m007_compiled_rtl_validation/experiment_results/runs/R001/attempts/AT032_model4_readonly_observer/guard_rtl/driver.log",
+    "sha256": "b44b5eea7884997ed5d73149fe4eb5223e204fa77f957d6b59dfdd31eb629927"
+  },
+  "rank_expression_line": 146,
+  "rank_expression": "64'h4000000000000000 | (64'(ph)<<48) | (64'(row)<<16) |64'(node)",
+  "observed_rank_hex": "4009000000000000",
+  "decoded": {
+    "phase": 9,
+    "row": 0,
+    "node": 0,
+    "element": 0
+  },
+  "candidate_branches": [
+    {
+      "source_line": 158,
+      "gate": "fp_return && tv(fp_rsp_tag,0), lane n=0, tr(tag,0)=0 and ti(tag,0)=0",
+      "condition": "finite(fp_rsp_data[0]) && !fp_rsp_data[0][31] && fp_rsp_data[0][30:0]!=0",
+      "meaning": "Strictly positive finite shifted score, including a positive subnormal; score-minus-row-maximum is required nonpositive. +0/-0 do not trigger this branch.",
+      "producer_source_lines": [
+        100,
+        101
+      ],
+      "producer_expression": "fp_a[0]=score_rsp_data[0]; fp_b[0]={!maximum[score_rsp_tag[10:4]][31], maximum[score_rsp_tag[10:4]][30:0]}; strict shared ADD forms score-minus-maximum.",
+      "minimum_missing_branch_evidence": [
+        "fp_return",
+        "fp_rsp_tag group0 valid/row/index",
+        "fp_rsp_data[0] exact32bits"
+      ]
+    },
+    {
+      "source_line": 174,
+      "gate": "sfu_return; sfu_rsp_tag row0/chunk0, lane n=0",
+      "condition": "!finite(sfu_rsp_data[0])",
+      "meaning": "EXP response is NaN or Infinity (exponent255); this does not establish mathematical overflow or identify faulty arithmetic/transport/scheduling.",
+      "minimum_missing_branch_evidence": [
+        "sfu_return",
+        "sfu_rsp_tag row/chunk",
+        "sfu_rsp_data[0] exact32bits"
+      ]
+    }
+  ],
+  "tie_behavior": "candidate147 replaces only if rank<incoming_rank; source checks FP before SFU. If both branch conditions produce this same rank in one evaluation, the FP candidate is retained, but phase/rank alone still carries no branch identity.",
+  "observed_terminal_interpretation": "AT032 firstincoming69387 then error_valid69388/phase9/status1, protocol_bad0/aborted0/q_status0; head later returns this real nonzero softmax status. This refutes the prior last-edge composite-count-race hypothesis for this observed failure.",
+  "not_sufficient_for_attribution": "shift_debt8 only records outstanding shifts. Score/max gold checks and matching earlier events do not reveal accepted shift operands or EXP response bits. Current trace lacks both response branch sets; no unique branch or production-vs-multithreaded-simulator cause is assigned.",
+  "further_values_if_attribution_later_required": "After selecting the branch, correlate accepted FP request tag/a[0]/b[0]/score/max or accepted SFU request tag/x[0] with its actual response and corresponding model1 evidence. Existing evidence does not contain these values; no new B run is proposed.",
+  "production_TB_gold_edits": [],
+  "new_tool_runs": [],
+  "controller_route": "B model4 new runs stopped; verified model1/context1 allSTOP0 segmented full-Encoder exploration remains the active root-directed line."
+}

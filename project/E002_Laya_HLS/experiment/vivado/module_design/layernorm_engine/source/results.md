@@ -1,5 +1,50 @@
 # LayerNorm与完整行统计：平台、资源与性能记录
 
+## M007 LN-COMPACT-22 / E014 R002（2026-10-23）
+
+生产core`2a97609c…2eac`在两个build中13个生产依赖完全相同。
+AT010真实gamma16逐位通过（32736树节点/512输出向量，first330、DONE退休2290）；
+AT011八行gamma真实4ctx、1880held输出周期、ADD/MUL峰27/55通过。
+AT012–018覆盖held17周期gen/canonical/index拒绝→matching cancel、active clear、
+额外坏ADD记录保留genuine return、disabled gamma common-reset/union q/持久clear、
+DIV blocked-offer取消；均真债排空、held terminal17周期后无reset新gen完整4行恢复。
+AT021覆盖sqrt与DIV真实同时阻塞取消（sqrt18、DIV121周期）。公共codec2816组合，
+其中1032越界检查通过，但不代表注入过内部状态损坏。
+
+AT019因TB仅等sqrt busy就要求尚未提出的DIV保持而FAIL，费用5.834709495s保留；
+仅收紧TB触发条件，AT020新build/AT021通过。正常checker与生产源码未变。
+最新证据、两build边界及收据见
+[v3检查点](../../../../../../E014_m007_layernorm32/experiment_results/runs/R002/v3_normal_protocol_checkpoint_v1.json)。
+本窗口新guard对owned PID/start_ticks实际采样6536次，0次策略校正；各次cleanup为空，
+锁已实核释放。R002累计reference0/static40.573950229969342/RTL153.0837858609738765s。
+旧AT001–008后代策略UNKNOWN；完整plain/gamma128退休16618/16626仅属于c612旧正常检查点。
+v3 full128、真实arena/父fit/finite producer、CPU完整首错、source-summary、scale阻塞取消、
+当前private FF census及整体OOC/P&R仍未验证。
+
+## M007 LN-05 / E014（2026-10-21）
+
+下方旧LQ1/150MHz制品不迁移到M007。实际Vivado2025.2/XSim，OOC目标U55C -2L；
+300MHz仅目标。A008以独立预算/公共重工具锁/CPU0–3/nice19/idle执行，未启动整阵列/P&R。
+
+| 当前范围 | 实际结果 | 原始证据 |
+| --- | --- | --- |
+| 原LN参考 AT001 | encoder00/27各128行原函数/逐步参考精确一致；原gamma offset2059616/4096B SHA0287e235…9113844，最终全部128行等原final_norm | E014/R001/AT001 fixture/report.json |
+| div1024/sqrt AT003 | 各13575独立向量+4reset恢复逐位/错误位通过；实际可用延迟1/25拍；held数据/tag/error稳定 | E014/R001/AT003 stdout/report |
+| 源/实际runtime | scalar SHA7fffa46f…84be；AT002冻结编译源及实际xsim.dir build，AT003运行前/后SHA | E014/R001/AT002/003 |
+| 真实phase6/full256 AT006 | 原数据7/10级树+mul12链/5496树节点；phase6/1/3依赖8/9/8拍，64+64真实信用/held/reset通过 | E014/R001/AT006 |
+| LN-exp银行AT010 | 全32768B/35写/41读请求/40读返回；一笔held读由主动reset取消，其余全部比较；碰撞/异ctx并行/held/rebind/新gen通过 | E014/R001/AT010 |
+| 新四ctx engine初版AT011 | 与唯一sharedFP256/DIV8/LN-exp真实壳编译通过；新增协议TB后AT012排队；尚无engine数值结论 | E014/R001/AT011 |
+| 当前四行完整LN AT014 | engine744adca0…5c14、AT013实际编译；8184树节点/七stats每行/所有delta-square-norm/银行/128最终向量逐位；first322、rowII128、done740 | E014/R001/AT014 |
+| 当前四行阶段周期 | pass1/2/3=113/197/42、树尾80、固定scale含调度2/sqrt含调度26/inverse32；FP pending峰8/8，真实ctx峰3 | 同AT014 stdout |
+| 完整S128两模式 AT042/043 | plain/gamma每种131072最终F32/261888树节点及全部中间逐位；first322/330、done实际退休16618/16626（含额外5拍保持）、rowII128 | E014/R001/AT042/043 |
+| 真4ctx停顿/协议/错误恢复 | AT033实占4ctx阻第5行/1865拍held输出，add/mul峰27/54；AT038 gamma/身份/common reset；AT039–041局部错误3/9/9拍排债后无reset新gen正常4行逐位 | E014/R001/对应attempt |
+| 小sqrt/div1024 OOC AT044/045 | U55C -2L/有效3.333ns/完整IO覆盖；347LUT340FF和195LUT130FF，均0DSP/latch/blackbox；WNS+0.344/+0.605，WHS均−0.027，THS−2.248/−0.035ns，hold仍违例 | E014/R001/AT044/045 |
+| 整体LN综合/父共享/300MHz闭合/P&R/上板 | NOT_RUN | 小叶setup正不签整体物理时序 |
+
+目标first row≤448、rowII≤128、全128行≤16704；现版完整RTL均满足。两棵树尾80、pass1/2/3=113/197/42或50、固定scale含调度2/sqrt含调度26/inverse32均实测。
+现有32KiB LN-exp/4KiB唯一gamma系数外，全部新增tag/holding/partial/metadata帽8192B，
+AT031实际声明位账44761bit/5596B（含两标量）满足，现版仅idle准入两处组合门变化，无新增状态。原16行tile/全模型首错、LN→quant→matrix及60次LN未签。
+
 ## 2026-10-13 LN→真实store→Q 的LQ0/LQ1有限测量
 
 LQ1R两版AT017/AT018的g++/HLS类型模型与单LN生成均PASS，**RTL均NOT_RUN，方向按两版上界no-go**。原LQ1最终循环F32减/乘native core `c_latency=0/0`，同一调度State3形成53.626ns组合路径；AT017局部`BIND_OP`请求4/3后，实际减/乘wrapper5/4级、core `c_latency=3/2`，最终II9，路径降到5.298ns，但top HLS估计slack仍为−0.43ns。AT018只调整减法请求4→5，实际wrapper6/4级、core `c_latency=4/2`，II10，路径5.277ns、slack−0.41ns；跨减末级→乘首级仍未达到4.867ns有效预算。AT017/AT018单top估计BRAM18均29、DSP均18、FF20136/20111、LUT48112/48107，均非物理资源。依合同不为两版启动static/pilot/full或F9错误回放，不补第三版。原始证据与受影响边界见[E005 LQ1对照](../../../../../../E005_full_request_performance/experiment_results/runs/R001/reports/LQ1_pipeline_comparison_20261013.md)及[LQ1R停止报告](../../../../../../E005_full_request_performance/experiment_results/runs/R001/reports/LQ1R_timing_no_go_20261013.md)。

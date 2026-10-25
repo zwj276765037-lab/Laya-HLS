@@ -1,5 +1,84 @@
 # LayerNorm与完整行统计：详细设计
 
+## M007 LN-COMPACT-22 / E014 R002（2026-10-23）
+
+权威规格为[残差/LN接续§2.2–2.3、§8–9](../../../../../../../source/m007_residual_encoder30_20261023.md)，
+不复制或改写数值合同。默认分支保留原任意96bit标签；显式canonical分支通过
+`control_q/control_next[12287:0]`外部化控制，局部scalar控制也在q中。
+ADD仍64项信用，metadata146bit；按身份/row/chunk重建公开tag。v3在既有offset后
+补8bit scale/sqrt/DIV offered-request保持状态，view12128bit/备用160bit，
+取消后已提出请求保持到真实接受，所有offer纳入work/physical retirement。
+Gamma132bit持久控制和原18055bit数值状态保留；真实共同arena由A007独占。
+
+已测生产core为`2a97609c…2eac`，布局/接口见
+[v3接口](../../../../../../E014_m007_layernorm32/experiment_source/ln_compact_interface_v3.md)，
+实际短验证及精确生产依赖见
+[v3检查点](../../../../../../E014_m007_layernorm32/experiment_results/runs/R002/v3_normal_protocol_checkpoint_v1.json)。
+PURE_EXTERNAL_CONTROL_UNIT正常与限定协议范围已通过；原完整128行只绑定c612正常版本。
+当前数值错误仍为legacy物理先到/global stop；完整CPU首错、source-summary仲裁、
+scale阻塞取消与当前完整FF census仍OPEN，不据已分配字段或TB q宣称父fit。
+
+## M007 LN-05 / E014（2026-10-21）
+
+本节为新M007原三遍LN路径，下方150MHz/LQ1/HLS制品仅保留历史边界。权威来源为
+[SM011 LN-05](../../../../../../../mission/M007_完整Attention高性能主干与部署闭合/tasks/SM011.md)
+及冻结`tests/full_reference.py` SHAfe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784。
+A008只写本模块新增laya_m007_*/m007_*和source增量；A007共享FP/div/LN-exp只读。
+
+当前已实现并真实验证`rtl/laya_m007_ln_scalars_v1.sv`：固定div1024一槽valid-ready，
+F32位型按指数缩放，正常数精确改指数，边界/次正规一次RNE/渐进下溢，signed zero保留，
+非有限显式error。sqrt一实际pending/result槽，归一化24bit尾数、调整指数奇偶，
+48bit整数被开方数每拍处理2bit共24轮，余数>整数根时进位RNE，正finite根为normal，
+±0保留，负非零/NaN/Inf显式error。真实接口可用延迟1/25拍（帽16/32），输出保持和
+busy/pending共同reset已通过。此功能证据不签300MHz。
+
+独立参考入口`tb/m007_ln_reference.py`，原encoder00/27各128行，后者读原GGUF gamma，
+最终全部128行等原保存final_norm。保存raw/delta/square、两棵相邻树全部10级节点、
+sum/mean/square_sum/variance/shifted/root/inverse/norm/output。标量13575向量含每指数/符号、
+下溢ties、seed20261021随机位和实际stats；正sqrt由NumPy/libm.sqrtf/整数中点判据一致核对。
+
+新纯engine `rtl/laya_m007_layernorm32_v1.sv` 已按以下接线实现；现版2799427b…c263在AT042/043完整128行两模式通过，实际结果见results.md。
+四ctx只用原LN-exp256bank×32F32，
+bank=(ctx*2+raw_or_delta)*32+element%32，address=element//32；每ctx raw/delta各4KiB，
+不建另一行payload。gamma1024F32/4KiB只一份系数区，真实32向量装载/覆盖/finite及model/key绑定；
+缺失或错身份的gamma不得受理正常gamma命令。命令锁request64/gen32/source_epoch32和gamma绑定；
+输入/输出32F32携row/chunk/opaque96tag，tag最多4ctx×32chunk×96=1536B。
+
+固定add lane0..35给pass1树，36..71给pass2树，72..103给32lane subtract，104给eps。
+每棵树前5级处理每个32元素chunk，依次16/8/4/2/1lane；后5级各一lane，按实际返回的
+node奇偶保存左子并发相邻右子，不改原1024相邻二叉树。mul lane0..31 square、32..63 norm、
+64..95 gamma，其余lane输入0。所有独立分区合成每拍唯一atomic256向量，不能当多请求口。
+原phase6 sharedFP256返回真实队首旁路用于8拍依赖；A007新源SHA80f91e30…d472230，
+AT006真实7/10级树及phase1/3受影响回归通过，不复制FP树。
+
+每笔atomic add/mul在engine有限metadata FIFO存分区valid/ctx/node，shared opaque96tag携generation及
+其reservation索引；原shared credit/payload只计一份。为满credit时避免反馈死锁，注册holding
+只存105个add lane和96个mul lane的两操作数（840+768B），正常ready时直接旁路真实返回到
+下一依赖请求，不能多加一级又声称树8拍。add metadata10×8bit×2树+sub8+eps8=176bit/笔，
+mul3×8=24bit/笔，各64槽共1600B；额外左子partial约165B。全metadata/hold/tag需最终实际位账≤8192B。
+为输出停顿时保留反馈排空容量，新的外部input/pass2/pass3读root在任一FP pending≥48时
+暂停；已有依赖/holding继续经真实ready发出。16个空位用于覆盖sub8级、单bank read/holding和
+请求holding的有界迟到square/norm工作，避免两个满反馈服务互相等待。AT033原8行gamma实际
+4ctx占满/1865拍held输出时，add/mul峰27/54且最终逐位恢复；是本有限停顿刺激的实测，不代替一般形式证明，不强清64槽债。
+原LN-exp read/rsp是单atomic口，异ctx的pass2 raw/pass3 delta可合并mask/addr/tag，返回须各自预留；
+raw输入与delta提交也合并一次write，只有实际write ack才提交coverage/减债。payload不reset清零。
+
+无外部停顿拟每128拍开始一行、32拍接收一行，用四ctx约512拍复用间隔。理想8拍add路径估算：
+首输入0→两树第一根111→mean约112→pass2读113起→square树根约241→variance/eps约250→
+sqrt约275→真实div8 inverse约307→pass3与gamma最终行约357拍；这些只是调度估计，
+必须由完整4行与S128实测逐项核对≤448/128/16704及pass1/2/3/树尾/标量帽。
+
+输出完整vector/tag/身份保持，真实1024输出消费和全部相关读写/FP/div/sqrt债退尽后才复用ctx。
+数值失败形成有界实际stage/row/node记录并排真实债，不以永久ready低/假A输出/强清债结束；
+全父逻辑首错另验。原layernorm_many按16行tile调用layernorm_rows，先检查tile全部source finite再
+逐row算术；本engine保存物理观察的stage/level/row/node并整体aborting，不保证原tile或全模型首错。
+共同reset清valid/metadata/覆盖并与同实例共享资源同步，新generation重新命令。
+engine done需全部输出/真实事务退休；消费后壳按真实debt_clear归还FP/div租约，held done阻新命令。
+公开诊断含真实error_stage/level/row/node，以及算术metadata/标量事件，未保存额外tensor。
+`tb/m007_ln_engine_tb.sv`壳恰一sharedFP256、一DIV8、一LN-exp，通过公开口输入/装gamma/观察输出。
+父LN→Q→matrix、整60次LN与
+完整父图物理共享尚未实现，不能由独立LN签署。原始协议和全部AT见E014。
+
 ## 2026-10-13 LQ1R有限时序修复
 
 AT017第一版实测HLS残余路径为F32减末级2.976ns→F32乘首级2.322ns，合计5.298ns，top估计slack−0.43ns。第二版AT018仅把局部F32减绑定请求从latency4加到5，保持乘法latency3与其余源码不变；实际绑定生效，残余同点路径仍为2.955+2.322=5.277ns、slack−0.41ns。两版时序均未达到原目标，已按合同停止这一修复方向，未启动受影响RTL；不能把局部绑定视为生产设计已采用。

@@ -1,0 +1,86 @@
+{
+  "schema": "m007-r007-zero-delay-source-delivery-v1",
+  "execution_state": "completed",
+  "verdict": "READONLY_EXACT_SOURCE_BINDING_COMPLETE",
+  "source_audit": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT050_initial_zero_delay_source_review_fixed_lexer/work/audit/zero_delay_source_review.json",
+  "top": {
+    "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/encoder_1d_residual_pack_v2/frozen/m007_fullmodel_encoder_1d_tb.sv",
+    "sha256": "172d301937532841baaa938e45eb2f48913b7821b60bb6776671ba52f6d5d555",
+    "fixture_end_line": 632,
+    "first_timed_sequence_line": 676,
+    "step_task_line": 431,
+    "fork_join_disable_named_event": false,
+    "explicit_zero_delay": false,
+    "finding": "No evidence for a wait/event/task cancellation defect. First task timing is posedge then 0.1ns delay. Macro expansion of step would be equivalent but the generated source already inlines its body and this does not address the observed zero-delay queue."
+  },
+  "leaf_initialization": {
+    "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT042_encoder_1d_compatibility_build/frozen/attention_exp_leaf.v",
+    "sha256": "7c51dc1c3c932dbe55a4a0070c1c053d7e690519a77eb3e4d8b6264893d7d37e",
+    "block_lines": [
+      912,
+      1081
+    ],
+    "zero_delay_statement_lines": [
+      913,
+      1080
+    ],
+    "statements": 168,
+    "all_initialized_variables_reset_synchronously_to_same_values": true
+  },
+  "actual_generated_zero_delay_count": 1344,
+  "lane_count": 8,
+  "attempts": {
+    "AT049": {
+      "category": "static",
+      "wall_s": 0.130776863952633,
+      "verdict": "FAIL",
+      "exit_code": 1,
+      "EDA": "NOT_RUN",
+      "bounded_source_only": true,
+      "initial_zero_delay_scope_only": true,
+      "fullgraph": "NOT_RUN"
+    },
+    "AT050": {
+      "category": "static",
+      "wall_s": 0.45070783502887934,
+      "verdict": "PASS_READONLY_SOURCE_AUDIT_ONLY",
+      "exit_code": 0,
+      "EDA": "NOT_RUN",
+      "bounded_source_only": true,
+      "initial_zero_delay_scope_only": true,
+      "fullgraph": "NOT_RUN"
+    }
+  },
+  "AT049_failure_cause": "Source audit lexer counted the word event inside a diagnostic string as an SV keyword; not a DUT or method failure. Original failed snapshot/receipt retained.",
+  "finding": "Do not modify TB waits or remove #0 without evidence. Removing/coalescing the168 #0 changes IEEE t0 inactive-region ordering and is not a general SV-equivalent rewrite. Its post-reset data equality would require a separately authorized reset-bound compatibility proof. A runtime queue batch fix can preserve the original source, gold and delta semantics and belongs to A012 isolated tooling, subject to actual small reproduction and regression.",
+  "A012_coordination": "A012 directly reported AT015 original runtime same-source8x168zero-delay reproduction SIGSEGV(-11),1.263156s; separate E021 evidence remains its ownership and review scope. A010 did not execute reproduction.",
+  "EDA_runs": [],
+  "production_or_TB_changes": [],
+  "budget": {
+    "schema": "m007-r007-budget-v1",
+    "limits_seconds": {
+      "reference": 0,
+      "static": 1200,
+      "rtl": 3600,
+      "ooc": 0
+    },
+    "used_seconds": {
+      "reference": "0",
+      "static": "675.30022546911635442",
+      "rtl": "2163.3339459610870015",
+      "ooc": "0"
+    },
+    "remaining_seconds": {
+      "reference": "0",
+      "static": "524.69977453088364558",
+      "rtl": "1436.6660540389129985",
+      "ooc": "0"
+    },
+    "rtl_reserve_seconds": 400,
+    "old_run_budget_transferred": false
+  },
+  "expected_model": "gpt-6.1-sol",
+  "expected_effort": "xhigh",
+  "actual_model": "UNKNOWN",
+  "actual_effort": "UNKNOWN"
+}

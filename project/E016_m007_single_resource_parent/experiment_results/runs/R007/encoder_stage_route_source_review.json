@@ -1,0 +1,91 @@
+{
+  "schema": "m007-r007-encoder-stage-route-source-review-v1",
+  "status": "READONLY_ROUTE_REVIEW_COMPLETE_NO_EDA",
+  "TB_sha256": "172d301937532841baaa938e45eb2f48913b7821b60bb6776671ba52f6d5d555",
+  "STOP_AFTER_HEAD16": {
+    "valid": false,
+    "source_line": 606,
+    "accepted_values": [
+      0,
+      1,
+      2
+    ],
+    "behavior": "Invalid16 fatals before fixtures. Enabling16 would require source change/new build, not current binary."
+  },
+  "same_binary_complete_route": "All STOP selectors0 with current kind5/packed0; same original RTL/TB/gold and active runtime remain. Do not introduce intermediate producers or claim post-kill resume.",
+  "retirement_boundary": {
+    "ATTENTION_END_line": 348,
+    "meaning": "All16head numerical/check classifications and accepted layer DONE; not alone proof of layer return-to-idle and full context/quant consumer retirement.",
+    "strong_later_boundary": "MATRIX_BEGIN phase1 is preceded by line248 checks of layer_done_count1/nheads16/context4096read+RSP+input/c_idle/c_complete/layer_idle/scratch acquired plus A-publication/quant debts at line247. Its gap from ATTENTION_END must remain charged."
+  },
+  "contiguous_wall_segments": [
+    {
+      "from": "child launch",
+      "to": "MATRIX_END phase0",
+      "includes": "fixture/setup/H/quant/QKV including all initial loading and handoffs; command-only timing may separately use BEGIN but total budget uses full child wall."
+    },
+    {
+      "from": "MATRIX_END phase0",
+      "to": "HEAD_END head0",
+      "includes": "RoPE and launch/lease handoff before first head plus actual first head."
+    },
+    {
+      "from": "HEAD_END headN-1",
+      "to": "HEAD_END headN (N1..15)",
+      "includes": "Inter-head drain/release/prepare/bind/start and actual next head; no gaps omitted."
+    },
+    {
+      "from": "HEAD_END head15",
+      "to": "ATTENTION_END",
+      "includes": "Layer check classification and terminal handoff."
+    },
+    {
+      "from": "ATTENTION_END",
+      "to": "MATRIX_END phase1",
+      "includes": "Actual layer idle/context4096/quant slot0 A publication/matrix admission + WO and Q commits. Refine QUANT_BEGIN1/A_PUBLISH1/MATRIX_BEGIN1 but preserve all gaps."
+    },
+    {
+      "from": "MATRIX_END phase1",
+      "to": "VECTOR_END phase0",
+      "includes": "WO release/scratch/owner handoff + residualA4096commits and real retirement."
+    },
+    {
+      "from": "VECTOR_END phase0",
+      "to": "LN_END",
+      "includes": "Residual-toLN handoff, full4096 Q commits, FP/DIV retirement; BEGIN/LAST_Q diagnostic markers."
+    },
+    {
+      "from": "LN_END",
+      "to": "MATRIX_BEGIN phase3",
+      "includes": "Norm quantA0, catalog/lease handoff, completeWi/G overlapped quantA1, G done, successful close and all release/debt barriers. QUANT_BEGIN2/A_PUBLISH2/MATRIX_BEGIN2/MATRIX_END2/G_BLOCK/G_SERVICE/A_PUBLISH3 refine, not sum overlapping windows."
+    },
+    {
+      "from": "MATRIX_BEGIN phase3",
+      "to": "MATRIX_END phase3",
+      "includes": "Down all4096 Q commits and actual matrix DONE."
+    },
+    {
+      "from": "MATRIX_END phase3",
+      "to": "VECTOR_END phase1",
+      "includes": "Down-toresidualF handoff +4096 finalH commits and real retirement."
+    },
+    {
+      "from": "VECTOR_END phase1",
+      "to": "COMPLETE_PASS",
+      "includes": "Final export4096 groups, original8/17cycle holds, actual tail/receipt and five-cycle heldDONE, exactly-once consumption, return-idle checks. EXPORT_LAST/FIRST_DONE are interior markers."
+    }
+  ],
+  "exact_log_timing": "Use existing wall_events.jsonl monotonic elapsed_s for actual events with preserved cycle fields. Each segment begins at the previous segment end; BEGIN markers split interior service from handoff but do not reset the cost accounting baseline and lose gaps.",
+  "watchdog_requirements": "A012-only driver change for per-segment\u2264120s,120s semantic-stall, one global resource/total budget guard. Current global120s does not already mean per-segment120s. Stage caps do not authorize sum beyond remaining budget or guarantee an unmeasured stage will finish. Expiry remains COST_STOP and no resume/checkpoint producer is provided.",
+  "budget_authority": "No new run here; original R007 ledger unchanged. Any eventual D33/E021 run must use controller/A012 authoritative budget with no borrowing/double accounting.",
+  "R007_remaining_seconds": {
+    "reference": "0",
+    "static": "524.69977453088364558",
+    "rtl": "1436.6660540389129985",
+    "ooc": "0"
+  },
+  "rtl_reserve_seconds": 400,
+  "unmeasured": "Complete16head layer cost, contextWO/residualLN/WiG/Down/final retirement costs of this complete-runtime source, complete Encoder cost all remain UNKNOWN beyond actual logged measurements.",
+  "production_TB_runner_edits": [],
+  "new_EDA_runs": []
+}

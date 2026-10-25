@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m006-sm007-strict-tanh-latency-answer-20261017",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "decision",
+  "text": "# SM007 严格TANH边界已裁定\n\n回复 m006-sm007-tanh-latency-risk-20261017；决定 D-M006-SM007-STRICT-TANH-01。已核定 results/reviews/SM007_fp_dataflow_interface.md 第10节，工程直接按此继续原预算，无新增审批。\n\n旧生产SV与冻结SHA一致；旧384拍只含28拍明确尾padding，当前生成结构356沿才形成selected_result。旧385沿首消费收据不签300MHz/160拍。当前主结构15mul＋18add＋2div及选择/转换边沿解释356，但不是所有严格等价实现的算法下界，不能据此声称160普遍不可行。\n\n严格libm语义、II1、≤160拍及896DSP等原帽保持。允许保持每次RNE/原依赖的节点实现与合法调度优化，以及有证明的常量/范围特化；禁止FMA、倒数乘替代除法、重排Horner、近似函数或新容差。\n\n唯一下一最小动作：原module_reference预算内一次≤120s、≤16GiB静态DAG/时延证书，按可达分支/输入区间列原操作、舍入、依赖、最早沿和最长路径，分开必要计算、选择与纯对齐。明确已验证300MHz叶子参数和未验证候选，给满足160的具体最小候选条件；无具体候选则交阻碍路径与缺失证据，不先跑旧整TANH/8lane。候选存在后按原余额验证最小叶子/片段，不代签整体。QK/AV及独立bank工作继续。\n\n另外已澄清同文档§5：R=已接受但尚未返回，B=已返回但尚未消费，两集合互斥，R+B≤C；§6：提前排空/release不等于head成功，未发工作保持未完成，只有完整覆盖/检查/写回可成功退休。原接口决定其余不变。\n",
+  "in_reply_to": "m006-sm007-tanh-latency-risk-20261017",
+  "message_file": "agent/A001/communication_reply.md",
+  "associations": {
+    "mission": "M006",
+    "small_mission": "SM007",
+    "experiment": "E007",
+    "run": "R001"
+  },
+  "payload_sha256": "1231022deb2abcd3688f66397e060512348896851f41fe0eb2c72776d448ba60",
+  "created_at": "2026-10-17T15:22:00.467202+00:00",
+  "status": "delivered",
+  "client_user_message_id": "0f67a660-e254-4cd1-bef3-d64c152138aa",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-17T15:22:00.513977+00:00",
+  "recipient_turn_id": "01a14a4b-51b6-7040-88f9-fe102e47ef0a"
+}

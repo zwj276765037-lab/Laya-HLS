@@ -122,8 +122,6 @@ static uint32_t narrow32(uint64_t x) {
 }
 uint32_t attention_exp_bits(uint32_t x) {
 #pragma HLS inline off
-#pragma HLS allocation function instances=attention_f64_add limit=1
-#pragma HLS allocation function instances=attention_f64_mul limit=1
   static const uint64_t table[32]={
     0x3ff0000000000000ull,0x3fefd9b0d3158574ull,0x3fefb5586cf9890full,0x3fef9301d0125b51ull,
     0x3fef72b83c7d517bull,0x3fef54873168b9aaull,0x3fef387a6e756238ull,0x3fef1e9df51fdee1ull,
@@ -154,6 +152,7 @@ void attention_exp_leaf(uint32_t x, uint32_t &result, uint32_t &status) {
 #pragma HLS interface ap_none port=x
 #pragma HLS interface ap_vld port=result
 #pragma HLS interface ap_vld port=status
+#pragma HLS pipeline II=1
   status=((x&0x7f800000u)==0x7f800000u || (!(x>>31)&&(x&0x7fffffff))) ? 1:0;
   result=status ? 0:attention_exp_bits(x);
 }

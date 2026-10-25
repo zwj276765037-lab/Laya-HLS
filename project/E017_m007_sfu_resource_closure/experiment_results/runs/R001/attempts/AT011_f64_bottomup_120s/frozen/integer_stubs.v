@@ -1,0 +1,2 @@
+(* black_box *) module attention_exp_leaf_mul_32ns_32ns_50_2_1 #(parameter ID=1,NUM_STAGE=2,din0_WIDTH=32,din1_WIDTH=32,dout_WIDTH=50)(input clk,ce,reset,input [din0_WIDTH-1:0] din0,input [din1_WIDTH-1:0] din1,output [dout_WIDTH-1:0] dout); endmodule
+(* black_box *) module attention_exp_leaf_mul_32ns_32ns_64_2_1 #(parameter ID=1,NUM_STAGE=2,din0_WIDTH=32,din1_WIDTH=32,dout_WIDTH=64)(input clk,ce,reset,input [din0_WIDTH-1:0] din0,input [din1_WIDTH-1:0] din1,output [dout_WIDTH-1:0] dout); endmodule

@@ -1,0 +1,18 @@
+# E016/R007 actual results
+
+AT038 standalone binary peer source-byte preparation/build PASS12.064388511s; AT039 RTL PASS6.023939148s. Independent original-GGUF expected bytes matched2897AR/23049beats/1475136B across all120 tensors/fourport first/tail, threeK/sixshapes, Wi halves and record/superblock/page samples. Eight existing W576 tensors crosschecked98560B. Peak live25, source overlaps522, heldAR/R/last4090/3568/497, final7048cycles. Q sign1 is covered; all46080 sampled scales have sign0. Cache hits0 leaves the hit branch untested. [Peer evidence](runs/R007/binary_peer_actual_evidence.json).
+
+AT040 current production W transport/cache build PASS7.623896713s; AT041 RTL PASS5.633166350s. Eight original catalog descriptors/sixshapes yielded1608 real cache records/874752B equal original-GGUF gold. Actual908AR/14472R=926208B, all908 burst parser reservations retired on their final registered parser output consumption. Last R preceded reader idle by368 observed cycles in aggregate. Peak live32, heldAR465/R4761/last287, previous-tensor cache reads concurrent with new prefetch786cycles, final10285cycles. Accepted caller descriptor inputs were changed while source identity remained frozen. This is production W reader/cache plus original catalog descriptors, not a new parent/catalog-reader run. [Transport evidence](runs/R007/binary_production_transport_actual_evidence.json).
+
+AT042 pure1D compatibility full build PASS55.795852041s. AT043 originalB1 QKV1 hit the original60s timeout at60.319911834s, no Fatal/ERROR and zero complete QKV blocks. It completed actual4096H and quant/A publication, reached matrix BEGIN cycle11114 at driver37.090460755s. All84 runtime events/cycles (plus2 fixture markers=86 total M007 lines) match the original AT037 completed prefix. Complete QKV1 backend equivalence and speed are unestablished; no timeout extension or retry. [Compatibility evidence](runs/R007/encoder_1d_compat_actual_evidence.json).
+
+AT044 source-only original47 raw SHA recheck and integer serialization PASS0.378079660s, no EDA. Actual CPU0–3/nice19/idle class3, maxRSS84040KiB and initial MemAvailable466132776KiB. Initial H0 restores SHA5d882938…3056. Original32 endpoint records serialize to131072 groups; tail544 restores existing E009 SHAa8698e55…536f. Source checks and fixtures are frozen, with no kind6/7 compilation or simulation.
+
+Earlier boundaries remain: AT031 trueQKV48/393216 originalF32 retirement and2048RoPE plus occurred QK/SM, strict postQKV120s COST_STOP1403.258719394s, no fullhead/Encoder. AT033/034 exact-source debug typical/off QKV1 single pair49.153994803/40.763996112s,106 equal semantic events/8192values/14343cycles,17.07% wall reduction only. AT035 observer alias compile FAIL preserved; AT036/037 completechecker QKV3 PASS24576F32/12461commandcycles/80.903062850s and real4096H capture SHA equals original. AT025 full joint residual/LN128 and AT029 quant/A K4096 16384write+ACK remain their component scopes. Canonical setup/ABI/catalog lateRLAST/CRC and32342bit logical census remain valid; no physical or DMA claim.
+
+AT038–043 recorded policy identities45/45 checked; all actual recorded identities/groups empty. Older AT036 has3 unverified transient compiler identities and remains limited16/19. Exact current used static668.74795008108043121s / RTL2163.3339459610870015s, remaining531.25204991891956879s /1436.6660540389129985s with RTL400s reserve; no old transfer. [Delivery](runs/R007/AT038_044_staged_delivery.json), [budget](runs/R007/budget_ledger.json).
+
+
+---
+Published: 2026-10-23T10:26:50.513313+00:00
+Publication: Pe6444a06ef9047c4a6b615893166a925

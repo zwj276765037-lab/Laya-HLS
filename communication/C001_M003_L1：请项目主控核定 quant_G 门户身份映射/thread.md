@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # C001 · M003/L1：请项目主控核定 quant/G 门户身份映射
 
@@ -70,7 +70,6 @@
 
 - [quant_g_answer_message_20261011](../../results/quant_g_answer_message_20261011.md)
 - [quant_g_portal_contract_v2_20261011](../../results/quant_g_portal_contract_v2_20261011.md)
-- [review_queue](../../results/review_queue.md)
 
 ### 状态确认 2026-10-11T16:27:38.168551+00:00
 

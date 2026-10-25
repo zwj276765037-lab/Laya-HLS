@@ -1,0 +1,9 @@
+# D32 B1输入与tail检查绑定
+
+只读支持已完成，场景`B1_from_b0_S128`、batch0/S128。原五输入SHA已核，ir_215为I32[2,0]，本请求qtype2、candidate_count2；attention_mask128、原signed marker16和mask16均在同名JSON给出。原1152B LYRQ请求SHA17c47b88877644c5aba96cbf2e277b607896e303487202184f0c512b72068a6b；五payload准确目录/偏移/跨度已逐字节与原输入batch0对齐，采用原full_forward_oracle54–80/181–190的零rebase。
+
+原E009512B CPU metadata、原完整图包128768a4及后继E020包46bbd5ab三套五完整identity分别保存；model/graph相同，numeric/layout/build语义不同。原LYRQ帧仅四128bit tag且无graph全SHA；本次核其prefix匹配原model-attention-rtl-repair包完整身份；旧layout f9278816/build fe067c8a与后继E020包2d848b5f/7209eb09明确不同，未补造高位。新D32 parent_v3 build待A010实际冻结manifest，不使用原CPU/model-package build或TANH module SHA代替。SIM source_epoch由父TB选择并记录，原请求无该字段。
+
+已有tail产品`project/E009_m007_host_tail_contract/experiment_results/runs/R001/AT015_immutable_request_replay/replay/B1_from_b0_S128/tail.bin`，69632B，SHAa8698e55921b0300643a01f63bb38abc52e026af7251b526f02bddfbd6d9536f。全部544×128B按原decision_01_out逐字节检查通过，前65536B等于原marker_gather，最后4096B等于原Decision1 row0 CLS。JSON列17slot源row、完整字节起点及所有vector/lane/byte映射公式；无需合并或新造gold。
+
+已核47checkpoint报告身份并索引全部47项，实际重核H0/decision_01_out/marker_gather/final18四份SHA；这些仅供checker，连续RTL输入仍必须来自前一真实DUT输出。所有原路径只读，未运行浮点参考/EDA/Host/cat工具，未改实现。新独立预算30s/单次20s、RSS1GiB，CPU0–3/nice19/idle，已计前置reader1.19s（0.01s精度），本绑定脚本约0.073234s/RSS22856KiB；无旧余额转移/重工具锁。

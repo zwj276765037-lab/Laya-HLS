@@ -1,0 +1,103 @@
+{
+  "status": "STATIC_PARTITION_SCENARIO_NOT_MEASURED",
+  "model_scope": "B1/S128; 28 Encoder + 2 Decision; CPU scorer/ACT",
+  "source": "source/fixed_graph_architecture_20261014.md section 1",
+  "matrix_only_assumptions": [
+    "Every mainline matrix consumes F32 inputs from CPU and returns F32 output to CPU",
+    "Weights already resident in device memory; weight loading excluded",
+    "All intermediate non-matrix operators execute on CPU",
+    "No overlap or bandwidth guarantee; example rate is aggregate 8e9 byte/s",
+    "CPU-side quantization is a separate alternative and changes traffic"
+  ],
+  "encoder_matrices": [
+    {
+      "name": "QKV",
+      "M": 128,
+      "K": 1024,
+      "N": 3072,
+      "input_F32_bytes": 524288,
+      "output_F32_bytes": 1572864,
+      "total_bytes": 2097152
+    },
+    {
+      "name": "WO",
+      "M": 128,
+      "K": 1024,
+      "N": 1024,
+      "input_F32_bytes": 524288,
+      "output_F32_bytes": 524288,
+      "total_bytes": 1048576
+    },
+    {
+      "name": "Wi",
+      "M": 128,
+      "K": 1024,
+      "N": 5248,
+      "input_F32_bytes": 524288,
+      "output_F32_bytes": 2686976,
+      "total_bytes": 3211264
+    },
+    {
+      "name": "Down",
+      "M": 128,
+      "K": 2624,
+      "N": 1024,
+      "input_F32_bytes": 1343488,
+      "output_F32_bytes": 524288,
+      "total_bytes": 1867776
+    }
+  ],
+  "decision_matrices": [
+    {
+      "name": "QKV",
+      "M": 128,
+      "K": 1024,
+      "N": 3072,
+      "input_F32_bytes": 524288,
+      "output_F32_bytes": 1572864,
+      "total_bytes": 2097152
+    },
+    {
+      "name": "WO",
+      "M": 128,
+      "K": 1024,
+      "N": 1024,
+      "input_F32_bytes": 524288,
+      "output_F32_bytes": 524288,
+      "total_bytes": 1048576
+    },
+    {
+      "name": "FC1",
+      "M": 128,
+      "K": 1024,
+      "N": 4096,
+      "input_F32_bytes": 524288,
+      "output_F32_bytes": 2097152,
+      "total_bytes": 2621440
+    },
+    {
+      "name": "FC2",
+      "M": 128,
+      "K": 4096,
+      "N": 1024,
+      "input_F32_bytes": 2097152,
+      "output_F32_bytes": 524288,
+      "total_bytes": 2621440
+    }
+  ],
+  "matrix_only_mainline_bytes": 247070720,
+  "matrix_only_mainline_MiB": 235.625,
+  "matrix_only_dependency_handoffs": 120,
+  "matrix_only_transfer_seconds_at_assumed_8GBps": 0.03088384,
+  "cpu_attention_only_assumptions": [
+    "All remaining mainline stages execute on FPGA and keep data device-resident",
+    "Transfer Q/K/V F32 to CPU and attention output F32 back for each block",
+    "Includes neither initial/final boundary nor mask/control data nor CPU execution",
+    "This placement requires LN/GELU hardware feasibility; not a selected implementation"
+  ],
+  "cpu_attention_only_mainline_bytes": 62914560,
+  "cpu_attention_only_mainline_MiB": 60.0,
+  "tail_Q8_MAC": 16777728,
+  "tail_Q8_fraction": 0.00035575613899726404,
+  "dot_only_I32_group_result_bytes_full_graph": 5895094336
+}

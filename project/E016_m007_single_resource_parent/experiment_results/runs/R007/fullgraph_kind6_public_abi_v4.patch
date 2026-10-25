@@ -1,0 +1,13 @@
+--- project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_retire_progress_v3/frozen/m007_fullgraph_binary_tb.sv
++++ project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_public_abi_v4/frozen/m007_fullgraph_binary_tb.sv
+@@ -457,7 +457,9 @@
+ 
+   if(cmd_mask!==128'h00000000000000ffffffffffffffffff)$fatal(1,"original B1 mask required");
+ 
+-  cmd_kind=3'(kind_run);cmd_layer=kind_run==7?0:5'(decision_local);cmd_qtype=2;cmd_marker_rows=0;cmd_marker_rows[0]=23;cmd_marker_rows[1]=33;cmd_marker_mask=16'h0003;cmd_candidate_count=2;
++  cmd_kind=3'(kind_run);cmd_layer=kind_run==7?0:5'(decision_local);
++  if(kind_run==7)begin cmd_qtype=2;cmd_marker_rows=0;cmd_marker_rows[0]=23;cmd_marker_rows[1]=33;cmd_marker_mask=16'h0003;cmd_candidate_count=2;end
++  else begin cmd_qtype=0;cmd_marker_rows=0;cmd_marker_mask=0;cmd_candidate_count=0;end
+   for(int gl=0;gl<30;gl++)begin layer_H_count[gl]=0;layer_mcount[gl]=0;layer_mdone[gl]=0;layer_attention[gl]=0;layer_H_seen[gl]=0;end
+   for(int d=0;d<2;d++)begin fc1_Awrites[d]=0;fc1_Aacks[d]=0;fc1_Aseen[d]=0;end
+   input_fd=$fopen({export_path,".H0.bin"},"wb");output_fd=$fopen({export_path,".output.bin"},"wb");if(!input_fd||!output_fd)$fatal(1,"actual public capture open");

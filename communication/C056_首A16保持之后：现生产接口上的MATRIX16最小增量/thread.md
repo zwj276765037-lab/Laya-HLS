@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # C056 · 首A16保持之后：现生产接口上的MATRIX16最小增量
 
@@ -66,7 +66,6 @@
 ## 相关决定和审核
 
 - [overview](../../results/overview.md)
-- [review_queue](../../results/review_queue.md)
 
 本页是原记录的导航投影；登记、送达及局部结果不代表整体验收。
 

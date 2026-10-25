@@ -1,0 +1,18 @@
+{
+  "source": "# E016/R003 FULL-PARENT-15 当前实现\n\n当前e354父及原共享依赖冻结在AT004（同一e354生产源，测试台用等价显式分支避免已观察xsim内核异常）。新增m007_full_parent_tb在同一完整snapshot支持QKV3、真实第二head退休和完整Attention父链，保留原8身份/原数值与协议checker，增加每head maximum终点、真实context4096、同quant/A发布、WO131072原gold及首次243bit独立期望/held回执。peer每个实际AR按地址锁定QKV/WO源与base，R不随之后phase切换。生产RTL未改，不复制服务。\n\n新独立预算ref0/static600/RTL6000/OOC0，600s RTL保留。固定gate E=1.10*(P2+14*Hmax+Q)+10，Q为启动至末QKV实际提交wall的可证伪context+WO占位，非该段实测。gate与原3600s full单次上限不私改。全部源码/fixture复制冻结、编译/guard/命令/日志保留；原R001/R002不转余额。",
+  "results": "# E016/R003 当前实际结果\n\nAT001 TB生成语法FAIL1.914082291s；AT002 build PASS46.094478799s后，AT003在8identity通过/QRUN首笔quant-A附近发生xsim kernel exception，RTL FAIL6.614362462s保留。等价显式TB分支、不改production/gold/checker后，AT004 build PASS43.694276949s、AT005 QKV3 PASS48.746615243s：原8identity、4096实际input/Awrite/Aack、768QKV32/24576原值、8364cycles、31/13反馈、strict checked155648@8955。新分支后未再观察该exception；没有单构造因果隔离结论。\n\nAT006为相同AT004 snapshot的真实第二head退休pilot，当前正常QKV阶段、未出结果。full NOT_RUN、尚无gate。完整checker已编入但不等于完整链通过。控制/source账3746B、452输入源，无物理fit结论。\n\nAT006同AT004完整snapshot真实两head pilot PASS877.589479115s：QKV48块/12288QKV32、RoPE2048，两个实际head score/prob各32768、context16384、maximum256，身份/各head周期/strict进度通过。固定gate P2=877.232754763、Hmax=114.465794125、Q=628.900676903，E3429.520004357≤3600；当时余额5067.049543180≥E+600。Q是context+WO的工程占位，未冒充实测。AT007已真实启动一次full，timeout3430，尚无结果。",
+  "status": "# E016/R003 当前执行\n\nexecution_state: running\nverdict: unassessed\n\n同snapshot QKV3及真实两head pilot通过，固定实际gate已通过；AT007为唯一当前full Attention父链运行，timeout3430s、600s恢复保留、strict120s语义进度和原资源/周期帽保持。没有full数值或父成功结果预填。生产e354不变；完整Encoder/FFN/30层不在此签署。期望gpt-6.1-sol/xhigh，实际UNKNOWN。\n\n闭合费用（不含当前AT007）：{\"reference\": 0.0, \"static\": 91.70283803896746, \"rtl\": 932.9504568199627, \"ooc\": 0.0}",
+  "execution_state": "running",
+  "verdict": "unassessed",
+  "applicability": "AT004 full-checker build, AT005 same-snapshot QKV3 and AT006 actual QKV/RoPE/two heads PASS; full AT007 active only",
+  "evidence": [
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/attempts/AT001_full_checker_frozen_build/receipt_static.json",
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/attempts/AT002_full_checker_syntax_fix_build/receipt_static.json",
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/attempts/AT002_full_checker_syntax_fix_build/source_control_audit.json",
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/attempts/AT003_same_snapshot_qkv3/receipt_rtl.json",
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/attempts/AT004_explicit_TB_branches_build/receipt_static.json",
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/attempts/AT005_explicit_TB_branch_qkv3/receipt_rtl.json",
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/attempts/AT006_actual_two_head_pilot/receipt_rtl.json",
+    "project/E016_m007_single_resource_parent/experiment_results/runs/R003/reports/full_chain_cost_gate.json"
+  ]
+}

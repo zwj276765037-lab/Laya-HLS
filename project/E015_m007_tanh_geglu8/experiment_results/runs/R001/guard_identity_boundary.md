@@ -1,0 +1,11 @@
+# E015守卫自身代码身份的窄边界
+
+本说明保留原receipt，不回写任何AT归档，也不把工程解释升级为独立运行证据。
+
+AT008–013在等待公共锁期间，工作路径tb/m007_tanh_guard.py新增了单行sys.dont_write_bytecode=True，目的为只读导入冻结E014 helper时避免pycache写入。初始守卫来源候选SHA为ac7b02fc90f11e59d3b372d8ad2308703f1956fd49b87f1154a5ff5b86b65ebe；稍后归档可能记录较新的工作文件。两候选的生命周期/锁/预算/清理逻辑逐字相同，唯一新增为该bytecode设置。
+
+这些进程没有启动前自身字节收据，因此其运行前精确self-SHA为UNKNOWN。工程说明是它们在修改前启动，但事后不能独立证明exact loaded SHA；不能把任何稍后归档的guard SHA冒称这些进程的精确loaded代码身份。
+
+该边界仅影响守卫自身的来源精确性。实际锁获取/child start/end、费用、owned进程/进程组清理收据保留；没有据此发现锁泄漏、未知费用或重工具重叠。冻结E014 process lifetime helper身份单独保留。子driver、RTL/TB、向量、OOC XDC/Tcl、DCP与实际编译snapshot的版本证据单独解释，不因本说明升级或删除数值/时序结果。
+
+A001要求如实标记UNKNOWN并限定接纳候选生命周期逻辑相同的实际运行边界，无需重跑无关算术/OOC。后继采用明确冻结且不再修改的guard路径执行，并在启动前锁定自身版本；不再在已有等待队列期间改写其工作路径。

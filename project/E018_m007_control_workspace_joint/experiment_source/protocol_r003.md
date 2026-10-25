@@ -1,0 +1,11 @@
+# E018 R003 CANCEL-END-19 protocol
+
+Authority: M007/SM012 D-M007-SM012-CANCEL-END-19 and A001 assignment 2026-10-23. A007 owns necessary G TB/runner and production G interface only; A010 owns parent FFN and reads G. Preserve other authors. R001/R002 evidence and numerical/storage/layout contracts remain frozen.
+
+Complete only the missing full successful-normal-terminal cancellation lifecycle using unchanged production engine SHA6b8b0114 and corrected R002 AT021 build/current TB. Current selected sources must match AT021; the only AT002-to-AT021 selected-source change is FINAL_REAL_DEBT permitting expected needs_discard in mode2. No independent expected values or debt/numeric checks are removed. No new reference/gold or full normal/leaf replay.
+
+One complete mode2/82-group/335872-scalar run from the original AT058 fixture: real native bank writes/ACKs/reads, original56mul/16add pool and TANH8; original independent335872 outputs and3358720 node checks; legal producer cancel at actual full normal terminal eligibility; cancelled DONE held17 with matching identity, real consumption, mandatory explicit matching discard, actual resources release, G-to-A one-cycle rearm, actual layer PREP/coverage reload. No forced debts or fake returns. Normal status0 of a cancelled result never grants full-domain success. Existing AT023 real-peer terminal is separate.
+
+Independent guarded child caps reference0/static120/RTL300/OOC0 seconds. AT001 static preflight<=30s; one full corrected RTL AT002<=200s;60s reserve for short regression/archive, with no automatic second full retry after failure. R002 measured full normal123.3851001370349s and old-TB failed full129.92466734204208s support normal*1.35+10=176.56988518499713s. This is changed TB/new scope, not extending an old timeout. A full stage uses current source and exact corrected build/fixture/snapshot identities.
+
+Reuse project .research-agent/m007_heavy.lock through all descendants; CPU0-3/nice19/idle I/O, MemAvailable>192GiB before and during child, static24GiB/RTL8GiB;40Mcycle TB bound and120s true checked-consume semantic stall guard. No OOC/P&R/board/GPU or unrelated processes. Any new failure is retained and diagnosed before further scope. Final audit verifies own cleanup and immutable R002 receipts. Publish three summaries and actual A007 state; actively hand off to A001.

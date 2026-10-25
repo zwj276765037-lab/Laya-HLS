@@ -1,0 +1,35 @@
+--- project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_kind6_kind7_public_boundary_v2/frozen/m007_fullgraph_binary_tb.sv
++++ project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_fullgraph_binary_tb.sv
+@@ -143,6 +143,7 @@
+  logic[735:0]metadata[0:119];logic[31:0]tensor_ids[0:119],rope_load[0:8191];
+  logic[511:0]catalog_mem[0:127];logic[31:0]bias_mem[0:18431],gamma_mem[0:1023],type_mem[0:3071],rope_mem[0:3][0:8191];
+  integer cycle=0,checked=0,last_checked=0,mode=9,ar_count=0,r_count=0,model_count=0,h_count=0,catalog_runtime=0;
++ longint unsigned rtl_retired=0,rtl_last_retired=0;
+  integer bus_word=0,held_word=0;logic pending=0,drain_pending=0,fault_injected=0,response_consumed=0;logic[63:0]held_addr;logic held_ar=0;
+  integer kind_run=7,decision_local=0,commands=0,exports=0,layers_completed=0,final_norm_count=0,type_count=0,matrix_commands=0,attention_layers=0,ln_commands=0,vector_commands=0,g_commands=0;
+  integer layer_H_count[0:29],layer_mcount[0:29],layer_mdone[0:29],layer_attention[0:29],fc1_Awrites[0:1],fc1_Aacks[0:1];
+@@ -200,6 +201,24 @@
+   if(model_word_valid&&model_word_ready)begin model_count++;progress(32,"MODEL");end
+   if(full_active)begin
+    integer gl;gl=int'(dut.layer_index);
++   // RTL_RETIRE_OBSERVER_BEGIN: accepted result/ACK events, not gold words or operations.
++   begin : rtl_retire_observation
++    integer completed;completed=0;
++    if(dut.matrix.core.ps_wr_rsp_valid&&dut.matrix.core.ps_wr_rsp_ready)completed++;
++    if(dut.q_awr_rsp_valid&&dut.q_awr_rsp_ready)completed++;
++    if(dut.resident.a_res_st_ps_wr_rsp_valid&&dut.resident.a_res_st_ps_wr_rsp_ready)completed++;
++    if(dut.resident.a_res_st_context_wr_rsp_valid&&dut.resident.a_res_st_context_wr_rsp_ready)completed++;
++    if(dut.resident.p_q_wr_valid&&dut.resident.p_q_wr_ready&&dut.resident.p_q_wr_commit)completed++;
++    if(dut.g_out_valid&&dut.g_out_ready)completed++;
++    if(dut.resident.vector_h_wr_valid&&dut.resident.vector_h_wr_ready&&dut.resident.vector_h_wr_commit)completed++;
++    if(completed>0)begin
++     rtl_retired+=completed;
++     if(rtl_retired-rtl_last_retired>=128)begin
++      $display("M007_RTL_RETIRE_PROGRESS retired=%0d cycle=%0d",rtl_retired,cycle);$fflush();rtl_last_retired=rtl_retired;
++     end
++    end
++   end
++   // RTL_RETIRE_OBSERVER_END
+    if(reject_valid||done_status!=0||dut.r_res_fp_protocol_fault||dut.r_res_div_protocol_fault||dut.l_check_coverage_fault)$fatal(1,"normal graph error/check/reject protocol");
+    if(cmd_valid&&cmd_ready)begin commands++;if(commands!=1)$fatal(1,"one public BEGIN only");end
+    if(in_valid&&in_ready)begin

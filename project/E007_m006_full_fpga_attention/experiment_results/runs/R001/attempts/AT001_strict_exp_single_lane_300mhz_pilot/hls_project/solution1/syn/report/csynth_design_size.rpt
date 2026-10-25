@@ -1,0 +1,68 @@
+================================================================
+== Design Size Report
+================================================================
+
+* Total Instructions per Compilation Phase
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Phase         | Step                       | Instructions | Description                                                                            |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Compile/Link  |                            | 5,466        | After all functions are compiled and linked into a single design                       |
+|               |                            |              |                                                                                        |
+| Unroll/Inline |                            |              | After user unroll and inline pragmas are applied                                       |
+|               | (1) unroll                 | 4,635        | user unroll pragmas are applied                                                        |
+|               | (2) simplification         | 3,709        | simplification of applied user unroll pragmas                                          |
+|               | (3) inline                 | 3,703        | user inline pragmas are applied                                                        |
+|               | (4) simplification         | 3,685        | simplification of applied user inline pragmas                                          |
+|               |                            |              |                                                                                        |
+| Array/Struct  |                            |              | After user array partition and struct aggregate/disaggregate pragmas are applied       |
+|               | (1) array partition        | 3,683        | user array partition pragmas are applied                                               |
+|               | (2) simplification         | 3,683        | simplification of applied user array partition & struct aggregate/disaggregate pragmas |
+|               | (3) aggregate/disaggregate | 3,683        | user struct aggregate/disaggregate pragmas are applied                                 |
+|               | (4) array reshape          | 3,683        | apply array reshape pragmas                                                            |
+|               | (5) access patterns        | 3,683        | array access pattern optmizations                                                      |
+|               |                            |              |                                                                                        |
+| Performance   |                            |              | After transformations are applied to meet performance pragma targets                   |
+|               | (1) loop simplification    | 3,683        | loop and instruction simplification                                                    |
+|               | (2) parallelization        | 3,683        | loops are unrolled or pipelined to meet performance targets                            |
+|               | (3) array partition        | 3,683        | arrays are partitioned to meet performance targets                                     |
+|               | (4) simplification         | 3,683        | simplification of design after performance transformations                             |
+|               |                            |              |                                                                                        |
+| HW Transforms |                            |              | After hardware transfomations                                                          |
+|               | (1) lowering               | 3,686        | initial conversion to HW specific instructions                                         |
+|               | (2) optimizations          | 3,701        | high level synthesis optimizations                                                     |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+
+* Instructions per Function for each Compilation Phase
++-----------------------+----------------------------+-----------------+-----------------+-----------------+-----------------+-----------------+
+| Function              | Location                   | Compile/Link    | Unroll/Inline   | Array/Struct    | Performance     | HW Transforms   |
++-----------------------+----------------------------+-----------------+-----------------+-----------------+-----------------+-----------------+
+| + attention_exp_leaf  | attention_exp_bits.cpp:152 | 5,466           | 3,685           | 3,683           | 3,683           | 3,701           |
+|  + attention_exp_bits | attention_exp_bits.cpp:123 | 5,439           | 3,664           | 3,664           | 3,664           | 3,677           |
+|     widen32           | attention_exp_bits.cpp:95  |   50            |                 |                 |                 |                 |
+|   + attention_f64_mul | attention_exp_bits.cpp:72  | 2,526 (6 calls) | 1,668 (6 calls) | 1,668 (6 calls) | 1,668 (6 calls) | 1,674 (6 calls) |
+|    + unpack64         | attention_exp_bits.cpp:26  |  972 (12 calls) |                 |                 |                 |                 |
+|       clz64           | attention_exp_bits.cpp:15  |  564 (12 calls) |                 |                 |                 |                 |
+|    + pack64           | attention_exp_bits.cpp:34  |  888 (6 calls)  |                 |                 |                 |                 |
+|       clz64           | attention_exp_bits.cpp:15  |  282 (6 calls)  |                 |                 |                 |                 |
+|       jam64           | attention_exp_bits.cpp:9   |  228 (12 calls) |                 |                 |                 |                 |
+|   + attention_f64_add | attention_exp_bits.cpp:48  | 2,640 (6 calls) | 1,716 (6 calls) | 1,716 (6 calls) | 1,716 (6 calls) | 1,722 (6 calls) |
+|    + unpack64         | attention_exp_bits.cpp:26  |  972 (12 calls) |                 |                 |                 |                 |
+|       clz64           | attention_exp_bits.cpp:15  |  564 (12 calls) |                 |                 |                 |                 |
+|      jam64            | attention_exp_bits.cpp:9   |  114 (6 calls)  |                 |                 |                 |                 |
+|    + pack64           | attention_exp_bits.cpp:34  |  888 (6 calls)  |                 |                 |                 |                 |
+|       clz64           | attention_exp_bits.cpp:15  |  282 (6 calls)  |                 |                 |                 |                 |
+|       jam64           | attention_exp_bits.cpp:9   |  228 (12 calls) |                 |                 |                 |                 |
+|   + narrow32          | attention_exp_bits.cpp:109 |  194            |                 |                 |                 |                 |
+|    + unpack64         | attention_exp_bits.cpp:26  |   81            |                 |                 |                 |                 |
+|       clz64           | attention_exp_bits.cpp:15  |   47            |                 |                 |                 |                 |
+|      jam64            | attention_exp_bits.cpp:9   |   38 (2 calls)  |                 |                 |                 |                 |
++-----------------------+----------------------------+-----------------+-----------------+-----------------+-----------------+-----------------+
+
+* Design Size Message Settings
++---------------------------------------------+--------+------------------------------------------------------------------+
+| Message Setting                             | Value  | Description                                                      |
++---------------------------------------------+--------+------------------------------------------------------------------+
+| config_compile -design_size_maximum_warning | 100000 | Show a warning when total design instructions exceeds this value |
++---------------------------------------------+--------+------------------------------------------------------------------+
+
+

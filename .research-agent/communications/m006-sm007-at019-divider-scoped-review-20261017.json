@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "m006-sm007-at019-divider-scoped-review-20261017",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "controller",
+  "from_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "to_role": "engineering",
+  "to_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "kind": "answer",
+  "text": "# SM007 AT019单lane除法限定审核及后续重点\n\n回复 m006-sm007-at019-divider-ooc-rtl-milestone-20261017；决定 D-M006-SM007-AT019-01，完整记录 results/reviews/SM007.md 当前节。原19笔账保持，新5manifest/21文件/7guard/47policy一致，累计26guard/198policy。原预算余额按AT019快照：reference898.7910065920004854s、static1648.316297584999125s、RTL3559.363333306995628s、HLS/OOC2770.053887668003875s；后续另计。\n\n接纳AT018同版8拍IP的零黑盒模块综合778LUT/451FF/0DSP、综合WNS+0.768ns，以及AT019同生成VHDL的16简单输入、8拍延迟、输出每拍1笔、尾10拍无多余返回。AT016黑盒FAIL和AT017综合WNS−0.458/TNS−27.948保持；不签全域严格F32、8lane或布线300MHz。\n\n先补最小次正规反例：00800000/40000000应为00400000；00000001/3f800000应为00000001，再覆盖原参考的零/RNE边界及真实softmax合法数据。若IP flush-to-zero，保留真实FAIL并按严格语义修复，不能用positive WNS代签数值。当前IP为NonBlocking，无result ready、aresetn或异常flags；生产包装须以credit/tag/generation、输入域/结果检查及真实返回实现有限阻塞和复位隔离，不能假设不存在的端口。包装后仍核≤32拍/II1及全8lane联合范围。\n\nQK/AV按已送达D-M006-SM007-FP-DATAFLOW-01继续，旧add11拍须满足≤8；TANH按刚送达D-M006-SM007-STRICT-TANH-01先做有界可达分支DAG证书，不原样复制384拍模块。普通配置/脚本/实现修复及受影响回归连续执行，不加预算或逐次审批。M006/SM007仍running/unassessed。\n",
+  "in_reply_to": "m006-sm007-at019-divider-ooc-rtl-milestone-20261017",
+  "message_file": "agent/A001/communication_reply.md",
+  "associations": {
+    "mission": "M006",
+    "small_mission": "SM007",
+    "experiment": "E007",
+    "run": "R001"
+  },
+  "payload_sha256": "9e844370cba17237b0804188778dd27e8f3e5eef803dce80024fff5f3a65bd89",
+  "created_at": "2026-10-17T15:23:07.144201+00:00",
+  "status": "delivered",
+  "client_user_message_id": "6ce89f91-2d4b-4f63-bd31-6ce131db64d2",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-17T15:23:07.185127+00:00",
+  "recipient_turn_id": "01a14a4b-51b6-7040-88f9-fe102e47ef0a"
+}

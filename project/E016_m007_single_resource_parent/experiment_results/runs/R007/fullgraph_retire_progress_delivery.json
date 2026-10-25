@@ -1,0 +1,61 @@
+{
+  "schema": "m007-r007-fullgraph-retire-progress-delivery-v1",
+  "status": "SOURCE_ONLY_SAME_TOP_FROZEN_NO_EDA",
+  "top": "m007_fullgraph_binary_tb",
+  "source": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_retire_progress_v3/frozen/m007_fullgraph_binary_tb.sv",
+  "sha256": "8b556ca2b32f2a41f7ca1d259d5f7c714a8dd473d131e8949f6dcabd1a3ea570",
+  "manifest": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/fullgraph_retire_progress_v3/source_manifest.json",
+  "manifest_sha256": "406501f01c1f7826c1e52c0070ee56d6dd1c87f17a809b31060db3dc49a11925",
+  "previous_sha256": "677e5bc9f74c6189ca37355fd6de569599a46a3a853961d933f9dda9266e8033",
+  "patch": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/fullgraph_retire_progress_v3.patch",
+  "patch_sha256": "7fed083fd12a097b8099950f1c15482f577eebe7e8ddfe9330e6549778215b43",
+  "sampling": "In the original always@(posedge clk) if(rst_n) after its single cycle++ and inside full_active; reads actual valid/ready/commit sampled at that edge before NBA. Same real cycle as original checked logs.",
+  "marker": "M007_RTL_RETIRE_PROGRESS retired=<cumulative accepted result/ACK event count> cycle=<real cycle>",
+  "events": [
+    {
+      "domain": "matrix_PS_result_ACK",
+      "gate": "dut.matrix.core.ps_wr_rsp_valid&&dut.matrix.core.ps_wr_rsp_ready",
+      "unit": "one accepted core PS mathematical/bias-result write response"
+    },
+    {
+      "domain": "quant_A_result_ACK",
+      "gate": "dut.q_awr_rsp_valid&&dut.q_awr_rsp_ready",
+      "unit": "one accepted quantizedA write response"
+    },
+    {
+      "domain": "Attention_PS_result_ACK",
+      "gate": "dut.resident.a_res_st_ps_wr_rsp_valid&&dut.resident.a_res_st_ps_wr_rsp_ready",
+      "unit": "one accepted Attention PS result write response; no second tap of softmax logical ACK"
+    },
+    {
+      "domain": "Attention_context_result_ACK",
+      "gate": "dut.resident.a_res_st_context_wr_rsp_valid&&dut.resident.a_res_st_context_wr_rsp_ready",
+      "unit": "one accepted context result write response"
+    },
+    {
+      "domain": "LN_Q_commit",
+      "gate": "dut.resident.p_q_wr_valid&&dut.resident.p_q_wr_ready&&dut.resident.p_q_wr_commit",
+      "unit": "one committed residentLN Q write"
+    },
+    {
+      "domain": "G_output_accept",
+      "gate": "dut.g_out_valid&&dut.g_out_ready",
+      "unit": "one accepted G result vector"
+    },
+    {
+      "domain": "VECTOR_H_commit",
+      "gate": "dut.resident.vector_h_wr_valid&&dut.resident.vector_h_wr_ready&&dut.resident.vector_h_wr_commit",
+      "unit": "one committed residentVECTOR H write"
+    }
+  ],
+  "counting": "Each true domain gate adds1. All7 may add on one edge; no AR/read-request/clock/state/cache/file event is counted. Count is not F32gold words or arithmetic operation count. Two64bit counters initialize once and never reset across layers.",
+  "emission": "Only on an edge with completed>0 and at least128new events since prior emission; no increment or print when no real event, no duplicate highwater.",
+  "original_M007_PARENT_CHECKED": "Unchanged independent path. All original assertion/stimulus/gold text remains byte-identical after removing only observer+counter declaration.",
+  "static_audit": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT052_fullgraph_retire_observer_static_audit/work/audit/retire_observer_audit.json",
+  "static_receipt": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT052_fullgraph_retire_observer_static_audit/receipt_static.json",
+  "kind5_1D505e_and_binary8a4a_and_peer4d9265c2_unchanged": true,
+  "guard_action_owner": "A012 only adds a separate strict highwater branch for this exact new marker on the future fullgraph guard; current Encoder driver unchanged.",
+  "fullgraph_input_handoff": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/fullgraph_progress_source_handoff.json",
+  "remaining_limits": "No frontend/runtime/stall timing PASS; actual fullgraph cost stillUNKNOWN. Fixed original checkpoints and all true retirement/identity/output assertions remain.",
+  "EDA_runs": []
+}

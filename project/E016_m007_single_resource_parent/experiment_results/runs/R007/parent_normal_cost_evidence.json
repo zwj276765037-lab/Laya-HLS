@@ -1,0 +1,67 @@
+{
+  "schema": "m007-r007-parent-normal-cost-pilot-v1",
+  "status": "QKV3_PASS_FULL_ENCODER_COST_GATE_UNKNOWN",
+  "attempt": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT027_parent_normal_B1_QKV3_cost",
+  "build": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT026_parent_normal_cost_checker_build",
+  "build_manifest_sha256": "60e479d1e8555beda0fc4e3e4bac470af2c6cbf55791cb5e7249e94e4ec7ad20",
+  "receipt_sha256": "d82d00b7dea2a5fec79bccb381c9bcf2d2d0036ec4ae907723af9bc68f691f00",
+  "wall_events_sha256": "93036628a8b3ec1896ba87b31509e63f5019ffcf11522db7393548a734b04901",
+  "input_identity_sha256": "133ade5263b6ef42272ce7bb6fe233062e193c62607f591c701116de74b91239",
+  "original_B1_mask128": "00000000000000ffffffffffffffffff",
+  "actual_QKV_blocks": 3,
+  "actual_QKV_F32_values": 24576,
+  "command_to_prefix_cycles": 16461,
+  "parent_DONE": false,
+  "phases": {
+    "fixture_load_s": "0.383438205986749",
+    "actual_BEGIN_to_matrix_start_s": "8.472108731977642",
+    "matrix_start_to_QKV1_s": "28.15553752204869",
+    "QKV1_to_QKV2_s": "22.83981130796019",
+    "QKV2_to_QKV3_s": "22.23276915703900",
+    "process_guard_total_s": "89.59957399003906"
+  },
+  "actual_block_events": [
+    {
+      "line": "M007_FULLMODEL_MATRIX_BLOCK phase=QKV block=0 values=8192 cycle=17177",
+      "elapsed_s": 44.15866090200143
+    },
+    {
+      "line": "M007_FULLMODEL_MATRIX_BLOCK phase=QKV block=1 values=16384 cycle=18236",
+      "elapsed_s": 66.99847220996162
+    },
+    {
+      "line": "M007_FULLMODEL_MATRIX_BLOCK phase=QKV block=2 values=24576 cycle=19295",
+      "elapsed_s": 89.23124136700062
+    }
+  ],
+  "actual_max_steady_block_s": "22.83981130796019",
+  "QKV48_component_estimate_formula": "1.35 * (actual_guard_P3 + 45 * max(actual block0-to1, block1-to2)) + 10",
+  "QKV48_component_estimate_s": "1518.4779618451342735",
+  "component_cap_s": 1200,
+  "QKV48_gate": "CLOSED_E_EXCEEDS_COMPONENT_CAP",
+  "full_Encoder_estimate_s": "UNKNOWN",
+  "full_Encoder_gate": "CLOSED_MISSING_SAME_PARENT_SEGMENTS",
+  "missing_same_parent_costs": [
+    "complete QKV terminal",
+    "RoPE complete",
+    "first and later Attention head",
+    "public context -> same quant/A -> WO",
+    "WO -> actual residual -> LN128 -> postLN quant/A",
+    "Wi/G/Down in this parent",
+    "final residual -> H export -> DONE retirement"
+  ],
+  "component_background_not_parent_chain": {
+    "same_production_joint_LN128": "actual_joint_LN128_evidence.json",
+    "QKV_A4096": "AT027 actual parent prefix",
+    "FC1_A16384_K4096": "NOT_RUN; current component test queued, no real FC1 producer claim"
+  },
+  "minimum_current_contract_executable_new_prefix": {
+    "endpoint": "QKV16 actual outputs",
+    "conservative_estimate_s": "531.7981133412540655",
+    "requires_owned_TB_and_runner_endpoint_extension": true,
+    "benefit": "more normal QKV math, still no head/WO/FFN cost; not launched because it does not close the missing full-Encoder stages"
+  },
+  "next_to_reach_new_math_stage": "A controller-defined measured QKV48-to-Attention pilot with explicit cap/resource scope, or a verified same-version simulation speed improvement; current D32 caps are unchanged.",
+  "no_old_runtime_sum": true,
+  "physical_timing_claim": false
+}

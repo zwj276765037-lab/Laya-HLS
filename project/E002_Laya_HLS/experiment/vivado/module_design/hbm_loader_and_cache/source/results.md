@@ -189,3 +189,20 @@ slot1 ACT q0 RRESP注入后INVALID，已在读的Wi slot0保持IN_USE；下一ep
 ## 2026-10-11 同容量32独立bank修复（working source，待受影响验证）
 
 按联合设计§7.2.1，`t4_dual_w_cache_v1.sv`的q/s/b payload从顶层多维对象拆为32个`slot×parity×lane`真实`t4_w_cache_bank_v1`实例；每实例q10496×256、scale10496×16、bias328×32，总91693056bit=11461632B不变。每bank独立q/s/b写口及同步读保持，无payload reset、不加外部read stage；父层完整offset/epoch/范围合法后才缩窄u14/u9地址，bias零选择按同次返回锁存。原reader/lease/epoch/覆盖/发布/reset接口保留。原dual-W full05与ACT06只在冻结身份保留PASS，新身份功能/OOC尚未运行；单bank全址TB及真实OOC脚本已准备，后续一份bank DCP回填32cell→全容量cache DCP→ACT封装按累计3600s/24GiB/120s原锁原帽。
+
+
+## M007-W576-v1 / E011 R001 evidence (2026-10-21)
+
+Final exact source/fixture/receipt boundary: [E011 current_version_evidence.json](../../../../../../../project/E011_m007_weight_supply/experiment_results/runs/R001/current_version_evidence.json). Final summaries: [E011 results](../../../../../../../project/E011_m007_weight_supply/experiment_results/summary.md). Unique source source-byte inverse/old-BO validation596224B in1096 records; complete model/tensor SHA inherited, selected source/output newly hashed.
+
+AT015→AT016 final functional/service PASS, same RTL as AT006/AT007. Peer eligibility40+2*(7−ID)cycles,512bit/2cycles/port. Complete QKV/Wi-last/Down/FC2 LOAD-to-readable cycles735/735/1633/2456 against1024/1024/2224/3328; per-port AR18/18/47/72, R288/288/738/1152 by case. Every port actual peak8 outstanding. Finite-stall K1024=896/1024. Reordered completions280 and interleaved R21898; missing final real R leaves287/288 plus live debt and no completion after1000cycles.
+
+Public reads1248=1096 unique+16 isolation+128 reset-generation+8 rate rereads. First1240 full544B/tag responses hold8windows;1024 overlap prefetch windows. Requested8-record rate test measures4cycle accept interval and1cycle response-valid latency; return/release debt is real. Numeric/padding/transport/protocol, descriptor bounds/overflow/zero-AR, wrong identity/lease/return, response hold, failure isolation and common reset/new generation retain their explicit assertions. Common peer reset assumption is part of current coverage, not platform old-response isolation proof.
+
+Small bank OOC substage AT013:0blackboxes,4URAM+1BRAM18,0LUT/FF, real512×272bit bank. Overall AT013 remains COST_STOP during later reader timing report. Reader capacity AT014:PASS,0blackboxes,311LUT/280FF/7BRAM36+1BRAM18,128×512payload RAM. Full-module AT008 and AT012 time out at120s; no final full utilization/300MHz/route acceptance. These actual leaf resources are not a joint array-fit claim. No P&R/board/HBM/CDC/whole matrix/full model run.
+
+Original failed AT003(counter phase width3→4bit) and AT009(TB block syntax) are retained. Earlier AT005/AT007 PASS belongs to each frozen TB variant; final1248response evidence is AT016 only. Charged ref/static/RTL/OOC seconds0.263572/35.451427/27.545064/425.758240, within600/1800/1800/600 independent budgets.
+
+## 2026-10-23 D32/R007证据边界
+
+新canonical v3/服务源码已准备，32项source-only结构核对不构成编译、RTL、census或physical PASS。实际源版本与下一步以E016/R007和E016三摘要为准；旧记录仍只适用原版本。完整setup/层/30层、DMA与时序均NOT_RUN。

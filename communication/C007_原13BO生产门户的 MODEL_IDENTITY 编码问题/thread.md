@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # C007 · 原13BO生产门户的 MODEL_IDENTITY 编码问题
 
@@ -87,7 +87,6 @@ dual-W现有byte64 profile/byte72 model-generation解析只适用于旧Q8S2。�
 
 - [model_identity_13bo_contract_20261011](../../results/model_identity_13bo_contract_20261011.md)
 - [model_identity_13bo_reply_20261011](../../results/model_identity_13bo_reply_20261011.md)
-- [review_queue](../../results/review_queue.md)
 
 ### 状态确认 2026-10-11T16:27:41.553869+00:00
 

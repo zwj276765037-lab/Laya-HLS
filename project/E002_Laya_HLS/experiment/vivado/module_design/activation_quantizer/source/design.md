@@ -1,5 +1,48 @@
 # Group32激活量化：详细设计
 
+## M007 QUANT-03 / E013（2026-10-21）
+
+本节为新增生产路径；下方旧quant16/HLS记录保留其原版本边界。当前权威来源是
+[SM010 QUANT-03](../../../../../../../mission/M007_完整Attention高性能主干与部署闭合/tasks/SM010.md)
+和冻结`tests/full_reference.py` SHA fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784。
+只新增`rtl/laya_m007_*`和`tb/m007_*`，不改历史RTL、模型、独立参考、Host或其它owner实现。
+
+`laya_m007_quant_group32_v1`一次lease锁request64/generation32/source_epoch32/K13，
+K仅1024/2624/4096。输入每拍一个1024bit group，row8/group8和opaque tag96；输出
+272bit（Q按element升序在低256、half在高16）以及身份、逐group status/stage/element。
+每笔合法输入分配128槽环中的一槽，直到实际输出valid&&ready才归还；非法身份/坐标
+显式protocol_reject且不分配正常槽。输出错误记录data为0，不发布A cache内容。
+`out_amax/d_full/inverse`附各自实际有效位，half拒绝后inverse_valid为0。
+
+原严格算法：finite32检查，5级amax树；lane0算F32_RNE(amax/127)；d_full为0时
+inverse=0，否则lane1算F32_RNE(1/d_full)；32个原严格乘法叶计算F32_RNE(x*inverse)，
+最后roundf远离零且检查[-127,127]，不clamp/FTZ/FMA。half按IEEE RNE保存。
+半精度溢出在实际尺度返回时形成stage3记录，不继续发inverse/mul；source1、d2、
+inverse4、product5、round6分别保留本地元素位置。quantize_many与quantize_rows的
+异常检查文字顺序存在差别，当前不据局部正常字节一致声称全父逻辑首错等价。
+
+公开`d_*`端口只接A007原`laya_shared_div8_v1`（phase5/head0/mask1/2/3），
+lane0与lane1可对应不同真实槽。注册holding在valid&&!ready时保持全部请求；opaque96
+内部tag携两槽索引和lease cookie，返回还核service身份。独立资源壳仅一份真实8div。
+32个专用Q乘法叶直接实例化原`laya_fmul_rne_v1`；未复制matrix256或另一份除法服务。
+所有原始FP依赖只读，完整身份由E013每次guard快照记录。
+
+128×1024bit raw bank单输入写/同步读，128×272bit packed bank只在真实mul完成写；
+payload不做reset。有限metadata存state,row,group,tag,amax,d,inverse,half,status,stage,
+element和实际有效位。accepted/scale_scheduled/inverse_scheduled/mul_scheduled/retired
+用lease内单调计数，防止错误旁路或环回时复用过早；错误组须完成各stage旁路记账后
+才可输出。共享返回每笔已有槽，不丢返回。raw同步读寄存再接8级mul tag/valid流水。
+
+release匹配身份后阻止新输入，等预约、request holding、raw/mul和全部真实shared债务
+清空后才返回租约；共同低有效同步reset清本engine和shared服务的valid/metadata，
+新generation需重新lease。父全域Check、取消整个A slot和未来Q/G复用由后继集成验证。
+单独实例尚未实现与softmax idle_Q物理共享。300MHz是目标，功能仿真不证明时序。
+
+实际入口`tb/m007_quant_engine_run.py`经E013 guard启动，先build再pilot/full/protocol。
+原norm128与两种明确诊断K的独立gold由`m007_quant_reference.py`生成；
+`m007_quant_intermediates.py`只调用冻结原函数生成amax/d/inverse/products，绝不取DUT输出。
+完整平台、位账、功能结果和未测物理项见本页`results.md`的M007节及E013三摘要。
+
 本页现行制品对应build tag `04934c15b3f83e842ec2e92ac2a81bf2`：完整CPU/真实CSim通过，HLS RTL/IP已生成，完整top Vivado OOC综合exit0、blackboxes0。实际映射345,505 LUT、287,466 FF、437 DSP、690 BRAM tiles、179 URAM；旧HLS LUT139%是历史估算。**2026-10-08新增RTL检查确认QK/AV特化在合法context路径固定E_SHAPE，完整生成RTL成功推理尚不成立；CPU/CSim通过与综合成功均不能替代该缺口。** 详见[OOC制品结果](../../../project/source/results.md)和[新增异常](../../../project/source/performance_and_interfaces.md#rtl-anomaly)。下方早期P0/P1/P2记录保留历史范围。
 
 ## 当前接口与性能核查（2026-10-08）

@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # C004 · 工程阶段证据：v2 / portal generation / 预约 / 独立父A lease
 
@@ -59,7 +59,6 @@
 
 ## 相关决定和审核
 
-- [review_queue](../../results/review_queue.md)
 - [v2_parent_stage_review_reply_20261011](../../results/v2_parent_stage_review_reply_20261011.md)
 
 ### 状态确认 2026-10-11T16:27:39.580377+00:00

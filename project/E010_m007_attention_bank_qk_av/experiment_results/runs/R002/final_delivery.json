@@ -1,0 +1,52 @@
+{
+  "scope": "SM011 SOFTMAX-02 / E010 R002; complete single S128 head0 full/sliding using original post-RoPE fixture",
+  "execution_state": "complete",
+  "verdict": "PASS within stated RTL functional/numeric/cycle scope; controller review separate",
+  "closed_at": "2026-10-21T05:16:13.377947+00:00",
+  "normal_cycles": {
+    "total": 11038,
+    "qk": 4187,
+    "softmax": 2333,
+    "av": 4508,
+    "handoff_total": 10,
+    "first_score": 90,
+    "first_softmax_row": 298,
+    "sum_tail": 56,
+    "row_launch_gap": 16,
+    "first_context": 4251,
+    "max_AV_feedback": 11
+  },
+  "source_manifest": "final_source_manifest.json",
+  "version_boundaries": "current_version_evidence.json",
+  "metadata": "metadata_accounting.json",
+  "cost_seconds": {
+    "reference": 3.379594574944349,
+    "static": 359.0211947229982,
+    "rtl": 700.7868648080039,
+    "hls_ooc": 0.0
+  },
+  "required_attempts": {
+    "AT018_head_initial_bank_binding_fix": "full one-command head",
+    "AT019_autonomous_head_sliding": "sliding one-command head",
+    "AT020_softmax_legal_faults_finite_stalls": "four legal numeric faults and finite stalls",
+    "AT023_head_abort_new_request_sampling_fix": "phase3 SFU16 in-flight head abort, no-reset generation2 partial ownership",
+    "AT024_head_reset_new_generation_full_recovery": "QK mul/add-in-flight common reset then generation2 complete head",
+    "AT025_softmax_late_earlier_stage_logical_rank": "early physical phase8 row0 versus late logical phase7 row127/node127",
+    "AT026_softmax_sfu_inflight_reset_full_recovery": "SFU32-in-flight common reset then generation2 complete softmax"
+  },
+  "not_run": [
+    "Decision true input",
+    "pre-RoPE pipeline",
+    "16head",
+    "whole-layer logical first error",
+    "TANH",
+    "LN parent",
+    "full parent graph",
+    "joint OOC",
+    "P&R",
+    "board"
+  ],
+  "actual_model": "UNKNOWN",
+  "desired_model": "gpt-6.1-sol",
+  "desired_effort": "xhigh"
+}

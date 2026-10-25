@@ -1,0 +1,11 @@
+# E016/R003 当前实际结果
+
+AT001 TB生成语法FAIL1.914082291s；AT002 build PASS46.094478799s后，AT003在8identity通过/QRUN首笔quant-A附近发生xsim kernel exception，RTL FAIL6.614362462s保留。等价显式TB分支、不改production/gold/checker后，AT004 build PASS43.694276949s、AT005 QKV3 PASS48.746615243s：原8identity、4096实际input/Awrite/Aack、768QKV32/24576原值、8364cycles、31/13反馈、strict checked155648@8955。新分支后未再观察该exception；没有单构造因果隔离结论。
+
+AT006为相同AT004 snapshot的真实第二head退休pilot，当前正常QKV阶段、未出结果。full NOT_RUN、尚无gate。完整checker已编入但不等于完整链通过。控制/source账3746B、452输入源，无物理fit结论。
+
+AT006同AT004完整snapshot真实两head pilot PASS877.589479115s：QKV48块/12288QKV32、RoPE2048，两个实际head score/prob各32768、context16384、maximum256，身份/各head周期/strict进度通过。固定gate P2=877.232754763、Hmax=114.465794125、Q=628.900676903，E3429.520004357≤3600；当时余额5067.049543180≥E+600。Q是context+WO的工程占位，未冒充实测。AT007已真实启动一次full，timeout3430，尚无结果。
+
+---
+Published: 2026-10-22T12:40:34.285007+00:00
+Publication: Pfd1bab9cb27449baa7d970f6afd14359

@@ -1,3 +1,66 @@
+# 当前结果：修复版完整30层一次运行通过，项目暂停
+
+updated: 2026-10-25（北京时间）
+execution_state: paused
+verdict: unassessed
+
+主控增量128已接纳D37/E021 R005完整正常路径：正式参数0，从原embedding_norm开始，一次BEGIN连续计算28 Encoder、final LN/type、2 Decision和544组尾输出。13036119周期，RTL仿真10101.230975秒（2小时48分21秒）；原完整终标、实际尾部提交、heldDONE消费和idle全部通过。
+
+主控独立核全部30层真实H及唯一采集trace、finalLN/type和69632B输出对原参考逐字一致；实际120矩阵/480head/60LN/61VECTOR/28GEGLU、两FC1各16384写/ACK/发布后才FC2。3200执行身份无失配，2262已知进程身份无存活/僵尸；2个瞬态policy样本保留UNKNOWN。22份费用收据复算static372.653189/1800s、RTL10101.230975/15600s；另2次失败准备耗时UNKNOWN、保守预留240s，余额封存不转。
+
+本次证明修复版完整硬件主干在该原始请求上的RTL正常路径功能；未验所有异常/复位或四态行为，也未验联合物理时序、上板和实际吞吐。D35原FAIL及D36分段PASS保留。按用户要求完成核验归档后暂停，不启动后继。
+
+[主控独立终审](reviews/m007_fixed30_final_review_20261024.json) · [工程最终收据](../project/E021_m007_compiled_rtl_validation/experiment_results/runs/R005/attempts/AT002_fixed_original30_kind7/final_fixed_original30_receipt.json)
+
+---
+
+以下为历史记录，不代表当前执行状态。
+
+# 2026-10-24 当前结果：gamma修复及完整后缀通过，项目暂停
+
+execution_state: paused
+verdict: unassessed
+
+主控增量127已接纳D36限定范围：旧版在真实gamma命令为0时复现数值错误；父端保持gamma到N_RUN后，使用已保存Encoder27实际H，完整final LN→type-add→两Decision→544组尾输出在同一次后缀仿真通过。四个131072值端点和69632B尾输出均匹配原参考，实际尾部提交、heldDONE消费和idle正常，主例710.202771s/900800cycle。
+
+主控独立核143执行身份、全部实际输出及两Decision唯一采集trace；工程扩展核1654项身份。46笔费用收据复算一致：static710.513908/1800s、RTL754.460550/3600s，余额封存、旧余额不转。4525个已知进程身份均清空，2个瞬态政策采样保留UNKNOWN，完整host费用UNKNOWN。
+
+前28Encoder保留原D35通过身份，未重新运行。原R003完整请求FAIL不改；SEGMENTED_SUFFIX不代签修复版完整30层一次BEGIN、端到端性能、四态全覆盖、物理或上板。当前按用户要求暂停，不启动后继。
+
+[主控集中核验](reviews/m007_final_ln_suffix_review_20261024.json) · [后缀最终收据](../project/E021_m007_compiled_rtl_validation/experiment_results/runs/R004/attempts/AT006_fixed_complete_suffix/final_suffix_receipt.json)
+
+---
+
+以下为先前状态及历史证据。
+
+# 当前方向：M007（暂停）
+
+updated: 2026-10-24
+execution_state: paused
+verdict: unassessed
+
+主控已核至增量126。本次原kind7一次BEGIN连续28个Encoder的实际输出全部与原独立参考逐字相同；在 final gamma LN 检查触发原断言，完整30层未通过。原失败保留，具体动态根因未定位，不重跑。此前完整FFN、残差/LN、独立Encoder及两种独立Decision PASS保持各自范围。
+
+按用户要求，本轮核对归档后暂停项目，等待明确恢复。详情见[当前结果和暂停点](missions/M007_summary.md)与[实际核验](reviews/m007_original30_final_review_20261024.json)。旧M004/M006仍暂停；以下历史不构成继续授权。
+
+---
+
+# 当前方向：M006完整板端Attention（暂停）
+
+updated: 2026-10-17
+execution_state: paused
+verdict: unassessed
+
+用户要求“等等等我通知再继续这个工程”。A002在AT023后确认已暂停且无本项目在途实验；主控架构审阅已停止。只等待用户明确恢复，暂停期间不执行旧启动授权或下方历史队列。
+
+当前在底层算子和存储验证阶段：已有EXP/共享FP简单值接口/QKV银行局部证据；工程AT021–023报告新旧加法及新除法的次正规FAIL_NUMERIC，旧TANH延迟亦未达标。完整Attention、整机性能与联合物理尚未验证。详情见[M006暂停点摘要](missions/M006_summary.md)和[已有限定审核](reviews/SM007.md)。
+
+既有源码、原始证据、失败和剩余预算保留，M006/SM007仍unassessed；旧M004和A003保持暂停。以下历史running/继续表述不代表当前授权。
+
+---
+
+以下为旧主线历史时点，文中的 running/继续不表示当前授权。
+
 # Laya-HLS 当前概览
 
 ## 修订21成本收束与修订22矩阵合同（2026-10-16）
@@ -157,3 +220,30 @@ M003保持paused，M004未完成且当前实施线停排。仅保留已有接口
 WI0全TB101335，GQD0全TB102660各有自己的诊断边界，不相加成连续链延迟。当前连接统一B1/S128/batch0/row0四行窗口，AT032外部输入为预量化LN_FFN A，AT034已推进到原LN_FFN F32；链间无reset，原容量A/W单实例递增epoch复用，AT032已取得完整四行数值及最终有效区/保护区读回；LN producer已在AT049接入同一后段并通过限定四行检查；末FFN residual、完整模型与生产恢复未验证。WI0旧样本未做独立DDR哨兵读回，不回写成已完成。
 
 A002唯一实现/工具owner。M005当前分支已按R3成本停点收束；M003普通Q/L及M004当前生产控制/恢复继续停排，所有最终义务开放。旧G预算及其它历史余额不重置、不作为新运行授权。见[最终报告](missions/M005_summary.md)及[SM006审核](reviews/SM006.md)。
+
+
+2026-10-23 增量89–90：D31过程合并局部等价通过，单样本总仿真仅1.057倍，不升级LN128成本门；D30正式v3 ABI/模型装载/错误/tail协议及K4096静态容量已核。D29 type接线实际进行，D32完整父v3合同已落SM012，待实际followup启动；完整Encoder/原28+2层未验。旧R006余额保留，R007新预算不转。
+
+
+2026-10-23 增量92–93：D29原type_add全128行/4096提交及真实joint通过并封存；D32独立W reader缺末拍/真实排债短例通过。新canonical父v3源已实施，TANHv3最小接入已实际派发，随后首次编译；完整Encoder/原28+2同runtime仍NOT_RUN。最新状态以mission/current.md为准。
+
+
+2026-10-23 增量112：单线程完成全部QKV及首head数值/周期检查；四线程新构建成功但首head检查FAIL，正核实际错误项，未采用该配置。完整Encoder/原28+2仍未验；详见SM012集中审核。
+
+
+2026-10-23 增量115：E021/R001 AT034完整Encoder0正常路径同runtime PASS，427305拍，实际524288B输出与原参考逐字一致；Wi→GEGLU→Down、残差/LN、16head及4矩阵全部原检查通过。原四线程/旧checker失败保留。D34/E021 R002已实际followup复用A012推进原28＋2一次BEGIN，8b55完整图TB/真实120矩阵；目前30层未验，M007仍running/unassessed。
+
+
+2026-10-23 增量116：E021/R002 AT004真实kind7一次BEGIN完成global0 QKV与head0..7；119.134035s按未知pilot帽COST_STOP，无SV错误/停滞、无完整层checkpoint。正式30层成本门仍关闭。接续同exe首原global0层端点600s诊断、连续阶段各120s及原全部checker；并行只读模拟器加速分析。完整Encoder0 kind5的增量115结论保持。
+
+
+2026-10-23 增量117：E021/R002 AT005在原kind7一次BEGIN中达到global0/checkpoint0（424292cycle）；真实4096组H/131072值/524288B经主控逐字核原Encoder0一致，SHA9d1c8d61…e55b。336.444740s，25个连续段均≤120s，最大81.945932s为LN后Wi/G/quant→Down。外部按计划停在首层，原请求仍active，记PREFIX_PASS而非完整kind7PASS。继续有限模拟器加速A/B与合法独立Decision准备，后续29层/finalLN/type/tail未验。
+
+
+2026-10-23 增量118：E021/R002 AT010原kind6/local0完整Decision正常路径PASS，331.587451s、26/26连续阶段，FC1/ReLU/quant16384写/ACK真实发布后才FC2；实际global28 H及public output均524288B，主控逐字核原decision_00_out一致（SHA44ea5ccb…0546）。这是公开独立Decision，未代签kind7后继。590空dispatch候选语义/周期相同但慢约1.8%，已弃用；短PC采样未发现足以倍速的单热点，停止编译调参。继续同exe Decision1及完整图成本规划。
+
+
+2026-10-23 增量119：AT011完整Decision1正常路径PASS339.304331s，实际524288B与原decision_01_out及public输出经主控逐字一致（SHA2403ecaa…f26a），两Decision26个成功cycle端点一致但不泛化数据成本。D34/R002组件/成本阶段收束不转余额；当前原30层仍未完成。按用户持续完成授权，D35/E021 R003制定一次完整kind7计划：分项代理约2.83h、条件规划14186s，独立RTL15600/留600、单次15000，每层600/各段120保护。仅此完整请求替代通用3600帽，CPU/内存/低优先级不变，原全部模型/参考/数值保持。
+
+
+2026-10-23 增量120：D35/E021 R003 AT001原kind7一次BEGIN已实际运行；主控重核958项实际依赖/输入SHA零差异，复用AT010/011同exe，已观测单线程。全图driver通过3份既有真实组件事件回放及明确次序/超时拒绝，synthetic不代签跨层RTL。当前首层16head完成、WO进行中；30层与最终尾部待实际终标。额外Encoder27→finalLN/type→Decision0 preLN整体120s监督正在补入，原运行冻结driver与DUT不改。

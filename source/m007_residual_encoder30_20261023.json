@@ -1,0 +1,4027 @@
+{
+  "schema": "m007-residual-encoder30-source-audit-v1",
+  "scope": "read-only static arithmetic; proposed encodings NOT_IMPLEMENTED/NOT_VERIFIED",
+  "checked_utc": "2026-10-23",
+  "ln_prior_ledger_source": {
+    "rtl/laya_m007_layernorm32_v1.sv": "a097567987956d6a5a0488d6deee6b39205a118dd891f3e1f44f234ab1bc744f",
+    "rtl/laya_m007_ln_scalars_v1.sv": "7fffa46ff225bc6a4739ac9360ce9931ccc143dfd54d1fd9d3cb9873faab84be",
+    "tb/m007_ln_engine_tb.sv": "f0183169708aad3114612aef155333325cf14961ddd15f220afaa5607ecbaf73"
+  },
+  "ln_numeric_payload_engine_bits": 17856,
+  "ln_numeric_payload_scalars_bits": 199,
+  "ln_control_bits_unchanged": 26706,
+  "ln_coefficient_bits": 32768,
+  "ln_persistent_gamma_control_bits": 132,
+  "ln_add_item_widths": [
+    8,
+    8,
+    8,
+    8,
+    8,
+    7,
+    6,
+    5,
+    4,
+    3,
+    8,
+    8,
+    8,
+    8,
+    8,
+    7,
+    6,
+    5,
+    4,
+    3,
+    8,
+    8
+  ],
+  "ln_add_metadata_width_proposed": 146,
+  "ln_control_encoding_removals_bits": {
+    "input_tags_canonical": 12288,
+    "add_metadata_compact": 1920,
+    "add_hold_meta_compact": 30,
+    "out_tag_canonical": 96,
+    "scalar_local_tags": 281
+  },
+  "ln_compressed_control_bits_proposed": 12091,
+  "ln_arena_bits_proposed": 11959,
+  "ln_arena_headroom_bits": 329,
+  "physical_hidden_bytes_new": 524288,
+  "q_plane_scratch_bytes_alias": 524288,
+  "sources": {
+    "project/E002_Laya_HLS/experiment/tests/full_reference.py": "fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784",
+    "project/E002_Laya_HLS/experiment/tests/full_model_package_test.py": "cdfa89b0ec149aae0b8cf472d33c37543867e6c4b9c054c904103d944043eff9",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_m007_layernorm32_v1.sv": "2799427bb0fe36ddb45da21357868ff04a415fbda62c7dca11a4912d0266c263",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_m007_ln_scalars_v1.sv": "7fffa46ff225bc6a4739ac9360ce9931ccc143dfd54d1fd9d3cb9873faab84be",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_qkv_bank_v2.sv": "f68e19d7a6d8267ca076d1971ebc08a6f3806fabb3be3b6196a45bc4e826fbd7",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_storage_v1.sv": "c36d0089cebaa6dd90cb8dbe11a4c33d65224ee69fdc24f454dcfd08d464ad0b",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_ln_exp_storage_v1.sv": "8756295e925895c60dd5f154b543817f2ff6d412a5adde23601c73510fb60055",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_control_workspace_v1.sv": "99031e2ec3242cc6b160a60cf71593567343864c41617e9945b141c04a6ba773",
+    "mission/M007_完整Attention高性能主干与部署闭合/performance_requirements.json": "276a8b07732a5bdf05810766d9606c05ab1dd52c486299e713f44f77726b30f6"
+  },
+  "resource_budget": {
+    "single_wall_limit_s": 20,
+    "total_limit_s": 120,
+    "RSS_limit_bytes": 1073741824,
+    "affinity": "0-3",
+    "nice": 19,
+    "ionice": "idle"
+  },
+  "heavy_tools": false,
+  "new_gold": false,
+  "ln_arena_fields_proposed": [
+    {
+      "field": "engine.active",
+      "bits": 1,
+      "lsb": 0,
+      "msb": 0
+    },
+    {
+      "field": "engine.done_valid",
+      "bits": 1,
+      "lsb": 1,
+      "msb": 1
+    },
+    {
+      "field": "engine.done_error",
+      "bits": 1,
+      "lsb": 2,
+      "msb": 2
+    },
+    {
+      "field": "engine.aborting",
+      "bits": 1,
+      "lsb": 3,
+      "msb": 3
+    },
+    {
+      "field": "engine.out_valid",
+      "bits": 1,
+      "lsb": 4,
+      "msb": 4
+    },
+    {
+      "field": "engine.ctx_active",
+      "bits": 4,
+      "lsb": 5,
+      "msb": 8
+    },
+    {
+      "field": "engine.ctx_row",
+      "bits": 28,
+      "lsb": 9,
+      "msb": 36
+    },
+    {
+      "field": "engine.raw_coverage",
+      "bits": 128,
+      "lsb": 37,
+      "msb": 164
+    },
+    {
+      "field": "engine.delta_coverage",
+      "bits": 128,
+      "lsb": 165,
+      "msb": 292
+    },
+    {
+      "field": "engine.raw_read_count",
+      "bits": 24,
+      "lsb": 293,
+      "msb": 316
+    },
+    {
+      "field": "engine.delta_read_count",
+      "bits": 24,
+      "lsb": 317,
+      "msb": 340
+    },
+    {
+      "field": "engine.output_count",
+      "bits": 24,
+      "lsb": 341,
+      "msb": 364
+    },
+    {
+      "field": "engine.sum_wait",
+      "bits": 4,
+      "lsb": 365,
+      "msb": 368
+    },
+    {
+      "field": "engine.square_sum_wait",
+      "bits": 4,
+      "lsb": 369,
+      "msb": 372
+    },
+    {
+      "field": "engine.sqrt_wait",
+      "bits": 4,
+      "lsb": 373,
+      "msb": 376
+    },
+    {
+      "field": "engine.mean_valid",
+      "bits": 4,
+      "lsb": 377,
+      "msb": 380
+    },
+    {
+      "field": "engine.inverse_valid",
+      "bits": 4,
+      "lsb": 381,
+      "msb": 384
+    },
+    {
+      "field": "engine.left_valid",
+      "bits": 40,
+      "lsb": 385,
+      "msb": 424
+    },
+    {
+      "field": "engine.add_hold_valid",
+      "bits": 1,
+      "lsb": 425,
+      "msb": 425
+    },
+    {
+      "field": "engine.mul_hold_valid",
+      "bits": 1,
+      "lsb": 426,
+      "msb": 426
+    },
+    {
+      "field": "engine.rd_hold_valid",
+      "bits": 1,
+      "lsb": 427,
+      "msb": 427
+    },
+    {
+      "field": "engine.wr_hold_valid",
+      "bits": 1,
+      "lsb": 428,
+      "msb": 428
+    },
+    {
+      "field": "engine.add_tail",
+      "bits": 6,
+      "lsb": 429,
+      "msb": 434
+    },
+    {
+      "field": "engine.mul_tail",
+      "bits": 6,
+      "lsb": 435,
+      "msb": 440
+    },
+    {
+      "field": "engine.add_debt",
+      "bits": 36,
+      "lsb": 441,
+      "msb": 476
+    },
+    {
+      "field": "engine.mul_debt",
+      "bits": 36,
+      "lsb": 477,
+      "msb": 512
+    },
+    {
+      "field": "engine.read_debt",
+      "bits": 28,
+      "lsb": 513,
+      "msb": 540
+    },
+    {
+      "field": "engine.write_debt",
+      "bits": 28,
+      "lsb": 541,
+      "msb": 568
+    },
+    {
+      "field": "engine.scalar_debt",
+      "bits": 16,
+      "lsb": 569,
+      "msb": 584
+    },
+    {
+      "field": "engine.cycle_count",
+      "bits": 32,
+      "lsb": 585,
+      "msb": 616
+    },
+    {
+      "field": "engine.peak_add_pending",
+      "bits": 7,
+      "lsb": 617,
+      "msb": 623
+    },
+    {
+      "field": "engine.peak_mul_pending",
+      "bits": 7,
+      "lsb": 624,
+      "msb": 630
+    },
+    {
+      "field": "engine.error_stage",
+      "bits": 5,
+      "lsb": 631,
+      "msb": 635
+    },
+    {
+      "field": "engine.error_level",
+      "bits": 4,
+      "lsb": 636,
+      "msb": 639
+    },
+    {
+      "field": "engine.error_row",
+      "bits": 7,
+      "lsb": 640,
+      "msb": 646
+    },
+    {
+      "field": "engine.error_node",
+      "bits": 10,
+      "lsb": 647,
+      "msb": 656
+    },
+    {
+      "field": "engine.mode_gamma",
+      "bits": 1,
+      "lsb": 657,
+      "msb": 657
+    },
+    {
+      "field": "engine.rows",
+      "bits": 8,
+      "lsb": 658,
+      "msb": 665
+    },
+    {
+      "field": "engine.input_row",
+      "bits": 8,
+      "lsb": 666,
+      "msb": 673
+    },
+    {
+      "field": "engine.input_chunk",
+      "bits": 5,
+      "lsb": 674,
+      "msb": 678
+    },
+    {
+      "field": "engine.total_retired",
+      "bits": 8,
+      "lsb": 679,
+      "msb": 686
+    },
+    {
+      "field": "engine.next_row_cycle",
+      "bits": 32,
+      "lsb": 687,
+      "msb": 718
+    },
+    {
+      "field": "engine.out_request_id",
+      "bits": 64,
+      "lsb": 719,
+      "msb": 782
+    },
+    {
+      "field": "engine.out_generation",
+      "bits": 32,
+      "lsb": 783,
+      "msb": 814
+    },
+    {
+      "field": "engine.out_epoch",
+      "bits": 32,
+      "lsb": 815,
+      "msb": 846
+    },
+    {
+      "field": "engine.add_metadata",
+      "bits": 9344,
+      "lsb": 847,
+      "msb": 10190
+    },
+    {
+      "field": "engine.mul_metadata",
+      "bits": 1536,
+      "lsb": 10191,
+      "msb": 11726
+    },
+    {
+      "field": "engine.add_hold_meta",
+      "bits": 146,
+      "lsb": 11727,
+      "msb": 11872
+    },
+    {
+      "field": "engine.mul_hold_meta",
+      "bits": 24,
+      "lsb": 11873,
+      "msb": 11896
+    },
+    {
+      "field": "engine.rd_hold_desc",
+      "bits": 16,
+      "lsb": 11897,
+      "msb": 11912
+    },
+    {
+      "field": "engine.wr_hold_desc",
+      "bits": 16,
+      "lsb": 11913,
+      "msb": 11928
+    },
+    {
+      "field": "engine.out_row",
+      "bits": 7,
+      "lsb": 11929,
+      "msb": 11935
+    },
+    {
+      "field": "engine.out_chunk",
+      "bits": 5,
+      "lsb": 11936,
+      "msb": 11940
+    },
+    {
+      "field": "div1024.rsp_valid",
+      "bits": 1,
+      "lsb": 11941,
+      "msb": 11941
+    },
+    {
+      "field": "div1024.rsp_error",
+      "bits": 1,
+      "lsb": 11942,
+      "msb": 11942
+    },
+    {
+      "field": "div1024.rsp_tag",
+      "bits": 3,
+      "lsb": 11943,
+      "msb": 11945
+    },
+    {
+      "field": "sqrt.busy",
+      "bits": 1,
+      "lsb": 11946,
+      "msb": 11946
+    },
+    {
+      "field": "sqrt.rsp_valid",
+      "bits": 1,
+      "lsb": 11947,
+      "msb": 11947
+    },
+    {
+      "field": "sqrt.rsp_error",
+      "bits": 1,
+      "lsb": 11948,
+      "msb": 11948
+    },
+    {
+      "field": "sqrt.rsp_tag",
+      "bits": 2,
+      "lsb": 11949,
+      "msb": 11950
+    },
+    {
+      "field": "sqrt.step",
+      "bits": 5,
+      "lsb": 11951,
+      "msb": 11955
+    },
+    {
+      "field": "sqrt.work_tag",
+      "bits": 2,
+      "lsb": 11956,
+      "msb": 11957
+    },
+    {
+      "field": "sqrt.work_error",
+      "bits": 1,
+      "lsb": 11958,
+      "msb": 11958
+    }
+  ],
+  "ln_original_error_order_successor_extra_bits": 3,
+  "ln_arena_bits_with_context_error_mask": 11962,
+  "reference_product_metadata": {
+    "oracle": {
+      "path": "project/E002_Laya_HLS/experiment/results/attention_rtl_repair_20261008/d2_cpu_full_official/oracle/full_forward_oracle_report.json",
+      "sha256": "0deb1f1f370ddbbc702c3c62ffc18cdf991d4993340d564d2faa4ade119a42d6",
+      "keys": [
+        "cached_gguf_tensors",
+        "checked_reference_files",
+        "glibc",
+        "libm_adapter",
+        "native_intermediate_role",
+        "numpy",
+        "python",
+        "reference_sha256",
+        "runs",
+        "scope",
+        "script_sha256",
+        "source_role",
+        "status"
+      ],
+      "reference_sha256": "fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784",
+      "runs": {
+        "B1_from_b0_S128": {
+          "checkpoint_count": 47,
+          "first_names": [
+            "embedding_raw",
+            "embedding_norm",
+            "encoder_00_out"
+          ],
+          "last_names": [
+            "act_hidden",
+            "act_logits",
+            "final18"
+          ]
+        },
+        "B1_from_b1_S128": {
+          "checkpoint_count": 47,
+          "first_names": [
+            "embedding_raw",
+            "embedding_norm",
+            "encoder_00_out"
+          ],
+          "last_names": [
+            "act_hidden",
+            "act_logits",
+            "final18"
+          ]
+        },
+        "B2_S128": {
+          "checkpoint_count": 47,
+          "first_names": [
+            "embedding_raw",
+            "embedding_norm",
+            "encoder_00_out"
+          ],
+          "last_names": [
+            "act_hidden",
+            "act_logits",
+            "final18"
+          ]
+        }
+      }
+    },
+    "matrix_fixture": {
+      "path": "project/E002_Laya_HLS/experiment/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_fixture/full_matrix_fixture_report.json",
+      "sha256": "8353708e2d3bc9ececabe2816f6d7648fc89bca590cf3cc8fbd7fb57746c2788",
+      "keys": [
+        "case_count",
+        "cases",
+        "checked_reference_files",
+        "native_role",
+        "role",
+        "status"
+      ]
+    },
+    "matrix_dut": {
+      "path": "project/E002_Laya_HLS/experiment/results/attention_rtl_repair_20261008/d2_cpu_full_official/matrix_dut/full_matrix_dut_report.json",
+      "sha256": "7308acfb8bf7f15a56a43c4758b6e28e553274e3a5c285cf728aa9f6d8974c8a",
+      "keys": [
+        "status",
+        "role",
+        "fixture_report_sha256",
+        "model_manifest_sha256",
+        "model_generated_header_sha256",
+        "request_sha256",
+        "executable_sha256",
+        "comparator_source_sha256",
+        "driver_source_sha256",
+        "test_source_sha256",
+        "runner_source_sha256",
+        "fixture_source_sha256",
+        "reference_source_sha256",
+        "cases",
+        "source_build_sha256",
+        "source_build_kind",
+        "library_sha256",
+        "package_status",
+        "case_count",
+        "total_f32_elements_compared"
+      ]
+    }
+  },
+  "script_resource_accounting": [
+    {
+      "attempt": 1,
+      "wall_s": 0.05,
+      "peak_RSS_KiB": 15792,
+      "exit_code": 0,
+      "purpose": "source hashes and LN width arithmetic"
+    },
+    {
+      "attempt": 2,
+      "purpose": "complete LN proposed field map and existing reference metadata",
+      "actual_wall_and_RSS": "see tool receipt; record on final doc",
+      "wall_s": 0.06,
+      "peak_RSS_KiB": 16536,
+      "exit_code": 0
+    },
+    {
+      "attempt": 3,
+      "purpose": "bounded successor source hashes, exact LN v2 field coverage and projected census arithmetic; owned JSON update",
+      "wall_s": 0.05,
+      "peak_RSS_KiB": 16532,
+      "exit_code": 0
+    },
+    {
+      "attempt": 4,
+      "purpose": "reproducible kind4 build tag and one tuple encoding example; no EDA or new gold",
+      "wall_s": 0.03,
+      "peak_RSS_KiB": 13400,
+      "exit_code": 0
+    },
+    {
+      "attempt": 5,
+      "purpose": "selected GGUF metadata and integer catalog/span arithmetic only",
+      "wall_s": 0.04,
+      "peak_RSS_KiB": 11764,
+      "exit_code": 0
+    },
+    {
+      "attempt": 6,
+      "purpose": "selected source SHA snapshots and owned JSON contract update; no EDA/new gold/weight payload",
+      "wall_s": 0.05,
+      "peak_RSS_KiB": 15768,
+      "exit_code": 0
+    },
+    {
+      "attempt": 7,
+      "purpose": "hash the single resolved Host schema path",
+      "wall_s": 0.0,
+      "peak_RSS_KiB": 3176,
+      "exit_code": 0
+    },
+    {
+      "attempt": 8,
+      "purpose": "v3 ABI SHA and coef/A/W integer arithmetic",
+      "wall_s": 0.04,
+      "peak_RSS_KiB": 14180,
+      "exit_code": 0
+    },
+    {
+      "attempt": 9,
+      "purpose": "selected cited-source hashes, v3 tuple layouts/examples and owned JSON update/parse",
+      "wall_s": 0.05,
+      "peak_RSS_KiB": 17308,
+      "exit_code": 0
+    }
+  ],
+  "successor_v2_contract": {
+    "status": "ARCHITECTURE_CONTRACT_NOT_JOINT_RTL_PASS",
+    "encoder0_abi_supplement": {
+      "contract": "D-M007-SM012-ENCODER0-PARENT-24 / E016 R006; architecture section11.6",
+      "status": "A011 exact interface ruling sent to A010 and controller; no RTL validation",
+      "legacy_kind_codes": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "legacy_build_id_hex": "7209eb09c3f265363cfb274f7790a733",
+      "complete_encoder0_kind": 4,
+      "encoder0_build_id_hex": "d92a1f8e927c3051289016db36f20d27",
+      "build_hash_input_ascii_no_trailing_newline": "Laya-HLS|M007|D-M007-SM012-ENCODER0-PARENT-24|laya_m007_single_parent_v2|cmd_kind=4|abi=1",
+      "build_hash_sha256": "d92a1f8e927c3051289016db36f20d276bce40b977b7143df86be8c934cd8772",
+      "build_hash_selection": "first16 digest bytes, displayed hex big-endian; interface contract identity, actual source/build SHA remains separate",
+      "build_ok": "(cmd_kind<=3 && cmd_build_id==BUILD_ID) || (cmd_kind==4 && cmd_build_id==ENCODER0_BUILD_ID)",
+      "invalid_build_result": {
+        "done_status": 4,
+        "error_domain": 1,
+        "source_status": 0
+      },
+      "new_error_domain": 7,
+      "parent_error_stage_hex": {
+        "H_LOAD": "80",
+        "residual_attention": "81",
+        "LN_post_attention": "82",
+        "residual_ffn": "83"
+      },
+      "tuple_fields": [
+        {
+          "field": "parent_stage",
+          "msb": 95,
+          "lsb": 88
+        },
+        {
+          "field": "tile",
+          "msb": 87,
+          "lsb": 85
+        },
+        {
+          "field": "error_class",
+          "msb": 84,
+          "lsb": 83
+        },
+        {
+          "field": "row_in_tile",
+          "msb": 82,
+          "lsb": 79
+        },
+        {
+          "field": "error_check",
+          "msb": 78,
+          "lsb": 75
+        },
+        {
+          "field": "sub",
+          "msb": 74,
+          "lsb": 71
+        },
+        {
+          "field": "element",
+          "msb": 70,
+          "lsb": 61
+        },
+        {
+          "field": "protocol_code",
+          "msb": 60,
+          "lsb": 57
+        },
+        {
+          "field": "protocol_location",
+          "msb": 56,
+          "lsb": 49
+        },
+        {
+          "field": "reserved_zero",
+          "msb": 48,
+          "lsb": 0
+        }
+      ],
+      "ln_numeric_mapping": "row splits into tile=row[6:4], row_in_tile=row[3:0]; original error_class/error_check/error_level/error_node copied as class/check/sub/element; protocol fields0",
+      "ln_numeric_example": {
+        "row": 20,
+        "class": 2,
+        "check": 3,
+        "sub": 2,
+        "element": 7,
+        "tuple_hex": "82321900e000000000000000"
+      },
+      "h_vector_numeric_mapping": "actual H accepted row/group/lane or VECTOR error_row/error_column; class/check/sub/protocol fields0 are padding without LN Check semantics",
+      "protocol_mapping": "class3 is parent protocol discriminator outside CPU LN checks; check/sub/row/element0; LN protocol_code/location copied; VECTOR/H no detailed code outputs means both0",
+      "status_mappings": [
+        {
+          "source": "H finite",
+          "parent_status": 1,
+          "source_status": 6
+        },
+        {
+          "source": "H real commit protocol fault",
+          "parent_status": 2,
+          "source_status": 8
+        },
+        {
+          "source": "VECTOR status6",
+          "parent_status": 1,
+          "source_status": 6
+        },
+        {
+          "source": "VECTOR status8",
+          "parent_status": 2,
+          "source_status": 8
+        },
+        {
+          "source": "LN done_kind1",
+          "parent_status": 1,
+          "source_status": 1
+        },
+        {
+          "source": "LN done_kind2",
+          "parent_status": 2,
+          "source_status": 2
+        },
+        {
+          "source": "LN done_kind3 with prior root cause",
+          "parent_status": "preserve",
+          "source_status": "preserve",
+          "tuple": "preserve"
+        },
+        {
+          "source": "LN done_kind3 without prior root cause",
+          "parent_status": 2,
+          "source_status": 3
+        },
+        {
+          "source": "accepted held LN reject triggers cancel",
+          "parent_status": 2,
+          "source_status": 8,
+          "protocol_code": "actual reject_code",
+          "protocol_location": 0
+        }
+      ],
+      "rank_epoch_separation": "kind4 wire ABI is this envelope, not raw section8 op_ordinal rank; compare LN tile/class/row/check/sub/element only within that LN; epoch source+3 is independent of parent_stage0x82 and CPU Check fields",
+      "legacy_errors": "all original kind0..3 domain/status/source_status/tuple and existing domain7 stage3 pack fault remain unchanged",
+      "state_increment_bits": 0,
+      "evidence": "Read parent v1 BUILD_ID:8, identity:1213, maps:1201-1206, branches:1244-1310; read current compact LN public field mapping:253-273 and terminal classifications:788-795. Controller identifies v3 preparation as2a97609c; this task does not claim its EDA validation."
+    },
+    "controller_final_increment": {
+      "source": "actual parent message, increment73; not independently re-read full run",
+      "normal_ln_v2": "c612 full128 pure external accepted by controller;12120 bits/168 reserved",
+      "protocol_ln_v3": "controller accepted proposed8-bit scalar/DIV unaccepted-offer holding addition;12128 bits/160 reserved;first12120 offsets preserved;not yet verified",
+      "integration": "normal v2 integration may proceed; joint cancellation requires a version with verified offered-request retention",
+      "physical_arena_delta_bits": 0
+    },
+    "authority": "controller accepted D-M007-SM011-JOINT-ARENA-23 E019/R002; linked SM012; architecture sections10-11",
+    "source_versions": {
+      "project/E014_m007_layernorm32/experiment_source/ln_control_layout_v2.json": "d28c1004cbde75f9c6cd47216f0bccf8fab2ed40632d4aee3d729715ce96dc60",
+      "project/E014_m007_layernorm32/experiment_source/ln_compact_interface_v1.md": "5d65019acd3d8274b92ee5d4af03f1dfb56357cf5d8cb0e651124a250d3ce5de",
+      "project/E019_m007_residual_ln_residency/experiment_source/state_census.json": "da8fee51ebd0084d026ef73212d06fe729ff0195ff554b029ff0a8df45b4d1be",
+      "project/E019_m007_residual_ln_residency/experiment_source/vector_external48_proposal.md": "7159d032600dd6be9a90106621b8deea77bc5baa416f3fff005c3c9f8dc6c335",
+      "project/E019_m007_residual_ln_residency/experiment_results/runs/R001/final_delivery.md": "d0ed2c583ef89b532162f040c3aa64948903cdc2b7873445c8794e9faddd823d",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_m007_layernorm32_compact_v2.sv": "c612633a78644b4474a49ee34ab032241f32f5795637c67492d18ef1b24d1265",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_vector32_v1.sv": "26f0e7838aa4fcf448ebf8ddfc72e0591cb4c03ffb8f01b0c4536f2bd1415700",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_hidden32_v1.sv": "fe04b77a76079cd71af10ff624c1a6db3e244fe7356139bddbecaf6db0544727",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_qscratch32_v1.sv": "82b0590b6e08e1b825034a3c6fdec83deddb0d399a17ffe49762553762dc7a7a",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_control_workspace_v1.sv": "99031e2ec3242cc6b160a60cf71593567343864c41617e9945b141c04a6ba773",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_layer_engine_v1.sv": "9fd5286a4c60c9fcb5de558e4f7519874d7ca782abaa279808aee8b1fe6868af",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_g_engine_v1.sv": "6b8b0114f64bdab6391ad7df251c0fd2fb3d31cfd1bde89305accd08eda8a106",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/rtl/laya_m007_single_parent_v1.sv": "62cf04f53be966ac3b214dc955fda236efba2dc0cc20b90c539352c96312b86f"
+    },
+    "citations": {
+      "project/E014_m007_layernorm32/experiment_source/ln_control_layout_v2.json": "schema m007-ln-compact22-control-layout-v2, all fields and notes; coverage checked 0..12119",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_m007_layernorm32_compact_v2.sv": "external/internal q declarations lines62-70; real debt lines558-569; private reset line786; DIV expected packing near final q_next",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_vector32_v1.sv": "control declarations and complete always_ff lines26-77; preserves old-value RHS and assignment priority",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_layer_engine_v1.sv": "private-idle/retired lines735-736; q coverage externalization lines710-721",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_g_engine_v1.sv": "private-idle/retired lines69-70",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/rtl/laya_m007_single_parent_v1.sv": "public ports lines10-30; tensor_key lines88ff; descriptor predicates lines1214-1224; q/matrix identity routing lines1487-1607"
+    },
+    "arena": {
+      "physical_bits": 12288,
+      "owner_encoding": {
+        "attention": 0,
+        "g": 1,
+        "ln": 2,
+        "vector": 3
+      },
+      "owner_bits": 2,
+      "rearm_bits": 1,
+      "extra_owner_bits_over_v1": 1,
+      "ln_occupied_bits": 12120,
+      "ln_reserved_bits": 168,
+      "g_occupied_bits": 11343,
+      "vector_occupied_bits": 48,
+      "ln_gamma_private_control_bits": 132,
+      "ln_numeric_private_bits": 18055,
+      "inactive_ln_retirement_is_not_target_ready": true,
+      "v1_build_preserved": true
+    },
+    "vector_fields": [
+      {
+        "field": "state",
+        "lsb": 0,
+        "bits": 3
+      },
+      {
+        "field": "issued_vectors",
+        "lsb": 3,
+        "bits": 13
+      },
+      {
+        "field": "retired_vectors",
+        "lsb": 16,
+        "bits": 13
+      },
+      {
+        "field": "first_error",
+        "lsb": 29,
+        "bits": 1
+      },
+      {
+        "field": "protocol_error",
+        "lsb": 30,
+        "bits": 1
+      },
+      {
+        "field": "error_addr",
+        "lsb": 31,
+        "bits": 12
+      },
+      {
+        "field": "error_lane",
+        "lsb": 43,
+        "bits": 5
+      }
+    ],
+    "control_projection": {
+      "baseline_bits": 32311,
+      "d21_added_bits": 62,
+      "vector_deduction_only_after_actual_externalization": 48,
+      "extra_owner_bits": 1,
+      "ln_gamma_private_bits": 132,
+      "known_joint_projection_bits": 32458,
+      "known_joint_projection_bytes": 4057.25,
+      "unallocated_bits_before_parent_additions": 310,
+      "parent_kind_width_increment": 1,
+      "parent_state_width_increment": 1,
+      "proposed_two_resident_counters_bits": 26,
+      "encoder0_projection_bits": 32486,
+      "encoder0_projection_bytes": 4060.75,
+      "unallocated_bits_after_proposed_parent_additions": 282,
+      "fit_verdict": "OPEN; not actual combined census",
+      "missing": [
+        "actual router/provider/exception holding state",
+        "model catalog/loader/validity control",
+        "full coefficient initialization metadata"
+      ],
+      "baseline_evidence": "controller incremental70 actual current62cf FFN source_control_hierarchy_audit:4038.875B, exactly+20bit versus32291"
+    },
+    "joint_budget_seconds": {
+      "reference": 0,
+      "static": 600,
+      "rtl": 1200,
+      "ooc": 0,
+      "unknown_rtl_pilot_single_limit": 120
+    },
+    "encoder0": {
+      "cmd_kind_bits": 3,
+      "kind_codes": {
+        "0": "legacy encoder full attention",
+        "1": "legacy encoder sliding attention",
+        "2": "legacy decision attention",
+        "3": "legacy encoder0 FFN",
+        "4": "complete encoder0",
+        "5": "reject",
+        "6": "reject",
+        "7": "reject"
+      },
+      "only_complete_layer": 0,
+      "initial_tensor_pair": [
+        4,
+        32
+      ],
+      "ffn_refill_tensor_pair": [
+        60,
+        88
+      ],
+      "resident_H_vectors": 4096,
+      "descriptor_slots": 2,
+      "descriptor_refill_order": [
+        0,
+        1
+      ],
+      "epochs": "source_epoch + 16*global_layer + code; source_epoch <= 0xfffffe00",
+      "epoch_codes": {
+        "0": "H input/source",
+        "1": "quant QKV Attention context quant WO composite island",
+        "2": "Attention residual",
+        "3": "plain LN",
+        "4": "norm quant Wi G quant Down composite island",
+        "5": "FFN residual",
+        "6": "final H output"
+      },
+      "final_done": "4096 final H output handshakes and all true services/leases/terminal records retired",
+      "full_encoder_status": "NOT_RUN"
+    },
+    "source_facts": [
+      "D21 census retains62 new control bits, including48 VECTOR FF",
+      "LN v2 layout12120 bits with4 actual DIV expected flags",
+      "private gamma reset updated to if(!rst_n||enabled), source fact not EDA pass"
+    ],
+    "hypotheses": [
+      "exclusive retirement invariants permit four-owner one-q composition",
+      "two13-bit counters plus derived stage qualification can implement resident feeder/writer without extra payload copies"
+    ],
+    "verified_conclusions": [
+      "only static field coverage and arithmetic checked here",
+      "no EDA/new gold/full model computation in architecture task"
+    ]
+  },
+  "model_catalog25_static": {
+    "contract": "D-M007-MODEL-CATALOG-25-STATIC",
+    "status": "STATIC_CONTRACT_NOT_IMPLEMENTED_OR_RTL_VALIDATED",
+    "document_section": "12",
+    "source_versions": {
+      "project/E002_Laya_HLS/experiment/host/m007_deploy/schema.json": "c3d8d192e26cc249a07818f73f2926181965fd460faa5ea140b28d689517d24c",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/rtl/laya_m007_single_parent_v2.sv": "b6bf3d811dfa2a2036c049714e1fd5dc46fe81f4b7c0c5b12ef165912d7050df",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_joint_v2.sv": "52ff2cf49873e72d2694f3f39449640f7ad86a5ff6590dffeb675789ed67efdc",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_ln32_v1.sv": "c19305bae4e6064416dc511d54ccd5df1eb1c10e9ebfbaf425975cf4fcb014bf",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_facade_v1.sv": "ff7a9b665f52f2d409d3236d9d7d61384672efdccf72d4c7bd2aa382beb8b090",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/laya_m007_quant_group32_v1.sv": "555ac5492af12929112d5f513538f205a1607021d602356083956c909e955add",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_supply_v1.sv": "234acdc92a0da06c1172dab5b327419408f0ac0584d4cbf9f573be0f7451ed72",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_reader_v1.sv": "e4395f4389bd5681250e56604e2e38b15c4185af75ab4e6136305d18bdbba8ca",
+      "project/E002_Laya_HLS/experiment/tests/full_reference.py": "fe9678e44030ef4c5b46b02e907caf2022c97ecfaa612c2eb377a4fbbf2e9784",
+      "project/E002_Laya_HLS/experiment/tests/full_model_package_test.py": "cdfa89b0ec149aae0b8cf472d33c37543867e6c4b9c054c904103d944043eff9",
+      "project/E002_Laya_HLS/experiment/reference/runs/typed_q8_ref_20261005/gguf_inventory.json": "40983ab871903db1281eb82901521fae5f5e1b862d8c2d4f22deba7cbe44c5c6"
+    },
+    "citations": {
+      "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/rtl/laya_m007_single_parent_v2.sv": "source snapshot; gamma ties1540-1546, resident counters/epoch1433-1446, current state0..59 and tensor helpers",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_joint_v2.sv": "H/public access1388-1414, source witness1442-1443, real resources idle2049",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_ln32_v1.sv": "complete short module: provider33 bits, source_witness only success and cleared on LN DONE",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_facade_v1.sv": "188-237 coefficients, bias_data indexed issue_next and temporary qualification",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/laya_m007_quant_group32_v1.sv": "88-96 legal row/group coordinates without strict row-major input requirement",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_supply_v1.sv": "63-78,87,126 actual loading/read response/borrowed/slot lease state",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_reader_v1.sv": "real end condition remaining==0 and busy==0 and !out_valid; inflight omits completed-unconsumed slots",
+      "project/E002_Laya_HLS/experiment/tests/full_reference.py": "87-102 embedding_row;750-820 original Encoder/final norm/type/Decision/gather sequence",
+      "project/E002_Laya_HLS/experiment/tests/full_model_package_test.py": "109-125 expected_bindings WeightKey ordering; inventory index alone is not identity",
+      "project/E002_Laya_HLS/experiment/reference/runs/typed_q8_ref_20261005/gguf_inventory.json": "selected final_norm_w F32[1024], type_emb Q8_0[1024,3], Decision weight/bias metadata only",
+      "project/E002_Laya_HLS/experiment/host/m007_deploy/schema.json": "marker/qtype validation,512-byte metadata and69632-byte tail schema"
+    },
+    "current_control_basis": {
+      "ffn_bits": 32311,
+      "joint_including_ln_provider33_bits": 32491,
+      "parent_kind_state_and_counters_increment_bits": 28,
+      "basis_bits": 32519,
+      "basis_bytes": 4064.875,
+      "provider33_already_counted": true,
+      "origin": "controller audit77 and actual source read; not a new final census"
+    },
+    "catalog": {
+      "new_immutable_metadata_bo_bytes": 8192,
+      "alignment_bytes": 4096,
+      "effective_bytes": 7936,
+      "header_bytes": 256,
+      "record_count": 120,
+      "record_bytes": 64,
+      "tail_zero_bytes": 256,
+      "address_checks": [
+        "65-bit base+span overflow",
+        "actual platform HBM aperture on each port",
+        "catalog and port0 W ranges do not overlap",
+        "entry/tail DMA must not overlap sealed model storage"
+      ],
+      "header_little_endian": {
+        "0..7": "LAYAC25 + NUL",
+        "8..9": "version u16=1",
+        "10..11": "header bytes u16=256",
+        "12..13": "record count u16=120",
+        "14..15": "record bytes u16=64",
+        "16..47": "full model SHA256",
+        "48..79": "full graph SHA256",
+        "80..111": "full numeric SHA256",
+        "112..143": "full layout SHA256",
+        "144..175": "full model-package-build SHA256",
+        "176..207": "SHA256 of 7680 record bytes",
+        "208..215": "records CRC64",
+        "216..223": "u64 effective bytes7936",
+        "224..255": "zero"
+      },
+      "record_index": "4*global_layer + 2*pair_kind + slot",
+      "record_payload": "for each p0..3: data[128*p+:64]=base[p], data[128*p+64+:64]=span[p]",
+      "shape_and_tensor_identity": "derived from fixed graph and verified original WeightKey; no redundant record fields",
+      "tensor_maps": {
+        "encoder_qkv": "4+l",
+        "encoder_wo": "32+l",
+        "encoder_wi": "60+l",
+        "encoder_down": "88+l",
+        "decision_qkv": "117+2*d",
+        "decision_wo": "121+2*d",
+        "decision_fc1": "125+2*d",
+        "decision_fc2": "129+2*d"
+      },
+      "min_span_bytes_per_port": {
+        "qkv": 884736,
+        "wo": 294912,
+        "wi": 1511424,
+        "down": 755712,
+        "decision_fc1": 1179648,
+        "decision_fc2": 1179648
+      },
+      "span_formula": "576*(K>>5)*(N==5248?82:N>>6)",
+      "reader": {
+        "proposed_module": "model_catalog/rtl/laya_m007_catalog_reader_v1.sv",
+        "fsm_bits": 2,
+        "states": {
+          "IDLE": 0,
+          "AR": 1,
+          "RSP": 2,
+          "DRAIN": 3
+        },
+        "req_word_bits": 7,
+        "word_range": [
+          0,
+          123
+        ],
+        "ARID": 7,
+        "ARLEN": 0,
+        "held_payload_bits": 0,
+        "held_identity_bits": 0,
+        "third_descriptor": false,
+        "caller_obligation": "catalog base and index held until reader truly idle",
+        "faults": [
+          "RID mismatch",
+          "non-OK RRESP",
+          "missing RLAST"
+        ],
+        "missing_last": "drain actual beats until real RLAST; never falsely return idle",
+        "cancel": "never withdraw an offered AR; read accepted transaction and discard through parent"
+      },
+      "w_port_arbitration": "A010 exports actual transport_idle including all busy slots, completed-unconsumed responses, held AR, loading/read responses and leases; only then catalog borrows port0; other W ports idle; existing8-outstanding hardware stays one copy",
+      "identity_verification": {
+        "host": "original GGUF/WeightKey and full record SHA256",
+        "device": "compare complete header identities and expected SHA fields, compute CRC64 over received records",
+        "device_sha256_compute": false,
+        "CRC64": {
+          "polynomial_hex": "42f0e1eba9ea3693",
+          "init": 0,
+          "xorout": 0,
+          "reflected": false,
+          "order": "ascending memory bytes, MSB first within each byte"
+        }
+      }
+    },
+    "model_initialization": {
+      "sequence": [
+        "invalidate model_committed",
+        "4 header reads",
+        "120 record scans",
+        "576 bias32 commits",
+        "LN owner and gamma_begin",
+        "32 gamma32 commits and gamma_done consumption",
+        "96 type32 commits",
+        "both RoPE families complete and identity qualified",
+        "hold SETUP_DONE",
+        "set committed only on successful SETUP_DONE consumption"
+      ],
+      "new_persistent_control": {
+        "catalog_base_bits": 64,
+        "model_committed_bits": 1
+      },
+      "reuse": {
+        "request_generation": "parent existing identity",
+        "expected_records_sha": "base[0][0..3]256 bits",
+        "expected_crc": "span[0][0]64 bits",
+        "CRC_accumulator": "tensor_id[1:0]64 bits",
+        "sequential counters": "resident_issue/resident_sink13, only while inference inactive"
+      },
+      "coeff_stream": "valid/ready, setup_request64, generation32, kind2, index10, data32xF32; kind0 bias,1 gamma,2 type,3 reject",
+      "bias": {
+        "total_bytes": 73728,
+        "shape": "288x64F32",
+        "net_payload_growth_bytes": 57344,
+        "chunk32_count": 576,
+        "row_bases_by_tensor": {
+          "117": 0,
+          "121": 48,
+          "125": 64,
+          "129": 128,
+          "119": 144,
+          "123": 192,
+          "127": 208,
+          "131": 272
+        },
+        "read_control_increment_bits": 1,
+        "read_payload_bytes": 256,
+        "identity": "committed immutable model and fixed tensor/K/N/bias binding; old temporary coef deduction not assumed"
+      },
+      "gamma": {
+        "existing_bytes": 4096,
+        "existing_private_control_bits": 132,
+        "model": "MODEL_ID[63:0]",
+        "new_contract_key_hex": "464e4f52",
+        "source": "original final_norm_w",
+        "duplicate_bank": false,
+        "partial_abort": "OPEN: current loader has no public abort; do not force clear loading"
+      },
+      "type": {
+        "bytes": 12288,
+        "shape": "96x32F32",
+        "read_control_bits": 13,
+        "read_payload_bytes": 128,
+        "read_addr": "qtype2 + chunk5",
+        "response_join": "full vector_addr12 must match Q",
+        "setup_conversion": "original embedding_row Q8_0->F32 once; preserve original and expanded SHA; not performed by this task"
+      }
+    },
+    "full_graph": {
+      "finite_h_load_witness": "internal real4096 H commit + allfinite + bankidle event; reuse existing source_witness; invalidate on newBEGIN/public H writes/newVECTOR; no Host forced qualification",
+      "encoder_next": "H plain preLN->Q, Q quant/A->QKV, H skip retained; encoder1 sliding and encoder27 full attention use original parameters",
+      "final": "encoder27 residual->gamma LN H to Q->type Q+type to H",
+      "type_vector": "new op1 uses unused states5 lease,6 run,7 release; DONE4; no additional opFF; existing48-bit arena view",
+      "decision": "global28/29, prepare_kind2 local0/1, noRoPE; FC1 finite check->combinational ReLU->quant/A1 while reading A0; actual16384 groups/ACKs and retirement before FC2->Q->residualH",
+      "relu": "positive iff sign0 and magnitude!=0; else +0 including -0; nonfinite rejected before ReLU",
+      "fc1_counter": "reuse existing pack_seq16; resident_sink13 insufficient",
+      "epochs": {
+        "encoder": "16*l + phase0..6",
+        "phases": {
+          "0": "preLN",
+          "1": "Attention island",
+          "2": "residualA",
+          "3": "postLN",
+          "4": "FFN island",
+          "5": "residualF",
+          "6": "diagnostic export"
+        },
+        "final_gamma": 448,
+        "type": 449,
+        "decision": "464+16*d+phase0..5",
+        "gather": 496,
+        "source_epoch_max_hex": "fffffe00",
+        "active_epoch_offset_bits": 9,
+        "epoch_hold": "load before new-island lease after actual old retirement; preserve through ABORT/cleanup/DONE"
+      },
+      "begin_new_fields_bits": {
+        "qtype": 2,
+        "marker_rows": 112,
+        "marker_mask": 16
+      },
+      "tail_bytes": 69632,
+      "tail_vector_count": 544,
+      "tail_done": "actual matching request/gen/source_epoch tail_commit bytes69632 plus all resources retired; stream out_ready insufficient",
+      "future_build_kinds": {
+        "5": "complete individual Encoder",
+        "6": "complete individual Decision",
+        "7": "whole model oneBEGIN"
+      },
+      "future_build_tag": "defer to formal ABI; existing v2 kind0..4 preserved"
+    },
+    "control_projection": {
+      "new_fields_bits": {
+        "catalog_base": 64,
+        "model_committed": 1,
+        "parent_state_width_increment": 1,
+        "active_epoch_offset": 9,
+        "catalog_reader_fsm": 2,
+        "qtype_markers": 130,
+        "type_response": 13,
+        "bias_response_valid": 1
+      },
+      "new_total_bits": 221,
+      "projected_bits": 32740,
+      "projected_bytes": 4092.5,
+      "nominal_remaining_bits": 28,
+      "old_coef_deduction_bits": 0,
+      "fit_verdict": "OPEN_NOT_A_FINAL_CENSUS",
+      "open": [
+        "actual router holding",
+        "full-graph error/cancel and recovery",
+        "DMA/register/XRT state",
+        "actual canonical elimination if any"
+      ]
+    },
+    "payload_growth_over_current_h_ln_bytes": 70016,
+    "owner_split": {
+      "A008": "independent model_catalog reader/TB/new prep tool; pure LN gamma interfaces",
+      "A010": "parent two slots, real W mux/transport_idle, matrix bias vault",
+      "A007": "type bank, VECTOR op1, wrapper source/owner routing"
+    },
+    "minimum_tests": [
+      "reader AR/R held and actual malformed-last drain",
+      "production mux cannot borrow until all old W debt idle",
+      "120 valid structure scans and CRC/identity failures",
+      "576/32/96 actual coeff commits with repeated/skipped index rejection",
+      "first real Encoder0 public output export before segmented Encoder1 producer use"
+    ],
+    "source_facts": [
+      "parent current gamma ports tied0",
+      "LN witness currently from VECTOR only",
+      "old coef window16384B",
+      "W inflight excludes complete unconsumed slots"
+    ],
+    "hypotheses": [
+      "two existing descriptors can serve device catalog without third payload holding",
+      "canonical model setup and fixed graph permit stated field reuse",
+      "Decision FC1 direct ReLU/quant path avoids complete FC1 buffer"
+    ],
+    "verified_conclusions": [
+      "only selected-source metadata and integer arithmetic checked here",
+      "no EDA or new gold/model computation",
+      "projection does not establish4KiB fit or oneBEGIN correctness"
+    ],
+    "controller_priority": "TANH-IDLE-CE-26 first; catalog implementation to be separately dispatched"
+  },
+  "tanh_idle_ce": {
+    "contract": "D-M007-TANH-IDLE-CE-26 / E015 R002",
+    "status": "STATIC_BOUNDARY_ACCEPTED_BY_CONTROLLER_IMPLEMENTATION_AND_RTL_NOT_RUN",
+    "document_section": "13",
+    "source_versions": {
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh8_v1.sv": "bf552ef7fe135e138e1367647f815a49ccd22ab7a4329902d5308b5efb7001b2",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_lane_v1.sv": "eec73a7badf5e065ab7b04d1dc454ce536f6b5a756ea923c241dd516818b28ef",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_add3_e_v1.sv": "703bf5eb2ccbcf0444d521cfa6d4d5da6b7ac21fc6c4c4d530c37d498ee3d627",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_div12_r4_v1.sv": "b737711d46ab90f78f048bc1b9e1ea9b211d1f25b9038d18a2c06833ec9c3a0c",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_fast_leaves_v1.sv": "ce7c8c04b7faa9298653b14b1514054ed691c552c586921fb32ac2221363e4f7"
+    },
+    "citations": {
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh8_v1.sv": "24-64 eight cores, lease/credit/alignment, vector credit latency152",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_lane_v1.sv": "7-11 valid_pipe152;2455-2485,2625-2670,5135-5148 representative all-cycle sequential/leaf wiring; not a full linewise audit",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_add3_e_v1.sv": "42-44 reset before aclken",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_div12_r4_v1.sv": "38-40 reset before aclken;70 generated stage enable",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_fast_leaves_v1.sv": "90 multiply leaf declaration;115-117 reset before aclken"
+    },
+    "controller_reported_cost_context": {
+      "LN16_compute_wall_s": 22.157,
+      "fixed_wall_s": 65.759,
+      "full128_estimate_s": 315.056,
+      "single_attempt_cap_s": 120,
+      "independently_remeasured_here": false
+    },
+    "proposed_modules": [
+      "laya_m007_tanh_core_v2",
+      "laya_m007_tanh8_v2"
+    ],
+    "preserve": [
+      "core_v1",
+      "tanh8_v1",
+      "standalone lane_v1",
+      "single physical production TANH version"
+    ],
+    "token_empty": "per-core reduction NOR of all valid_pipe[151:0], all8 cores AND",
+    "CE": "!rst_n || lease_active || lease_fire || req_fire || pending_vectors!=0 || in_flight_vectors!=0 || !all_token_empty || protocol_fault",
+    "new_state_bits": 0,
+    "gate_scope": [
+      "all core data/branch/operand/alignment registers",
+      "whole valid_pipe with reset priority",
+      "all arithmetic leaf aclken"
+    ],
+    "always_running": [
+      "actual clock",
+      "lease and release/drain state",
+      "credit/tag/result queues",
+      "request/response handshake",
+      "fault checking"
+    ],
+    "active_lease_rule": "CE always1; original152 real-clock latency, II, DAG, rounding and error behavior unchanged",
+    "reset_rule": "actual reset independent of CE; retain existing reset/no-reset data semantics",
+    "minimum_tests": [
+      "v1 vs v2 forcedCE1 vs v2 idleCE valid-response bitwise data/status/tag/mask",
+      "empty wake and firsttoken, continuousII, first/middle/last token stages prohibit freeze",
+      "last response held17 cycles, returned pending with token pipe empty",
+      "release and immediate newlease, reset while frozen, no-reset newgeneration",
+      "fault keeps CE enabled without forced debt clear",
+      "same joint16-row build output/retirement and actual compute/fixed walltime with v1 control"
+    ],
+    "hypothesis": "freezing invalid numeric updates can reduce simulation event cost during nolease intervals",
+    "counterexamples": [
+      "other joint logic dominates",
+      "compiler already eliminates idle work",
+      "CE branch overhead cancels savings",
+      "fixed initialization dominates walltime"
+    ],
+    "resource_authority": "controller must dispatch actual budget; no borrowed architecture or previous experiment budget; no EDA performed here",
+    "verified_conclusions": [
+      "selected leaf reset priority supports proposed safe boundary",
+      "requires complete sequential/leaf coverage audit during implementation",
+      "no measured speedup or RTL-equivalence claim"
+    ]
+  },
+  "fullmodel_abi30_static": {
+    "contract": "D-M007-SM012-FULLMODEL-ABI-30-STATIC",
+    "document_section": "14",
+    "status": "STATIC_INTERFACE_CONTRACT_NOT_IMPLEMENTED_OR_RTL_VALIDATED",
+    "source_versions": {
+      "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/rtl/laya_m007_single_parent_v2.sv": "b6bf3d811dfa2a2036c049714e1fd5dc46fe81f4b7c0c5b12ef165912d7050df",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_facade_v1.sv": "ff7a9b665f52f2d409d3236d9d7d61384672efdccf72d4c7bd2aa382beb8b090",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_a_cache_v1.sv": "99483fd7091aaaef7a098efcf41783938cdf3f505519ccc9719ea188099143ec",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_a_bank_v1.sv": "9e0e0a24ea48c53c94a8f23bf34527d5aae6681bfec25c653ecf8d9bdb845354",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_quant_a_fill_v1.sv": "d2180cda2cbb3e6376c745a1b02f4cc0743ac5492c15e82bea7d134ad0b5f38e",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_engine_v1.sv": "2147d041620a158cf7f2cddfd172b538e54ba78c5d340507a8c5ce08cfff069f",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/laya_m007_quant_group32_v1.sv": "555ac5492af12929112d5f513538f205a1607021d602356083956c909e955add",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_supply_v1.sv": "234acdc92a0da06c1172dab5b327419408f0ac0584d4cbf9f573be0f7451ed72",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_bank_v1.sv": "32df184b7221b64023039fc44de77629fe858b9f2f05c1dd48a03afe0ed43a86",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_check_order_v1.sv": "438c58c17416716152b4f4cc12e90f5f92778b75df33e62d517acb46881a766d",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_layer_engine_v1.sv": "9fd5286a4c60c9fcb5de558e4f7519874d7ca782abaa279808aee8b1fe6868af",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_ln32_v1.sv": "c19305bae4e6064416dc511d54ccd5df1eb1c10e9ebfbaf425975cf4fcb014bf",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_m007_layernorm32_compact_v2.sv": "2a97609c9245f53c699b77e5c8110fc9ea7f2029547e32d593366da0e2e22eac",
+      "project/E002_Laya_HLS/experiment/host/m007_deploy/schema.json": "c3d8d192e26cc249a07818f73f2926181965fd460faa5ea140b28d689517d24c",
+      "mission/M007_完整Attention高性能主干与部署闭合/tasks/SM012.md": "009eec09323d3931caea737c61c43fe505961d9e5bf2090d87fd1d57b805dcb6"
+    },
+    "citations": {
+      "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/rtl/laya_m007_single_parent_v2.sv": "public ports1-99; current state/identity and status maps1571-1576; error branches1608-1735; only selected regions read",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_facade_v1.sv": "coef state188-189, legality195-202, old coef reset/load214-237, unique A cache278",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_a_cache_v1.sv": "31-39 counters/coverage;58-71 readiness/banks;97-117 K4096, target_count and real publication",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_a_bank_v1.sv": "complete short source: 1024 entries x272 bits per bank, 10-bit address",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_quant_a_fill_v1.sv": "47-52 counters;69-90 ordering/real write;101-121 K4096 and completion",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_engine_v1.sv": "122-131 per-superblock counters;165-168 supported K/N, K4096; selected issue/commit predicates",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/activation_quantizer/rtl/laya_m007_quant_group32_v1.sv": "8 k13;48-56 slots/counters;88-101 supported K4096 and coordinates;128 reservations not tensor storage",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_supply_v1.sv": "32-47 groups8, coverage512, covered10;53-61 shape/span;69-83 address/banks;99-105,116-131 group count/publication",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_bank_v1.sv": "complete short source: 512 entries x272 bits per bank, 9-bit address",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_check_order_v1.sv": "2-5 original tuple {stage8,a16,b16,c16,d16,e16,f8}; original ordering",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_layer_engine_v1.sv": "743 tuple function;1115-1148 all actual numeric tuple component ranges",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_m007_resident_ln32_v1.sv": "1-75 source_witness reuse, no independent H-load count, done_kind/status and actual idle",
+      "project/E002_Laya_HLS/experiment/vivado/module_design/layernorm_engine/rtl/laya_m007_layernorm32_compact_v2.sv": "6-22,55-61 public widths;343 gamma_ready;823-826 actual nonfinite gamma termination; current file remains named v2",
+      "project/E002_Laya_HLS/experiment/host/m007_deploy/schema.json": "fields/rules;512-byte metadata,69632-byte tail; register_mapping NOT_BOUND_TO_XRT",
+      "mission/M007_完整Attention高性能主干与部署闭合/tasks/SM012.md": "last FULLMODEL-ABI-30-STATIC contract, plus active D28 and v2 kind4 compatibility bounds"
+    },
+    "controller_reported_current_evidence": {
+      "source": "actual controller messages through increment86 and subsequent D30 steering; not independently rerun",
+      "ffn_full": "accepted",
+      "D23": "real residual128->LN16 accepted",
+      "D27": "CE functional/cycle equivalent; total62.693->60.396 seconds, LN16 not improved",
+      "D27_LN128_estimate_s": 226.787,
+      "D27_LN128_status": "COST_STOP_NOT_RUN",
+      "A010_AT014_AT015": "new CE parent build and32519bit census passed; smallest QKV1/FFN1 passed; fullEncoder NOT_RUN",
+      "D31": "controller reports single-runtime equivalence6726 values/282812 nodes; separate-instance speed comparison unfinished, no speed claim"
+    },
+    "abi": {
+      "module": "laya_m007_single_parent_v3",
+      "ascii_no_trailing_newline": "Laya-HLS|M007|D-M007-SM012-FULLMODEL-ABI-30|laya_m007_single_parent_v3|cmd_kind=5,6,7|abi=1",
+      "sha256": "cedb4c130303f16da9fa1c605b2cf9850fa7ee8593b0391a3e92bc3103ce037c",
+      "build_tag128_hex": "cedb4c130303f16da9fa1c605b2cf985",
+      "kind_codes": {
+        "5": "one complete Encoder, cmd_layer0..27",
+        "6": "one complete Decision, cmd_layer local0/1 ->global28/29",
+        "7": "whole model oneBEGIN, cmd_layer must0"
+      },
+      "old_v2_kind0_to4_preserved": true,
+      "package_build_sha_is_not_rtl_abi_tag": true,
+      "sha_port_order": "first digest byte at[255:248]; header digest ascending byte address",
+      "leaf_identity128": "fullSHA[255:128]",
+      "internal_model64": "MODEL_SHA256[191:128], matching old MODEL_ID128[63:0]"
+    },
+    "public_control": {
+      "arbitration": "true globalidle; INVALIDATE then SETUP then BEGIN; one accept/held DONE; SETUP additionally requires !model_committed",
+      "setup_fields": {
+        "setup_request": 64,
+        "setup_generation": 32,
+        "setup_build_id": 128,
+        "setup_table_key": 128,
+        "setup_model_sha256": 256,
+        "setup_graph_sha256": 256,
+        "setup_numeric_sha256": 256,
+        "setup_layout_sha256": 256,
+        "setup_package_build_sha256": 256,
+        "setup_catalog_base": 64,
+        "setup_catalog_span": 64,
+        "setup_records_sha256": 256,
+        "setup_records_crc": 64
+      },
+      "invalidate_fields": {
+        "invalidate_request": 64,
+        "invalidate_generation": 32,
+        "invalidate_build_id": 128
+      },
+      "begin_fields": {
+        "cmd_request": 64,
+        "cmd_generation": 32,
+        "cmd_epoch": 32,
+        "cmd_model_id": 128,
+        "cmd_numeric_id": 128,
+        "cmd_table_key": 128,
+        "cmd_graph_id": 128,
+        "cmd_layout_id": 128,
+        "cmd_build_id": 128,
+        "cmd_kind": 3,
+        "cmd_layer": 5,
+        "cmd_mask": 128,
+        "cmd_qtype": 2,
+        "cmd_marker_rows": "16x32 signed",
+        "cmd_marker_mask": 16,
+        "cmd_candidate_count": 5
+      },
+      "v3_removed_top_interfaces": [
+        "Host cmd_tensor/base/span",
+        "Host desc stream",
+        "legacy bias coef_cfg/coef_wr/coef_rsp"
+      ],
+      "model_word_fields": {
+        "request": 64,
+        "generation": 32,
+        "kind": 2,
+        "index": 10,
+        "data": "32xF32"
+      },
+      "model_word_counts": {
+        "bias": 576,
+        "gamma": 32,
+        "type": 96
+      },
+      "h_input": "retain v2 valid/ready,32xF32,request64,gen32,epoch32,row8,group8; strict4096 real commits",
+      "producer_fail": "matching current H_LOAD only; request64/gen32/epoch32,code8,detail80; domain2 format7",
+      "done_reuse": "existing held done/request/gen/epoch/status/domain/source/tuple; new done_op2 combinational0 setup,1 invalidate,2 begin",
+      "kind_register_reuse": "internal0 setup,1 invalidate,5..7 BEGIN; invalid cmd kind normalized5 only for done_op, original invalid value in tuple",
+      "setup_invalidate_epoch": 0,
+      "model_commit": "only consume successful held SETUP_DONE after actual record/coeff/gamma/RoPE completion",
+      "begin_checks": [
+        "all128-bit IDs and v3 build exact",
+        "model committed",
+        "source_epoch<=fffffe00",
+        "kind5 layer0..27;kind6 local0..1;kind7 layer0",
+        "kind5/6 all marker/qtype/count fields0",
+        "kind7 qtype0..2;active marker original signed0..127 and active mask;inactive marker0",
+        "popcount equals candidate_count1..16; qtype2 requires2; duplicate/hole preservation"
+      ],
+      "host_precompression_checks": "original512-byte schema u8 masks must0/1 and u32 qtype/count legal before compact ports; no high-bit truncation claim",
+      "new_stored_begin_bits": 130,
+      "invalid_command": "accepted while idle then terminal error without work, not indefinite ready0",
+      "model_word_invalid_offer": "wrong identity/kind/index rejected without bank handshake; may be corrected; no false gamma abort completion",
+      "gamma_open": "abandoned partial gamma load has no public abort; normal/full and real nonfinite loader termination only"
+    },
+    "h_load_witness": {
+      "signal": "h_load_success_valid",
+      "producer": "parent internal4096 real H write commits, all lanes finite, bank idle, current identity stable",
+      "reuse": "resident_sink13 and FSM; wrapper existing source_witness and owner identity",
+      "new_counter_or_identity_bits": 0,
+      "scope_limit": "wrapper cannot independently reject every forged early internal pulse; independent TB drives only after legal full load, production parent barrier later tested"
+    },
+    "state_allocation": {
+      "0..59": "existing parent operations",
+      "60..73": [
+        "SETUP_CHECK",
+        "HEADER_AR",
+        "HEADER_R",
+        "RECORD_AR",
+        "RECORD_R",
+        "BIAS",
+        "GAMMA_OWNER",
+        "GAMMA_BEGIN",
+        "GAMMA_DATA",
+        "GAMMA_DONE",
+        "TYPE_LOAD",
+        "ROPE_CHECK",
+        "SETUP_FINISH",
+        "INVALIDATE_FINISH"
+      ],
+      "74..81": "CAT ATTN/FFN x slot0/1 x AR/R",
+      "82..86": "preLN OWNER/SCRATCH/START/RUN/RETIRE",
+      "87..91": "finalLN same five",
+      "92..96": "type same five",
+      "97": "LAYER_NEXT",
+      "98..103": "Decision FC1/FC2 START/RUN/DRAIN",
+      "104..106": "GATHER START/RUN/DRAIN",
+      "107": "TAIL_ARM",
+      "108": "TAIL_WAIT",
+      "109": "TAIL_ABORT",
+      "110": "ERROR_CLEAN",
+      "111": "SETUP_ERROR",
+      "112..115": "runtime catalog four-origin DRAIN; preserve pair/slot/index",
+      "116..117": "setup header/record DRAIN; preserve counters",
+      "118..127": "reserved",
+      "width_bits": 7,
+      "is_implemented": false
+    },
+    "errors": {
+      "envelope": [
+        {
+          "field": "op",
+          "msb": 95,
+          "lsb": 88
+        },
+        {
+          "field": "global_layer",
+          "msb": 87,
+          "lsb": 83
+        },
+        {
+          "field": "format",
+          "msb": 82,
+          "lsb": 80
+        },
+        {
+          "field": "detail",
+          "msb": 79,
+          "lsb": 0
+        }
+      ],
+      "global_codes": {
+        "0..27": "Encoder",
+        "28..29": "Decision",
+        "30": "finalLN/type/gather/tail cross-layer",
+        "31": "setup/control/no valid layer"
+      },
+      "op_hex": {
+        "01": "SETUP_CMD",
+        "02": "INVALIDATE_CMD",
+        "03": "BEGIN_CMD",
+        "04": "CATALOG_HEADER",
+        "05": "CATALOG_RECORD_INIT",
+        "06": "CATALOG_CRC",
+        "07": "BIAS_LOAD",
+        "08": "GAMMA_LOAD",
+        "09": "TYPE_LOAD",
+        "0a": "ROPE_QUALIFY",
+        "0b": "CATALOG_ATTN",
+        "0c": "CATALOG_FFN",
+        "0d": "MODEL_WORD_OFFER",
+        "20": "H_LOAD",
+        "21": "PRE_LN",
+        "22": "QKV_QUANT",
+        "23": "QKV_MATRIX",
+        "24": "ATTENTION",
+        "25": "CONTEXT_QUANT",
+        "26": "WO_MATRIX",
+        "27": "RESIDUAL_A",
+        "28": "POST_LN",
+        "29": "FFN_INPUT_QUANT",
+        "2a": "WI_MATRIX",
+        "2b": "G",
+        "2c": "G_QUANT",
+        "2d": "DOWN_MATRIX",
+        "2e": "RESIDUAL_F",
+        "2f": "FINAL_LN",
+        "30": "TYPE_ADD",
+        "31": "FC1_MATRIX",
+        "32": "RELU",
+        "33": "FC1_QUANT",
+        "34": "FC2_MATRIX",
+        "35": "DIAG_H_EXPORT",
+        "36": "GATHER",
+        "37": "TAIL_COMMIT",
+        "38": "ROUTER_RETIRE"
+      },
+      "domain": {
+        "0": "success",
+        "1": "command/model/descriptor",
+        "2": "H producer",
+        "3": "quant",
+        "4": "matrix",
+        "5": "Attention",
+        "6": "G",
+        "7": "parent/model transport/LN/VECTOR/tail"
+      },
+      "done_status": {
+        "0": "success",
+        "1": "numeric",
+        "2": "protocol/transport/D2H failure",
+        "3": "producer failure",
+        "4": "invalid command identity/format",
+        "5": "model/descriptor invalid/not ready",
+        "6": "cancelled without prior cause"
+      },
+      "source_status": "preserve actual matrix/quant/Attention8; G low8 with full32 in fmt5; LN done_kind; VECTOR6/8; actual nonzero tail status8; otherwise fixed parent reason",
+      "source_to_done": {
+        "matrix_quant": {
+          "0": 0,
+          "1": 5,
+          "2": 1,
+          "other": 2
+        },
+        "Attention": {
+          "0": 0,
+          "1": 1,
+          "2": 6,
+          "other": 2
+        },
+        "LN": {
+          "kind1": 1,
+          "kind2": 2,
+          "kind3_no_prior": 6,
+          "kind3_with_prior": "preserve"
+        }
+      },
+      "parent_reason_codes": {
+        "1": "FORMAT",
+        "2": "IDENTITY",
+        "3": "RANGE_OVERFLOW_OVERLAP",
+        "4": "ORDER_COUNT",
+        "5": "CRC",
+        "6": "NONFINITE",
+        "7": "RID",
+        "8": "RRESP",
+        "9": "RLAST",
+        "10": "REAL_COMMIT_MISMATCH",
+        "11": "APERTURE_UNBOUND",
+        "12": "MODEL_NOT_COMMITTED",
+        "13": "OWNER_OR_RETIRE_PROTOCOL",
+        "14": "TAIL_BYTES",
+        "15": "TAIL_STATUS",
+        "16": "RESERVED_NONZERO",
+        "17": "SOURCE_TUPLE_RANGE"
+      },
+      "check_field_codes": {
+        "0": "GENERAL",
+        "1": "MAGIC",
+        "2": "VERSION",
+        "3": "HEADER_BYTES",
+        "4": "RECORD_COUNT",
+        "5": "RECORD_BYTES",
+        "6": "MODEL_SHA",
+        "7": "GRAPH_SHA",
+        "8": "NUMERIC_SHA",
+        "9": "LAYOUT_SHA",
+        "10": "PACKAGE_BUILD_SHA",
+        "11": "RECORDS_SHA",
+        "12": "CRC64",
+        "13": "EFFECTIVE_BYTES",
+        "14": "RESERVED",
+        "15": "BASE",
+        "16": "SPAN",
+        "17": "APERTURE",
+        "18": "RTL_BUILD",
+        "19": "KIND",
+        "20": "LAYER",
+        "21": "QTYPE",
+        "22": "MARKER",
+        "23": "MASK",
+        "24": "CANDIDATE_COUNT",
+        "25": "BYTE_COUNT",
+        "26": "TRANSACTION_IDENTITY",
+        "27": "SLOT",
+        "28": "INDEX",
+        "29": "NUMERIC_VALUE",
+        "30": "TRANSPORT_IDLE"
+      },
+      "formats": {
+        "0": [
+          {
+            "field": "code",
+            "bits": 8,
+            "msb": 79,
+            "lsb": 72
+          },
+          {
+            "field": "index",
+            "bits": 16,
+            "msb": 71,
+            "lsb": 56
+          },
+          {
+            "field": "field",
+            "bits": 8,
+            "msb": 55,
+            "lsb": 48
+          },
+          {
+            "field": "port",
+            "bits": 3,
+            "msb": 47,
+            "lsb": 45
+          },
+          {
+            "field": "lane",
+            "bits": 5,
+            "msb": 44,
+            "lsb": 40
+          },
+          {
+            "field": "observed",
+            "bits": 32,
+            "msb": 39,
+            "lsb": 8
+          },
+          {
+            "field": "zero",
+            "bits": 8,
+            "msb": 7,
+            "lsb": 0
+          }
+        ],
+        "1": [
+          {
+            "field": "error_class",
+            "bits": 2,
+            "msb": 79,
+            "lsb": 78
+          },
+          {
+            "field": "error_row",
+            "bits": 7,
+            "msb": 77,
+            "lsb": 71
+          },
+          {
+            "field": "error_check",
+            "bits": 4,
+            "msb": 70,
+            "lsb": 67
+          },
+          {
+            "field": "error_level",
+            "bits": 4,
+            "msb": 66,
+            "lsb": 63
+          },
+          {
+            "field": "error_node",
+            "bits": 10,
+            "msb": 62,
+            "lsb": 53
+          },
+          {
+            "field": "protocol_code",
+            "bits": 4,
+            "msb": 52,
+            "lsb": 49
+          },
+          {
+            "field": "protocol_location",
+            "bits": 8,
+            "msb": 48,
+            "lsb": 41
+          },
+          {
+            "field": "error_stage",
+            "bits": 5,
+            "msb": 40,
+            "lsb": 36
+          },
+          {
+            "field": "zero",
+            "bits": 36,
+            "msb": 35,
+            "lsb": 0
+          }
+        ],
+        "2": [
+          {
+            "field": "source_error_stage",
+            "bits": 16,
+            "msb": 79,
+            "lsb": 64
+          },
+          {
+            "field": "row",
+            "bits": 16,
+            "msb": 63,
+            "lsb": 48
+          },
+          {
+            "field": "column",
+            "bits": 16,
+            "msb": 47,
+            "lsb": 32
+          },
+          {
+            "field": "group",
+            "bits": 16,
+            "msb": 31,
+            "lsb": 16
+          },
+          {
+            "field": "zero",
+            "bits": 16,
+            "msb": 15,
+            "lsb": 0
+          }
+        ],
+        "3": [
+          {
+            "field": "phase",
+            "bits": 16,
+            "msb": 79,
+            "lsb": 64
+          },
+          {
+            "field": "row",
+            "bits": 16,
+            "msb": 63,
+            "lsb": 48
+          },
+          {
+            "field": "group",
+            "bits": 16,
+            "msb": 47,
+            "lsb": 32
+          },
+          {
+            "field": "element",
+            "bits": 16,
+            "msb": 31,
+            "lsb": 16
+          },
+          {
+            "field": "zero",
+            "bits": 16,
+            "msb": 15,
+            "lsb": 0
+          }
+        ],
+        "4": [
+          {
+            "field": "original_stage",
+            "bits": 8,
+            "msb": 79,
+            "lsb": 72
+          },
+          {
+            "field": "a",
+            "bits": 8,
+            "msb": 71,
+            "lsb": 64
+          },
+          {
+            "field": "b",
+            "bits": 8,
+            "msb": 63,
+            "lsb": 56
+          },
+          {
+            "field": "c",
+            "bits": 8,
+            "msb": 55,
+            "lsb": 48
+          },
+          {
+            "field": "d",
+            "bits": 8,
+            "msb": 47,
+            "lsb": 40
+          },
+          {
+            "field": "e",
+            "bits": 8,
+            "msb": 39,
+            "lsb": 32
+          },
+          {
+            "field": "f",
+            "bits": 8,
+            "msb": 31,
+            "lsb": 24
+          },
+          {
+            "field": "zero",
+            "bits": 24,
+            "msb": 23,
+            "lsb": 0
+          }
+        ],
+        "5": [
+          {
+            "field": "rank",
+            "bits": 16,
+            "msb": 79,
+            "lsb": 64
+          },
+          {
+            "field": "row",
+            "bits": 16,
+            "msb": 63,
+            "lsb": 48
+          },
+          {
+            "field": "column",
+            "bits": 16,
+            "msb": 47,
+            "lsb": 32
+          },
+          {
+            "field": "raw_status",
+            "bits": 32,
+            "msb": 31,
+            "lsb": 0
+          }
+        ],
+        "6": [
+          {
+            "field": "row",
+            "bits": 16,
+            "msb": 79,
+            "lsb": 64
+          },
+          {
+            "field": "column",
+            "bits": 16,
+            "msb": 63,
+            "lsb": 48
+          },
+          {
+            "field": "lane",
+            "bits": 8,
+            "msb": 47,
+            "lsb": 40
+          },
+          {
+            "field": "raw_status",
+            "bits": 32,
+            "msb": 39,
+            "lsb": 8
+          },
+          {
+            "field": "zero",
+            "bits": 8,
+            "msb": 7,
+            "lsb": 0
+          }
+        ],
+        "7": [
+          {
+            "field": "producer_detail",
+            "bits": 80,
+            "msb": 79,
+            "lsb": 0
+          }
+        ]
+      },
+      "format_names": {
+        "0": "CHECK",
+        "1": "LN",
+        "2": "MATRIX",
+        "3": "QUANT",
+        "4": "ATTENTION",
+        "5": "G",
+        "6": "VECTOR_RELU_H",
+        "7": "PRODUCER"
+      },
+      "attention_packing": "existing numeric source a..e actual range<=127; require upper8 of each16 zero, preserve low8; out-of-range is source17 format0 with original offending16-bit value, not truncation",
+      "check_index": "catalog transport req_word0..123; structural record0..119; phase coeff chunk; gather slot*32+chunk",
+      "same_beat_bus_fault_priority": [
+        "RID",
+        "RRESP",
+        "RLAST",
+        "then content"
+      ],
+      "reject_interface": "combinational reject_valid/reject_port3/reject_code8/reject_tuple96; no holdingFF; port1H,2model_word,3producer_fail,4tail_commit; fixed priority2,1,3,4",
+      "error_state_bits_increment": 0,
+      "examples": {
+        "type_nonfinite_last_column": {
+          "op_hex": "30",
+          "global_layer": 30,
+          "format": 6,
+          "source_status": 6,
+          "row": 127,
+          "column": 1023,
+          "lane": 31,
+          "raw_status": 6,
+          "tuple_hex": "30f6007f03ff1f0000000600"
+        },
+        "decision1_preln_numeric": {
+          "op_hex": "21",
+          "global_layer": 29,
+          "format": 1,
+          "source_status": 1,
+          "error_class": 2,
+          "error_row": 20,
+          "error_check": 3,
+          "error_level": 2,
+          "error_node": 7,
+          "tuple_hex": "21e98a1900e0000000000000"
+        },
+        "last_catalog_record_bad_rid": {
+          "op_hex": "0c",
+          "global_layer": 29,
+          "format": 0,
+          "source_status": 7,
+          "code": 7,
+          "index_req_word": 123,
+          "port": 0,
+          "observed_rid": 3,
+          "tuple_hex": "0ce807007b00000000000300"
+        }
+      },
+      "first_error_boundary": "retain true upstream cause, not cleanup cancel; module terminal preserves local original ordering; earlier upstream final summary may replace unpublished downstream candidate; arbitrary multi-error/cancel global original Check order remains OPEN"
+    },
+    "canonical_coef_branch": {
+      "choice": "new facade compile-time CANONICAL_MODEL=1, mutually exclusive legacy/canonical generate; old parent_v2 uses unchanged old facade/build",
+      "canonical_single_bank_shape": "288x64F32",
+      "canonical_single_bank_bytes": 73728,
+      "no_extra_old_window": true,
+      "deleted_fields_bits": {
+        "busy_valid_bad": 3,
+        "coverage": 128,
+        "count": 8,
+        "model_request": 128,
+        "tensor_generation_epoch": 96,
+        "n": 16,
+        "response_valid_status_error_column": 19
+      },
+      "deleted_control_bits_if_proven": 398,
+      "delete_conditions": [
+        "actual canonical elaboration has zero physical copies of every listed legacy field",
+        "one physical288-row bias bank",
+        "legacy ports if kept internally driven combinationally inactive, not hidden holding",
+        "real synchronous bias valid1 and payload256B counted",
+        "full current hierarchy/census verified"
+      ],
+      "pre_deduction_bits": 32740,
+      "post_actual_deduction_conditional_bits": 32342,
+      "post_actual_deduction_conditional_bytes": 4042.75,
+      "post_actual_deduction_conditional_headroom_bits": 426,
+      "deduction_is_already_verified": false
+    },
+    "platform_and_tail": {
+      "catalog_formal_model_bo": {
+        "allocated_bytes": 8192,
+        "effective_bytes": 7936,
+        "alignment": 4096,
+        "port": 0,
+        "immutable_while_committed": true,
+        "separate_from_W_H0_tail": true
+      },
+      "compile_time_parameters": {
+        "ADDRESS_PROFILE": 2,
+        "HBM_PORT_BASE": "4x64",
+        "HBM_PORT_SPAN": "4x64",
+        "PLATFORM_MANIFEST_SHA256": 256
+      },
+      "profiles": {
+        "0": "UNBOUND returns setup source11 noAR",
+        "1": "SIM explicit per-run synthetic addresses in manifest, never deployment evidence",
+        "2": "DEPLOY actual platform connectivity and BO allocation manifest, currently unavailable"
+      },
+      "parameter_FF_increment": 0,
+      "checks": [
+        "65-bit nonwrap/positive spans",
+        "each W range within its actual port aperture",
+        "catalog entire8192 withinport0",
+        "port0 W cannot overlapcatalog",
+        "external frontend validates H0/tail each other and sealedmodel overlap"
+      ],
+      "out": "existing valid/ready/data32F32,row7,col16 plus combinational slot5;kind7 17slotsx32chunks,kind5/6 4096 H vectors",
+      "tail_begin": "valid/ready,request64,generation32,source_epoch32,expected_bytes32=69632; arm external owner before H_LOAD",
+      "tail_commit": "valid/ready,request64,generation32,source_epoch32,bytes32,status8; parent accepts only after544 public handshakes and compute/H debtclear; exact ID,69632,status0 required",
+      "tail_abort": "held valid/ready with current tail identity; ready means real write debt drained/cancelled and visibility qualification dropped",
+      "tail_owner_idle": "actual external debt/response/terminal state, part of globalidle",
+      "tail_armed_FF_increment": 0,
+      "commit_failure": "matching accepted failure with trulyidle owner may directly errorDONE; any remaining armed external debt needs abort/drain first",
+      "SIM_owner": "A010 actual TB D2H peer writes real output into owned target memory/file, completion after actual writes, checker independent; public protocol simulation only",
+      "production_owner": "future actual DMA/Host-visible completion frontend designated by controller; real responses/visibility beforecommit; no current board/XRT binding",
+      "stream_ready_is_completion": false,
+      "external_DMA_frontend_control_census": "OPEN, must join full deployed census"
+    },
+    "D32_capacity_static": {
+      "A": {
+        "slots": 2,
+        "banks_per_slot": 16,
+        "bank_entries": 1024,
+        "record_bits": 272,
+        "slot_bytes": 557056,
+        "both_slots_bytes": 1114112,
+        "groups_per_slot": 16384,
+        "mapping": "bank=row[3:0],addr={row[6:4],group[6:0]}10bit",
+        "fill_target_counter_bits": 15,
+        "coverage_bits": 16384,
+        "groups_field_bits": 8,
+        "K4096_explicitly_legal": true
+      },
+      "quant": {
+        "k_bits": 13,
+        "stream_reservations": 128,
+        "accepted_retired_schedule_counter_bits": 32,
+        "fill_total_and_write_ack_counter_bits": 32,
+        "group_coord_bits": 8,
+        "K4096_explicitly_legal": true
+      },
+      "matrix": {
+        "legal_FC1_K_N": [
+          1024,
+          4096
+        ],
+        "legal_FC2_K_N": [
+          4096,
+          1024
+        ],
+        "per_superblock_issue_commit_bits": 13,
+        "full_fc1_parent_counter": "existing pack_seq16"
+      },
+      "W": {
+        "slots": 2,
+        "banks_per_slot": 16,
+        "bank_entries": 512,
+        "record_bits": 272,
+        "slot_bytes": 278528,
+        "groups": 128,
+        "port_groups_records": 512,
+        "address_bits": 9,
+        "groups_counter_bits": 8,
+        "covered_counter_bits": 10,
+        "coverage_bits": 512,
+        "per_port_superblock_bytes": 73728,
+        "FC2_superblocks": 16,
+        "per_port_full_FC2_bytes": 1179648
+      },
+      "new_control_bits": 0,
+      "new_payload_bytes": 0,
+      "status": "SOURCE_CAPACITY_AND_INTEGER_CHECK_ONLY_NOT_RTL_PASS",
+      "required_test": "actual16384 FC1->quant/A1 inputs/outputs/writes/ACKs, last127/127 held, true publication, FC2 K4096 and16 W blocks, A0/A1 concurrency, all real retirement"
+    },
+    "control_projection": {
+      "current_verified_parent_bits_controller_reported": 32519,
+      "section12_new_fields": {
+        "catalog_base": 64,
+        "model_committed": 1,
+        "parent_state_increment": 1,
+        "active_epoch_offset": 9,
+        "catalog_reader_fsm": 2,
+        "qtype_markers": 130,
+        "type_response": 13,
+        "bias_response_valid": 1
+      },
+      "section12_increment": 221,
+      "abi30_additional_control_bits": 0,
+      "capacity_check_additional_bits": 0,
+      "before_legacy_deletion_bits": 32740,
+      "before_legacy_deletion_headroom_bits": 28,
+      "conditional_after_actual_398_deletion_bits": 32342,
+      "conditional_after_actual_398_deletion_headroom_bits": 426,
+      "final_fit": "OPEN",
+      "not_included_as_proven": [
+        "actual new router/error holding",
+        "external DMA/address frontend",
+        "physical implementation fit"
+      ]
+    },
+    "source_facts": [
+      "current coef fields total398 bits",
+      "actual A/W/quant/fill/engine ranges support K4096",
+      "real Attention tuple numeric components fit8 bits",
+      "actual gamma loader terminates accepted nonfinite chunk",
+      "Host schema register mapping not bound to XRT"
+    ],
+    "hypotheses": [
+      "one parent FSM and original identity/tuple fields suffice for stated v3 ABI without extraFF",
+      "canonical compile-time branch removes exact398 old temporary coef bits",
+      "external tail interface can bind future actual DMA without pretending SIM is hardware"
+    ],
+    "verified_conclusions": [
+      "ABI SHA and integer bit/byte/tuple arithmetic checked",
+      "selected source declarations and predicates read",
+      "no EDA/model/newgold/agent creation in this task"
+    ],
+    "open": [
+      "gamma abandoned partial abort",
+      "arbitrary multi-error original full Check ordering",
+      "full v3 setup and wholemodel oneBEGIN",
+      "actual K4096 chain",
+      "actual deployment platform and DMA",
+      "final complete state census"
+    ],
+    "minimal_tests": [
+      "three-control arbitration and held DONE",
+      "kind/layer/build/notcommitted rejection",
+      "model_word repeated/skipped index rejected without loader state corruption",
+      "actual catalog fault drain with stable original word and normalized tuple",
+      "Decision local->global28/29",
+      "marker duplicate/hole and real tail commit/abort holds",
+      "canonical actual unique bank and398-field absence",
+      "actual capacity chain boundary16384 andlast127/127"
+    ],
+    "owners": {
+      "A010": "parent v3/facade branch/mux/SIM D2H peer",
+      "A008": "D28 catalog tools/reader unchanged; gamma interface owner if separately dispatched",
+      "A007": "TYPE-29 wrapper/type source, no duplicate H qualification counter"
+    },
+    "resource_authority": "read-only scripts<=20s/1GiB, total120s,CPU0-3/nice19/idle; implementation/EDA budget only by controller"
+  },
+  "simulation_cost32_static": {
+    "schema": "d32-a011-debug-cost-candidate-v1",
+    "date": "2026-10-23",
+    "record_section": 16,
+    "scope": "Bounded read of current AT026 generated parent TB, runner, shared FP, matrix and banks; owned records only",
+    "candidate_status": "PROPOSED_AB_NOT_RUN",
+    "speedup": "UNKNOWN",
+    "baseline": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT026_parent_normal_cost_checker_build",
+    "manifest_sha256": "60e479d1e8555beda0fc4e3e4bac470af2c6cbf55791cb5e7249e94e4ec7ad20",
+    "source_versions": {
+      "actual_orchestrator.py": "16b8d6ad26de827b969ff016ed2bdeebda219d0a6c0f6eba2cb2ee08fc38569c",
+      "work/build.sh": "a01e8a225c56d8d6a4523135a4a454d449db76de7b323918afa593cccaceca67",
+      "frozen/m007_fullmodel_parent_tb.sv": "070cca64e7ef06200697ee41ee1d19a2d63d5b20b388704d705869b0ef46716c",
+      "frozen/laya_shared_fp256_v2.sv": "f4508add0e4fccd60314359a2a5fc0a8fa29530d209b92901e9bef5d413232d0",
+      "frozen/laya_fmul_rne_v1.sv": "505a51a05cfecc8af3ce1fc913b330fb0a9b788b543ffb056d64b676d3c2fa52",
+      "frozen/laya_fadd_rne_v1.sv": "e9f5e46bb8609816a97788942c897dc68c8759f2d748b0e2ce79d97d3f69c4a7",
+      "frozen/laya_fp_return_credit_v1.sv": "0159ebe523441a1cbb4b34ea8cd3fbc2d9844bf11546d2af3e6dd00af16fc7bb",
+      "frozen/laya_attention_storage_v1.sv": "c36d0089cebaa6dd90cb8dbe11a4c33d65224ee69fdc24f454dcfd08d464ad0b",
+      "frozen/laya_m007_matrix_engine_v1.sv": "2147d041620a158cf7f2cddfd172b538e54ba78c5d340507a8c5ce08cfff069f",
+      "frozen/laya_m007_a_bank_v1.sv": "9e0e0a24ea48c53c94a8f23bf34527d5aae6681bfec25c653ecf8d9bdb845354",
+      "frozen/laya_m007_w_bank_v1.sv": "32df184b7221b64023039fc44de77629fe858b9f2f05c1dd48a03afe0ed43a86",
+      "frozen/m007_fullmodel_wall_driver.py": "dcf83cd880280799467d17d564ab295c7bb7876aab2d3dfadefaadcff4a61dab"
+    },
+    "source_facts": [
+      "actual_orchestrator.py:107-110 and work/build.sh:4 use Vivado 2025.2 xelab --relax -debug typical -mt 4 --O3",
+      "shared_fp256_v2:55-60,98-100 already has transaction-empty CE; 86-90,120-124 instantiate 256 mul and 256 add leaves",
+      "fmul:54-104 and fadd:73-139 update data pipelines on enabled edges; source process count does not prove XSim scheduler process count",
+      "return_credit:29-44 retains actual result-valid capture, ordering and bypass conditions",
+      "generated parent TB:230-253 scans at most 4 ports x 8 outstanding peer entries, not a tensor",
+      "generated parent TB:294-298 checks QKV vector and 32 lane mapping only on actual output handshake",
+      "generated parent TB:291,299-301 checks A publication/debt barrier and unfinished first-block endpoint",
+      "matrix:164-235 contains wide combinational cones but no profiling attribution was obtained",
+      "A/W banks retain synchronous conditional read/write; storage:29-55,124-135 retains collision and 1024/256/64 banks"
+    ],
+    "single_variable_candidate": {
+      "before": "-debug typical",
+      "after": "-debug off",
+      "fixed": [
+        "All production HDL and generated TB bytes and source ordering",
+        "Top, --relax, -mt 4, --O3 and all remaining build options",
+        "All original fixture/gold SHA256 and runtime plusargs",
+        "Original FP leaves, lanes, banks, resource declarations and embedded checkers",
+        "Original runall, wall-event wrapper, guards and heavy-tool lock"
+      ],
+      "cli_off_acceptance": "NOT_CHECKED: no xelab/help invocation in this task; no observed rejection",
+      "hypothesis": "Removing optional simulation debug support may reduce simulator overhead without changing the source design or checked cycle/value semantics",
+      "not_proven": [
+        "debug is the dominant cost",
+        "generated simulator process/object count reduction",
+        "runtime speedup",
+        "new elaborated object census or physical resource fit"
+      ]
+    },
+    "minimal_ab": {
+      "execution_owner": "A010 only after AT031 completes and controller dispatches within original R007 balance",
+      "execution_performed_by_A011": false,
+      "B_static_limit_s": 120,
+      "A_rtl_limit_s": 60,
+      "B_rtl_limit_s": 60,
+      "AB_rtl_total_limit_s": 120,
+      "A_snapshot": "AT026 original snapshot",
+      "B_snapshot": "Same frozen compilation closure; debug flag only differs",
+      "input": "Original B1",
+      "plusargs": {
+        "MODE": 8,
+        "STOP_QKV_BLOCKS": 1,
+        "STOP_AFTER_HEAD": 0
+      },
+      "resource_controls": "single project heavy-tool lock, CPU0-3/nice19/idle, original static/RTL memory limits and 400s reserve; no budget transfer/increase",
+      "required_identity": "All HDL/TB/checker/fixture bytes unchanged; only build debug flag differs",
+      "required_outcome": "Both reach the complete original first-block PASS marker within their 60s limits, no fatal, with identical original semantic logs including simulation cycles",
+      "numeric_checks": "256 x 32 = 8192 actual QKV F32 values, original matrix gold and original Attention mapping, coordinates and identity",
+      "original_checked_boundary": {
+        "H_commits": 4096,
+        "A_writes_and_ACK_at_publication": 4096,
+        "A_publication_and_debt_gate": "original checker unchanged",
+        "matrix_commands": 1,
+        "runtime_catalog_records": 2,
+        "QKV_vectors": 256,
+        "layer_starts": 0,
+        "done_valid": 0,
+        "unfinished": 1
+      },
+      "metrics": [
+        "total runtime wall time",
+        "BEGIN to block0 wall time and command cycles",
+        "MATRIX_BEGIN to block0 wall time and cycles per second",
+        "all original CHECKED/block/end counts and cycle stamps"
+      ],
+      "primary_runtime_metric": "MATRIX_BEGIN to block0 wall time; fixed fixture/setup time separated",
+      "comparison": "Keep simulation-cycle fields; normalize paths/wall timestamps only; require all existing semantic output and original assertions to agree before comparing performance",
+      "support": "B is faster after equal full-prefix numerical/cycle/checked-state outcomes; supports only this single sample pair",
+      "counterexample": "Equal or slower B rejects speedup for this sample",
+      "inconclusive": "Timeout, missing marker, incomplete prefix, CLI/diagnostic failure or environment noise cannot establish benefit or invalidate the numerical method",
+      "limits": [
+        "First output block acceptance is not full QKV retirement or parent DONE",
+        "TB does not export every internal final register; equality beyond its checker is not empirically established",
+        "debug off may reduce get_scopes/get_objects diagnostics; do not invent object-census equality",
+        "One A/B pair does not establish whole-Encoder or 30-layer speed, nor raise a cost gate"
+      ]
+    },
+    "possible_counterexamples": [
+      "O3 has already removed meaningful debug overhead",
+      "Arithmetic or wide combinational logic dominates",
+      "Host scheduling/cache noise reverses one sample pair",
+      "debug off affects diagnostic visibility or exposes a simulator defect"
+    ],
+    "controller_reported_cost_prior": {
+      "hardware_cycles": 1059,
+      "approximate_wall_s": 22.84,
+      "source": "controller message, not remeasured or re-audited by this task"
+    },
+    "verified_conclusions": [
+      "Exact baseline debug/O3 command and selected source causal paths read",
+      "No per-cycle whole-tensor scan found in the inspected parent peer/checker",
+      "Shared FP already implements transaction-empty CE",
+      "No RTL/TB/runner edits or EDA/model/newgold runs performed"
+    ],
+    "read_script_accounting": {
+      "ids": "D32-A011-PERF-READ1..7",
+      "wall_s": [0.04, 0.52, 0.40, 0.05, 0.71, 0.05, 0.06],
+      "total_wall_s": 1.83,
+      "per_script_limit_s": 20,
+      "total_limit_s": 60,
+      "address_space_limit_bytes": 1073741824,
+      "max_peak_RSS_KiB": 87884,
+      "all_exit_codes": 0,
+      "execution_controls": "taskset CPU0-3, nice19, ionice idle, timeout, RLIMIT_AS",
+      "old_task_budget_transferred": false,
+      "section15_0_05s_recharged": false
+    },
+    "owned_record_validation": {
+      "id": "D32-A011-PERF-RECORDCHECK",
+      "wall_s": 0.04,
+      "peak_RSS_KiB": 12552,
+      "exit_code": 0,
+      "JSON_parse": "PASS",
+      "section16_unique": true,
+      "total_task_program_wall_s_including_record_check": 1.87
+    },
+    "full_Encoder_or_30_layer_verdict": "NOT_RUN"
+  },
+  "weight_supply32_integer": {
+    "schema": "d32-a011-weight-supply-integer-spec-v1",
+    "date": "2026-10-23",
+    "record_section": 17,
+    "status": "INTEGER_ADDRESS_AND_BOUNDED_BYTE_SAMPLES_PASS",
+    "peer_RTL_status": "NOT_IMPLEMENTED_BY_A011_NOT_RUN",
+    "full_model_status": "NOT_RUN",
+    "source_records": {
+      "feasibility": {
+        "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/kind7_weight_supply_feasibility.json",
+        "sha256": "7d88bb0790bfba8b1c43a7344382361b00db95e59a82bb1fd0bd26077cd7f043"
+      },
+      "manifest": {
+        "path": "project/E002_Laya_HLS/experiment/build/model-q8-session-v2-actual-r2-20261010/manifest.json",
+        "sha256": "46bbd5abeeadc2d4305419d3129fd871aaeb04e962821ac4c6a6da957698018c"
+      },
+      "sim_addresses": {
+        "path": "project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT002_host_fix/work/host/sim_addresses.json",
+        "sha256": "f0df35cc7013643161e135ae0949473a9b5c0f13d5a4e3aea3675c2cf607db18"
+      },
+      "catalog_hex": {
+        "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/data/catalog.hex",
+        "sha256": "4c685ba571f83ec6a9337e97adbedb41ac05f2f4a120d9e31e54b87be83f7971",
+        "decoded_same_as_audited_binary": true
+      },
+      "packer": {
+        "path": "project/E002_Laya_HLS/experiment/tools/m007_weight_pack.py",
+        "sha256": "c772ea0edbefcbbb2a9d391c586b70a8feae792068878e7d5cdeecc45c4976b8",
+        "lines": "7-11,13-23,25-44,62,72-75"
+      },
+      "catalog_tool": {
+        "path": "project/E002_Laya_HLS/experiment/tools/m007_model_catalog.py",
+        "sha256": "de0f253672b433ac8f85b4a6b39985b5f1790d368a1c22c1fed3b2d31be15be8",
+        "lines": "92-116,168-211,221-239"
+      },
+      "W_reader": {
+        "path": "project/E002_Laya_HLS/experiment/vivado/module_design/hbm_loader_and_cache/rtl/laya_m007_w_reader_v2.sv",
+        "sha256": "4de8a1401ed31a5ba04288ebe36ae697e0304cbc44f05780a0a8cde93fb438f4",
+        "lines": "18-36,51-78"
+      },
+      "fixture_root": "project/E012_m007_matrix_compute/experiment_results/runs/R002/attempts/AT002_full_local_prebias_fixtures/work/fixture"
+    },
+    "deterministic_spec": {
+      "catalog_binding": "index i=4*global_layer+role, 0<=i<120; global0..27 roles qkv/wo/mlp_wi/mlp_wo, global28..29 roles head_qkv/head_wo/head_fc1/head_fc2 and local=global-28",
+      "catalog_record": "64B at catalog byte256+64*i, little-endian <8Q interleaving base[p],span[p]",
+      "groups": "G=K/32 exactly; observed G=32,82,128",
+      "superblocks": "S=82 for N5248; otherwise N/64",
+      "port_span": "576*G*S; placement gaps are not payload",
+      "AR_resolution": "At arvalid&&arready, exactly one descriptor must contain entire [ARADDR,ARADDR+64*(ARLEN+1)) on physical port p; never resolve by current parent tensor",
+      "AR_checks": [
+        "port0..3",
+        "64B aligned ARADDR",
+        "1..16 beats",
+        "no 4KiB crossing",
+        "nonoverflowing 64-bit range",
+        "descriptor span and source BO file bounds",
+        "no live duplicate (port,ARID)"
+      ],
+      "per_AR_latched_fields": [
+        "immutable tensor descriptor index/name",
+        "K,N,G,S",
+        "q_base[0:1]",
+        "scale_base",
+        "port",
+        "AR local offset",
+        "ARLEN+1",
+        "ARID",
+        "accepted beat index"
+      ],
+      "record": "u=latched_local_offset+64*b; r=u//576; word=(u%576)//64; s=r//G; g=r%G",
+      "column": "N5248: 32*s+16*(p%2)+c+(p>=2?2624:0); otherwise 64*s+16*p+c, c0..15",
+      "tn8": "tile=col//8; lane=col%8; shard=tile%2",
+      "q_address": "q_base[shard]+((tile//2)*G+g)*256+lane*32",
+      "scale_address": "scale_base+((tile*G+g)*8+lane)*2",
+      "record_bytes": "record[32*c:32*c+32]=32 original Q bytes; record[512+2*c:514+2*c]=2 original F16 little-endian bytes; record[544:576]=zero",
+      "beat": "RDATA[8*j+:8]=record[64*word+j], j0..63; .hex text is reversed 64B then hex",
+      "efficient_word_decode": "word0..7 carries columns c=2*word,2*word+1 Q bytes; word8 low32B carries all16 F16 fields and high32B is zero",
+      "signedness": "Q and F16 are raw bytes. No sign extension, abs, cast to real/shortreal, re-quantization or endian-dependent packed fread.",
+      "source_IO": "Use raw byte arrays with explicit bit slices; keep each seek/read pair indivisible or use per-port handles; exact short reads are errors",
+      "original_GGUF_crosscheck": "Only audit/reference: tensor.source_offset+34*(col*G+g), first2B F16 then32B Q; no numerical conversion",
+      "R_protocol": "Stable rid/rdata/rresp/rlast while valid&&!ready; b increments only on handshake; rlast iff b+1==latched beats. Preserve each live descriptor until last R handshake.",
+      "reader_retirement": "Peer completing last R does not free reader payload. Real reader retains busy slot until final registered parser word is accepted; no forcing transport_idle or clearing production debt."
+    },
+    "evidence": {
+      "AR_bursts_checked": 256,
+      "AR_bytes_checked": 60608,
+      "Q8_source_bytes_per_source_checked": 462400,
+      "Q_sign0_sign1": [
+        219928,
+        215272
+      ],
+      "Q_zero_bytes": 3688,
+      "W576_bytes_checked": 489600,
+      "ar_protocol_dynamic_test": "NOT_RUN",
+      "catalog_binary_sha256": "bf187e0b2987b0fbc5e1951dee35b6b3219631dfabb9158c0b77f2b92b81dfe3",
+      "catalog_records_checked": 120,
+      "catalog_records_sha256": "36455736a0e39bf63b37a63ceb46c95b2c60678cc50d23671cc1b676c36cd87c",
+      "first_negative_scale": null,
+      "fixture_32_port_bin_hashes_recomputed": true,
+      "fixture_ports_checked": 32,
+      "fixture_tensors_checked": 8,
+      "full_BO_or_GGUF_hash_recomputed": false,
+      "hex_words_checked": 7650,
+      "records_checked": 850,
+      "rows": [
+        {
+          "G": 32,
+          "K": 1024,
+          "N": 4096,
+          "S": 64,
+          "catalog_index": 114,
+          "fixture_meta_sha256": "927b5ce69dbc4edadaa1badb8b056fb56349eecf9ae403ea1cd99b4c7f767bc8",
+          "port_span": 1179648,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                6904,
+                6920
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "7e4e25253e6bff99bd8b36c44355d4fde86d0bedb85ffa0fd64a4d495dd8ae58",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                8,
+                31,
+                32,
+                33,
+                109,
+                133,
+                173,
+                209,
+                293,
+                542,
+                688,
+                845,
+                893,
+                1023,
+                1024,
+                1154,
+                1207,
+                1651,
+                1708,
+                1750,
+                1846,
+                2015,
+                2016,
+                2046,
+                2047
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6937,
+                6887
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "dc1d142f78f14dcb654eb20270d08b9b0043072bb252aba8d3187a24c16ab8eb",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                192,
+                204,
+                280,
+                1023,
+                1024,
+                1121,
+                1153,
+                1203,
+                1278,
+                1307,
+                1513,
+                1545,
+                1641,
+                1649,
+                1682,
+                1768,
+                1821,
+                1925,
+                2015,
+                2016,
+                2046,
+                2047
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6926,
+                6898
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "4ce468d42c4c9e2e4ed98581f02923c19ddb6ac1371acea48d40b198b9837aae",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                164,
+                174,
+                219,
+                234,
+                477,
+                900,
+                1023,
+                1024,
+                1026,
+                1290,
+                1316,
+                1393,
+                1511,
+                1570,
+                1773,
+                1782,
+                1900,
+                1945,
+                2015,
+                2016,
+                2046,
+                2047
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                7007,
+                6817
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "375eaa8ca8c3d8ec4c33ddfba8aab2d7f4e3457e0f2770df788bb5054f6202f5",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                235,
+                328,
+                496,
+                516,
+                578,
+                781,
+                806,
+                863,
+                979,
+                1023,
+                1024,
+                1186,
+                1228,
+                1433,
+                1506,
+                1720,
+                1725,
+                1843,
+                2015,
+                2016,
+                2046,
+                2047
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            }
+          ],
+          "tensor": "head_fc1.0.weight"
+        },
+        {
+          "G": 128,
+          "K": 4096,
+          "N": 1024,
+          "S": 16,
+          "catalog_index": 115,
+          "fixture_meta_sha256": "a7ba3891954bfcea724b6f91e662ddc76a117b7e30b0b66a0c0ff1b1224e7b4d",
+          "port_span": 1179648,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                6387,
+                6413
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "f09890d20a277ea07fc090fca5b63304ebc18a88c63f8eeb5142ea9640a55aa5",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                127,
+                128,
+                129,
+                349,
+                465,
+                626,
+                737,
+                1023,
+                1024,
+                1236,
+                1248,
+                1255,
+                1257,
+                1288,
+                1394,
+                1731,
+                1767,
+                1919,
+                1920,
+                2022,
+                2029,
+                2046,
+                2047
+              ],
+              "records_checked": 25,
+              "scale_sign0_sign1": [
+                400,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6842,
+                6982
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "61df18e8e03083fd2a91115760764539ded09dd5bfa049aa3e611be4f933db15",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                39,
+                106,
+                127,
+                128,
+                129,
+                285,
+                342,
+                440,
+                729,
+                732,
+                921,
+                944,
+                1023,
+                1024,
+                1225,
+                1446,
+                1577,
+                1806,
+                1857,
+                1890,
+                1919,
+                1920,
+                2005,
+                2046,
+                2047
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6978,
+                6846
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "849bfd6a57cf76f7109aab1d69a72ffb2e30bd1768f8355d1cc9ac90c8a08e4c",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                29,
+                127,
+                128,
+                129,
+                161,
+                285,
+                348,
+                756,
+                1021,
+                1023,
+                1024,
+                1062,
+                1115,
+                1157,
+                1424,
+                1525,
+                1664,
+                1707,
+                1727,
+                1742,
+                1877,
+                1919,
+                1920,
+                2046,
+                2047
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6792,
+                6520
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "2cddb73b2cb5f5a89d7b701226c1859e23f74f707fdb6865cbddf9903a61e0a2",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                127,
+                128,
+                129,
+                213,
+                238,
+                485,
+                494,
+                614,
+                759,
+                765,
+                841,
+                1023,
+                1024,
+                1319,
+                1355,
+                1654,
+                1758,
+                1793,
+                1858,
+                1919,
+                1920,
+                2010,
+                2046,
+                2047
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            }
+          ],
+          "tensor": "head_fc2.0.weight"
+        },
+        {
+          "G": 32,
+          "K": 1024,
+          "N": 3072,
+          "S": 48,
+          "catalog_index": 112,
+          "fixture_meta_sha256": "c9217c0ce6285e346fb64b794dbd7fe48b4652b159e05121078b11e09757a9e1",
+          "port_span": 884736,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                6987,
+                6837
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "3c773736175642495e27a07428b623094bf25833fd3fb6aeabb051e3a3f99c43",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                82,
+                146,
+                320,
+                331,
+                339,
+                628,
+                716,
+                759,
+                766,
+                767,
+                768,
+                790,
+                882,
+                979,
+                1001,
+                1114,
+                1385,
+                1412,
+                1503,
+                1504,
+                1534,
+                1535
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6908,
+                6916
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "3df2cee9f0c658bacaf910fb054a4d705b6759511e233e61cfc7b7bbcdc71173",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                278,
+                347,
+                590,
+                750,
+                762,
+                767,
+                768,
+                833,
+                869,
+                874,
+                917,
+                1044,
+                1061,
+                1108,
+                1149,
+                1364,
+                1451,
+                1472,
+                1503,
+                1504,
+                1534,
+                1535
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                7039,
+                6785
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "0f45e2a7751731bcbd979d1e20636d14774d0aa0046e824df1b3a76cdad1f3b3",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                23,
+                31,
+                32,
+                33,
+                276,
+                379,
+                487,
+                542,
+                668,
+                702,
+                767,
+                768,
+                784,
+                832,
+                835,
+                1003,
+                1013,
+                1099,
+                1232,
+                1247,
+                1422,
+                1503,
+                1504,
+                1534,
+                1535
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                7091,
+                6733
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "f5cb91aa17231589319e36c062821ebb1349eb1beeb090cf922209d0f491170c",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                7,
+                31,
+                32,
+                33,
+                167,
+                334,
+                430,
+                480,
+                629,
+                633,
+                767,
+                768,
+                845,
+                907,
+                923,
+                957,
+                961,
+                975,
+                1005,
+                1277,
+                1281,
+                1503,
+                1504,
+                1534,
+                1535
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            }
+          ],
+          "tensor": "head_qkv.0.weight"
+        },
+        {
+          "G": 32,
+          "K": 1024,
+          "N": 1024,
+          "S": 16,
+          "catalog_index": 113,
+          "fixture_meta_sha256": "7b2e5b9031c1a768e802f7e31704598628fd72aa617b76c5a350c238d8409816",
+          "port_span": 294912,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                6719,
+                6593
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "c0144a21bdc2ab68aaf0d2ec019e438d1441cf0d24f88976b467141cf4f1f3bc",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                37,
+                39,
+                70,
+                125,
+                145,
+                164,
+                228,
+                249,
+                255,
+                256,
+                273,
+                302,
+                342,
+                344,
+                431,
+                467,
+                468,
+                479,
+                480,
+                510,
+                511
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6679,
+                6633
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "84f7d7f85e8c12b96ce9153b946c746c03db61b0602ff7464e594b66516c651e",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                10,
+                31,
+                32,
+                33,
+                62,
+                92,
+                99,
+                158,
+                185,
+                187,
+                222,
+                255,
+                256,
+                364,
+                408,
+                438,
+                445,
+                450,
+                479,
+                480,
+                496,
+                507,
+                510,
+                511
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6945,
+                6879
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "cc7bfca9f6dde115e5401d6bd7e4e2f99b4daae677ee19d8165fe4c9943e2a9c",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                7,
+                11,
+                31,
+                32,
+                33,
+                80,
+                141,
+                209,
+                214,
+                255,
+                256,
+                280,
+                386,
+                398,
+                411,
+                424,
+                450,
+                457,
+                460,
+                475,
+                479,
+                480,
+                495,
+                510,
+                511
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6832,
+                6480
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "f0f12290d98b41aa737407d3981beea8c3088445fbd020ae73428dfcdee50a5d",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                67,
+                86,
+                96,
+                100,
+                121,
+                146,
+                255,
+                256,
+                267,
+                271,
+                293,
+                295,
+                298,
+                319,
+                409,
+                462,
+                476,
+                479,
+                480,
+                510,
+                511
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            }
+          ],
+          "tensor": "head_wo.0.weight"
+        },
+        {
+          "G": 32,
+          "K": 1024,
+          "N": 5248,
+          "S": 82,
+          "catalog_index": 2,
+          "fixture_meta_sha256": "6813bc02d20de2370c4df658ced15ea5a302a0199092214145c6fd3fe09ec810",
+          "port_span": 1511424,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                7101,
+                6723
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "c38a5e7d5593af0d27d9c89c25aecdc6fddd8c69427306f92b8d8b38dc5e600e",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                46,
+                173,
+                195,
+                229,
+                346,
+                385,
+                1033,
+                1080,
+                1227,
+                1311,
+                1312,
+                1392,
+                1480,
+                1765,
+                1971,
+                2080,
+                2345,
+                2389,
+                2591,
+                2592,
+                2622,
+                2623
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                7119,
+                6705
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "0fcea6e3489da74441b2754d1280cf5bf09cae815ef0e1f4f2989cf514142860",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                579,
+                618,
+                856,
+                932,
+                1033,
+                1178,
+                1302,
+                1311,
+                1312,
+                1371,
+                1382,
+                1400,
+                1592,
+                1617,
+                1719,
+                1734,
+                1945,
+                2198,
+                2591,
+                2592,
+                2622,
+                2623
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6756,
+                6556
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "681742fdcd03bce336349603186bcfe4b62db40931e3039a44188784ab22ae41",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                212,
+                327,
+                486,
+                891,
+                906,
+                1096,
+                1303,
+                1311,
+                1312,
+                1460,
+                1633,
+                1848,
+                1883,
+                1997,
+                2082,
+                2442,
+                2536,
+                2591,
+                2592,
+                2622,
+                2623
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                7070,
+                6754
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "bab9d350e454e00175d373fbdb0e0fb06dd3cc1b6afa6fac969d223fbcccd569",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                98,
+                320,
+                544,
+                631,
+                720,
+                775,
+                984,
+                1139,
+                1202,
+                1238,
+                1311,
+                1312,
+                1459,
+                1492,
+                2217,
+                2234,
+                2375,
+                2567,
+                2591,
+                2592,
+                2622,
+                2623
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            }
+          ],
+          "tensor": "mlp_wi.0.weight"
+        },
+        {
+          "G": 82,
+          "K": 2624,
+          "N": 1024,
+          "S": 16,
+          "catalog_index": 3,
+          "fixture_meta_sha256": "184349940dcb4c0c8ed60022e1db780a99b5865321b49f6cc750dcf114462c35",
+          "port_span": 755712,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                6766,
+                6546
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "50bd3a0b83503cd731e679cdc7e44a8374fa039bfff25720e1981477c215fef1",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                9,
+                58,
+                81,
+                82,
+                83,
+                406,
+                497,
+                641,
+                655,
+                656,
+                678,
+                841,
+                871,
+                941,
+                952,
+                1002,
+                1214,
+                1229,
+                1230,
+                1233,
+                1235,
+                1251,
+                1310,
+                1311
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                7045,
+                6779
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "4dd6e8492615ebbe8b399e8711fc0b73abdbb322333c4f7cca5647a831686071",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                20,
+                35,
+                44,
+                81,
+                82,
+                83,
+                267,
+                326,
+                374,
+                395,
+                397,
+                513,
+                541,
+                655,
+                656,
+                890,
+                941,
+                953,
+                1051,
+                1177,
+                1227,
+                1229,
+                1230,
+                1310,
+                1311
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6999,
+                6825
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "a56ff2e12cd13f8795f5bc17287a055076cbc6fe8a290308f4a5a46aafad08ca",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                22,
+                81,
+                82,
+                83,
+                92,
+                110,
+                129,
+                210,
+                346,
+                607,
+                642,
+                655,
+                656,
+                692,
+                722,
+                894,
+                971,
+                983,
+                1096,
+                1223,
+                1229,
+                1230,
+                1244,
+                1310,
+                1311
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6932,
+                6892
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "93b3b46e081d6d001e9fb1c5638c7bf45954d125f4480443a68a6ea21a40b3b5",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                5,
+                11,
+                81,
+                82,
+                83,
+                152,
+                237,
+                314,
+                318,
+                390,
+                411,
+                534,
+                655,
+                656,
+                703,
+                1056,
+                1077,
+                1126,
+                1144,
+                1168,
+                1199,
+                1229,
+                1230,
+                1310,
+                1311
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            }
+          ],
+          "tensor": "mlp_wo.0.weight"
+        },
+        {
+          "G": 32,
+          "K": 1024,
+          "N": 3072,
+          "S": 48,
+          "catalog_index": 0,
+          "fixture_meta_sha256": "56b785d1dec29f771464af4a6c34548326f9078874a26753bb011549af36080b",
+          "port_span": 884736,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                7001,
+                6823
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "1358cc4244ba2f8e011c78393820f6a54167b767d891c254a6d7e3c0c7c185fa",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                111,
+                137,
+                146,
+                212,
+                653,
+                767,
+                768,
+                882,
+                993,
+                1045,
+                1106,
+                1141,
+                1178,
+                1212,
+                1245,
+                1298,
+                1413,
+                1503,
+                1504,
+                1505,
+                1534,
+                1535
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6954,
+                6870
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "3ad6073bca0fef6009c2554d34b23253682fab1a395578608defe60b913bca79",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                104,
+                159,
+                163,
+                338,
+                401,
+                413,
+                428,
+                659,
+                691,
+                730,
+                757,
+                767,
+                768,
+                877,
+                1185,
+                1249,
+                1291,
+                1366,
+                1503,
+                1504,
+                1534,
+                1535
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6647,
+                6665
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "aa464ad5ed929d6b17eb1d0bc1321666fe67d61e804a707b44769000b4ab1bc4",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                2,
+                31,
+                32,
+                33,
+                76,
+                182,
+                264,
+                268,
+                314,
+                326,
+                458,
+                540,
+                639,
+                767,
+                768,
+                954,
+                1014,
+                1108,
+                1126,
+                1429,
+                1503,
+                1504,
+                1534,
+                1535
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6492,
+                6308
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "c77de380386fc1319dacc8da97e0eace8a35bf699e31766e132a46642fd16eac",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                357,
+                472,
+                626,
+                632,
+                671,
+                709,
+                767,
+                768,
+                816,
+                837,
+                1025,
+                1055,
+                1126,
+                1161,
+                1214,
+                1283,
+                1503,
+                1504,
+                1534,
+                1535
+              ],
+              "records_checked": 25,
+              "scale_sign0_sign1": [
+                400,
+                0
+              ]
+            }
+          ],
+          "tensor": "qkv.0.weight"
+        },
+        {
+          "G": 32,
+          "K": 1024,
+          "N": 1024,
+          "S": 16,
+          "catalog_index": 1,
+          "fixture_meta_sha256": "e9f476825da4027df169a35860e2eca8f1203c05a286eab3b7ac635357028af4",
+          "port_span": 294912,
+          "ports": [
+            {
+              "Q_sign0_sign1": [
+                7039,
+                6785
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "4cac1e2a4d7ff6228a2e82e1057e73cb44a5a2cfed1b19b4527868aeffe940b4",
+              "port": 0,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                37,
+                39,
+                98,
+                123,
+                189,
+                195,
+                216,
+                255,
+                256,
+                257,
+                261,
+                263,
+                280,
+                311,
+                322,
+                423,
+                457,
+                479,
+                480,
+                501,
+                510,
+                511
+              ],
+              "records_checked": 27,
+              "scale_sign0_sign1": [
+                432,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6655,
+                6657
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "97865872b271272b4807c8f60fa6ed0af274c2006fc277ad6219f4cbc4838e56",
+              "port": 1,
+              "record_indices": [
+                0,
+                1,
+                14,
+                31,
+                32,
+                33,
+                45,
+                81,
+                86,
+                131,
+                136,
+                149,
+                176,
+                183,
+                249,
+                255,
+                256,
+                263,
+                290,
+                372,
+                391,
+                455,
+                479,
+                480,
+                510,
+                511
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6713,
+                6599
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "5f7888f63202e3e3a3b1c0fdb469cb525cec7a03b4e44c8d09e36ebd5b212425",
+              "port": 2,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                80,
+                143,
+                175,
+                193,
+                203,
+                255,
+                256,
+                264,
+                327,
+                338,
+                351,
+                361,
+                363,
+                408,
+                421,
+                433,
+                470,
+                479,
+                480,
+                510,
+                511
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            },
+            {
+              "Q_sign0_sign1": [
+                6666,
+                6646
+              ],
+              "boundary_records": 11,
+              "fixed_random_draws": 16,
+              "fixture_bin_sha256_recomputed": "6ae08360aecd177e3005fa1b3f4e06cfec643d6ee4aba29bb474d267f7c80042",
+              "port": 3,
+              "record_indices": [
+                0,
+                1,
+                31,
+                32,
+                33,
+                53,
+                55,
+                59,
+                84,
+                168,
+                193,
+                220,
+                255,
+                256,
+                355,
+                382,
+                414,
+                428,
+                441,
+                474,
+                479,
+                480,
+                486,
+                491,
+                510,
+                511
+              ],
+              "records_checked": 26,
+              "scale_sign0_sign1": [
+                416,
+                0
+              ]
+            }
+          ],
+          "tensor": "wo.0.weight"
+        }
+      ],
+      "sample_transcript_sha256": "000cbd4674f6136159690cf2e74ca4de60a7438ff78bab916395fdc8ca7d00c4",
+      "scale_sign0_sign1": [
+        13600,
+        0
+      ],
+      "schema": "d32-a011-weight-address-samples-v1",
+      "seed": "D32-A011-WMAP-v1-20261023",
+      "shape_counts_120": {
+        "1024x1024": 30,
+        "1024x3072": 30,
+        "1024x4096": 2,
+        "1024x5248": 28,
+        "2624x1024": 28,
+        "4096x1024": 2
+      },
+      "status": "INTEGER_SAMPLES_PASS_NOT_PEER_RTL_PASS"
+    },
+    "source_facts": [
+      "120 real catalog records match SIM addresses and original metadata, source spans fit files, same-port intervals disjoint",
+      "Current R007 catalog hex decodes to audited catalog.bin bytes",
+      "Eight existing tensors cover all six K/N shape families and all four ports",
+      "32 W576 port files rehashed against original fixture metadata",
+      "850 sample records match TN8, original GGUF, fixture raw Q8 and W576; endian/zero padding checked",
+      "No floating evaluation, new gold, full120 packing or EDA"
+    ],
+    "verified_conclusions": [
+      "The stated integer permutation agrees with bounded existing original-source samples",
+      "K2624 requires G82; K4096 requires G128; Wi uses separate 2624-column halves",
+      "Catalog naming/order and address coverage verified for all120 metadata entries only"
+    ],
+    "hypotheses": [
+      "A010 can implement this immutable-per-AR, bounded-I/O specification as the real SIM peer; throughput/RSS are unmeasured"
+    ],
+    "gaps": [
+      "Remaining112 tensors have metadata/address verification only, no W576 fixture sample comparison in this task",
+      "13600 observed F16 scale fields have sign0; no actual negative-scale sample",
+      "Full BO/GGUF SHA inherited, not recomputed",
+      "Actual AR hold/reorder/per-ID freezing/R hold/RLAST/fault-drain/reset/cancellation not tested",
+      "No implemented peer PASS or full-layer/30-layer numerical claim"
+    ],
+    "minimum_peer_checks": [
+      "Run unchanged existing8-tensor checker with original fixture data source replaced only by exact on-demand bytes",
+      "Hold AR and R, interleave all ports/IDs, change current parent descriptor while older accepted AR remains active; immutable descriptor must win",
+      "Exercise word7->scale word8->next-record word0 and superblock-edge addresses for G32/82/128",
+      "Test invalid address/gap/out-of-span/short read as explicit failures, not zero substitution",
+      "Preserve real reader final parser-consumption retirement; fault recovery requires later engineering test"
+    ],
+    "costs": {
+      "task": "D32-A011-WMAP",
+      "per_script_limit_s": 20,
+      "total_limit_s": 60,
+      "address_space_limit_bytes": 1073741824,
+      "CPU": "0-3",
+      "nice": 19,
+      "io": "idle",
+      "programs": [
+        {
+          "id": "READ1",
+          "wall_s": 0.05,
+          "rss_kib": 15684
+        },
+        {
+          "id": "READ2",
+          "wall_s": 0.49,
+          "rss_kib": 16540
+        },
+        {
+          "id": "READ3",
+          "wall_s": 0.06,
+          "rss_kib": 15744
+        },
+        {
+          "id": "READ4",
+          "wall_s": 0.05,
+          "rss_kib": 15736
+        },
+        {
+          "id": "CHECK1",
+          "wall_s": 2.08,
+          "rss_kib": 17972
+        },
+        {
+          "id": "CHECK2",
+          "wall_s": 0.18,
+          "rss_kib": 14116
+        }
+      ],
+      "read_and_check_wall_s": 2.91,
+      "owned_record_write_and_validation_wall_s": 0.06,
+      "owned_record_write_and_validation_RSS_KiB": 14084,
+      "owned_record_write_and_validation_exit_code": 0,
+      "total_task_program_wall_s": 2.97,
+      "max_rss_kib": 17972,
+      "all_exit_zero": true,
+      "old_budget_transfer": false
+    },
+    "reproducibility": {
+      "language": "Python3 standard library, integer and byte operations only",
+      "exact_check1_source": "from pathlib import Path\nimport os,json,hashlib,struct,collections\nroot=Path('.')\npkg=root/'project/E002_Laya_HLS/experiment/build/model-q8-session-v2-actual-r2-20261010'\nhost=root/'project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT002_host_fix/work/host'\nfixtures=root/'project/E012_m007_matrix_compute/experiment_results/runs/R002/attempts/AT002_full_local_prebias_fixtures/work/fixture'\nmanifest=json.loads((pkg/'manifest.json').read_text())\naddresses=json.loads((host/'sim_addresses.json').read_text())\nweights={x['name']:x for x in manifest['weights']}\ntensors={x['name']:x for x in manifest['tensors']}\ncat=(host/'catalog.bin').read_bytes()\nassert len(cat)==8192 and cat[:8]==b'LAYAC25\\0' and not any(cat[7936:])\nassert struct.unpack_from('<4H',cat,8)==(1,256,120,64)\nassert hashlib.sha256(cat[256:7936]).digest()==cat[176:208]\nkeys=['w_q0','w_q1','w_scale']\nfds=[os.open(pkg/manifest['bo'][key]['file'],os.O_RDONLY)for key in keys]\nggpath=Path(manifest['source_model']['path']);gf=os.open(ggpath,os.O_RDONLY)\nshape_counts=collections.Counter()\nfor i,r in enumerate(addresses['records']):\n    layer,role=divmod(i,4)\n    family=(['qkv','wo','mlp_wi','mlp_wo']if layer<28 else ['head_qkv','head_wo','head_fc1','head_fc2'])[role]\n    name=f'{family}.{layer if layer<28 else layer-28}.weight'\n    assert r['index']==i and r['name']==name\n    w=weights[name];t=tensors[name];K,N=w['K'],w['N'];G=K//32;S=82 if N==5248 else N//64\n    assert K%32==0 and N%64==0 and t['ggml_type_id']==8 and t['ggml_ne']==[K,N,1,1]\n    assert t['source_bytes']==34*G*N and t['source_offset']+t['source_bytes']<=os.fstat(gf).st_size\n    vals=struct.unpack_from('<8Q',cat,256+64*i)\n    for p in range(4):\n        assert (vals[2*p],vals[2*p+1])==(r['base'][p],r['span'][p])\n        assert r['base'][p]%4096==0 and r['span'][p]==576*G*S\n    for shard in range(2):\n        assert w['q_span'][shard]==N//16*G*256\n        assert w['q_base'][shard]+w['q_span'][shard]<=os.fstat(fds[shard]).st_size\n    assert w['scale_span']==2*N*G\n    assert w['scale_base']+w['scale_span']<=os.fstat(fds[2]).st_size\n    shape_counts[f'{K}x{N}']+=1\nfor p in range(4):\n    spans=sorted((r['base'][p],r['base'][p]+r['span'][p],r['index'])for r in addresses['records'])\n    assert all(a[1]<=b[0] for a,b in zip(spans,spans[1:]))\ndef exact(fd,n,offset):\n    b=os.pread(fd,n,offset)\n    assert len(b)==n,(n,offset,len(b))\n    return b\ndef filehash(path):\n    h=hashlib.sha256()\n    with path.open('rb')as f:\n        for b in iter(lambda:f.read(1048576),b''):h.update(b)\n    return h.hexdigest()\nseed='D32-A011-WMAP-v1-20261023'\nrows=[];transcript=hashlib.sha256();scale_signs=[0,0];q_signs=[0,0];q_zero=0;first_negative_scale=None\ntotal_records=0;total_bursts=0;total_burst_bytes=0\nfor d in sorted(p for p in fixtures.iterdir()if p.is_dir()):\n    meta=json.loads((d/'fixture.json').read_text());name=meta['tensor'];w=weights[name];t=tensors[name]\n    K,N=w['K'],w['N'];G=K//32;S=82 if N==5248 else N//64;R=G*S\n    assert (meta['K'],meta['N'],meta['G'],meta['superblocks'],meta['packed_port_span'])==(K,N,G,S,576*R)\n    assert meta['tensor_source']==t\n    addr=next(r for r in addresses['records']if r['name']==name)\n    raw=os.open(d/'original_weight_q8.bin',os.O_RDONLY)\n    entry={'tensor':name,'catalog_index':addr['index'],'K':K,'N':N,'G':G,'S':S,'port_span':576*R,'fixture_meta_sha256':filehash(d/'fixture.json'),'ports':[]}\n    for p in range(4):\n        binpath=d/f'p{p}.bin';hexpath=d/f'p{p}.hex'\n        declared=next(x for x in meta['files']if Path(x['path']).name==binpath.name)\n        bh=filehash(binpath);assert bh==declared['sha256'] and binpath.stat().st_size==declared['bytes']==576*R\n        bf=os.open(binpath,os.O_RDONLY);hf=os.open(hexpath,os.O_RDONLY)\n        boundary={0,1,G-1,G,G+1,(S//2)*G-1,(S//2)*G,(S-1)*G-1,(S-1)*G,R-2,R-1}\n        randoms={int.from_bytes(hashlib.sha256(f'{seed}|{name}|{p}|{j}'.encode()).digest()[:8],'little')%R for j in range(16)}\n        samples=sorted(boundary|randoms);local_scale=[0,0];local_q=[0,0]\n        for rec in samples:\n            s,g=divmod(rec,G);bo_record=bytearray(576);gg_record=bytearray(576)\n            for c in range(16):\n                col=32*s+16*(p%2)+c+(2624 if p>=2 else 0) if N==5248 else 64*s+16*p+c\n                assert 0<=col<N\n                tile,lane=divmod(col,8);shard=tile%2\n                qa=w['q_base'][shard]+((tile//2)*G+g)*256+lane*32\n                sa=w['scale_base']+((tile*G+g)*8+lane)*2\n                qb=exact(fds[shard],32,qa);sb=exact(fds[2],2,sa)\n                original=exact(gf,34,t['source_offset']+34*(col*G+g))\n                assert sb+qb==original==exact(raw,34,34*(col*G+g)),(name,p,rec,c,'source')\n                bo_record[32*c:32*c+32]=qb;bo_record[512+2*c:514+2*c]=sb\n                gg_record[32*c:32*c+32]=original[2:];gg_record[512+2*c:514+2*c]=original[:2]\n                sign=sb[1]>>7;scale_signs[sign]+=1;local_scale[sign]+=1\n                if sign and first_negative_scale is None:first_negative_scale={'tensor':name,'port':p,'record':rec,'column_lane':c,'scale_le_bytes':sb.hex(),'tn8_scale_address':sa}\n                for q in qb:\n                    q_signs[q>>7]+=1;local_q[q>>7]+=1;q_zero+=(q==0)\n            expected=exact(bf,576,rec*576)\n            assert bo_record==gg_record==expected and not any(expected[544:576]),(name,p,rec,'W576')\n            for word in range(9):\n                line=exact(hf,129,(rec*9+word)*129)\n                assert line[-1:]==b'\\n'\n                assert bytes.fromhex(line[:-1].decode())[::-1]==expected[64*word:64*(word+1)],(name,p,rec,word,'hex endian')\n            transcript.update(f'{name}|{p}|{rec}\\n'.encode());transcript.update(expected)\n        # Address-only burst lookup uses the entire accepted span, then freezes that descriptor.\n        starts={0,9*G-2,9*(S//2)*G-2,9*R-4}\n        starts|={int.from_bytes(hashlib.sha256(f'{seed}|burst|{name}|{p}|{j}'.encode()).digest()[:8],'little')%(9*R)for j in range(4)}\n        for start_word in sorted(starts):\n            ar=addr['base'][p]+64*start_word\n            beats=min(4,9*R-start_word,(4096-ar%4096)//64)\n            matches=[r for r in addresses['records']if r['base'][p]<=ar and ar+beats*64<=r['base'][p]+r['span'][p]]\n            assert len(matches)==1 and matches[0]['index']==addr['index']\n            # Independent byte-coordinate decoder for every accepted beat.\n            actual=bytearray()\n            for j in range(beats):\n                u=ar-addr['base'][p]+64*j;rec,rem=divmod(u,576);s,g=divmod(rec,G);word=rem//64\n                beat=bytearray(64)\n                for lane_byte in range(64):\n                    pos=word*64+lane_byte\n                    if pos>=544:continue\n                    if pos<512:c,b=divmod(pos,32);srcpart=2+b\n                    else:c,b=divmod(pos-512,2);srcpart=b\n                    col=32*s+16*(p%2)+c+(2624 if p>=2 else 0)if N==5248 else 64*s+16*p+c\n                    beat[lane_byte]=exact(gf,1,t['source_offset']+34*(col*G+g)+srcpart)[0]\n                actual.extend(beat)\n            assert actual==exact(bf,beats*64,start_word*64),(name,p,start_word,'AR decoder')\n            total_bursts+=1;total_burst_bytes+=len(actual)\n        entry['ports'].append({'port':p,'fixture_bin_sha256_recomputed':bh,'record_indices':samples,'boundary_records':len(boundary),'fixed_random_draws':16,'records_checked':len(samples),'scale_sign0_sign1':local_scale,'Q_sign0_sign1':local_q})\n        total_records+=len(samples)\n        os.close(bf);os.close(hf)\n    os.close(raw);rows.append(entry)\nfor fd in fds+[gf]:os.close(fd)\nresult={'schema':'d32-a011-weight-address-samples-v1','status':'INTEGER_SAMPLES_PASS_NOT_PEER_RTL_PASS','seed':seed,'catalog_records_checked':120,'catalog_binary_sha256':hashlib.sha256(cat).hexdigest(),'catalog_records_sha256':hashlib.sha256(cat[256:7936]).hexdigest(),'shape_counts_120':dict(sorted(shape_counts.items())),'fixture_tensors_checked':len(rows),'fixture_ports_checked':4*len(rows),'records_checked':total_records,'W576_bytes_checked':576*total_records,'Q8_source_bytes_per_source_checked':544*total_records,'hex_words_checked':9*total_records,'AR_bursts_checked':total_bursts,'AR_bytes_checked':total_burst_bytes,'scale_sign0_sign1':scale_signs,'Q_sign0_sign1':q_signs,'Q_zero_bytes':q_zero,'first_negative_scale':first_negative_scale,'sample_transcript_sha256':transcript.hexdigest(),'full_BO_or_GGUF_hash_recomputed':False,'fixture_32_port_bin_hashes_recomputed':True,'ar_protocol_dynamic_test':'NOT_RUN','rows':rows}\nprint(json.dumps(result,sort_keys=True))\n",
+      "raw_tool_output": "{\"AR_bursts_checked\": 256, \"AR_bytes_checked\": 60608, \"Q8_source_bytes_per_source_checked\": 462400, \"Q_sign0_sign1\": [219928, 215272], \"Q_zero_bytes\": 3688, \"W576_bytes_checked\": 489600, \"ar_protocol_dynamic_test\": \"NOT_RUN\", \"catalog_binary_sha256\": \"bf187e0b2987b0fbc5e1951dee35b6b3219631dfabb9158c0b77f2b92b81dfe3\", \"catalog_records_checked\": 120, \"catalog_records_sha256\": \"36455736a0e39bf63b37a63ceb46c95b2c60678cc50d23671cc1b676c36cd87c\", \"first_negative_scale\": null, \"fixture_32_port_bin_hashes_recomputed\": true, \"fixture_ports_checked\": 32, \"fixture_tensors_checked\": 8, \"full_BO_or_GGUF_hash_recomputed\": false, \"hex_words_checked\": 7650, \"records_checked\": 850, \"rows\": [{\"G\": 32, \"K\": 1024, \"N\": 4096, \"S\": 64, \"catalog_index\": 114, \"fixture_meta_sha256\": \"927b5ce69dbc4edadaa1badb8b056fb56349eecf9ae403ea1cd99b4c7f767bc8\", \"port_span\": 1179648, \"ports\": [{\"Q_sign0_sign1\": [6904, 6920], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"7e4e25253e6bff99bd8b36c44355d4fde86d0bedb85ffa0fd64a4d495dd8ae58\", \"port\": 0, \"record_indices\": [0, 1, 8, 31, 32, 33, 109, 133, 173, 209, 293, 542, 688, 845, 893, 1023, 1024, 1154, 1207, 1651, 1708, 1750, 1846, 2015, 2016, 2046, 2047], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6937, 6887], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"dc1d142f78f14dcb654eb20270d08b9b0043072bb252aba8d3187a24c16ab8eb\", \"port\": 1, \"record_indices\": [0, 1, 31, 32, 33, 192, 204, 280, 1023, 1024, 1121, 1153, 1203, 1278, 1307, 1513, 1545, 1641, 1649, 1682, 1768, 1821, 1925, 2015, 2016, 2046, 2047], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6926, 6898], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"4ce468d42c4c9e2e4ed98581f02923c19ddb6ac1371acea48d40b198b9837aae\", \"port\": 2, \"record_indices\": [0, 1, 31, 32, 33, 164, 174, 219, 234, 477, 900, 1023, 1024, 1026, 1290, 1316, 1393, 1511, 1570, 1773, 1782, 1900, 1945, 2015, 2016, 2046, 2047], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [7007, 6817], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"375eaa8ca8c3d8ec4c33ddfba8aab2d7f4e3457e0f2770df788bb5054f6202f5\", \"port\": 3, \"record_indices\": [0, 1, 31, 32, 33, 235, 328, 496, 516, 578, 781, 806, 863, 979, 1023, 1024, 1186, 1228, 1433, 1506, 1720, 1725, 1843, 2015, 2016, 2046, 2047], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}], \"tensor\": \"head_fc1.0.weight\"}, {\"G\": 128, \"K\": 4096, \"N\": 1024, \"S\": 16, \"catalog_index\": 115, \"fixture_meta_sha256\": \"a7ba3891954bfcea724b6f91e662ddc76a117b7e30b0b66a0c0ff1b1224e7b4d\", \"port_span\": 1179648, \"ports\": [{\"Q_sign0_sign1\": [6387, 6413], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"f09890d20a277ea07fc090fca5b63304ebc18a88c63f8eeb5142ea9640a55aa5\", \"port\": 0, \"record_indices\": [0, 1, 127, 128, 129, 349, 465, 626, 737, 1023, 1024, 1236, 1248, 1255, 1257, 1288, 1394, 1731, 1767, 1919, 1920, 2022, 2029, 2046, 2047], \"records_checked\": 25, \"scale_sign0_sign1\": [400, 0]}, {\"Q_sign0_sign1\": [6842, 6982], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"61df18e8e03083fd2a91115760764539ded09dd5bfa049aa3e611be4f933db15\", \"port\": 1, \"record_indices\": [0, 1, 39, 106, 127, 128, 129, 285, 342, 440, 729, 732, 921, 944, 1023, 1024, 1225, 1446, 1577, 1806, 1857, 1890, 1919, 1920, 2005, 2046, 2047], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6978, 6846], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"849bfd6a57cf76f7109aab1d69a72ffb2e30bd1768f8355d1cc9ac90c8a08e4c\", \"port\": 2, \"record_indices\": [0, 1, 29, 127, 128, 129, 161, 285, 348, 756, 1021, 1023, 1024, 1062, 1115, 1157, 1424, 1525, 1664, 1707, 1727, 1742, 1877, 1919, 1920, 2046, 2047], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6792, 6520], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"2cddb73b2cb5f5a89d7b701226c1859e23f74f707fdb6865cbddf9903a61e0a2\", \"port\": 3, \"record_indices\": [0, 1, 127, 128, 129, 213, 238, 485, 494, 614, 759, 765, 841, 1023, 1024, 1319, 1355, 1654, 1758, 1793, 1858, 1919, 1920, 2010, 2046, 2047], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}], \"tensor\": \"head_fc2.0.weight\"}, {\"G\": 32, \"K\": 1024, \"N\": 3072, \"S\": 48, \"catalog_index\": 112, \"fixture_meta_sha256\": \"c9217c0ce6285e346fb64b794dbd7fe48b4652b159e05121078b11e09757a9e1\", \"port_span\": 884736, \"ports\": [{\"Q_sign0_sign1\": [6987, 6837], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"3c773736175642495e27a07428b623094bf25833fd3fb6aeabb051e3a3f99c43\", \"port\": 0, \"record_indices\": [0, 1, 31, 32, 33, 82, 146, 320, 331, 339, 628, 716, 759, 766, 767, 768, 790, 882, 979, 1001, 1114, 1385, 1412, 1503, 1504, 1534, 1535], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6908, 6916], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"3df2cee9f0c658bacaf910fb054a4d705b6759511e233e61cfc7b7bbcdc71173\", \"port\": 1, \"record_indices\": [0, 1, 31, 32, 33, 278, 347, 590, 750, 762, 767, 768, 833, 869, 874, 917, 1044, 1061, 1108, 1149, 1364, 1451, 1472, 1503, 1504, 1534, 1535], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [7039, 6785], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"0f45e2a7751731bcbd979d1e20636d14774d0aa0046e824df1b3a76cdad1f3b3\", \"port\": 2, \"record_indices\": [0, 1, 23, 31, 32, 33, 276, 379, 487, 542, 668, 702, 767, 768, 784, 832, 835, 1003, 1013, 1099, 1232, 1247, 1422, 1503, 1504, 1534, 1535], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [7091, 6733], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"f5cb91aa17231589319e36c062821ebb1349eb1beeb090cf922209d0f491170c\", \"port\": 3, \"record_indices\": [0, 1, 7, 31, 32, 33, 167, 334, 430, 480, 629, 633, 767, 768, 845, 907, 923, 957, 961, 975, 1005, 1277, 1281, 1503, 1504, 1534, 1535], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}], \"tensor\": \"head_qkv.0.weight\"}, {\"G\": 32, \"K\": 1024, \"N\": 1024, \"S\": 16, \"catalog_index\": 113, \"fixture_meta_sha256\": \"7b2e5b9031c1a768e802f7e31704598628fd72aa617b76c5a350c238d8409816\", \"port_span\": 294912, \"ports\": [{\"Q_sign0_sign1\": [6719, 6593], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"c0144a21bdc2ab68aaf0d2ec019e438d1441cf0d24f88976b467141cf4f1f3bc\", \"port\": 0, \"record_indices\": [0, 1, 31, 32, 33, 37, 39, 70, 125, 145, 164, 228, 249, 255, 256, 273, 302, 342, 344, 431, 467, 468, 479, 480, 510, 511], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}, {\"Q_sign0_sign1\": [6679, 6633], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"84f7d7f85e8c12b96ce9153b946c746c03db61b0602ff7464e594b66516c651e\", \"port\": 1, \"record_indices\": [0, 1, 10, 31, 32, 33, 62, 92, 99, 158, 185, 187, 222, 255, 256, 364, 408, 438, 445, 450, 479, 480, 496, 507, 510, 511], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}, {\"Q_sign0_sign1\": [6945, 6879], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"cc7bfca9f6dde115e5401d6bd7e4e2f99b4daae677ee19d8165fe4c9943e2a9c\", \"port\": 2, \"record_indices\": [0, 1, 7, 11, 31, 32, 33, 80, 141, 209, 214, 255, 256, 280, 386, 398, 411, 424, 450, 457, 460, 475, 479, 480, 495, 510, 511], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6832, 6480], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"f0f12290d98b41aa737407d3981beea8c3088445fbd020ae73428dfcdee50a5d\", \"port\": 3, \"record_indices\": [0, 1, 31, 32, 33, 67, 86, 96, 100, 121, 146, 255, 256, 267, 271, 293, 295, 298, 319, 409, 462, 476, 479, 480, 510, 511], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}], \"tensor\": \"head_wo.0.weight\"}, {\"G\": 32, \"K\": 1024, \"N\": 5248, \"S\": 82, \"catalog_index\": 2, \"fixture_meta_sha256\": \"6813bc02d20de2370c4df658ced15ea5a302a0199092214145c6fd3fe09ec810\", \"port_span\": 1511424, \"ports\": [{\"Q_sign0_sign1\": [7101, 6723], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"c38a5e7d5593af0d27d9c89c25aecdc6fddd8c69427306f92b8d8b38dc5e600e\", \"port\": 0, \"record_indices\": [0, 1, 31, 32, 33, 46, 173, 195, 229, 346, 385, 1033, 1080, 1227, 1311, 1312, 1392, 1480, 1765, 1971, 2080, 2345, 2389, 2591, 2592, 2622, 2623], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [7119, 6705], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"0fcea6e3489da74441b2754d1280cf5bf09cae815ef0e1f4f2989cf514142860\", \"port\": 1, \"record_indices\": [0, 1, 31, 32, 33, 579, 618, 856, 932, 1033, 1178, 1302, 1311, 1312, 1371, 1382, 1400, 1592, 1617, 1719, 1734, 1945, 2198, 2591, 2592, 2622, 2623], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6756, 6556], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"681742fdcd03bce336349603186bcfe4b62db40931e3039a44188784ab22ae41\", \"port\": 2, \"record_indices\": [0, 1, 31, 32, 33, 212, 327, 486, 891, 906, 1096, 1303, 1311, 1312, 1460, 1633, 1848, 1883, 1997, 2082, 2442, 2536, 2591, 2592, 2622, 2623], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}, {\"Q_sign0_sign1\": [7070, 6754], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"bab9d350e454e00175d373fbdb0e0fb06dd3cc1b6afa6fac969d223fbcccd569\", \"port\": 3, \"record_indices\": [0, 1, 31, 32, 33, 98, 320, 544, 631, 720, 775, 984, 1139, 1202, 1238, 1311, 1312, 1459, 1492, 2217, 2234, 2375, 2567, 2591, 2592, 2622, 2623], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}], \"tensor\": \"mlp_wi.0.weight\"}, {\"G\": 82, \"K\": 2624, \"N\": 1024, \"S\": 16, \"catalog_index\": 3, \"fixture_meta_sha256\": \"184349940dcb4c0c8ed60022e1db780a99b5865321b49f6cc750dcf114462c35\", \"port_span\": 755712, \"ports\": [{\"Q_sign0_sign1\": [6766, 6546], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"50bd3a0b83503cd731e679cdc7e44a8374fa039bfff25720e1981477c215fef1\", \"port\": 0, \"record_indices\": [0, 1, 9, 58, 81, 82, 83, 406, 497, 641, 655, 656, 678, 841, 871, 941, 952, 1002, 1214, 1229, 1230, 1233, 1235, 1251, 1310, 1311], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}, {\"Q_sign0_sign1\": [7045, 6779], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"4dd6e8492615ebbe8b399e8711fc0b73abdbb322333c4f7cca5647a831686071\", \"port\": 1, \"record_indices\": [0, 1, 20, 35, 44, 81, 82, 83, 267, 326, 374, 395, 397, 513, 541, 655, 656, 890, 941, 953, 1051, 1177, 1227, 1229, 1230, 1310, 1311], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6999, 6825], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"a56ff2e12cd13f8795f5bc17287a055076cbc6fe8a290308f4a5a46aafad08ca\", \"port\": 2, \"record_indices\": [0, 1, 22, 81, 82, 83, 92, 110, 129, 210, 346, 607, 642, 655, 656, 692, 722, 894, 971, 983, 1096, 1223, 1229, 1230, 1244, 1310, 1311], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6932, 6892], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"93b3b46e081d6d001e9fb1c5638c7bf45954d125f4480443a68a6ea21a40b3b5\", \"port\": 3, \"record_indices\": [0, 1, 5, 11, 81, 82, 83, 152, 237, 314, 318, 390, 411, 534, 655, 656, 703, 1056, 1077, 1126, 1144, 1168, 1199, 1229, 1230, 1310, 1311], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}], \"tensor\": \"mlp_wo.0.weight\"}, {\"G\": 32, \"K\": 1024, \"N\": 3072, \"S\": 48, \"catalog_index\": 0, \"fixture_meta_sha256\": \"56b785d1dec29f771464af4a6c34548326f9078874a26753bb011549af36080b\", \"port_span\": 884736, \"ports\": [{\"Q_sign0_sign1\": [7001, 6823], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"1358cc4244ba2f8e011c78393820f6a54167b767d891c254a6d7e3c0c7c185fa\", \"port\": 0, \"record_indices\": [0, 1, 31, 32, 33, 111, 137, 146, 212, 653, 767, 768, 882, 993, 1045, 1106, 1141, 1178, 1212, 1245, 1298, 1413, 1503, 1504, 1505, 1534, 1535], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6954, 6870], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"3ad6073bca0fef6009c2554d34b23253682fab1a395578608defe60b913bca79\", \"port\": 1, \"record_indices\": [0, 1, 31, 32, 33, 104, 159, 163, 338, 401, 413, 428, 659, 691, 730, 757, 767, 768, 877, 1185, 1249, 1291, 1366, 1503, 1504, 1534, 1535], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6647, 6665], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"aa464ad5ed929d6b17eb1d0bc1321666fe67d61e804a707b44769000b4ab1bc4\", \"port\": 2, \"record_indices\": [0, 1, 2, 31, 32, 33, 76, 182, 264, 268, 314, 326, 458, 540, 639, 767, 768, 954, 1014, 1108, 1126, 1429, 1503, 1504, 1534, 1535], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}, {\"Q_sign0_sign1\": [6492, 6308], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"c77de380386fc1319dacc8da97e0eace8a35bf699e31766e132a46642fd16eac\", \"port\": 3, \"record_indices\": [0, 1, 31, 32, 33, 357, 472, 626, 632, 671, 709, 767, 768, 816, 837, 1025, 1055, 1126, 1161, 1214, 1283, 1503, 1504, 1534, 1535], \"records_checked\": 25, \"scale_sign0_sign1\": [400, 0]}], \"tensor\": \"qkv.0.weight\"}, {\"G\": 32, \"K\": 1024, \"N\": 1024, \"S\": 16, \"catalog_index\": 1, \"fixture_meta_sha256\": \"e9f476825da4027df169a35860e2eca8f1203c05a286eab3b7ac635357028af4\", \"port_span\": 294912, \"ports\": [{\"Q_sign0_sign1\": [7039, 6785], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"4cac1e2a4d7ff6228a2e82e1057e73cb44a5a2cfed1b19b4527868aeffe940b4\", \"port\": 0, \"record_indices\": [0, 1, 31, 32, 33, 37, 39, 98, 123, 189, 195, 216, 255, 256, 257, 261, 263, 280, 311, 322, 423, 457, 479, 480, 501, 510, 511], \"records_checked\": 27, \"scale_sign0_sign1\": [432, 0]}, {\"Q_sign0_sign1\": [6655, 6657], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"97865872b271272b4807c8f60fa6ed0af274c2006fc277ad6219f4cbc4838e56\", \"port\": 1, \"record_indices\": [0, 1, 14, 31, 32, 33, 45, 81, 86, 131, 136, 149, 176, 183, 249, 255, 256, 263, 290, 372, 391, 455, 479, 480, 510, 511], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}, {\"Q_sign0_sign1\": [6713, 6599], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"5f7888f63202e3e3a3b1c0fdb469cb525cec7a03b4e44c8d09e36ebd5b212425\", \"port\": 2, \"record_indices\": [0, 1, 31, 32, 33, 80, 143, 175, 193, 203, 255, 256, 264, 327, 338, 351, 361, 363, 408, 421, 433, 470, 479, 480, 510, 511], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}, {\"Q_sign0_sign1\": [6666, 6646], \"boundary_records\": 11, \"fixed_random_draws\": 16, \"fixture_bin_sha256_recomputed\": \"6ae08360aecd177e3005fa1b3f4e06cfec643d6ee4aba29bb474d267f7c80042\", \"port\": 3, \"record_indices\": [0, 1, 31, 32, 33, 53, 55, 59, 84, 168, 193, 220, 255, 256, 355, 382, 414, 428, 441, 474, 479, 480, 486, 491, 510, 511], \"records_checked\": 26, \"scale_sign0_sign1\": [416, 0]}], \"tensor\": \"wo.0.weight\"}], \"sample_transcript_sha256\": \"000cbd4674f6136159690cf2e74ca4de60a7438ff78bab916395fdc8ca7d00c4\", \"scale_sign0_sign1\": [13600, 0], \"schema\": \"d32-a011-weight-address-samples-v1\", \"seed\": \"D32-A011-WMAP-v1-20261023\", \"shape_counts_120\": {\"1024x1024\": 30, \"1024x3072\": 30, \"1024x4096\": 2, \"1024x5248\": 28, \"2624x1024\": 28, \"4096x1024\": 2}, \"status\": \"INTEGER_SAMPLES_PASS_NOT_PEER_RTL_PASS\"}\nD32-A011-WMAP-CHECK1 wall=2.08 rss_kib=17972 exit=0\n"
+    }
+  }
+}

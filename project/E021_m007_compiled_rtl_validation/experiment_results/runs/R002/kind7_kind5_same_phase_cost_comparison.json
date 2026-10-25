@@ -1,0 +1,92 @@
+{
+  "QKV_admission_to_success": {
+    "kind5_seconds": 40.17854766495293,
+    "kind7_seconds": 41.49941404204583,
+    "wall_ratio_kind7_over_kind5": 1.0328749159404054,
+    "kind5_begin": {
+      "line": "M007_FULLMODEL_ENCODER0_MATRIX_BEGIN phase=0 tensor=4 K=1024 N=3072 cycle=11114",
+      "elapsed_s": 14.002908064052463
+    },
+    "kind5_end": {
+      "line": "M007_FULLMODEL_ENCODER0_MATRIX_END phase=0 cycle=62942",
+      "elapsed_s": 54.18145572900539
+    },
+    "kind7_begin": {
+      "line": "M007_FULLGRAPH_PHASE global=0 state=5 heads=0 matrix_done=0 cycle=11115",
+      "elapsed_s": 10.24428873398574
+    },
+    "kind7_end": {
+      "cycle": 62635,
+      "elapsed_s": 51.74370277603157,
+      "global": 0,
+      "heads": 0,
+      "line": "M007_FULLGRAPH_PHASE global=0 state=6 heads=0 matrix_done=1 cycle=62635",
+      "matrix_done": 1,
+      "state": 6
+    }
+  },
+  "QKV_to_first_head_completion_including_RoPE_handoff": {
+    "kind5_seconds": 9.278137409011833,
+    "kind7_seconds": 9.613585065002553,
+    "wall_ratio_kind7_over_kind5": 1.0361546333281182
+  },
+  "steady_head_1_through_7": {
+    "kind5_intervals_seconds": [
+      7.8370035490370356,
+      7.840294178982731,
+      7.836719923012424,
+      7.834982239000965,
+      7.805298933002632,
+      7.887892901955638,
+      7.820160107046831
+    ],
+    "kind7_intervals_seconds": [
+      8.129325680958573,
+      8.202390042017214,
+      8.140365993021987,
+      8.227249226998538,
+      8.216551337973215,
+      8.177303395990748,
+      8.133726058993489
+    ],
+    "kind5_sum_seconds": 54.86235183203826,
+    "kind7_sum_seconds": 57.22691173595376,
+    "wall_ratio_kind7_over_kind5": 1.043099864022502,
+    "cycle_distance_each": 11044,
+    "per_interval_wall_ratios": [
+      1.0373002423812168,
+      1.0461839638626245,
+      1.0387465767556538,
+      1.0500660979223344,
+      1.052688873097699,
+      1.0366904695122516,
+      1.0400971268688093
+    ]
+  },
+  "comparison_scope": "same model1/context1/fixedbatch512/production/input layer0 same phases; different checker/real peer; single sample host load and added observer overhead not isolated; no general hardware speedup claim",
+  "kind5_post_Attention_to_normal_exit_seconds": 142.73012351000216,
+  "kind7_post_Attention_measured": false,
+  "kind7_complete_layer_and_remaining_Decisions_cost": "UNKNOWN",
+  "next_bounded_sample_recommendation": {
+    "goal": "unchanged kind7 once-BEGIN reach first original M007_FULLGRAPH_LAYER_END global0 with all per-layer bitchecks/counts, then external planned stop of still-pending fullgraph request",
+    "scope_not_complete_kind7": "original28+2 command stays selected; no intermediate producer/STOP plusarg/TB edit; no finalDONE or fullgraphPASS claim",
+    "overall_diagnostic_cap_seconds": 600,
+    "continuous_stage_cap_seconds": 120,
+    "cost_gate_label": "600 is proposed finite diagnostic cap requiring root next-boundary authorization, not measured same-version fullgraphE",
+    "phase_endpoints": [
+      "launch\u2192QKV m_done1 success/state6",
+      "QKV\u2192head0 bit",
+      "each head bit\u2192next bit through15, ordered exact mask",
+      "head15\u2192stateCSUB8 after successful l_done",
+      "Attention success\u2192matrix_done2 (WO success)",
+      "WO success\u2192residualA success/release",
+      "residualA\u2192LN success/release",
+      "LN\u2192matrix_commands4 (Down admission) after full Wi/G/quant barriers",
+      "Down admission\u2192matrix_done4",
+      "Down success\u2192original LAYER_END global0 including all4096 H/checkpoint bits and resources idle"
+    ],
+    "guard_prerequisite": "freeze exact source predicates and replay-test actual prefix plus missing/order/duplicate/deadline/cleanup cases before launch",
+    "unknowns_preserved": "unseen postAttention phases remain individually unknown\u2264120; global600 cap cannot be called validated completion estimate; no full30longrun authorization"
+  },
+  "formal_fullgraph_E": "UNKNOWN; Decision K4096/full/sliding/preLN/finalnorm/type/tail variants unmeasured"
+}

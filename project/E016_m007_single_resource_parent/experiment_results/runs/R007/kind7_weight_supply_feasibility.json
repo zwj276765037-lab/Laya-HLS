@@ -1,0 +1,74 @@
+{
+  "schema": "m007-r007-kind7-weight-supply-feasibility-v1",
+  "status": "SOURCE_FILE_AVAILABILITY_AND_INTEGER_MAPPING_ONLY_NOT_IMPLEMENTED_NOT_RUN",
+  "current_AT026_peer": "QKV0 only",
+  "prepared_full_Encoder0_peer": "four layer0 matrices only",
+  "existing_known_full_W576_fixture_tensors": [
+    "mlp_wi_0_weight",
+    "wo_0_weight",
+    "head_qkv_0_weight",
+    "head_wo_0_weight",
+    "qkv_0_weight",
+    "head_fc2_0_weight",
+    "mlp_wo_0_weight",
+    "head_fc1_0_weight"
+  ],
+  "all120_catalog_names_resolve_to_original_Q8_0_metadata": true,
+  "original_GGUF": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/model/quantized/gguf/mys/laya-typed-decisions-GGUF/Q8_0/laya_typed_decisions_q8_0.gguf",
+  "original_GGUF_bytes": 455179648,
+  "original_GGUF_readable": true,
+  "original_GGUF_SHA_inherited": "6eb6ef58bc4f99bd9db40381604108af782ffc314aa00da6641f429991ca1f18",
+  "package_manifest": "project/E002_Laya_HLS/experiment/build/model-q8-session-v2-actual-r2-20261010/manifest.json",
+  "package_manifest_sha256": "46bbd5abeeadc2d4305419d3129fd871aaeb04e962821ac4c6a6da957698018c",
+  "original_q_scale_BO_products": [
+    {
+      "key": "w_q0",
+      "path": "project/E002_Laya_HLS/experiment/build/model-q8-session-v2-actual-r2-20261010/w_q0.bin",
+      "bytes": 184682496,
+      "manifest_SHA_inherited": "be5ab09ff91d4a9dd56c3dbc9b84c138658b1a5ce3a274806b841a739f96970e",
+      "whole_file_SHA_recomputed": false
+    },
+    {
+      "key": "w_q1",
+      "path": "project/E002_Laya_HLS/experiment/build/model-q8-session-v2-actual-r2-20261010/w_q1.bin",
+      "bytes": 184680448,
+      "manifest_SHA_inherited": "b067525e7766a9f07e505a1e593548d3057f4bb5f12d1f7578c8538e2ee1b6ca",
+      "whole_file_SHA_recomputed": false
+    },
+    {
+      "key": "w_scale",
+      "path": "project/E002_Laya_HLS/experiment/build/model-q8-session-v2-actual-r2-20261010/w_scale.bin",
+      "bytes": 23085184,
+      "manifest_SHA_inherited": "ea159816b322f58b970d80cd0142ccd16cc7531de8ee5ed9108fc4edf2a2e898",
+      "whole_file_SHA_recomputed": false
+    }
+  ],
+  "all120_prepacked_W576_files": "NOT_ESTABLISHED; known fixture entry has8 complete tensors, pack tool explicitly reports only4 superblocks, no full120 package",
+  "bounded_on_demand_rule": {
+    "AR_accept": "Resolve real address/port to exact120-entry tensor descriptor; latch tensor,K,N,q_base[2],scale_base,local_offset,length,ID and port; R uses these latched fields, never current parent descriptor.",
+    "record": "byte_offset=AR_local+64*beat; record=byte_offset/576; word=(byte_offset%576)/64; s=record/(K/32); g=record%(K/32)",
+    "column": "N5248:32*s+16*(port%2)+c+(port>=2?2624:0); otherwise64*s+16*port+c",
+    "Q_word0_to7": "c=2*word,2*word+1; tile=column/8; lane=column%8; shard=tile%2; qaddr=q_base[shard]+((tile/2)*(K/32)+g)*256+lane*32; read32bytes per column.",
+    "scale_word8": "for16columns, scale_addr=scale_base+((tile*(K/32)+g)*8+lane)*2;16 originalF16 bitfields in low32B, high32B zero. No numerical conversion.",
+    "alternative_GGUF_direct": "Read original34byte Q8_0 block at tensor.source_offset+34*(column*(K/32)+g); source scale2bytes followed by32Q bytes; same W576 byte placement."
+  },
+  "bounded_payload_storage_candidate": {
+    "max_live_AXI_beats_bytes": 32768,
+    "max_one_superblock_W576_cache_bytes": 294912,
+    "sum_bytes": 327680,
+    "GiB_8_RSS_claim": "No measured claim. Bounded file IO avoids preloading all120 tensor data; actual xsim overhead/RSS/cost must be measured."
+  },
+  "actual_missing_work": [
+    "production TB binary seek/read peer for120 descriptors",
+    "independent lossless inverse validation across each role/layer including Wi split and DecisionK4096",
+    "actual heldAR/RLAST/drain/cache lifetime with per-ID source freeze",
+    "current kind7 checkpoint observer and source-bound cost gate"
+  ],
+  "prohibited_shortcuts": [
+    "using layer0 data for later layers",
+    "preloading every tensor into SV arrays",
+    "reading saved intermediate activations as producers",
+    "new floating gold or model evaluation"
+  ],
+  "no_new_pack_or_model_or_EDA": true
+}

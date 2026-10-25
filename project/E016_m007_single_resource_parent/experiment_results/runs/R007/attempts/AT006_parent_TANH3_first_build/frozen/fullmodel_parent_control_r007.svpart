@@ -1,0 +1,536 @@
+ // Fixed ABI state plan; all routing predicates below are combinational.
+ localparam logic[6:0]
+ E_H_LOAD=32,E_H_READY=33,E_WO_LEASE=34,E_WO_POST=35,
+ E_REFILL0=36,E_REFILL1=37,E_RA_LEASE=38,E_RA_OWNER=39,
+ E_RA_SUB=40,E_RA_RUN=41,E_RA_RELEASE=42,E_LN_LEASE=43,
+ E_LN_OWNER=44,E_LN_SUB=45,E_LN_RUN=46,E_LN_RELEASE=47,
+ E_FF_LEASE=48,E_FF_OWNER=49,E_FF_POST=50,E_RF_LEASE=51,
+ E_RF_OWNER=52,E_RF_SUB=53,E_RF_RUN=54,E_RF_RELEASE=55,
+ E_EXPORT=56,E_EXPORT_DRAIN=57,E_ABORT=58,E_FINAL_A=59,
+ S_CHECK=60,S_HAR=61,S_HR=62,S_RAR=63,S_RR=64,S_BIAS=65,
+ S_GOWNER=66,S_GBEGIN=67,S_GDATA=68,S_GDONE=69,S_TYPE=70,
+ S_ROPE=71,S_FINISH=72,I_FINISH=73,
+ C_A0_AR=74,C_A0_R=75,C_A1_AR=76,C_A1_R=77,
+ C_F0_AR=78,C_F0_R=79,C_F1_AR=80,C_F1_R=81,
+ P_OWNER=82,P_LEASE=83,P_START=84,P_RUN=85,P_RETIRE=86,
+ N_OWNER=87,N_LEASE=88,N_START=89,N_RUN=90,N_RETIRE=91,
+ T_OWNER=92,T_LEASE=93,T_START=94,T_RUN=95,T_RETIRE=96,
+ LAYER_NEXT=97,D1SUB=98,D1RUN=99,D1DRAIN=100,D2SUB=101,D2RUN=102,D2DRAIN=103,
+ GATHER_START=104,GATHER_RUN=105,GATHER_DRAIN=106,TAIL_ARM=107,TAIL_WAIT=108,TAIL_ABORT=109,
+ ERROR_CLEAN=110,SETUP_ERROR=111,C_A0_DRAIN=112,C_A1_DRAIN=113,C_F0_DRAIN=114,C_F1_DRAIN=115,S_HDRAIN=116,S_RDRAIN=117;
+ logic[12:0]resident_issue,resident_sink;
+ logic[8:0]active_epoch_offset;
+ logic[63:0]catalog_base;
+ logic[1:0]qtype;
+ logic[15:0][6:0]marker_rows;
+ logic[15:0]marker_mask;
+ wire[31:0]operation_epoch=epoch+{23'b0,active_epoch_offset};
+ function automatic logic[8:0]layer_offset(input logic[4:0]l,input logic[2:0]p);
+  return l<28?9'(16*l+p):9'(464+16*(l-28)+p);
+ endfunction
+ function automatic logic[31:0]graph_tensor(input logic[4:0]l,input logic pair_kind,slot);
+  if(l<28)return (pair_kind?(slot?88:60):(slot?32:4))+32'(l);
+  return (pair_kind?(slot?129:125):(slot?121:117))+2*(32'(l)-28);
+ endfunction
+ function automatic logic[63:0]required_bytes(input logic[4:0]l,input logic pair_kind,slot);
+  if(!pair_kind)return slot?64'd294912:64'd884736;
+  if(l>=28)return 64'd1179648;
+  return slot?64'd755712:64'd1511424;
+ endfunction
+ function automatic logic[5:0]first_nonfinite(input logic[31:0][31:0]v);
+  logic[5:0]r;r=0;for(int j=31;j>=0;j--)if(v[j][30:23]==255)r={1'b1,5'(j)};return r;
+ endfunction
+ function automatic logic[63:0]crc_word(input logic[63:0]prior,input logic[511:0]v);
+  logic[63:0]c;logic feedback;c=prior;
+  for(int byte_index=0;byte_index<64;byte_index++)for(int bit_index=7;bit_index>=0;bit_index--)begin
+   feedback=c[63]^v[byte_index*8+bit_index];c={c[62:0],1'b0};if(feedback)c=c^64'h42f0e1eba9ea3693;
+  end
+  return c;
+ endfunction
+ function automatic logic[79:0]check_detail(input logic[7:0]code,input logic[15:0]index,input logic[7:0]field,input logic[2:0]port_id,input logic[4:0]lane,input logic[31:0]observed);
+  return {code,index,field,port_id,lane,observed,8'b0};
+ endfunction
+ function automatic logic[7:0]matrix_status_map(input logic[2:0]v);
+  case(v)0:return 0;1:return 5;2:return 1;default:return 2;endcase
+ endfunction
+ function automatic logic[7:0]layer_status_map(input logic[7:0]v);
+  case(v)0:return 0;1:return 1;2:return 6;default:return 2;endcase
+ endfunction
+ wire[4:0]error_global=kind<5?5'd31:active_epoch_offset==448||active_epoch_offset==449||active_epoch_offset==496?5'd30:layer_index;
+ task automatic fail(input logic[7:0]op,input logic[2:0]domain_id,input logic[7:0]status_id,source_id,input logic[2:0]format_id,input logic[79:0]detail,input logic[6:0]next_state);
+  begin state<=next_state;if(done_status==0)begin done_status<=status_id;source_status<=source_id;error_domain<=domain_id;error_tuple<={op,error_global,format_id,detail};end end
+ endtask
+ wire m_transport_idle,bias_word_ready,type_word_ready,type_word_commit,type_bank_idle,type_reject_valid;
+ wire raw_coeff_bind_ready,raw_coeff_wr_ready;
+ wire resident_retired=m_transport_idle&&q_cmd_ready&&!q_done_valid&&v2_shared_resources_idle&&v2_resident_bank_idle&&v2_ln_provider_idle&&!v2_resident_ln_done_valid&&!v2_vector_done_valid;
+ wire global_idle=resident_retired&&v2_scratch_retired&&l_layer_idle&&c_idle&&!v2_ln_gamma_done_valid&&type_bank_idle&&tail_owner_idle;
+ wire coeff_offer_window=!model_committed&&(state==IDLE||kind==0&&state>=S_CHECK&&state<=S_ROPE)&&l_layer_idle&&v2_scratch_retired&&ws_a_enable;
+ assign coeff_bind_ready=raw_coeff_bind_ready&&coeff_offer_window;
+ assign coeff_wr_ready=raw_coeff_wr_ready&&coeff_offer_window;
+ wire[5:0]input_bad=first_nonfinite(in_data),model_bad=first_nonfinite(model_word_data);
+ assign legal_input=state==E_H_LOAD&&!producer_failed&&inputs_accepted<4096&&in_request==request_id&&in_generation==generation&&in_epoch==epoch&&in_row=={1'b0,inputs_accepted[11:5]}&&in_group=={3'b0,inputs_accepted[4:0]};
+ wire h_load_fire=in_valid&&in_ready;
+ wire producer_fail_fire=producer_fail_valid&&producer_fail_ready;
+ wire producer_failure=producer_failed||producer_fail_fire;
+ wire context_phase=state==CSUB||state==CRUN||state==CDRAIN||state==DISCARD||state==DISCWAIT;
+ wire wo_phase=state==WMSUB||state==WMRUN||state==D2SUB||state==D2RUN||state==D2DRAIN;
+ wire resident_source_phase=state==QRUN||state==F_NQRUN;
+ wire resident_source_q=state==F_NQRUN||state==QRUN&&layer_index!=0;
+ wire resident_source_valid=resident_source_q?v2_q_rsp_valid:v2_h_rsp_valid;
+ wire[31:0][31:0]resident_source_data=resident_source_q?v2_q_rsp_data:v2_h_rsp_data;
+ wire[11:0]resident_source_addr=resident_source_q?v2_q_rsp_addr:v2_h_rsp_addr;
+ wire internal_source_fire=resident_source_phase&&q_in_valid&&q_in_ready;
+ wire projection_identity_ok=m_out_request==request_id&&m_out_generation==generation&&m_out_epoch==operation_epoch&&m_out_col<1024&&m_out_col[4:0]==0;
+ logic[31:0][31:0]relu_data;
+ wire[5:0]fc1_bad=first_nonfinite(m_out_data);
+ wire fc1_finite=!fc1_bad[5];
+ always_comb for(int lane=0;lane<32;lane++)relu_data[lane]=!m_out_data[lane][31]&&m_out_data[lane][30:0]!=0?m_out_data[lane]:32'b0;
+ wire vector_done_fire=v2_vector_done_valid&&v2_vector_done_ready;
+ wire resident_ln_done_fire=v2_resident_ln_done_valid&&v2_resident_ln_done_ready;
+ wire ln_reject_fire=v2_ln_reject_valid&&v2_ln_reject_ready;
+ wire h_load_success_valid=state==E_H_READY&&inputs_accepted==4096&&done_status==0&&v2_h_bank_idle;
+ wire vector_phase=state==E_RA_SUB||state==E_RA_RUN||state==E_RF_SUB||state==E_RF_RUN||state==T_START||state==T_RUN;
+ wire ln_phase=state==E_LN_SUB||state==E_LN_RUN||state==P_START||state==P_RUN||state==N_START||state==N_RUN;
+ wire[7:0]ln_op=state==P_RUN?8'h21:state==N_RUN?8'h2f:8'h28;
+ wire[7:0]vector_op=state==T_RUN?8'h30:state==E_RA_RUN?8'h27:8'h2e;
+ assign matrix_owner=state==QSUB||state==QRUN||state==QMSUB||state==QMRUN||state==WMSUB||state==WMRUN||(ffn_state&&state!=F_ARENA&&state!=F_RETURN);
+ assign front_owner=matrix_owner||context_phase;
+ assign v2_owner_req=state==S_GOWNER||state==P_OWNER||state==N_OWNER||state==E_LN_OWNER?2'd2:state==T_OWNER||state==E_RA_OWNER||state==E_RF_OWNER?2'd3:state==E_FF_OWNER&&!decision_mode||state==F_ARENA?2'd1:2'd0;
+ assign v2_ext_fp_select=matrix_owner;assign v2_ext_div_select=front_owner;assign v2_ext_bind_select=matrix_owner;assign v2_ext_ps_select=matrix_owner;assign v2_ext_context_select=0;
+ assign v2_resident_owner_valid=kind>=5&&state!=IDLE&&state!=FINISH;
+ assign v2_resident_owner_request_id=request_id;assign v2_resident_owner_generation=generation;assign v2_resident_owner_epoch=operation_epoch;
+ assign v2_resident_access_request_id=request_id;assign v2_resident_access_generation=generation;assign v2_resident_access_epoch=operation_epoch;
+ assign v2_resident_inputs_ready=done_status==0&&vector_phase;
+ assign v2_parent_matrix_retired=m_transport_idle;assign v2_parent_quant_retired=q_cmd_ready&&!q_done_valid;
+ assign v2_h_wr_valid=state==E_H_LOAD&&in_valid&&legal_input;
+ assign v2_h_wr_addr={in_row[6:0],in_group[4:0]};assign v2_h_wr_data=in_data;
+ wire gather_phase=state==GATHER_RUN;
+ wire[4:0]gather_issue_slot=resident_issue[9:5];
+ wire[6:0]gather_issue_row=gather_issue_slot==16?7'b0:marker_mask[gather_issue_slot[3:0]]?marker_rows[gather_issue_slot[3:0]]:7'b0;
+ assign v2_h_rd_valid=state==QRUN&&!resident_source_q&&resident_issue<4096&&!producer_failed||state==E_EXPORT&&resident_issue<4096||gather_phase&&resident_issue<544;
+ assign v2_h_rd_addr=gather_phase?{gather_issue_row,resident_issue[4:0]}:resident_issue[11:0];
+ assign v2_h_rsp_ready=state==E_ABORT?1'b1:state==QRUN&&!resident_source_q?q_in_ready:state==E_EXPORT||gather_phase?out_ready:1'b0;
+ assign v2_q_wr_valid=(state==WMRUN||state==D2RUN)&&m_out_valid&&projection_identity_ok;
+ assign v2_q_wr_addr={m_out_row,m_out_col[9:5]};assign v2_q_wr_data=m_out_data;
+ assign v2_q_rd_valid=resident_source_phase&&resident_source_q&&resident_issue<4096&&!producer_failed;
+ assign v2_q_rd_addr=resident_issue[11:0];assign v2_q_rsp_ready=state==E_ABORT?1'b1:resident_source_phase&&resident_source_q&&q_in_ready;
+ wire scratch_acquire=state==E_WO_LEASE||state==E_RA_LEASE||state==E_LN_LEASE||state==E_FF_LEASE||state==E_RF_LEASE||state==P_LEASE||state==N_LEASE||state==T_LEASE||state==E_REFILL0;
+ wire scratch_release=state==E_WO_POST||state==E_RA_RELEASE||state==E_LN_RELEASE||state==E_FF_POST||state==E_RF_RELEASE||state==P_RETIRE||state==N_RETIRE||state==T_RETIRE||state==E_REFILL1||state==E_ABORT;
+ assign v2_scratch_lease_valid=scratch_acquire&&resident_retired;
+ assign v2_scratch_release_valid=scratch_release&&resident_retired&&v2_scratch_owner_active;
+ assign v2_vector_start_valid=state==E_RA_SUB||state==E_RF_SUB||state==T_START;
+ assign v2_vector_start_op=state==T_START?2'd1:2'd0;
+ assign v2_vector_start_request_id=request_id;assign v2_vector_start_generation=generation;assign v2_vector_start_epoch=operation_epoch;
+ assign v2_vector_done_ready=state==E_RA_RUN||state==E_RF_RUN||state==T_RUN||state==E_ABORT;
+ assign v2_resident_ln_start_valid=state==E_LN_SUB||state==P_START||state==N_START;
+ assign v2_resident_ln_rows=128;assign v2_resident_ln_use_gamma=state==N_START;
+ assign v2_resident_ln_model=MODEL_ID[63:0];assign v2_resident_ln_key=32'h464e4f52;
+ assign v2_resident_ln_done_ready=state==E_LN_RUN||state==P_RUN||state==N_RUN||state==E_ABORT;
+ assign v2_ln_reject_ready=ln_phase;
+ assign v2_ln_cancel_valid=state==E_ABORT&&v2_ln_active&&!g_cancel_sent;
+ assign v2_ln_cancel_request_id=request_id;assign v2_ln_cancel_generation=generation;assign v2_ln_cancel_epoch=operation_epoch;
+ assign v2_ln_gamma_begin_valid=state==S_GBEGIN;
+ assign v2_ln_gamma_model=MODEL_ID[63:0];assign v2_ln_gamma_key=32'h464e4f52;
+ assign v2_ln_gamma_valid=state==S_GDATA&&model_word_valid&&model_offer_ok;
+ assign v2_ln_gamma_chunk=model_word_index[4:0];assign v2_ln_gamma_data=model_word_data;
+ assign v2_ln_gamma_done_ready=state==S_GDONE;
+ assign v2_g_tanh_lease_valid=state==F_GQSUB&&!tanh_lease_active&&ws_g_enable;
+ assign v2_g_tanh_lease_request_id=request_id;assign v2_g_tanh_lease_generation=generation;assign v2_g_tanh_lease_epoch=operation_epoch;assign v2_g_tanh_lease_phase=1;
+ assign v2_g_tanh_release_valid=state==F_RELEASE&&tanh_lease_active&&g_engine_idle&&r_res_st_idle&&tanh_pending==0&&tanh_flight==0;
+ assign v2_g_tanh_release_phase=1;assign v2_g_tanh_release_epoch=operation_epoch;assign v2_g_tanh_phase_debt_clear=g_engine_idle&&r_res_st_idle;
+ // Single-beat arbitration; malformed idle commands still receive a terminal.
+ assign invalidate_ready=rst_n&&state==IDLE&&global_idle;
+ assign setup_ready=invalidate_ready&&!invalidate_valid&&!model_committed;
+ assign cmd_ready=invalidate_ready&&!invalidate_valid&&!setup_valid;
+ assign done_valid=state==FINISH||state==S_FINISH||state==I_FINISH;
+ assign done_op=kind==0?2'd0:kind==1?2'd1:2'd2;
+ assign done_request=request_id;assign done_generation=generation;assign done_epoch=epoch;
+ assign parent_state=state;assign layer_head_completed=l_head_completed;
+ assign in_ready=rst_n&&legal_input&&v2_h_wr_ready;
+ assign producer_fail_ready=rst_n&&state==E_H_LOAD&&!producer_failed&&producer_fail_request==request_id&&producer_fail_generation==generation&&producer_fail_epoch==epoch;
+ assign out_valid=(state==E_EXPORT||gather_phase)&&v2_h_rsp_valid;
+ assign out_data=v2_h_rsp_data;assign out_row=v2_h_rsp_addr[11:5];assign out_col={6'b0,v2_h_rsp_addr[4:0],5'b0};
+ assign out_slot=kind==7?resident_sink[9:5]:5'b0;
+ assign tail_request=request_id;assign tail_generation=generation;assign tail_source_epoch=epoch;assign tail_expected_bytes=69632;
+ assign tail_begin_valid=state==TAIL_ARM;assign tail_abort_valid=state==TAIL_ABORT;
+ wire tail_identity=tail_commit_request==request_id&&tail_commit_generation==generation&&tail_commit_source_epoch==epoch;
+ assign tail_commit_ready=state==TAIL_WAIT&&resident_issue==544&&resident_sink==544&&resident_retired&&v2_scratch_retired&&tail_identity;
+ wire setup_phase=state>=S_CHECK&&state<=S_ROPE||state==SETUP_ERROR||state==S_HDRAIN||state==S_RDRAIN;
+ wire model_phase=state==S_BIAS||state==S_GDATA||state==S_TYPE;
+ wire[1:0]model_expected_kind=state==S_BIAS?2'd0:state==S_GDATA?2'd1:2'd2;
+ wire model_offer_ok=model_phase&&model_word_request==request_id&&model_word_generation==generation&&model_word_kind==model_expected_kind&&{3'b0,model_word_index}==resident_issue;
+ wire bias_word_valid=state==S_BIAS&&model_word_valid&&model_offer_ok;
+ wire type_word_valid=state==S_TYPE&&model_word_valid&&model_offer_ok;
+ assign model_word_ready=rst_n&&model_offer_ok&&(state==S_BIAS?bias_word_ready:state==S_GDATA?v2_ln_gamma_ready:type_word_ready);
+ // Reject describes an unaccepted offer only; the current transaction remains usable.
+ always_comb begin
+  reject_valid=0;reject_port=0;reject_code=0;reject_tuple=0;
+  if(model_word_valid&&!model_offer_ok)begin reject_valid=1;reject_port=2;reject_code=!model_phase?4:model_word_request!=request_id||model_word_generation!=generation?2:4;reject_tuple={8'h0d,5'd31,3'd0,check_detail(reject_code,{6'b0,model_word_index},26,0,0,32'(model_word_kind))};end
+  else if(in_valid&&!legal_input)begin reject_valid=1;reject_port=1;reject_code=state!=E_H_LOAD?4:in_request!=request_id||in_generation!=generation||in_epoch!=epoch?2:4;reject_tuple={8'h20,error_global,3'd0,check_detail(reject_code,16'(inputs_accepted),26,0,0,{16'b0,in_row,in_group})};end
+  else if(producer_fail_valid&&!(state==E_H_LOAD&&!producer_failed&&producer_fail_request==request_id&&producer_fail_generation==generation&&producer_fail_epoch==epoch))begin reject_valid=1;reject_port=3;reject_code=2;reject_tuple={8'h20,error_global,3'd0,check_detail(2,0,26,0,0,0)};end
+  else if(tail_commit_valid&&!(state==TAIL_WAIT&&tail_identity))begin reject_valid=1;reject_port=4;reject_code=tail_identity?4:2;reject_tuple={8'h37,5'd30,3'd0,check_detail(reject_code,0,26,0,0,0)};end
+ end
+ // Catalog ownership is encoded solely by state, including four fault origins.
+ wire runtime_catalog=state>=C_A0_AR&&state<=C_F1_R||state>=C_A0_DRAIN&&state<=C_F1_DRAIN;
+ wire catalog_owns=runtime_catalog||state==S_HAR||state==S_HR||state==S_RAR||state==S_RR||state==S_HDRAIN||state==S_RDRAIN;
+ wire catalog_ffn=state>=C_F0_AR&&state<=C_F1_R||state==C_F0_DRAIN||state==C_F1_DRAIN;
+ wire catalog_slot=state==C_A1_AR||state==C_A1_R||state==C_F1_AR||state==C_F1_R||state==C_A1_DRAIN||state==C_F1_DRAIN;
+ logic cat_req_valid,cat_req_ready,cat_rsp_valid,cat_rsp_ready,cat_fault,cat_idle;
+ logic[6:0]cat_word;logic[511:0]cat_data;logic[2:0]cat_rid;logic[1:0]cat_rresp;logic cat_rlast;
+ logic cat_arvalid,cat_rready;logic[63:0]cat_araddr;logic[2:0]cat_arid,cat_arsize;logic[7:0]cat_arlen;logic[1:0]cat_arburst;
+ assign cat_word=state==S_HAR||state==S_HR||state==S_HDRAIN?resident_issue[6:0]:state==S_RAR||state==S_RR||state==S_RDRAIN?7'(4+resident_issue):7'(4+4*layer_index+2*catalog_ffn+catalog_slot);
+ assign cat_req_valid=(state==S_HAR||state==S_RAR||state==C_A0_AR||state==C_A1_AR||state==C_F0_AR||state==C_F1_AR)&&m_transport_idle&&q_cmd_ready&&!q_done_valid&&cat_idle;
+ assign cat_rsp_ready=state==S_HR||state==S_RR||state==C_A0_R||state==C_A1_R||state==C_F0_R||state==C_F1_R;
+ laya_m007_catalog_reader_v1 catalog_reader(.clk,.rst_n,.req_valid(cat_req_valid),.req_ready(cat_req_ready),.req_word(cat_word),.catalog_base,.rsp_valid(cat_rsp_valid),.rsp_ready(cat_rsp_ready),.rsp_data(cat_data),.fault(cat_fault),.rsp_rid(cat_rid),.rsp_rresp(cat_rresp),.rsp_rlast(cat_rlast),.idle(cat_idle),.arvalid(cat_arvalid),.arready(arready[0]&&catalog_owns),.araddr(cat_araddr),.arid(cat_arid),.arlen(cat_arlen),.arsize(cat_arsize),.arburst(cat_arburst),.rvalid(rvalid[0]&&catalog_owns),.rready(cat_rready),.rdata(rdata[0]),.rid(rid[0]),.rresp(rresp[0]),.rlast(rlast[0]));
+ assign arvalid=catalog_owns?{3'b0,cat_arvalid}:m_arvalid;
+ assign araddr=catalog_owns?{192'b0,cat_araddr}:m_araddr;
+ assign arid=catalog_owns?{9'b0,cat_arid}:m_arid;assign arlen=catalog_owns?{24'b0,cat_arlen}:m_arlen;
+ assign rready=catalog_owns?{3'b0,cat_rready}:m_rready;
+ logic[7:0]record_code,record_field;logic[2:0]record_port;logic[31:0]record_observed;
+ logic[7:0]header_code,header_field;logic[15:0]header_index;logic[31:0]header_observed;
+ logic[4:0]record_layer;logic record_pair,record_slot;
+ logic[64:0]record_end,aperture_end,setup_end;logic[63:0]record_base,record_span;
+ always_comb begin
+  record_layer=state==S_RR?5'(resident_issue>>2):layer_index;
+  record_pair=state==S_RR?resident_issue[1]:catalog_ffn;record_slot=state==S_RR?resident_issue[0]:catalog_slot;
+  record_code=0;record_field=0;record_port=0;record_observed=0;record_end=0;aperture_end=0;record_base=0;record_span=0;
+  for(int p=3;p>=0;p--)begin
+   record_base=cat_data[128*p+:64];record_span=cat_data[128*p+64+:64];
+   record_end={1'b0,record_base}+{1'b0,record_span};aperture_end={1'b0,HBM_PORT_BASE[p]}+{1'b0,HBM_PORT_SPAN[p]};
+   if(record_base[11:0]!=0||record_end[64]||record_span<required_bytes(record_layer,record_pair,record_slot))begin record_code=3;record_field=record_base[11:0]!=0?15:16;record_port=3'(p);record_observed=32'(record_base[11:0]!=0?record_base:record_span);end
+   else if(HBM_PORT_SPAN[p]==0||aperture_end[64]||record_base<HBM_PORT_BASE[p]||record_end>aperture_end)begin record_code=3;record_field=17;record_port=3'(p);record_observed=32'(record_base);end
+   else if(p==0&&{1'b0,record_base}<{1'b0,catalog_base}+65'd8192&&record_end>{1'b0,catalog_base})begin record_code=3;record_field=15;record_port=0;record_observed=32'(record_base);end
+  end
+ end
+ // Compare SHA bytes in ascending memory address, never as a little-endian integer.
+ logic[7:0]header_expected;integer byte_address,digest_index;
+ always_comb begin
+  header_code=0;header_field=0;header_index=0;header_observed=0;header_expected=0;byte_address=0;digest_index=0;
+  for(int j=63;j>=0;j--)begin
+   byte_address=64*int'(resident_issue)+j;header_expected=0;digest_index=0;
+   case(byte_address)
+    0:header_expected=8'h4c;1:header_expected=8'h41;2:header_expected=8'h59;3:header_expected=8'h41;4:header_expected=8'h43;5:header_expected=8'h32;6:header_expected=8'h35;7:header_expected=0;
+    8:header_expected=1;9:header_expected=0;10:header_expected=0;11:header_expected=1;12:header_expected=120;13:header_expected=0;14:header_expected=64;15:header_expected=0;
+    default:begin
+     if(byte_address>=16&&byte_address<48)header_expected=MODEL_SHA256[255-8*(byte_address-16)-:8];
+     else if(byte_address<80)header_expected=GRAPH_SHA256[255-8*(byte_address-48)-:8];
+     else if(byte_address<112)header_expected=NUMERIC_SHA256[255-8*(byte_address-80)-:8];
+     else if(byte_address<144)header_expected=LAYOUT_SHA256[255-8*(byte_address-112)-:8];
+     else if(byte_address<176)header_expected=PACKAGE_BUILD_SHA256[255-8*(byte_address-144)-:8];
+     else if(byte_address<208)header_expected=base[0][3-((byte_address-176)/8)][63-8*((byte_address-176)%8)-:8];
+     else if(byte_address<216)header_expected=span[0][0][8*(byte_address-208)+:8];
+     else if(byte_address<224)header_expected=64'd7936>>(8*(byte_address-216));
+    end
+   endcase
+   if(cat_data[8*j+:8]!=header_expected)begin
+    header_code=byte_address>=224?16:byte_address>=216?1:byte_address>=208?5:2;
+    header_field=byte_address<8?1:byte_address<10?2:byte_address<12?3:byte_address<14?4:byte_address<16?5:byte_address<48?6:byte_address<80?7:byte_address<112?8:byte_address<144?9:byte_address<176?10:byte_address<208?11:byte_address<216?12:byte_address<224?13:14;
+    header_index=16'(byte_address);header_observed={24'b0,cat_data[8*j+:8]};
+   end
+  end
+ end
+ wire[63:0]crc_next=crc_word(tensor_id,cat_data);
+ logic[7:0]begin_code,begin_field;logic[15:0]begin_index;logic[31:0]begin_observed;integer marker_count;
+ always_comb begin
+  begin_code=0;begin_field=0;begin_index=0;begin_observed=0;marker_count=0;
+  for(int j=0;j<16;j++)marker_count+=int'(cmd_marker_mask[j]);
+  if(cmd_kind==7)begin
+   if(cmd_qtype==3)begin begin_code=1;begin_field=21;begin_observed=32'(cmd_qtype);end
+   else if(cmd_candidate_count==0||cmd_candidate_count>16||int'(cmd_candidate_count)!=marker_count||cmd_qtype==2&&cmd_candidate_count!=2)begin begin_code=4;begin_field=24;begin_observed=32'(cmd_candidate_count);end
+   else for(int j=15;j>=0;j--)if(cmd_marker_mask[j]?(cmd_marker_rows[j][31]||cmd_marker_rows[j]>127||!cmd_mask[cmd_marker_rows[j][6:0]]):cmd_marker_rows[j]!=0)begin begin_code=3;begin_field=22;begin_index=16'(j);begin_observed=cmd_marker_rows[j];end
+  end else begin
+   if(cmd_qtype!=0||cmd_marker_mask!=0||cmd_candidate_count!=0)begin begin_code=16;begin_field=21;begin_observed=32'(cmd_qtype);end
+   for(int j=15;j>=0;j--)if(cmd_marker_rows[j]!=0)begin begin_code=16;begin_field=22;begin_index=16'(j);begin_observed=cmd_marker_rows[j];end
+  end
+  if(cmd_epoch>32'hfffffe00)begin begin_code=3;begin_field=26;begin_observed=cmd_epoch;end
+  if(cmd_kind<5||cmd_kind>7)begin begin_code=1;begin_field=19;begin_observed=32'(cmd_kind);end
+  else if(cmd_kind==5&&cmd_layer>=28||cmd_kind==6&&cmd_layer>=2||cmd_kind==7&&cmd_layer!=0)begin begin_code=3;begin_field=20;begin_observed=32'(cmd_layer);end
+  if(!model_committed)begin begin_code=12;begin_field=0;begin_observed=0;end
+  if(cmd_model_id!=MODEL_ID||cmd_numeric_id!=NUMERIC_ID||cmd_table_key!=TABLE_KEY||cmd_graph_id!=GRAPH_ID||cmd_layout_id!=LAYOUT_ID||cmd_build_id!=BUILD_ID)begin begin_code=2;begin_field=cmd_build_id!=BUILD_ID?18:26;begin_observed=cmd_build_id[31:0];end
+ end
+ // Counters change only for real bank commits, requests or public output accepts.
+ always_ff@(posedge clk)begin
+  if(!rst_n)begin resident_issue<=0;resident_sink<=0;end
+  else if(setup_valid&&setup_ready||cmd_valid&&cmd_ready||state==S_CHECK||state==S_HR&&cat_rsp_valid&&cat_rsp_ready&&!cat_fault&&resident_issue==3||state==S_RR&&cat_rsp_valid&&cat_rsp_ready&&!cat_fault&&resident_issue==119||state==S_BIAS&&model_word_valid&&model_word_ready&&resident_issue==575||state==S_GBEGIN&&v2_ln_gamma_begin_valid&&v2_ln_gamma_begin_ready||state==S_GDONE&&v2_ln_gamma_done_valid&&v2_ln_gamma_done_ready||state==E_H_READY||state==QSUB&&q_cmd_valid&&q_cmd_ready||state==F_NQSUB&&q_cmd_valid&&q_cmd_ready||state==WMSUB&&m_cmd_valid&&m_cmd_ready||state==D2SUB&&m_cmd_valid&&m_cmd_ready||state==E_RF_RELEASE&&v2_scratch_release_valid&&v2_scratch_release_ready||state==GATHER_START)begin resident_issue<=0;resident_sink<=0;end
+  else begin
+   if(cat_rsp_valid&&cat_rsp_ready&&!cat_fault&&(state==S_HR||state==S_RR)||model_word_valid&&model_word_ready)resident_issue<=resident_issue+1'b1;
+   if(v2_h_rd_valid&&v2_h_rd_ready||v2_q_rd_valid&&v2_q_rd_ready)resident_issue<=resident_issue+1'b1;
+   if(v2_q_wr_commit||out_valid&&out_ready)resident_sink<=resident_sink+1'b1;
+  end
+ end
+ logic c_rd_valid,c_rd_ready,c_rsp_valid,c_rsp_ready,c_out_valid,c_out_ready,c_idle,c_complete,c_fault,c_start_ready;
+ logic[31:0]c_rd_generation,c_rd_tag,c_rsp_tag;logic[3:0]c_rd_head;logic[6:0]c_rd_query;logic c_rd_half;
+ logic[31:0][31:0]c_rsp_data,c_out_data;logic[7:0]c_out_row,c_out_group;logic[12:0]c_accepted,c_consumed;
+ wire[79:0]matrix_detail={16'(m_error_stage),16'(m_error_row),m_error_col,16'(m_error_group),16'b0};
+ wire[79:0]quant_detail={16'(q_quant_phase),16'(q_quant_row),16'(q_quant_group),16'(q_quant_element),16'b0};
+ wire[79:0]ln_detail={v2_ln_error_class,v2_ln_error_row,v2_ln_error_check,v2_ln_error_level,v2_ln_error_node,v2_ln_protocol_code,v2_ln_protocol_location,v2_ln_error_stage,36'b0};
+ wire[79:0]vector_detail={16'(v2_vector_done_error_row),16'(v2_vector_done_error_column),8'(v2_vector_done_error_column[4:0]),v2_vector_done_status,8'b0};
+ wire[7:0]bus_code=cat_rid!=7?8'd7:cat_rresp!=0?8'd8:8'd9;
+ wire[79:0]bus_detail=check_detail(bus_code,{9'b0,cat_word},0,0,0,{26'b0,cat_rid,cat_rresp,cat_rlast});
+ // Original Attention tuple is stage8 + a..e16 + f8. High bytes must be zero.
+ wire attention_range_bad=|{l_error_tuple[87:80],l_error_tuple[71:64],l_error_tuple[55:48],l_error_tuple[39:32],l_error_tuple[23:16]};
+ logic[7:0]attention_bad_field;logic[15:0]attention_bad_value;
+ always_comb begin
+  attention_bad_field=0;attention_bad_value=0;
+  if(l_error_tuple[23:16]!=0)begin attention_bad_field=5;attention_bad_value=l_error_tuple[23:8];end
+  if(l_error_tuple[39:32]!=0)begin attention_bad_field=4;attention_bad_value=l_error_tuple[39:24];end
+  if(l_error_tuple[55:48]!=0)begin attention_bad_field=3;attention_bad_value=l_error_tuple[55:40];end
+  if(l_error_tuple[71:64]!=0)begin attention_bad_field=2;attention_bad_value=l_error_tuple[71:56];end
+  if(l_error_tuple[87:80]!=0)begin attention_bad_field=1;attention_bad_value=l_error_tuple[87:72];end
+ end
+ wire[79:0]attention_detail={l_error_tuple[95:88],l_error_tuple[79:72],l_error_tuple[63:56],l_error_tuple[47:40],l_error_tuple[31:24],l_error_tuple[15:8],l_error_tuple[7:0],24'b0};
+ always_ff@(posedge clk)begin
+  if(!rst_n)begin
+   state<=IDLE;request_id<=0;generation<=0;epoch<=0;kind<=0;layer_index<=0;mask<=0;tensor_id<=0;base<=0;span<=0;
+   inputs_accepted<=0;producer_failed<=0;context_failed<=0;done_status<=0;error_domain<=0;error_tuple<=0;source_status<=0;elapsed_cycles<=0;
+   model_committed<=0;catalog_base<=0;active_epoch_offset<=0;qtype<=0;marker_rows<=0;marker_mask<=0;
+  end else begin
+   if(state!=IDLE&&!done_valid)elapsed_cycles<=elapsed_cycles+1;
+   if(invalidate_valid&&invalidate_ready)begin
+    request_id<=invalidate_request;generation<=invalidate_generation;epoch<=0;kind<=1;done_status<=0;error_domain<=0;error_tuple<=0;source_status<=0;elapsed_cycles<=0;state<=I_FINISH;
+    if(invalidate_build_id==BUILD_ID)model_committed<=0;
+    else begin done_status<=4;error_domain<=1;source_status<=2;error_tuple<={8'h02,5'd31,3'd0,check_detail(2,0,18,0,0,invalidate_build_id[31:0])};end
+   end else if(setup_valid&&setup_ready)begin
+    request_id<=setup_request;generation<=setup_generation;epoch<=0;kind<=0;done_status<=0;error_domain<=0;error_tuple<=0;source_status<=0;elapsed_cycles<=0;model_committed<=0;
+    catalog_base<=setup_catalog_base;base[0]<=setup_records_sha256;span[0][0]<=setup_records_crc;tensor_id<=0;state<=S_CHECK;
+    if(setup_build_id!=BUILD_ID||setup_table_key!=TABLE_KEY||setup_model_sha256!=MODEL_SHA256||setup_graph_sha256!=GRAPH_SHA256||setup_numeric_sha256!=NUMERIC_SHA256||setup_layout_sha256!=LAYOUT_SHA256||setup_package_build_sha256!=PACKAGE_BUILD_SHA256)begin
+     state<=S_FINISH;done_status<=4;error_domain<=1;source_status<=2;
+     error_tuple<={8'h01,5'd31,3'd0,check_detail(2,0,setup_build_id!=BUILD_ID?8'd18:setup_model_sha256!=MODEL_SHA256?8'd6:setup_graph_sha256!=GRAPH_SHA256?8'd7:setup_numeric_sha256!=NUMERIC_SHA256?8'd8:setup_layout_sha256!=LAYOUT_SHA256?8'd9:setup_package_build_sha256!=PACKAGE_BUILD_SHA256?8'd10:8'd26,0,0,0)};
+    end else if(setup_catalog_span!=8192||setup_catalog_base[11:0]!=0||({1'b0,setup_catalog_base}+65'd8192)>=65'h10000000000000000)begin
+     state<=S_FINISH;done_status<=5;error_domain<=1;source_status<=3;error_tuple<={8'h01,5'd31,3'd0,check_detail(3,0,setup_catalog_span!=8192?8'd16:8'd15,0,0,setup_catalog_span[31:0])};
+    end
+   end else if(cmd_valid&&cmd_ready)begin
+    request_id<=cmd_request;generation<=cmd_generation;epoch<=cmd_epoch;kind<=cmd_kind>=5?cmd_kind:3'd5;layer_index<=cmd_kind==6?cmd_layer+5'd28:cmd_layer;mask<=cmd_mask;
+    inputs_accepted<=0;producer_failed<=0;context_failed<=0;done_status<=0;error_domain<=0;error_tuple<=0;source_status<=0;elapsed_cycles<=0;active_epoch_offset<=0;
+    qtype<=cmd_qtype;marker_mask<=cmd_marker_mask;for(int j=0;j<16;j++)marker_rows[j]<=cmd_marker_rows[j][6:0];
+    if(begin_code!=0)begin state<=FINISH;done_status<=begin_code==12?5:4;error_domain<=1;source_status<=begin_code;error_tuple<={8'h03,5'd31,3'd0,check_detail(begin_code,begin_index,begin_field,0,0,begin_observed)};end
+    else state<=cmd_kind==7?TAIL_ARM:E_H_LOAD;
+   end
+   case(state)
+    S_CHECK:begin
+     if(ADDRESS_PROFILE==0||ADDRESS_PROFILE==3||PLATFORM_MANIFEST_SHA256==0)fail(8'h01,1,5,11,0,check_detail(11,0,17,0,0,32'(ADDRESS_PROFILE)),S_FINISH);
+     else if(HBM_PORT_SPAN[0]==0||({1'b0,HBM_PORT_BASE[0]}+{1'b0,HBM_PORT_SPAN[0]})>=65'h10000000000000000||catalog_base<HBM_PORT_BASE[0]||({1'b0,catalog_base}+65'd8192)>({1'b0,HBM_PORT_BASE[0]}+{1'b0,HBM_PORT_SPAN[0]}))fail(8'h01,1,5,3,0,check_detail(3,0,17,0,0,catalog_base[31:0]),S_FINISH);
+     else state<=S_HAR;
+    end
+    S_HAR,S_RAR,C_A0_AR,C_A1_AR,C_F0_AR,C_F1_AR:if(cat_req_valid&&cat_req_ready)state<=state+1'b1;
+    S_HR:if(cat_rsp_valid&&cat_rsp_ready)begin
+     if(cat_fault)fail(8'h04,1,2,bus_code,0,bus_detail,S_HDRAIN);
+     else if(header_code!=0)fail(8'h04,1,5,header_code,0,check_detail(header_code,header_index,header_field,0,0,header_observed),SETUP_ERROR);
+     else state<=resident_issue==3?S_RAR:S_HAR;
+    end
+    S_RR:if(cat_rsp_valid&&cat_rsp_ready)begin
+     if(cat_fault)fail(8'h05,1,2,bus_code,0,bus_detail,S_RDRAIN);
+     else if(record_code!=0)fail(8'h05,1,5,record_code,0,check_detail(record_code,16'(resident_issue),record_field,record_port,0,record_observed),SETUP_ERROR);
+     else begin
+      tensor_id<=crc_next;
+      if(resident_issue==119)begin
+       if(crc_next!=span[0][0])fail(8'h06,1,5,5,0,check_detail(5,119,12,0,0,crc_next[31:0]),SETUP_ERROR);
+       else state<=S_BIAS;
+      end else state<=S_RAR;
+     end
+    end
+    S_HDRAIN,S_RDRAIN:if(cat_idle)state<=SETUP_ERROR;
+    S_BIAS:if(model_word_valid&&model_word_ready)begin
+     if(model_bad[5])fail(8'h07,1,1,6,0,check_detail(6,16'(model_word_index),29,0,model_bad[4:0],model_word_data[model_bad[4:0]]),SETUP_ERROR);
+     else if(resident_issue==575)state<=S_GOWNER;
+    end
+    S_GOWNER:if(v2_ln_enable)state<=S_GBEGIN;
+    S_GBEGIN:if(v2_ln_gamma_begin_valid&&v2_ln_gamma_begin_ready)state<=S_GDATA;
+    S_GDATA:begin
+     if(model_word_valid&&model_word_ready&&model_bad[5]&&done_status==0)begin
+      done_status<=1;source_status<=6;error_domain<=1;error_tuple<={8'h08,5'd31,3'd0,check_detail(6,16'(model_word_index),29,0,model_bad[4:0],model_word_data[model_bad[4:0]])};
+     end
+     if(v2_ln_gamma_done_valid||model_word_valid&&model_word_ready&&resident_issue==31)state<=S_GDONE;
+    end
+    S_GDONE:if(v2_ln_gamma_done_valid&&v2_ln_gamma_done_ready)begin
+     if(done_status!=0)state<=SETUP_ERROR;
+     else if(v2_ln_gamma_done_error||!v2_ln_gamma_loaded)fail(8'h08,1,1,1,0,check_detail(6,31,29,0,0,32'(v2_ln_gamma_done_error)),SETUP_ERROR);
+     else state<=S_TYPE;
+    end
+    S_TYPE:if(model_word_valid&&model_word_ready)begin
+     if(!type_word_commit)fail(8'h09,7,2,10,0,check_detail(10,16'(model_word_index),0,0,0,0),SETUP_ERROR);
+     else if(model_bad[5])fail(8'h09,1,1,6,0,check_detail(6,16'(model_word_index),29,0,model_bad[4:0],model_word_data[model_bad[4:0]]),SETUP_ERROR);
+     else if(resident_issue==95)state<=S_ROPE;
+    end
+    S_ROPE:if(ws_a_enable&&type_bank_idle&&v2_shared_resources_idle)begin
+     if(coeff_bound_valid&&coeff_bound_model_id==MODEL_ID&&coeff_bound_numeric_id==NUMERIC_ID&&coeff_bound_table_key==TABLE_KEY&&coeff_family_complete==3)state<=S_FINISH;
+     else fail(8'h0a,1,5,12,0,check_detail(12,0,26,0,0,32'(coeff_family_complete)),S_FINISH);
+    end
+    SETUP_ERROR:if(cat_idle&&!v2_ln_gamma_done_valid&&v2_ln_provider_idle&&type_bank_idle&&ws_a_enable&&v2_shared_resources_idle)state<=S_FINISH;
+    TAIL_ARM:if(tail_begin_valid&&tail_begin_ready)state<=E_H_LOAD;
+    E_H_LOAD:begin
+     if(h_load_fire)begin
+      inputs_accepted<=inputs_accepted+1'b1;
+      if(!v2_h_wr_commit)fail(8'h20,7,2,10,0,check_detail(10,16'(inputs_accepted),0,0,0,0),E_ABORT);
+      else if(input_bad[5])fail(8'h20,7,1,6,6,{16'(in_row),16'(32*in_group+input_bad[4:0]),8'(input_bad[4:0]),32'd6,8'b0},E_ABORT);
+      else if(inputs_accepted==4095)state<=E_H_READY;
+     end
+     if(producer_fail_fire)begin producer_failed<=1;fail(8'h20,2,3,producer_fail_code,7,producer_fail_detail,E_ABORT);end
+    end
+    E_H_READY:if(h_load_success_valid&&resident_retired)begin
+     active_epoch_offset<=layer_offset(layer_index,0);
+     if(layer_index==0)begin active_epoch_offset<=layer_offset(layer_index,1);state<=C_A0_AR;end
+     else state<=P_OWNER;
+    end
+    P_OWNER:if(v2_ln_enable)state<=P_LEASE;
+    N_OWNER:if(v2_ln_enable)state<=N_LEASE;
+    T_OWNER:if(v2_vector_enable)state<=T_LEASE;
+    P_LEASE,N_LEASE,T_LEASE:if(v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=state+1'b1;
+    P_START,N_START:if(v2_resident_ln_start_valid&&v2_resident_ln_start_ready)state<=state+1'b1;
+    T_START:if(v2_vector_start_valid&&v2_vector_start_ready)state<=T_RUN;
+    P_RETIRE:if(v2_scratch_release_valid&&v2_scratch_release_ready)begin active_epoch_offset<=layer_offset(layer_index,1);state<=C_A0_AR;end
+    N_RETIRE:if(v2_scratch_release_valid&&v2_scratch_release_ready)begin active_epoch_offset<=449;state<=T_OWNER;end
+    T_RETIRE:if(v2_scratch_release_valid&&v2_scratch_release_ready)begin layer_index<=28;active_epoch_offset<=464;state<=P_OWNER;end
+    C_A0_R,C_A1_R,C_F0_R,C_F1_R:if(cat_rsp_valid&&cat_rsp_ready)begin
+     if(cat_fault)fail(catalog_ffn?8'h0c:8'h0b,1,2,bus_code,0,bus_detail,state==C_A0_R?C_A0_DRAIN:state==C_A1_R?C_A1_DRAIN:state==C_F0_R?C_F0_DRAIN:C_F1_DRAIN);
+     else if(record_code!=0)fail(catalog_ffn?8'h0c:8'h0b,1,5,record_code,0,check_detail(record_code,{9'b0,cat_word},record_field,record_port,0,record_observed),E_ABORT);
+     else begin
+      tensor_id[catalog_slot]<=graph_tensor(layer_index,catalog_ffn,catalog_slot);
+      for(int p=0;p<4;p++)begin base[catalog_slot][p]<=cat_data[128*p+:64];span[catalog_slot][p]<=cat_data[128*p+64+:64];end
+      case(state)C_A0_R:state<=C_A1_AR;C_A1_R:state<=layer_index==0?PREP:E_REFILL0;C_F0_R:state<=C_F1_AR;default:begin active_epoch_offset<=layer_offset(layer_index,2);state<=E_RA_LEASE;end endcase
+     end
+    end
+    C_A0_DRAIN,C_A1_DRAIN,C_F0_DRAIN,C_F1_DRAIN:if(cat_idle)state<=E_ABORT;
+    E_REFILL0:if(v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=QSUB;
+    E_REFILL1:if(v2_scratch_release_valid&&v2_scratch_release_ready)state<=PREP;
+    PREP:if(l_prepare_valid&&l_prepare_ready)state<=layer_index==0?QSUB:QMSUB;
+    QSUB:if(q_cmd_valid&&q_cmd_ready)begin state<=QRUN;inputs_accepted<=0;end
+    QRUN:begin
+     if(internal_source_fire)inputs_accepted<=inputs_accepted+1'b1;
+     if(q_done_valid&&q_done_ready)begin
+      if(q_status!=0)fail(8'h22,3,matrix_status_map(q_status),8'(q_status),3,quant_detail,ACANCEL);
+      else state<=layer_index==0?QMSUB:E_REFILL1;
+     end
+    end
+    QMSUB:if(m_cmd_valid&&m_cmd_ready)state<=QMRUN;
+    QMRUN:if(m_done_valid&&m_done_ready)begin
+     if(m_status!=0)fail(8'h23,4,matrix_status_map(m_status),8'(m_status),2,matrix_detail,PCANCEL);
+     else state<=LSTART;
+    end
+    ACANCEL:if(m_fill_cancel_valid&&m_fill_cancel_ready)state<=ACWAIT;
+    ACWAIT:if(m_fill_cancel_rsp_valid&&m_fill_cancel_rsp_ready)state<=layer_index==0?PCANCEL:E_ABORT;
+    PCANCEL:if(l_prepare_cancel_valid&&l_prepare_cancel_ready)state<=PCWAIT;
+    PCWAIT:if(l_prepare_cancel_rsp_valid&&l_prepare_cancel_rsp_ready)state<=DISCWAIT;
+    LSTART:if(l_start_valid&&l_start_ready)state<=LRUN;
+    LRUN:if(l_done_valid&&l_done_ready)begin
+     if(l_done_status!=0)begin
+      if(attention_range_bad)fail(8'h24,5,2,17,0,check_detail(17,0,attention_bad_field,0,0,{16'b0,attention_bad_value}),DISCWAIT);
+      else fail(8'h24,5,layer_status_map(l_done_status),l_done_status,4,attention_detail,DISCWAIT);
+     end else state<=CSUB;
+    end
+    CSUB:if(q_cmd_valid&&q_cmd_ready&&c_start_ready)state<=CRUN;
+    CRUN:if(q_done_valid&&q_done_ready)begin
+     state<=CDRAIN;
+     if(q_status!=0||c_fault)begin context_failed<=1;fail(8'h25,3,q_status==0?8'd2:matrix_status_map(q_status),8'(q_status),3,quant_detail,CDRAIN);end
+    end
+    CDRAIN:if(c_idle)begin if(context_failed)state<=l_layer_idle?E_ABORT:DISCARD;else if(c_complete&&l_layer_idle)state<=E_WO_LEASE;end
+    DISCARD:if(l_result_discard_valid&&l_result_discard_ready)state<=DISCWAIT;
+    DISCWAIT:if(l_layer_idle)state<=E_ABORT;
+    E_WO_LEASE:if(v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=WMSUB;
+    WMSUB:if(m_cmd_valid&&m_cmd_ready)state<=WMRUN;
+    WMRUN:if(m_done_valid&&m_done_ready)begin
+     if(m_status!=0)fail(ffn_mode?8'h2d:8'h26,4,matrix_status_map(m_status),8'(m_status),2,matrix_detail,E_ABORT);
+     else state<=ffn_mode?F_RETURN:E_WO_POST;
+    end
+    E_WO_POST:if(resident_sink==4096&&v2_scratch_release_valid&&v2_scratch_release_ready)state<=C_F0_AR;
+    E_RA_LEASE:if(v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_RA_OWNER;
+    E_RA_OWNER:if(v2_vector_enable)state<=E_RA_SUB;
+    E_RA_SUB:if(v2_vector_start_valid&&v2_vector_start_ready)state<=E_RA_RUN;
+    E_RA_RELEASE:if(v2_scratch_release_valid&&v2_scratch_release_ready)begin active_epoch_offset<=layer_offset(layer_index,3);state<=E_LN_LEASE;end
+    E_LN_LEASE:if(v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_LN_OWNER;
+    E_LN_OWNER:if(v2_ln_enable)state<=E_LN_SUB;
+    E_LN_SUB:if(v2_resident_ln_start_valid&&v2_resident_ln_start_ready)state<=E_LN_RUN;
+    E_LN_RELEASE:if(v2_scratch_release_valid&&v2_scratch_release_ready)begin active_epoch_offset<=layer_offset(layer_index,4);state<=E_FF_LEASE;end
+    E_FF_LEASE:if(v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_FF_OWNER;
+    E_FF_OWNER:if(decision_mode?ws_a_enable:ws_g_enable)state<=F_NQSUB;
+    F_ARENA:if(ws_g_enable)state<=F_NQSUB;
+    F_NQSUB:if(q_cmd_valid&&q_cmd_ready)begin state<=F_NQRUN;inputs_accepted<=0;end
+    F_NQRUN:begin
+     if(internal_source_fire)inputs_accepted<=inputs_accepted+1'b1;
+     if(q_done_valid&&q_done_ready)begin
+      if(q_status!=0)fail(8'h29,3,matrix_status_map(q_status),8'(q_status),3,quant_detail,F_RELEASE);
+      else state<=decision_mode?D1SUB:F_WISUB;
+     end
+    end
+    F_WISUB:if(m_cmd_valid&&m_cmd_ready)state<=F_GQSUB;
+    F_GQSUB:if(g_cmd_valid&&g_cmd_ready&&q_cmd_valid&&q_cmd_ready)state<=F_RUN;
+    F_RUN:begin
+     if(pack_fault||g_protocol_fault||m_done_valid&&m_status!=0)state<=F_ABORT;
+     else if(m_done_valid&&m_status==0&&g_done_valid)begin
+      if(g_done_status!=0||g_done_cancelled)state<=F_ABORT;
+      else if(pack_seq==41984&&!pack_full&&g_all_covered&&q_quant_accepted==10496)state<=F_CLOSE;
+     end
+    end
+    F_CLOSE:if(ffn_close_fire)state<=F_QDRAIN;
+    F_QDRAIN:if(q_done_valid&&q_done_ready)begin
+     if(q_status!=0)fail(decision_mode?8'h33:8'h2c,3,matrix_status_map(q_status),8'(q_status),3,quant_detail,F_RELEASE);
+     else state<=F_RELEASE;
+    end
+    F_ABORT:begin
+     if(m_done_valid&&m_done_ready&&m_status!=0)begin
+      done_status<=matrix_status_map(m_status);source_status<=8'(m_status);error_domain<=4;error_tuple<={decision_mode?8'h31:8'h2a,error_global,3'd2,matrix_detail};
+     end else if(!decision_mode&&g_done_valid&&g_done_ready&&error_domain!=4&&(done_status==0||g_done_status!=0))begin
+      done_status<=g_done_status==6?8'd1:8'd2;source_status<=g_done_status[7:0];error_domain<=6;error_tuple<={8'h2b,error_global,3'd5,16'(g_done_error_rank),16'(g_done_error_row),16'(g_done_error_column),g_done_status};
+     end else if((pack_fault||g_protocol_fault)&&done_status==0)begin done_status<=2;source_status<=8;error_domain<=7;error_tuple<={8'h38,error_global,3'd0,check_detail(13,pack_seq,30,0,0,0)};end
+     if(decision_mode&&m_transport_idle&&q_cmd_ready&&!q_done_valid)state<=F_RELEASE;
+     else if(!decision_mode&&m_transport_idle&&!g_active&&!g_done_valid&&q_cmd_ready&&(g_needs_discard||g_engine_idle))state<=F_DISCARD;
+    end
+    F_DISCARD:if(!g_needs_discard||g_discard_valid&&g_discard_ready)state<=F_RELEASE;
+    F_RELEASE:if((decision_mode||g_engine_idle)&&!tanh_lease_active&&r_res_st_idle&&!r_res_fp_lease_active&&!r_res_div_lease_active&&m_transport_idle&&q_cmd_ready&&!q_done_valid)state<=done_status==0?(decision_mode?D2SUB:WMSUB):F_RETURN;
+    F_RETURN:if(ws_a_enable)state<=done_status==0?E_FF_POST:E_ABORT;
+    D1SUB:if(q_cmd_valid&&q_cmd_ready)state<=D1RUN;
+    D1RUN:if(m_cmd_valid&&m_cmd_ready)state<=D1DRAIN;
+    D1DRAIN:begin
+     if(m_out_valid&&!fc1_finite)fail(8'h32,7,1,6,6,{16'(m_out_row),m_out_col,8'b0,32'd6,8'b0},F_ABORT);
+     else if(m_done_valid&&ffn_close_fire)begin
+      if(m_status!=0)fail(8'h31,4,matrix_status_map(m_status),8'(m_status),2,matrix_detail,F_ABORT);
+      else state<=F_QDRAIN;
+     end
+    end
+    D2SUB:if(m_cmd_valid&&m_cmd_ready)state<=D2RUN;
+    D2RUN:if(m_done_valid&&m_done_ready)begin
+     if(m_status!=0)fail(8'h34,4,matrix_status_map(m_status),8'(m_status),2,matrix_detail,E_ABORT);
+     else state<=D2DRAIN;
+    end
+    D2DRAIN:if(m_transport_idle&&q_cmd_ready&&!q_done_valid)state<=F_RETURN;
+    E_FF_POST:if(resident_sink==4096&&v2_scratch_release_valid&&v2_scratch_release_ready)begin active_epoch_offset<=layer_offset(layer_index,5);state<=E_RF_LEASE;end
+    E_RF_LEASE:if(v2_scratch_lease_valid&&v2_scratch_lease_ready)state<=E_RF_OWNER;
+    E_RF_OWNER:if(v2_vector_enable)state<=E_RF_SUB;
+    E_RF_SUB:if(v2_vector_start_valid&&v2_vector_start_ready)state<=E_RF_RUN;
+    E_RF_RELEASE:if(v2_scratch_release_valid&&v2_scratch_release_ready)state<=LAYER_NEXT;
+    LAYER_NEXT:if(resident_retired&&v2_scratch_retired&&ws_a_enable)begin
+     if(kind!=7)begin active_epoch_offset<=layer_offset(layer_index,6);state<=E_EXPORT;end
+     else if(layer_index==27)begin active_epoch_offset<=448;state<=N_OWNER;end
+     else if(layer_index==29)begin active_epoch_offset<=496;state<=GATHER_START;end
+     else begin layer_index<=layer_index+1'b1;active_epoch_offset<=layer_offset(layer_index+1'b1,0);state<=P_OWNER;end
+    end
+    E_EXPORT:if(out_valid&&out_ready&&resident_sink==4095)state<=E_EXPORT_DRAIN;
+    E_EXPORT_DRAIN:if(resident_issue==4096&&resident_sink==4096&&resident_retired&&v2_scratch_retired)state<=E_FINAL_A;
+    GATHER_START:if(resident_retired&&v2_scratch_retired)state<=GATHER_RUN;
+    GATHER_RUN:if(out_valid&&out_ready&&resident_sink==543)state<=GATHER_DRAIN;
+    GATHER_DRAIN:if(resident_issue==544&&resident_sink==544&&resident_retired&&v2_scratch_retired)state<=TAIL_WAIT;
+    TAIL_WAIT:if(tail_commit_valid&&tail_commit_ready)begin
+     if(tail_commit_bytes!=69632||tail_commit_status!=0)fail(8'h37,7,2,tail_commit_bytes!=69632?8'd14:8'd15,0,check_detail(tail_commit_bytes!=69632?8'd14:8'd15,0,tail_commit_bytes!=69632?8'd25:8'd0,0,0,tail_commit_bytes!=69632?tail_commit_bytes:{24'b0,tail_commit_status}),tail_owner_idle?FINISH:TAIL_ABORT);
+     else state<=ERROR_CLEAN;
+    end
+    ERROR_CLEAN:if(tail_owner_idle&&resident_retired&&v2_scratch_retired)state<=FINISH;
+    TAIL_ABORT:if(tail_abort_valid&&tail_abort_ready)state<=ERROR_CLEAN;
+    E_ABORT:if(resident_retired&&v2_scratch_retired)state<=E_FINAL_A;
+    E_FINAL_A:if(ws_a_enable&&resident_retired&&v2_scratch_retired)state<=kind==7&&done_status!=0?TAIL_ABORT:FINISH;
+    default:begin end
+   endcase
+   if(vector_done_fire&&state!=E_ABORT)begin
+    if(v2_vector_done_status==0&&v2_vector_issued_vectors==4096&&v2_vector_retired_vectors==4096&&v2_h_bank_idle)state<=state==E_RA_RUN?E_RA_RELEASE:state==T_RUN?T_RETIRE:E_RF_RELEASE;
+    else fail(vector_op,7,v2_vector_done_status==6?8'd1:8'd2,v2_vector_done_status[7:0],6,vector_detail,E_ABORT);
+   end
+   if(ln_reject_fire&&done_status==0)fail(ln_op,7,2,8,1,{2'd3,7'b0,4'b0,4'b0,10'b0,v2_ln_reject_code,8'b0,5'b0,36'b0},E_ABORT);
+   if(resident_ln_done_fire&&state!=E_ABORT&&!ln_reject_fire)begin
+    if(v2_resident_ln_done_kind==0&&v2_resident_ln_done_status==0&&v2_resident_ln_issued_vectors==4096&&v2_resident_ln_written_vectors==4096)state<=state==P_RUN?P_RETIRE:state==N_RUN?N_RETIRE:E_LN_RELEASE;
+    else fail(ln_op,7,v2_resident_ln_done_kind==1?8'd1:v2_resident_ln_done_kind==3?8'd6:8'd2,{6'b0,v2_resident_ln_done_kind},1,ln_detail,E_ABORT);
+   end
+   if(done_valid&&done_ready)begin
+    if(kind==0&&done_status==0)model_committed<=1;
+    state<=IDLE;
+   end
+  end
+ end

@@ -1,0 +1,36 @@
+COMMAND ['/usr/bin/python3', '/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT001_host/work/frozen/tests/test_m007_model_catalog.py', '--output', '/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT001_host/work/host']
+test_01_standard_crc (__main__.CatalogTests.test_01_standard_crc) ... ok
+test_02_fixed_bindings_original_package (__main__.CatalogTests.test_02_fixed_bindings_original_package) ... FAIL
+test_03_exact_header_and_all120_records (__main__.CatalogTests.test_03_exact_header_and_all120_records) ... ok
+test_04_header_identity_crc_reserved_tail_reject (__main__.CatalogTests.test_04_header_identity_crc_reserved_tail_reject) ... ok
+test_05_first_last_structure_after_valid_checksums (__main__.CatalogTests.test_05_first_last_structure_after_valid_checksums) ... ok
+test_06_illegal_numeric_and_placement (__main__.CatalogTests.test_06_illegal_numeric_and_placement) ... ok
+test_07_original_coefficients_and_three_rows (__main__.CatalogTests.test_07_original_coefficients_and_three_rows) ... ERROR
+
+======================================================================
+ERROR: test_07_original_coefficients_and_three_rows (__main__.CatalogTests.test_07_original_coefficients_and_three_rows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT001_host/work/frozen/tests/test_m007_model_catalog.py", line 167, in test_07_original_coefficients_and_three_rows
+    report=dut.prepare_coefficients(self.info,GGUF,OUTPUT/'coefficients')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT001_host/work/frozen/tools/m007_model_catalog.py", line 299, in prepare_coefficients
+    type_raw = read_tensor('type_emb', 8, [1024, 3, 1, 1])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT001_host/work/frozen/tools/m007_model_catalog.py", line 277, in read_tensor
+    tensor, source = package_info['tensors'][name], package_info['original'][name]
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'type_emb'
+
+======================================================================
+FAIL: test_02_fixed_bindings_original_package (__main__.CatalogTests.test_02_fixed_bindings_original_package)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E020_m007_model_catalog/experiment_results/runs/R001/attempts/AT001_host/work/frozen/tests/test_m007_model_catalog.py", line 87, in test_02_fixed_bindings_original_package
+    self.assertEqual(item['tensor'], list(self.info['original']).index(item['name']))
+AssertionError: 4 != 3
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.796s
+
+FAILED (failures=1, errors=1)

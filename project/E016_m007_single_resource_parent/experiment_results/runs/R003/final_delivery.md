@@ -1,0 +1,45 @@
+# E016/R003 complete Attention parent delivery
+
+# E016/R003：完整原Encoder0 Attention父链 PASS
+
+execution_state: completed
+verdict: supported
+applicability: 仅原Encoder0一次命令QKV→Attention16head→实际context→WO→成功回执；不签完整Encoder/FFN/30层、物理或部署。
+
+| 实际边界 | 结果 |
+| --- | --- |
+| QKV | 48块、12288公共QKV32、393216 F32原值 |
+| RoPE | 2048真实Q/K提交、原postQKV逐位核 |
+| 16head | score/prob各262144、context131072、maximum2048、prob bank ack32768；每head独立数值/身份/周期终断言 |
+| 实际公共context | 4096读/响应，query/head/half/tag/gen与32F32逐位核；4096真实quant/Awrite/Aack、一次发布，layer与量化/DIV/A真实债/所有权退休后才WO |
+| WO | 唯一matrix/cache真实WO冷载16块，每块1024连续issue/commit；4096公共32F32输出/131072值原gold |
+| 首次父成功 | status/source/domain/tuple独立预期0，request77/gen8/epoch9，243bit保持5拍后真实消费一次并回IDLE |
+| 有限WO反压 | 中间至少8拍、末输出至少12拍，实际held计数8/12，完整输出与身份稳定、无早DONE |
+
+AT007唯一full实际wall 2828.967579680s，PASS，数值及周期合同均通过。完整实际周期字段：{"parent_cmd": 591, "QKV_cmd": 4781, "QKV_last": 56610, "layer_start": 56617, "layer_done": 235394, "context_start": 235395, "context_last": 239492, "WO_cmd": 239584, "WO_last": 257538, "WO_done": 257544, "dispatch_total": 7, "raw_parent_cmd_to_WO_last": 256947, "raw_QKV_cmd_to_WO_last": 252757, "cycle_pass": 1}。保留原始总周期和外部held，不偷偷扣停顿；模块QKV57344/layer188544/WO22528、dispatch16/合计128与Attention父段268416帽仍按实际事件检查。
+
+同AT004完整snapshot：AT005 QKV3 PASS48.746615243s/8364拍；AT006真实两head pilot PASS877.589479115s。固定实测门P2=877.232754763s、Hmax=114.465794125s、Q=628.900676903s，E=1.10*(P2+14*Hmax+Q)+10=3429.520004357s≤3600，余额≥E+600，故仅自动一次full、timeout3430。Q明确是context+WO的可证伪占位而非实测；本次完整runtime实际CSUB入口→WO DONE为267.514431983s，未超过该Q，区间包含context派发，不能冒充硬件频率。逐head实际wall与周期见actual_complete_chain_metrics.json。旧R0013494.95秒仍为旧版本/旧observer估计；R003使用新合同、新预算和同snapshot实际数据，无旧attempt延帽。
+
+失败保留：AT001生成器end拼接语法FAIL1.914082291s；AT002 build PASS后AT003首批quant/A处xsim内核exception FAIL6.614362462s。等价显式TB字符串/数组分支后AT004 build PASS43.694276949s、AT005/006/007在此组合执行；没有把异常解释为方法数值失败，也未隔离单一构造因果。AT003旧fatal分类未识别FATAL_ERROR文字，但缺终标仍FAIL；原receipt不改，后继分类已扩展。
+
+最终审计1035文件、1670检查PASS；xsim运行可变配置/日志差异单独登记。独立费用reference0/static94.410942169/RTL3761.918036500/OOC0s，含失败与最终审计；余额static505.589057831/RTL2238.081963500s，R001/R002未转余额。
+
+# E016/R003 完整Attention父链实现与实际输入
+
+SM012 D-M007-SM012-FULL-PARENT-15。当前parent e35424a62457ca08f1b5e707ad7b8a1556b1f578e8ced9e16adbe076592b4cb8及原FP/DIV/layer/resource closure冻结在AT004；生产RTL未改。实际完整TB保留全部原QKV/W/A/prebias/RoPE/score/prob/context/连续issue/PS反馈/8身份拒绝checker，并按head和两次matrix操作分开计数，新增每head128maximum终断言、真实公共context4096、同quant/A发布和WO131072原gold，以及首次正常父成功的独立243bit期望与保持/退休。
+
+实际AR接受时按已注册QKV/WO地址锁存来源和base，每ID返回使用锁存字段。原out_ready合法中间/末WO反压，done_ready保持5拍；不强制内部state/ready，不用原context文件代驱动真实layer输出，不复制生产服务。所有模式使用同一完整snapshot并在初始化加载相同完整fixture。原model/numeric/table/graph/layout/build128bit source tags与kind/layer keys沿用e354校验；当前W576/RTL/compiled身份另外记录，不当作当前bitstream。
+
+新增parent+adapter控制1561bit/196B，原保守3550B合计3746B；452实际输入源，实际唯一服务层次由最终审计核。声明和功能展开不签物理fit。原地址描述符仍来自可信fixture，未实现任意Host/HBM源注册。参考复用E010全16head与E012/R004 AT005原context/WO/packed W文件，复制冻结并逐SHA登记，未生成新gold。
+
+# E016/R003 阶段交付
+
+execution_state: completed
+verdict: supported
+applicability: 当前e354原Encoder0完整Attention父链正常例数值/周期通过。
+
+唯一full已闭合，最终原始证据审计通过，无owned工具子进程/锁等待。期望gpt-6.1-sol/xhigh，实际UNKNOWN；runtime/root/m007_weight_supply_engineering。独立0/600/6000/0预算，已用static94.410942169/RTL3761.918036500s，无旧余额转移。
+
+仍NOT_RUN：指定末context响应保持（无合法顶层控制口）、真实context故障→无reset新generation链、Decision/bias完整父链、完整原graph首错、FFN/完整Encoder/30层、Host注册/HBM物理reset/CDC、综合/OOC/route300MHz/U55C/真实性能。R001旧错误恢复和R002单样本无提速结论保留其原SHA边界。
+
+下一步交主控集中审核本条Attention父链，不自动接全模型/部署或另一完整长例。

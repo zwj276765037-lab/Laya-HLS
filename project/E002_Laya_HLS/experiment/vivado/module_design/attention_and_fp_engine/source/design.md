@@ -1,3 +1,19 @@
+# M006/SM007 共享 FP 阵列当前映射（2026-10-17）
+
+直接F32除法单lane的生产配置位于 `rtl/laya_attention_fdiv_lane_v1_ip.tcl`，保留原IP的单精度直接Divide、No_Usage DSP、NonBlocking/无结果ready及数值配置，latency定为8。AT018按此生成真实IP并作模块OOC，AT019用同版生成VHDL定向验证；实现现阶段尚未接成8lane或softmax生产链。其[局部结果](../../../../../../../project/E007_m006_full_fpga_attention/experiment_results/runs/R001/reports/SM007_AT015_AT019_direct_divider_engineering_milestone_20261017.md)不代签联合时序。共享FP下一生产接口依[FP数据流裁定](../../../../../../../results/reviews/SM007_fp_dataflow_interface.md)拆分mul/add事务与QK七组；原AT009配对接口仅为历史局部验证，原add=11拍不符合当前≤8拍合同。
+
+生产 `rtl/laya_shared_fp256_v1.sv`（SHA256 `aac34506fdfdfe2f0525b1798998da35bb8098cb575559d6ae87c3903513d019`）按 [M006 修订5 §10.1](../../../../../../../mission/M006_CPU_FPGA协同高性能推理实现/contract.md) 实例化唯一参数默认 256 路的原 `tm1tn8_fmul_ip` 和 `tm1tn8_fadd_ip`。乘法与加法输入分别接受、分别舍入；物理返回用有效位和五拍乘法数据对齐。64 槽保存每次返回的数据及 phase/epoch/tag；phase lease 只在所有已接受响应退休后释放，错误 phase/epoch 不获 issue ready。生产 RTL 无 TB 算术替身。AT007–009 已验证四路和默认全宽局部接口，证据与边界见 [E007 结果](../../../../../../../project/E007_m006_full_fpga_attention/experiment_results/summary.md)。
+
+固定QKV存储由生产 `rtl/laya_attention_qkv_bank_v1.sv`实现：3 plane×64个独立同步1R1W bank，每bank深2048个F32，地址 `{head[3:0],token[6:0]}`；矩阵每拍写一个plane的连续32列半幅，Attention可同拍分别从Q/K/V三个plane读64列。单plane响应提供一槽保持，读写同地址时读优先、写端拒绝。存储位不随reset清零，调用者仍须以lease/epoch管理数据身份。AT013核三plane、最高地址和响应阻塞/碰撞；AT014核同生产模块在目标part的BRAM映射。该bank目前是独立生产模块，尚未接矩阵退休或Attention父级调度。
+
+共享FP阵列尚未接入QKV/PS/G/LN物理银行或父级QK/AV调度；phase数值在局部TB中作为诊断标签，不代表全部生产mode已接通。AT009的64个连续QK向量/一个AV向量是固定数据的阵列与队列试验，不能代签原QK邻接树、AV按key反馈、完整head周期或256路综合资源。下一步按同一合同连接固定bank与真正的QK/AV数据依赖。
+
+# M006/SM007 当前增量：strict expf 单 lane 调度（2026-10-17）
+
+权威规格为 [M006 修订5](../../../../../../../mission/M006_CPU_FPGA协同高性能推理实现/contract.md) §10.1、§10.4。当前唯一生产 `attention_exp_bits.cpp` 保留 glibc 2.39 位算法与独立 libm oracle，仅将 `attention_exp_leaf` 标成目标 II=1 流水并移除两个 f64 加/乘实例数限制。该改动是调度/面积取舍，不更改浮点运算顺序。生成 RTL 可用于后继 8-lane 严格 EXP 服务，但目前仍未接入共享 256-lane FP/银行或完整 Attention 主干。HLS II=1 不等于实际 300MHz 或 8-lane 可行，首个 Vivado OOC 仍无网表。具体源码 SHA、局部 RTL 和成本见 [E007/R001 结果](../../../../../../../project/E007_m006_full_fpga_attention/experiment_results/summary.md)。原 M004 和更早候选以下均保留历史适用身份。
+
+---
+
 # Attention与共享浮点引擎：详细设计
 
 当前新增候选为 [联合合同 §8.3.1](../../../../results/compute_throughput_optimization_20261010/source/design.md) 的 `attention_tile_service_v1`：一个 head/tile、完整 S1024 容量、M16/A16/D4 与四个原非流水 EXP，16 dot 槽、八个 SM scratch、M/A 各 Q32 和每 D 的 Q32。新 18/19/20/21 命令承担完整 tile Q 捕获和三个阶段；旧 service 及其完整 head/OOC 证据保留。模块当前验证状态见 results.md 的新候选记录。
@@ -258,3 +274,129 @@ formal01在731成员基础上纳入小RAM绑定、query、output和row_phase返�
 合同为项目任务 D-M004-ATT-CONSUMER-01 及 D-M004-S128-CONTINUATION-REVIEW-01，正式规格仍引用本模块既有 Attention service 数值设计及完整模型 source 绑定。生产实现为 rtl/laya_attention_final_tile_adapter_v1.sv，当前SHA 6d59c3903c2f65f473f1816c0ae4548a9afc36210be1939b86320985e5840dec；独占一套原t4_w_reader_port_v1、attention_tile_service_v1与tm1tn8_axi512_writer。命令锁存id、request/generation、NumericIdentity/55word、head/16query起点、FINAL与ATT_OUT描述符/epoch及128byte mask，核发布覆盖、failed、无源写债和地址范围后才读。K/V按64B stripe交替经服务命令4/5；Q 4096B经原reader送命令18，必须等最终成功load_done及无读债才进命令19。服务的0/1/17/2/6/18/19/20/21/OUTPUT12按真实接受、done与continue退休。ATT_OUT每八F32组包成256bit tile，按query/head地址写真实AW/W/B，行末flush及债零后换base；最终成功仅为单tile完成，不发布完整ATT_OUT tensor或释放norm。
 
 当前控制修复使Q页尾读错即使少于64个beat也进入真实读债排空，而不等待不存在的下一out_valid；写错在debt_zero和读/组包/服务债退后关闭flush请求，再真实rearm清sticky fault，不把成功flush_done当错误出口条件。原算术/FP叶子未改。新增局部stripe 128B、输出组包32B与命令寄存器；原reader FIFO、服务银行与writer缓冲仍计入资源。真实128行producer到本消费者的单资源mux及物理路由交接未实现，不能由模拟发布peer代替。
+
+
+## M007 / SM008 strict add implementation (2026-10-21)
+
+Authority is [M007 sections3/6/10](../../../../../../../mission/M007_完整Attention高性能主干与部署闭合/contract.md) and its SM008; legacy specifications above retain historical scope. New [laya_fadd_rne_v1.sv](../rtl/laya_fadd_rne_v1.sv) is the strict finite binary32 add candidate, eight enabled-edge stages: decode, magnitude order, 27-bit GRS alignment, extended add/subtract, leading-zero/exponent selection, normalization with gradual underflow, one RNE round, pack. Complete finite operands are accepted, including subnormals and signed zero; finite overflow returns infinity for existing caller Check classification. Common CE stalls all stages and reset clears valid regardless of CE. Both input valids on one enabled edge constitute one operation.
+
+Independent [native reference](../tb/m007_fadd_reference.cpp) uses volatile F32 ADDSS under FE_TONEAREST, FTZ/DAZ disabled and no DUT helper. [RTL TB](../tb/m007_fadd_rne_tb.sv) checks queued expected bits, latency, continuous II1, CE hold, reset flush and paired-input behavior. [Runner](../tb/m007_strict_fp_run.py) holds the M007 project heavy lock throughout each real guarded process tree; frozen source/fixture identities and all failed attempts remain in E008/R001. Same-version single-lane OOC uses the actual U55C target and 3.333ns XDC. Existing vendor IP and paired shared_fp256_v1 evidence remain unchanged; candidate integration is separately versioned.
+
+
+### M007 shared dataflow and direct divider implementation mapping
+
+Current mapping follows M007/SM008 and D-M007-SM008-AT014-01. `laya_fmul_rne_v1.sv` replaces the old6-cycle vendor u_mul in the same `laya_shared_fp256_v2.sv` per-lane position; mul credit latency is now8. No public shared interface or array count changed. The8-stage path normalizes finite24-bit significands, forms full exact48-bit product, selects final normal/subnormal precision, shifts once with sticky and performs the sole RNE before pack/output. Zero sign, rounding carry, gradual underflow and overflow are explicit. Nonfinite/Check ownership remains upstream. The legal finite domain is not narrowed.
+
+Shared v2 keeps independent mul/add requests/responses/tags/credits. Seven QK groups128/64/32/16/8/4/4 reuse the same256 adders; AV/restore join them through group0.64mul plus64 independently consumable full-width add reservations cover R+B; actual leaf-valid and consumer handshakes drive retirement. Full replacement waits the cycle after consume. Release stops root issue while dependent adds drain and waits external phase_debt_clear; no head success is inferred. Current v1 is a paired compatibility wrapper of the same source. AT019/020/021 validate the strict closure; earlier old-vendor closure PASS/FAIL remains frozen history.
+
+Direct `laya_fdiv_rne_v1.sv`32-stage quotient/remainder source is unchanged and is not yet the final8-lane service. Add source also remains unchanged. Independent new mul expectations use native volatile F32/MXCSR RNE with FTZ/DAZ off; shared fixtures join independent primitive expected bits and preserve the original minsub×1 tuple exactly. No DUT numeric helper generates gold.
+
+Real QK tree/PS feedback/bank/Check caller,full head and full shared physical mapping remain separate dependencies. Single-leaf synthesis evidence does not accept route300MHz or the full array. Current exact source/report versions and actual tests are maintained in results.md and E008 summaries.
+
+## M007 SM011 / E010 R001 final implementation
+
+Authority: SM011 D-M007-SM011-QKAV-01. Native PS2×512×16/G256×64/context64×2048 are unique logical RAMs; score/AV-PS/prob direct aliases, original QKV/shared256 reused. Autonomous prepare/load/start locks request/generation/epoch/head/mask. QK has two4×64 Q holding groups, actual64F32 K stream, 256 products, six adjacent shared adder levels, four strict constant0.125 lanes and bias lanes252..255; max strict > in key order. AV uses actual G/V reads, one elastic product join with PS response, key-ordered shared add and acknowledged PS feedback, then real32F32 context writes.
+
+Reset clears validity/debts, not payload RAM. Abort drains all accepted dependent operations. Completion waits real leaf/return/commit/storage debts. Public score/context read responses accepted in DONE remain visible after DONE consumption in RELEASE; new reads are denied there and true response debt delays lease release. AT017 froze the old bug, AT018/019 andnormal AT020/021 verified this fix without interface changes. Full/sliding/finite-stall/check/reset evidence remains head local. Current fixed source identities and evidence are E010/R001/current_version_evidence.json. Physical parent sharing, Decision/RoPE/softmax/16head remain successors.
+
+
+## M007 SM011 / E010 R002 softmax and autonomous head mapping
+
+Authority is SM011 D-M007-SM011-SOFTMAX-02 and metadata/divider refinements. `laya_attention_softmax_engine_v1` contains control/row metadata only. It launches 8 scores per cycle, retains existing QK max, uses shared add lanes0..7 for shift and8..18 for seven adjacent tree levels, and packs all eight semantic classes into86 of the existing96 tag bits. Four unpaired upper-tree values per64 contexts preserve adjacent order. Root shift reservations include actual pending SFU plus FP shift debt, bounded below240 vectors, so finite return/storage holds cannot create a full credit ring. Each context waits its actual read/FP/SFU/LN-write/div/G-write debts and commits before reuse.
+
+`laya_sfu_exp8_v1` reuses the exact original glibc2.39 graph/table generated167-cycle leaves. Its real vector credit can pass only an actual reserved head return; a held return is written to that same slot. Illegal mode/domain/context/identity is rejected; TANH is not implemented. The single `laya_shared_div8_v1` serves SM3/Q5/LN6 masks,32-cycle strict direct division and real retiring numeric errors; it has no reciprocal substitution. `laya_ln_exp_storage_v1` is the only new256bank×32F32 exp/LN RAM, with synchronous held read and write-commit tags. No exp matrix is stored in metadata.
+
+`laya_attention_qk_av_engine_v1` extracts the R001 controller without resource instances. Normal AV continuation is an explicit idle/previous-success event preserving request/QKV ownership; it is not prepare or reset and does not inject probability. `laya_attention_head_v1` owns one QKV, shared FP256, PS/G/context, LNexp, EXP8 and DIV8, plus the original four constant-scale lanes. It accepts one production head start after public QKV loading, then releases/binds phases2→3→4 only after true response/commit/Check debts. The initial prepare bind uses the accepting input identity, not the previous locked register. Public context response remains visible in final release after DONE consumption. The old resource-containing QK/AV wrapper is not instantiated and remains unchanged for R001.
+
+Declaration-level conservative new row/tag/control accounting is3865B including retained max512B and service tags/control, below8192B; source/bit breakdown is E010/R002/metadata_accounting.json. Existing sharedFP tags6144B are counted once separately. New payload is LNexp32768B, native read registers1024B, SFU return FIFO8192B, DIV return data/error FIFO1056B. These are distinct payload/control entities, not hidden exp matrices. idle_Q alias and future LN parent are not physically wired here. Logical RTL instance uniqueness and functional cycles do not establish synthesized fit or routed frequency.
+
+Current sharedFP phase6 extension (LN-05) changes only the two internal mul/add bypass enables to phase3-or6, SHA80f91e30e26b7f23d84b6b1972335cce5c634b4a0e2fe20b7030e2b91d472230. AT018 head binds this source; E014 independently verifies phase6 and affected1/3 behavior. AT015 softmax and AT017 head old-source identities remain distinct.
+
+
+## R003 HEAD16-06 current implementation and evidence
+
+See [current protocol](m011_r003_protocol.md), [resource extraction map](m011_r003_resource_map.json) and E010/R003 immutable attempts. Atomic bank/legacy wrapper, original cache, full/sliding RoPE and actual RoPE abort/reset recovery have scoped RTL PASS. Complete128-bit model/numeric identities are restored in AT017 onward. AT019 Encoder preparation, AT020 Decision one-head and AT021 Encoder two-head PASS; each complete head is11038cycles. AT021 actual prep36.602760062s and conservative head120.959431576s imply2366.3443983334s under the required1.2 formula, so full16 is COST_STOP_NOT_LAUNCHED. AT011/014 are preserved cost stops. AT022 finite reverse-QK reference proves head0 tile15 precedes later heads tile0; actual layer fault RTL remains NOT_RUN.
+
+AT023 current sharedDIV8 idle-only CE wrapper PASS: original32768 pairs, II1/physical32cycles,4064 full-slot reuses;114 added gapped vectors and4276 per-return physical-latency checks, held/error, active-lease gaps, release/idle/newphase and in-flight/idle reset. Only leaf CE changes; the numerical leaf, public signature and every-cycle metadata/credit remain unchanged. New wrapper SHA8bbd14630885f50817e1055da0bec2449f055021b462fbc02bb531389ea05a79; old evidence stays on its original identity. AT024 affected production static build PASS30.640597467s; AT025 actual Encoder preparation pilot is running. CE runtime benefit is not yet measured. Complete16 normal/fault/recovery, all4096 public context responses/final lifecycle and physical implementation remain NOT_RUN.
+
+Current post-AT029 continuation: full16 attempt COST_STOP at semantic_stall1171.433359447s,11 actual complete heads/noFatal/no final marker, not a numerical failure. AT030 old-identity actual finite-QK one-head PASS48.799988306s. New sharedFP channel-empty CE SHA f4508add0e4fccd60314359a2a5fc0a8fa29530d209b92901e9bef5d413232d0 adds noDFF and preserves every-clock credit/metadata plus original leaves/8physical cycles; FP4/FP256/dependency1-3-6/held-credit-reset static AT031–034 PASS, RTL queued. New layer TB adds only actual retirement-based progress; prior independent numeric checks and120s true-stall limit stay. No new full16 gate is claimed and no cap/budget changed.
+
+
+### R004 actual implementation, pending affected regressions
+
+Pure production implementation is rtl/laya_attention_layer_engine_v1.sv with262 resource and25 coefficient signals; rtl/laya_attention_layer_v1.sv is sole-resource/cache compatibility shell. PREP matching cancel holds identity/status in L_CANCEL, suppresses same-edge new QKV/start, invalidates only layer coverage and returns after response; public narrow writes commit on their actual accept edge. layer_idle requires real IDLE and real resource/response idle. Same12288bit coverage low4096 becomes context response bitmap after valid full start, with a new complete flag. Resident-only head uses one actual accepted-resident bit; independent compatibility retains old arrays. Packed Check planes retain exact legal maps,32bit first-conflict, no final_ready on current/sticky conflict; layer fault branch requests actual abort and waits real debt before protocol DONE.
+
+Declaration ledger20690bit=2586.25B; A001 increment33 verified A010 profile-off side963B, so joint3549.25B/ceil3550 before any parent additions. This is source accounting, no synthesis/physical fit. AT001 pre-current-fault-edge-guard Check peer static/RTL PASS; AT002 declaration compile FAIL preserved, AT003 revised shell compile is queued behind project lock. Normal completehead/context lifecycle and layer coverage_fault drain remain NOT_RUN pending actual evidence.
+
+
+### R004 original numeric and actual recovery milestones
+
+AT009 Decision0 complete1head PASS107.852036051s and AT013 Encoder0 complete1head PASS106.647546459s use identical AT008 compiled SV/TB:11038 cycles=QK4187+SM2333+AV4508+10,16384scores/16384prob/8192context and original intermediate gold. AT011 Encoder preparation PASS32.841030504s,12288 public QKV writes and2048 atomic RoPE commits. No complete16/output lifecycle claim. All-known complete-head conservative estimate1896.541045959s exceeds R004 ordinary1200s, so full16 is not launched.
+
+AT006 public cancellation PASS14.417050504s,24595 actual writes and5 cancel generations; AT007 resident prepared abort PASS5.514809139s, real storage binds2/resident1/wrong identity4, held abort DONE, no FP lease/release; AT010 real other-owner FP lease and256mul held credit debt while PREP cancel PASS5.497680891s, actual peer response/release and newgen recovery. AT014 QK inflight abort11.175851013s, AT015 SM inflight reset42.803005922s, AT016/017 RoPE inflight abort/reset10.710341118/11.108343676s all PASS with true debt trigger, terminal debt0 and newgen partial-coverage isolation. Complete post-control one-head recovery remains queued.
+
+Current narrow source is engine c3e80307f5a941c1d599eb579d8bc787021d428ea42453b81d7b80e037c7a9db: only cache_owner_valid changed tostate!=L_IDLE versus tested AT008/012805e3de9… . Restoring that expression gives exact prior source bytes; interface/arithmetic/state bits unchanged. It protects coefficients throughout PREP and held cancellation; AT019 staticPASS, public rebind/load guard RTL queued. Existing frozen fullhead/recovery runs retain prior identity; no current-guard fullhead claimed. Actual interface/sha metadata and exact boundary are in R004/pure_engine_interface_current.json and coefficient_PREP_owner_guard_change.json.
+
+
+### SINGLE-PARENT-11 DIV真实输出直通（R004冻结后）
+
+唯一resources壳新增9个res_div输出（release_ready/draining/完整owner回显/reject_code/rsp_lane_mask），直接连接唯一DIV实例原先悬空口。未加FF或数值/协议逻辑；删除新增声明并恢复9个空输出连接即逐字节等R004原资源壳。purelayer/public兼容口不改，当前owned所有资源实例均显式命名接线、未发现.*遗漏风险。新SHA及逐口表见m007_parent_resource_exports.json；A007未启动EDA/不向R004计费，A010在E016新导出使用中负责实际展开与回归。R004旧SHA/原始证据冻结不回写。
+
+
+### 2026-10-22 SFU共享无EDA静态交付
+
+现有EXP/TANH源和冻结AT055匹配，未改生产RTL/端口、未启动EDA或新预算。可审查切口在m007_sfu_unification_static_20261022.md/json：单一mode-aware lease/credit/return池的候选实物账为16384B payload、27228bit metadata；相对两现服务仅在真实实现后可省8192B payload和3401bit metadata，不扣除数值图/流水。EXP可消费167拍、TANH153拍；共池必须动态167/152返回年龄与EXP旁路/TANH缓冲，不能把TANH延到168拍。TANH高15bit历史尾在真实phase切换前须清理。
+
+现有两算术图并置的名义DSP投影1040（EXP8的768来自HLS层级估算、TANH8的272来自17通用mul×2DSP小leaf投影）；常量特殊化与同版联合实综未测，绝不是联合FAIL。量化/G外侧另计。最小新测量建议是实际32×32 partial-product映射，再F64mul六文件闭包；现成F64add0DSP、TANHmul4为2DSP/add3_e和div12为0DSP的小leaf证据有版本/约束边界。没有完整EXP或联合8lane物理证据；G/E016不以新SFU物理方案为前置。审计脚本存tb/m007_sfu_static_audit_20261022.py，后继实现/EDA由A001另定合同。
+
+
+## E017 helper测量边界（2026-10-22）
+
+按SM011 SFU-RESOURCE-12只读测量rtl/strict_exp_ii1_167的两个整数helper及后续F64mul六文件闭包。实际F64实例宽度32×32/50或64；原helper的ID与NUM_STAGE只出现在参数声明，不影响行为；reset只在端口声明，CE1更新/CE0保持。新测量TB/runner在tb/m007_sfu_*，证据在E017，未接入生产资源。synth+opt完整IO约束与功能分开记录，不修改数值/接口/credit，也不实现公共SFU池。
+
+## M007 CONTROL-ARENA-16 / E018 R001 (2026-10-22)
+
+The pure layer and G math now accept optional EXTERNAL_CONTROL modes. Both local and external elaborations use one next-state algorithm. Layer exports its12288-bit QKV/context-consumption coverage next; G exports all11343 bits from AT133's control census with fixed version1 field offsets in project/E018_m007_control_workspace_joint/experiment_source/g_control_layout_v1.json. The low-to-high layout follows the AT133 census entry list, including each original array's ascending element indices; it does not sort by current source line numbers. Numeric payload25600B, fixed numeric alignment736B, pre_credit internals, pairs/pool and engine private state remain independent.
+
+laya_m007_control_workspace_v1 owns the sole packed state_q[12287:0], owner_g and rearm. A uses the full view; G uses low11343 and clears unused high945. Same-owner requests do not clear. A different-owner handshake requires actual current retirement and the target's private controller idle, enters exactly one disabled REARM cycle, then enables the target. The production joint wrapper wires safety to actual layer/head/RoPE and G/pairs/math/precredit/bank state, never inactive q interpretation. Pending prepare/cmd excludes retirement to avoid simultaneous admission and switching. No identity is copied and clocks remain ungated.
+
+The declared combined account is3746B +1707.625B -11343/8B +2/8B =4036B, leaving60B. This is source-declared functional architecture, not synthesized fit. No head/RoPE temporary state, persistent Check, cache or matrix state is borrowed. The frozen A010 Attention parent result is not relabeled for these changed dependencies.
+
+Local integration tests perform real PREP/native QKV writes/cancel and G arithmetic only. They do not launch Attention arithmetic and cannot prove normal16head-context-release to G handoff. Full FFN/30layer integration and joint physical resources/timing remain separate. See E018's protocol, three summaries and R001 actual receipts.
+
+## M007 G-CANCEL-17 / E018 R002 (2026-10-23)
+
+G engine/joint pass-through now carries identity-matched producer_cancel and independent done_cancelled. Three new FF bits preserve accepted-cancel state and published stalled bank read/write requests. The caller holds committed fill payload until ready; uncommitted successor fills reject after cancellation. Every actual bank/FP/SFU/precredit/output debt must drain before qualified DONE; DONE consumption still requires explicit matching pair discard before new generation/owner retirement. Matching uses existing rsp context, without a128-bit identity copy. Status8/6/0 is preserved but cancelled never means full success or global numerical coverage. Parent Wi errors remain authoritative.
+
+Math11343-bit layout/workspace12288-bit mapping and numeric resources are unchanged. Current declared control4036.375B/byte ceiling4037B/59B margin includes exactly3 additional FF on accepted R0014036B. No synthesized/physical resource result is inferred. Detailed protocol/current source identities: E018 experiment_source/protocol_r002.md and experiment_results/runs/R002/final_delivery.json. R001 generators and evidence remain historical, not a script to overwrite the current cancel interface.
+
+
+## E018 R003 CANCEL-END-19 (2026-10-23)
+
+R003 changes no production RTL or interface. Current AT021 TB permits needs_discard only for cancelled mode2 and retains all other real-debt/numerical checks; original full terminal candidate cancel wins over normal publication. Existing qualified DONE requires actual consume then explicit discard before owner retirement. Total3 cancel FF and joint4036.375B remain. Evidence: project/E018_m007_control_workspace_joint/experiment_results/runs/R003/final_delivery.json and attempts/AT004_final_release_audit/work/report.json.
+
+
+## E019 R001 RESIDENT-RESIDUAL-21 (2026-10-23)
+
+New resident components implement32x4096F32 hidden synchronous1R1W, one13-bit-control/128B held return, borrowed-parent identity wrapper, soleQKV plane0 public-port scratch lease/half adapter (1 owner bit), and fixed4096vector phase7 group0 sharedFP ADD provider (48 private control bits/no payload/identity copy). Atomic joined reads preserve H+Q operand order; actual H commits and service release qualify held DONE. Parent qualification inputs remain external and must be wired to real layer/matrix/quant retirements. Current total added control62bit/7.75B; no future VECTOR overlay deduction. See E019 experiment_source/interfaces.md/state_census.json/protocol.md. Evidence: project/E019_m007_residual_ln_residency/experiment_results/runs/R001/final_delivery.json.
+
+## M007 JOINT-ARENA-23 resident production composition
+
+Authority: `source/m007_residual_encoder30_20261023.md` §§10–11 and SM011 D23. New `laya_m007_resident_joint_v2` contains one pure four-consumer joint/12288-bit arena, one unchanged physical resources_v1, one coefficient cache/G pool/TANH, hidden32 and Q-plane scratch alias, and a33-bit residentLN provider. No wrapper sequential state or payload copy. Five external service selectors independently route FP, DIV, ST bind/op, PS and context so matrix PS can overlap G-bank traffic. The public header/port responsibility manifest lives in E019 experiment_source. H/Q expose real synchronous held responses and same-edge commit. Provider finite witness is produced only by consumed successful VECTOR DONE with4096 issued/retired and actual H idle; public H writes/new VECTOR start invalidate it and provider DONE consume retires it. Parent owns complete load/projection counters and stable identity/epoch lease sequencing.
+
+LN binding is actual verified v3 core2a9760/layout12128 in the sole arena. A/G/V remain12288/11343/48 bits, reserved bits cleared. Current wrapper start valid and ready both require resident owner and scratch lease. A layer_idle is a q-independent private FSM plus actual service probes, valid when inactive after required enabled retirement. Full production behavior remains under guarded E019 R002 tests; functional validation does not establish implementation timing or4KiB physical fit.
+
+
+## M007 CE-JOINT-COST-27 / E019 R003 production delta
+
+The465-port header stays7c9181. Current resident_joint_v2 body6f7363b6 adds module-body compile parameter TANH_FORCE_CORE_CE=0 and forwards it to the sole laya_m007_tanh8_v2 FORCE_CORE_CE. Defaultauto0 or explicitforce1 are separate compile configurations; no runtime selector/FF. Accepted D26 core13df84ea and wrapper8c37896c use existing leaves/credit. Exact inverse of those two edits restores52ff; all other shared state/resource/provider wiring is unchanged. Current actual source/build/auto0 proof for parent consumption: E019/R003/production_bundle_checkpoint_v1.json. No new full128/parent/physical claim.
+
+
+## M007 TYPE-RESIDENT-29 / E019 R004 production v3
+
+New475-port joint_v3 body0f4318fc16afa6173bd28023eb5feba95c7d4aecc77bd31545d19865e5554f69/header9e835f48836920aede1b5b6acb6acdd546ddee8f05d4f809ce656e5cd8dcd625 instantiates one typebank96x32F32/13control+128Bholding and external48 VECTORv3 op1 Q+type→H using states5–7. Oldv2/body6f and all65 prior sources unchanged. One existing source_witness receives qualified H_LOAD valid through existing access owner identity, parent4096finite-commit guarantee and actual H idle. Wrapper has0newFF and cannot detect arbitrary early matching pseudo-events. Actual default remains TANHv2/FORCE_CORE_CE0. Source-bound parent handoff: E019/R004/production_bundle_checkpoint_v1.json.
+
+
+## D32 source-only sole TANH8v3 integration (2026-10-23)
+
+Current production joint_v3 changes exactly one instantiation name from laya_m007_tanh8_v2 to laya_m007_tanh8_v3; no other body byte changes. Body SHA ac9a92fc995f9b40b1bf0284fd2490679492bba65eba6065390703873b79e229, same475-port header SHA9e835f48836920aede1b5b6acb6acdd546ddee8f05d4f809ce656e5cd8dcd625, FORCE_CORE_CE default0. D31 core59f29c46 and wrappera09ad675 plus the four unchanged leaf/credit dependencies are source-verified; wrapper normalizes byte-for-byte to v2 after module/core version names. Exact inverse restores D29 body0f4318fc. The actual D29 TANHv2 source is preserved under its AT011 frozen tree, with all D29 archives/bundle/receipts and old65 files unchanged. New current source is SOURCE_ONLY_NOT_COMPILED_NOT_JOINT_TESTED; A010 owns R007 compilation, actual unique-resource census and affected joint normal type or G/LN checker. No new numeric/cycle/speed/fullmodel/physical claim. Authoritative source-only diff/dependencies/cost manifest: E016/R007/d32_joint_tanh3_source_integration.json. Source step process wall0.871820083s is billed once to R007 static; D29 closed budget untouched. No A007 EDA or heavy queue.

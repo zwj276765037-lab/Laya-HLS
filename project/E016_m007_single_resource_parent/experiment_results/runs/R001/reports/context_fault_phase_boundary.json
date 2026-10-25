@@ -1,0 +1,18 @@
+{
+  "time": "2026-10-22T09:02:04.569436+00:00",
+  "old_parent_sha256": "c29e9376dcaa29c45738c4576886376686b6a0fda5259af4fe1171e2d5632a22",
+  "new_parent_sha256": "e35424a62457ca08f1b5e707ad7b8a1556b1f578e8ced9e16adbe076592b4cb8",
+  "exact_only_difference": {
+    "before": "assign q_producer_close_success=!producer_failed&&!c_fault;",
+    "after": "assign q_producer_close_success=!producer_failed&&(state!=CRUN||!c_fault);"
+  },
+  "reason": "Previous context fault remains sticky until the next context-adapter start. It must not turn the new generation initial QKV close into failure. Producer-failed remains global.",
+  "state_bits_added": 0,
+  "old_actual_head_evidence": "AT013 complete QKV/RoPE/first head retains old SHA, not silently relabeled",
+  "new_current_validation": "AT022 build PASS45.051571955s; AT023 actual active common-reset, coefficient reload and new-generation full-input/QKV3 PASS53.261602898s; this does not exercise a previous context fault in the actual parent",
+  "joint_layer_context_fault_to_newgen_dynamic_scope": "NOT_RUN; local adapter peer is not a layer16 surrogate",
+  "current_validation_evidence": [
+    "attempts/AT022_current_parent_reset_build/receipt_static.json",
+    "attempts/AT023_current_parent_common_reset_recovery/receipt_rtl.json"
+  ]
+}

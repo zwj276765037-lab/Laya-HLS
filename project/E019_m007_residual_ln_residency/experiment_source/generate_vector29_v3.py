@@ -1,0 +1,37 @@
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[3];A=ROOT/'project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine'
+s=(A/'rtl/laya_m007_resident_vector32_v2.sv').read_text().replace('laya_m007_resident_vector32_v2','laya_m007_resident_vector32_v3')
+s=s.replace('// Fixed128x1024 residual, H+Qscratch -> H. No FP/payload/identity storage.', '// Fixed128x1024 op0 H+Q and op1 Q+type -> H. External48 control, no payload/identity FF.')
+s=s.replace(' input logic q_rsp_valid,', ''' output logic type_rd_valid,input logic type_rd_ready,output logic[11:0]type_rd_addr,
+ input logic type_rsp_valid,output logic type_rsp_ready,input logic[11:0]type_rsp_addr,input logic[31:0][31:0]type_rsp_data,
+ input logic q_rsp_valid,''')
+s=s.replace('{IDLE,LEASE,RUN,RELEASE,DONE}', '{IDLE,LEASE,RUN,RELEASE,DONE,TYPE_LEASE,TYPE_RUN,TYPE_RELEASE}')
+s=s.replace(' wire read_wanted=', ' wire type_mode=state==TYPE_LEASE||state==TYPE_RUN||state==TYPE_RELEASE;\n wire run_state=state==RUN||state==TYPE_RUN;\n wire release_state=state==RELEASE||state==TYPE_RELEASE;\n wire[11:0]pair_addr=type_mode?q_rsp_addr:h_rsp_addr;\n wire read_wanted=')
+s=s.replace('control_enabled&&state==RUN&&issued_vectors<4096', 'control_enabled&&run_state&&issued_vectors<4096')
+s=s.replace('wire read_fire=h_rd_valid&&h_rd_ready;', 'wire read_fire=type_mode?(type_rd_valid&&type_rd_ready):(h_rd_valid&&h_rd_ready);')
+s=s.replace('wire pair_valid=h_rsp_valid&&q_rsp_valid;', 'wire pair_valid=type_mode?(q_rsp_valid&&type_rsp_valid):(h_rsp_valid&&q_rsp_valid);')
+s=s.replace('wire pair_match=h_rsp_addr==q_rsp_addr;', 'wire pair_match=type_mode?(q_rsp_addr==type_rsp_addr):(h_rsp_addr==q_rsp_addr);\n wire type_drain_pair=type_mode&&pair_valid&&(protocol_error||!pair_match);\n wire type_drain_fire=type_drain_pair&&q_rsp_ready&&type_rsp_ready;')
+s=s.replace('identity&&start_op==0;', 'identity&&(start_op==0||(start_op==1&&!h_rsp_valid&&!q_rsp_valid&&!type_rsp_valid));')
+s=s.replace('!h_rsp_valid&&!q_rsp_valid&&!h_wr_valid;', '!h_rsp_valid&&!q_rsp_valid&&!type_rsp_valid&&!h_wr_valid;')
+s=s.replace('control_enabled&&state==LEASE;', 'control_enabled&&(state==LEASE||state==TYPE_LEASE);')
+s=s.replace('control_enabled&&state==RELEASE;', 'control_enabled&&release_state;')
+s=s.replace('control_enabled&&state==RELEASE&&issued_vectors==retired_vectors&&!h_rsp_valid&&!q_rsp_valid;', 'control_enabled&&release_state&&issued_vectors==retired_vectors&&!h_rsp_valid&&!q_rsp_valid&&!type_rsp_valid;')
+s=s.replace('assign h_rd_valid=read_wanted&&q_rd_ready;assign q_rd_valid=read_wanted&&h_rd_ready;', 'assign h_rd_valid=read_wanted&&!type_mode&&q_rd_ready;assign q_rd_valid=read_wanted&&(type_mode?type_rd_ready:h_rd_ready);\n assign type_rd_valid=read_wanted&&type_mode&&q_rd_ready;assign type_rd_addr=issued_vectors[11:0];')
+s=s.replace('assign h_rsp_ready=control_enabled&&state==RUN&&q_rsp_valid&&add_req_ready[0]&&fp_identity;', 'assign h_rsp_ready=control_enabled&&state==RUN&&q_rsp_valid&&add_req_ready[0]&&fp_identity;\n assign type_rsp_ready=control_enabled&&state==TYPE_RUN&&q_rsp_valid&&(type_drain_pair||add_req_ready[0])&&fp_identity;')
+s=s.replace('assign q_rsp_ready=control_enabled&&state==RUN&&h_rsp_valid&&add_req_ready[0]&&fp_identity;', 'assign q_rsp_ready=control_enabled&&run_state&&(type_mode?type_rsp_valid:h_rsp_valid)&&(type_drain_pair||add_req_ready[0])&&fp_identity;')
+s=s.replace('control_enabled&&state==RUN&&pair_valid&&fp_identity;', 'control_enabled&&run_state&&pair_valid&&fp_identity&&(!type_mode||(pair_match&&!protocol_error));')
+s=s.replace("20'b0,h_rsp_addr}","20'b0,pair_addr}")
+s=s.replace('add_a[lane]=h_rsp_data[lane];add_b[lane]=q_rsp_data[lane];', 'add_a[lane]=type_mode?q_rsp_data[lane]:h_rsp_data[lane];add_b[lane]=type_mode?type_rsp_data[lane]:q_rsp_data[lane];')
+s=s.replace('control_enabled&&state==RUN&&(!return_match||nonfinite||h_wr_ready);', 'control_enabled&&run_state&&(!return_match||nonfinite||(type_mode&&protocol_error)||h_wr_ready);')
+s=s.replace('control_enabled&&state==RUN&&add_rsp_valid[0]&&return_match&&!nonfinite;', 'control_enabled&&run_state&&add_rsp_valid[0]&&return_match&&!nonfinite&&!(type_mode&&protocol_error);')
+s=s.replace('q_next[0+:3]=LEASE;q_next[3+:13]', 'q_next[0+:3]=start_op==1?TYPE_LEASE:LEASE;q_next[3+:13]')
+s=s.replace('if(fp_lease_valid&&fp_lease_ready)q_next[0+:3]=RUN;', 'if(fp_lease_valid&&fp_lease_ready)q_next[0+:3]=state==TYPE_LEASE?TYPE_RUN:RUN;')
+s=s.replace('if(state==RUN&&pair_valid&&add_req_ready[0]&&!pair_match)', 'if(run_state&&pair_valid&&add_req_ready[0]&&!pair_match)')
+s=s.replace('if(state==RUN&&fp_protocol_fault)', 'if(run_state&&fp_protocol_fault)')
+s=s.replace('   if(return_fire)begin\n    q_next[16+:13]=retired_vectors+1\'b1;', '''   if(type_drain_fire)begin q_next[30+:1]=1;q_next[16+:13]=retired_vectors+1'b1;end
+   if(return_fire)begin
+    q_next[16+:13]=retired_vectors+1'b1+13'(type_drain_fire);''')
+s=s.replace('if(state==RUN&&(issued_vectors==4096||first_error||protocol_error)&&issued_vectors==retired_vectors&&!h_rsp_valid&&!q_rsp_valid)q_next[0+:3]=RELEASE;', 'if(run_state&&(issued_vectors==4096||first_error||protocol_error)&&issued_vectors==retired_vectors&&!h_rsp_valid&&!q_rsp_valid&&!type_rsp_valid)q_next[0+:3]=state==TYPE_RUN?TYPE_RELEASE:RELEASE;')
+s=s.replace('q_next[0+:3]=DONE;', 'q_next[0+:3]=DONE;')
+(A/'rtl/laya_m007_resident_vector32_v3.sv').write_text(s)
+print('Wrote VECTOR v3 external48 type op1')

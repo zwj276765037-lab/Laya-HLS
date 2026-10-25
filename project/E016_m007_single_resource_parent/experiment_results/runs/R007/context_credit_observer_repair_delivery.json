@@ -1,0 +1,93 @@
+{
+  "schema": "m007-r007-context-credit-observer-repair-delivery-v1",
+  "status": "SAME_TOP_SOURCE_SUCCESSOR_FROZEN_STATIC_AUDIT_PASS_RTL_NOT_RUN",
+  "successors": [
+    {
+      "schema": "m007-r007-context-credit-same-top-successor-v3",
+      "top": "m007_fullmodel_encoder_1d_tb",
+      "source": "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_fullmodel_encoder_1d_tb.sv",
+      "frozen_source": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/encoder_1d_context_credit_v3/frozen/m007_fullmodel_encoder_1d_tb.sv",
+      "sha256": "505e0b93652303b2f12049325ea3b4a9d434d9452a8795e634b91ace969f9327",
+      "previous_frozen_source": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/encoder_1d_residual_pack_v2/frozen/m007_fullmodel_encoder_1d_tb.sv",
+      "previous_sha256": "172d301937532841baaa938e45eb2f48913b7821b60bb6776671ba52f6d5d555",
+      "only_change": "Swap the two complete original context response/read observer if blocks so old response is validated before replacement credit is installed. No predicates, gold, identity/order/data/debt checks, delays, clocks, peer or production edits.",
+      "production_source_baseline": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT042_encoder_1d_compatibility_build/source_manifest.json",
+      "production_RTL_changed": false,
+      "patch": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/encoder_1d_context_credit_v3.patch",
+      "patch_sha256": "5487478b160ac7daef83d70f4375157e5019474f1dd7247f0008774f69681601",
+      "compile_or_RTL": "NOT_RUN_BY_A010"
+    },
+    {
+      "schema": "m007-r007-context-credit-same-top-successor-v3",
+      "top": "m007_fullmodel_encoder_binary_tb",
+      "source": "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_fullmodel_encoder_binary_tb.sv",
+      "frozen_source": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/binary_encoder_context_credit_v3/frozen/m007_fullmodel_encoder_binary_tb.sv",
+      "sha256": "8a4a3956cff9289c026d16d1e1d7405d00393dc42ad586e62d4fdbb5624c4f8a",
+      "previous_frozen_source": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/binary_encoder_residual_pack_v2/frozen/m007_fullmodel_encoder_binary_tb.sv",
+      "previous_sha256": "246c2d6a17d3fa2a916eb9ea5ac66cf2ff21b83a3efab14c634d0fe97c208790",
+      "only_change": "Swap the two complete original context response/read observer if blocks so old response is validated before replacement credit is installed. No predicates, gold, identity/order/data/debt checks, delays, clocks, peer or production edits.",
+      "production_source_baseline": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT042_encoder_1d_compatibility_build/source_manifest.json",
+      "production_RTL_changed": false,
+      "patch": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/binary_encoder_context_credit_v3.patch",
+      "patch_sha256": "5471024fd8373ccc7ddd6aadc12b87f3ced0133c0939a3a6b302f03e4452d0e1",
+      "compile_or_RTL": "NOT_RUN_BY_A010"
+    }
+  ],
+  "root_cause": "Production adapter explicitly allows matching old response retirement and new read in one cycle; old checker processed read first while old credit was still held. Reordering consumes/verifies old response first and preserves all original predicates and old coordinate for payload/tag checking.",
+  "AT033_original_failure_preserved": true,
+  "static_audit": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT051_context_credit_observer_static_audit/work/audit/context_credit_audit.json",
+  "four_cases": {
+    "idle_no_events": "no change",
+    "idle_accept_read": "one new credit; original order/identity checked",
+    "pending_response_without_replacement": "old response identity/data checked, credit cleared",
+    "pending_response_and_replacement": "old response checked with old coordinate, new read identity checked, new credit installed"
+  },
+  "protocol_trace": {
+    "synthetic_tokens_not_model_values": true,
+    "accepted_reads": 4096,
+    "responses_checked": 4096,
+    "concurrent_response_request_edges": 2633,
+    "held_pending_cycles": 6145,
+    "cycles": 10241,
+    "max_credit": 1,
+    "old_checker_first_false_failure": {
+      "cycle": 5,
+      "old_pending": 1,
+      "new_read": 2,
+      "reason": "multiple live credits"
+    },
+    "final_credit": 0,
+    "negative_cases_rejected": [
+      "response_without_credit",
+      "request_without_retiring_live_credit",
+      "wrong_old_response_tag",
+      "wrong_response_payload",
+      "skipped_request_tag",
+      "wrong_query",
+      "wrong_head",
+      "wrong_half",
+      "wrong_generation",
+      "overlap_wrong_new_identity"
+    ]
+  },
+  "source_reversal": [
+    {
+      "source": "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_fullmodel_encoder_1d_tb.sv",
+      "sha256": "505e0b93652303b2f12049325ea3b4a9d434d9452a8795e634b91ace969f9327",
+      "previous_source": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/encoder_1d_residual_pack_v2/frozen/m007_fullmodel_encoder_1d_tb.sv",
+      "previous_sha256": "172d301937532841baaa938e45eb2f48913b7821b60bb6776671ba52f6d5d555",
+      "only_two_original_if_blocks_reordered": true,
+      "all_predicates_payload_checks_clocks_delays_gold_loads_and_peer_text_preserved": true
+    },
+    {
+      "source": "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/tb/m007_fullmodel_encoder_binary_tb.sv",
+      "sha256": "8a4a3956cff9289c026d16d1e1d7405d00393dc42ad586e62d4fdbb5624c4f8a",
+      "previous_source": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/binary_encoder_residual_pack_v2/frozen/m007_fullmodel_encoder_binary_tb.sv",
+      "previous_sha256": "246c2d6a17d3fa2a916eb9ea5ac66cf2ff21b83a3efab14c634d0fe97c208790",
+      "only_two_original_if_blocks_reordered": true,
+      "all_predicates_payload_checks_clocks_delays_gold_loads_and_peer_text_preserved": true
+    }
+  ],
+  "next_step": "A012 actual single-thread same-top full kind5 successor under root-authorized D33 guard/budget; source-only repair is not an actual Encoder PASS",
+  "production_gold_original_frozen_changed": false
+}

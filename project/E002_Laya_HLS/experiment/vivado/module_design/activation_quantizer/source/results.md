@@ -1,5 +1,36 @@
 # Group32激活量化：平台、资源与性能记录
 
+## M007 QUANT-03 / E013（2026-10-21）
+
+本节仅适用新增`laya_m007_quant_group32_v1`，不迁移下方旧quant16/HLS的资源或时序。
+实际工具Vivado2025.2/XSim，CPU0–3/nice19/idle、项目公共重工具锁，目标300MHz；
+板卡/布局布线未执行。权威合同与结构见`design.md` M007节。
+
+| 阶段 | 实际结果 | 证据 |
+| --- | --- | --- |
+| 独立参考 AT001 | 原norm128全4096组/139264B；前4行独立source/Q/half精确关联；两种诊断K显式区分 | E013/R001/AT001 fixture/report.json |
+| 格式/amax AT003 | 2072格式向量/52 amax输出PASS；5 enabled-edge，在途reset隔离 | E013/R001/AT003 stdout与report |
+| 完整生产壳静态 AT005 | 1真实shared8div+32原严格mul，静态build PASS，7.664909s | E013/R001/AT005 |
+| 真实engine短测 AT006 | 128原norm组所有Q/half/amax/d/inverse/products逐位PASS；首85拍，全流212拍，输入/输出II1，max84槽 | E013/R001/AT006 |
+| 16边界 AT006 | 实际13 scale/6 inverse/7 group mul；source、half、inverse错误阶段/元素均PASS | 同AT006 |
+| 全128行 AT015 | 4096/10496/16384组Q/half/amax/d/inverse/products逐位PASS；各首85拍/全4180/10580/16468拍，II1；lease1拍另报 | E013/R001/AT015，实际snapshot运行前后SHA |
+| 信用/协议/恢复 AT016 | 满128阻129150拍/held完整记录/256组有限停顿/16组release债屏障/8reject/24组实际div在途reset后gen2恢复PASS | E013/R001/AT016，实际snapshot运行前后SHA |
+| 小amax OOC AT013 | 同AT009 DCP修输入约束，1634LUT/988FF/0blackbox，3.333ns+I/O0.5ns下WNS+0.958ns；约束覆盖缺失0 | E013/R001/AT013 |
+| 完整engine OOC/P&R/300MHz/上板/父图 | NOT_RUN | 小amax不迁移到整engine |
+
+存储位账为RTL声明估计，非综合映射：raw128×1024=16384B，packed128×272=4352B；
+每槽metadata4(state)+8(row)+8(group)+96(tag)+3×32(amax/d/inv)+16(half)+
+8(status)+8(stage)+5(element)+2(valid)=251bit，128槽4016B。共享除法内部资源属唯一
+shared服务，不在Q复制。32mul每叶注册字段合计605bit，共19360bit/2420B；amax1031bit、
+raw read1064bit、mul tag/valid64bit、div holding81bit、global identity/counter/flags377bit。
+总219993bit/27500B上取整；raw/packed以外全部54105bit/6764B，均在8192/32768B帽内。
+AT017原手工705bit/leaf加总断言FAIL保留，AT018修正为605通过，DUT/gold未变。
+AT009原XDC不支持remove_from_collection/1001缺input delay，不能采用其整体时序PASS；
+AT013只对同DCP修约束复核。当前未凭RAM属性声明BRAM实际推断或整engine时序达标。
+AT014source_identity取实际frozen编译路径；AT015/016保留xsim.dir实际编译库运行前/后SHA，
+旧AT不回填身份。18次成本reference2.040709/static26.688707/RTL60.840843/OOC142.820045s。
+独立全量证据入口[E013结果摘要](../../../../../../E013_m007_quant_group32/experiment_results/summary.md)。
+
 本页现行制品对应build tag `04934c15b3f83e842ec2e92ac2a81bf2`：完整CPU/真实CSim通过，HLS RTL/IP已生成，完整top Vivado OOC综合exit0、blackboxes0。实际映射345,505 LUT、287,466 FF、437 DSP、690 BRAM tiles、179 URAM；旧HLS LUT139%是历史估算。**2026-10-08新增RTL检查确认QK/AV特化在合法context路径固定E_SHAPE，完整生成RTL成功推理尚不成立；CPU/CSim通过与综合成功均不能替代该缺口。** 详见[OOC制品结果](../../../project/source/results.md)和[新增异常](../../../project/source/performance_and_interfaces.md#rtl-anomaly)。下方早期P0/P1/P2记录保留历史范围。
 
 ## 当前接口与性能核查（2026-10-08）

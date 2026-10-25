@@ -1,0 +1,11 @@
+# E021/R002 — D34 original fullgraph compiled validation
+
+Independent reference0/static1200/RTL7200/OOC0; reserve600. No R001 balance transfer. Top8b55, original once-BEGIN28Encoder+2Decision,120 immutable on-demand binary W descriptors; only original embedding_norm H0 is an activation producer. Original checkpoint and tail bytes remain checker-only.
+
+AT001 guard exact separate checked/retired branches19cases PASS0.168019745s. Initial translation FAIL0.461104586s on package declaration order. AT002 same bytes package-first translation FAIL33.913514189s on peer loop array NBAs. Both preserved. A010 freezes f4d same-module peer, only same-always4port expansion; unchanged8b55 top, production/gold/checkers. AT003 translationPASS54.881177806s,742cpp/268117455B, largest3099486B; direct scale gatePASS. Context1 and read-only observations bound to exact generated headers.
+
+AT003 fresh build742/742 objects,13batches dispatcher246.814782407s; maximum guard batch64.172115202s. No old-top objects reused. Stock-timing executable was built but never executed. AT004 main-only actual state/headmask/matrix_done observation plus fixed-batch runtime overlay PASS1.964807537s. Mathematical model objects unchanged. Actual executable SHA c47d9d4fc4328582a8e4bd51914a1ad36e5fab42f06b77d510e999c66d54649e. Actual g++ O2 fast/O1 slow/Os runtime; VerilatorO3 is translation optimization. Local5.020+fixedbatch-v1+converge512, notstock.
+
+A010 separate R007 original peer short regression uses real samefixture and has returned lock. AT004 truekind7 unknown≤120pilot is active; only strict actualretired event count refreshes separate retirement highwater, never adds to goldchecked; OBS/PHASE heartbeat logs do not refresh stall. Fullgraph longrun is not automatically authorized; same-version E≤3600 and reserve gate are required.
+
+AT004 FINAL unknownpilot COST_STOP119.134035030s/inner119.005001996s cap, noSVFatal/nostall. OnceBEGIN1/H4096 complete; QKV m_done c62635@51.743702776s, headmask255 c153057@118.584199577s. No original layer checkpoint or terminal. ActualH0=original embedding_norm bytes. R002/owned_cleanup_through_AT004.json confirms2278knownidentities clean;15new transient policy UNKNOWN. Fullgraph E remainsUNKNOWN and longrun gate closed.

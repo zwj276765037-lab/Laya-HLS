@@ -1,0 +1,75 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">, 5466, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll, 4635, user unroll pragmas are applied</column>
+            <column name="">(2) simplification, 3709, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline, 3703, user inline pragmas are applied</column>
+            <column name="">(4) simplification, 3685, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition, 3683, user array partition pragmas are applied</column>
+            <column name="">(2) simplification, 3683, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate, 3683, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape, 3683, apply array reshape pragmas</column>
+            <column name="">(5) access patterns, 3683, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification, 3683, loop and instruction simplification</column>
+            <column name="">(2) parallelization, 3683, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition, 3683, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification, 3683, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering, 3686, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations, 3702, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="attention_exp_leaf" col1="attention_exp_bits.cpp:152" col2="5466" col3="3685" col4="3683" col5="3683" col6="3702">
+                    <row id="7" col0="attention_exp_bits" col1="attention_exp_bits.cpp:123" col2="5439" col3="3664" col4="3664" col5="3664" col6="3677">
+                        <row id="9" col0="widen32" col1="attention_exp_bits.cpp:95" col2="50" col3="" col4="" col5="" col6=""/>
+                        <row id="1" col0="attention_f64_mul" col1="attention_exp_bits.cpp:72" col2="2526" col2_disp="2,526 (6 calls)" col3="1668" col3_disp="1,668 (6 calls)" col4="1668" col4_disp="1,668 (6 calls)" col5="1668" col5_disp="1,668 (6 calls)" col6="1674" col6_disp="1,674 (6 calls)">
+                            <row id="5" col0="unpack64" col1="attention_exp_bits.cpp:26" col2="972" col2_disp=" 972 (12 calls)" col3="" col4="" col5="" col6="">
+                                <row id="6" col0="clz64" col1="attention_exp_bits.cpp:15" col2="564" col2_disp=" 564 (12 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                            <row id="3" col0="pack64" col1="attention_exp_bits.cpp:34" col2="888" col2_disp=" 888 (6 calls)" col3="" col4="" col5="" col6="">
+                                <row id="6" col0="clz64" col1="attention_exp_bits.cpp:15" col2="282" col2_disp=" 282 (6 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="2" col0="jam64" col1="attention_exp_bits.cpp:9" col2="228" col2_disp=" 228 (12 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="4" col0="attention_f64_add" col1="attention_exp_bits.cpp:48" col2="2640" col2_disp="2,640 (6 calls)" col3="1716" col3_disp="1,716 (6 calls)" col4="1716" col4_disp="1,716 (6 calls)" col5="1716" col5_disp="1,716 (6 calls)" col6="1722" col6_disp="1,722 (6 calls)">
+                            <row id="5" col0="unpack64" col1="attention_exp_bits.cpp:26" col2="972" col2_disp=" 972 (12 calls)" col3="" col4="" col5="" col6="">
+                                <row id="6" col0="clz64" col1="attention_exp_bits.cpp:15" col2="564" col2_disp=" 564 (12 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                            <row id="2" col0="jam64" col1="attention_exp_bits.cpp:9" col2="114" col2_disp=" 114 (6 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="3" col0="pack64" col1="attention_exp_bits.cpp:34" col2="888" col2_disp=" 888 (6 calls)" col3="" col4="" col5="" col6="">
+                                <row id="6" col0="clz64" col1="attention_exp_bits.cpp:15" col2="282" col2_disp=" 282 (6 calls)" col3="" col4="" col5="" col6=""/>
+                                <row id="2" col0="jam64" col1="attention_exp_bits.cpp:9" col2="228" col2_disp=" 228 (12 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                        </row>
+                        <row id="8" col0="narrow32" col1="attention_exp_bits.cpp:109" col2="194" col3="" col4="" col5="" col6="">
+                            <row id="5" col0="unpack64" col1="attention_exp_bits.cpp:26" col2="81" col3="" col4="" col5="" col6="">
+                                <row id="6" col0="clz64" col1="attention_exp_bits.cpp:15" col2="47" col3="" col4="" col5="" col6=""/>
+                            </row>
+                            <row id="2" col0="jam64" col1="attention_exp_bits.cpp:9" col2="38" col2_disp="  38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                        </row>
+                    </row>
+                </row>
+            </rows>
+            <notes/>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>

@@ -1,0 +1,16 @@
+{
+  "verdict": "PASS",
+  "main_sha256": "5ae51f53ba116568615182b7eb4c92e72ce6e745cf5f845d5c77a057aa52f09d",
+  "single_eval_per_iteration": true,
+  "all_DUT_root_fields_read_only": true,
+  "finalLN_low_snapshot": "state90 && p_q_wr_commit; p_q_wr_data exact alias ln_out_data by resident_ln32 line78",
+  "finalLN_commit_path": "resident ln_busy scratch mux -> qscratch wr_commit -> soleQKV plane0; head=addr[4:1],token=addr[11:5],half=addr[0]",
+  "finalLN_following_posedge_bank_check": "all32 physical channels in selected half,words[head*128+token] equal accepted low-phase lane snapshot",
+  "type_low_snapshot": "state95 && vector_h_wr_valid&&ready&&commit; raw_H addr/data exact alias while vector_busy, required by vector_h_wr_commit",
+  "type_following_posedge_bank_check": "all32 hidden bank words[address] equal accepted low-phase lane snapshot",
+  "original_TB_count_check": "following physical posedge final_norm_count/type_count == observer count+1",
+  "unique_trace_required_each_endpoint": 4096,
+  "no_gold_used_to_construct_actual_data": true,
+  "production_TB_modified": false,
+  "covers": "static source mapping; actual sample claims wait for RTL runtime"
+}

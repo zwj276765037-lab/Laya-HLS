@@ -1,0 +1,20 @@
+--- previous/m007_fullmodel_encoder_binary_tb.sv
++++ fixed/m007_fullmodel_encoder_binary_tb.sv
+@@ -145,6 +145,7 @@
+  laya_m007_single_parent_v3 #(.ADDRESS_PROFILE(1),.HBM_PORT_BASE(0),.HBM_PORT_SPAN({4{64'h100000000}}),.PLATFORM_MANIFEST_SHA256(PLATFORM_SHA)) dut(.*);
+  m007_public_f32_capture_tb_v2 observed_output(.clk,.rst_n,.command_fire(full_active&&cmd_valid&&cmd_ready),.request_id(cmd_request),.generation(cmd_generation),.source_epoch(cmd_epoch),.layer_index(cmd_layer),.kind(cmd_kind),.input_fire(in_valid&&in_ready),.input_row(in_row),.input_group(in_group),.input_data(in_data),.output_fire(out_valid&&out_ready),.row(out_row),.col(out_col),.data(out_data),.receipt_fire(full_active&&done_op==2&&done_valid&&done_ready),.receipt_status(done_status),.receipt_source_status(source_status),.receipt_domain(error_domain),.receipt_tuple(error_tuple),.all_resources_retired(dut.v2_shared_resources_idle&&dut.v2_resident_bank_idle&&dut.v2_scratch_retired&&dut.m_cmd_ready&&dut.q_cmd_ready&&dut.ws_a_enable&&!dut.ws_rearm));
+  always #1 clk=~clk;
++ logic[31:0]residual_scalar[0:131071];
+  logic [1023:0] original_qkv_input[0:4095],initial_h[0:4095],final_h[0:4095],residual_a[0:4095],norm_ff[0:4095];
+  logic [1023:0] qkv_gold[0:12287],wo_gold[0:4095],wi_gold[0:20991],down_gold[0:4095];
+  logic [271:0] initial_a[0:4095],context_a[0:4095],norm_a[0:4095],g_a[0:10495];
+@@ -623,7 +624,8 @@
+   if(int'(stop_qkv_blocks>0)+int'(stop_after_head>0)+int'(stop_ffn_blocks>0)+int'(stop_down_blocks>0)>1)$fatal(1,"one actual prefix endpoint per run");
+   $display("M007_ENCODER0_FIXTURE_BEGIN kind=%0d packed=%0d",kind_run,packed_check);$fflush();
+   $readmemh({input_fixture,"/qkv_0_weight/input.hex"},original_qkv_input);$readmemh({original_fixture,"/embedding_norm.groups1024.hex"},initial_h);for(int idx=0;idx<4096;idx++)if(initial_h[idx]!==original_qkv_input[idx])$fatal(1,"original embedding_norm source differs from independent QKV fixture input");$readmemh({original_fixture,"/encoder_00_out.groups1024.hex"},final_h);
+-  $readmemh({residual_fixture,"/GOLD.hex"},residual_a);
++  $readmemh({residual_fixture,"/GOLD.hex"},residual_scalar);
++  for(int group_index=0;group_index<4096;group_index++)for(int lane=0;lane<32;lane++)residual_a[group_index][32*lane+:32]=residual_scalar[32*group_index+lane];
+   $readmemh({matrix_fixture,"/qkv_0_weight/output.hex"},qkv_gold);$readmemh({matrix_fixture,"/qkv_0_weight/pre_bias.hex"},qkv_prebias);$readmemh({matrix_fixture,"/qkv_0_weight/a_write.hex"},initial_a);
+   $readmemh({context_fixture,"/wo_0_weight/output.hex"},wo_gold);$readmemh({context_fixture,"/wo_0_weight/input.hex"},wo_inputs);$readmemh({context_fixture,"/wo_0_weight/a_write.hex"},context_a);$readmemh({context_fixture,"/wo_0_weight/pre_bias.hex"},wo_prebias);
+   $readmemh({ffn_fixture,"/norm_ff_quant/source_f32_groups.hex"},norm_ff);$readmemh({ffn_fixture,"/norm_ff_quant/a_write_row_major.hex"},norm_a);$readmemh({ffn_fixture,"/g_quant/a_write_row_major.hex"},g_a);$readmemh({ffn_fixture,"/wi_native_output.hex"},wi_gold);$readmemh({ffn_fixture,"/down/output.hex"},down_gold);$readmemh(g_fixture,vectors);

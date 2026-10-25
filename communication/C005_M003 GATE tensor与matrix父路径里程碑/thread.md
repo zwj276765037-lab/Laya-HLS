@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # C005 · M003 GATE tensor与matrix父路径里程碑
 
@@ -160,7 +160,6 @@ L0/L1 PARTIAL、L2–L5 NOT_RUN，M003/M004未完成。完整Laya加速器与尽
 
 - [gate_parent_stage_review_reply_20261011](../../results/gate_parent_stage_review_reply_20261011.md)
 - [gate_split_stage_review_reply_20261011](../../results/gate_split_stage_review_reply_20261011.md)
-- [review_queue](../../results/review_queue.md)
 
 ### 状态确认 2026-10-11T16:27:40.230403+00:00
 

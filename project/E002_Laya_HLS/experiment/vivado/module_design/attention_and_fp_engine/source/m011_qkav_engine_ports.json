@@ -1,0 +1,1031 @@
+{
+  "res_qkv_wr_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "qkv",
+    "port": "wr_valid",
+    "expression": "qkv_wr_valid&&qwr_domain"
+  },
+  "res_qkv_wr_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "qkv",
+    "port": "wr_ready",
+    "expression": "qwr_ready"
+  },
+  "res_qkv_wr_plane": {
+    "direction": "output",
+    "width": "[1:0]",
+    "resource": "qkv",
+    "port": "wr_plane",
+    "expression": "qkv_wr_plane"
+  },
+  "res_qkv_wr_head": {
+    "direction": "output",
+    "width": "[3:0]",
+    "resource": "qkv",
+    "port": "wr_head",
+    "expression": "head"
+  },
+  "res_qkv_wr_token": {
+    "direction": "output",
+    "width": "[6:0]",
+    "resource": "qkv",
+    "port": "wr_token",
+    "expression": "qkv_wr_token"
+  },
+  "res_qkv_wr_half": {
+    "direction": "output",
+    "width": "",
+    "resource": "qkv",
+    "port": "wr_half",
+    "expression": "qkv_wr_half"
+  },
+  "res_qkv_wr_data": {
+    "direction": "output",
+    "width": "[31:0][31:0]",
+    "resource": "qkv",
+    "port": "wr_data",
+    "expression": "qkv_wr_data"
+  },
+  "res_qkv_rd_valid": {
+    "direction": "output",
+    "width": "[2:0]",
+    "resource": "qkv",
+    "port": "rd_valid",
+    "expression": "qr_valid"
+  },
+  "res_qkv_rd_ready": {
+    "direction": "input",
+    "width": "[2:0]",
+    "resource": "qkv",
+    "port": "rd_ready",
+    "expression": "qr_ready"
+  },
+  "res_qkv_rd_head": {
+    "direction": "output",
+    "width": "[2:0][3:0]",
+    "resource": "qkv",
+    "port": "rd_head",
+    "expression": "qr_head"
+  },
+  "res_qkv_rd_token": {
+    "direction": "output",
+    "width": "[2:0][6:0]",
+    "resource": "qkv",
+    "port": "rd_token",
+    "expression": "qr_token"
+  },
+  "res_qkv_rd_tag": {
+    "direction": "output",
+    "width": "[2:0][31:0]",
+    "resource": "qkv",
+    "port": "rd_tag",
+    "expression": "qr_tag"
+  },
+  "res_qkv_rd_rsp_valid": {
+    "direction": "input",
+    "width": "[2:0]",
+    "resource": "qkv",
+    "port": "rd_rsp_valid",
+    "expression": "qr_rsp_valid"
+  },
+  "res_qkv_rd_rsp_ready": {
+    "direction": "output",
+    "width": "[2:0]",
+    "resource": "qkv",
+    "port": "rd_rsp_ready",
+    "expression": "qr_rsp_ready"
+  },
+  "res_qkv_rd_rsp_head": {
+    "direction": "input",
+    "width": "[2:0][3:0]",
+    "resource": "qkv",
+    "port": "rd_rsp_head",
+    "expression": "qr_rsp_head"
+  },
+  "res_qkv_rd_rsp_token": {
+    "direction": "input",
+    "width": "[2:0][6:0]",
+    "resource": "qkv",
+    "port": "rd_rsp_token",
+    "expression": "qr_rsp_token"
+  },
+  "res_qkv_rd_rsp_tag": {
+    "direction": "input",
+    "width": "[2:0][31:0]",
+    "resource": "qkv",
+    "port": "rd_rsp_tag",
+    "expression": "qr_rsp_tag"
+  },
+  "res_qkv_rd_rsp_data": {
+    "direction": "input",
+    "width": "[2:0][63:0][31:0]",
+    "resource": "qkv",
+    "port": "rd_rsp_data",
+    "expression": "qr_rsp_data"
+  },
+  "res_st_bind_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "bind_valid",
+    "expression": "prepare_valid&&state==IDLE&&lease_ready&&qr_rsp_valid==0"
+  },
+  "res_st_bind_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "bind_ready",
+    "expression": "storage_bind_ready"
+  },
+  "res_st_bind_request_id": {
+    "direction": "output",
+    "width": "[63:0]",
+    "resource": "st",
+    "port": "bind_request_id",
+    "expression": "prepare_request_id"
+  },
+  "res_st_bind_generation": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "st",
+    "port": "bind_generation",
+    "expression": "prepare_generation"
+  },
+  "res_st_bind_epoch": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "st",
+    "port": "bind_epoch",
+    "expression": "prepare_epoch"
+  },
+  "res_st_bind_head": {
+    "direction": "output",
+    "width": "[3:0]",
+    "resource": "st",
+    "port": "bind_head",
+    "expression": "prepare_head"
+  },
+  "res_st_bind_phase": {
+    "direction": "output",
+    "width": "[2:0]",
+    "resource": "st",
+    "port": "bind_phase",
+    "expression": "prepare_av?3'd4:3'd2"
+  },
+  "res_st_op_request_id": {
+    "direction": "output",
+    "width": "[63:0]",
+    "resource": "st",
+    "port": "op_request_id",
+    "expression": "request_id"
+  },
+  "res_st_op_generation": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "st",
+    "port": "op_generation",
+    "expression": "generation"
+  },
+  "res_st_op_epoch": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "st",
+    "port": "op_epoch",
+    "expression": "epoch"
+  },
+  "res_st_op_phase": {
+    "direction": "output",
+    "width": "[2:0]",
+    "resource": "st",
+    "port": "op_phase",
+    "expression": "phase"
+  },
+  "res_st_rsp_request_id": {
+    "direction": "input",
+    "width": "[63:0]",
+    "resource": "st",
+    "port": "rsp_request_id",
+    "expression": "storage_request_id"
+  },
+  "res_st_rsp_generation": {
+    "direction": "input",
+    "width": "[31:0]",
+    "resource": "st",
+    "port": "rsp_generation",
+    "expression": "storage_generation"
+  },
+  "res_st_rsp_epoch": {
+    "direction": "input",
+    "width": "[31:0]",
+    "resource": "st",
+    "port": "rsp_epoch",
+    "expression": "storage_epoch"
+  },
+  "res_st_rsp_head": {
+    "direction": "input",
+    "width": "[3:0]",
+    "resource": "st",
+    "port": "rsp_head",
+    "expression": "storage_head"
+  },
+  "res_st_rsp_phase": {
+    "direction": "input",
+    "width": "[2:0]",
+    "resource": "st",
+    "port": "rsp_phase",
+    "expression": "storage_phase"
+  },
+  "res_st_ps_wr_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "ps_wr_valid",
+    "expression": "ps_wr_valid"
+  },
+  "res_st_ps_wr_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "ps_wr_ready",
+    "expression": "ps_wr_ready"
+  },
+  "res_st_ps_wr_mask": {
+    "direction": "output",
+    "width": "[1023:0]",
+    "resource": "st",
+    "port": "ps_wr_mask",
+    "expression": "ps_wr_mask"
+  },
+  "res_st_ps_wr_addr": {
+    "direction": "output",
+    "width": "[1023:0][3:0]",
+    "resource": "st",
+    "port": "ps_wr_addr",
+    "expression": "ps_wr_addr"
+  },
+  "res_st_ps_wr_data": {
+    "direction": "output",
+    "width": "[1023:0][31:0]",
+    "resource": "st",
+    "port": "ps_wr_data",
+    "expression": "ps_wr_data"
+  },
+  "res_st_ps_wr_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "ps_wr_tag",
+    "expression": "ps_wr_tag"
+  },
+  "res_st_ps_wr_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "ps_wr_rsp_valid",
+    "expression": "ps_wr_rsp_valid"
+  },
+  "res_st_ps_wr_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "ps_wr_rsp_ready",
+    "expression": "ps_wr_rsp_ready"
+  },
+  "res_st_ps_wr_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "ps_wr_rsp_tag",
+    "expression": "ps_wr_rsp_tag"
+  },
+  "res_st_ps_rd_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "ps_rd_valid",
+    "expression": "ps_rd_valid"
+  },
+  "res_st_ps_rd_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "ps_rd_ready",
+    "expression": "ps_rd_ready"
+  },
+  "res_st_ps_rd_mask": {
+    "direction": "output",
+    "width": "[1023:0]",
+    "resource": "st",
+    "port": "ps_rd_mask",
+    "expression": "ps_rd_mask"
+  },
+  "res_st_ps_rd_addr": {
+    "direction": "output",
+    "width": "[1023:0][3:0]",
+    "resource": "st",
+    "port": "ps_rd_addr",
+    "expression": "ps_rd_addr"
+  },
+  "res_st_ps_rd_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "ps_rd_tag",
+    "expression": "ps_rd_tag"
+  },
+  "res_st_ps_rd_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "ps_rd_rsp_valid",
+    "expression": "ps_rd_rsp_valid"
+  },
+  "res_st_ps_rd_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "ps_rd_rsp_ready",
+    "expression": "ps_rd_rsp_ready"
+  },
+  "res_st_ps_rd_rsp_data": {
+    "direction": "input",
+    "width": "[1023:0][31:0]",
+    "resource": "st",
+    "port": "ps_rd_rsp_data",
+    "expression": "ps_rd_rsp_data"
+  },
+  "res_st_ps_rd_rsp_mask": {
+    "direction": "input",
+    "width": "[1023:0]",
+    "resource": "st",
+    "port": "ps_rd_rsp_mask",
+    "expression": "ps_rd_rsp_mask"
+  },
+  "res_st_ps_rd_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "ps_rd_rsp_tag",
+    "expression": "ps_rd_rsp_tag"
+  },
+  "res_st_g_wr_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "g_wr_valid",
+    "expression": "g_wr_valid"
+  },
+  "res_st_g_wr_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "g_wr_ready",
+    "expression": "g_wr_ready"
+  },
+  "res_st_g_wr_mask": {
+    "direction": "output",
+    "width": "[255:0]",
+    "resource": "st",
+    "port": "g_wr_mask",
+    "expression": "g_wr_mask"
+  },
+  "res_st_g_wr_addr": {
+    "direction": "output",
+    "width": "[255:0][5:0]",
+    "resource": "st",
+    "port": "g_wr_addr",
+    "expression": "g_wr_addr"
+  },
+  "res_st_g_wr_data": {
+    "direction": "output",
+    "width": "[255:0][31:0]",
+    "resource": "st",
+    "port": "g_wr_data",
+    "expression": "g_wr_data"
+  },
+  "res_st_g_wr_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "g_wr_tag",
+    "expression": "g_wr_tag"
+  },
+  "res_st_g_wr_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "g_wr_rsp_valid",
+    "expression": "g_wr_rsp_valid"
+  },
+  "res_st_g_wr_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "g_wr_rsp_ready",
+    "expression": "g_wr_rsp_ready"
+  },
+  "res_st_g_wr_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "g_wr_rsp_tag",
+    "expression": "g_wr_rsp_tag"
+  },
+  "res_st_g_rd_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "g_rd_valid",
+    "expression": "g_rd_valid"
+  },
+  "res_st_g_rd_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "g_rd_ready",
+    "expression": "g_rd_ready"
+  },
+  "res_st_g_rd_mask": {
+    "direction": "output",
+    "width": "[255:0]",
+    "resource": "st",
+    "port": "g_rd_mask",
+    "expression": "g_rd_mask"
+  },
+  "res_st_g_rd_addr": {
+    "direction": "output",
+    "width": "[255:0][5:0]",
+    "resource": "st",
+    "port": "g_rd_addr",
+    "expression": "g_rd_addr"
+  },
+  "res_st_g_rd_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "g_rd_tag",
+    "expression": "g_rd_tag"
+  },
+  "res_st_g_rd_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "g_rd_rsp_valid",
+    "expression": "g_rd_rsp_valid"
+  },
+  "res_st_g_rd_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "g_rd_rsp_ready",
+    "expression": "g_rd_rsp_ready"
+  },
+  "res_st_g_rd_rsp_data": {
+    "direction": "input",
+    "width": "[255:0][31:0]",
+    "resource": "st",
+    "port": "g_rd_rsp_data",
+    "expression": "g_rd_rsp_data"
+  },
+  "res_st_g_rd_rsp_mask": {
+    "direction": "input",
+    "width": "[255:0]",
+    "resource": "st",
+    "port": "g_rd_rsp_mask",
+    "expression": "g_rd_rsp_mask"
+  },
+  "res_st_g_rd_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "g_rd_rsp_tag",
+    "expression": "g_rd_rsp_tag"
+  },
+  "res_st_context_wr_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "context_wr_valid",
+    "expression": "context_wr_valid"
+  },
+  "res_st_context_wr_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "context_wr_ready",
+    "expression": "context_wr_ready"
+  },
+  "res_st_context_wr_mask": {
+    "direction": "output",
+    "width": "[63:0]",
+    "resource": "st",
+    "port": "context_wr_mask",
+    "expression": "context_wr_mask"
+  },
+  "res_st_context_wr_addr": {
+    "direction": "output",
+    "width": "[63:0][10:0]",
+    "resource": "st",
+    "port": "context_wr_addr",
+    "expression": "context_wr_addr"
+  },
+  "res_st_context_wr_data": {
+    "direction": "output",
+    "width": "[63:0][31:0]",
+    "resource": "st",
+    "port": "context_wr_data",
+    "expression": "context_wr_data"
+  },
+  "res_st_context_wr_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "context_wr_tag",
+    "expression": "context_wr_tag"
+  },
+  "res_st_context_wr_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "context_wr_rsp_valid",
+    "expression": "context_wr_rsp_valid"
+  },
+  "res_st_context_wr_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "context_wr_rsp_ready",
+    "expression": "context_wr_rsp_ready"
+  },
+  "res_st_context_wr_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "context_wr_rsp_tag",
+    "expression": "context_wr_rsp_tag"
+  },
+  "res_st_context_rd_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "context_rd_valid",
+    "expression": "context_rd_valid"
+  },
+  "res_st_context_rd_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "context_rd_ready",
+    "expression": "context_rd_ready"
+  },
+  "res_st_context_rd_mask": {
+    "direction": "output",
+    "width": "[63:0]",
+    "resource": "st",
+    "port": "context_rd_mask",
+    "expression": "context_rd_mask"
+  },
+  "res_st_context_rd_addr": {
+    "direction": "output",
+    "width": "[63:0][10:0]",
+    "resource": "st",
+    "port": "context_rd_addr",
+    "expression": "context_rd_addr"
+  },
+  "res_st_context_rd_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "context_rd_tag",
+    "expression": "context_rd_tag"
+  },
+  "res_st_context_rd_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "context_rd_rsp_valid",
+    "expression": "context_rd_rsp_valid"
+  },
+  "res_st_context_rd_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "st",
+    "port": "context_rd_rsp_ready",
+    "expression": "context_rd_rsp_ready"
+  },
+  "res_st_context_rd_rsp_data": {
+    "direction": "input",
+    "width": "[63:0][31:0]",
+    "resource": "st",
+    "port": "context_rd_rsp_data",
+    "expression": "context_rd_rsp_data"
+  },
+  "res_st_context_rd_rsp_mask": {
+    "direction": "input",
+    "width": "[63:0]",
+    "resource": "st",
+    "port": "context_rd_rsp_mask",
+    "expression": "context_rd_rsp_mask"
+  },
+  "res_st_context_rd_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "st",
+    "port": "context_rd_rsp_tag",
+    "expression": "context_rd_rsp_tag"
+  },
+  "res_st_idle": {
+    "direction": "input",
+    "width": "",
+    "resource": "st",
+    "port": "idle",
+    "expression": "storage_idle"
+  },
+  "res_fp_lease_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "fp",
+    "port": "lease_valid",
+    "expression": "state==CLAIM"
+  },
+  "res_fp_lease_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "fp",
+    "port": "lease_ready",
+    "expression": "lease_ready"
+  },
+  "res_fp_lease_request_id": {
+    "direction": "output",
+    "width": "[63:0]",
+    "resource": "fp",
+    "port": "lease_request_id",
+    "expression": "request_id"
+  },
+  "res_fp_lease_generation": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "fp",
+    "port": "lease_generation",
+    "expression": "generation"
+  },
+  "res_fp_lease_epoch": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "fp",
+    "port": "lease_epoch",
+    "expression": "epoch"
+  },
+  "res_fp_lease_head": {
+    "direction": "output",
+    "width": "[3:0]",
+    "resource": "fp",
+    "port": "lease_head",
+    "expression": "head"
+  },
+  "res_fp_lease_phase": {
+    "direction": "output",
+    "width": "[2:0]",
+    "resource": "fp",
+    "port": "lease_phase",
+    "expression": "phase"
+  },
+  "res_fp_release_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "fp",
+    "port": "release_valid",
+    "expression": "state==RELEASE"
+  },
+  "res_fp_release_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "fp",
+    "port": "release_ready",
+    "expression": "release_ready"
+  },
+  "res_fp_release_phase": {
+    "direction": "output",
+    "width": "[2:0]",
+    "resource": "fp",
+    "port": "release_phase",
+    "expression": "phase"
+  },
+  "res_fp_release_epoch": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "fp",
+    "port": "release_epoch",
+    "expression": "epoch"
+  },
+  "res_fp_phase_debt_clear": {
+    "direction": "output",
+    "width": "",
+    "resource": "fp",
+    "port": "phase_debt_clear",
+    "expression": "local_idle"
+  },
+  "res_fp_lease_active": {
+    "direction": "input",
+    "width": "",
+    "resource": "fp",
+    "port": "lease_active",
+    "expression": "fp_owned"
+  },
+  "res_fp_draining": {
+    "direction": "input",
+    "width": "",
+    "resource": "fp",
+    "port": "draining",
+    "expression": "fp_draining"
+  },
+  "res_fp_rsp_request_id": {
+    "direction": "input",
+    "width": "[63:0]",
+    "resource": "fp",
+    "port": "rsp_request_id",
+    "expression": "fp_request_id"
+  },
+  "res_fp_rsp_generation": {
+    "direction": "input",
+    "width": "[31:0]",
+    "resource": "fp",
+    "port": "rsp_generation",
+    "expression": "fp_generation"
+  },
+  "res_fp_rsp_epoch": {
+    "direction": "input",
+    "width": "[31:0]",
+    "resource": "fp",
+    "port": "rsp_epoch",
+    "expression": "fp_epoch"
+  },
+  "res_fp_rsp_head": {
+    "direction": "input",
+    "width": "[3:0]",
+    "resource": "fp",
+    "port": "rsp_head",
+    "expression": "fp_head"
+  },
+  "res_fp_rsp_phase": {
+    "direction": "input",
+    "width": "[2:0]",
+    "resource": "fp",
+    "port": "rsp_phase",
+    "expression": "fp_phase"
+  },
+  "res_fp_mul_req_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "fp",
+    "port": "mul_req_valid",
+    "expression": "m_valid"
+  },
+  "res_fp_mul_req_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "fp",
+    "port": "mul_req_ready",
+    "expression": "m_ready"
+  },
+  "res_fp_mul_req_phase": {
+    "direction": "output",
+    "width": "[2:0]",
+    "resource": "fp",
+    "port": "mul_req_phase",
+    "expression": "phase"
+  },
+  "res_fp_mul_req_epoch": {
+    "direction": "output",
+    "width": "[31:0]",
+    "resource": "fp",
+    "port": "mul_req_epoch",
+    "expression": "epoch"
+  },
+  "res_fp_mul_req_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "fp",
+    "port": "mul_req_tag",
+    "expression": "m_tag"
+  },
+  "res_fp_mul_a": {
+    "direction": "output",
+    "width": "[256-1:0][31:0]",
+    "resource": "fp",
+    "port": "mul_a",
+    "expression": "ma"
+  },
+  "res_fp_mul_b": {
+    "direction": "output",
+    "width": "[256-1:0][31:0]",
+    "resource": "fp",
+    "port": "mul_b",
+    "expression": "mb"
+  },
+  "res_fp_mul_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "fp",
+    "port": "mul_rsp_valid",
+    "expression": "m_rsp_valid"
+  },
+  "res_fp_mul_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "fp",
+    "port": "mul_rsp_ready",
+    "expression": "m_rsp_ready"
+  },
+  "res_fp_mul_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "fp",
+    "port": "mul_rsp_tag",
+    "expression": "m_rsp_tag"
+  },
+  "res_fp_mul_rsp_data": {
+    "direction": "input",
+    "width": "[256-1:0][31:0]",
+    "resource": "fp",
+    "port": "mul_rsp_data",
+    "expression": "m_data"
+  },
+  "res_fp_add_req_valid": {
+    "direction": "output",
+    "width": "[7-1:0]",
+    "resource": "fp",
+    "port": "add_req_valid",
+    "expression": "a_valid"
+  },
+  "res_fp_add_req_is_root": {
+    "direction": "output",
+    "width": "[7-1:0]",
+    "resource": "fp",
+    "port": "add_req_is_root",
+    "expression": "a_root"
+  },
+  "res_fp_add_req_ready": {
+    "direction": "input",
+    "width": "[7-1:0]",
+    "resource": "fp",
+    "port": "add_req_ready",
+    "expression": "a_ready"
+  },
+  "res_fp_add_req_phase": {
+    "direction": "output",
+    "width": "[7-1:0][2:0]",
+    "resource": "fp",
+    "port": "add_req_phase",
+    "expression": "a_phase"
+  },
+  "res_fp_add_req_epoch": {
+    "direction": "output",
+    "width": "[7-1:0][31:0]",
+    "resource": "fp",
+    "port": "add_req_epoch",
+    "expression": "a_epoch"
+  },
+  "res_fp_add_req_tag": {
+    "direction": "output",
+    "width": "[7-1:0][95:0]",
+    "resource": "fp",
+    "port": "add_req_tag",
+    "expression": "a_tag"
+  },
+  "res_fp_add_a": {
+    "direction": "output",
+    "width": "[256-1:0][31:0]",
+    "resource": "fp",
+    "port": "add_a",
+    "expression": "aa"
+  },
+  "res_fp_add_b": {
+    "direction": "output",
+    "width": "[256-1:0][31:0]",
+    "resource": "fp",
+    "port": "add_b",
+    "expression": "ab"
+  },
+  "res_fp_add_rsp_valid": {
+    "direction": "input",
+    "width": "[7-1:0]",
+    "resource": "fp",
+    "port": "add_rsp_valid",
+    "expression": "a_rsp_valid"
+  },
+  "res_fp_add_rsp_ready": {
+    "direction": "output",
+    "width": "[7-1:0]",
+    "resource": "fp",
+    "port": "add_rsp_ready",
+    "expression": "a_rsp_ready"
+  },
+  "res_fp_add_rsp_tag": {
+    "direction": "input",
+    "width": "[7-1:0][95:0]",
+    "resource": "fp",
+    "port": "add_rsp_tag",
+    "expression": "a_rsp_tag"
+  },
+  "res_fp_add_rsp_data": {
+    "direction": "input",
+    "width": "[256-1:0][31:0]",
+    "resource": "fp",
+    "port": "add_rsp_data",
+    "expression": "a_data"
+  },
+  "res_fp_mul_pending": {
+    "direction": "input",
+    "width": "[6:0]",
+    "resource": "fp",
+    "port": "mul_pending",
+    "expression": "m_pending"
+  },
+  "res_fp_add_pending": {
+    "direction": "input",
+    "width": "[7-1:0][6:0]",
+    "resource": "fp",
+    "port": "add_pending",
+    "expression": "a_pending"
+  },
+  "res_fp_protocol_fault": {
+    "direction": "input",
+    "width": "",
+    "resource": "fp",
+    "port": "protocol_fault",
+    "expression": "fp_fault"
+  },
+  "res_scale_valid": {
+    "direction": "output",
+    "width": "",
+    "resource": "scale",
+    "port": "scale_valid",
+    "expression": "scale_valid"
+  },
+  "res_scale_ready": {
+    "direction": "input",
+    "width": "",
+    "resource": "scale",
+    "port": "scale_ready",
+    "expression": "scale_ready"
+  },
+  "res_scale_tag": {
+    "direction": "output",
+    "width": "[95:0]",
+    "resource": "scale",
+    "port": "scale_tag",
+    "expression": "scale_tag"
+  },
+  "res_scale_input": {
+    "direction": "output",
+    "width": "[3:0][31:0]",
+    "resource": "scale",
+    "port": "scale_input",
+    "expression": "scale_input"
+  },
+  "res_scale_rsp_valid": {
+    "direction": "input",
+    "width": "",
+    "resource": "scale",
+    "port": "scale_rsp_valid",
+    "expression": "scale_rsp_valid"
+  },
+  "res_scale_rsp_ready": {
+    "direction": "output",
+    "width": "",
+    "resource": "scale",
+    "port": "scale_rsp_ready",
+    "expression": "scale_rsp_ready"
+  },
+  "res_scale_rsp_tag": {
+    "direction": "input",
+    "width": "[95:0]",
+    "resource": "scale",
+    "port": "scale_rsp_tag",
+    "expression": "scale_rsp_tag"
+  },
+  "res_scale_data": {
+    "direction": "input",
+    "width": "[3:0][31:0]",
+    "resource": "scale",
+    "port": "scale_data",
+    "expression": "scale_data"
+  },
+  "res_scale_pending": {
+    "direction": "input",
+    "width": "[6:0]",
+    "resource": "scale",
+    "port": "scale_pending",
+    "expression": "scale_pending"
+  },
+  "res_scale_fault": {
+    "direction": "input",
+    "width": "",
+    "resource": "scale",
+    "port": "scale_fault",
+    "expression": "scale_fault"
+  }
+}

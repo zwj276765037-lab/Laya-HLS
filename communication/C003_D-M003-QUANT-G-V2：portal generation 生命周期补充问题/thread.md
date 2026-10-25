@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-15T23:17:35.400851+00:00。来源修订：`aefe48aaef5e`。
+生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
 
 # C003 · D-M003-QUANT-G-V2：portal generation 生命周期补充问题
 
@@ -68,7 +68,6 @@ wire v2和保留区不变，不新增future-generation字段。caller可预留�
 
 - [portal_generation_answer_message_20261011](../../results/portal_generation_answer_message_20261011.md)
 - [portal_generation_lifecycle_20261011](../../results/portal_generation_lifecycle_20261011.md)
-- [review_queue](../../results/review_queue.md)
 
 ### 状态确认 2026-10-11T16:27:38.844115+00:00
 

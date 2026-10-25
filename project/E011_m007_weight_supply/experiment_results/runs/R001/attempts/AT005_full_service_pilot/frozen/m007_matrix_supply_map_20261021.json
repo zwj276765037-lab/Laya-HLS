@@ -1,0 +1,329 @@
+{
+  "status": "READ_ONLY_METADATA_AND_INTEGER_CHECKS_NO_DATA_OR_RTL_RUN",
+  "controller_layout_decision": {
+    "schema": "M007-W576-v1",
+    "authority": "M007 controller /root direct message on 2026-10-21; not an inherited M006 byte schema",
+    "q_offset_formula": "32*c+j; c=0..15, j=0..31",
+    "scale_offset_formula": "512+2*c; original F16 little-endian bytes",
+    "zero_padding_offset_inclusive": [544, 575],
+    "normal_column_formula": "64*s+16*p+c",
+    "Wi_column_formula": "p<2 ? 32*s+16*p+c : 2624+32*s+16*(p-2)+c; s=0..81",
+    "port_assignment": "p is the fixed N16 position within the superblock",
+    "port_address_formula": "base_p+576*(s*G+g); G=K/32",
+    "matrix_base_alignment_per_port_bytes": 4096,
+    "matrix_placement_formula": "next_base_p=align_up(previous_end_p,4096)",
+    "matrix_gap_is_not_record_padding_or_W_read_traffic": true,
+    "slot_bank_formula": "bank=c; address=4*g+p; 16 banks x 512 entries x 272 bits",
+    "slot_payload_bytes": 278528,
+    "candidate_named_integer_fields_below": "Computed before controller fixed layout; values now apply to M007-W576-v1"
+  },
+  "validation_scope": {
+    "representative_tensor_metadata_loaded": true,
+    "integer_byte_counts_checked": true,
+    "byte_mapping_bijection": "static formula proof in companion Markdown only",
+    "original_model_full_SHA_recomputed": false,
+    "actual_packer_or_slot_roundtrip_executed": false,
+    "RTL_or_HBM_bandwidth_test_executed": false
+  },
+  "integer_script_cost": {
+    "wall_s": 0.04,
+    "user_s": 0.03,
+    "system_s": 0.01,
+    "maximum_RSS_KiB": 16440,
+    "exit_status": 0,
+    "other_read_command_cost": "UNKNOWN"
+  },
+  "requested_model": "gpt-6.1-sol",
+  "requested_reasoning": "xhigh",
+  "actual_model": "UNKNOWN",
+  "manifest": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/build/model-q8-session-v2-actual-r2-20261010/manifest.json",
+    "sha256": "46bbd5abeeadc2d4305419d3129fd871aaeb04e962821ac4c6a6da957698018c",
+    "bytes": 147976
+  },
+  "stored_source_model": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/model/quantized/gguf/mys/laya-typed-decisions-GGUF/Q8_0/laya_typed_decisions_q8_0.gguf",
+    "size": 455179648,
+    "sha256": "6eb6ef58bc4f99bd9db40381604108af782ffc314aa00da6641f429991ca1f18",
+    "graph_spec_sha256": "f33f7848434b73048f957dcd232e1bd4ff99e95b8cf41c98191b69fddad815f9",
+    "tensor_count": 153,
+    "payload_bytes": 453123852,
+    "preserved_payload_bytes": 448921352
+  },
+  "source_model_path_exists": true,
+  "remapped_source_model_path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/model/quantized/gguf/mys/laya-typed-decisions-GGUF/Q8_0/laya_typed_decisions_q8_0.gguf",
+  "remapped_source_model_path_exists": true,
+  "records": [
+    {
+      "tensor": "qkv.0.weight",
+      "K": 1024,
+      "N": 3072,
+      "G": 32,
+      "weight_descriptor": {
+        "family": 1,
+        "layer": 0,
+        "name": "qkv.0.weight",
+        "K": 1024,
+        "N": 3072,
+        "dtype": 8,
+        "q_base": [
+          0,
+          0
+        ],
+        "q_span": [
+          1572864,
+          1572864
+        ],
+        "scale_base": 0,
+        "scale_span": 196608,
+        "aux_base": 0,
+        "aux_span": 0,
+        "bias_name": null,
+        "bias_base": 0,
+        "bias_span": 0,
+        "source_sha256": "83723a85bf4b54a5399d4452c64eb446246f7d7af04d48bbc3e9d81314564dfe",
+        "bias_sha256": null
+      },
+      "tensor_descriptor": {
+        "name": "qkv.0.weight",
+        "ggml_type_id": 8,
+        "ggml_ne": [
+          1024,
+          3072,
+          1,
+          1
+        ],
+        "source_offset": 56864096,
+        "source_bytes": 3342336,
+        "source_sha256": "83723a85bf4b54a5399d4452c64eb446246f7d7af04d48bbc3e9d81314564dfe",
+        "omitted": false,
+        "omission_rule": null,
+        "bo": "q8_matrix",
+        "base": 0,
+        "span": 0,
+        "restored_sha256": "83723a85bf4b54a5399d4452c64eb446246f7d7af04d48bbc3e9d81314564dfe"
+      },
+      "superblock": {
+        "records": 128,
+        "Q_bytes": 65536,
+        "scale_bytes": 4096,
+        "payload_bytes": 69632,
+        "padding_bytes": 4096,
+        "fetched_bytes": 73728,
+        "service_curve_limit_cycles": 1024
+      },
+      "matrix_fetched_bytes": 3538944,
+      "candidate_record_round_robin_port_bytes": 884736,
+      "candidate_per_port_matrix_end_mod_4096": 0
+    },
+    {
+      "tensor": "mlp_wi.0.weight",
+      "K": 1024,
+      "N": 5248,
+      "G": 32,
+      "weight_descriptor": {
+        "family": 3,
+        "layer": 0,
+        "name": "mlp_wi.0.weight",
+        "K": 1024,
+        "N": 5248,
+        "dtype": 8,
+        "q_base": [
+          58720256,
+          58720256
+        ],
+        "q_span": [
+          2686976,
+          2686976
+        ],
+        "scale_base": 7340032,
+        "scale_span": 335872,
+        "aux_base": 0,
+        "aux_span": 0,
+        "bias_name": null,
+        "bias_base": 0,
+        "bias_span": 0,
+        "source_sha256": "f7cee5bbf75d7180e488665ebf5abbb0e19f2c555bba0afda3f0c9c3a46a08fa",
+        "bias_sha256": null
+      },
+      "tensor_descriptor": {
+        "name": "mlp_wi.0.weight",
+        "ggml_type_id": 8,
+        "ggml_ne": [
+          1024,
+          5248,
+          1,
+          1
+        ],
+        "source_offset": 181644640,
+        "source_bytes": 5709824,
+        "source_sha256": "f7cee5bbf75d7180e488665ebf5abbb0e19f2c555bba0afda3f0c9c3a46a08fa",
+        "omitted": false,
+        "omission_rule": null,
+        "bo": "q8_matrix",
+        "base": 0,
+        "span": 0,
+        "restored_sha256": "f7cee5bbf75d7180e488665ebf5abbb0e19f2c555bba0afda3f0c9c3a46a08fa"
+      },
+      "superblock": {
+        "records": 128,
+        "Q_bytes": 65536,
+        "scale_bytes": 4096,
+        "payload_bytes": 69632,
+        "padding_bytes": 4096,
+        "fetched_bytes": 73728,
+        "service_curve_limit_cycles": 1024
+      },
+      "matrix_fetched_bytes": 6045696,
+      "candidate_record_round_robin_port_bytes": 1511424,
+      "candidate_per_port_matrix_end_mod_4096": 0
+    },
+    {
+      "tensor": "mlp_wo.0.weight",
+      "K": 2624,
+      "N": 1024,
+      "G": 82,
+      "weight_descriptor": {
+        "family": 4,
+        "layer": 0,
+        "name": "mlp_wo.0.weight",
+        "K": 2624,
+        "N": 1024,
+        "dtype": 8,
+        "q_base": [
+          133955584,
+          133955584
+        ],
+        "q_span": [
+          1343488,
+          1343488
+        ],
+        "scale_base": 16744448,
+        "scale_span": 167936,
+        "aux_base": 0,
+        "aux_span": 0,
+        "bias_name": null,
+        "bias_base": 0,
+        "bias_span": 0,
+        "source_sha256": "570c32748d4b695ff2838e626910a3670d6d2fade320c981d5e008df67778e84",
+        "bias_sha256": null
+      },
+      "tensor_descriptor": {
+        "name": "mlp_wo.0.weight",
+        "ggml_type_id": 8,
+        "ggml_ne": [
+          2624,
+          1024,
+          1,
+          1
+        ],
+        "source_offset": 341519712,
+        "source_bytes": 2854912,
+        "source_sha256": "570c32748d4b695ff2838e626910a3670d6d2fade320c981d5e008df67778e84",
+        "omitted": false,
+        "omission_rule": null,
+        "bo": "q8_matrix",
+        "base": 0,
+        "span": 0,
+        "restored_sha256": "570c32748d4b695ff2838e626910a3670d6d2fade320c981d5e008df67778e84"
+      },
+      "superblock": {
+        "records": 328,
+        "Q_bytes": 167936,
+        "scale_bytes": 10496,
+        "payload_bytes": 178432,
+        "padding_bytes": 10496,
+        "fetched_bytes": 188928,
+        "service_curve_limit_cycles": 2224
+      },
+      "matrix_fetched_bytes": 3022848,
+      "candidate_record_round_robin_port_bytes": 755712,
+      "candidate_per_port_matrix_end_mod_4096": 2048
+    },
+    {
+      "tensor": "head_fc2.0.weight",
+      "K": 4096,
+      "N": 1024,
+      "G": 128,
+      "weight_descriptor": {
+        "family": 8,
+        "layer": 0,
+        "name": "head_fc2.0.weight",
+        "K": 4096,
+        "N": 1024,
+        "dtype": 8,
+        "q_base": [
+          179961856,
+          179961856
+        ],
+        "q_span": [
+          2097152,
+          2097152
+        ],
+        "scale_base": 22495232,
+        "scale_span": 262144,
+        "aux_base": 0,
+        "aux_span": 0,
+        "bias_name": "head_fc2.0.bias",
+        "bias_base": 73856,
+        "bias_span": 4096,
+        "source_sha256": "085d3d9f5320af65c0a8844a54482c9f392956c362e6c7b6b8faeb40ed240cfb",
+        "bias_sha256": "477cf3b3d23cd8cc2df07fc38e5cb88c4bd1e1e852e859cf73881bc266052d84"
+      },
+      "tensor_descriptor": {
+        "name": "head_fc2.0.weight",
+        "ggml_type_id": 8,
+        "ggml_ne": [
+          4096,
+          1024,
+          1,
+          1
+        ],
+        "source_offset": 439351840,
+        "source_bytes": 4456448,
+        "source_sha256": "085d3d9f5320af65c0a8844a54482c9f392956c362e6c7b6b8faeb40ed240cfb",
+        "omitted": false,
+        "omission_rule": null,
+        "bo": "q8_matrix",
+        "base": 0,
+        "span": 0,
+        "restored_sha256": "085d3d9f5320af65c0a8844a54482c9f392956c362e6c7b6b8faeb40ed240cfb"
+      },
+      "superblock": {
+        "records": 512,
+        "Q_bytes": 262144,
+        "scale_bytes": 16384,
+        "payload_bytes": 278528,
+        "padding_bytes": 16384,
+        "fetched_bytes": 294912,
+        "service_curve_limit_cycles": 3328
+      },
+      "matrix_fetched_bytes": 4718592,
+      "candidate_record_round_robin_port_bytes": 1179648,
+      "candidate_per_port_matrix_end_mod_4096": 0
+    }
+  ],
+  "fixture_exists": {
+    "fixture_manifest.json": true,
+    "qkv_q0.hex": false,
+    "wi_q0.hex": true,
+    "down_q0.hex": true,
+    "decfc2_q0.hex": false
+  },
+  "record_page_crossing_example": {
+    "local_record_index": 7,
+    "start_offset": 4032,
+    "first_page_bytes": 64,
+    "second_page_bytes": 512,
+    "next_record_offset": 4608
+  },
+  "work_policy": {
+    "wall_s_limit": 20,
+    "CPU_affinity": "0-3",
+    "nice": 19,
+    "io": "idle",
+    "address_space_bytes": 1073741824,
+    "heavy_tools_started": 0,
+    "new_gold_generated": false
+  }
+}

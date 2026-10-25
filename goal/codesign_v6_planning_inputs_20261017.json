@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "date": "2026-10-17",
+  "scope": "Static architecture arithmetic and read-only device identity; NOT benchmark/RTL/physical evidence",
+  "input_manifest": {
+    "path": "source/feasibility_20261014/v4/matrices.csv",
+    "sha256": "2325435a1bf7b0b07c1200cf722c221421dae773e464a7cb04336995bdb309c2"
+  },
+  "archives": [
+    {
+      "source": "goal/goal.md",
+      "archive": "goal/goal_v5_before_a6000_replan_20261017.md",
+      "sha256": "ffda9e9c9ea236826b5c07a2fb57ef4b7959edacbcec4a25a1123682cec4e258",
+      "bytes": 5556
+    },
+    {
+      "source": "mission/M006_CPU_FPGA协同高性能推理实现/contract.md",
+      "archive": "mission/M006_CPU_FPGA协同高性能推理实现/contract_v1_before_a6000_replan_20261017.md",
+      "sha256": "aeac6bd0d4d167849e3543735a146b20a90261a815138af1002e5d2cdb115426",
+      "bytes": 15383
+    },
+    {
+      "source": "mission/current.md",
+      "archive": "mission/current_before_a6000_replan_20261017.md",
+      "sha256": "0fa669898b00cb73fe9cfca9063157237e07f73e3f5caf27a0dbdef028e8f513",
+      "bytes": 1632
+    },
+    {
+      "source": "NEW_CHAT_START.md",
+      "archive": "NEW_CHAT_START_before_a6000_replan_20261017.md",
+      "sha256": "750b3724c448cb93b1bf702afff3d9d2838e95ab113ced085167a2282e6447ce",
+      "bytes": 1824
+    },
+    {
+      "source": "results/missions/M006_summary.md",
+      "archive": "results/missions/M006_summary_before_a6000_replan_20261017.md",
+      "sha256": "2174baf7c77b6160721eb0b2524aa768dc565ecaa89701d5fe312795b5d40602",
+      "bytes": 1474
+    }
+  ],
+  "device_query": {
+    "command": "nvidia-smi --query-gpu=name,memory.total,compute_cap --format=csv,noheader",
+    "output": "NVIDIA RTX A6000, 49140 MiB, 8.6\nNVIDIA RTX A6000, 49140 MiB, 8.6\n",
+    "comparison": "one RTX A6000, not both"
+  },
+  "workload": {
+    "mainline_matrices": 120,
+    "mainline_MAC": 47143976960,
+    "restore_groups": 1473249280,
+    "restore_FP_mul_add_ops": 4419747840,
+    "mainline_weight_scale_bytes": 391331840,
+    "mainline_bias_bytes": 73728,
+    "GEGLU_outputs": 9404416
+  },
+  "traffic": {
+    "baseline_A_bytes": {
+      "bytes": 125829120,
+      "MiB": 120.0,
+      "illustrative_payload_ms_at_8GBps": 15.728639999999999
+    },
+    "resident_B_bytes": {
+      "bytes": 63508480,
+      "MiB": 60.56640625,
+      "illustrative_payload_ms_at_8GBps": 7.938560000000001
+    },
+    "resident_C_bytes": {
+      "bytes": 593920,
+      "MiB": 0.56640625,
+      "illustrative_payload_ms_at_8GBps": 0.07424
+    }
+  },
+  "context_payload": {
+    "hidden_H0_H1_bytes": 1048576,
+    "norm_bytes": 524288,
+    "qkv_bytes": 1572864,
+    "attention_context_bytes": 524288,
+    "quant_A0_A1_bytes": 1114112,
+    "total_bytes": 4784128,
+    "two_context_bytes": 9568256
+  },
+  "matrix_time_ms_at_assumed_sustained_TMACs": {
+    "1": 47.14397696,
+    "2": 23.57198848,
+    "3": 15.714658986666668
+  },
+  "matrix_design_candidates": [
+    {
+      "tiles": 1,
+      "Tm": 8,
+      "Tn": 16,
+      "Pk": 32,
+      "MAC_per_cycle": 4096,
+      "restore_groups_per_cycle_at_peak": 128,
+      "clock_MHz_design_target_not_measured": 250,
+      "peak_TMACs_at_target": 1.024
+    },
+    {
+      "tiles": 2,
+      "Tm": 8,
+      "Tn": 16,
+      "Pk": 32,
+      "MAC_per_cycle": 8192,
+      "restore_groups_per_cycle_at_peak": 256,
+      "clock_MHz_design_target_not_measured": 250,
+      "peak_TMACs_at_target": 2.048
+    }
+  ],
+  "platform_sources": [
+    "https://docs.amd.com/r/en-US/ds978-u55c/Product-Details",
+    "https://docs.amd.com/r/en-US/ug1469-alveo-u55c/Card-Features",
+    "https://docs.amd.com/v/u/en-US/wp487-int8-acceleration",
+    "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+  ],
+  "unknown": [
+    "A6000 full model matched latency and QPS",
+    "U55C routed Fmax/resources",
+    "sustained HBM and PCIe bandwidth",
+    "CPU Attention runtime",
+    "strict numerical GPU performance",
+    "board deployment unavailable"
+  ],
+  "discarded_prediction": "120–220ms and CPU20–80ms remain illustrative unmeasured assumptions, not targets or calibrated forecast",
+  "static_review": {
+    "scope": "Read-only architecture review; no implementation, benchmarks or EDA",
+    "task": "/root/m006_architecture_static_review",
+    "requested_model": "gpt-6-astra",
+    "requested_reasoning_effort": "xhigh",
+    "status": "completed_findings_incorporated_in_goal_v6",
+    "findings": [
+      "256 restore groups per cycle; PS read/write each 1024B/cycle",
+      "Full PS feedback latency and independent Ntile interleaving",
+      "W scales and S128 reuse require 68B/cycle ideal average",
+      "GEGLU paired double buffer; 4 G/cycle has no margin; Decision 8/cycle",
+      "Quantization uses FP32 scale reciprocal before stored F16 scale conversion",
+      "Attention FP32 resource/time budget and LN multipass throughput",
+      "Real compact tail gather; logical first error independent of Ntile order"
+    ],
+    "performance_verdict": "unassessed"
+  },
+  "matrix_balance_arithmetic": {
+    "integer_only_min_ms_at_250MHz": 23.01952,
+    "integer_only_min_ms_at_300MHz": 19.18293333333333,
+    "peak_group_results_per_cycle": 256,
+    "PS_read_bytes_per_cycle": 1024,
+    "PS_write_bytes_per_cycle": 1024,
+    "W_integer_and_scale_bytes_per_group": 544,
+    "M16_windows_reusing_W_group": 8,
+    "ideal_W_bytes_per_cycle": 68,
+    "ideal_W_GBps_at_250MHz": 17,
+    "QK_AV_FP_MAC": 1006632960,
+    "softmax_scores": 7864320,
+    "softmax_rows": 61440
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m006-sm007-sharedfp-qk-av-interface-question-20261017",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "question",
+  "text": "# SM007共享FP对QK/AV数据依赖的接口问题\n\n2026-10-17；A002→A001；M006/SM007原合同内接口核对。AT009已验证当前唯一256mul/256add生产阵列的独立乘加输入、整向量64槽回执及phase lease；AT014已验证独立QKV物理bank。二者尚未接线。\n\n当前`laya_shared_fp256_v1`把同一issue的乘法和加法结果配对后才输出整向量；这足以核原IP与阵列信用，但无法按M006 §10.3/10.5在每拍4个score上把六级QK邻接树分别占用252个adder位置，也无法同拍把当前AV乘法和较早key的乘积送入add反馈。若直接用该配对回执逐级重新发射，QK需六次整向量issue/每key，明显超4352拍帽；AV同拍add只能取独立输入，不能取本次尚未返回的乘积。\n\n拟在**同一物理256mul/256add阵列**内把mul/add接收与返回分成带各自tag/credit的两路，提供固定QK六级跨lane流水布线及AV乘后加反馈；phase lease仍由同一服务拥有，bank、IP和时钟不复制，原F32逐次舍入不改。请按原架构判断该接口细化可否直接实施，或给出已定的替代固定接线。此问题只涉及生产服务内部接口，不请求新预算、数值放宽或新agent。等待期间工程继续独立bank/SFU模块工作，不用当前配对接口伪称完整QK/AV性能。\n",
+  "in_reply_to": null,
+  "message_file": "project/E007_m006_full_fpga_attention/experiment_results/runs/R001/reports/SM007_shared_fp_qk_av_interface_question_20261017.md",
+  "associations": {},
+  "payload_sha256": "9f83d7a5670266daf3c7cf5ebe972e1bb9e30bc8ccbdaaaa2619d7e6d68bbfa8",
+  "created_at": "2026-10-17T15:07:48.309447+00:00",
+  "status": "delivered",
+  "client_user_message_id": "fcdaa6fb-e236-452e-9415-8fa42be928e9",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-17T15:07:48.336890+00:00",
+  "recipient_turn_id": "01a14a66-fe2c-7a71-8d07-a62f8802fe3e"
+}

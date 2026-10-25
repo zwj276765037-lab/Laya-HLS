@@ -299,3 +299,51 @@ PS335872B最大，W按loader统一5709824B计一次，tile输出接口不另实�
 | synthesis分支与Vitis CSim | 定义`__SYNTHESIS__`的25源shadow四次同进程调用、72个F32值通过；真实13口CSim核对47点、9,047,192个F32值和37,158任务，0错误。 |
 | 完整顶层HLS综合/RTL | 新tag实际`SYNCHK`为0错误、1警告，完整综合退出0；顶层Verilog/VHDL、IP和报告已生成。进程树RSS采样峰值9,508,924KiB（9.068GiB），保护未触发。[封存工件清单](../../../../results/synthesis_memory_fix_20261007/followon_r1/new_identity_r1/csynth_full/artifact_manifest.json)。 |
 | 资源与时序边界 | **HLS估算**LUT 1,813,717（U55C容量的139%），顶层估算slack −0.07ns；当前资源预算未满足，202.58MHz只为工具估算Fmax，不能声称物理适配或时序通过。完整RTL cosim、物理综合/P&R、平台链接、上板和性能测量均未执行。 |
+
+
+## M007 MATRIX-02 functional and local OOC evidence (2026-10-21)
+
+The sole current implementation and authority are linked from design.md M007. E012/R001 retains actual frozen source, independent fixtures, snapshot, guard policies/logs/receipts and cost ledger. AT003 exact signed pair/half-product/I32 leaves PASS; AT005 twoM8N16/256dot array PASS for1024 consecutive II1 issues; AT007 real dual A slots PASS including64 actual return reservations. AT008 whole multi-stage local OOC COST_STOP120.238844s, although pair and half-product substages each completed with1DSP and zero blackboxes. AT009 isolated A bank PASS62.305528s,7BRAM36+2BRAM18,0DSP/URAM/blackboxes. These local results cannot establish whole8192-array fit or300MHz.
+
+AT012–015 actual A/W/sharedFP/PS M128xN64 functional runs all PASS. QKV and Wi K1024:continuous1024issue cycles, last output1317/done1320/W735; Down K2624:2624/2917/2920/W1633; FC2 K4096 with original64bias:4096/4398/4401/W2463. All8192outputs and each actual intermediate lane matched independent AT010 original-source reference. All had issue-to-PS-ack31max, PS feedback13max,0 output bubbles, peak total vector reservations50. QKV128 inputs are original norm; each other case has16 original rows plus112 diagnostic rows explicitly labeled. These runs predate the W bad-response-tag repair and retain that boundary.
+
+AT017 finite negative-W input correctly rejected at original Wi row0/column5219/group1 and44 accepted issues all44 committed, but mixed corrupt response identity blocked W ret; the run is FAIL. Ordinary repair retains actual accepted request tag, validates full response tag and sends ret only after actual response copy; AT019 error/mixed/invalid-span and same-identity recovery PASS. The final current-source rebuilt closure is AT020; new-generation/reset/stall and affected shape results follow in E012 current-version evidence when complete. Real HBM/CDC, complete matrices/F32 quantizer/parent graph, whole-array synthesis/P&R/timing and board throughput remain unverified.
+
+
+MATRIX-02 final repaired-DUT evidence: AT022 QKV reset/new-generation, AT023 Wi negative/mixed protocol/illegal span/new-epoch recovery, AT024 Down and AT025 FC2 normal all PASS. Their warm last output/done remain1317/1320,1317/1320,2917/2920,4398/4401 respectively; max issue->PS ack31 and feedback13. AT021 QKV and AT028 FC2 finite stalls PASS, including120/115 actual output-held clocks. AT026 preserved FAIL is a new stress-only TB watchdog missing pause allowance; AT027 changes only that watchdog/diagnostic, and all actual DUT SHA match AT020. Final6-run hash audit and exact manifests/guards/receipts: E012/experiment_results/runs/R001/current_version_evidence.json. Total charged ref3.221533/static98.779428/RTL545.147572/OOC182.544372seconds. This completes R001 local scope; FULLN-04 R002 is separate, and no complete-N/physical result is implied.
+
+
+## M007 R002 frozen cost exit and R003 launch (2026-10-21)
+
+Final R002 current_version_evidence.json audit PASS_SCOPED_VERSIONED_COST_EXIT verified1415unique files. Prior AT012 fullN QKV51833/WO17945/Wi87839/Down44443cycles remain bound to core9123f76026cac7e0757fccfc55dda225d1796fadb06272ac026211433370fac3. Current abort-priority cleanup corec13b2f8bf601631c33b206b42f57f6060889c2a26d507aa8cdd52a9da966c349 independently passed completeWO17938cycles and normalQKV/error-no-reset/reset/Decision bias3-block scopes. The7cycle WO cold difference comes from TB A-publication observation/AXI phase, not production speedup. FullFC1/FC2 remained COST_STOP before launch with final estimated1095.993/1437.037s versus562.727s available. Charged reference17.241009/static143.797149/RTL3037.272942/OOC0s; balance frozen. Exact final source/version/inputs/failed attempts: E012/R002/current_version_evidence.json, core_cleanup_boundary.json and final_publication.json. No old audit is rerun against R003 sources.
+
+R003 starts independently under SM010 F32-MATRIX-07: actual pure quant/A split and real cancellation implementation, initial AT001 A-cancel xvlog/xelab PASS. Functional cancellation/F32 joint verification is still in progress. No combined cycle, physical synthesis/route/board result is yet claimed. E012/R003 protocol/attempts contain actual staged evidence.
+
+
+## M007 R003 frozen real-F32 functional/cost delivery (2026-10-21)
+
+| shape / actual attempt | K x N | final F32 | joint accept→done cycles | cap | wall s | MAC/joint cycle |
+|---|---:|---:|---:|---:|---:|---:|
+| QKV / AT022 |1024x3072|393216|56017|57344|502.432066|7188.053341|
+| WO / AT023 |1024x1024|131072|22129|22528|202.893911|6065.241448|
+| Down / AT030 |2624x1024|131072|55027|56576|691.560311|6250.257655|
+
+All final values/prebias and actual quant/A/W/debt/lease checks pass for these three complete shapes. QKV has128 original norm rows; WO/Down retain16 original+112diagnostic provenance. FullWi/FC1/FC2 remain cost stopped before launch; FC2two-block120s timeout preserved, single-block retry88.922567s PASS. AT025/026 stronger same-DUT done/identity checks pass. Final audit AT038 verifies2473files; charges_s {"reference": 0.543066557002021, "static": 83.55140984200989, "rtl": 2539.2559304730676, "ooc": 0.0}. Detailed immutable evidence and limitations: E012/experiment_results/runs/R003/final_delivery.md and current_version_evidence.json. No physical performance/whole-resource parent claim.
+
+
+## M007 R004 frozen PURE-MATRIX-09 delivery (2026-10-21)
+
+# E012 R004 final actual results
+
+New sharedFPf450 version: AT019 build PASS20.830746s; AT020 QKV3 PASS39.327464s (joint8357); AT021 actual W1RRESP error→727issues/727PSacks drained→zero outputs→real release→no-reset new-identityWO3 PASS54.204637s; AT022 held bias/PS/output PASS48.047993s (actual hold312/ctxreuse989/output2174); AT023 original128contextWO3 PASS45.492356s. AT024 complete original128contextWO PASS203.558494s:131072 final values, joint22129cycles≤22528,4096 real inputs/quant/Awrites/Aacks,16 blocks of1024 continuous issues with35cycle gaps. All final/prebias/W/A/debt/lease checks pass. Same-build cost estimate412.265866s admitted≤600s with240s reserve. Normal passive issue→PSack31/PSfeedback13cycles. Wall times are tool costs, not a controlled speed comparison.
+
+Old sharedFP80f version: profile0/1 QKV3 exact actual equivalence; complete original128contextWO AT008 PASS290.908848s/22129cycles/131072values. AT011 Down2, AT012 Decision WO bias3, AT013 FC2bias1, AT014 real W-error/recovery, AT015 held bias/PS/output and AT016 held last quant/Aack all PASS at frozen oldFP identity. They are not relabeled as newFP full-shape results.
+
+Actual producer-close AT010/AT018 use real quant/DIV8/physical A cache, zero/partial117groups and same-edge input/held quant/physical Aack cases. Partial cases retire117 accepted groups and32 real Awrite/acks; AT018 observes32 real DIV vectors/pending and64/63 scalar debts at close. Three no-reset newgen recoveries each compare4096 actual quant/Awrite groups, publish and public read sample. Cancel response129bits held8cycles, front actual owner/status/quant tuple154bits held5cycles. Public slot1/preserved-slot read covers only row0..15/group0, one544B vector held5cycles; no whole-slot read claim. Original producer error cause remains parent-owned; these are control termination tests, not future G-parent error propagation.
+
+AT025 final guarded audit PASS1.573405s verifies1981unique files, all source/input/compiled/guard/log/policy/receipt identities, exact extraction, costs and old/new boundaries. All25actual attempts PASS. One pre-dispatch orchestration SyntaxError is preserved with0experimental charge. Final charged_s: {"reference": 0.26091121695935726, "static": 102.64592235197779, "rtl": 1256.8884661240154, "ooc": 0.0}. Remaining is frozen without transfer. Full parent/global matrix original-first-error/full graph/model, OOC/route300MHz/HBM/CDC/board remain unverified.
+
+
+## 2026-10-23 D32/R007证据边界
+
+新canonical v3/服务源码已准备，32项source-only结构核对不构成编译、RTL、census或physical PASS。实际源版本与下一步以E016/R007和E016三摘要为准；旧记录仍只适用原版本。完整setup/层/30层、DMA与时序均NOT_RUN。

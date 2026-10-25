@@ -1,0 +1,193 @@
+{
+  "schema": "m007-r007-model4-head-assertion-source-review-v1",
+  "status": "READONLY_SOURCE_REVIEW_COMPLETE_ROOT_CAUSE_NOT_YET_CONFIRMED",
+  "source_identity": [
+    {
+      "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/prepared/encoder_1d_residual_pack_v2/frozen/m007_fullmodel_encoder_1d_tb.sv",
+      "sha256": "172d301937532841baaa938e45eb2f48913b7821b60bb6776671ba52f6d5d555"
+    },
+    {
+      "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT042_encoder_1d_compatibility_build/frozen/laya_attention_head_engine_v1.sv",
+      "sha256": "4ba9656ecf9097bd32908c3d5bf5147e55b3e84e00c813bdc773a894bf60a691"
+    },
+    {
+      "path": "project/E016_m007_single_resource_parent/experiment_results/runs/R007/attempts/AT042_encoder_1d_compatibility_build/frozen/laya_attention_softmax_engine_v1.sv",
+      "sha256": "2171eda3e9ee73f32fd276931a1df94956ef65b0bdd4b6d309508b9b7312d670"
+    },
+    {
+      "path": "project/E021_m007_compiled_rtl_validation/experiment_results/runs/R001/attempts/AT031_model4_fixedbatch_head1/AB_failure_analysis.json",
+      "sha256": "fcb738dab20b143d3d7dfa6e89a2d92154121dbeaead4ea532da91171597239c"
+    },
+    {
+      "path": "project/E021_m007_compiled_rtl_validation/experiment_results/runs/R001/attempts/AT031_model4_fixedbatch_head1/guard_rtl/driver.log",
+      "sha256": "8291300d0292f3d9844636de7bb0f6cec09fc366d4b04da62dcdf70c3064e3fb"
+    },
+    {
+      "path": "project/E021_m007_compiled_rtl_validation/experiment_results/runs/R001/attempts/AT029_single_context_head1/A_endpoint_measurement.json",
+      "sha256": "dd00eece04741529e9a107f8a652f183403f0c807ba093dfd7f3b23d0c811e2e"
+    }
+  ],
+  "failing_expression_TB_line": 401,
+  "operand_sampling": {
+    "single_posedge_process_TB_lines": [
+      380,
+      409
+    ],
+    "same_process_counters": [
+      "head_score",
+      "head_prob",
+      "head_context",
+      "head_prob_ack",
+      "head_maximum",
+      "max_checked",
+      "nrope",
+      "nheads"
+    ],
+    "initial_clear_TB_line": 644,
+    "stable_earlier_producers": [
+      "qkv_count increment at288; actual allQKV12288 checked before layer_start340",
+      "layer_starts increment340 before first head launch"
+    ],
+    "cross_process_order_sensitive_observation": [
+      "cycle increment477",
+      "checked_words/last_checked task194\u2013197 called from several always blocks"
+    ],
+    "finding": "No demonstrated race in composite operands: per-head events and counters are updated before the terminal check in the same sequential process. Cross-process logging/clock counters may be ordering-sensitive, but cannot alone explain missing PROB interval and premature head terminal."
+  },
+  "actual_AB": {
+    "common_events": 302,
+    "A_events": 312,
+    "A_head_begin_cycle": 65019,
+    "A_head_end_cycle": 76057,
+    "A_head_done_cycles": 11038,
+    "A_endpoint": "PASS original unchanged full head0 check",
+    "B_last_score_words": 16384,
+    "B_last_score_cycle": 69203,
+    "B_fatal_time_ps": 142885000,
+    "A_next_expected_checked_event": "PROB checked=942145 cycle=69780",
+    "B_actual_terminal_operands": "UNKNOWN; original B run contains no terminal signal dump",
+    "meaning": "B is a functional/checker failure and cannot support speedup. A012 owns subsequent diagnostics; no speculative constituent value is assigned here."
+  },
+  "minimal_falsifiable_hypothesis": {
+    "statement": "B may enter softmax nonzero-status completion then head H_DONE before AV/context. This is an exact source path compatible with missing PROB/context, not a confirmed diagnosis.",
+    "head_source_lines": [
+      748,
+      749,
+      751,
+      770,
+      772
+    ],
+    "softmax_status_source_line": 61,
+    "status_priority": "protocol_bad=3, aborted=2, error_valid=1, otherwise0",
+    "candidate_first_cause_lines": [
+      207,
+      208,
+      223,
+      232,
+      233,
+      234,
+      235,
+      238,
+      242,
+      249,
+      250,
+      254
+    ],
+    "first_observation": "A012-owned main/rootp sideband at eval return, before next sampling edge: first sm_error_valid/protocol_bad/resource_fault and error tuple, head owner/state/done/status/cycles, all401counter/identity operands. Preserve original checker and input timing.",
+    "falsification": "If terminal status0 and counts are all complete, reject early-error hypothesis and inspect sampled terminal/counter generated code; if nonzero, trace its first transition and real source handshake/tag/data/debt across A/B."
+  },
+  "repair": "No production or TB repair is justified before actual terminal values/first error. Do not postpone assertion, change counts/caps, zero errors, remove coverage or edit frozen sources. Diagnostic-only main change belongs to A012 tooling scope.",
+  "remaining_kind5_stages": [
+    {
+      "stage": "remainingAttentionHeads",
+      "begin": "M007_FULLMODEL_HEAD_BEGIN head=N",
+      "end": "M007_FULLMODEL_HEAD_END head=N + M007_FULLMODEL_ENCODER0_ATTENTION_END",
+      "TB_lines": [
+        385,
+        402,
+        348
+      ],
+      "meaning": "Each actual head terminal checks16384score/16384prob/8192context/2048ACK/128max plus identity and cycle cap; full16head/layer retirement remains required.",
+      "cost": "UNKNOWN beyond actual observed head events; no16x extrapolation is an actual measurement."
+    },
+    {
+      "stage": "contextToQuantWO",
+      "begin": "QUANT_BEGIN phase=1; original context read/RSP/consumer handshakes checked on lines341\u2013343",
+      "end": "A_PUBLISH phase=1; MATRIX_BEGIN/END phase=1",
+      "TB_lines": [
+        238,
+        243,
+        248,
+        251,
+        297,
+        341,
+        342,
+        343
+      ],
+      "meaning": "Real4096context read/RSP/quant inputs and A-publication precede WO; WO has4096actualQ commits and actual receipt.",
+      "cost": "UNKNOWN for this full-source runtime; no saved-context injection or public later-stage resume exists."
+    },
+    {
+      "stage": "firstResidualAndPlainLN",
+      "begin": "VECTOR_BEGIN phase=0 then LN_BEGIN",
+      "end": "VECTOR_LAST_H/END phase=0; LN_LAST_Q/LN_END",
+      "TB_lines": [
+        350,
+        351,
+        352,
+        353,
+        354,
+        355
+      ],
+      "meaning": "4096actual residual commits, then4096LN Q commits; independent original residual/norm bits and debts/leases checked.",
+      "cost": "UNKNOWN in current full chain; earlier component timing cannot be substituted."
+    },
+    {
+      "stage": "WiGEGLUQuantA1",
+      "begin": "QUANT_BEGIN phase=2 / A_PUBLISH phase=2; MATRIX_BEGIN phase=2",
+      "end": "MATRIX_END phase=2; M007_FFN_G_BLOCK; M007_FFN_G_SERVICE; A_PUBLISH phase=3; MATRIX_BEGIN phase=3 admission barrier",
+      "TB_lines": [
+        238,
+        243,
+        249,
+        251,
+        287,
+        297,
+        312,
+        334,
+        335,
+        338,
+        250
+      ],
+      "meaning": "Wi/G/quant overlap. G has82blocks/41984outputs/3358720nodes; G_DONE has a checked handshake but no separate stdout DONE marker. Down admission checks complete Wi/G/A1 and real debt retirement.",
+      "cost": "UNKNOWN; overlapping intervals must not be added as sequential costs."
+    },
+    {
+      "stage": "DownSecondResidualExportReceipt",
+      "begin": "MATRIX_BEGIN phase=3; VECTOR_BEGIN phase=1; STATE state=56 for export",
+      "end": "MATRIX_END phase=3; VECTOR_LAST_H/END phase=1; EXPORT_LAST; FIRST_DONE; COMPLETE_PASS",
+      "TB_lines": [
+        251,
+        297,
+        350,
+        351,
+        352,
+        358,
+        361,
+        366,
+        693
+      ],
+      "meaning": "4096DownQ,4096secondResidualH,4096actual public outputs and exactly one held/retired independent success. Final public bytes come from capture, not gold reconstruction.",
+      "cost": "UNKNOWN including real drain/holds/retirement; original8/17cycle output holds remain."
+    }
+  ],
+  "wall_timing_interface": "Existing wall_events.py JSONL records real stdout monotonic elapsed_s together with unchanged original event lines/cycle fields. Pair actual begin/end events; no new source start/skip interface exists.",
+  "prefix_selectors": "Existing STOP_QKV_BLOCKS=1|3; STOP_AFTER_HEAD=1|2; STOP_FFN_BLOCKS=1|3|16; STOP_DOWN_BLOCKS=1. These stop an actual request prefix and do not resume later stages or substitute earlier producers.",
+  "scope_limit": "Full Encoder kind5 remainder, complete Decision and original kind7 28+2 runtime/cost remain unproven. Documentation/RTL inspection is not timing measurement.",
+  "production_TB_runner_edits": [],
+  "new_EDA_runs": [],
+  "expected_model": "gpt-6.1-sol",
+  "expected_effort": "xhigh",
+  "actual_model": "UNKNOWN",
+  "actual_effort": "UNKNOWN"
+}

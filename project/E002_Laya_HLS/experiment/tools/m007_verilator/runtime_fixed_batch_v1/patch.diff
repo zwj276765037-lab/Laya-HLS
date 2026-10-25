@@ -1,0 +1,16 @@
+--- stock5.020/verilated_timing.cpp
++++ 5.020+local-fixed-batch-v1/verilated_timing.cpp
+@@ -67,8 +67,11 @@
+     }
+ 
+     if (!m_zeroDelayed.empty()) {
+-        for (auto&& handle : m_zeroDelayed) handle.resume();
+-        m_zeroDelayed.clear();
++        // Local fixed batch: resumed coroutines may append new zero-delay handles.
++        std::vector<VlCoroutineHandle> zeroDelayedBatch;
++        zeroDelayedBatch.swap(m_zeroDelayed);
++        for (auto&& handle : zeroDelayedBatch) handle.resume();
++        zeroDelayedBatch.clear();
+         resumed = true;
+     }
+ 

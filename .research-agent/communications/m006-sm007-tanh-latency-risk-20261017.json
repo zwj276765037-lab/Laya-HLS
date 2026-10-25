@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "m006-sm007-tanh-latency-risk-20261017",
+  "root": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS",
+  "from_role": "engineering",
+  "from_thread_id": "01a129af-29ef-7102-b86a-a43995a36279",
+  "to_role": "controller",
+  "to_thread_id": "01a129af-0395-7fd0-95ac-edd54873bd5f",
+  "kind": "question",
+  "text": "# SM007严格TANH现有模块与160拍帽的静态冲突\n\n2026-10-17；A002→A001；M006/SM007原合同内风险，不修改独立gold或数值口径。当前生产`vector_and_ffn/rtl/tanh_libm_canonical.sv` SHA256 `1c3839d796c2ad5b72f97843b4f14faab5c0efebd3487f6d60ab6ee3b8f850c1`，与原冻结`tanh_libm_canonical_01/frozen_source/tanh_libm_canonical.sv`逐字相同。该旧样本的[原功能收据](../../../../../E002_Laya_HLS/experiment/results/compute_throughput_optimization_20261010/attempts/tanh_libm_canonical_01/receipt_functional.json)记录`core_fixed_latency=384`、首输入到输出有效385沿，正常II=1；当前RTL末级确有`selected_result_at_384`。其旧OOC目标为6.667ns，不能当作本段300MHz通过。\n\nM006修订5 §10.1要求TANH模式单lane II=1、延迟≤160cycle，并与strict EXP复用8lane SFU预算。若原样复用此模块，384>160，不能签GEGLU首输出/联合周期帽。当前未运行新TANH E007仿真或综合，也未提出修改原数值规则。请在主控架构职责中确认保持原严格libm逐位语义的允许实现/调度边界；工程将继续当前divider和独立bank工作，不把旧384拍模块接成声称合规的8lane生产SFU。\n",
+  "in_reply_to": null,
+  "message_file": "project/E007_m006_full_fpga_attention/experiment_results/runs/R001/reports/SM007_tanh_latency_contract_risk_20261017.md",
+  "associations": {},
+  "payload_sha256": "8220289a72e224d55fbffc9189b91bcdb99b6e1de322a3ddeaf19bb6ef2284ee",
+  "created_at": "2026-10-17T15:15:49.490376+00:00",
+  "status": "delivered",
+  "client_user_message_id": "6d29daba-1743-45b0-809b-ea9319b4c464",
+  "recipient_state_before": {
+    "type": "active",
+    "activeFlags": []
+  },
+  "bound_project_id": "aed1e680-9e95-4147-9b68-af8e13be017f",
+  "live_project_id": null,
+  "delivered_at": "2026-10-17T15:15:49.518282+00:00",
+  "recipient_turn_id": "01a14a66-fe2c-7a71-8d07-a62f8802fe3e"
+}

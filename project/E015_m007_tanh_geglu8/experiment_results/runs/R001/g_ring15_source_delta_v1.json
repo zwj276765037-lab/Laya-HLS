@@ -1,0 +1,41 @@
+{
+  "schema": "m007-g-ring15-source-delta-v1",
+  "scope": "Only production math ring slot tag width and explicit combinational reconstruction differ from AT102 compact16 build; no parent/shared contract change",
+  "baseline_build_manifest_sha256": "ff5af00f69d4e99dfbbcc47f4259b8cefd547f8e5b150ca8eed1f8de963f7c4f",
+  "changes": [
+    {
+      "path": "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_g_math_v1.sv",
+      "compact16_sha256": "85929df54f51dfb16e57cbfc2c072344a39766a55423bc2382cae0e4410ea081",
+      "ring_high8_sha256": "849917c06995c4208d7b94b530c1071cdf6b4b76b6b0685dd1e17fc19531bb2e",
+      "diff": "--- AT102/laya_m007_g_math_v1.sv\n+++ ring15/laya_m007_g_math_v1.sv\n@@ -32,7 +32,7 @@\n  endfunction\n  (* ram_style=\"distributed\" *)logic [7:0][31:0] x_mem[0:255],gate_mem[0:255],result_mem[0:255];\n  // Fixed G domain: one immutable generation/epoch until explicit clear.\n- // seq16 retains every s/row/chunk bit; ring8 only addresses reservations.\n+ // Ring address is the accepted sequence low8; stored high8 completes seq16.\n  logic [63:0] tag_context;logic context_valid;logic [15:0] next_input_seq;\n  logic input_tag_ok;logic [15:0] pre_credit_seq;\n  function automatic [95:0] full_tag(input logic [63:0] fixed_context,input logic [15:0] seq);\n@@ -41,7 +41,10 @@\n  function automatic logic context_match(input logic valid_context,input logic [63:0] fixed_context,input logic [95:0] tag);\n   return valid_context&&tag[95:32]==fixed_context&&tag[31:16]==0&&tag[15:0]<41984;\n  endfunction\n- (* ram_style=\"distributed\" *)logic [15:0] tag_mem[0:255];\n+ function automatic [15:0] slot_seq(input logic [7:0] high_seq,input logic [7:0] slot_index);\n+  return {high_seq,slot_index};\n+ endfunction\n+ (* ram_style=\"distributed\" *)logic [7:0] tag_mem_hi[0:255];\n  logic [7:0] numeric_bad[0:255],peer_bad[0:255],z_good_mem[0:255];\n  logic [255:0] live,available,sent,received;\n  logic [7:0] reserve_ptr,head_ptr;\n@@ -66,7 +69,7 @@\n  wire sfu_fire=sfu_req_valid&&sfu_req_ready;wire sfu_return=sfu_rsp_valid&&sfu_rsp_ready&&sfu_match;\n  assign pool_reset_n=rst_n&&!clear;\n  assign out_valid=pool_reset_n&&pending!=0&&available[head_ptr];\n- assign out_tag=full_tag(tag_context,tag_mem[head_ptr]);assign out_data=result_mem[head_ptr];\n+ assign out_tag=full_tag(tag_context,slot_seq(tag_mem_hi[head_ptr],head_ptr));assign out_data=result_mem[head_ptr];\n  for(genvar lane=0;lane<8;lane++)assign out_status[lane]=numeric_bad[head_ptr][lane]?32'd6:(peer_bad[head_ptr][lane]?32'd8:32'd0);\n  assign input_tag_ok=in_tag[31:16]==0&&in_tag[15:0]<41984&&in_tag[15:0]==next_input_seq&&\n   (!context_valid||in_tag[95:32]==tag_context);\n@@ -82,8 +85,8 @@\n  always_comb begin\n   matched=0;peer_event=0;\n   for(int n=0;n<9;n++)begin\n-   if(n==2||n==5)matched[n]=fp_rsp_valid[n]&&context_match(context_valid,tag_context,fp_rsp_tag[n])&&expected_valid[n][2]&&fp_rsp_tag[n][15:0]==expected_tag[n][2]&&live[fp_rsp_tag[n][7:0]]&&tag_mem[fp_rsp_tag[n][7:0]]==fp_rsp_tag[n][15:0];\n-   else matched[n]=fp_rsp_valid[n]&&context_match(context_valid,tag_context,fp_rsp_tag[n])&&expected_valid[n][3]&&fp_rsp_tag[n][15:0]==expected_tag[n][3]&&live[fp_rsp_tag[n][7:0]]&&tag_mem[fp_rsp_tag[n][7:0]]==fp_rsp_tag[n][15:0];\n+   if(n==2||n==5)matched[n]=fp_rsp_valid[n]&&context_match(context_valid,tag_context,fp_rsp_tag[n])&&expected_valid[n][2]&&fp_rsp_tag[n][15:0]==expected_tag[n][2]&&live[fp_rsp_tag[n][7:0]]&&slot_seq(tag_mem_hi[fp_rsp_tag[n][7:0]],fp_rsp_tag[n][7:0])==fp_rsp_tag[n][15:0];\n+   else matched[n]=fp_rsp_valid[n]&&context_match(context_valid,tag_context,fp_rsp_tag[n])&&expected_valid[n][3]&&fp_rsp_tag[n][15:0]==expected_tag[n][3]&&live[fp_rsp_tag[n][7:0]]&&slot_seq(tag_mem_hi[fp_rsp_tag[n][7:0]],fp_rsp_tag[n][7:0])==fp_rsp_tag[n][15:0];\n    peer_event[n]=matched[n]?~status_ok(fp_rsp_status[n]):8'b0;\n   end\n   u_ok=x_good_pipe[3]&finite8(fp_rsp_data[0])&status_ok(fp_rsp_status[0]);\n@@ -95,7 +98,7 @@\n   y_eligible=post_good[4]&finite8(r_aligned)&finite8(fp_rsp_data[6])&status_ok(fp_rsp_status[6]);\n   y_ok=yeligible_delay[3]&finite8(fp_rsp_data[7])&status_ok(fp_rsp_status[7]);g_eligible=y_ok;\n   for(int l=0;l<8;l++)safe_z[l]=z_ok[l]?fp_rsp_data[4][l]:32'b0;\n-  sfu_match=context_match(context_valid,tag_context,sfu_rsp_tag)&&live[sfu_rsp_tag[7:0]]&&sent[sfu_rsp_tag[7:0]]&&!received[sfu_rsp_tag[7:0]]&&tag_mem[sfu_rsp_tag[7:0]]==sfu_rsp_tag[15:0];\n+  sfu_match=context_match(context_valid,tag_context,sfu_rsp_tag)&&live[sfu_rsp_tag[7:0]]&&sent[sfu_rsp_tag[7:0]]&&!received[sfu_rsp_tag[7:0]]&&slot_seq(tag_mem_hi[sfu_rsp_tag[7:0]],sfu_rsp_tag[7:0])==sfu_rsp_tag[15:0];\n   sfu_peer_event=~status_ok(sfu_rsp_status)|~finite8(sfu_rsp_data);\n \n   fp_req_valid=0;fp_req_tag=0;fp_req_a=0;fp_req_b=0;\n@@ -173,7 +176,7 @@\n     next_input_seq<=next_input_seq+1'b1;\n     if(in_tag[7:0]!=reserve_ptr)protocol_fault<=1;\n     live[reserve_ptr]<=1;available[reserve_ptr]<=0;sent[reserve_ptr]<=0;received[reserve_ptr]<=0;\n-    tag_mem[reserve_ptr]<=in_tag[15:0];x_mem[reserve_ptr]<=in_x;gate_mem[reserve_ptr]<=in_gate;\n+    tag_mem_hi[reserve_ptr]<=in_tag[15:8];x_mem[reserve_ptr]<=in_x;gate_mem[reserve_ptr]<=in_gate;\n     numeric_bad[reserve_ptr]<=error_event[0];peer_bad[reserve_ptr]<=0;reserve_ptr<=reserve_ptr+1'b1;\n    end\n    pre_tag[0]<=in_tag[15:0];x_good_pipe[0]<=finite8(in_x);x_delay[0]<=in_x;\n"
+    }
+  ],
+  "unchanged_selected_production_and_numeric": {
+    "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_return_vector_credit_v1.sv": "a43c85ddcc8f8cf4431002cd6c987b6652995c58ba431de8206b1f81c1a25f5e",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/attention_and_fp_engine/rtl/laya_attention_storage_v1.sv": "c36d0089cebaa6dd90cb8dbe11a4c33d65224ee69fdc24f454dcfd08d464ad0b",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_fast_leaves_v1.sv": "ce7c8c04b7faa9298653b14b1514054ed691c552c586921fb32ac2221363e4f7",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_add3_e_v1.sv": "703bf5eb2ccbcf0444d521cfa6d4d5da6b7ac21fc6c4c4d530c37d498ee3d627",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_div12_r4_v1.sv": "b737711d46ab90f78f048bc1b9e1ea9b211d1f25b9038d18a2c06833ec9c3a0c",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh_lane_v1.sv": "eec73a7badf5e065ab7b04d1dc454ce536f6b5a756ea923c241dd516818b28ef",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_tanh8_v1.sv": "bf552ef7fe135e138e1367647f815a49ccd22ab7a4329902d5308b5efb7001b2",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_g_vector_pool_v1.sv": "01325fa5162b3a44c9ea141f684c2ec8d7e49ad42d3ac48a1ad38c5a7ae5d911",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_g_pairs_v1.sv": "49ba8533dca944d65c96df4dd1c162a75bbf44dd5382b59b600f4a846810f5d3",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/rtl/laya_m007_g_engine_v1.sv": "bfd87edc50ba1ca146981e316a2f8e8992e2437c3708eda210b9449d76f3446e",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/tb/m007_g_engine_validation_shell.sv": "55332a374cf51f6240687bbde48d6715e5a76c598c4d0eb8fd74d215ad774d44",
+    "project/E002_Laya_HLS/experiment/vivado/module_design/vector_and_ffn/tb/m007_g_engine_tb.sv": "bb1e93f14fd0643155839ba8688fe81b904ba48c90009a4412ae1b8ee9d53dd9"
+  },
+  "current_census_report_sha256": "2e1c2db13ee0282b4b55ae971a449abac2c4be0ba675ef546ff5e39db1735885",
+  "g_control_bits": 13661,
+  "g_control_bytes": 1707.625,
+  "math_control_bits": 11343,
+  "ring_bits_saved": 2048,
+  "ring_added_storage_bits": 0,
+  "mask_debt_coverage_tail_bits_removed": 0,
+  "original_compact16_context_valid_order_bits": 291,
+  "joint4KiB_fit_claimed": false,
+  "rank2_and5_reuse": [
+    "AT121_g_compact16_complete_rank2_recovery",
+    "AT122_g_compact16_complete_rank5_recovery"
+  ],
+  "rank2_and5_reuse_boundary": "Prior original-identity evidence for unchanged arithmetic/error-order logic, not rerun under ring-high8 SHA"
+}
