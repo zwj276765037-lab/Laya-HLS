@@ -2,7 +2,7 @@
 
 revision: 1 / 2026-10-21
 architecture_decision: D-M007-CONVERGENCE-01
-execution_state: paused
+execution_state: running
 verdict: unassessed
 owner: A001主控；A007硬件执行；A008 Host/CPU执行
 implementation_root: project/E002_Laya_HLS/experiment
@@ -169,3 +169,6 @@ A007/A008及时发阶段结果/实质阻塞给A001，原始证据保存在各自
 
 
 2026-10-25 D37收尾（北京时间）：修复版正式参数0完整30层一次BEGIN正常RTL验证通过，全部层输出/finalLN/type/544尾部逐字同原参考，实际提交/DONE/idle正常。主控独立核验已完成，预算封存、owned进程清空，按用户要求暂停。M007整体物理/部署/性能及异常全覆盖仍未验收；最新证据见results/reviews/m007_fixed30_final_review_20261024.json。
+
+
+2026-10-25：用户明确授权D38当前修复版完整顶层综合、资源分项与布局布线/时序；仅恢复该物理阶段，合同和独立预算见SM012 D38。D37完整30层功能PASS保持，本段完成归档后暂停。

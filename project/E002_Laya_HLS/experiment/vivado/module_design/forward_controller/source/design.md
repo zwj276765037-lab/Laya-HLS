@@ -386,3 +386,20 @@ The immutable rev2 source manifests and source-only audit are in `project/E016_m
 The unchanged fixed parent `9d877217...` and common TB `2bd73c51...` have now passed the complete original kind7 graph in one runtime with `VERIFY_POST_ENCODER27_H=0`, original `initial_H`, and one public BEGIN. This exercises the production path from original input through all 28 Encoder layers, actual Encoder27 retirement-to-final-LN/type handoff, both Decision layers and real tail/DONE/idle; the D36 saved-H entry is disabled. No RTL, TB, numerical rule or ABI change accompanies this result.
 
 [A012 E021/R005 AT002 actual receipt](../../../../../../E021_m007_compiled_rtl_validation/experiment_results/runs/R005/attempts/AT002_fixed_original30_kind7/receipt_rtl.json) records 30 completed layers, 120 matrices, 480 heads, 60 LN, 61 VECTOR, 28 GEGLU and 544 output groups with one actual tail commit, held DONE consumed and normal idle/rc0. The controller independently checked all30 actual H captures and unique traces plus final-LN/type against original gold. D35's original FAIL and D36's segmented-suffix identities/results remain historical evidence. D37 establishes the tested complete normal-path functional case; physical timing/fit, board operation and exhaustive abnormal-path coverage are not established. A010 only updates documentation and returns to paused.
+
+
+## D38 complete-kernel physical stage (2026-10-25)
+
+Authority is SM012 D-M007-SM012-FULL-TOP-PHYSICAL-38. Full production parent9d877217.../VERIFY0 and all91 D37 production source bytes plus original EXP ROM are frozen; TB/peer sources are excluded. The complete parent generics include the D37 tested address profile/apertures/platform identity, not the invalid zero platform defaults. Physical entry is physical_d38/run_physical_d38.py and its stage Tcl/XDC. Target xcu55c-fsvh2892-2L-e,300MHz internal clock,OOC bare kernel; shell IO delays/uncertainty and board integration remain unspecified. No dynamic interface is tied off or numerical leaf replaced.
+
+Each actual stage is budgeted/guarded with source-bound DCP resume, CPU0-3/nice19/idle,24GiB RSS/192GiB available and the single project lock. Read [E022 protocol](../../../../../../E022_m007_full_top_physical/experiment_source/protocol.md) for actual commands, configuration versions, failure retention and external/internal timing boundaries. No physical PASS exists yet.
+
+
+D38 AT005 repair: matrix op0/op1 now64 unpacked packed-vector slots with64 static-LHS processes, same capacity/asynchronous reads/concurrent writes/reset/priority. Exact inverse and actual storage source equivalence are in E022/R001/repair. Canonical parent unchanged; new full source closure is input/source_manifest_v2.json; D37 original identity is bridged only for local storage representation, not rerun.
+
+
+## D38 operand storage representation (2026-10-25)
+
+Under SM012 same-semantics repair authority, matrix_engine op0/op1 now use64 unpacked slots each packed8192bits with static-slot always_ff writes. Whole8192bit format/mul/add/zero operations remain; lane j is exactly flat[32*j+:32]. PS scatter write and commit-read lane access use the equivalent32bit slices. Original asynchronous reads,64×256×32capacity per pool, distinct-slot concurrent writes, reset-no-clear behavior and op0 add>mul>format/op1 PS>zero>format priority are unchanged. No pipeline/arbitration/latency/interface/numerical change. Latest SHA f8493b130354123a57115f85bc1d6cdeab776a64697234962063604594b9c1cd; exact inverse restores original2147 and prior e279 bytes.
+
+E022/R001/repair_v2 stores actual original/latest source extracts, source mappings and inverse proof. AT012 compile and AT013 four-state6721cycle/13442full-pool comparison PASS, including all64slots/256lanes/32bits, finite event/collision/read/reset/X coverage. D37 full30 remains original source identity with this local bridge, not a new full30 rerun. Newsource_manifest_v3/bottom_up_v6 freeze90other sources/ROM/parent unchanged.

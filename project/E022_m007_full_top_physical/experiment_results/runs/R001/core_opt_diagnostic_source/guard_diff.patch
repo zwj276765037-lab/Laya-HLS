@@ -1,0 +1,111 @@
+--- accepted/run_physical_d38.py
++++ diagnostic/run_core_opt_diagnostic_d38.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""D38 full-top source freeze, checkpoint-resumable Vivado stages and owned guard."""
++"""Independent, one-invocation complete-core opt diagnostic with the accepted owned guard."""
+ import argparse, ctypes, datetime as dt, fcntl, hashlib, json, os
+ from pathlib import Path
+ import shutil, signal, subprocess, sys, time
+@@ -17,17 +17,11 @@
+ CONTRACT=ROOT/'mission/M007_完整Attention高性能主干与部署闭合/tasks/SM012.md'
+ CAPS={'preparation':1200,'repair_static':600,'repair_rtl':600,'synthesis':43200,'implementation':86400,'reports':3600}
+ UNLIMITED_WALL_CATEGORIES={'synthesis','implementation','reports'}
+-STAGES={'preflight':('preparation',1200),'parameters':('preparation',1200),'synth':('synthesis',21600),'report_synth':('reports',3600),'opt':('implementation',14400),'place':('implementation',43200),'report_place':('reports',3600),'phys_opt':('implementation',14400),'route':('implementation',43200),'report_route':('reports',3600)}
+-PRIOR={'report_synth':'synth','opt':'synth','place':'opt','report_place':'place','phys_opt':'place','route':'phys_opt','report_route':'route'}
+-for name in ['core_synth','facade_synth','facade_link','resident_synth','parent_synth','full_link']:STAGES[name]=('synthesis',21600)
+-STAGES['report_full']=('reports',3600)
+-STAGES['report_core']=('reports',3600)
+-PRIOR['report_core']='core_synth'
+-STAGES['repair_static']=('repair_static',300)
+-STAGES['repair_rtl']=('repair_rtl',300)
+-STAGES['synth_help']=('preparation',1200)
+-DEPS={'facade_synth':['core_synth'],'facade_link':['facade_synth','core_synth'],'parent_synth':['facade_link','resident_synth'],'full_link':['parent_synth','facade_link','resident_synth'],'report_full':['full_link']}
+-PRIOR['opt']='full_link'
++STAGES={'core_opt':('implementation',14400),'report_core_opt':('reports',3600)}
++PRIOR={'report_core_opt':'core_opt'}
++DEPS={'core_opt':['core_synth']}
++EXPECTED_CORE_SHA256='a92039524cb313526500315841ecbbdeff0c2f1a5fd971b1680a3ca9b3b23f90'
++CANONICAL_GUARD_SHA256='42164971755a1dcc57a01ddc0c9101cb6af19a2db5506924a2debd7007569f89'
+ def now():return dt.datetime.now(dt.timezone.utc).isoformat()
+ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+ def dump(p,v):
+@@ -127,6 +121,15 @@
+  RUN.mkdir(parents=True,exist_ok=True)
+  with (ROOT/'.research-agent/m007_heavy.lock').open('a+') as lock:
+   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
++  assert sha(HERE/'run_physical_d38.py')==CANONICAL_GUARD_SHA256,'Accepted canonical guard changed'
++  assert sha(RUN/'checkpoints/core_synth.dcp')==EXPECTED_CORE_SHA256,'Original complete-core checkpoint changed'
++  shutdown=RUN/'serial_continuation/resource_stage_hold/serial_exit_receipt.json'
++  assert shutdown.exists(),'Old serial must exit safely before independent diagnostic'
++  shutdown_value=json.loads(shutdown.read_text())
++  assert shutdown_value['serial_exit_verified'] and shutdown_value['no_facade_attempt_started']
++  assert owned.process_start(3603650)!=66216629,'Old serial still exists'
++  if stage=='core_opt':
++   assert not list((RUN/'attempts').glob('AT*_core_opt/opt_invoked.txt')),'opt_design already invoked: never repeat'
+   identity=verify_inputs(stage);j=ledger();cat,limit=STAGES[stage]
+   if cat in UNLIMITED_WALL_CATEGORIES:
+    wall_policy=json.loads((RUN/'input/execution_time_policy_v2.json').read_text())
+@@ -143,10 +146,10 @@
+   for dep in dependencies:
+    cp=RUN/'checkpoints'/(dep+'.dcp');meta=json.loads(cp.with_suffix('.identity.json').read_text());assert sha(cp)==meta['checkpoint']['sha256'],'DCP byte identity differs';proof=checkpoint_identity_match(meta,identity,dep)
+    if proof:compatibility.append(proof)
+-  outputs=['synth','opt','place','phys_opt','route','core_synth','facade_synth','facade_link','resident_synth','parent_synth','full_link']
++  outputs=['synth','opt','place','phys_opt','route','core_synth','facade_synth','facade_link','resident_synth','parent_synth','full_link','core_opt']
+   if stage in outputs:assert not(RUN/'checkpoints'/(stage+'.dcp')).exists(),'Existing DCP must be resumed, never overwritten'
+   ats=RUN/'attempts';ats.mkdir(exist_ok=True);numbers=[int(p.name[2:5])for p in ats.iterdir()if p.name.startswith('AT')];at=ats/f'AT{max(numbers,default=0)+1:03d}_{stage}';at.mkdir();work=at/'work';work.mkdir();(at/'frozen').mkdir()
+-  for p in [Path(__file__),HERE/'full_top_d38.tcl',HERE/'full_top_d38.xdc',RUN/'input/physical_configuration_v2.json',RUN/'input/physical_generics_v2.tcl']:(at/'frozen'/p.name).write_bytes(p.read_bytes())
++  for p in [Path(__file__),HERE/'core_opt_diagnostic_d38.tcl',HERE/'full_top_d38.xdc',RUN/'input/physical_configuration_v2.json',RUN/'input/physical_generics_v2.tcl']:(at/'frozen'/p.name).write_bytes(p.read_bytes())
+   if stage not in {'repair_static','repair_rtl'}:
+    active=active_paths()
+    for key,dest in [('manifest','source_manifest.json'),('sources','sources.tcl'),('bottom_configuration','bottom_up_configuration.json'),('bottom_flow','bottom_up_flow.tcl')]:shutil.copyfile(RUN/'input'/active[key],at/'frozen'/dest)
+@@ -155,6 +158,11 @@
+    if (RUN/'input/execution_time_policy_v2.json').exists():shutil.copyfile(RUN/'input/execution_time_policy_v2.json',at/'frozen/execution_time_policy_v2.json')
+    assert sha(at/'frozen/bottom_up_configuration.json')==identity['bottom_up_configuration_sha256']and sha(at/'frozen/bottom_up_flow.tcl')==identity['bottom_up_tcl_sha256']
+   shutil.copyfile(CONTRACT,at/'frozen/contract_SM012.md');shutil.copyfile(ROOT/'AGENTS.md',at/'frozen/project_AGENTS.md')
++  shutil.copyfile(HERE/'run_physical_d38.py',at/'frozen/canonical_guard_source.py')
++  shutil.copyfile(RUN/'input/core_resource_diagnostic_contract.md',at/'frozen/core_resource_diagnostic_contract.md')
++  shutil.copyfile(EXPERIMENT/'experiment_source/core_opt_diagnostic_protocol.md',at/'frozen/core_opt_diagnostic_protocol.md')
++  shutil.copyfile(RUN/'attempts/AT020_report_core/engineering_resource_snapshot/timing_finding.json',at/'frozen/baseline_timing_finding.json')
++  shutil.copyfile(RUN/'attempts/AT020_report_core/engineering_resource_snapshot/worst_setup_path_header.txt',at/'frozen/baseline_worst_setup_path_header.txt')
+   if compatibility:dump(at/'checkpoint_configuration_compatibility.json',compatibility)
+   assert sha(at/'frozen/full_top_d38.xdc')==identity['xdc_sha256'],'Frozen XDC identity mismatch before launch'
+   assert sha(at/'frozen/physical_configuration_v2.json')==identity['physical_configuration_sha256']
+@@ -166,7 +174,8 @@
+     source=Path(row['path']);shutil.copyfile(source,at/'frozen'/source.name)
+   guard_plan={'stage':stage,'category':cat,'cumulative_category_caps_seconds':CAPS,'maximum_seconds':limit,'maximum_owned_RSS_GiB':rss_cap,'minimum_MemAvailable_GiB':192,'CPU_ids':[0,1,2,3],'maxThreads':1 if cat=='synthesis'else 4,'nice':19,'IOclass':3,'stall_seconds':300,'stall_progress':'owned user+system CPU ticks OR real log/checkpoint size/mtime changes; not stdout silence alone','source_identity':identity,'script_identities':[identify(p)for p in (at/'frozen').iterdir()]}
+   guard_plan.update({'effective_cumulative_category_caps_seconds':effective_caps,'wall_time_limit_disabled':limit is None,'historical_caps_retained':True})
+-  command=['/usr/bin/nice','-n','19','/usr/bin/ionice','-c','3','/usr/bin/taskset','-c','0-3',str(VIVADO),'-mode','batch','-notrace','-log',str(at/'vivado.log'),'-journal',str(at/'vivado.jou'),'-source',str(at/'frozen/full_top_d38.tcl'),'-tclargs',stage,str(at),str(RUN)]
++  guard_plan['input_checkpoints']={dep:identify(RUN/'checkpoints'/(dep+'.dcp'))for dep in dependencies}
++  command=['/usr/bin/nice','-n','19','/usr/bin/ionice','-c','3','/usr/bin/taskset','-c','0-3',str(VIVADO),'-mode','batch','-notrace','-log',str(at/'vivado.log'),'-journal',str(at/'vivado.jou'),'-source',str(at/'frozen/core_opt_diagnostic_d38.tcl'),'-tclargs',stage,str(at),str(RUN)]
+   if stage in {'repair_static','repair_rtl'}:command=['/usr/bin/nice','-n','19','/usr/bin/ionice','-c','3','/usr/bin/taskset','-c','0-3',sys.executable,str(at/'frozen/run_operand_equivalence_d38.py'),stage,str(at),str(RUN)]
+   guard_plan.update({'argv':command,'cwd':str(work),'started_utc':now()});dump(at/'command.json',guard_plan)
+   entry={'stage':stage,'category':cat,'maximum_seconds':limit,'attempt':str(at),'status':'running'};j['entries'].append(entry);dump(RUN/'budget_ledger.json',j)
+@@ -242,14 +251,23 @@
+    except Exception as exc:receipt['source_verify_after']=repr(exc);success=False;receipt['verdict']='FAIL_SOURCE_IDENTITY'
+    cp=RUN/'checkpoints'/(stage+'.dcp')
+    if success and cp.exists():dump(cp.with_suffix('.identity.json'),{'source_identity':identity,'checkpoint':identify(cp),'produced_by':str(at)})
++   receipt['input_checkpoints']=guard_plan['input_checkpoints']
++   receipt['original_core_checkpoint_unchanged']=sha(RUN/'checkpoints/core_synth.dcp')==EXPECTED_CORE_SHA256
++   if not receipt['original_core_checkpoint_unchanged']:
++    success=False;receipt['verdict']='FAIL_ORIGINAL_CORE_IDENTITY'
++   receipt['diagnostic_scope']='Complete matrix core only; one opt invocation; no facade/parent/place'
+    receipt['maximum_owned_RSS_GiB']=rss_cap
+    receipt['adopted_zombie_reaps']=adopted_reaps
+    receipt.update({'maximum_seconds':limit,'wall_time_limit_disabled':limit is None,'effective_cumulative_category_caps_seconds':effective_caps})
+    dump(at/'receipt.json',receipt);entry.update({'status':'complete','elapsed_seconds':elapsed,'verdict':receipt['verdict'],'receipt':str(at/'receipt.json')});dump(RUN/'budget_ledger.json',j);dump(RUN/'current_status.json',{'stage':stage,'attempt':str(at),'verdict':receipt['verdict'],'utc':now()});print(json.dumps({'event':'STAGE_COMPLETE','stage':stage,'verdict':receipt['verdict'],'elapsed_seconds':elapsed,'attempt':str(at),'peak_owned_rss_kb':peak}),flush=True)
+   return success
+ def main():
+- p=argparse.ArgumentParser();p.add_argument('--prepare',action='store_true');p.add_argument('--stage',choices=list(STAGES));a=p.parse_args()
++ p=argparse.ArgumentParser();p.add_argument('--stage',choices=list(STAGES));p.add_argument('--plan',action='store_true');a=p.parse_args()
+  os.sched_setaffinity(0,{0,1,2,3});os.nice(19);subprocess.run(['/usr/bin/ionice','-c','3','-p',str(os.getpid())],check=True,capture_output=True)
+- if a.prepare:print(json.dumps({'source_freeze':prepare()['production_source_count'],'run':str(RUN)}),flush=True)
+- if a.stage:sys.exit(0 if run_stage(a.stage)else 1)
+-if __name__=='__main__':main()
++ if a.plan:
++  identity=verify_inputs('core_opt')
++  assert sha(RUN/'checkpoints/core_synth.dcp')==EXPECTED_CORE_SHA256
++  print(json.dumps({'plan_only':True,'no_EDA_launched':True,'stages':STAGES,'source_identity':identity,'core_checkpoint_sha256':EXPECTED_CORE_SHA256,'canonical_guard_sha256':sha(HERE/'run_physical_d38.py'),'diagnostic_tcl':identify(HERE/'core_opt_diagnostic_d38.tcl'),'maximum_seconds':None,'maximum_owned_RSS_GiB':256,'minimum_MemAvailable_GiB':192},indent=2));return 0
++ if not a.stage:p.error('--stage or --plan is required')
++ return 0 if run_stage(a.stage)else 1
++if __name__=='__main__':sys.exit(main())

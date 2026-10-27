@@ -1,14 +1,40 @@
-# 当前结果：修复版完整30层一次运行通过，项目暂停
+# 当前结果：一次网表优化后核心仍超容量，完整顶层物理验证受阻
 
-updated: 2026-10-25（北京时间）
-execution_state: paused
+2026-10-27 05:49本轮物理诊断收尾：唯一常规opt及候选独立报告均已完成，核心LUT2139515→2091399，仅降2.248921%，仍超器件787719 LUT（160.42%器件）及完整核900000预算；global/fixed最差同端点，6091→6090级、slack -1289.339→-1289.374ns，普通opt未解决资源/长控制链。FF1391977/DSP4352及BRAM/URAM0保持，未布局布线。原/候选DCP均保留，190017位完整接口/时钟/XDC前后与复开全等，零黑盒；两次pre-opt脚本失败及费用保留，实际opt总1。AT021–024合3905.865756s，最后报告峰17.560764GiB；这些是已结束任务成本，旧live不能当当前内存。主控fresh核21个原tool/guard/serial身份均退出，重工具锁释放，无新后继。当前完整top/P&R受已测core容量门阻塞，物理目标未完成，不启动无依据的全父/place/route、重复opt或新RTL。A014集中终审及静态后继建议在原物理审核报告；错误候选线性归并和operand寄存器/mux映射是后继RTL审查重点，不把raw分组等同最终LUT因果。依原最终物理阶段收尾约定，timer配置enabled=false，laya-d38-progress.timer及service已实核inactive/dead，停止周期回报。原30层正常路径功能证据不变，完整物理/上板不签通过。收尾证据.research-agent/automations/d38_report/reports/20261027_0549_final_physical_handoff.json；以下运行状态均为历史。
+
+2026-10-27 03:47最新核验：AT020报告执行已真实完成，22565.379247s（6小时16分05秒）、峰owned23.070541GiB、child0/source_verify_after真/owned清理；执行PASS不改变core资源和setup不通过结论。methodology实际4小时19分42秒，2000项警告；完整端口190017与RTL计宽一致，原check_timing未IO约束子集不再冒称总端口数。旧轻量serial按已测排队TERM→CONT路径退出并由原session回收，旧guard/Vivado/serial均消失，无facade误启动。AT021_core_opt已于03:41:48真实启动，原DCP只读复用，当前处open_checkpoint及网表准备、约5分钟/8.5GiB/trigger=null/无deadline，尚无候选DCP或优化后资源/时序结果。guard454976/start73335043、Vivado455129/start73335502已实核；完整core_synth.dcp及其SHA保持，不重综合/功能、不改RTL。A010按既定一次opt→独立report_core_opt（前后资源和两条setup路径）自主推进，尚不启动全父/place。证据.research-agent/automations/d38_report/reports/20261027_0347_core_opt_loading.json及E022 AT020完成/AT021启动审计。两小时回报保持，下一次约05:45。
+
+2026-10-27 01:46北京时间核验：仍为原AT020 report_methodology，报告阶段累计约4小时23分，owned RSS21.13GiB/系统可用约446.5GiB，trigger=null/无deadline。主计算线程109383/start71065051实际R且CPU增加，原guard/Vivado身份不变；methodology.rpt/最终receipt尚无，core_opt调用仍0，旧轻量serial仍T。A014已完成只读根因绑定：实际冻结/当前f849源逐字一致，numeric_candidate共享blocking最小键状态在1073个静态条件call中按序归并，对应实测6091级比较/选择链；逻辑部分359.024ns，不可仅归于unplaced route估计，也不将本层全部LUT归因于该链。资源214万LUT/器件164.11%、WNS=-1289.339ns、UTLZ-1 Error结论保持，尚无优化后或P&R结果。当前不改RTL/优先级/数值，原报告正常完成后按已备入口做同DCP唯一opt及两条路径比较。证据.research-agent/automations/d38_report/reports/20261027_0146_methodology_running.json及物理审核:672；两小时timer active，下一次约03:45。
+
+2026-10-26 23:46最新核验：AT020仍运行，已超过2小时22分，owned RSS约20.50GiB、trigger=null/无deadline，当前report_methodology；资源、setup/hold及DRC已完成，但整stage最终收据未出，core_opt尚未启动。实际Synthesized timing原表WNS=-1289.339ns，setup失败132577个端点；最差n_reg[1]/C→error_col_reg[0]/CE有6091级逻辑，工具未布局延迟估计1292.568ns（logic359.024ns、route估计933.522ns）。当前综合态300MHz要求不通过，不能当作最终route/Fmax结论。DRC明确UTLZ-1 Error1，确认LUT2139515>1303680，未关闭或降级错误；OOC有部分连接检查未执行。原核心DCP/30层功能证据保持，物理资源和时序目前均不通过。主控复用A014只读核error_key/error_col链的源对应，A010一次同DCP opt及安全退出脚本已准备，当前报告正常完成后连续推进，不重综合/功能。serial仍仅轻量T持留，当前Vivado运行有效。新鲜证据.research-agent/automations/d38_report/reports/20261026_2346_timing_drc.json；两小时回报保持，下一次约10月27日01:45。
+
+2026-10-26 21:48最新核验：AT019 core_synth实际完成PASS，原/有效收据elapsed=50108.013762s（13小时55分08秒，含等待和恢复），峰owned172.063992GiB，原Vivado/guard/三监督均已退出。520296664字节core_synth.dcp已保存，SHA a92039524cb313526500315841ecbbdeff0c2f1a5fd971b1680a3ca9b3b23f90，source_verify_after真/无黑盒；这是矩阵core子树，不是完整top。既有serial于21:23:23真实接续AT020_report_core，当前约25分钟/16.7GiB，check_timing仍在计算，无deadline/trigger=null。已完成utilization原表给core LUT2139515/器件1303680=164.11%、FF1391977/2607360=53.39%、DSP4352/9024=48.23%、BRAM/URAM0；LUT已包含combining，目前综合态资源不通过，且已超过用户完整核900000预算2.377倍。尚未做opt/完整父装配/P&R，最终优化空间仍待实测。A014已核层级并建议同DCP一次opt定位，主控已将正式接续写入SM012末节；A010于21:51:25实际仅暂停轻量serial，AT020 guard/Vivado保持运行。报告正常完成/清理后安全收尾旧serial，再执行唯一core opt诊断；不重跑core或功能验证，不自动进入全父/place。新鲜证据.research-agent/automations/d38_report/reports/20261026_2149_core_resources.json及AT020/reports/utilization.rpt。两小时回报保持，下一次约23:45；以下未出DCP/未完成综合为历史。
+
+2026-10-26 19:52：管理员实际精确回收解除HARTS收尾阻塞，原Vivado未重启，日志已进入综合网表转换，真实综合线程继续运算。A010/A014与主控已核实际恢复及身份；累计约12小时24分、RSS95.3GiB/峰172.1GiB，无deadline监督及两小时回报保持。core DCP尚未生成，正式完整资源、fit、布局布线和300MHz时序仍未取得。实际恢复证据见[物理审核](reviews/m007_d38_physical_review_20261025.md)和[当前任务](../mission/current.md)；以下为历史采样。
+
+2026-10-26 07:46北京时间已核实：AT019于07:44:46无墙钟上限接管生效（maximum_seconds/deadline=null），原Vivado PID3583093/start66052106未重启，CPU持续增加；当前约18分钟、owned RSS15.32GiB、系统可用466.93GiB、trigger=null，仍在核心综合RTL展开，尚无DCP/完整资源/时序结果。后续synthesis/implementation/reports已配置无单次或累计墙钟，prep/repair原帽保持。
+
+每2小时回报已真实启用：服务器user timer `laya-d38-progress.timer` active/waiting，服务首次实际执行成功，原主控会话收到触发且返回accepted turn ID；下一次北京时间2026-10-26 09:45:41，后续每7200秒。当前会话无原生automation_update工具，使用现有本机Codex控制socket投递到同一会话，不建新聊天。依赖服务器user manager及Codex连接可用；接受回执与最终用户回复分别记录。停止方式为 `.research-agent/automations/d38_report/config.json` enabled=false并停止timer；物理最终收尾或用户暂停/取消时执行。
+
+
+2026-10-26最新用户授权：D38物理综合/链接/实现/报告取消单次和累计墙钟上限，保留256GiB/系统余量/CPU/单重工具/真正停滞保护；每2小时在本会话汇报。AT019保持原Vivado运行，A010正在落实显式null无deadline监督，生效需核新activation；主控配置实际定时回报。此前16878.966331s等有限帽为历史，不再是当前授权上限，旧费用保留。
+
+
+2026-10-26最新执行（北京时间）：AT015于01:41触单次6h墙钟帽，实际21601.398908s，COST_STOP；峰值110.976GiB，未触256GiB内存帽，CPU仍在推进。面积优化已完成，综合Timing Optimization未结束；无core DCP，完整资源/fit/布局布线时序尚未取得。所有owned和监督进程退出、锁释放；根已恢复A014集中核实际结果与后继方案。原128→256GiB接管/两段监督证据和全部历史成本保留。
+
+updated: 2026-10-26（北京时间）
+execution_state: running
 verdict: unassessed
+
+当前AT019已于北京时间10/26 07:27:54实际启动同源core-only -no_timing_driven，原余额16878.966331s/256GiB/300MHz要求保持，尚无结果。用户授权清理后，旧三次失败综合153个.rtd/.tim缓存共4.14GiB已删除，358份其余旧文件哈希保持，当前运行目录和依赖未动；本轮目录从约4.2GiB降到约59MiB。[清理清单](reviews/m007_d38_cache_cleanup_20261026.json)。
+
+后继已经派发：仅对同f849核心综合使用官方-no_timing_driven，先取得映射网表/资源，保持原300MHz XDC及最终完整route/STA。原综合余额内一次尝试、不改RTL、不恢复PS；当前配置准备，实际启动与结果以新launch/receipt为准。
 
 主控增量128已接纳D37/E021 R005完整正常路径：正式参数0，从原embedding_norm开始，一次BEGIN连续计算28 Encoder、final LN/type、2 Decision和544组尾输出。13036119周期，RTL仿真10101.230975秒（2小时48分21秒）；原完整终标、实际尾部提交、heldDONE消费和idle全部通过。
 
 主控独立核全部30层真实H及唯一采集trace、finalLN/type和69632B输出对原参考逐字一致；实际120矩阵/480head/60LN/61VECTOR/28GEGLU、两FC1各16384写/ACK/发布后才FC2。3200执行身份无失配，2262已知进程身份无存活/僵尸；2个瞬态policy样本保留UNKNOWN。22份费用收据复算static372.653189/1800s、RTL10101.230975/15600s；另2次失败准备耗时UNKNOWN、保守预留240s，余额封存不转。
 
-本次证明修复版完整硬件主干在该原始请求上的RTL正常路径功能；未验所有异常/复位或四态行为，也未验联合物理时序、上板和实际吞吐。D35原FAIL及D36分段PASS保留。按用户要求完成核验归档后暂停，不启动后继。
+本次证明修复版完整硬件主干在该原始请求上的RTL正常路径功能；未验所有异常/复位或四态行为，也未验联合物理时序、上板和实际吞吐。D35原FAIL及D36分段PASS保留。该功能阶段已按用户要求核验归档。2026-10-25用户新授权D38完整顶层综合/资源/布局布线时序，已恢复A010。AT003正确参数完整top和AT005原矩阵core综合均触发24GiB保护，无DCP；最小operand表示修复经AT010四态局部等价检查通过后，AT011在1736.657s后主动重规划停止，保留原收据；槽内1D版已在AT013完成同一四态局部等价复验并经A014核验，AT014新core仍在1278.033s触24GiB保护且无DCP；未增加预算，当前只推进已定义的PS真实组合cone原/改有界诊断，未自动重跑整core。新完整物理结果尚未取得，原D37不记为新源码全30重跑。
 
 [主控独立终审](reviews/m007_fixed30_final_review_20261024.json) · [工程最终收据](../project/E021_m007_compiled_rtl_validation/experiment_results/runs/R005/attempts/AT002_fixed_original30_kind7/final_fixed_original30_receipt.json)
 

@@ -464,3 +464,10 @@ AT005 fixture reuses E015 AT007 original Encoder0 all128-row context and WO gold
 新laya_m007_matrix_facade_v2保留旧v1与其构建。CANONICAL_MODEL互斥generate：canonical只一份288×64F32=73728B bias，576个32lane输入；legacy分支包含原64×64窗口及临时绑定控制。canonical删除398bit旧coef字段的扣减待实际elaboration逐字段核验。新response_valid1及64F32同步holding256B独立入账；tensor/issue_next在实际core accept前保持，无新地址/身份FF。资格来自immutable model_committed与固定model/tensor/K/N。W供给用v2 transport_idle聚合held AR/R、cache/read/lease、load_pending/response与A读债；不是单看cmd_ready。
 
 Decision FC1真实输出组合ReLU（−0→+0，finite先检查）直接进入原quant/A1；16384真实组、write ACK/publication/close与DIV债全部退休才FC2K4096。原双A/W缓存容量不新增。源码已写未编译，物理与功能均NOT_RUN，证据E016/R007。
+
+
+## D38 operand storage representation (2026-10-25)
+
+Under SM012 same-semantics repair authority, matrix_engine op0/op1 now use64 unpacked slots each packed8192bits with static-slot always_ff writes. Whole8192bit format/mul/add/zero operations remain; lane j is exactly flat[32*j+:32]. PS scatter write and commit-read lane access use the equivalent32bit slices. Original asynchronous reads,64×256×32capacity per pool, distinct-slot concurrent writes, reset-no-clear behavior and op0 add>mul>format/op1 PS>zero>format priority are unchanged. No pipeline/arbitration/latency/interface/numerical change. Latest SHA f8493b130354123a57115f85bc1d6cdeab776a64697234962063604594b9c1cd; exact inverse restores original2147 and prior e279 bytes.
+
+E022/R001/repair_v2 stores actual original/latest source extracts, source mappings and inverse proof. AT012 compile and AT013 four-state6721cycle/13442full-pool comparison PASS, including all64slots/256lanes/32bits, finite event/collision/read/reset/X coverage. D37 full30 remains original source identity with this local bridge, not a new full30 rerun. Newsource_manifest_v3/bottom_up_v6 freeze90other sources/ROM/parent unchanged.

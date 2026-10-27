@@ -1,0 +1,38 @@
+# E022 R001 D38 full production kernel physical validation
+
+Execution state: running; current attempt AT011_core_synth. Full-kernel verdict unassessed.
+
+Target Vivado2025.2 / xcu55c-fsvh2892-2L-e / OOC bare kernel / 3.333333333ns. Complete validated parent parameters are input/physical_configuration_v2.json. Original91-source+ROM closure is input/source_manifest.json; it remains immutable. All commands/cwd, tool logs, PID/start ownership, resource samples, frozen scripts, exit/guard and cleanup receipts reside in each attempts/AT* directory. Canonical entry: E002 experiment/vivado/module_design/forward_controller/physical_d38/run_physical_d38.py --stage STAGE.
+
+Actual prior attempts: AT001 preflight PASS20.387176117s; AT002 invalid default platform config COST_STOP126.709649772s; AT003 correct11generic full synth COST_STOP709.993409556s; AT004 parameter help-only normal Tcl exit8.089555168s (not an actual hidden-parameter query); AT005 original standalone matrix core COST_STOP868.242573546s. No DCP was produced. AT003 hidden realtime log and AT005 main log flag unsupported3D op0/op1 storage expansion, each524288 candidate registers; these are not final FF utilization/device-capacity results. AT005 owned main process itself reached approximately23.69GiB, without a large mapping worker. All later ownership checks empty; preserve original AT002 exit-race snapshot.
+
+Authorized representation repair only changes op0/op1 declaration and moves six actual data writes to64 static-slot processes. Exact inverse restores original bytes. Source SHA2147d041620a158cf7f2cddfd172b538e54ba78c5d340507a8c5ce08cfff069f becomes e279968ca6407bc4c96687a689ba187cd7e29c1f0e2c61a358ecf1f18c917154. Actual original/fixed extracts, source fragments/line mappings, diff and inverse proof are repair/. Bias datapath branches unrelated to these pools are empty in BOTH extracted cones; this is not a full-core waveform regression.
+
+AT006/007 runner errors occurred before tool launch, preserved with measured wrapper costs0.048140002/0.053268339s. AT008 actual xvlog FAIL2.203860738s for missing extraction whitespace. AT009 corrected XSim compile/elaborate PASS9.768734056s. AT010 actual four-state RTL comparison PASS9.683605608s,6721cycles,13442full-pool checks. Coverage:2560event/equality cases per3-writer pool plus512high32 format/PS same-slot cases with optional legal low32 zero, all64format/mul/add/PS targets, all32zero targets, bothPS contexts,64actual slots per read port,64reset-all-write/64no-write-hold and192X cases. Real format writes initialize pools; uninitialized data and X reset/enables are compared before/after edges. Unknown slot addresses and exhaustive32bit values are not claimed. See repair/equivalence_result.json and AT010/xsim.log.
+
+New physical identity input/source_manifest_v2.json replaces only matrix engine among91 sources;90others/ROM/parent9d877217... unchanged. D37 complete30 PASS remains original source identity, linked only for this local representation change by actual-source equivalence; new full30 rerun NOT_RUN. Input bottom_up_configuration_v5.json/stubs_v5 retain exact headers/body parameters and valid generics. AT011 uses this identity, PROFILE_ENABLE0, flatnone, one synthesis worker.
+
+Budget ledger preserves all old costs/caps and explicit revision: preparation600, repair_static600, repair_rtl600, synthesis9000, implementation16800, reports1200seconds; total28800 unchanged. Static/RTL single300s; RTL8GiB/100000cycle. Physical24GiB,MemAvailable>192GiB,CPU0–3,max4threads,nice19,idleIO,project single heavy lock and owned-only cleanup. True stall300s requires no ownedCPU AND no log/checkpoint progress.
+
+Full resources, DCP assembly/fit, internal setup/hold and implementation are UNKNOWN/NOT_RUN until actual reports. No IO delays or real shell uncertainty are invented; no board/shell integration is covered. Future actual DCP insertion must match interfaces, remove all blackboxes, restore one root clock, time all internal/cross-partition paths, then implement. New cap failure stops blind repetition for centralized review.
+
+
+## Latest AT011 controlled stop and flat8192 identity
+
+Controller/A014 actively ended AT011 at1736.656508570s; peak16777212KiB, continuingCPU and no swap, source afterchecktrue,owned empty,noDCP. Actual CONTROLLED_REPLAN_STOP is documented separately from preserved raw requested_stop/COST_STOP; no RSS/stall/numerical failure.
+
+Only3 further expressions change e279 to f8493b130354123a57115f85bc1d6cdeab776a64697234962063604594b9c1cd: packed[255:0][31:0]→[8191:0] per slot and two lane accesses→[32*(16*a+c)+:32]. Capacity, whole reads/writes, control, priorities and latency unchanged. Exact inverse restores e279 then original2147 byte-for-byte. repair_v2 contains actual old/latest extracts and mappings; prior repair and all attempts are unchanged.
+
+AT012 staticPASS9.696188813s/AT013 same6721cycle four-state RTL PASS8.653027590s with13442fullpool checks/all prior coverage. Inputsource_manifest_v3/bottom_up_v6 freeze latest source identity,90others/ROM/parent unchanged. AT014 actual core launchPID2954433 with5558.397858556s max, exactly original category remainder. Full top results remain unavailable.
+
+
+Latest AT014 outcome: actual24GiB RSS COST_STOP1278.032619354s,receipt peak25454276KiB,source_verify_after=true,ownedempty and independent7PID/start auditempty;1transient policyUNKNOWN. Initial mainRSS24909352KiB and stopped-snapshot24915024KiB are distinct actual samples;helper529332KiB. Op0/op1 3D warnings removed,aligned32768 warning remains. Actual log has engine-module-done marker but no completeRTL-elaboration/synth_design/DCP. Prior tail-only no-engine-done statement was too broad and is corrected. No final mapped resource or device-fit/numerical conclusion.
+
+Latest f8493b original-source local equivalence PASS remains; new full30 NOT_RUN. Complete hierarchical linkage/resources/implementation/internal300MHz timing NOT_RUN. Synthesisspent4719.634760798s/rem4280.365239202s,all original budget retained,no reset/final sealing. Current stagewaiting_review,no heavy tool/automatic retry or new source change;central controller/A014 determines evidence-based bounded next scope. See E022/R001/physical_blocker_result.json and AT014 raw receipts/snapshots.
+
+
+## Latest explicit user budget increase / AT015 same-source restart
+
+User gave more budget after clarification that24GiB was a project guard,not host exhaustion. Latest SM012/AGENTS supersede prior physical caps and PS prerequisite: cumulative preparation1200/repair_static600/repair_rtl600/synthesis43200/implementation86400/reports3600s,total135600s,all old charges retained. Physical synthesis/link/implementation/reports RSS128GiB; repairstatic24/RTL8 unchanged. Synthesis/link single21600s,opt/phys_opt14400s,place/route43200s,all bounded by actual cumulative remainder. Same192GiB available/CPU0–3/nice19/idle/singleheavylock/synthesis1worker and300s noCPU AND noactual log/checkpoint stall. Old24GiB and old wall limits no longer stop new physical attempts.
+
+PS candidate7c292 remains unexecuted/unapplied; no PS tool attempts were launched before user pause, source files retained. Productionf849/source_manifest_v3/bottom_up_v6/parent/ROM/11generics/XDC unchanged. Expanded-budget AST/imported actualguard/source check PASS. AT015 NEW actual core launchUTC11:41:33.922608 PID3088949/start61814704 with128GiB and21600s; prior cumulative synthesis4719.634760798s preserved,launch remainder38480.365239202s. No old DCP exists so this restarts,not resumes. Complete resource/implementation/timing remain pending; automatic source-bound real assembly and physical stages follow actual core success.

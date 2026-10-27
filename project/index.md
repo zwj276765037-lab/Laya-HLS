@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
+生成时间（UTC）：2026-10-26T21:48:53.978174+00:00。来源修订：`f4a5039e6a52`。
 
 # 实验与结果索引
 
@@ -28,6 +28,7 @@
 | E019 | [m007_residual_ln_residency](E019_m007_residual_ln_residency/README.md) | M007 / SM011 | completed / supported | [R001](E019_m007_residual_ln_residency/experiment_results/runs/R001/README.md) · [R002](E019_m007_residual_ln_residency/experiment_results/runs/R002/README.md) · [R003](E019_m007_residual_ln_residency/experiment_results/runs/R003/README.md) · [R004](E019_m007_residual_ln_residency/experiment_results/runs/R004/README.md) |
 | E020 | [m007_model_catalog](E020_m007_model_catalog/README.md) | M007 / SM012 | 未登记 / supported | [R001](E020_m007_model_catalog/experiment_results/runs/R001/README.md) |
 | E021 | [m007_compiled_rtl_validation](E021_m007_compiled_rtl_validation/README.md) | M007 / SM012 | completed / supported | [R001](E021_m007_compiled_rtl_validation/experiment_results/runs/R001/README.md) · [R002](E021_m007_compiled_rtl_validation/experiment_results/runs/R002/README.md) · [R003](E021_m007_compiled_rtl_validation/experiment_results/runs/R003/README.md) · [R004](E021_m007_compiled_rtl_validation/experiment_results/runs/R004/README.md) · [R005](E021_m007_compiled_rtl_validation/experiment_results/runs/R005/README.md) |
+| E022 | [m007_full_top_physical](E022_m007_full_top_physical/README.md) | M007 / SM012 | blocked / inconclusive | [R001](E022_m007_full_top_physical/experiment_results/runs/R001/README.md) |
 
 本页是原记录的导航投影；登记、送达及局部结果不代表整体验收。
 

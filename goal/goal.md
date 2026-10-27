@@ -1,7 +1,7 @@
 # Laya-HLS Goal：完整Attention在FPGA的高性能推理部署
 
 revision: 9 / 2026-10-21
-execution_state: paused
+execution_state: running
 verdict: unassessed
 primary_mission: M007
 
@@ -27,3 +27,8 @@ primary_mission: M007
 
 
 2026-10-25 D37收尾（北京时间）：修复版正式参数0完整30层一次BEGIN正常RTL验证通过，全部层输出/finalLN/type/544尾部逐字同原参考，实际提交/DONE/idle正常。主控独立核验已完成，预算封存、owned进程清空，按用户要求暂停。M007整体物理/部署/性能及异常全覆盖仍未验收；最新证据见results/reviews/m007_fixed30_final_review_20261024.json。
+
+
+2026-10-25：用户明确授权D38当前修复版完整顶层综合、资源分项与布局布线/时序；仅恢复该物理阶段，合同和独立预算见SM012 D38。D37完整30层功能PASS保持，本段完成归档后暂停。
+
+2026-10-25用户明确增加D38服务器运行预算：128GiB物理owned内存、累计综合12h/实施24h，保留原成本/低优先级/全机余量保护；同已验局部等价源码恢复完整物理流程。硬件资源和300MHz验收目标不变，详情见SM012最新节。

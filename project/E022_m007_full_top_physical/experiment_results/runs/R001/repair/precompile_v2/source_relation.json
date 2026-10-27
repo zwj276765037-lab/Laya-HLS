@@ -1,0 +1,316 @@
+{
+  "schema": "m007-d38-operand-representation-v1",
+  "original": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E022_m007_full_top_physical/experiment_results/runs/R001/input/rtl/laya_m007_matrix_engine_v1.sv",
+    "sha256": "2147d041620a158cf7f2cddfd172b538e54ba78c5d340507a8c5ce08cfff069f"
+  },
+  "fixed": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_engine_v1.sv",
+    "sha256": "e279968ca6407bc4c96687a689ba187cd7e29c1f0e2c61a358ecf1f18c917154"
+  },
+  "exact_inverse_restores_original_bytes": true,
+  "unchanged_control_and_reads_proof": "Inverse removes only inserted generated process, restores declaration and six removed assignments at recorded offsets; result equals original bytes.",
+  "removed_write_operations": [
+    {
+      "offset_in_sequential_transform": 26645,
+      "removed": "op0[format_tag[5:0]]<=converted;"
+    },
+    {
+      "offset_in_sequential_transform": 26645,
+      "removed": "op1[format_tag[5:0]]<=products;"
+    },
+    {
+      "offset_in_sequential_transform": 27052,
+      "removed": "op0[mul_rsp_tag[5:0]]<=mul_rsp_data;"
+    },
+    {
+      "offset_in_sequential_transform": 27344,
+      "removed": "op1[ps_next[5:0]]<='0;"
+    },
+    {
+      "offset_in_sequential_transform": 28705,
+      "removed": "for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)op1[ps_rd_rsp_tag[18:13]][16*a+c]<=ps_rd_rsp_data[512*ps_rd_rsp_tag[28]+32*a+16*ps_rd_rsp_tag[16]+c];"
+    },
+    {
+      "offset_in_sequential_transform": 28924,
+      "removed": "op0[add_rsp_tag[0][5:0]]<=add_rsp_data;"
+    }
+  ],
+  "generated_static_process": " // D38: same asynchronous pools, static slot LHS and unchanged write priority.\n generate for(genvar slot=0;slot<64;slot++)begin:g_operand_slot\n  always_ff @(posedge clk)begin\n   if(!rst_n)begin\n   end else begin\n    if(state==RUN)begin\n     if(format_valid&&format_tag[5:0]==slot)begin\n      op0[slot]<=converted;op1[slot]<=products;\n     end\n     if(mul_rsp_valid&&mul_rsp_ready&&mul_rsp_tag[5:0]==slot)op0[slot]<=mul_rsp_data;\n     if(ps_next<issue_count&&pool_state[ps_next[5:0]]==TERMREADY&&ps_next<32&&ps_next[5:0]==slot)op1[slot]<='0;\n    end\n    if(ps_rd_rsp_valid&&ps_rd_rsp_ready&&ps_rsp_math&&ps_rd_rsp_tag[18:13]==slot)begin\n     for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)op1[slot][16*a+c]<=ps_rd_rsp_data[512*ps_rd_rsp_tag[28]+32*a+16*ps_rd_rsp_tag[16]+c];\n    end\n    if(add_rsp_valid[0]&&add_rsp_ready[0]&&!add_rsp_tag[0][30]&&add_rsp_tag[0][5:0]==slot)op0[slot]<=add_rsp_data;\n   end\n  end\n end endgenerate\n",
+  "source_fragments": [
+    {
+      "version": "original",
+      "kind": "guard",
+      "fragment": "if(state==RUN)",
+      "line": 316,
+      "offset": 26037,
+      "bytes": 14
+    },
+    {
+      "version": "original",
+      "kind": "guard",
+      "fragment": "if(format_valid)",
+      "line": 324,
+      "offset": 26484,
+      "bytes": 16
+    },
+    {
+      "version": "original",
+      "kind": "guard",
+      "fragment": "if(mul_rsp_valid&&mul_rsp_ready)",
+      "line": 330,
+      "offset": 27003,
+      "bytes": 32
+    },
+    {
+      "version": "original",
+      "kind": "guard",
+      "fragment": "if(ps_next<issue_count&&pool_state[ps_next[5:0]]==TERMREADY&&ps_next<32)",
+      "line": 335,
+      "offset": 27360,
+      "bytes": 72
+    },
+    {
+      "version": "original",
+      "kind": "guard",
+      "fragment": "if(ps_rd_rsp_valid&&ps_rd_rsp_ready&&ps_rsp_math)",
+      "line": 352,
+      "offset": 28672,
+      "bytes": 49
+    },
+    {
+      "version": "original",
+      "kind": "guard",
+      "fragment": "if(add_rsp_valid[0]&&add_rsp_ready[0]&&!add_rsp_tag[0][30])",
+      "line": 357,
+      "offset": 29031,
+      "bytes": 59
+    },
+    {
+      "version": "original",
+      "kind": "write",
+      "fragment": "op0[format_tag[5:0]]<=converted;",
+      "line": 326,
+      "offset": 26640,
+      "bytes": 32
+    },
+    {
+      "version": "original",
+      "kind": "write",
+      "fragment": "op1[format_tag[5:0]]<=products;",
+      "line": 326,
+      "offset": 26672,
+      "bytes": 31
+    },
+    {
+      "version": "original",
+      "kind": "write",
+      "fragment": "op0[mul_rsp_tag[5:0]]<=mul_rsp_data;",
+      "line": 332,
+      "offset": 27110,
+      "bytes": 36
+    },
+    {
+      "version": "original",
+      "kind": "write",
+      "fragment": "op1[ps_next[5:0]]<='0;",
+      "line": 335,
+      "offset": 27438,
+      "bytes": 22
+    },
+    {
+      "version": "original",
+      "kind": "write",
+      "fragment": "for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)op1[ps_rd_rsp_tag[18:13]][16*a+c]<=ps_rd_rsp_data[512*ps_rd_rsp_tag[28]+32*a+16*ps_rd_rsp_tag[16]+c];",
+      "line": 354,
+      "offset": 28821,
+      "bytes": 151
+    },
+    {
+      "version": "original",
+      "kind": "write",
+      "fragment": "op0[add_rsp_tag[0][5:0]]<=add_rsp_data;",
+      "line": 359,
+      "offset": 29191,
+      "bytes": 39
+    },
+    {
+      "version": "original_control_relative",
+      "kind": "reset",
+      "fragment": "if(!rst_n)begin",
+      "line": 2,
+      "offset": 33,
+      "bytes": 15
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "mul_a=op0[mul_next[5:0]];",
+      "line": 194,
+      "offset": 13951,
+      "bytes": 25
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "mul_b=op1[mul_next[5:0]];",
+      "line": 194,
+      "offset": 13976,
+      "bytes": 25
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "add_a=op0[add_next[5:0]];",
+      "line": 217,
+      "offset": 16825,
+      "bytes": 25
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "add_b=op1[add_next[5:0]];",
+      "line": 217,
+      "offset": 16850,
+      "bytes": 25
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "ps_wr_data[bank_index]=op0[write_next[5:0]][16*a+c];",
+      "line": 228,
+      "offset": 17965,
+      "bytes": 52
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "trace_commit_data=op0[ps_wr_rsp_tag[5:0]];",
+      "line": 231,
+      "offset": 18175,
+      "bytes": 42
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "mul_a=op0[mul_next[5:0]];",
+      "line": 194,
+      "offset": 13956,
+      "bytes": 25
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "mul_b=op1[mul_next[5:0]];",
+      "line": 194,
+      "offset": 13981,
+      "bytes": 25
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "add_a=op0[add_next[5:0]];",
+      "line": 217,
+      "offset": 16830,
+      "bytes": 25
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "add_b=op1[add_next[5:0]];",
+      "line": 217,
+      "offset": 16855,
+      "bytes": 25
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "ps_wr_data[bank_index]=op0[write_next[5:0]][16*a+c];",
+      "line": 228,
+      "offset": 17970,
+      "bytes": 52
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "trace_commit_data=op0[ps_wr_rsp_tag[5:0]];",
+      "line": 231,
+      "offset": 18180,
+      "bytes": 42
+    },
+    {
+      "version": "original",
+      "kind": "read_context",
+      "fragment": "if(ps_rd_rsp_valid&&ps_rsp_bias&&(!ps_rsp_retire||!out_hold_valid||out_ready))",
+      "line": 213,
+      "offset": 16265,
+      "bytes": 78
+    },
+    {
+      "version": "original",
+      "kind": "read_context",
+      "fragment": "else if(state==RUN&&add_next<issue_count&&pool_state[add_next[5:0]]==ADDREADY)",
+      "line": 216,
+      "offset": 16684,
+      "bytes": 78
+    },
+    {
+      "version": "original",
+      "kind": "read_context",
+      "fragment": "else if(state==RUN&&write_next<issue_count&&pool_state[write_next[5:0]]==SUMREADY)",
+      "line": 226,
+      "offset": 17645,
+      "bytes": 82
+    },
+    {
+      "version": "original",
+      "kind": "read_context",
+      "fragment": "for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*ctx+32*a+16*write_next[3]+c;ps_wr_mask[bank_index]=1;ps_wr_addr[bank_index]=2*write_next[2:0]+write_next[4];ps_wr_data[bank_index]=op0[write_next[5:0]][16*a+c];end",
+      "line": 228,
+      "offset": 17786,
+      "bytes": 234
+    },
+    {
+      "version": "fixed",
+      "kind": "read_context",
+      "fragment": "if(ps_rd_rsp_valid&&ps_rsp_bias&&(!ps_rsp_retire||!out_hold_valid||out_ready))",
+      "line": 213,
+      "offset": 16270,
+      "bytes": 78
+    },
+    {
+      "version": "fixed",
+      "kind": "read_context",
+      "fragment": "else if(state==RUN&&add_next<issue_count&&pool_state[add_next[5:0]]==ADDREADY)",
+      "line": 216,
+      "offset": 16689,
+      "bytes": 78
+    },
+    {
+      "version": "fixed",
+      "kind": "read_context",
+      "fragment": "else if(state==RUN&&write_next<issue_count&&pool_state[write_next[5:0]]==SUMREADY)",
+      "line": 226,
+      "offset": 17650,
+      "bytes": 82
+    },
+    {
+      "version": "fixed",
+      "kind": "read_context",
+      "fragment": "for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*ctx+32*a+16*write_next[3]+c;ps_wr_mask[bank_index]=1;ps_wr_addr[bank_index]=2*write_next[2:0]+write_next[4];ps_wr_data[bank_index]=op0[write_next[5:0]][16*a+c];end",
+      "line": 228,
+      "offset": 17791,
+      "bytes": 234
+    }
+  ],
+  "read_expressions": [
+    "mul_a=op0[mul_next[5:0]];",
+    "mul_b=op1[mul_next[5:0]];",
+    "add_a=op0[add_next[5:0]];",
+    "add_b=op1[add_next[5:0]];",
+    "ps_wr_data[bank_index]=op0[write_next[5:0]][16*a+c];",
+    "trace_commit_data=op0[ps_wr_rsp_tag[5:0]];"
+  ],
+  "uninitialized_data_preserved": true,
+  "equivalence_scope": "64 known slot addresses; X data/reset/enable planned; known slots only, unknown slot addresses not claimed"
+}

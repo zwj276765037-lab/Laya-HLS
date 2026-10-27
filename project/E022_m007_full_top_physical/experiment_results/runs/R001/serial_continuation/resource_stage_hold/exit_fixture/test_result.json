@@ -1,0 +1,28 @@
+{
+  "verdict": "PASS",
+  "cases": [
+    {
+      "child_exit_code": 0,
+      "pending_before_CONT": {
+        "SigPnd": 0,
+        "ShdPnd": 16384
+      },
+      "requested_stop": true,
+      "facade_started": false,
+      "child_after_reap": null
+    },
+    {
+      "child_exit_code": 7,
+      "pending_before_CONT": {
+        "SigPnd": 0,
+        "ShdPnd": 16384
+      },
+      "requested_stop": true,
+      "facade_started": false,
+      "child_after_reap": null
+    }
+  ],
+  "exact_handler_source": " def stop(self,signum,frame):\n  self.requested_stop=True\n  if self.child is not None and self.child.poll()is None:\n   # This PID is the exact Python guard launched by this driver.\n   self.child.send_signal(signal.SIGTERM)\n",
+  "continuation_sha256": "dd2e55be3148db77c7c5547d174ecccaf6dbdc9731188c3bf80caefa944fa4c3",
+  "production_processes_signalled": false
+}

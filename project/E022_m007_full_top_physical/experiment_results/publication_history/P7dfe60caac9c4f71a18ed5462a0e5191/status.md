@@ -1,0 +1,56 @@
+# E022 AT019：原生报告后等待态正在核查
+
+execution_state: running
+verdict: unassessed
+
+只读等待态观察 2026-10-26T05:35:08.514880+00:00：从2026-10-26T05:28:44.885457+00:00起383.629423s内，Vivado主线程3583093及累计CPU最高线程3583107均增加0ticks、futex等待；仅周期sleep线程3583368增加4170ticks。log固定884747B，全部写I/O计数不变；intermediate_scope.txt和canonical core DCP均未出现。现有守卫使用owned总CPU，仍trigger=null，不能把总CPU增加当作本次有效综合推进。尚未据此判工具hang、FAIL或保护触发，也未停进程/重跑/修改进展标准；已向主控发送原始证据，等待有范围诊断。
+
+最新监督采样2026-10-26T05:35:59.276028+00:00：elapsed22084.293897s、RSS95.562572GiB、系统可用370.018894GiB、trigger null。原无墙钟/内存/余量/CPU/单锁保护和原Vivado身份保持。已有continuation仅等待，尚未启动后继；原生0error综合行不等于完成core DCP或完整物理验收。源码、300MHz及最终资源/时序条件不变。
+
+---
+Published: 2026-10-26T05:36:00.252185+00:00
+Publication: Pf7f2a9c0f8dd403b842a0e78b7ea8969
+Execution state: running
+Research verdict: unassessed
+Applicability: 同 f849 core 的有因综合策略运行；当前监督已显式取消物理单次/累计墙钟，功能与300MHz最终验收不变
+Evidence:
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/input/source_manifest_v3.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/input/bottom_up_configuration_v7.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/input/bottom_up_flow_v7.tcl
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/input/strategy_v7_relation.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/input/no_timing_driven_support.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/strategy_v7_prelaunch_check.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/command.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/launch.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/synth_design_argv.tcllist
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/strategy_launch_evidence.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/budget_ledger.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/physical_blocker_AT015.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT018_synth_help/receipt.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/cleanup_status_observation.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/cache_cleanup_controller_reference.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/input/execution_time_policy_v2.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/AT019_unlimited_guard_tests_v2/test_result.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/preflight.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/activation.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/activation_verified.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/live_status.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/observer/ready.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/serial_continuation/state.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/serial_continuation/events.jsonl
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/serial_continuation/launch_inputs.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/serial_continuation/launch_verified.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_rtl_phase1.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_rtl_phase2.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_cross_boundary_start.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_mapping_report.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_timing_optimization_start.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_technology_mapping_start.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_io_insertion_start.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_final_netlist_cleanup_start.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_generated_instance_renaming.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_generated_instance_renaming_finished.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/stage_observation_native_synthesis_report.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/post_native_report_runtime_observation_20261026T0528.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/post_native_report_runtime_observation_20261026T0530.json
+- project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/post_native_report_runtime_observation_20261026T0535.json

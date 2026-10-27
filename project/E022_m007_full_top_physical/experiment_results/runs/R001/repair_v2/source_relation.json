@@ -1,0 +1,124 @@
+{
+  "original_sha256": "2147d041620a158cf7f2cddfd172b538e54ba78c5d340507a8c5ce08cfff069f",
+  "prior_sha256": "e279968ca6407bc4c96687a689ba187cd7e29c1f0e2c61a358ecf1f18c917154",
+  "fixed_sha256": "f8493b130354123a57115f85bc1d6cdeab776a64697234962063604594b9c1cd",
+  "exact_inverse_restores_original_bytes": true,
+  "exact_inverse_restores_prior_bytes": true,
+  "changes_from_prior": [
+    [
+      "logic [255:0][31:0] op0[0:63],op1[0:63];",
+      "logic [8191:0] op0[0:63],op1[0:63];"
+    ],
+    [
+      "op1[slot][16*a+c]",
+      "op1[slot][32*(16*a+c)+:32]"
+    ],
+    [
+      "op0[write_next[5:0]][16*a+c]",
+      "op0[write_next[5:0]][32*(16*a+c)+:32]"
+    ]
+  ],
+  "prior_source_relation": {
+    "path": "/home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E022_m007_full_top_physical/experiment_results/runs/R001/repair/source_relation.json",
+    "sha256": "3a31e7ceb799cb1507444dccfe22803fe6eda8d6502748d97a9d1b34312cd7db"
+  },
+  "source_fragments": [
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "mul_a=op0[mul_next[5:0]];",
+      "line": 194
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "mul_b=op1[mul_next[5:0]];",
+      "line": 194
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "add_a=op0[add_next[5:0]];",
+      "line": 217
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "add_b=op1[add_next[5:0]];",
+      "line": 217
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "ps_wr_data[bank_index]=op0[write_next[5:0]][16*a+c];",
+      "line": 228
+    },
+    {
+      "version": "original",
+      "kind": "read",
+      "fragment": "trace_commit_data=op0[ps_wr_rsp_tag[5:0]];",
+      "line": 231
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "mul_a=op0[mul_next[5:0]];",
+      "line": 194
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "mul_b=op1[mul_next[5:0]];",
+      "line": 194
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "add_a=op0[add_next[5:0]];",
+      "line": 217
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "add_b=op1[add_next[5:0]];",
+      "line": 217
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "ps_wr_data[bank_index]=op0[write_next[5:0]][32*(16*a+c)+:32];",
+      "line": 228
+    },
+    {
+      "version": "fixed",
+      "kind": "read",
+      "fragment": "trace_commit_data=op0[ps_wr_rsp_tag[5:0]];",
+      "line": 231
+    },
+    {
+      "version": "fixed",
+      "kind": "authorized_edit",
+      "prior": "logic [255:0][31:0] op0[0:63],op1[0:63];",
+      "actual": "logic [8191:0] op0[0:63],op1[0:63];",
+      "line": 124
+    },
+    {
+      "version": "fixed",
+      "kind": "authorized_edit",
+      "prior": "op1[slot][16*a+c]",
+      "actual": "op1[slot][32*(16*a+c)+:32]",
+      "line": 275
+    },
+    {
+      "version": "fixed",
+      "kind": "authorized_edit",
+      "prior": "op0[write_next[5:0]][16*a+c]",
+      "actual": "op0[write_next[5:0]][32*(16*a+c)+:32]",
+      "line": 228
+    }
+  ],
+  "generated_static_process": " // D38: same asynchronous pools, static slot LHS and unchanged write priority.\n generate for(genvar slot=0;slot<64;slot++)begin:g_operand_slot\n  always_ff @(posedge clk)begin\n   if(!rst_n)begin\n   end else begin\n    if(state==RUN)begin\n     if(format_valid&&format_tag[5:0]==slot)begin\n      op0[slot]<=converted;op1[slot]<=products;\n     end\n     if(mul_rsp_valid&&mul_rsp_ready&&mul_rsp_tag[5:0]==slot)op0[slot]<=mul_rsp_data;\n     if(ps_next<issue_count&&pool_state[ps_next[5:0]]==TERMREADY&&ps_next<32&&ps_next[5:0]==slot)op1[slot]<='0;\n    end\n    if(ps_rd_rsp_valid&&ps_rd_rsp_ready&&ps_rsp_math&&ps_rd_rsp_tag[18:13]==slot)begin\n     for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)op1[slot][32*(16*a+c)+:32]<=ps_rd_rsp_data[512*ps_rd_rsp_tag[28]+32*a+16*ps_rd_rsp_tag[16]+c];\n    end\n    if(add_rsp_valid[0]&&add_rsp_ready[0]&&!add_rsp_tag[0][30]&&add_rsp_tag[0][5:0]==slot)op0[slot]<=add_rsp_data;\n   end\n  end\n end endgenerate\n",
+  "layout_identity": "packed[255:0][31:0] lane j maps exactly to flat[32*j+:32]; whole8192-bit assignments unchanged",
+  "all_other_guards_control_and_reads_byte_unchanged": true,
+  "scope": "actual original/latest storage blocks; four-state6721cycle comparison planned; known64-slot domain, no new full30 rerun"
+}

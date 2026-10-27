@@ -347,3 +347,14 @@ AT025 final guarded audit PASS1.573405s verifies1981unique files, all source/inp
 ## 2026-10-23 D32/R007证据边界
 
 新canonical v3/服务源码已准备，32项source-only结构核对不构成编译、RTL、census或physical PASS。实际源版本与下一步以E016/R007和E016三摘要为准；旧记录仍只适用原版本。完整setup/层/30层、DMA与时序均NOT_RUN。
+
+
+D38 latest operand representation proof: AT012 static9.696188813s and AT013 XSim4state RTL8.653027590s PASS,6721cycles/13442fullpool comparisons. Same original/latest actual extracted blocks; known64slot domain and exact source inverse, not exhaustive values or full-core waveform regression. Prior e279 AT011 was actively replanned at1736.656508570s/peak16777212KiB withCPU progressing,no swap,no guard cap; sourcechecktrue/ownedempty. Original raw COST_STOP/requested_stop and explicit CONTROLLED_REPLAN_STOP classification retained. AT014 f8493b... core OOC is currently running, with remaining synthesis5558.397858556s; final resources/DCP/implementation/timing remain UNKNOWN/NOT_RUN. Evidence E022/R001/repair_v2 and attempts/AT011–014; no new full30 rerun.
+
+
+Latest AT014 outcome: actual24GiB RSS COST_STOP1278.032619354s,receipt peak25454276KiB,source_verify_after=true,ownedempty and independent7PID/start auditempty;1transient policyUNKNOWN. Initial mainRSS24909352KiB and stopped-snapshot24915024KiB are distinct actual samples;helper529332KiB. Op0/op1 3D warnings removed,aligned32768 warning remains. Actual log has engine-module-done marker but no completeRTL-elaboration/synth_design/DCP. Prior tail-only no-engine-done statement was too broad and is corrected. No final mapped resource or device-fit/numerical conclusion.
+
+Latest f8493b original-source local equivalence PASS remains; new full30 NOT_RUN. Complete hierarchical linkage/resources/implementation/internal300MHz timing NOT_RUN. Synthesisspent4719.634760798s/rem4280.365239202s,all original budget retained,no reset/final sealing. Current stagewaiting_review,no heavy tool/automatic retry or new source change;central controller/A014 determines evidence-based bounded next scope. See E022/R001/physical_blocker_result.json and AT014 raw receipts/snapshots.
+
+
+Latest user expanded server budget supersedes waiting_review/old24GiB for D38 physical execution. Productionf849 and its local original-source equivalence remain unchanged; PS candidate7c292 is paused/unexecuted/unapplied. AT015 actual new same-source core synthesis launched2026-10-25T11:41:33.922608Z PID3088949/start61814704,128GiB/21600s,max1worker,CPU0–3/nice19/idle/MemAvailable>192GiB. Cumulative synthesis cap43200s includes prior4719.634760798s; no old cost reset. Current actual full-kernel resources/DCP/implementation/timing still pending. Larger server RSS/time budget does not change U55C/300MHz or DSP7200/LUT900000/FF1800000/BRAM36eq1200/URAM640 acceptance budgets. E022 native summaries/AT015 command are current state.

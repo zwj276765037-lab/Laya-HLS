@@ -1,0 +1,16 @@
+--- AT021/frozen/core_opt_diagnostic_d38.tcl
++++ current/core_opt_diagnostic_d38.tcl
+@@ -23,7 +23,12 @@
+ 
+ proc boundary_snapshot {label} {
+     global out part expected_top
+-    if {[get_property NAME [current_design]] ne $expected_top} {error "Wrong core top"}
++    # current_design.NAME identifies the loaded design container. The source
++    # top is the fileset TOP property, including after open_checkpoint.
++    set actual_top [get_property TOP [current_fileset]]
++    save_text [file join $out ${label}_design_identity.tsv] \
++        "design_object_name\t[get_property NAME [current_design]]\nfileset_top\t$actual_top\nexpected_top\t$expected_top"
++    if {$actual_top ne $expected_top} {error "Wrong core top: fileset TOP=$actual_top expected=$expected_top"}
+     if {[get_property PART [current_project]] ne $part} {error "Wrong core part"}
+     set bb [get_cells -quiet -hierarchical -filter {IS_BLACKBOX == 1}]
+     if {[llength $bb]} {error "Core blackboxes: $bb"}

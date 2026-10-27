@@ -1,0 +1,111 @@
+{
+  "utc": "2026-10-26T10:57:31.321600+00:00",
+  "PASS": false,
+  "verdict": "candidate_rejected_by_fault_injection",
+  "scope": "Isolated stopped Python parent with its own zombie and flock; no production PID attach/signals/reap or supervisor switch",
+  "script": "project/E002_Laya_HLS/experiment/vivado/module_design/forward_controller/physical_d38/test_guard_single_syscall_probe_d38.py",
+  "script_sha256": "6da9175e5927b70c696482e9067cd2cf450ef530ee1cb950d706343ffa175d63",
+  "cases": [
+    {
+      "mode": "normal",
+      "tracer_exit": 0,
+      "guard_after": {
+        "pid": 4142901,
+        "start": 70182231,
+        "state": "T",
+        "ppid": 4142899
+      },
+      "zombie_after": null,
+      "python_resumed": false,
+      "lock_held": true
+    },
+    {
+      "mode": "tracer_killed_before_step",
+      "tracer_exit": -9,
+      "guard_after": {
+        "pid": 4142904,
+        "start": 70182245,
+        "state": "T",
+        "ppid": 4142899
+      },
+      "zombie_after": {
+        "pid": 4142905,
+        "start": 70182250,
+        "state": "Z",
+        "ppid": 4142904
+      },
+      "python_resumed": false,
+      "lock_held": true
+    },
+    {
+      "mode": "tracer_killed_during_step",
+      "tracer_exit": -9,
+      "guard_after": {
+        "pid": 4142907,
+        "start": 70182259,
+        "state": "S",
+        "ppid": 4142899
+      },
+      "zombie_after": null,
+      "python_resumed": false,
+      "lock_held": true
+    }
+  ],
+  "blocking_case": "tracer_killed_during_step",
+  "blocking_fact": "After issuing the instruction step but before observing its stop, SIGKILL of tracer leaves original parent in S rather than T. Registers may remain injected. Lock retention and one exact zombie reaped do not establish safe resumption.",
+  "unproven": "No claim that original Python instructions did execute: marker remained absent at the 30ms sample. Required guaranteed T and safe context were not established.",
+  "not_run": "Remaining crash phases and monitor/maintenance integration stopped after decisive failure",
+  "cleanup": [
+    {
+      "case": "normal",
+      "guard_identity": {
+        "pid": 4142901,
+        "start": 70182231,
+        "state": "T",
+        "ppid": 4142899
+      },
+      "zombie_identity": {
+        "pid": 4142902,
+        "start": 70182236,
+        "state": "Z",
+        "ppid": 4142901
+      },
+      "guard_proc_absent": true,
+      "zombie_proc_absent": true
+    },
+    {
+      "case": "tracer_killed_before_step",
+      "guard_identity": {
+        "pid": 4142904,
+        "start": 70182245,
+        "state": "T",
+        "ppid": 4142899
+      },
+      "zombie_identity": {
+        "pid": 4142905,
+        "start": 70182250,
+        "state": "Z",
+        "ppid": 4142904
+      },
+      "guard_proc_absent": true,
+      "zombie_proc_absent": true
+    },
+    {
+      "case": "tracer_killed_during_step",
+      "guard_identity": {
+        "pid": 4142907,
+        "start": 70182259,
+        "state": "T",
+        "ppid": 4142899
+      },
+      "zombie_identity": {
+        "pid": 4142908,
+        "start": 70182263,
+        "state": "Z",
+        "ppid": 4142907
+      },
+      "guard_proc_absent": true,
+      "zombie_proc_absent": true
+    }
+  ]
+}

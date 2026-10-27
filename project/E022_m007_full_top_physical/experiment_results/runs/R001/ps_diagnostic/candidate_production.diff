@@ -1,0 +1,53 @@
+--- /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_engine_v1.sv
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E022_m007_full_top_physical/experiment_results/runs/R001/ps_diagnostic/candidate_matrix_engine.sv
+@@ -161,6 +161,22 @@
+  assign arithmetic_debt=math_debt+bias_debt;
+  assign reserved_vectors={3'b0,math_debt}+{3'b0,bias_debt}+{7'b0,retire_debt}+{3'b0,mul_pending}+{3'b0,add_pending[0]};
+  assign ctx_busy_debug=ctx_busy;assign trace_block_s=s;assign trace_compute_ctx=ctx;
++ // PS representation diagnostic: fixed bank b={context,row,half,column}.
++ generate for(genvar bank=0;bank<1024;bank++)begin:g_ps_static_bank
++  localparam int C=bank/512,A=(bank%512)/32,H=(bank%32)/16,J=bank%16;
++  always_comb begin
++   ps_rd_mask[bank]=0;ps_rd_addr[bank]=0;
++   if(math_read_part&&ctx==C&&ps_next[3]==H)begin ps_rd_mask[bank]=1;ps_rd_addr[bank]=2*ps_next[2:0]+ps_next[4];end
++   if(bias_read_part&&bias_ctx==C&&bias_next[3]==H)begin ps_rd_mask[bank]=1;ps_rd_addr[bank]=2*bias_next[2:0]+bias_next[4];end
++   if(retire_read_part&&retire_ctx==C&&retire_next[4:1]==A)begin ps_rd_mask[bank]=1;ps_rd_addr[bank]=2*retire_next[7:5]+retire_next[0];end
++   ps_wr_mask[bank]=0;ps_wr_addr[bank]=0;ps_wr_data[bank]=0;
++   if(add_rsp_valid[0]&&add_rsp_tag[0][30])begin
++    if(add_rsp_tag[0][31]==C&&add_rsp_tag[0][3]==H)begin ps_wr_mask[bank]=1;ps_wr_addr[bank]=2*add_rsp_tag[0][2:0]+add_rsp_tag[0][4];ps_wr_data[bank]=add_rsp_data[16*A+J];end
++   end else if(state==RUN&&write_next<issue_count&&pool_state[write_next[5:0]]==SUMREADY)begin
++    if(ctx==C&&write_next[3]==H)begin ps_wr_mask[bank]=1;ps_wr_addr[bank]=2*write_next[2:0]+write_next[4];ps_wr_data[bank]=op0[write_next[5:0]][32*(16*A+J)+:32];end
++   end
++  end
++ end endgenerate
+  always_comb begin
+   descriptor_ok=((cmd_k==1024&&(cmd_n==1024||cmd_n==3072||cmd_n==5248||cmd_n==4096))||(cmd_n==1024&&(cmd_k==2624||cmd_k==4096)))&&cmd_s<((cmd_n==5248)?82:(cmd_n>>6));
+   descriptor_ok=descriptor_ok&&am_valid[cmd_a_slot]&&am_k[cmd_a_slot]==cmd_k&&am_request[cmd_a_slot]==cmd_request&&am_generation[cmd_a_slot]==cmd_generation&&am_epoch[cmd_a_slot]==cmd_epoch;
+@@ -199,11 +215,8 @@
+   retire_read_part=retire_active&&!aborting&&retire_next<256&&(!out_hold_valid||out_ready);
+   if(math_read_part&&bias_read_part&&ctx==bias_ctx)math_read_part=0;
+   if(retire_read_part&&((math_read_part&&ctx==retire_ctx)||(bias_read_part&&bias_ctx==retire_ctx)))retire_read_part=0;
+-  ps_rd_valid=math_read_part||bias_read_part||retire_read_part;ps_rd_mask=0;ps_rd_addr=0;
++  ps_rd_valid=math_read_part||bias_read_part||retire_read_part;
+   ps_rd_tag={epoch,generation,math_read_part,bias_read_part,retire_read_part,ctx,bias_ctx,retire_ctx,ps_next,bias_next[4:0],retire_next[7:0]};
+-  if(math_read_part)for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*ctx+32*a+16*ps_next[3]+c;ps_rd_mask[bank_index]=1;ps_rd_addr[bank_index]=2*ps_next[2:0]+ps_next[4];end
+-  if(bias_read_part)for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*bias_ctx+32*a+16*bias_next[3]+c;ps_rd_mask[bank_index]=1;ps_rd_addr[bank_index]=2*bias_next[2:0]+bias_next[4];end
+-  if(retire_read_part)for(integer c=0;c<32;c++)begin bank_index=512*retire_ctx+32*retire_next[4:1]+c;ps_rd_mask[bank_index]=1;ps_rd_addr[bank_index]=2*retire_next[7:5]+retire_next[0];end
+   math_read_fire=ps_rd_valid&&ps_rd_ready&&math_read_part;bias_read_fire=ps_rd_valid&&ps_rd_ready&&bias_read_part;retire_read_fire=ps_rd_valid&&ps_rd_ready&&retire_read_part;
+   // Reserve A only when the matching W payload is held or its real read is already accepted/accepting.
+   a_w_guaranteed=have_requested||(w_state==1&&pending_w_tag[8:0]==a_next[11:3])||(w_rd_valid&&w_rd_ready&&w_rd_addr==a_next[11:3]);
+@@ -219,13 +232,11 @@
+   ps_rd_rsp_ready=(!ps_rsp_retire||!out_hold_valid||out_ready)&&(!ps_rsp_bias||add_req_ready[0]);
+   bias_add_fire=add_req_valid[0]&&add_req_ready[0]&&add_req_tag[0][30];math_add_fire=add_req_valid[0]&&add_req_ready[0]&&!add_req_tag[0][30];
+   // Old-context bias writes get explicit priority; math writes remain in their reserved pool slots.
+-  ps_wr_valid=0;ps_wr_mask=0;ps_wr_addr=0;ps_wr_data=0;ps_wr_tag=0;
++  ps_wr_valid=0;ps_wr_tag=0;
+   if(add_rsp_valid[0]&&add_rsp_tag[0][30])begin
+    ps_wr_valid=1;ps_wr_tag=add_rsp_tag[0];
+-   for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*add_rsp_tag[0][31]+32*a+16*add_rsp_tag[0][3]+c;ps_wr_mask[bank_index]=1;ps_wr_addr[bank_index]=2*add_rsp_tag[0][2:0]+add_rsp_tag[0][4];ps_wr_data[bank_index]=add_rsp_data[16*a+c];end
+   end else if(state==RUN&&write_next<issue_count&&pool_state[write_next[5:0]]==SUMREADY)begin
+    ps_wr_valid=1;ps_wr_tag=tag(0,ctx,write_next);
+-   for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*ctx+32*a+16*write_next[3]+c;ps_wr_mask[bank_index]=1;ps_wr_addr[bank_index]=2*write_next[2:0]+write_next[4];ps_wr_data[bank_index]=op0[write_next[5:0]][32*(16*a+c)+:32];end
+   end
+   add_rsp_ready=7'b0000001;if(add_rsp_tag[0][30])add_rsp_ready[0]=ps_wr_ready;
+   trace_commit=normal_write_ack;trace_commit_seq=ps_wr_rsp_tag[12:0];trace_commit_data=op0[ps_wr_rsp_tag[5:0]];

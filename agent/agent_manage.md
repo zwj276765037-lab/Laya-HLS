@@ -25,6 +25,7 @@ This index records identity and links only. Execution, conclusions and user deci
 | A011 | 残差与完整模型架构核定 | research | SM012 | [mission](../agent/A011/mission.md) | [config](../agent/A011/config.md) | [status](../agent/A011/status.md) | [result](../agent/A011/result.md) |
 | A012 | 编译式RTL交叉验证 | engineering | SM012 | [mission](../agent/A012/mission.md) | [config](../agent/A012/config.md) | [status](../agent/A012/status.md) | [result](../agent/A012/result.md) |
 | A013 | 修复版完整30层验证 | engineering | SM012 | [mission](../agent/A013/mission.md) | [config](../agent/A013/config.md) | [status](../agent/A013/status.md) | [result](../agent/A013/result.md) |
+| A014 | 完整顶层物理结果审核 | controller | SM012 | [mission](../agent/A014/mission.md) | [config](../agent/A014/config.md) | [status](../agent/A014/status.md) | [result](../agent/A014/result.md) |
 <!-- research-agent:identity-index:end -->
 
 ## 实际执行状态

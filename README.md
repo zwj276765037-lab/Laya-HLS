@@ -2,9 +2,29 @@
 
 面向 **AMD Alveo U55C + CPU** 的 Laya 推理硬件工程，包含 RTL/HLS、Host/CPU 实现、验证脚本、架构规格和可追溯实验记录。
 
-**截至 2026-10-25（北京时间）：修复版完整 30 层硬件主干已在一次连续 RTL 仿真中通过。完整顶层资源、布线后 300MHz、板卡性能和 CPU–FPGA 端到端性能尚未验证。当前实验暂停。**
+**截至 2026-10-27（北京时间）：旧 M007 修复版完整 30 层正常路径 RTL 验证通过，但其矩阵核心一次网表优化后仍占 U55C 160.42% 的 LUT，未进入完整顶层布局布线。当前转向先可部署的 CPU＋FPGA 协同设计，用户已指定算子分工与高带宽方向；新架构尚未实现或验证，目前没有可用 U55C 板卡。**
 
-## 整体架构与功能
+## 当前设计：每层两个 FPGA 计算段
+
+保持原模型、完整形状和严格数值语义，第一版优先完整功能、资源可容纳和可部署工程。CPU 保持 hidden 与残差并调度全部 30 层，FPGA 连续完成 Attention 和 FFN 两段：
+
+| 阶段 | CPU | FPGA |
+| --- | --- | --- |
+| 输入 | tokenizer、Embedding、初始带 gamma LN | 模型权重/辅助表常驻 HBM |
+| Attention 入口 | LN（Encoder0 跳过该次 LN）、group32 量化 | 接收 Aq/As |
+| Attention 段 | 等待完整 projected 返回 | QKV → Encoder RoPE → QK → scale/mask → 严格 Softmax → AV → 量化 → Wo |
+| FFN 入口 | 第一条残差、LN、group32 量化 | 接收 Aq/As |
+| FFN 段 | 等待完整 down/FC2 返回 | Encoder：Wi → GEGLU → 量化 → Down；Decision：FC1 → ReLU → 量化 → FC2 |
+| 层末与层间 | 第二条残差；Encoder28层之后执行 final gamma LN/type add，再执行2层Decision | 资源跨层复用 |
+| 输出尾部 | marker gather/LN、scorer、ACT、业务解码全部在 CPU | 无尾部算术调用 |
+
+每层两段交接，主干计划 60 次计算段调用。QKV、score/prob、context、Wi/G 等中间量留设备；每段上传 136 KiB 的量化输入、回读 512 KiB FP32 结果，30 层有效张量载荷合 37.96875 MiB，命令、对齐及初始化等另计。这是接口载荷计算，不是实测 PCIe 流量或延迟。
+
+HBM 采用多 bank 权重分片、独立工作区读写、W 双缓冲预取与 A/PS 同步 RAM 复用。首个完整供数配置建议 4 路独立宽 W 读取，结构支持扩至 8；实际并行度需与整数计算、严格 FP32 恢复和非线性吞吐共同匹配。U55C 标称 460 GB/s 全卡 HBM 带宽不等于本 kernel 的已测有效带宽。旧 8192 MAC/拍、256 路 FP32 和 50ms 目标不作为本版已确定指标。
+
+完整算子顺序、数值边界、数据交接及 HBM 设计见 [当前分工方案](results/plans/board_first_operator_partition_20261027.md)。先完成真实平台链接的部署候选 xclbin、Host 和板上验证脚本；布局布线、新软硬件协同验证及上板结果分别报告。
+
+## 既有 M007 实现与功能（历史基线）
 
 固定工作负载为 `B=1 / S=128 / hidden=1024 / 16 heads × 64`，包含 **28 层 Encoder + 2 层 Decision**。所有层顺序复用同一套计算与存储服务。
 
@@ -22,11 +42,11 @@ flowchart LR
 | CPU 输出端 | 16 个 marker 与 CLS 的原始 hidden 接入 scorer/ACT，产生 16 个候选 logits 和 2 个 ACT logits并解码 |
 | 控制与数据流 | 一次公开 `BEGIN`，请求/模型/数值身份绑定；层间激活驻留；真实写入、资源退休、尾部提交和完成通知 |
 
-主计算采用分组 Q8 矩阵、F32 恢复和严格浮点运算，保持冻结参考的归约顺序与逐步舍入。当前架构为两组 `Tm8 × Tn16 × Pk32` 矩阵 tile，合计名义 **8192 INT8 MAC/周期**；矩阵恢复与 Attention 共享 **256 路 F32 乘法 / 256 路 F32 加法**，量化、LN、softmax 复用 8 路直接除法服务。中间 hidden、QKV、context、PS 和 G 使用片上银行及阶段复用。
+旧 M007 主计算采用分组 Q8 矩阵、F32 恢复和严格浮点运算，保持冻结参考的归约顺序与逐步舍入。旧实现为两组 `Tm8 × Tn16 × Pk32` 矩阵 tile，合计名义 **8192 INT8 MAC/周期**；矩阵恢复与 Attention 共享 **256 路 F32 乘法 / 256 路 F32 加法**，量化、LN、softmax 复用 8 路直接除法服务。中间 hidden、QKV、context、PS 和 G 使用片上银行及阶段复用。
 
 详细模块接口、数值规则、带宽和预算见 [M007 架构合同](mission/M007_完整Attention高性能主干与部署闭合/contract.md)与[机读指标](mission/M007_完整Attention高性能主干与部署闭合/performance_requirements.json)。
 
-## 已验证的完整硬件功能
+## 旧 M007 已验证的完整硬件功能
 
 D37 / E021 R005 使用修复版生产父模块、正式参数 `VERIFY_POST_ENCODER27_H=0` 和原始 `embedding_norm` 输入，**一次 BEGIN 连续完成全部 30 层**。没有跳层、预填中间激活或使用 CPU 替代硬件算术。
 
@@ -45,7 +65,9 @@ D37 / E021 R005 使用修复版生产父模块、正式参数 `VERIFY_POST_ENCOD
 
 证据：[主控独立终审](results/reviews/m007_fixed30_final_review_20261024.json) · [全部层实际输出核验](results/reviews/m007_fixed30_all_layer_capture_review_20261024.json) · [本次最终收据](project/E021_m007_compiled_rtl_validation/experiment_results/runs/R005/attempts/AT002_fixed_original30_kind7/final_fixed_original30_receipt.json) · [实验摘要](project/E021_m007_compiled_rtl_validation/experiment_results/summary.md)。
 
-## 性能：测量、条件换算与目标
+## 旧 M007 性能：测量、条件换算与历史目标
+
+本节属于旧实现及其测试身份，不是新协同方案的性能承诺。
 
 | 指标 | 数值 | 含义 |
 | --- | ---: | --- |
@@ -68,9 +90,22 @@ CPU 边界已有独立原生实现测量，200 个热请求样本如下（与本
 
 首请求及部分尾部样本仍超过原局部性能门槛，CPU 性能未整体验收。完整功能、样本范围和失败记录见 [Host/CPU 结果](project/E009_m007_host_tail_contract/experiment_results/summary.md)。
 
-## 硬件资源与物理状态
+## 已取得的核心资源与物理结果
 
-目标器件为 `xcu55c-fsvh2892-2L-e`，目标时钟 300MHz。以下是**用户计算核预算上限，完整顶层实际用量仍未测**；最终还需与真实平台外壳共同装入器件。
+D38/E022 已完成矩阵 core 的综合、一次常规网表优化及候选独立复开报告。以下为实际矩阵核心子树结果，尚未包含完整顶层和平台外壳：
+
+| 指标 | 综合态 | 一次 opt 后 |
+| --- | ---: | ---: |
+| CLB LUT（含 combining） | 2,139,515 | **2,091,399** |
+| FF | 1,391,977 | 1,391,977 |
+| DSP | 4,352 | 4,352 |
+| BRAM / URAM | 0 / 0 | 0 / 0 |
+| 最差 setup slack（3.333ns 约束，未布局） | −1289.339ns | −1289.374ns |
+| 最差路径逻辑级数 | 6091 | 6090 |
+
+U55C 共有 1,303,680 LUT；优化后核心达到其 **160.42%**，资源不通过。普通 opt 仅减少 2.248921% LUT，未解决长控制链。128 KiB 的操作数池实际映射为 1,048,576 个 FF，并伴随大量选择逻辑；后继设计采用同步 RAM 与分块复用。上述时序是未布局估计，不代表最终板上频率。完整父级装配/place/route 未执行，旧物理阶段已收尾，原/候选 DCP 保留本地。
+
+旧阶段目标器件为 `xcu55c-fsvh2892-2L-e`、目标时钟 300MHz。以下是**旧 M007 用户核预算，完整顶层实际用量仍未测**；新方案资源和频率须重新落实到真实平台。
 
 | 资源 | 用户核预算上限 | 完整顶层实测 |
 | --- | ---: | --- |
@@ -80,6 +115,8 @@ CPU 边界已有独立原生实现测量，200 个热请求样本如下（与本
 | BRAM36 等价块 | 1,200 | 未完成联合综合 |
 | URAM288 | 640 | 未完成联合综合 |
 | 布线时序 | 300MHz，WNS ≥0、TNS=0，setup/hold 达标 | 未完成布局布线 |
+
+此前内存/时间中止和脚本失败均保留原记录。矩阵暂存表示修复通过原/新源码局部四态等价后，取得上述 core 网表；完整 30 层结果仍对应原 D37 源码闭包，新表示版本未重跑全 30 层。详见[物理核验记录](results/reviews/m007_d38_physical_review_20261025.md)及[E022 结果](project/E022_m007_full_top_physical/experiment_results/summary.md)。
 
 部分严格浮点单模块已经独立综合：
 
@@ -106,13 +143,13 @@ CPU 边界已有独立原生实现测量，200 个热请求样本如下（与本
 
 本仓库发布源码、测试台、脚本、合同和验证记录。模型权重、原始二进制张量、较大生成向量、编译缓存和工具安装保留在本地；详细范围见 [GIT_SNAPSHOT.md](GIT_SNAPSHOT.md) 与 [排除清单](GIT_LOCAL_ARTIFACTS.tsv)。历史清单和脚本包含原实验绝对路径，复现需要准备匹配哈希的输入、工具/IP和路径映射；仅克隆仓库并不等于取得完整二进制实验环境。
 
-当前已完成本轮验证并暂停。后续关键工作是同版顶层综合、资源与时序核查、平台接口/部署验证，以及真实 U55C 与 A6000 的同口径性能比较。
+D38/E022 物理阶段已结束，无继续运行的旧综合/布线任务。当前发布包含新协同方案和既有实现/证据；发布操作不启动新硬件实验。平台接口、部署验证及板上性能仍待完成，历史 Goal/M007 合同中的高性能全驻留要求不替代上方最新用户分工。
 
 <details>
 <summary>内部项目导航与历史记录（自动生成）</summary>
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
+生成时间（UTC）：2026-10-26T21:48:53.978174+00:00。来源修订：`f4a5039e6a52`。
 
 # Laya-HLS 项目首页
 
@@ -141,7 +178,7 @@ CPU 边界已有独立原生实现测量，200 个热请求样本如下（与本
 
 | 职责 | 当前任务 / 阶段 | 执行状态 | 上报时间 | 下一步 / 阻塞 |
 | --- | --- | --- | --- | --- |
-| 项目主控与架构评判 | D37修复版完整30层正常路径已通过并核验归档 已核全部结果/身份/预算与owned清理，按用户要求暂停 | paused | 2026-10-24T16:28:42.260390+00:00 | 等待用户明确恢复；不启动后继  |
+| 项目主控与架构评判 | D38物理诊断已收尾：一次opt后核心资源及setup仍不通过 D38_core_opt_closeout_resource_and_setup_failed | blocked | 2026-10-26T21:48:48.701831+00:00 | 集中审查错误归并链和operand存储映射的后继RTL方案；无运行工具或自动EDA后继，本轮定时器已停止 优化后核心LUT2091399超过U55C1303680；同端点6090级/slack -1289.374ns，完整top/P&R未完成 |
 | 工程实现与验证 | M006/SM007/E007/R001完整板端Attention首段 AT023旧11拍add次正规诊断已结束；AT021/022/023数值FAIL保留；无本项目在途进程 | paused | 2026-10-17T15:27:19.465644+00:00 | 仅在用户明确通知恢复后继续TANH DAG及strict FP修复 用户明确要求暂停，等待用户通知恢复 |
 | 研究探索与瓶颈分析 | M004/SM004 AT368 A16_HELD到唯一MATRIX16/STEP16接口静态增量 按用户‘先暂停 等我通知’及m004-user-pause-research-20261016停止研究推进；此前MATRIX16静态增量已交付，现有源码、文档、日志和成本原样保留。A003没有未结束的owned实验或脚本；本次仅登记暂停状态并回报，不启动实现、审核或实验 | paused | 2026-10-15T23:17:21.647787+00:00 | 等待用户明确恢复通知；普通内部里程碑或旧合同继续消息不能解除暂停。AT404集中审核保持待续，修订22及M004/SM004未完成；不回滚、不升级PASS、不转预算  |
 | executor入口源码核查 | 阶段A/B owned program真实consumer测试/runner 阶段D只读Q映射已交付；准备12源owned program独立gold用例 | running | 2026-10-13T01:36:28.707539+00:00 | 交父host-only/生成入口，自己不跑重工具  |
@@ -150,26 +187,23 @@ CPU 边界已有独立原生实现测量，200 个热请求样本如下（与本
 | 严格浮点与共享计算实现 | D32 source-only sole joint_v3 TANH8v3 substitution completed and delivered to A010/root D32_source_only_manifest_delivered_NOT_JOINT_TESTED | completed | 2026-10-23T07:12:26.027799+00:00 | A010 R007 source-bound production parent build and affected joint checker; A007 no active/queued heavy tool, D29 remains frozen and budget closed.  |
 | Host与CPU尾部实现 | D32 read-only B1 input/tail source binding support delivered Only authorized source JSON/md written; original5input SHA/metadata and existing544tail vector byte mappings PASS. qtype2/markers23,33/mask0003/count2; no floating refe… | completed | 2026-10-23T06:26:45.804258+00:00 | A010/root received exact source binding. Parent-v3 build and SIM source_epoch remain A010 actual bindings. A008 support ended; no active/queued tool  |
 | 矩阵供数接口核查 | 已交付矩阵供数源码与精确布局/输入映射 A001已核对并转交A010实施 | completed | 2026-10-21T02:26:47.647442+00:00 | 无在途任务；实现已由A010接续  |
-| 高吞吐权重供数实现 | D37 actual complete original30 PASS documentation finalized; no subsequent task D37 documentation-only closeout complete; user-requested pause restored | paused | 2026-10-24T16:25:41.234187+00:00 | None. Root/A013 own global results and E021 archival; no A010 implementation or experiment is active/queued.  |
+| 高吞吐权重供数实现 | 同DCP唯一opt及候选资源/两条setup诊断完成；资源和setup仍FAIL，已交主控 core_opt_diagnostic_completed_capacity_and_setup_failed | completed | 2026-10-26T20:59:19.708156+00:00 | 主控集中审核实际证据并定义后继；无owned进程或排队后继，A010不自行启动place/route或改RTL 完整top/P&R受core LUT2091399超器件及900000预算阻塞；长链6090级/-1289.374ns需集中架构/映射判断 |
 | 残差与完整模型架构核定 |   | 未登记 | 未登记 |   |
 | 编译式RTL交叉验证 | D36 SEGMENTED_SUFFIX gamma fix verification complete PASS; original30 once-BEGIN acceptance remains unclaimed actual suffix and original gold checked;1654 identities frozen;4525 known owned processes clear;budget sealed;paused pe… | paused | 2026-10-24T12:58:26.725541+00:00 | await explicit user resume; no successor work  |
 | 修复版完整30层验证 | D37修复版原30层一次BEGIN PASS；证据/清理/封账完成，按用户要求暂停 D37_completed_and_paused | paused | 2026-10-24T16:27:07.456595+00:00 | 等待主控集中审核与用户明确后续授权；无自动实验/优化/部署  |
+| 完整顶层物理结果审核 |   | 未登记 | 未登记 |   |
 
 ## 当前证据范围（来自负责人概览，截取）
 
-# 当前结果：修复版完整30层一次运行通过，项目暂停
+# 当前结果：一次网表优化后核心仍超容量，完整顶层物理验证受阻
 
-updated: 2026-10-25（北京时间）
-execution_state: paused
-verdict: unassessed
+2026-10-27 05:49本轮物理诊断收尾：唯一常规opt及候选独立报告均已完成，核心LUT2139515→2091399，仅降2.248921%，仍超器件787719 LUT（160.42%器件）及完整核900000预算；global/fixed最差同端点，6091→6090级、slack -1289.339→-1289.374ns，普通opt未解决资源/长控制链。FF1391977/DSP4352及BRAM/URAM0保持，未布局布线。原/候选DCP均保留，190017位完整接口/时钟/XDC前后与复开全等，零黑盒；两次pre-opt脚本失败及费用保留，实际opt总1。AT021–024合3905.865756s，最后报告峰17.560764GiB；这些是已结束任务成本，旧live不能当当前内存。主控fresh核21个原tool/guard/serial身份均退出，重工具锁释放，无新后继。当前完整top/P&R受已测core容量门阻塞，物理目标未完成，不启动无依据的全父/place/route、重复opt或新RTL。A014集中终审及静态后继建议在原物理审核报告；错误候选线性归并和operand寄存器/mux映射是后继RTL审查重点，不把raw分组等同最终LUT因果。依原最终物理阶段收尾约定，timer配置enabled=false，laya-d38-progress.timer及service已实核inactive/dead，停止周期回报。原30层正常路径功能证据不变，完整物理/上板不签通过。收尾证据.research-agent/automations/d38_report/reports/20261027_0549_final_physical_handoff.json；以下运行状态均为历史。
 
-主控增量128已接纳D37/E021 R005完整正常路径：正式参数0，从原embedding_norm开始，一次BEGIN连续计算28 Encoder、final LN/type、2 Decision和544组尾输出。13036119周期，RTL仿真10101.230975秒（2小时48分21秒）；原完整终标、实际尾部提交、heldDONE消费和idle全部通过。
+2026-10-27 03:47最新核验：AT020报告执行已真实完成，22565.379247s（6小时16分05秒）、峰owned23.070541GiB、child0/source_verify_after真/owned清理；执行PASS不改变core资源和setup不通过结论。methodology实际4小时19分42秒，2000项警告；完整端口190017与RTL计宽一致，原check_timing未IO约束子集不再冒称总端口数。旧轻量serial按已测排队TERM→CONT路径退出并由原session回收，旧guard/Vivado/serial均消失，无facade误启动。AT021_core_opt已于03:41:48真实启动，原DCP只读复用，当前处open_checkpoint及网表准备、约5分钟/8.5GiB/trigger=null/无deadline，尚无候选DCP或优化后资源/时序结果。guard454976/start73335043、Vivado455129/start73335502已实核；完整core_synth.dcp及其SHA保持，不重综合/功能、不改RTL。A010按既定一次opt→独立report_core_opt（前后资源和两条setup路径）自主推进，尚不启动全父/place。证据.research-agent/automations/d38_report/reports/20261027_0347_core_opt_loading.json及E022 AT020完成/AT021启动审计。两小时回报保持，下一次约05:45。
 
-主控独立核全部30层真实H及唯一采集trace、finalLN/type和69632B输出对原参考逐字一致；实际120矩阵/480head/60LN/61VECTOR/28GEGLU、两FC1各16384写/ACK/发布后才FC2。3200执行身份无失配，2262已知进程身份无存活/僵尸；2个瞬态policy样本保留UNKNOWN。22份费用收据复算static372.653189/1800s、RTL10101.230975/15600s；另2次失败准备耗时UNKNOWN、保守预留240s，余额封存不转。
+2026-10-27 01:46北京时间核验：仍为原AT020 report_methodology，报告阶段累计约4小时23分，owned RSS21.13GiB/系统可用约446.5GiB，trigger=null/无deadline。主计算线程109383/start71065051实际R且CPU增加，原guard/Vivado身份不变；methodology.rpt/最终receipt尚无，core_opt调用仍0，旧轻量serial仍T。A014已完成只读根因绑定：实际冻结/当前f849源逐字一致，numeric_candidate共享blocking最小键状态在1073个静态条件
 
-本次证明修复版完整硬件主干在该原始请求上的RTL正常路径功能；未验所有异常/复位或四态行为，也未验联合物理时序、上板和实际吞吐。D35原FAIL及D36分段PASS保留。按用户要求完成核验归档后暂停，不启动后继。
-
-[主控独立终审](results/reviews/m007_fixed30_final_review_20261024.json) · [工程最终收据](project/E021_m007_compiled_rtl_validation/experiment_results/runs/R005/attempts/AT002_fixed_original30_kind7/final_fixed_original30_receipt.json)
+（摘录截断；完整记录见链接。）
 
 [完整概览及审核来源](results/overview.md)
 

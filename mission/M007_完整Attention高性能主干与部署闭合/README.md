@@ -1,7 +1,7 @@
 
 
 <!-- research-agent:navigation:begin -->
-生成时间（UTC）：2026-10-24T16:28:47.278122+00:00。来源修订：`7ff16673ba4d`。
+生成时间（UTC）：2026-10-26T21:48:53.978174+00:00。来源修订：`f4a5039e6a52`。
 
 # M007 · 完整Attention高性能主干与部署闭合
 
@@ -33,6 +33,7 @@
 - [E019 · m007_residual_ln_residency](../../project/E019_m007_residual_ln_residency/README.md) — completed
 - [E020 · m007_model_catalog](../../project/E020_m007_model_catalog/README.md) — 未登记
 - [E021 · m007_compiled_rtl_validation](../../project/E021_m007_compiled_rtl_validation/README.md) — completed
+- [E022 · m007_full_top_physical](../../project/E022_m007_full_top_physical/README.md) — blocked
 
 ## 任务总结原文摘录
 

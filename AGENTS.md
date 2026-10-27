@@ -116,3 +116,28 @@ M007 D-M007-SM012-ORIGINAL30-BOUNDED-35（2026-10-23）：用户已授权完成�
 ## D37验收收尾后暂停（2026-10-25北京时间，最新状态）
 
 修复版完整30层一次BEGIN的正常路径RTL已通过，主控增量128已独立核全部实际结果、执行身份、预算和owned清理。按用户验后暂停要求，本段结束后M007及A013/A010/A001暂停；历史D37执行授权已用完，不自动接续新实验或优化。异常全覆盖、四态、联合物理/部署/实测吞吐仍开放，等待用户明确恢复。最新事实以mission/current.md和results/reviews/m007_fixed30_final_review_20261024.json为准。
+
+
+## D38最新用户物理验证授权（2026-10-25）
+
+用户明确要求当前修复版完整top综合/资源分项/布局布线与时序，恢复SM012 D38/E022 R001及既有A010工程owner。主控已实际followup；仅本完整裸kernel物理阶段替代旧暂停和旧120s叶子pilot成本帽，资源/独立阶段预算见SM012 D38。完整30层D37正常路径PASS保持，未改源码不重跑。全项目单锁/CPU0–3/nice19/idle/24GiB/MemAvailable>192GiB保持；其它旧任务和owner仍暂停，不含上板/真实shell。阶段完成或实质阻塞收尾后暂停。
+
+D38 AT005后实际综合定位补充：允许A010在其原q8_linear_and_restore owner内，仅对matrix_engine op0/op1做保持所有时序/优先级/容量/接口的静态表示修复及局部逐周期等价，再继续新身份物理；不是同步BRAM化或架构重设计。原D37与失败冻结保持。D38原总额不增，implementation未用18000中明确分配600static+600RTL后余16800，详见SM012。
+
+D38 AT014后最新接续：1D版仍触24GiB且无DCP。主控已派发同一A010唯一有界PS纯组合表示诊断；生产f849先保持，仅在E022真实完整cone候选先四态等价，再原/改各一次≤180s OOC。严格内存改善门成立才允许应用等价候选并一次core≤1800s；不成立则阻塞归档。全部扣D38原分类余额，24GiB/单锁等保护不变；具体真实边界、X/Z/分支优先级和门见SM012末节及A014同一审核报告，不恢复其它任务。
+
+D38用户最新明确“给多点预算”（2026-10-25）：仅本完整物理阶段覆盖旧24GiB及旧成本帽，综合/链接/实现/物理报告owned RSS改128GiB，综合累计43200s、实施累计86400s（含既有成本），单次综合21600s、place/route43200s。MemAvailable>192GiB、CPU0–3/低优先级/单重工具保持；完整新分类预算见SM012最后一节。恢复同f849冻结生产源码直接综合，PS候选暂停且不作前置，不再为旧24GiB上限改RTL。A010复用原owner，A014实际结果后集中审核，旧证据不回写、其它任务不恢复。
+
+D38随后用户明确“继续提高一倍的上限”（2026-10-25）：物理RSS授权改256GiB，系统MemAvailable>192GiB、墙钟预算及其余政策不变。保留当前AT015 Vivado进程，不为改帽重启；A010负责守卫运行时生效与追加证据。原守卫无配置热加载，文件更新本身不算当前生效。详细执行边界见SM012最后一节，原128GiB启动记录保持历史身份。
+
+上述256GiB已于14:06:12 UTC由AT015/rss256_handoff独立monitor/watchdog实际接管；原Python guard单PID暂停并保留锁，Vivado持续同PID/start。新状态必须读handoff/live_status.json，旧live_status停留在接管前；不得因此重启工具或直接CONT旧guard触发128GiB回退。A010负责最终回交/原receipt与effective_receipt合并，完整资源和时序仍待实际报告。
+
+2026-10-26当前状态覆盖上述运行描述：AT015于北京时间01:41触原6h墙钟帽COST_STOP，峰110.976GiB未触256GiB，Timing Optimization未结束，无core DCP。全部工具/监督进程已退出并释放锁；旧live均为历史，禁止误称仍在综合。最终以effective_receipt_verified.json和post_run_audit.json为准。主控已恢复A014只读集中审核后继边界，没有新EDA排队，旧PS候选仍暂停/未应用；综合余16878.966331s不自动授权同源盲重跑。
+
+D38后继最新派发（2026-10-26）：依据AT015实际停留Timing Optimization及A014本机参数核查，A010已实际followup仅对同f849 core_synth增加-no_timing_driven的一次策略尝试；先核本机选项/冻结配置，保留原300MHz XDC/功能/完整子树与最终P&R时序要求。原综合余额16878.966331s内、单次min21600与余额、256GiB及其余保护，不增预算、不改RTL、不恢复PS候选。无checkpoint故这是新一次综合，不能称续算；实际启动以新launch为准，详细边界见SM012末节。
+
+AT019已于北京时间10/26 07:27:54真实启动，当前不得重复启动/清其work目录。按用户清理授权，根仅删除已结束AT002/003/015的153个.rtd/.tim可重建缓存4.14GiB，其余358份旧文件及当前AT019/shared input/功能验证结果保持；完整清理清单在results/reviews/m007_d38_cache_cleanup_20261026.json。旧缓存删除不改历史结果，不能再声称这些临时二进制仍在磁盘。
+
+D38最新直接用户授权（2026-10-26）：“延长上限到无限时间 每两小时汇报一次 请开始”。synthesis/implementation/reports单次及累计墙钟上限取消，以null/disabled表示；原费用/历史帽保留，preparation/repair边界不变。物理256GiB、系统可用>192GiB、CPU0–3/低优先级/单重工具和300s真正停滞保护不变。保持当前AT019原Vivado，不为改帽重启；A010负责实际无deadline监督接管，未经activation/实时回读不能称生效。主控设置每2小时唤醒本会话回报及完成后停止机制；服务文件不等于实际送达。详见SM012最新节；此条覆盖此前有限物理墙钟与仅事件汇报描述。
+
+实际生效核验（2026-10-26）：AT019/unlimited_wall_handoff/activation.json在UTC23:44:46生效，原Vivado PID/start保持；10/10基础设施小进程测试通过且新live显式wall_time_limit_disabled=true。主控两小时user timer已启用并实际投递到原会话，首次接受回执与配置在.research-agent/automations/d38_report，下一次北京时间09:45:41；用户暂停/物理最终收尾后停表。旧固定时间帽和旧live入口保留为历史，不作当前执行判断。

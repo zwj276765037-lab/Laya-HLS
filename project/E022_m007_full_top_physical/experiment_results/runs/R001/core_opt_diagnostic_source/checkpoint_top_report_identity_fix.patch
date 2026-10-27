@@ -1,0 +1,43 @@
+--- AT022/frozen/core_opt_diagnostic_d38.tcl
++++ current/core_opt_diagnostic_d38.tcl
+@@ -23,12 +23,23 @@
+ 
+ proc boundary_snapshot {label} {
+     global out part expected_top
+-    # current_design.NAME identifies the loaded design container. The source
+-    # top is the fileset TOP property, including after open_checkpoint.
+-    set actual_top [get_property TOP [current_fileset]]
++    # A checkpoint-only session has a checkpoint container NAME and an empty
++    # fileset TOP. Verify the loaded netlist through its actual report header.
++    set utilization_path [file join $out ${label}_utilization.rpt]
++    required_report ${label}_utilization {report_utilization -file $utilization_path}
++    set stream [open $utilization_path r]
++    set utilization [read $stream]
++    close $stream
++    if {![regexp -line {^\|[ \t]*Design[ \t]*:[ \t]*([^ \t\r\n|]+)} $utilization unused actual_top]} {
++        error "No Design identity in actual utilization report"
++    }
++    if {![regexp -line {^\|[ \t]*Device[ \t]*:[ \t]*([^ \t\r\n|]+)} $utilization unused actual_part]} {
++        error "No Device identity in actual utilization report"
++    }
+     save_text [file join $out ${label}_design_identity.tsv] \
+-        "design_object_name\t[get_property NAME [current_design]]\nfileset_top\t$actual_top\nexpected_top\t$expected_top"
+-    if {$actual_top ne $expected_top} {error "Wrong core top: fileset TOP=$actual_top expected=$expected_top"}
++        "design_object_name\t[get_property NAME [current_design]]\nfileset_top\t[get_property TOP [current_fileset]]\nactual_report_design\t$actual_top\nactual_report_device\t$actual_part\nexpected_top\t$expected_top"
++    if {$actual_top ne $expected_top} {error "Wrong core top: report Design=$actual_top expected=$expected_top"}
++    if {$actual_part ne $part} {error "Wrong core part: report Device=$actual_part expected=$part"}
+     if {[get_property PART [current_project]] ne $part} {error "Wrong core part"}
+     set bb [get_cells -quiet -hierarchical -filter {IS_BLACKBOX == 1}]
+     if {[llength $bb]} {error "Core blackboxes: $bb"}
+@@ -131,7 +142,10 @@
+ 
+ proc resource_reports {label} {
+     global out
+-    required_report ${label}_utilization {report_utilization -file [file join $out ${label}_utilization.rpt]}
++    # boundary_snapshot already emitted this actual utilization report.
++    if {![file exists [file join $out ${label}_utilization.rpt]]} {
++        required_report ${label}_utilization {report_utilization -file [file join $out ${label}_utilization.rpt]}
++    }
+     required_report ${label}_hierarchical_utilization {report_utilization -hierarchical -file [file join $out ${label}_utilization_hierarchical.rpt]}
+     required_report ${label}_ram {report_ram_utilization -file [file join $out ${label}_ram_utilization.rpt]}
+     required_report ${label}_clocks {report_clocks -file [file join $out ${label}_clocks.rpt]}

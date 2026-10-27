@@ -1,0 +1,13 @@
+# AT019 post-synthesis wait: engineering evidence and bounded administrator stack capture
+
+Current scope: same AT019, same native Vivado PID3583093/start66052106; post-synthesis wait unresolved. No new EDA, retry, production attach, sudo or process signal has been performed by engineering. Source/RTL/clock/PS policy unchanged.
+
+The native log reports synthesis0errors/0criticalwarnings/2749warnings; no verified checkpoint/guard receipt. Aggregate CPU growth is confined to a periodic sleep thread in the observed383.629s interval; it is not claimed as useful synthesis progress. See ../post_native_report_runtime_observation_20261026T0528.json, T0530.json and T0535.json.
+
+Frozen original guard caches finite limit at L117 and unconditionally tests elapsed>=limit at L188. It calls reap only in finally/cleanup, not the active loop: an adopted zombie is a possible observation, not proof that SIGSTOP caused the wait. Original guard must not be resumed while the tool is active. Current monitor requires the original guard T/t (L239); no deadline test runs when deadline_epoch=None (L277). Monitor, watchdog and observer remain active and protective. Current disk runner is a later version and must not be relabelled as the loaded original guard.
+
+The administrator entry is admin_stack_diagnostic_d38.py in the canonical physical_d38 directory, frozen SHA6621497d6e4e815a2076ce565d9d820e7f5e8236c21b5149b17f0157c286e4b0. It fixes target PID/start/run, validates stopped original guard and three fresh supervisors/held lock, enforces CPU0-3/nice19/idle on itself and gdb, and disables auto-load/debuginfod and inferior function/memory/register/breakpoint writes. Commands are info threads, info sharedlibrary and thread apply all bt16 followed by detach/quit. Auto-solib-add is off, so some frames may have addresses without function names; library ranges support later interpretation.
+
+Wait cap20s plus at most7s escalation affects only the newly created gdb process group; no target/old guard/monitor is signalled by cleanup. A capture receipt checks target PID/start, TracerPid0 and non-stopped state after debugger exit; production preflight is repeated. Only files inside that one new DG directory are returned to the AT019 owner for readability. Administrator execution remains an external action; preparation/tests are not a production capture.
+
+Two real isolated Python-process tests of the final SHA passed normal and timeout paths, with verified detach and live targets. Raw evidence: R001/AT019_stack_diagnostic_tests_1792994455985889371/test_result.json. The timeout fixture adds a debugger-side sleep only for a nonproduction PID. These are infrastructure tests, not Vivado recovery or hardware evidence.

@@ -1,0 +1,220 @@
+project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/frozen/run_physical_d38.py L105-L110
+105: def reap():
+106:  while True:
+107:   try:
+108:    pid,_=os.waitpid(-1,os.WNOHANG)
+109:    if not pid:return
+110:   except ChildProcessError:return
+
+project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/frozen/run_physical_d38.py L113-L118
+113: def run_stage(stage):
+114:  RUN.mkdir(parents=True,exist_ok=True)
+115:  with (ROOT/'.research-agent/m007_heavy.lock').open('a+') as lock:
+116:   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+117:   identity=verify_inputs(stage);j=ledger();cat,limit=STAGES[stage];limit=min(limit,CAPS[cat]-charged(j,cat));assert limit>0,'D38 category budget exhausted'
+118:   rss_cap=rss_limit_gib(stage)
+
+project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/frozen/run_physical_d38.py L149-L155
+149:   start=time.monotonic();known={};cpu_hwm={};policy={};peak=0;minimum=owned.mem_available_kb();last_progress=start;last_files={};reason=None;proc=None;last_items={};exit_code=None
+150:   ctypes.CDLL(None).prctl(36,1,0,0,0) # own-descendant subreaper
+151:   stop_requested=False
+152:   def stop(signum,frame):
+153:    nonlocal stop_requested
+154:    stop_requested=True
+155:   signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
+
+project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/frozen/run_physical_d38.py L162-L202
+162:     while proc.poll()is None:
+163:      current=time.monotonic();last_items=owned.owned_processes(owned.process_table(),leader,known);rss=sum(x['rss_kb']for x in last_items.values());peak=max(peak,rss);available=owned.mem_available_kb();minimum=min(minimum,available);cpu_advanced=False
+164:      for pid,item in last_items.items():
+165:       key=f'{pid}:{item["start_time_ticks"]}';v=proc_cpu(pid);old=cpu_hwm.get(key,0)
+166:       if v>old:cpu_advanced=True;cpu_hwm[key]=v
+167:      paths=[at/'driver.log',at/'vivado.log',at/'xsim.log',*list((RUN/'checkpoints').glob('*.dcp'))];file_advanced=False
+168:      for p in paths:
+169:       try:s=p.stat();v=(s.st_size,s.st_mtime_ns)
+170:       except FileNotFoundError:continue
+171:       if p in last_files and v!=last_files[p]:file_advanced=True
+172:       last_files[p]=v
+173:      if cpu_advanced or file_advanced:last_progress=current
+174:      if current>=next_policy:
+175:       next_policy=current+10
+176:       for pid,item in last_items.items():
+177:        if not owned.still_owned(item)or item['state'].startswith('Z'):continue
+178:        try:
+179:         affinity=sorted(os.sched_getaffinity(pid));io=subprocess.run(['/usr/bin/ionice','-p',str(pid)],capture_output=True,text=True,timeout=3);threads=list(Path(f'/proc/{pid}/task').iterdir());bad_threads=[int(t.name)for t in threads if not set(os.sched_getaffinity(int(t.name))).issubset({0,1,2,3})]
+180:         ok=item['nice']==19 and set(affinity).issubset({0,1,2,3})and bool(affinity)and io.returncode==0 and 'idle'in io.stdout.lower()and not bad_threads
+181:         policy[f'{pid}:{item["start_time_ticks"]}']={**item,'affinity':affinity,'ionice':io.stdout.strip(),'thread_count':len(threads),'bad_thread_affinity':bad_threads,'matches':ok}
+182:         if not ok:reason='owned_resource_policy_mismatch'
+183:        except (ProcessLookupError,FileNotFoundError,subprocess.TimeoutExpired):pass
+184:      elapsed=current-start
+185:      if stop_requested:reason='requested_stop'
+186:      elif rss>=rss_cap*1024*1024:reason=f'owned_RSS_at_or_above_{rss_cap}GiB'
+187:      elif available<=192*1024*1024:reason='MemAvailable_at_or_below_192GiB'
+188:      elif elapsed>=limit:reason='stage_or_total_category_budget'
+189:      elif current-last_progress>=300:reason='no_owned_CPU_log_checkpoint_progress_300s'
+190:      sample={'utc':now(),'elapsed_seconds':elapsed,'owned_rss_kb':rss,'available_kb':available,'owned_CPU_ticks_observed':sum(cpu_hwm.values()),'last_progress_age_seconds':current-last_progress,'owned_processes':len(last_items),'trigger':reason};samples.write(json.dumps(sample)+'\n');samples.flush();dump(at/'live_status.json',sample)
+191:      if reason:break
+192:      time.sleep(1)
+193:     if reason:
+194:      dump(at/'initial_guard_trigger.json',{'reason':reason,'utc':now(),'owned_snapshot':list(last_items.values())})
+195:      owned.OUT=at;owned.stop_and_kill(leader,known,last_items,{'reason':reason,'utc':now()})
+196:     exit_code=proc.wait(timeout=15)
+197:   except Exception as exc:
+198:    reason=reason or 'guard_or_launch_exception';dump(at/'guard_exception.json',{'exception':repr(exc)})
+199:    if proc is not None:
+200:     owned.OUT=at;owned.stop_and_kill(proc.pid,known,last_items,{'reason':reason,'utc':now()});exit_code=proc.wait(timeout=15)
+201:   finally:
+202:    reap()
+
+project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/frozen/handoff_guard_d38.py L126-L166
+126:     while True:
+127:         if (out/'watchdog_done.json').exists():
+128:             return
+129:         h = {}
+130:         try:
+131:             h = read(out/'heartbeat.json')
+132:             fresh = time.time()-h['epoch'] < c.get('watchdog_timeout', 15)
+133:         except (FileNotFoundError, json.JSONDecodeError):
+134:             fresh = False
+135:         if not state(c['monitor_pid'], c['monitor_start']) or not fresh:
+136:             if deadline(c) is None:
+137:                 known = {int(k):v for k,v in h.get('known', {}).items()}
+138:                 stop_unlimited_fallback(c, out/'watchdog_cleanup', known,
+139:                                        'unlimited_supervision_monitor_missing_or_heartbeat_expired')
+140:             resumed = send(c['guard_pid'], c['guard_start'], signal.SIGCONT)
+141:             dump(out/'watchdog_fallback.json', {'utc': now(),
+142:                  'resumed_original_guard': resumed, 'effective_cap_after_fallback_GiB': c.get('old_cap_gib', 128),
+143:                  'reason': 'monitor_missing_or_heartbeat_expired'})
+144:             if resumed:
+145:                 resumed_epoch = time.time()
+146:                 until = time.monotonic()+60
+147:                 while time.monotonic() < until:
+148:                     receipt = Path(c['attempt'])/'receipt.json'
+149:                     sample = Path(c['attempt'])/'live_status.json'
+150:                     confirmed = receipt.exists() or (sample.exists() and sample.stat().st_mtime >= resumed_epoch)
+151:                     if confirmed:
+152:                         dump(out/'watchdog_fallback_confirmed.json', {'utc': now(),
+153:                              'original_guard_resumed': True, 'evidence': str(receipt if receipt.exists() else sample),
+154:                              'effective_cap_GiB': c.get('old_cap_gib', 128)})
+155:                         return
+156:                     if state(c['guard_pid'], c['guard_start']) is None: break
+157:                     time.sleep(.25)
+158:                 resumed = False
+159:             if not resumed:
+160:                 known = {int(k):v for k,v in h.get('known', {}).items()}
+161:                 items = owned.owned_processes(owned.process_table(), c['leader'], known)
+162:                 owned.OUT = out
+163:                 owned.stop_and_kill(c['leader'], known, items,
+164:                                     {'reason': 'no_monitor_or_original_guard', 'utc': now()})
+165:             return
+166:         time.sleep(.25)
+
+project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/frozen/handoff_guard_d38.py L237-L288
+237:             while True:
+238:                 heartbeat()
+239:                 if state(gp, gs) not in ('T', 't'):
+240:                     reason = 'original_guard_resumed_or_disappeared'; break
+241:                 if wd.poll() is not None:
+242:                     raise RuntimeError('Watchdog exited unexpectedly')
+243:                 assert lock_held(c['lock']), 'Original lock lost'
+244:                 current = time.monotonic()
+245:                 items = owned.owned_processes(owned.process_table(), leader, known)
+246:                 active = {p:x for p,x in items.items() if not x['state'].startswith('Z')}
+247:                 rss = sum(x['rss_kb'] for x in items.values()); peak = max(peak, rss)
+248:                 available = owned.mem_available_kb(); minimum = min(minimum, available)
+249:                 advanced = False
+250:                 for pid, item in active.items():
+251:                     key = f'{pid}:{item["start_time_ticks"]}'; v = cpu(pid)
+252:                     if v > cpus.get(key, 0): advanced = True
+253:                     cpus[key] = max(v, cpus.get(key, 0))
+254:                 for path in [at/'driver.log', at/'vivado.log', *Path(c['checkpoint_directory']).glob('*.dcp')]:
+255:                     if path.exists():
+256:                         s = path.stat(); v = (s.st_size, s.st_mtime_ns)
+257:                         if path in last_files and v != last_files[path]: advanced = True
+258:                         last_files[path] = v
+259:                 if advanced: last_progress = current
+260:                 if current >= next_policy:
+261:                     next_policy = current+10
+262:                     for pid, item in active.items():
+263:                         if not owned.still_owned(item): continue
+264:                         try:
+265:                             affinity = sorted(os.sched_getaffinity(pid))
+266:                             io = subprocess.run(['/usr/bin/ionice', '-p', str(pid)], capture_output=True, text=True, timeout=3)
+267:                             bad = [int(p.name) for p in Path(f'/proc/{pid}/task').iterdir()
+268:                                    if not set(os.sched_getaffinity(int(p.name))).issubset({0,1,2,3})]
+269:                             ok = item['nice'] == 19 and bool(affinity) and set(affinity).issubset({0,1,2,3}) and io.returncode == 0 and 'idle' in io.stdout.lower() and not bad
+270:                             policy[f'{pid}:{item["start_time_ticks"]}'] = {**item, 'affinity': affinity, 'ionice': io.stdout.strip(), 'bad_thread_affinity': bad, 'matches': ok}
+271:                             if not ok: reason = 'owned_resource_policy_mismatch'
+272:                         except (FileNotFoundError, ProcessLookupError, subprocess.TimeoutExpired): pass
+273:                 if not active: break
+274:                 if stop_requested: reason = 'external_guard_requested_stop'
+275:                 elif rss >= c['rss_limit_kb']: reason = 'owned_RSS_at_or_above_effective_cap'
+276:                 elif available <= c['minimum_available_kb']: reason = 'MemAvailable_at_or_below_192GiB'
+277:                 elif deadline_epoch is not None and time.time() >= deadline_epoch: reason = 'original_stage_or_category_deadline'
+278:                 elif current-last_progress >= c.get('stall_seconds', 300): reason = 'no_owned_CPU_log_checkpoint_progress_300s'
+279:                 sample = {'utc': now(), 'elapsed_seconds': time.time()-dt.datetime.fromisoformat(c['started_utc']).timestamp(),
+280:                           'owned_rss_kb': rss, 'peak_owned_rss_kb': peak, 'available_kb': available,
+281:                           'owned_CPU_ticks_observed': sum(cpus.values()), 'last_progress_age_seconds': current-last_progress,
+282:                           'owned_processes': len(active), 'trigger': reason, 'effective_maximum_owned_RSS_GiB': c['rss_limit_kb']/1024**2,
+283:                           'original_guard_state': state(gp, gs), 'watchdog_pid': wd.pid}
+284:                 sample.update({'effective_maximum_seconds':c['maximum_seconds'],
+285:                                'wall_time_limit_disabled':deadline_epoch is None})
+286:                 samples.write(json.dumps(sample)+'\n'); samples.flush(); dump(out/'live_status.json', sample)
+287:                 if reason: break
+288:                 time.sleep(c.get('sample_seconds', 1))
+
+project/E022_m007_full_top_physical/experiment_results/runs/R001/attempts/AT019_core_synth/unlimited_wall_handoff/frozen/handoff_observer_d38.py L21-L74
+21:     fallback_epoch = None; confirmation_deadline = None
+22:     deadline = h.deadline(c)
+23:     while True:
+24:         try:
+25:             heartbeat = h.read(out/'heartbeat.json')
+26:             known.update({int(k):v for k,v in heartbeat.get('known',{}).items()})
+27:         except (FileNotFoundError,json.JSONDecodeError): pass
+28:         items = h.owned.owned_processes(h.owned.process_table(),leader,known)
+29:         active = {p:x for p,x in items.items() if not x['state'].startswith('Z')}
+30:         original = h.state(gp,gs)
+31:         try: end = h.read(out/'handoff_end.json')
+32:         except (FileNotFoundError,json.JSONDecodeError): end = None
+33:         monitor_alive = h.state(c['monitor_pid'],c['monitor_start']) is not None
+34:         watchdog_alive = h.state(wd['pid'],wd['start']) is not None
+35:         receipt = Path(c['attempt'])/'receipt.json'; sample = Path(c['attempt'])/'live_status.json'
+36:         if receipt.exists() and not active:
+37:             h.dump(observer/'completed.json',{'utc':h.now(),'reason':'original_receipt_and_no_active_owned',
+38:                 'original_receipt':str(receipt),'remaining_zombies_for_original_parent':[x for x in items.values()]})
+39:             return
+40:         abnormal = not monitor_alive or not watchdog_alive or original is None or (end and end.get('reason'))
+41:         if abnormal and fallback_epoch is None:
+42:             fallback_epoch = time.time(); confirmation_deadline = time.monotonic()+60
+43:             if deadline is None:
+44:                 stopped=h.stop_unlimited_fallback(c,observer,known,
+45:                     'unlimited_supervision_component_missing_or_failed')
+46:                 h.send(gp,gs,signal.SIGCONT)
+47:                 h.dump(observer/'fallback_owned_cleanup.json',{'utc':h.now(),
+48:                     'reason':'unlimited_supervision_component_missing_or_failed',
+49:                     'known_owned_identities':known,'active_owned_at_stop':list(stopped.values()),
+50:                     'old_wall_limit_not_reactivated':True})
+51:                 return
+52:             resumed = h.send(gp,gs,signal.SIGCONT)
+53:             h.dump(observer/'fallback_started.json',{'utc':h.now(),'original_guard_resumed':resumed,
+54:                 'monitor_alive':monitor_alive,'watchdog_alive':watchdog_alive,'handoff_end':end,
+55:                 'effective_cap_if_original_confirmed_GiB':c.get('old_cap_gib',128)})
+56:         if fallback_epoch is not None:
+57:             if receipt.exists() or (sample.exists() and sample.stat().st_mtime >= fallback_epoch):
+58:                 h.dump(observer/'fallback_confirmed.json',{'utc':h.now(),'evidence':str(receipt if receipt.exists() else sample),
+59:                     'effective_cap_GiB':c.get('old_cap_gib',128),'known_owned_identities':known})
+60:                 return
+61:             rss = sum(x['rss_kb'] for x in items.values())
+62:             protect = (rss >= c['rss_limit_kb'] or h.owned.mem_available_kb() <= c['minimum_available_kb']
+63:                        or (deadline is not None and time.time() >= deadline))
+64:             if original is None or time.monotonic() >= confirmation_deadline or protect:
+65:                 reason = 'original_guard_missing' if original is None else 'fallback_unconfirmed_or_protection_triggered'
+66:                 h.owned.OUT=observer
+67:                 if active: h.owned.stop_and_kill(leader,known,items,{'utc':h.now(),'reason':reason})
+68:                 h.send(gp,gs,signal.SIGCONT)
+69:                 h.dump(observer/'fallback_owned_cleanup.json',{'utc':h.now(),'reason':reason,
+70:                     'known_owned_identities':known,'active_owned_at_stop':list(active.values())})
+71:                 return
+72:         h.dump(observer/'live_status.json',{'utc':h.now(),'monitor_alive':monitor_alive,'watchdog_alive':watchdog_alive,
+73:             'original_guard_state':original,'active_owned':len(active),'fallback_confirmation_pending':fallback_epoch is not None})
+74:         time.sleep(.5)

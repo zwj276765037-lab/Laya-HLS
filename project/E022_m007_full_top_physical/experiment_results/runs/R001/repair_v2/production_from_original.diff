@@ -1,0 +1,81 @@
+--- original2147d041
++++ /home/user/EDA-202/zhuowenjun/Workspace/Laya/Laya-HLS/project/E002_Laya_HLS/experiment/vivado/module_design/q8_linear_and_restore/rtl/laya_m007_matrix_engine_v1.sv
+@@ -121,7 +121,7 @@
+  logic cycle_numeric,cycle_protocol;logic [31:0]  cycle_numeric_key;integer cycle_r,cycle_c,cycle_g,cycle_stage;
+  logic [12:0]  a_next,issue_count,mul_next,ps_next,add_next,write_next,commit_count;
+  logic [63:0][3:0]  pool_state;logic [63:0][12:0]  pool_seq;
+- logic [63:0][255:0][31:0]  op0,op1;
++ logic [8191:0] op0[0:63],op1[0:63];
+  logic [6:0]  math_debt,bias_debt;logic [2:0]  retire_debt;logic [9:0]  reserved_vectors;
+  logic [1:0]  holding_valid;logic [1:0][8:0]  holding_record;logic [1:0][4351:0]  holding_data;
+  logic current_h,request_h,have_current,have_requested,free_h,have_free;logic [1:0]  w_state;logic w_target;logic [9:0]  fetch_record;logic [63:0]  pending_w_tag;
+@@ -225,7 +225,7 @@
+    for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*add_rsp_tag[0][31]+32*a+16*add_rsp_tag[0][3]+c;ps_wr_mask[bank_index]=1;ps_wr_addr[bank_index]=2*add_rsp_tag[0][2:0]+add_rsp_tag[0][4];ps_wr_data[bank_index]=add_rsp_data[16*a+c];end
+   end else if(state==RUN&&write_next<issue_count&&pool_state[write_next[5:0]]==SUMREADY)begin
+    ps_wr_valid=1;ps_wr_tag=tag(0,ctx,write_next);
+-   for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*ctx+32*a+16*write_next[3]+c;ps_wr_mask[bank_index]=1;ps_wr_addr[bank_index]=2*write_next[2:0]+write_next[4];ps_wr_data[bank_index]=op0[write_next[5:0]][16*a+c];end
++   for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)begin bank_index=512*ctx+32*a+16*write_next[3]+c;ps_wr_mask[bank_index]=1;ps_wr_addr[bank_index]=2*write_next[2:0]+write_next[4];ps_wr_data[bank_index]=op0[write_next[5:0]][32*(16*a+c)+:32];end
+   end
+   add_rsp_ready=7'b0000001;if(add_rsp_tag[0][30])add_rsp_ready[0]=ps_wr_ready;
+   trace_commit=normal_write_ack;trace_commit_seq=ps_wr_rsp_tag[12:0];trace_commit_data=op0[ps_wr_rsp_tag[5:0]];
+@@ -258,6 +258,25 @@
+   end
+  end else begin:g_no_profile
+   assign max_issue_commit=32'b0;assign max_ps_feedback=32'b0;
++ end endgenerate
++ // D38: same asynchronous pools, static slot LHS and unchanged write priority.
++ generate for(genvar slot=0;slot<64;slot++)begin:g_operand_slot
++  always_ff @(posedge clk)begin
++   if(!rst_n)begin
++   end else begin
++    if(state==RUN)begin
++     if(format_valid&&format_tag[5:0]==slot)begin
++      op0[slot]<=converted;op1[slot]<=products;
++     end
++     if(mul_rsp_valid&&mul_rsp_ready&&mul_rsp_tag[5:0]==slot)op0[slot]<=mul_rsp_data;
++     if(ps_next<issue_count&&pool_state[ps_next[5:0]]==TERMREADY&&ps_next<32&&ps_next[5:0]==slot)op1[slot]<='0;
++    end
++    if(ps_rd_rsp_valid&&ps_rd_rsp_ready&&ps_rsp_math&&ps_rd_rsp_tag[18:13]==slot)begin
++     for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)op1[slot][32*(16*a+c)+:32]<=ps_rd_rsp_data[512*ps_rd_rsp_tag[28]+32*a+16*ps_rd_rsp_tag[16]+c];
++    end
++    if(add_rsp_valid[0]&&add_rsp_ready[0]&&!add_rsp_tag[0][30]&&add_rsp_tag[0][5:0]==slot)op0[slot]<=add_rsp_data;
++   end
++  end
+  end endgenerate
+  always_ff @(posedge clk)begin
+   if(!rst_n)begin
+@@ -323,16 +342,16 @@
+     case({a_rd_valid&&a_rd_ready,normal_write_ack})2'b10:math_debt<=math_debt+1;2'b01:math_debt<=math_debt-1;default:;endcase
+     if(format_valid)begin
+      if(pool_state[format_tag[5:0]]!=WAITDOT||pool_seq[format_tag[5:0]]!=format_tag[12:0]||format_tag[31]!=ctx)cycle_protocol=1;
+-     op0[format_tag[5:0]]<=converted;op1[format_tag[5:0]]<=products;pool_state[format_tag[5:0]]<=MULREADY;
++     pool_state[format_tag[5:0]]<=MULREADY;
+      for(i=0;i<256;i++)if(format_errors[i])numeric_candidate(16*format_tag[2:0]+i/16,global_column(s,16*format_tag[4:3]+i%16),format_tag[11:5],2);
+     end
+     if(mul_req_valid&&mul_req_ready)begin pool_state[mul_next[5:0]]<=MULWAIT;mul_next<=mul_next+1;end
+     if(mul_rsp_valid&&mul_rsp_ready)begin
+      if(pool_state[mul_rsp_tag[5:0]]!=MULWAIT)cycle_protocol=1;
+-     op0[mul_rsp_tag[5:0]]<=mul_rsp_data;pool_state[mul_rsp_tag[5:0]]<=TERMREADY;
++     pool_state[mul_rsp_tag[5:0]]<=TERMREADY;
+      for(i=0;i<256;i++)if(mul_rsp_data[i][30:23]==255)numeric_candidate(16*mul_rsp_tag[2:0]+i/16,global_column(s,16*mul_rsp_tag[4:3]+i%16),mul_rsp_tag[11:5],3);
+     end
+-    if(ps_next<issue_count&&pool_state[ps_next[5:0]]==TERMREADY&&ps_next<32)begin op1[ps_next[5:0]]<='0;pool_state[ps_next[5:0]]<=ADDREADY;ps_next<=ps_next+1;end
++    if(ps_next<issue_count&&pool_state[ps_next[5:0]]==TERMREADY&&ps_next<32)begin pool_state[ps_next[5:0]]<=ADDREADY;ps_next<=ps_next+1;end
+     if(math_read_fire)begin pool_state[ps_next[5:0]]<=PSWAIT;ps_next<=ps_next+1;end
+     if(math_add_fire)begin pool_state[add_next[5:0]]<=ADDWAIT;add_next<=add_next+1;end
+     if(ps_wr_valid&&ps_wr_ready&&!ps_wr_tag[30])begin pool_state[write_next[5:0]]<=WRITEWAIT;write_next<=write_next+1;end
+@@ -351,12 +370,12 @@
+    end
+    if(ps_rd_rsp_valid&&ps_rd_rsp_ready&&ps_rsp_math)begin
+     if(ps_rd_rsp_tag[28]!=ctx||pool_state[ps_rd_rsp_tag[18:13]]!=PSWAIT)cycle_protocol=1;
+-    for(integer a=0;a<16;a++)for(integer c=0;c<16;c++)op1[ps_rd_rsp_tag[18:13]][16*a+c]<=ps_rd_rsp_data[512*ps_rd_rsp_tag[28]+32*a+16*ps_rd_rsp_tag[16]+c];
++    
+     pool_state[ps_rd_rsp_tag[18:13]]<=ADDREADY;
+    end
+    if(add_rsp_valid[0]&&add_rsp_ready[0]&&!add_rsp_tag[0][30])begin
+     if(pool_state[add_rsp_tag[0][5:0]]!=ADDWAIT||add_rsp_tag[0][31]!=ctx)cycle_protocol=1;
+-    op0[add_rsp_tag[0][5:0]]<=add_rsp_data;pool_state[add_rsp_tag[0][5:0]]<=SUMREADY;
++    pool_state[add_rsp_tag[0][5:0]]<=SUMREADY;
+     for(i=0;i<256;i++)if(add_rsp_data[i][30:23]==255)numeric_candidate(16*add_rsp_tag[0][2:0]+i/16,global_column(s,16*add_rsp_tag[0][4:3]+i%16),add_rsp_tag[0][11:5],4);
+    end
+    // In-place bias can start after all math adds are actually issued, while each read waits its real final-group commit.
